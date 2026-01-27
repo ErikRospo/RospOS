@@ -18,26 +18,13 @@ Design principles:
 * Simple, fixed-size 32-bit instructions
 * Memory-mapped I/O for hardware devices
 
-
-## Register File
-
-| Register | Purpose              | Notes                          |
-| -------- | -------------------- | ------------------------------ |
-| r0       | Constant 0           | Always reads 0, writes ignored |
-| r1–r13   | General purpose      | Used freely by programs        |
-| r14      | Stack pointer (SP)   | Stack grows downward           |
-| r15      | Program counter (PC) | Automatically updated          |
-
-* ABI convention:
-  * Caller-saved: r1–r7
-  * Callee-saved: r8–r13
-
+For register file, see [Calling Convention (ABI)](#calling-convention-abi).
 
 ## Instruction Set
 
 `rd`: destination register (4 bits encoding r0–r15)
 `rs`, `rs1`, `rs2`: source registers (4 bits encoding r0–r15)
-`imm`: immediate value (16 bits for arithmetic, 12 bits for load/store/branch)
+`imm`: immediate value (16 bits for arithmetic, 12 bits for load/store/branch). Signed where applicable.
 `offset`: memory offset (12 bits, signed)
 `*`: unused bits (set to 0)
 
@@ -59,6 +46,16 @@ Design principles:
 | SHL             | `SHL rd, rs, imm`  | Logical shift left        | `0000 1011 | rd | rs | imm`  |
 | SHR             | `SHR rd, rs, imm`  | Logical shift right       | `0000 1100 | rd | rs | imm`  |
 | SAR             | `SAR rd, rs, imm`  | Arithmetic shift right    | `0000 1101 | rd | rs | imm`  |
+
+Loading an immediate value into a register can be done with `ADDI rd, r0, imm`. That is, adding an immediate to register r0 (which is always 0). Given that immediates are 16 bits, loading a full 32-bit immediate requires 3 instructions:
+
+```
+ADDI rd, r0, 0xBEEF        ; Load lower 16 bits
+SHL rd, rd, 16             ; Shift left by 16 bits
+ADDI rd, rd, 0xDEAD        ; Add upper 16 bits
+```
+
+`rd` now contains `0xDEADBEEF`.
 
 ### Multiply/Divide
 
@@ -124,13 +121,14 @@ All other opcodes should be treated as NOPs, but this behavior should not be rel
 
 ## Calling Convention (ABI)
 
-* Stack grows downward (`r14` = SP)
-* Function call:
-  * Arguments: r1–r4 (or stack if >4)
-  * Return: r1
-* Caller saves: r1–r7
-* Callee saves: r8–r13
-* Return: `RET = JALR r0, r1, 0`
+r0   = hardwired zero
+r1   = return value
+r2–r5 = arg0–arg3
+r6–r9 = caller-saved
+r10–r12 = callee-saved
+r13 = link register (return address)
+r14 = stack pointer
+r15 = PC
 
 
 ##  I/O / Virtual Hardware Design
@@ -156,16 +154,8 @@ All other opcodes should be treated as NOPs, but this behavior should not be rel
   * Gate (on/off)
 * Simple write-only interface
 
-### Interrupts
-* Vector table at `0xFFFF0000`
-* Basic interrupt handling:
-  * Save registers r1–r13
-  * Save PC to r13
-  * Jump to handler
-* It is up to the caller to restore state and return via `SRET`
-
 ### Reset Behavior
-* Clear registers r1–r13 to 0
+* Clear registers to 0
 * Stack pointer (r14) initialized to top of RAM (`0x0FFFFFFF`)
 * PC set to `0x00000000`
 * Execution begins
@@ -173,4 +163,3 @@ All other opcodes should be treated as NOPs, but this behavior should not be rel
 ## Instruction Encoding
 
 * Fixed 32-bit instructions
-* 3-operand format where possible: `opcode | rd | rs1 | rs2/imm`

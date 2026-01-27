@@ -117,8 +117,58 @@ class VM:
         self.registers = Registers()
         self.memory = Memory()
 
+    @property
+    def pc(self):
+        return self.registers.regs["R15"].get()
+
+    @pc.setter
+    def pc(self, value):
+        self.registers.regs["R15"].set(value)
+
+    @property
+    def sp(self):
+        return self.registers.regs["R14"].get()
+
+    @sp.setter
+    def sp(self, value):
+        self.registers.regs["R14"].set(value)
+
+    def execute_instruction(self, instruction: bytes):
+        instruction_byte = instruction[0]
+        instr = instructions[instruction_byte]
+        rd=(instruction[1] >> 4) & 0x0F
+        rs1=(instruction[1] >> 0) & 0x0F
+        rs2=(instruction[2] >> 4) & 0x0F
+        arith_imm=int.from_bytes(instruction[2:4], 'little', signed=True)
+        branch_offset=int.from_bytes(instruction[2:4], 'little', signed=True)&0x0FFF
+        # offset for load/store and imm for branch/jump are signed
+        if instr.name == "ADD":
+            val = self.registers[f"R{rs1}"] + self.registers[f"R{rs2}"]
+            self.registers[f"R{rd}"] = val
+        elif instr.name == "ADDI":
+            val = self.registers[f"R{rs1}"] + arith_imm
+            self.registers[f"R{rd}"] = val
+        elif instr.name == "SUB":
+            val = self.registers[f"R{rs1}"] - self.registers[f"R{rs2}"]
+            self.registers[f"R{rd}"] = val
+        elif instr.name == "SUBI":
+            val = self.registers[f"R{rs1}"] - arith_imm
+            self.registers[f"R{rd}"] = val
+        elif instr.name == "NEG":
+            val = -self.registers[f"R{rs1}"]
+            self.registers[f"R{rd}"] = val
+        elif instr.name == "AND":
+            val = self.registers[f"R{rs1}"] & self.registers[f"R{rs2}"]
+            self.registers[f"R{rd}"] = val
+        elif instr.name == "OR":
+            val = self.registers[f"R{rs1}"] | self.registers[f"R{rs2}"]
+            self.registers[f"R{rd}"] = val
+        
+        
     def __repr__(self):
-        return f"Registers: {self.registers}\nMemory Size: {self.memory.size} bytes"
+        return (
+            f"Registers: {self.registers}\nMemory Size: 0x{self.memory.size:0X} bytes"
+        )
 
     def dump_state(self):
         with open("vm_state_dump.txt", "w") as f:
@@ -131,5 +181,6 @@ if __name__ == "__main__":
     vm = VM()
     vm.registers["R1"] = 42
     vm.memory.store(0, 12345678, 4)
+    vm.memory.store(4, 87654321, 4)
     print(vm)
     vm.dump_state()
