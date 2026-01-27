@@ -1,3 +1,4 @@
+from typing import List
 class Register:
     def __init__(self, name):
         self.name = name
@@ -48,7 +49,61 @@ class Memory:
         
 
 
+class Instruction:
+    def __init__(self,name:str,opcode:int) -> None:
+        self.name=name
+        self.opcode=opcode
 
+__instructions=[("ADD",  0b0000_0000),
+              ("ADDI",   0b0000_0001),
+              ("SUB",    0b0000_0010),
+              ("NEG",    0b0000_0011),
+              ("AND",    0b0000_0100),
+              ("OR",     0b0000_0101),
+              ("XOR",    0b0000_0110),
+              ("ANDI",   0b0000_0111),
+              ("ORI",    0b0000_1000),
+              ("XORI",   0b0000_1001),
+              ("NOT",    0b0000_1010),
+              ("SHL",    0b0000_1011),
+              ("SHR",    0b0000_1100),
+              ("SAR",    0b0000_1101),
+              
+              ("MUL",    0b0000_1110),
+              ("MULH",   0b0000_1111),
+              ("DIV",    0b0001_0000),
+              ("DIVU",   0b0001_0001),
+              ("REM",    0b0001_0010),
+              ("REMU",   0b0001_0011),
+                
+              ("LB",     0b0001_0100),
+              ("LBU",    0b0001_0101),
+              ("LH",     0b0001_0110),
+              ("LHU",    0b0001_0111),
+              ("LW",     0b0001_1000),
+              ("SB",     0b0001_1001),
+              ("SH",     0b0001_1010),
+              ("SW",     0b0001_1011),
+              
+              ("BEQ",    0b0001_1100),
+              ("BNE",    0b0001_1101),
+              ("BLT",    0b0001_1110),
+              ("BGE",    0b0001_1111),
+              ("BLTU",   0b0010_0000),
+              ("BGEU",   0b0010_0001),
+              ("JAL",    0b0010_0010),
+              ("JAR",    0b0010_0011),
+              
+              ("ECALL",  0b0010_0100),
+              ("SRET",   0b0010_0101),
+              ("EBREAK", 0b0010_0110),
+              ("NOP",    0b1111_1111),
+              ]
+
+instructions:List[Instruction]=[Instruction("NOP",i) for i in range(256)]
+for name,opcode in __instructions:
+    instructions[opcode]=Instruction(name,opcode)
+    
 class VM:
     def __init__(self):
         self.registers = Registers()

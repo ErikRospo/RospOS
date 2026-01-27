@@ -104,6 +104,11 @@ Design principles:
 | ECALL       | `ECALL`  | Trap to OS / syscall | `0010 0100 | 0000*` |
 | SRET        | `SRET`   | Return from trap     | `0010 0101 | 0000*` |
 | EBREAK      | `EBREAK` | Debug / breakpoint   | `0010 0110 | 0000*` |
+| NOP         | `NOP`    | NOP                  | `1111 1111 | 0000*`
+
+### Other
+
+All other opcodes should be treated as NOPs, but this behavior should not be relied upon. The only designated NOP is opcode `0xFF`.
 
 
 ## Memory Map
