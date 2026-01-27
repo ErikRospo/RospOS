@@ -33,7 +33,7 @@ For register file, see [Calling Convention (ABI)](#calling-convention-abi).
 | Instruction     | Syntax             | Description               | Binary Encoding |
 | --------------- | ------------------ | ------------------------- | ---------------- |
 | ADD             | `ADD rd, rs1, rs2` | rd = rs1 + rs2            | `0000 0000 | rd | rs1 | rs2` |
-| ADDI            | `ADDI rd, rs, imm` | rd = rs + imm             | `0000 0001 | rd | rs | imm`  |
+| ADDI            | `ADDI rd, rs, imm` | rd = rs + imm             | `0000 0001 | rd | rs | imm `  |
 | SUB             | `SUB rd, rs1, rs2` | rd = rs1 - rs2            | `0000 0010 | rd | rs1 | rs2` |
 | NEG             | `NEG rd, rs`       | rd = -rs                  | `0000 0011 | rd | rs | 0000` |
 | AND             | `AND rd, rs1, rs2` | Bitwise AND               | `0000 0100 | rd | rs1 | rs2` |
@@ -70,16 +70,16 @@ ADDI rd, rd, 0xDEAD        ; Add upper 16 bits
 
 ### Load/Store
 
-| Instruction | Syntax              | Notes          | Binary Encoding |
-| ----------- | ------------------- | -------------- | ---------------- |
-| LB          | `LB rd, offset(rs)` | Load byte      | `0001 0100 | rd | rs | offset` |
-| LBU         | `LBU rd, offset(rs)`| Load byte unsigned | `0001 0101 | rd | rs | offset` |
-| LH          | `LH rd, offset(rs)` | Load halfword  | `0001 0110 | rd | rs | offset` |
+| Instruction | Syntax              | Notes                  | Binary Encoding          |
+| ----------- | ------------------- | ---------------------- | ------------------------ |
+| LB          | `LB rd, offset(rs)` | Load byte              | `0001 0100 | rd | rs | offset` |
+| LBU         | `LBU rd, offset(rs)`| Load byte unsigned     | `0001 0101 | rd | rs | offset` |
+| LH          | `LH rd, offset(rs)` | Load halfword          | `0001 0110 | rd | rs | offset` |
 | LHU         | `LHU rd, offset(rs)`| Load halfword unsigned | `0001 0111 | rd | rs | offset` |
-| LW          | `LW rd, offset(rs)` | Load word      | `0001 1000 | rd | rs | offset` |
-| SB          | `SB rs, offset(rd)` | Store byte     | `0001 1001 | rs | rd | offset` |
-| SH          | `SH rs, offset(rd)` | Store halfword | `0001 1010 | rs | rd | offset` |
-| SW          | `SW rs, offset(rd)` | Store word     | `0001 1011 | rs | rd | offset` |
+| LW          | `LW rd, offset(rs)` | Load word              | `0001 1000 | rd | rs | offset` |
+| SB          | `SB rs, offset(rd)` | Store byte             | `0001 1001 | rs | rd | offset` |
+| SH          | `SH rs, offset(rd)` | Store halfword         | `0001 1010 | rs | rd | offset` |
+| SW          | `SW rs, offset(rd)` | Store word             | `0001 1011 | rs | rd | offset` |
 
 ### Branch & Jump
 
@@ -94,6 +94,16 @@ ADDI rd, rd, 0xDEAD        ; Add upper 16 bits
 | JAL         | `JAL rd, imm`        | Jump + link (call)   | `0010 0010 | rd | imm` |
 | JALR        | `JALR rd, rs, imm`   | Jump register + link | `0010 0011 | rd | rs | imm` |
 
+Plain jumps (no link) can be done by using `r0` as the destination register:
+
+```
+JAL r0, imm        ; Jump to imm, discard return address
+```
+
+Signed comparisons treat values as two's complement integers. Unsigned comparisons treat values as standard binary integers.
+No flags register; all comparisons are done explicitly via branch instructions.
+
+
 ### System / Privileged
 
 | Instruction | Syntax   | Description          | Binary Encoding |
@@ -105,8 +115,7 @@ ADDI rd, rd, 0xDEAD        ; Add upper 16 bits
 
 ### Other
 
-All other opcodes should be treated as NOPs, but this behavior should not be relied upon. The only designated NOP is opcode `0xFF`.
-
+Undefined opcodes are treated as NOPs.
 
 ## Memory Map
 
@@ -126,10 +135,11 @@ r1   = return value
 r2–r5 = arg0–arg3
 r6–r9 = caller-saved
 r10–r12 = callee-saved
-r13 = link register (return address)
-r14 = stack pointer
-r15 = PC
+r13 = frame pointer
+r14 = link register (return address)
+r15 = stack pointer
 
+Stack pointer is initialized to top of RAM (`0x0FFFFFFF`) on reset. Stack grows downward. 8-byte alignment.
 
 ##  I/O / Virtual Hardware Design
 
@@ -156,8 +166,8 @@ r15 = PC
 
 ### Reset Behavior
 * Clear registers to 0
-* Stack pointer (r14) initialized to top of RAM (`0x0FFFFFFF`)
-* PC set to `0x00000000`
+* Stack pointer (r15) initialized to top of RAM (`0x0FFFFFFF`)
+* PC set to `0xFFFF0000` (start of kernel space)
 * Execution begins
 
 ## Instruction Encoding
