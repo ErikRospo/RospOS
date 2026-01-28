@@ -27,11 +27,10 @@ Each instruction is 32 bits wide and follows a fixed format. The binary encoding
 Major Opcode Legend (bits [31:28]):
 * 0000 = R-type arithmetic (register)
 * 0001 = I-type arithmetic/logical (immediate)
-* 0010 = R-type multiply/divide
-* 0011 = Load/Store
-* 0100 = Branch
-* 0101 = Jump
-* 0110 = System / privileged
+* 0010 = Load/Store
+* 0011 = Branch
+* 0100 = Jump
+* 0101 = System / privileged
 * 1111 = NOP / special
 
 
@@ -87,7 +86,7 @@ Bit fields:
 Bit fields:
 | 31-28 | 27-24 | 23-20 | 19-16 | 15-0                     |
 |-------|-------|-------|-------|--------------------------|
-| opcode| sub-op|   rd  |  rs   | immediate (16-bit offset) |
+| opcode| sub-op|   rd  |  rs   | immediate (16-bit offset)|
 
 | Instruction | Major Opcode | Sub-Opcode | Description                          |
 |-------------|--------------|------------|--------------------------------------|
@@ -141,9 +140,9 @@ Bit fields:
 
 | Instruction | Major Opcode | Sub-Opcode | Description                          |
 |-------------|--------------|------------|--------------------------------------|
-| ECALL       | 0110         | 0000       | environment call / syscall           |
-| SRET        | 0110         | 0001       | return from syscall / supervisor mode|
-| BREAK       | 0110         | 0010       | breakpoint / debug trap              |
+| ECALL       | 0101         | 0000       | environment call / syscall           |
+| SRET        | 0101         | 0001       | return from syscall / supervisor mode|
+| BREAK       | 0101         | 0010       | breakpoint / debug trap              |
 
 ### NOP / Special
 
@@ -155,7 +154,10 @@ Bit fields:
 
 | Instruction | Major Opcode | Sub-Opcode | Description                          |
 |-------------|--------------|------------|--------------------------------------|
-| NOP         | 1111         | 0000       | no operation
+| NOP         | 1111         | 0000       | no operation                         |
+
+Any opcode/sub-opcode combinations not listed above are reserved/invalid.
+Executing an invalid instruction SHOULD be a NOP, but MUST NOT be relied upon. 
 
 ## Memory Map
 
