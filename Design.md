@@ -139,6 +139,7 @@ Bit fields:
 Similar to branch target calculation, jump target is computed as:
 ```
 target = PC + (sign-ext(imm) << 2)
+rd = PC + 4
 ```
 
 ### System / Privileged
@@ -184,7 +185,7 @@ Executing an invalid instruction should trigger an illegal instruction exception
 
 ## Calling Convention (ABI)
 
-r0   = hardwired zero
+r0   = hardwired zero 
 r1   = return value
 r2–r5 = arg0–arg3
 r6–r9 = caller-saved
