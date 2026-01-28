@@ -8,7 +8,7 @@ Goal:
 * `nano`-like text editor
 
 * `Audio`: SID-like synth
-* `Display`: 128×128 monochrome framebuffer
+* `Display`: 128×128 2-bit framebuffer
 * `TTY`: terminal interface
 
 Design principles:
@@ -20,102 +20,142 @@ Design principles:
 
 For register file, see [Calling Convention (ABI)](#calling-convention-abi).
 
-## Instruction Set
+## Instruction Encoding
 
-`rd`: destination register (4 bits encoding r0–r15)
-`rs`, `rs1`, `rs2`: source registers (4 bits encoding r0–r15)
-`imm`: immediate value (16 bits for arithmetic, 12 bits for load/store/branch). Signed where applicable.
-`offset`: memory offset (12 bits, signed)
-`*`: unused bits (set to 0)
+Each instruction is 32 bits wide and follows a fixed format. The binary encoding is divided into fields as follows:
 
-### Arithmetic & Logic
+Major Opcode Legend (bits [31:28]):
+* 0000 = R-type arithmetic (register)
+* 0001 = I-type arithmetic/logical (immediate)
+* 0010 = R-type multiply/divide
+* 0011 = Load/Store
+* 0100 = Branch
+* 0101 = Jump
+* 0110 = System / privileged
+* 1111 = NOP / special
 
-| Instruction     | Syntax             | Description               | Binary Encoding |
-| --------------- | ------------------ | ------------------------- | ---------------- |
-| ADD             | `ADD rd, rs1, rs2` | rd = rs1 + rs2            | `0000 0000 | rd | rs1 | rs2` |
-| ADDI            | `ADDI rd, rs, imm` | rd = rs + imm             | `0000 0001 | rd | rs | imm `  |
-| SUB             | `SUB rd, rs1, rs2` | rd = rs1 - rs2            | `0000 0010 | rd | rs1 | rs2` |
-| NEG             | `NEG rd, rs`       | rd = -rs                  | `0000 0011 | rd | rs | 0000` |
-| AND             | `AND rd, rs1, rs2` | Bitwise AND               | `0000 0100 | rd | rs1 | rs2` |
-| OR              | `OR rd, rs1, rs2`  | Bitwise OR                | `0000 0101 | rd | rs1 | rs2` |
-| XOR             | `XOR rd, rs1, rs2` | Bitwise XOR               | `0000 0110 | rd | rs1 | rs2` |
-| ANDI            | `ANDI rd, rs, imm` | Bitwise AND immediate     | `0000 0111 | rd | rs | imm`  |
-| ORI             | `ORI rd, rs, imm`  | Bitwise OR immediate      | `0000 1000 | rd | rs | imm`  |
-| XORI            | `XORI rd, rs, imm` | Bitwise XOR immediate     | `0000 1001 | rd | rs | imm`  |
-| NOT             | `NOT rd, rs`       | rd = ~rs                  | `0000 1010 | rd | rs | 0000` |
-| SHL             | `SHL rd, rs, imm`  | Logical shift left        | `0000 1011 | rd | rs | imm`  |
-| SHR             | `SHR rd, rs, imm`  | Logical shift right       | `0000 1100 | rd | rs | imm`  |
-| SAR             | `SAR rd, rs, imm`  | Arithmetic shift right    | `0000 1101 | rd | rs | imm`  |
 
-Loading an immediate value into a register can be done with `ADDI rd, r0, imm`. That is, adding an immediate to register r0 (which is always 0). Given that immediates are 16 bits, loading a full 32-bit immediate requires 3 instructions:
 
-```
-ADDI rd, r0, 0xBEEF        ; Load lower 16 bits
-SHL rd, rd, 16             ; Shift left by 16 bits
-ADDI rd, rd, 0xDEAD        ; Add upper 16 bits
-```
+### R-Type Arithmetic / Logical (register)
 
-`rd` now contains `0xDEADBEEF`.
+Bit fields:
 
-### Multiply/Divide
+| 31-28 | 27-24 | 23-20 | 19-16 | 15-12 | 11-0          |
+|-------|-------|-------|-------|-------|---------------|
+| opcode| sub-op|   rd  |  rs1  |  rs2  |   unused      |
 
-| Instruction | Syntax              | Description        | Binary Encoding |
-| ----------- | ------------------- | ------------------ | ---------------- |
-| MUL         | `MUL rd, rs1, rs2`  | Signed multiply    | `0000 1110 | rd | rs1 | rs2` |
-| MULH        | `MULH rd, rs1, rs2` | Optional high bits | `0000 1111 | rd | rs1 | rs2` |
-| DIV         | `DIV rd, rs1, rs2`  | Signed division    | `0001 0000 | rd | rs1 | rs2` |
-| DIVU        | `DIVU rd, rs1, rs2` | Unsigned division  | `0001 0001 | rd | rs1 | rs2` |
-| REM         | `REM rd, rs1, rs2`  | Remainder          | `0001 0010 | rd | rs1 | rs2` |
-| REMU        | `REMU rd, rs1, rs2` | Unsigned remainder | `0001 0011 | rd | rs1 | rs2` |
 
-### Load/Store
+| Instruction | Major Opcode | Sub-Opcode | Description                          |
+|-------------|--------------|------------|--------------------------------------|
+| ADD         | 0000         | 0000       | rd = rs1 + rs2                       |
+| SUB         | 0000         | 0001       | rd = rs1 - rs2                       |
+| AND         | 0000         | 0010       | rd = rs1 & rs2                       |
+| OR          | 0000         | 0011       | rd = rs1 | rs2                       |
+| XOR         | 0000         | 0100       | rd = rs1 ^ rs2                       |
+| MUL         | 0000         | 0101       | rd = rs1 * rs2 (low 32 bits)         |
+| MULH        | 0000         | 0110       | rd = high 32 bits of rs1 * rs2       |
+| NEG         | 0000         | 0111       | rd = -rs1                            |
+| NOT         | 0000         | 1000       | rd = ~rs1                            |
+| SHL         | 0000         | 1001       | rd = rs1 << (rs2 & 31)               |
+| SHR         | 0000         | 1010       | rd = logical shift right             |
+| SAR         | 0000         | 1011       | rd = arithmetic shift right          |
+| DIV         | 0000         | 1100       | rd = rs1 / rs2 (signed)              |
+| DIVU        | 0000         | 1101       | rd = rs1 / rs2 (unsigned)            |
+| REM         | 0000         | 1110       | rd = rs1 % rs2 (signed)              |
+| REMU        | 0000         | 1111       | rd = rs1 % rs2 (unsigned)            |
 
-| Instruction | Syntax              | Notes                  | Binary Encoding          |
-| ----------- | ------------------- | ---------------------- | ------------------------ |
-| LB          | `LB rd, offset(rs)` | Load byte              | `0001 0100 | rd | rs | offset` |
-| LBU         | `LBU rd, offset(rs)`| Load byte unsigned     | `0001 0101 | rd | rs | offset` |
-| LH          | `LH rd, offset(rs)` | Load halfword          | `0001 0110 | rd | rs | offset` |
-| LHU         | `LHU rd, offset(rs)`| Load halfword unsigned | `0001 0111 | rd | rs | offset` |
-| LW          | `LW rd, offset(rs)` | Load word              | `0001 1000 | rd | rs | offset` |
-| SB          | `SB rs, offset(rd)` | Store byte             | `0001 1001 | rs | rd | offset` |
-| SH          | `SH rs, offset(rd)` | Store halfword         | `0001 1010 | rs | rd | offset` |
-| SW          | `SW rs, offset(rd)` | Store word             | `0001 1011 | rs | rd | offset` |
+### I-Type Arithmetic / Logical (immediate)
 
-### Branch & Jump
+Bit fields:
 
-| Instruction | Syntax               | Description          | Binary Encoding |
-| ----------- | -------------------- | -------------------- | ---------------- |
-| BEQ         | `BEQ rs1, rs2, imm`  | Branch if equal      | `0001 1100 | rs1 | rs2 | imm` |
-| BNE         | `BNE rs1, rs2, imm`  | Branch if not equal  | `0001 1101 | rs1 | rs2 | imm` |
-| BLT         | `BLT rs1, rs2, imm`  | Branch if less than  | `0001 1110 | rs1 | rs2 | imm` |
-| BGE         | `BGE rs1, rs2, imm`  | Branch if greater/equal | `0001 1111 | rs1 | rs2 | imm` |
-| BLTU        | `BLTU rs1, rs2, imm` | Unsigned less than   | `0010 0000 | rs1 | rs2 | imm` |
-| BGEU        | `BGEU rs1, rs2, imm` | Unsigned greater/equal | `0010 0001 | rs1 | rs2 | imm` |
-| JAL         | `JAL rd, imm`        | Jump + link (call)   | `0010 0010 | rd | imm` |
-| JALR        | `JALR rd, rs, imm`   | Jump register + link | `0010 0011 | rd | rs | imm` |
+| 31-28 | 27-24 | 23-20 | 19-16 | 15-0                     |
+|-------|-------|-------|-------|--------------------------|
+| opcode| sub-op|   rd  |  rs   | immediate (16-bit value) |
 
-Plain jumps (no link) can be done by using `r0` as the destination register:
 
-```
-JAL r0, imm        ; Jump to imm, discard return address
-```
+| Instruction | Major Opcode | Sub-Opcode | Description                          |
+|-------------|--------------|------------|--------------------------------------|
+| ADDI        | 0001         | 0000       | rd = rs + sign-extended imm          |
+| ANDI        | 0001         | 0001       | rd = rs & sign-extended imm          |
+| ORI         | 0001         | 0010       | rd = rs | sign-extended imm          |
+| XORI        | 0001         | 0011       | rd = rs ^ sign-extended imm          |
+| SHLI        | 0001         | 0100       | rd = rs << (imm & 31)                |
+| SHRI        | 0001         | 0101       | rd = logical shift right by imm      |
+| SARI        | 0001         | 0110       | rd = arithmetic shift right by imm   |
 
-Signed comparisons treat values as two's complement integers. Unsigned comparisons treat values as standard binary integers.
-No flags register; all comparisons are done explicitly via branch instructions.
+### Load / Store (I-Type)
+Bit fields:
+| 31-28 | 27-24 | 23-20 | 19-16 | 15-0                     |
+|-------|-------|-------|-------|--------------------------|
+| opcode| sub-op|   rd  |  rs   | immediate (16-bit offset) |
 
+| Instruction | Major Opcode | Sub-Opcode | Description                          |
+|-------------|--------------|------------|--------------------------------------|
+| LB          | 0010         | 0000       | rd = sign-extended byte from rs + offset |
+| LBU         | 0010         | 0001       | rd = zero-extended byte from rs + offset |
+| LH          | 0010         | 0010       | rd = sign-extended halfword from rs + offset |
+| LHU         | 0010         | 0011       | rd = zero-extended halfword from rs + offset |
+| LW          | 0010         | 0100       | rd = word from rs + offset |
+| SB          | 0010         | 0101       | store low byte rd → rs + offset |
+| SH          | 0010         | 0110       | store halfword rd → rs + offset |
+| SW          | 0010         | 0111       | store word rd → rs + offset |
+
+### Branch (B-Type)
+
+Bit fields:
+
+| 31-28 | 27-24 | 23-20 | 19-16 | 15-0                     |
+|-------|-------|-------|-------|--------------------------|
+| opcode| sub-op|  rs1  |  rs2  | immediate (16-bit offset)|
+
+| Instruction | Major Opcode | Sub-Opcode | Description                          |
+|-------------|--------------|------------|--------------------------------------|
+| BEQ         | 0011         | 0000       | branch if rs1 == rs2
+| BNE         | 0011         | 0001       | branch if rs1 != rs2
+| BLT         | 0011         | 0010       | branch if rs1 < rs2 (signed)
+| BGE         | 0011         | 0011       | branch if rs1 >= rs2 (signed)
+| BLTU        | 0011         | 0100       | branch if rs1 < rs2 (unsigned)
+| BGEU        | 0011         | 0101       | branch if rs1 >= rs2 (unsigned)
+
+### Jump
+
+Bit fields:
+
+| 31-28 | 27-24 | 23-20 | 19-16 | 15-0                     |
+|-------|-------|-------|-------|--------------------------|
+| opcode| sub-op|   rd  |  rs   | immediate (16-bit offset)|
+
+| Instruction | Major Opcode | Sub-Opcode | Description                          |
+|-------------|--------------|------------|--------------------------------------|
+| JAL         | 0100         | 0000       | jump PC-relative, rd = return address|
+| JALR        | 0100         | 0001       | jump to rs + imm, rd = return address|
 
 ### System / Privileged
 
-| Instruction | Syntax   | Description          | Binary Encoding |
-| ----------- | -------- | -------------------- | ---------------- |
-| ECALL       | `ECALL`  | Trap to OS / syscall | `0010 0100 | 0000*` |
-| SRET        | `SRET`   | Return from trap     | `0010 0101 | 0000*` |
-| BREAK       | `BREAK`  | Debug / breakpoint   | `0010 0110 | 0000*` |
-| NOP         | `NOP`    | NOP                  | `1111 1111 | 0000*`
+Bit fields:
 
-### Other
+| 31-28 | 27-24 | 23-0                             |
+|-------|-------|----------------------------------|
+| opcode| sub-op|   unused                         |
 
-Undefined opcodes are treated as NOPs.
+
+| Instruction | Major Opcode | Sub-Opcode | Description                          |
+|-------------|--------------|------------|--------------------------------------|
+| ECALL       | 0110         | 0000       | environment call / syscall           |
+| SRET        | 0110         | 0001       | return from syscall / supervisor mode|
+| BREAK       | 0110         | 0010       | breakpoint / debug trap              |
+
+### NOP / Special
+
+Bit fields:
+
+| 31-28 | 27-24 | 23-0                     |
+|-------|-------|--------------------------|
+| opcode| sub-op|        unused            |
+
+| Instruction | Major Opcode | Sub-Opcode | Description                          |
+|-------------|--------------|------------|--------------------------------------|
+| NOP         | 1111         | 0000       | no operation
 
 ## Memory Map
 
@@ -169,7 +209,3 @@ Stack pointer is initialized to top of RAM (`0x0FFFFFFF`) on reset. Stack grows 
 * Stack pointer (r15) initialized to top of RAM (`0x0FFFFFFF`)
 * PC set to `0xFFFF0000` (start of kernel space)
 * Execution begins
-
-## Instruction Encoding
-
-* Fixed 32-bit instructions
