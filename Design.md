@@ -6,10 +6,9 @@ Goal:
 * `sh`-like shell
 * `bc`-like calculator
 * `nano`-like text editor
-
-* `Audio`: SID-like synth
-* `Display`: 128×128 2-bit framebuffer
-* `TTY`: terminal interface
+* **Audio**: SID-like synth
+* **Display**: 128×128 2-bit framebuffer
+* **TTY**: terminal interface
 
 Design principles:
 
@@ -17,6 +16,7 @@ Design principles:
 * Load/store architecture (RISC)
 * Simple, fixed-size 32-bit instructions
 * Memory-mapped I/O for hardware devices
+* 16 general-purpose registers
 
 For register file, see [Calling Convention (ABI)](#calling-convention-abi).
 
