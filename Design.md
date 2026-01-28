@@ -74,16 +74,18 @@ Bit fields:
 
 | Instruction | Major Opcode | Sub-Opcode | Description                          |
 |-------------|--------------|------------|--------------------------------------|
-| ADDI        | 0001         | 0000       | rd = rs + sign-extended imm          |
-| ANDI        | 0001         | 0001       | rd = rs & sign-extended imm          |
-| ORI         | 0001         | 0010       | rd = rs | sign-extended imm          |
-| XORI        | 0001         | 0011       | rd = rs ^ sign-extended imm          |
+| ADDI        | 0001         | 0000       | rd = rs + *sign*-extended imm          |
+| ANDI        | 0001         | 0001       | rd = rs & *zero*-extended imm          |
+| ORI         | 0001         | 0010       | rd = rs | *zero*-extended imm          |
+| XORI        | 0001         | 0011       | rd = rs ^ *zero*-extended imm          |
 | SHLI        | 0001         | 0100       | rd = rs << (imm & 31)                |
 | SHRI        | 0001         | 0101       | rd = logical shift right by imm      |
 | SARI        | 0001         | 0110       | rd = arithmetic shift right by imm   |
 
 ### Load / Store (I-Type)
+
 Bit fields:
+
 | 31-28 | 27-24 | 23-20 | 19-16 | 15-0                     |
 |-------|-------|-------|-------|--------------------------|
 | opcode| sub-op|   rd  |  rs   | immediate (16-bit offset)|
@@ -116,6 +118,11 @@ Bit fields:
 | BLTU        | 0011         | 0100       | branch if rs1 < rs2 (unsigned)
 | BGEU        | 0011         | 0101       | branch if rs1 >= rs2 (unsigned)
 
+Branch target is computed as PC + sign-extended immediate in instructions.
+```
+target = PC + (sign-ext(imm) << 2)
+```
+
 ### Jump
 
 Bit fields:
@@ -128,6 +135,11 @@ Bit fields:
 |-------------|--------------|------------|--------------------------------------|
 | JAL         | 0100         | 0000       | jump PC-relative, rd = return address|
 | JALR        | 0100         | 0001       | jump to rs + imm, rd = return address|
+
+Similar to branch target calculation, jump target is computed as:
+```
+target = PC + (sign-ext(imm) << 2)
+```
 
 ### System / Privileged
 
@@ -157,7 +169,7 @@ Bit fields:
 | NOP         | 1111         | 0000       | no operation                         |
 
 Any opcode/sub-opcode combinations not listed above are reserved/invalid.
-Executing an invalid instruction SHOULD be a NOP, but MUST NOT be relied upon. 
+Executing an invalid instruction should trigger an illegal instruction exception.
 
 ## Memory Map
 
@@ -181,7 +193,7 @@ r13 = frame pointer
 r14 = link register (return address)
 r15 = stack pointer
 
-Stack pointer is initialized to top of RAM (`0x0FFFFFFF`) on reset. Stack grows downward. 8-byte alignment.
+Stack pointer is initialized to top of RAM (`0x0FFFFFFF`) on reset. Stack grows downward. 8-byte alignment. Unaligned accesses cause exceptions.
 
 ##  I/O / Virtual Hardware Design
 
