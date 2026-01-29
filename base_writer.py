@@ -15,8 +15,9 @@ fib_program = [
     # Write to TTY (must convert to decimal ASCII):
     0b0001_0000, 0x60, 0x00, 10, # ADDI r6, r0, 10 (r6=10 for division/modulo)
     # 0x10000000 is TTY MMIO address
+    0b0101_0000, 0x00, 0x00, 0x00,  # ECALL as marker
     0b0001_0000, 0x20, 0x00, 0x01,  # ADDI r2, r0, 1 (r2 = 1 for shifting)
-    0b0001_0101, 0x22, 0x00, 0x1C,  # SHLI r2, r2, 28 (prepare TTY address) 
+    0b0001_0101, 0x22, 0x00, 0x1C,  # SHRI r2, r2, 28 (prepare TTY address) 
     # r2 now holds the TTY address
     # r5 holds the number to print
     
@@ -24,6 +25,7 @@ fib_program = [
     0b0000_1110, 0x15, 0x60, 0x00,  # REM r1, r5, r6 (r1 = r5 % 10)
     0b0001_0000, 0x11, 0x00, 0x30,  # ADDI r1, r1, 48 (convert to ASCII)
     0b0000_1100, 0x55, 0x60, 0x00,  # DIV r5, r5, r6 (r5 = r5 / 10)
+    # Store low byte in r1 to memory location at r2+0
     0b0010_0101, 0x12, 0x00, 0x00,  # SW r1, r2, 0 (write ASCII to TTY)
     0b0011_0001, 0x05, 0xFF, 0xF0 + (15-4),  # BNE r5, r0, -12 (if r5 != 0, repeat)
     

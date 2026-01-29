@@ -1,9 +1,13 @@
 #include "RospOSVM.h"
+#include "Memory.h"
+#include "TTY.h"
+#include "InstructionDecoder.h"
+
 #include <iostream>
 #include <iomanip>
 #include <stdexcept>
-#include "Memory.h"
-#include "TTY.h"
+
+
 
 RospOSVM::RospOSVM() : memory(1ULL << 32) // Initialize 4GB memory
 {
@@ -24,8 +28,7 @@ void RospOSVM::step()
     uint32_t instruction = memory.readWord(pc);
     executeInstruction(instruction);
     std::cerr << "PC: " << std::hex << pc << std::dec << " ";
-    std::cerr << "Instruction: 0x" << std::hex << std::setw(8) << std::setfill('0') << instruction << std::dec << " ";
-    std::cerr << getRegisterState() << std::endl;
+    std::cerr << "I: " << decodeInstruction(instruction, regFile, memory, pc) << std::endl;
 }
 
 std::string RospOSVM::getRegisterState() const
