@@ -11,7 +11,7 @@
 
 
 int main(int argc, char* argv[]) {
-    std::cout << "RospOS Virtual Machine starting..." << std::endl;
+    std::cerr << "RospOS Virtual Machine starting..." << std::endl;
     if (argc < 2) {
         std::cerr << "Usage: " << argv[0] << " <mmap.txt>" << std::endl;
         return 1;
@@ -39,7 +39,7 @@ int main(int argc, char* argv[]) {
 
         try {
             vm.loadBinaryAtAddress(buffer, address);
-            std::cout << "Loaded " << filename << " at address 0x" << std::hex << address << std::endl;
+            std::cerr << "Loaded " << filename << " at address 0x" << std::hex << address << std::endl;
         } catch (const std::exception& e) {
             std::cerr << "Error loading binary at address 0x" << std::hex << address << ": " << e.what() << std::endl;
         }

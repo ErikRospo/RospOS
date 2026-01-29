@@ -2,13 +2,17 @@
 #include <iostream>
 #include <iomanip>
 #include <stdexcept>
+#include "Memory.h"
+#include "TTY.h"
 
 RospOSVM::RospOSVM() : memory(1ULL << 32) // Initialize 4GB memory
 {
     pc = 0xFFFF0000;              // Start of kernel space
     regFile.sp().set(0x0FFFFFFF); // Top of RAM
+    // Setup TTY MMIO range
+    memory.addSpecialRange(0x10000000, 0x100001FF, SpecialMemoryRange::Type::MMIO, true, true,
+                           TTYReadHandler, TTYWriteHandler);
 }
-
 
 void RospOSVM::loadBinaryAtAddress(const std::vector<char> &binary, uint32_t address)
 {
@@ -19,9 +23,9 @@ void RospOSVM::step()
 {
     uint32_t instruction = memory.readWord(pc);
     executeInstruction(instruction);
-    std::cout << "PC: " << std::hex << pc << std::dec << " ";
-    std::cout << "Instruction: 0x" << std::hex << std::setw(8) << std::setfill('0') << instruction << std::dec << " ";
-    std::cout << getRegisterState() << std::endl;
+    std::cerr << "PC: " << std::hex << pc << std::dec << " ";
+    std::cerr << "Instruction: 0x" << std::hex << std::setw(8) << std::setfill('0') << instruction << std::dec << " ";
+    std::cerr << getRegisterState() << std::endl;
 }
 
 std::string RospOSVM::getRegisterState() const
@@ -266,7 +270,7 @@ void RospOSVM::bTypeInstruction(uint32_t instruction)
 
     sign_ext_imm <<= 2; // Branch addresses are word-aligned
 
-    std::cout << "Branch check: R" << rs1 << "=" << regFile[rs1].get() << ", R" << rs2 << "=" << regFile[rs2].get() << std::endl;
+    std::cerr << "Branch check: R" << rs1 << "=" << regFile[rs1].get() << ", R" << rs2 << "=" << regFile[rs2].get() << std::endl;
     bool takeBranch = false;
     switch (sub_op)
     {
@@ -292,7 +296,6 @@ void RospOSVM::bTypeInstruction(uint32_t instruction)
         std::cerr << "Unknown B-type sub-opcode: " << sub_op << std::endl;
         break;
     }
-    std::cout << "Branch " << (takeBranch ? "taken" : "not taken") << std::endl;
     if (takeBranch)
     {
         pc += sign_ext_imm;
@@ -336,23 +339,23 @@ void RospOSVM::sTypeInstruction(uint32_t instruction)
     switch (sub_op)
     {
     case 0x0: // ECALL
-        std::cout << "ECALL invoked." << std::endl;
+        std::cerr << "ECALL invoked." << std::endl;
         break;
     case 0x1: // BREAK
-        std::cout << "BREAK invoked. Halting execution." << std::endl;
-        std::cout << "Final Register State: " << getRegisterState() << std::endl;
-        std::cout << "Final PC: " << std::hex << pc << std::dec << std::endl;
-        std::cout << "Top 256 bytes of Memory Dump:" << std::endl;
+        std::cerr << "BREAK invoked. Halting execution." << std::endl;
+        std::cerr << "Final Register State: " << getRegisterState() << std::endl;
+        std::cerr << "Final PC: " << std::hex << pc << std::dec << std::endl;
+        std::cerr << "Top 256 bytes of Memory Dump:" << std::endl;
         for (uint32_t addr = 0; addr < 256; ++addr)
         {
             if (addr % 16 == 0)
             {
-                std::cout << std::hex << (addr) << ": ";
+                std::cerr << std::hex << (addr) << ": ";
             }
-            std::cout << std::hex << static_cast<int>(memory.readByte(addr)) << " ";
+            std::cerr << std::hex << static_cast<int>(memory.readByte(addr)) << " ";
             if (addr % 16 == 15)
             {
-                std::cout << std::endl;
+                std::cerr << std::endl;
             }
         }
         exit(0);
