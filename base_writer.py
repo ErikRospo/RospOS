@@ -1,4 +1,3 @@
-print("Allocating 4GB file...")
 print("Writing Fibonacci program...")
 fib_program = [
     0b0001_0000, 0x10, 0x00, 0x0A,  # ADDI r1, r0, 10 (n = 10)
