@@ -29,6 +29,8 @@ void RospOSVM::step()
     std::cerr << "PC: " << std::hex << pc << std::dec << " ";
     std::cerr << "I: " << decodeInstruction(instruction, regFile, memory, pc) << std::endl;
     executeInstruction(instruction);
+    std::cerr << "Registers: " << getRegisterState() << std::endl;
+    std::cerr << "----------------------------------------" << std::endl;
 }
 
 std::string RospOSVM::getRegisterState() const

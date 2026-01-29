@@ -17,7 +17,7 @@ fib_program = [
     # 0x10000000 is TTY MMIO address
     0b0101_0000, 0x00, 0x00, 0x00,  # ECALL as marker
     0b0001_0000, 0x20, 0x00, 0x01,  # ADDI r2, r0, 1 (r2 = 1 for shifting)
-    0b0001_0101, 0x22, 0x00, 0x1C,  # SHRI r2, r2, 28 (prepare TTY address) 
+    0b0001_0100, 0x22, 0x00, 0x1C,  # SHLI r2, r2, 28 (prepare TTY address) 
     # r2 now holds the TTY address
     # r5 holds the number to print
     
