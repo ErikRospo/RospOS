@@ -3,33 +3,21 @@
 #include <iomanip>
 #include <stdexcept>
 
-RospOSVM::RospOSVM()
+RospOSVM::RospOSVM() : memory(1ULL << 32) // Initialize 4GB memory
 {
     pc = 0xFFFF0000;              // Start of kernel space
-    memory.resize(1ULL << 32);    // 4GB memory
     regFile.sp().set(0x0FFFFFFF); // Top of RAM
 }
 
-void RospOSVM::loadBinary(const std::vector<char> &binary)
-{
-    std::copy(binary.begin(), binary.end(), memory.begin());
-}
 
 void RospOSVM::loadBinaryAtAddress(const std::vector<char> &binary, uint32_t address)
 {
-    if (address + binary.size() > memory.size())
-    {
-        throw std::out_of_range("Memory overflow while loading binary.");
-    }
-    std::copy(binary.begin(), binary.end(), memory.begin() + address);
+    memory.loadBinary(binary, address);
 }
 
 void RospOSVM::step()
 {
-    uint32_t instruction = static_cast<uint32_t>(memory[pc] << 24) |
-                           (static_cast<uint32_t>(memory[pc + 1]) << 16) |
-                           (static_cast<uint32_t>(memory[pc + 2]) << 8) |
-                           (static_cast<uint32_t>(memory[pc + 3]));
+    uint32_t instruction = memory.readWord(pc);
     executeInstruction(instruction);
     std::cout << "PC: " << std::hex << pc << std::dec << " ";
     std::cout << "Instruction: 0x" << std::hex << std::setw(8) << std::setfill('0') << instruction << std::dec << " ";
@@ -235,38 +223,29 @@ void RospOSVM::iTypeLSInstruction(uint32_t instruction)
     switch (sub_op)
     {
     case 0x0: // LB
-        regFile[rd].set(static_cast<int8_t>(memory[addr]));
+        regFile[rd].set(static_cast<int8_t>(memory.readByte(addr)));
         break;
     case 0x1: // LBU
-        regFile[rd].set(static_cast<uint8_t>(memory[addr]));
+        regFile[rd].set(static_cast<uint8_t>(memory.readByte(addr)));
         break;
     case 0x2: // LH
-        regFile[rd].set(static_cast<int16_t>(memory[addr] | (memory[addr + 1] << 8)));
+        regFile[rd].set(static_cast<int16_t>(memory.readHalf(addr)));
         break;
     case 0x3: // LHU
-        regFile[rd].set(static_cast<uint16_t>(memory[addr] | (memory[addr + 1] << 8)));
+        regFile[rd].set(static_cast<uint16_t>(memory.readHalf(addr)));
         break;
     case 0x4: // LW
-        regFile[rd].set(static_cast<uint32_t>(memory[addr] | (memory[addr + 1] << 8) | (memory[addr + 2] << 16) | (memory[addr + 3] << 24)));
+        regFile[rd].set(static_cast<uint32_t>(memory.readWord(addr)));
         break;
     case 0x5: // SB
-        memory[addr] = static_cast<uint8_t>(regFile[rd].get() & 0xFF);
+        memory.writeByte(addr, static_cast<uint8_t>(regFile[rd].get() & 0xFF));
         break;
     case 0x6: // SH
-    {
-
-        memory[addr] = static_cast<uint8_t>(regFile[rd].get() & 0xFF);
-        memory[addr + 1] = static_cast<uint8_t>((regFile[rd].get() >> 8) & 0xFF);
-    }
-    break;
+        memory.writeHalf(addr, static_cast<uint16_t>(regFile[rd].get() & 0xFFFF));
+        break;
     case 0x7: // SW
-    {
-        memory[addr] = static_cast<uint8_t>(regFile[rd].get() & 0xFF);
-        memory[addr + 1] = static_cast<uint8_t>((regFile[rd].get() >> 8) & 0xFF);
-        memory[addr + 2] = static_cast<uint8_t>((regFile[rd].get() >> 16) & 0xFF);
-        memory[addr + 3] = static_cast<uint8_t>((regFile[rd].get() >> 24) & 0xFF);
-    }
-    break;
+        memory.writeWord(addr, static_cast<uint32_t>(regFile[rd].get()));
+        break;
     default:
         std::cerr << "Unknown Load/Store sub-opcode: " << sub_op << std::endl;
         break;
@@ -370,7 +349,7 @@ void RospOSVM::sTypeInstruction(uint32_t instruction)
             {
                 std::cout << std::hex << (addr) << ": ";
             }
-            std::cout << std::hex << static_cast<int>(memory[addr]) << " ";
+            std::cout << std::hex << static_cast<int>(memory.readByte(addr)) << " ";
             if (addr % 16 == 15)
             {
                 std::cout << std::endl;

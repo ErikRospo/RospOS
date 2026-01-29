@@ -2,6 +2,7 @@
 #define ROSPOS_VM_H
 
 #include "Register.h"
+#include "Memory.h"
 #include <vector>
 #include <cstdint>
 #include <string>
@@ -10,8 +11,7 @@ class RospOSVM {
 private:
     RegisterFile regFile;
     uint32_t pc; // Program Counter
-    std::vector<uint8_t> memory;
-
+    Memory memory;
     void rTypeInstruction(uint32_t instruction);
     void iArithTypeInstruction(uint32_t instruction);
     void iTypeLSInstruction(uint32_t instruction);
@@ -22,7 +22,6 @@ private:
 
 public:
     RospOSVM();
-    void loadBinary(const std::vector<char>& binary);
     void loadBinaryAtAddress(const std::vector<char>& binary, uint32_t address);
     void step();
     std::string getRegisterState() const;
