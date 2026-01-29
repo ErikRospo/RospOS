@@ -1,6 +1,6 @@
 print("Writing Fibonacci program...")
 fib_program = [
-    0b0001_0000, 0x10, 0x00, 0x0A,  # ADDI r1, r0, 10 (n = 10)
+    0b0001_0000, 0x10, 0x00, 10,  # ADDI r1, r0, 10 (n = 10)
     0b0001_0000, 0x20, 0x00, 0x00,  # ADDI r2, r0, 0 (a = 0)
     0b0001_0000, 0x30, 0x00, 0x01,  # ADDI r3, r0, 1 (b = 1)
     0b0001_0000, 0x40, 0x00, 0x01,  # ADDI r4, r0, 1 (i = 1)
@@ -12,6 +12,21 @@ fib_program = [
     0b0011_0010, 0x41, 0xFF, 0xF0 + (15-4),  # BLT r4, r1, -8 (if i < n, loop)
     # Write result to memory:
     0b0010_0111, 0x50, 0x00, 0x00,  # SW r5, r0, 0 (write c to address 0)
+    # Write to TTY (must convert to decimal ASCII):
+    0b0001_0000, 0x60, 0x00, 10, # ADDI r6, r0, 10 (r6=10 for division/modulo)
+    # 0x10000000 is TTY MMIO address
+    0b0001_0000, 0x20, 0x00, 0x01,  # ADDI r2, r0, 1 (r2 = 1 for shifting)
+    0b0001_0101, 0x22, 0x00, 0x1C,  # SHLI r2, r2, 28 (prepare TTY address) 
+    # r2 now holds the TTY address
+    # r5 holds the number to print
+    
+    # Convert to ASCII loop:
+    0b0000_1110, 0x15, 0x60, 0x00,  # REM r1, r5, r6 (r1 = r5 % 10)
+    0b0001_0000, 0x11, 0x00, 0x30,  # ADDI r1, r1, 48 (convert to ASCII)
+    0b0000_1100, 0x55, 0x60, 0x00,  # DIV r5, r5, r6 (r5 = r5 / 10)
+    0b0010_0101, 0x12, 0x00, 0x00,  # SW r1, r2, 0 (write ASCII to TTY)
+    0b0011_0001, 0x05, 0xFF, 0xF0 + (15-4),  # BNE r5, r0, -12 (if r5 != 0, repeat)
+    
     0b0101_0001, 0x00, 0x00, 0x00   # BREAK
 ]
 
