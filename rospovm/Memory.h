@@ -15,6 +15,7 @@ struct SpecialMemoryRange
         MMIO,
         Reserved
     } type;
+    char name[4];
     bool readable;
     bool writable;
     bool contains(uint32_t address) const
@@ -33,7 +34,7 @@ private:
 
 public:
     Memory(size_t size);
-    void addSpecialRange(uint32_t start, uint32_t end, SpecialMemoryRange::Type type, bool readable, bool writable,
+    void addSpecialRange(char name[4], uint32_t start, uint32_t end, SpecialMemoryRange::Type type,  bool readable, bool writable,
                          ReadHandler readHandler = nullptr,
                          WriteHandler writeHandler = nullptr);
     uint8_t readByte(uint32_t address) const;

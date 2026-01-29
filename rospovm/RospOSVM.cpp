@@ -14,7 +14,7 @@ RospOSVM::RospOSVM() : memory(1ULL << 32) // Initialize 4GB memory
     pc = 0xFFFF0000;              // Start of kernel space
     regFile.sp().set(0x0FFFFFFF); // Top of RAM
     // Setup TTY MMIO range
-    memory.addSpecialRange(0x10000000, 0x100001FF, SpecialMemoryRange::Type::MMIO, true, true,
+    memory.addSpecialRange((char *)"TTY ",0x10000000, 0x100001FF, SpecialMemoryRange::Type::MMIO, true, true,
                            TTYReadHandler, TTYWriteHandler);
 }
 

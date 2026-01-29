@@ -11,21 +11,50 @@ Memory::Memory(size_t size) {
         
 }
 
-void Memory::addSpecialRange(uint32_t start, uint32_t end, SpecialMemoryRange::Type type, bool readable, bool writable,
+void Memory::addSpecialRange(char name[4], uint32_t start, uint32_t end, SpecialMemoryRange::Type type, bool readable, bool writable,
                              ReadHandler readHandler,
                              WriteHandler writeHandler)
 {
-    specialRanges.push_back({start, end, type, readable, writable, readHandler, writeHandler});
+    specialRanges.push_back({start, end, type, {name[0], name[1], name[2], name[3]}, readable, writable, readHandler, writeHandler});
 }
 
 uint8_t Memory::readByte(uint32_t address) const
 {
+    for (const auto &range : specialRanges)
+    {
+        if (range.contains(address))
+        {
+            if (range.readable && range.readHandler)
+            {
+                return range.readHandler(address);
+            }
+            else
+            {
+                throw std::runtime_error("Attempted to read from non-readable special memory range \"" + std::string(range.name) + "\".");
+            }
+        }
+    }
     return mem[address];
 }
 
 
 void Memory::writeByte(uint32_t address, uint8_t value)
 {
+    for (const auto &range : specialRanges)
+    {
+        if (range.contains(address))
+        {
+            if (range.writable && range.writeHandler)
+            {
+                range.writeHandler(address, value);
+                return;
+            }
+            else
+            {
+                throw std::runtime_error("Attempted to write to non-writable special memory range \"" + std::string(range.name) + "\".");
+            }
+        }
+    }
     mem[address] = value;
 }
 
