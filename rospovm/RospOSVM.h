@@ -1,0 +1,31 @@
+#ifndef ROSPOS_VM_H
+#define ROSPOS_VM_H
+
+#include "Register.h"
+#include <vector>
+#include <cstdint>
+#include <string>
+
+class RospOSVM {
+private:
+    RegisterFile regFile;
+    uint32_t pc; // Program Counter
+    std::vector<uint8_t> memory;
+
+    void rTypeInstruction(uint32_t instruction);
+    void iArithTypeInstruction(uint32_t instruction);
+    void iTypeLSInstruction(uint32_t instruction);
+    void bTypeInstruction(uint32_t instruction);
+    void jTypeInstruction(uint32_t instruction);
+    void sTypeInstruction(uint32_t instruction);
+    void executeInstruction(uint32_t instruction);
+
+public:
+    RospOSVM();
+    void loadBinary(const std::vector<char>& binary);
+    void loadBinaryAtAddress(const std::vector<char>& binary, uint32_t address);
+    void step();
+    std::string getRegisterState() const;
+};
+
+#endif // ROSPOS_VM_H
