@@ -22,7 +22,7 @@ For register file, see [Calling Convention (ABI)](#calling-convention-abi).
 
 ## Instruction Encoding
 
-Each instruction is 32 bits wide and follows a fixed format. The binary encoding is divided into fields as follows:
+Each instruction is 32 bits wide and follows a fixed format within each major opcode. The binary encoding is divided into fields as follows:
 
 Major Opcode Legend (bits [31:28]):
 * 0000 = R-type arithmetic (register)
@@ -63,6 +63,8 @@ Bit fields:
 | REM         | 0000         | 1110       | rd = rs1 % rs2 (signed)              |
 | REMU        | 0000         | 1111       | rd = rs1 % rs2 (unsigned)            |
 
+Division by zero behavior: sets rd to all 1s (`0xFFFFFFFF`).
+Arithmetic operations (ADD, SUB, MUL, DIV, etc.) use two's complement representation for signed numbers.
 ### I-Type Arithmetic / Logical (immediate)
 
 Bit fields:
@@ -82,6 +84,7 @@ Bit fields:
 | SHRI        | 0001         | 0101       | rd = logical shift right by imm      |
 | SARI        | 0001         | 0110       | rd = arithmetic shift right by imm   |
 
+Shifts (SHLI, SHRI, SARI) use only the lower 5 bits of the immediate for the shift amount, and are zero-extended.
 ### Load / Store (I-Type)
 
 Bit fields:
@@ -154,8 +157,7 @@ Bit fields:
 | Instruction | Major Opcode | Sub-Opcode | Description                          |
 |-------------|--------------|------------|--------------------------------------|
 | ECALL       | 0101         | 0000       | environment call / syscall           |
-| SRET        | 0101         | 0001       | return from syscall / supervisor mode|
-| BREAK       | 0101         | 0010       | breakpoint / debug trap              |
+| BREAK       | 0101         | 0001       | breakpoint / debug trap              |
 
 ### NOP / Special
 
@@ -171,6 +173,8 @@ Bit fields:
 
 Any opcode/sub-opcode combinations not listed above are reserved/invalid.
 Executing an invalid instruction should trigger an illegal instruction exception.
+NOTE: `0x00000000` is a valid NOP instruction, as it is ADD r0, r0, r0. (r0 is hardwired zero, so this is effectively a NOP.)
+This allows for easier initialization of memory to zero.
 
 ## Memory Map
 
