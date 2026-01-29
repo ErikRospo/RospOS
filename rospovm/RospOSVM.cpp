@@ -26,9 +26,9 @@ void RospOSVM::loadBinaryAtAddress(const std::vector<char> &binary, uint32_t add
 void RospOSVM::step()
 {
     uint32_t instruction = memory.readWord(pc);
-    executeInstruction(instruction);
     std::cerr << "PC: " << std::hex << pc << std::dec << " ";
     std::cerr << "I: " << decodeInstruction(instruction, regFile, memory, pc) << std::endl;
+    executeInstruction(instruction);
 }
 
 std::string RospOSVM::getRegisterState() const
