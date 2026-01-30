@@ -46,14 +46,14 @@ i_type_map = {
     "shri": 0b0101,
     "sari": 0b0110,
 }
-i_to_r_map={
-    "addi":"add",
-    "andi":"and",
-    "ori":"or",
-    "xori":"xor",
-    "shli":"shl",
-    "shri":"shr",
-    "sari":"sar",
+i_to_r_map = {
+    "addi": "add",
+    "andi": "and",
+    "ori": "or",
+    "xori": "xor",
+    "shli": "shl",
+    "shri": "shr",
+    "sari": "sar",
 }
 l_type_map = {
     "lb": 0b0000,
@@ -144,7 +144,9 @@ class RospoasTransformer(Transformer):
         except:
             pass
         if isinstance(imm_v, dict) and imm_v.get("type") == "li":
-            imm_v["rd"] = rd_v  # Pass the destination register to the `li` pseudo-instruction
+            imm_v["rd"] = (
+                rd_v  # Pass the destination register to the `li` pseudo-instruction
+            )
         return {"type": "i", "name": name_v, "rd": rd_v, "rs1": rs_v, "imm": imm_v}
 
     def lsinstructuse(self, items):
@@ -158,7 +160,9 @@ class RospoasTransformer(Transformer):
         except:
             pass
         if isinstance(imm_v, dict) and imm_v.get("type") == "li":
-            imm_v["rd"] = rd_v  # Pass the destination register to the `li` pseudo-instruction
+            imm_v["rd"] = (
+                rd_v  # Pass the destination register to the `li` pseudo-instruction
+            )
         return {"type": "l", "name": name_v, "rd": rd_v, "rs1": rs_v, "imm": imm_v}
 
     def binstructuse(self, items):
@@ -172,7 +176,9 @@ class RospoasTransformer(Transformer):
         except:
             pass
         if isinstance(imm_v, dict) and imm_v.get("type") == "li":
-            imm_v["rd"] = rd_v  # Pass the destination register to the `li` pseudo-instruction
+            imm_v["rd"] = (
+                rd_v  # Pass the destination register to the `li` pseudo-instruction
+            )
         return {"type": "b", "name": name_v, "rd": rd_v, "rs1": rs_v, "imm": imm_v}
 
     def jinstructuser(self, items):
@@ -186,7 +192,9 @@ class RospoasTransformer(Transformer):
         except:
             pass
         if isinstance(imm_v, dict) and imm_v.get("type") == "li":
-            imm_v["rd"] = rd_v  # Pass the destination register to the `li` pseudo-instruction
+            imm_v["rd"] = (
+                rd_v  # Pass the destination register to the `li` pseudo-instruction
+            )
 
         return {"type": "j", "name": name_v, "rd": rd_v, "rs1": rs_v, "imm": imm_v}
 
@@ -200,7 +208,9 @@ class RospoasTransformer(Transformer):
         except:
             pass
         if isinstance(imm_v, dict) and imm_v.get("type") == "li":
-            imm_v["rd"] = rd_v  # Pass the destination register to the `li` pseudo-instruction
+            imm_v["rd"] = (
+                rd_v  # Pass the destination register to the `li` pseudo-instruction
+            )
 
         return {"type": "j", "name": name_v, "rd": rd_v, "rs1": 0, "imm": imm_v}
 
@@ -211,7 +221,7 @@ class RospoasTransformer(Transformer):
             imm_v = int(imm_v)
         except:
             pass
-        
+
         return {"type": "j", "name": "jal", "rd": 0, "rs1": 0, "imm": imm_v}
 
     def systeminstructuse(self, items):
@@ -254,34 +264,38 @@ with open("./ast.json", "w") as f:
 
 
 file = bytearray()
+
+
 def generate_immediate_loading(value, rd):
-    file=bytearray()
+    file = bytearray()
 
     # Break the constant into high and low parts
     high = (value >> 16) & 0xFFFF
     low = value & 0xFFFF
 
     # Generate ADDI to load the lower part
-    op_byte = (opcode_type_map["i"] << 4 | i_type_map["addi"])
+    op_byte = opcode_type_map["i"] << 4 | i_type_map["addi"]
     op_byte = (op_byte << 4) | (rd & 0x0F)
     op_byte = (op_byte << 4) | (0 & 0x0F)  # rs1 = 0
     op_byte = (op_byte << 16) | (low & 0xFFFF)
     file += op_byte.to_bytes(4, byteorder="big")
 
     # Generate SHLI to shift the high part into place
-    op_byte = (opcode_type_map["i"] << 4 | i_type_map["shli"])
+    op_byte = opcode_type_map["i"] << 4 | i_type_map["shli"]
     op_byte = (op_byte << 4) | (rd & 0x0F)
     op_byte = (op_byte << 4) | (rd & 0x0F)  # rs1 = rd
     op_byte = (op_byte << 16) | 16  # Shift by 16 bits
     file += op_byte.to_bytes(4, byteorder="big")
 
     # Generate ORI to add the high part
-    op_byte = (opcode_type_map["i"] << 4 | i_type_map["ori"])
+    op_byte = opcode_type_map["i"] << 4 | i_type_map["ori"]
     op_byte = (op_byte << 4) | (rd & 0x0F)
     op_byte = (op_byte << 4) | (rd & 0x0F)  # rs1 = rd
     op_byte = (op_byte << 16) | (high & 0xFFFF)
     file += op_byte.to_bytes(4, byteorder="big")
     return file
+
+
 for instr in ast:
     if instr["type"] in ["r", "i", "l", "b", "j", "s"]:
         t_type = instr["type"]
@@ -292,14 +306,16 @@ for instr in ast:
         imm = instr.get("imm", None)
         print(f"Compiling instruction: {instr}")
         if isinstance(imm, dict) and imm.get("type") == "li":
-            
+
             const_value = imm["value"]
             const_rd = imm["rd"]
             file += generate_immediate_loading(const_value, const_rd)
             rs2 = const_rd  # Use the register holding the constant as the second source
             imm = 0  # Clear immediate since we're using a register now
             t_type = "r"  # Change instruction type to I-type since immediate is now in a register
-            name:str = i_to_r_map.get(name, name)  # Map I-type instruction to R-type equivalent to use register
+            name: str = i_to_r_map.get(
+                name, name
+            )  # Map I-type instruction to R-type equivalent to use register
         type_id = opcode_type_map[t_type]
         opcode = instr_type_maps[type_id][name]
         op_byte = type_id << 4 | opcode
