@@ -225,47 +225,56 @@ data = {
 with open("./ast.json", "w") as f:
     json.dump(data, f, indent=4)
 
-def translate_instruction(t_type, name, rd=None, rs1=None, rs2=None, imm=None):
-    type_id = opcode_type_map[t_type]
-    opcode = instr_type_maps[type_id][name]
-    op_byte=type_id << 4 | opcode
-    if type_id==0:
-        assert rd is not None, "RD is required for R-type"
-        assert rs1 is not None, "RS1 is required for R-type"
-        assert rs2 is not None, "RS2 is required for R-type"
-        op_byte = (op_byte << 4) | (rd & 0x0F)
-        op_byte = (op_byte << 4) | (rs1 & 0x0F)
-        op_byte = (op_byte << 4) | (rs2 & 0x0F)
-    elif type_id in [1,2]:
-        assert rd is not None, "RD is required for I/L-type"
-        assert rs1 is not None, "RS is required for I/L-type"
-        assert imm is not None, "IMM is required for I/L-type"
-        op_byte = (op_byte << 4) | (rd & 0x0F)
-        op_byte = (op_byte << 4) | (rs1 & 0x0F)
-        op_byte = (op_byte << 16) | (imm & 0xFFFF)
-    elif type_id==3:
-        assert rd is not None, "RD is required for B-type"
-        assert rs1 is not None, "RS is required for B-type"
-        assert imm is not None, "IMM is required for B-type"
-        op_byte = (op_byte << 4) | (rd & 0x0F)
-        op_byte = (op_byte << 4) | (rs1 & 0x0F)
-        op_byte = (op_byte << 16) | (imm & 0xFFFF)
-    elif type_id==4:
-        assert rd is not None, "RD is required for J-type"
-        assert rs1 is not None, "RS is required for J-type"
-        assert imm is not None, "IMM is required for J-type"
-        op_byte = (op_byte << 4) | (rd & 0x0F)
-        op_byte = (op_byte << 4) | (rs1 & 0x0F)  
-        op_byte = (op_byte << 16) | (imm & 0xFFFF)
-    elif type_id==5:
-        assert imm is None, "IMM is not used for S-type"
-        assert rd is None, "RD is not used for S-type"
-        assert rs1 is None, "RS is not used for S-type"
-        assert rs2 is None, "RS2 is not used for S-type"
-        op_byte = (op_byte << 24)
-    
-    return op_byte
 
+file=bytearray()
 for instr in ast:
     if instr["type"] in ["r", "i", "l", "b", "j", "s"]:
-        print(translate_instruction(instr["type"], instr["name"], rd=instr.get("rd", None), rs1=instr.get("rs1", None), rs2=instr.get("rs2", None), imm=instr.get("imm", None)))
+        t_type = instr["type"]
+        name= instr["name"]
+        rd= instr.get("rd", None)
+        rs1= instr.get("rs1", None)
+        rs2= instr.get("rs2", None)
+        imm= instr.get("imm", None)
+        
+        type_id = opcode_type_map[t_type]
+        opcode = instr_type_maps[type_id][name]
+        op_byte=type_id << 4 | opcode
+        if type_id==0:
+            assert rd is not None, "RD is required for R-type"
+            assert rs1 is not None, "RS1 is required for R-type"
+            assert rs2 is not None, "RS2 is required for R-type"
+            op_byte = (op_byte << 4) | (rd & 0x0F)
+            op_byte = (op_byte << 4) | (rs1 & 0x0F)
+            op_byte = (op_byte << 4) | (rs2 & 0x0F)
+        elif type_id in [1,2]:
+            assert rd is not None, "RD is required for I/L-type"
+            assert rs1 is not None, "RS is required for I/L-type"
+            assert imm is not None, "IMM is required for I/L-type"
+            op_byte = (op_byte << 4) | (rd & 0x0F)
+            op_byte = (op_byte << 4) | (rs1 & 0x0F)
+            op_byte = (op_byte << 16) | (imm & 0xFFFF)
+        elif type_id==3:
+            assert rd is not None, "RD is required for B-type"
+            assert rs1 is not None, "RS is required for B-type"
+            assert imm is not None, "IMM is required for B-type"
+            op_byte = (op_byte << 4) | (rd & 0x0F)
+            op_byte = (op_byte << 4) | (rs1 & 0x0F)
+            op_byte = (op_byte << 16) | (imm & 0xFFFF)
+        elif type_id==4:
+            assert rd is not None, "RD is required for J-type"
+            assert rs1 is not None, "RS is required for J-type"
+            assert imm is not None, "IMM is required for J-type"
+            op_byte = (op_byte << 4) | (rd & 0x0F)
+            op_byte = (op_byte << 4) | (rs1 & 0x0F)  
+            op_byte = (op_byte << 16) | (imm & 0xFFFF)
+        elif type_id==5:
+            assert imm is None, "IMM is not used for S-type"
+            assert rd is None, "RD is not used for S-type"
+            assert rs1 is None, "RS is not used for S-type"
+            assert rs2 is None, "RS2 is not used for S-type"
+            op_byte = (op_byte << 24)
+        
+        file += op_byte.to_bytes(4, byteorder="big")
+
+with open("output.bin", "wb") as f:
+    f.write(file)
