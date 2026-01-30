@@ -1,2 +1,1 @@
-https://www.llvm.org/docs/WritingAnLLVMBackend.html
-https://www.llvm.org/docs/GettingStarted.html
+https://lark-parser.readthedocs.io/en/stable/json_tutorial.html
