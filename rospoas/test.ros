@@ -1,0 +1,46 @@
+.SEG 0xFFFF0000
+_START:
+    // Initialize registers
+    ADDI r1, r0, 10  // n = 10
+    ADDI r2, r0, 0   // a = 0
+    ADDI r3, r0, 1   // b = 1
+    ADDI r4, r0, 1   // i = 1
+
+JMP LOOP
+
+TTY_ADDR:
+    .DATA 0x10000000
+
+
+
+.SEG 0x00000000
+LOOP:
+    ADD r5, r2, r3 // c = a + b
+    ADD r2, r3, r0 // a = b
+    ADD r3, r5, r0 // b = c
+    ADDI r4, r4, 1 // i++
+    BLT r4, r1, LOOP // if i < n, repeat
+    
+// Write result to TTY (must convert to decimal ASCII):
+// Prepare divisor
+ADDI r6, r0, 10
+
+// Prepare TTY address
+LW r2, r0, TTY_ADDR
+
+// r2 now holds the TTY address
+// r5 holds the number to print
+// r6 holds the divisor (10)
+DIV_LOOP:
+    // Find remainder of r5 / 10 (to get last digit)
+    REM r1, r5, r6
+    // Convert to ASCII
+    ADDI r1, r1, 48
+    // Write digit to TTY
+    SW r1, r2, 0
+    // Update r5 = r5 / 10
+    DIV r5, r5, r6
+    // Repeat until r5 == 0 (all digits printed)
+    BNE r5, r0, DIV_LOOP
+
+BREAK

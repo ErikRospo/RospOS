@@ -1,0 +1,91 @@
+rtypeinstructions: "ADD" -> add
+    | "SUB" -> sub
+    | "AND" -> and
+    | "OR" -> or
+    | "XOR" -> xor
+    | "MUL" -> mul
+    | "MULH" -> mulh
+    | "NEG" -> neg
+    | "SHL" -> shl
+    | "SHR" -> shr
+    | "SAR" -> sar
+    | "DIV" -> div
+    | "DIVU" -> divu
+    | "REM"  -> rem
+    | "REMU"  -> remu
+    
+itypeinstructions: "ADDI" -> addi
+    | "ANDI" -> andi
+    | "ORI" -> ori
+    | "XORI" -> xori
+    | "SHLI" -> shli
+    | "SHRI" -> shri
+    | "SARI" -> sari
+
+lstypeinstructions: "LB" -> lb
+    | "LBU" -> lbu
+    | "LH" -> lh
+    | "LHU" -> lhu
+    | "LW" -> lw
+    | "SB" -> sb
+    | "SH" -> sh
+    | "SW" -> sw
+    
+btypeinstructions: "BEQ" -> beq
+    | "BNE" -> bne
+    | "BLT" -> blt
+    | "BGE" -> bge
+    | "BLTU" -> bltu
+    | "BGEU" -> bgeu
+    
+jtypeinstructions: "JAL" -> jal
+    | "JALR" -> jalr
+    
+systeminstructions: "ECALL" -> ecall
+    | "BREAK" -> break
+    | "NOP" -> nop
+    
+
+#NOP is technically not a system instruction, it has it's own class, but it fits here for convenience
+
+# Immediate formats
+HEXIMM: /0x[0-9a-fA-F_]+/
+DECIMM: /-?[\d_]+/
+BINIMM: /0b[01_]+/
+imm: HEXIMM | DECIMM | BINIMM | labeluse 
+register: /r([0-9]|1[0-5])|SP|LR|FP/
+
+rinstructuse: rtypeinstructions register "," register "," register
+iinstructuse: itypeinstructions register "," register "," imm
+lsinstructuse: lstypeinstructions register "," register "," imm
+binstructuse: btypeinstructions register "," register "," imm
+jinstructuse: jtypeinstructions register "," imm | jtypeinstructions imm
+jmppseudo: "JMP" labeluse -> jmpseudo
+systeminstructuse: systeminstructions
+
+instruction: rinstructuse
+           | iinstructuse
+           | lsinstructuse
+           | binstructuse
+           | jinstructuse
+           | systeminstructuse
+           | jmppseudo
+
+specialmarkers:"SEG" | "DATA" 
+
+specialmarkeruse: "." specialmarkers imm?
+label: /[a-zA-Z_][a-zA-Z0-9_]*:/
+labeluse: /[a-zA-Z_][a-zA-Z0-9_]*/
+
+codeline: label
+    | specialmarkeruse
+    | instruction
+    
+program: codeline*
+
+%import common.WS
+%ignore WS
+%import common.C_COMMENT
+%ignore C_COMMENT
+%import common.CPP_COMMENT
+%ignore CPP_COMMENT
