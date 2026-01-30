@@ -59,19 +59,22 @@ rinstructuse: rtypeinstructions register "," register "," register
 iinstructuse: itypeinstructions register "," register "," imm
 lsinstructuse: lstypeinstructions register "," register "," imm
 binstructuse: btypeinstructions register "," register "," imm
-jinstructuse: jtypeinstructions register "," imm | jtypeinstructions imm
-jmppseudo: "JMP" labeluse -> jmpseudo
+jinstructuser: jtypeinstructions register "," register "," imm 
+jinstructusei: jtypeinstructions register "," imm
+jmppseudo: "JMP" imm -> jmppseudo
 systeminstructuse: systeminstructions
 
 instruction: rinstructuse
            | iinstructuse
            | lsinstructuse
            | binstructuse
-           | jinstructuse
+           | jinstructuser
+           | jinstructusei
            | systeminstructuse
            | jmppseudo
 
-specialmarkers:"SEG" | "DATA" 
+specialmarkers:"SEG" -> seg 
+    | "DATA" -> data
 
 specialmarkeruse: "." specialmarkers imm?
 label: /[a-zA-Z_][a-zA-Z0-9_]*:/

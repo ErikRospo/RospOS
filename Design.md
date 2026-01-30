@@ -136,7 +136,7 @@ Bit fields:
 
 | Instruction | Major Opcode | Sub-Opcode | Description                          |
 |-------------|--------------|------------|--------------------------------------|
-| JAL         | 0100         | 0000       | jump PC-relative, rd = return address|
+| JAL         | 0100         | 0000       | jump PC+imm, rd = return address|
 | JALR        | 0100         | 0001       | jump to rs + imm, rd = return address|
 
 Similar to branch target calculation, jump target is computed as:
