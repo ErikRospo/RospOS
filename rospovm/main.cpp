@@ -46,9 +46,10 @@ int main(int argc, char* argv[]) {
     }
 
     // Simple execution loop
-    for (int i = 0; i < 2000; ++i) {
+    while (true){
         vm.step();
     }
+    
 
     return 0;
 }
