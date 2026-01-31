@@ -47,15 +47,14 @@ i_to_r_map = {
 }
 
 
-# Update resolve_labels to ensure current_segment is always set
-
+# Update resolve_labels to remove manual address updates
 def resolve_labels(ast):
-    global current_address, current_segment, current_segment_data
+    global current_segment, current_segment_data
     seg = 0
     for instr in ast:
         if instr["type"] == "a":  # Label definition
             label_name = instr["name"]
-            label_addresses[label_name] = current_address
+            label_addresses[label_name] = len(current_segment_data) if current_segment_data else 0
         elif instr["type"] == "m" and instr["name"] == "seg":
             # Handle .SEG directive
             if current_segment_data is not None:
@@ -67,10 +66,7 @@ def resolve_labels(ast):
 
             current_segment_data = bytearray()
             current_segment = segment_address
-            current_address = segment_address
             seg += 1
-        else:
-            current_address += 4  # Each instruction is 4 bytes
 
     # Add the last segment to the list
     if current_segment_data is not None:
@@ -161,7 +157,7 @@ def first_pass(ast):
 
 # Second pass: Compile instructions and write to segments
 def second_pass(ast):
-    global current_address, current_segment, current_segment_data
+    global current_segment, current_segment_data
     for instr in ast:
         if instr["type"] == "m" and instr["name"] == "seg":
             # Handle .SEG directive
@@ -170,10 +166,9 @@ def second_pass(ast):
                 segment_address = segment_address["value"]
             current_segment_data = next((data for addr, data in segments if addr == segment_address), None)
             current_segment = segment_address
-            current_address = segment_address
         else:
             assert current_segment_data is not None, "Current segment data is not initialized. Ensure segments are properly set up before writing instructions."
-            print("Compiling instruction at address", hex(current_address), ":", instr)
+            print("Compiling instruction at address", hex(len(current_segment_data)), ":", instr)
             if instr["type"] =="a":
                 continue  # Skip label definitions
             if instr["type"] == "p" and instr["name"]=="jmp":
@@ -199,7 +194,6 @@ def second_pass(ast):
                     current_segment_data.extend(data_bytes)
                 else:
                     raise ValueError("Segment data is not initialized. Ensure segments are properly set up before writing instructions.")
-                current_address +=4
                 continue
             # Resolve all immediates to actual addresses/values
             if instr.get("imm") is not None and type(instr["imm"]) == dict:
@@ -208,10 +202,10 @@ def second_pass(ast):
                 elif "name" in instr["imm"]:
                     label_name = instr["imm"].get("name")
                     if label_name in label_addresses:
-                        instr["imm"] = (label_addresses[label_name]-current_address)//4
+                        instr["imm"] = (label_addresses[label_name]-len(current_segment_data))//4
                     else:
                         raise ValueError(f"Undefined label: {label_name}")
-                    
+
             # Now, try to correct immediates if they don't fit
             if instr["type"] == "l":
                 imm = instr.get("imm")
@@ -225,7 +219,8 @@ def second_pass(ast):
                         # Then change
                         instr["imm"] = 0
                         instr["rs1"] = instr["rd"]
-                        current_address+=12 # 3 instructions added
+                        print(f"Rewrote load instruction to load from address in rd register due to large immediate ({imm})")
+                        
                     else:
                         # If we are actually loading from an address + offset, we need to use a temp register to calculate the sum ourselves
                         # Find a temp register that is not used in this instruction
@@ -235,6 +230,7 @@ def second_pass(ast):
                             temp_reg = 2
                         else:
                             temp_reg = 3
+                        print(f"Using temp register {temp_reg} to resolve large immediate ({imm}) for load instruction ({instr})")
                         # Push temp register
                         current_segment_data.extend(generate_stack_push(temp_reg)) # 2 instructions
                         # Load full address into temp register
@@ -248,17 +244,14 @@ def second_pass(ast):
                         # Change rs1 to temp_reg
                         instr["rs1"] = temp_reg
                         instr["imm"] = 0
-                        
+
                         # Pop temp register
                         current_segment_data.extend(generate_stack_pop(temp_reg)) # 2 instructions
-                        current_address+=8*4 # 8 instructions added
-                        
-                        
-            print("Resolved instruction:", instr)
+
+            print("Final instruction after immediate resolution:", instr)
+            print("-"*40)
             # Write the instruction to the current segment data
             current_segment_data.extend(compile_instruction(instr))
-
-            current_address += 4  # Each instruction is 4 bytes
 
 
 # Perform the two-pass compilation
