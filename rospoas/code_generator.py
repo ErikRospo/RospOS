@@ -1,0 +1,64 @@
+from maps import *
+
+def generate_immediate_loading(value, rd):
+    file = bytearray()
+
+    # Break the constant into high and low parts
+    high = (value >> 16) & 0xFFFF
+    low = value & 0xFFFF
+
+    # Generate ADDI to load the lower part
+    op_byte = opcode_type_map["i"] << 4 | i_type_map["addi"]
+    op_byte = (op_byte << 4) | (rd & 0x0F)
+    op_byte = (op_byte << 4) | (0 & 0x0F)  # rs1 = 0
+    op_byte = (op_byte << 16) | (low & 0xFFFF)
+    file += op_byte.to_bytes(4, byteorder="big")
+
+    # Generate SHLI to shift the high part into place
+    op_byte = opcode_type_map["i"] << 4 | i_type_map["shli"]
+    op_byte = (op_byte << 4) | (rd & 0x0F)
+    op_byte = (op_byte << 4) | (rd & 0x0F)  # rs1 = rd
+    op_byte = (op_byte << 16) | 16  # Shift by 16 bits
+    file += op_byte.to_bytes(4, byteorder="big")
+
+    # Generate ORI to add the high part
+    op_byte = opcode_type_map["i"] << 4 | i_type_map["ori"]
+    op_byte = (op_byte << 4) | (rd & 0x0F)
+    op_byte = (op_byte << 4) | (rd & 0x0F)  # rs1 = rd
+    op_byte = (op_byte << 16) | (high & 0xFFFF)
+    file += op_byte.to_bytes(4, byteorder="big")
+    return file
+
+def generate_stack_push(rs):
+    file = bytearray()
+    # Generate SW instruction to store register to stack
+    op_byte = opcode_type_map["s"] << 4 | l_type_map["sw"]
+    op_byte = (op_byte << 4) | (rs & 0x0F)  # data=rs 
+    op_byte = (op_byte << 4) | (register_map["sp"] & 0x0F)  # rs1 = sp
+    op_byte = (op_byte << 16) | (-4 & 0xFFFF)  # offset -4
+    file += op_byte.to_bytes(4, byteorder="big")
+
+    # Generate ADDI to decrement stack pointer
+    op_byte = opcode_type_map["i"] << 4 | i_type_map["addi"]
+    op_byte = (op_byte << 4) | (register_map["sp"] & 0x0F)  # rd = sp
+    op_byte = (op_byte << 4) | (register_map["sp"] & 0x0F)  # rs1 = sp
+    op_byte = (op_byte << 16) | (-4 & 0xFFFF)  # immediate -4
+    file += op_byte.to_bytes(4, byteorder="big")
+    return file
+
+def generate_stack_pop(rd):
+    file = bytearray()
+    # Generate ADDI to increment stack pointer
+    op_byte = opcode_type_map["i"] << 4 | i_type_map["addi"]
+    op_byte = (op_byte << 4) | (register_map["sp"] & 0x0F)  # rd = sp
+    op_byte = (op_byte << 4) | (register_map["sp"] & 0x0F)  # rs1 = sp
+    op_byte = (op_byte << 16) | (4 & 0xFFFF)  # immediate +4
+    file += op_byte.to_bytes(4, byteorder="big")
+
+    # Generate LW instruction to pop register from stack
+    op_byte = opcode_type_map["l"] << 4 | l_type_map["lw"]
+    op_byte = (op_byte << 4) | (rd & 0x0F)  # rd = rd
+    op_byte = (op_byte << 4) | (register_map["sp"] & 0x0F)  # rs1 = sp
+    op_byte = (op_byte << 16) | (0 & 0xFFFF)  # offset 0
+    file += op_byte.to_bytes(4, byteorder="big")
+    return file

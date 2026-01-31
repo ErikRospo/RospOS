@@ -1,255 +1,48 @@
+import argparse
 import json
-import os
-from lark import Lark, Transformer
-from maps import * # Yes, bad practice, but it is correct here.
 import struct
-with open("./rospoas.lark", "r") as f:
-    rospoas_grammar = f.read()
+from grammar_parser import parse_source
+from transformer import transform_parse_tree
+from code_generator import generate_immediate_loading, generate_stack_push, generate_stack_pop
+from maps import opcode_type_map, instr_type_maps
 
-parser = Lark(rospoas_grammar, start="program", parser="lalr")
+# Parse command-line arguments
+parser = argparse.ArgumentParser(description="Compile RospoAS source code.")
+parser.add_argument("--input", type=str, required=True, help="Input source file to compile.")
+parser.add_argument("--output", type=str, required=True, help="Output binary file.")
+args = parser.parse_args()
 
-with open("./test.ros", "r") as f:
+# Read source code
+with open(args.input, "r") as f:
     source_code = f.read()
-parse_tree = parser.parse(source_code)
 
+# Parse and transform source code
+parse_tree = parse_source(source_code)
+ast, lifted_constants = transform_parse_tree(parse_tree)
 
-
-class RospoasTransformer(Transformer):
-    lifted_constants = {}
-
-    def labeluse(self, items):
-        name_t = items[0]
-        return {"type": "u", "name": str(name_t)}
-
-    def register(self, items):
-        name_t = items[0]
-        return register_map[str(name_t).lower()]
-
-    def imm(self, items):
-        value_t = items[0]
-        value_v = value_t
-        try:
-            value_v = int(value_v, base=0)  # auto-detect base
-        except:
-            pass
-        if isinstance(value_v, int):
-            if not (-32768 <= value_v <= 65535):
-                const_name = f"LCONST_{len(self.lifted_constants)}"
-                self.lifted_constants[const_name] = value_v
-                return {"type": "li", "name": const_name, "value": value_v}
-        return value_v
-
-    def instruction(self, items):
-        return items[0]
-
-    def rinstructuse(self, items):
-        name_t, rd_t, rs1_t, rs2_t = items
-        name_v = name_t.data
-        rd_v = rd_t
-        rs1_v = rs1_t
-        rs2_v = rs2_t
-
-        return {"type": "r", "name": name_v, "rd": rd_v, "rs1": rs1_v, "rs2": rs2_v}
-
-    def iinstructuse(self, items):
-        name_t, rd_t, rs_t, imm_t = items
-        name_v = name_t.data
-        rd_v = rd_t
-        rs_v = rs_t
-        imm_v = imm_t
-        try:
-            imm_v = int(imm_v)
-        except:
-            pass
-        if isinstance(imm_v, dict) and imm_v.get("type") == "li":
-            imm_v["rd"] = (
-                rd_v  # Pass the destination register to the `li` pseudo-instruction
-            )
-        return {"type": "i", "name": name_v, "rd": rd_v, "rs1": rs_v, "imm": imm_v}
-
-    def lsinstructuse(self, items):
-        name_t, rd_t, rs_t, imm_t = items
-        name_v = name_t.data
-        rd_v = rd_t
-        rs_v = rs_t
-        imm_v = imm_t
-        try:
-            imm_v = int(imm_v)
-        except:
-            pass
-        if isinstance(imm_v, dict) and imm_v.get("type") == "li":
-            imm_v["rd"] = (
-                rd_v  # Pass the destination register to the `li` pseudo-instruction
-            )
-        return {"type": "l", "name": name_v, "rd": rd_v, "rs1": rs_v, "imm": imm_v}
-
-    def binstructuse(self, items):
-        name_t, rd_t, rs_t, imm_t = items
-        name_v = name_t.data
-        rd_v = rd_t
-        rs_v = rs_t
-        imm_v = imm_t
-        try:
-            imm_v = int(imm_v)
-        except:
-            pass
-        if isinstance(imm_v, dict) and imm_v.get("type") == "li":
-            imm_v["rd"] = (
-                rd_v  # Pass the destination register to the `li` pseudo-instruction
-            )
-        return {"type": "b", "name": name_v, "rd": rd_v, "rs1": rs_v, "imm": imm_v}
-
-    def jinstructuser(self, items):
-        name_t, rd_t, rs_t, imm_t = items
-        name_v = name_t.data
-        rd_v = rd_t
-        rs_v = rs_t
-        imm_v = imm_t
-        try:
-            imm_v = int(imm_v)
-        except:
-            pass
-        if isinstance(imm_v, dict) and imm_v.get("type") == "li":
-            imm_v["rd"] = (
-                rd_v  # Pass the destination register to the `li` pseudo-instruction
-            )
-
-        return {"type": "j", "name": name_v, "rd": rd_v, "rs1": rs_v, "imm": imm_v}
-
-    def jinstructusei(self, items):
-        name_t, rd_t, imm_t = items
-        name_v = name_t.data
-        rd_v = rd_t
-        imm_v = imm_t
-        try:
-            imm_v = int(imm_v)
-        except:
-            pass
-        if isinstance(imm_v, dict) and imm_v.get("type") == "li":
-            imm_v["rd"] = (
-                rd_v  # Pass the destination register to the `li` pseudo-instruction
-            )
-
-        return {"type": "j", "name": name_v, "rd": rd_v, "rs1": 0, "imm": imm_v}
-
-    def jmppseudo(self, items):
-        imm_t = items[0]
-        imm_v = imm_t
-        try:
-            imm_v = int(imm_v)
-        except:
-            pass
-
-        return {"type": "j", "name": "jal", "rd": 0, "rs1": 0, "imm": imm_v}
-
-    def systeminstructuse(self, items):
-        name_t = items[0]
-        name_v = name_t.data
-        return {"type": "s", "name": name_v}
-
-    def specialmarkeruse(self, items):
-        marker_t = items[0]
-        marker_v = marker_t.data
-        if len(items) > 1:
-            imm_t = items[1]
-            imm_v = imm_t
-            try:
-                imm_v = int(imm_v)
-            except:
-                pass
-            return {"type": "m", "name": marker_v, "imm": imm_v}
-        else:
-            return {"type": "m", "name": marker_v}
-
-    def label(self, items):
-        name_t = items[0]
-        name_str = str(name_t)
-        name_v = name_str[:-1]
-        return {"type": "a", "name": name_v}
-
-    def codeline(self, items):
-        return items[0]
-
-    def program(self, items):
-        return items
-
-
-transformer = RospoasTransformer()
-ast = transformer.transform(parse_tree)
-data = {"ast": ast, "lifted_constants": RospoasTransformer.lifted_constants}
+# Write AST to JSON
 with open("./ast.json", "w") as f:
-    json.dump(data, f, indent=4)
-
+    json.dump({"ast": ast, "lifted_constants": lifted_constants}, f, indent=4)
 
 file = bytearray()
 
-
-def generate_immediate_loading(value, rd):
-    file = bytearray()
-
-    # Break the constant into high and low parts
-    high = (value >> 16) & 0xFFFF
-    low = value & 0xFFFF
-
-    # Generate ADDI to load the lower part
-    op_byte = opcode_type_map["i"] << 4 | i_type_map["addi"]
-    op_byte = (op_byte << 4) | (rd & 0x0F)
-    op_byte = (op_byte << 4) | (0 & 0x0F)  # rs1 = 0
-    op_byte = (op_byte << 16) | (low & 0xFFFF)
-    file += op_byte.to_bytes(4, byteorder="big")
-
-    # Generate SHLI to shift the high part into place
-    op_byte = opcode_type_map["i"] << 4 | i_type_map["shli"]
-    op_byte = (op_byte << 4) | (rd & 0x0F)
-    op_byte = (op_byte << 4) | (rd & 0x0F)  # rs1 = rd
-    op_byte = (op_byte << 16) | 16  # Shift by 16 bits
-    file += op_byte.to_bytes(4, byteorder="big")
-
-    # Generate ORI to add the high part
-    op_byte = opcode_type_map["i"] << 4 | i_type_map["ori"]
-    op_byte = (op_byte << 4) | (rd & 0x0F)
-    op_byte = (op_byte << 4) | (rd & 0x0F)  # rs1 = rd
-    op_byte = (op_byte << 16) | (high & 0xFFFF)
-    file += op_byte.to_bytes(4, byteorder="big")
-    return file
-def generate_stack_push(rs):
-    file = bytearray()
-    # Generate SW instruction to store register to stack
-    op_byte = opcode_type_map["s"] << 4 | l_type_map["sw"]
-    op_byte = (op_byte << 4) | (rs & 0x0F)  # data=rs 
-    op_byte = (op_byte << 4) | (register_map["sp"] & 0x0F)  # rs1 = sp
-    op_byte = (op_byte << 16) | (-4 & 0xFFFF)  # offset -4
-    file += op_byte.to_bytes(4, byteorder="big")
-
-    # Generate ADDI to decrement stack pointer
-    op_byte = opcode_type_map["i"] << 4 | i_type_map["addi"]
-    op_byte = (op_byte << 4) | (register_map["sp"] & 0x0F)  # rd = sp
-    op_byte = (op_byte << 4) | (register_map["sp"] & 0x0F)  # rs1 = sp
-    op_byte = (op_byte << 16) | (-4 & 0xFFFF)  # immediate -4
-    file += op_byte.to_bytes(4, byteorder="big")
-    return file
-def generate_stack_pop(rd):
-    file = bytearray()
-    # Generate ADDI to increment stack pointer
-    op_byte = opcode_type_map["i"] << 4 | i_type_map["addi"]
-    op_byte = (op_byte << 4) | (register_map["sp"] & 0x0F)  # rd = sp
-    op_byte = (op_byte << 4) | (register_map["sp"] & 0x0F)  # rs1 = sp
-    op_byte = (op_byte << 16) | (4 & 0xFFFF)  # immediate +4
-    file += op_byte.to_bytes(4, byteorder="big")
-
-    # Generate LW instruction to pop register from stack
-    op_byte = opcode_type_map["l"] << 4 | l_type_map["lw"]
-    op_byte = (op_byte << 4) | (rd & 0x0F)  # rd = rd
-    op_byte = (op_byte << 4) | (register_map["sp"] & 0x0F)  # rs1 = sp
-    op_byte = (op_byte << 16) | (0 & 0xFFFF)  # offset 0
-    file += op_byte.to_bytes(4, byteorder="big")
-    return file
 label_addresses = {}
 current_address = 0
 
-current_segment = None 
+current_segment = None
 segments = []
-current_segment_data = None 
+current_segment_data = None
+
+i_to_r_map = {
+    "addi": "add",
+    "andi": "and",
+    "ori": "or",
+    "xori": "xor",
+    "shli": "shl",
+    "shri": "shr",
+    "sari": "sar",
+}
+
 
 # Update resolve_labels to ensure current_segment is always set
 def resolve_labels(ast):
@@ -297,6 +90,7 @@ def resolve_labels(ast):
 
             current_address += 4  # Each instruction is 4 bytes
 
+
 # First pass: Resolve labels
 resolve_labels(ast)
 print(f"Label addresses: {label_addresses}")
@@ -330,9 +124,9 @@ for instr in ast:
             )  # Map I-type instruction to R-type equivalent to use register
         if isinstance(imm, int) and (-32768 > imm or imm > 65535):
             if t_type in ["j", "b", "i", "l"]:
-                # For jump and branch instructions, we need to load the immediate into a register first. 
+                # For jump and branch instructions, we need to load the immediate into a register first.
                 const_value = imm
-                const_rd = rd 
+                const_rd = rd
                 file += generate_stack_push(rd)
                 file += generate_immediate_loading(const_value, const_rd)
                 rs1 = const_rd  # Use the register holding the constant as the first source
@@ -391,7 +185,7 @@ if current_segment_data is not None:
 MAGIC = 0x524F5350
 VERSION = 1
 
-with open("output.bin", "wb") as f:
+with open(args.output, "wb") as f:
     # Header
     f.write(struct.pack("<III", MAGIC, VERSION, len(segments)))
 
