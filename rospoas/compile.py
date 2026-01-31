@@ -217,16 +217,61 @@ def generate_immediate_loading(value, rd):
 label_addresses = {}
 current_address = 0
 
-# First pass: Resolve labels
+# Track segments and their corresponding binary files
+segments = []
+current_segment = None
+current_segment_file = None
+
+# Update resolve_labels to properly handle large immediate values
+# Replace the instruction with a sequence of instructions to load the large immediate value
+
 def resolve_labels(ast):
-    global current_address
+    global current_address, current_segment, current_segment_file
     for instr in ast:
         if instr["type"] == "a":  # Label definition
             label_name = instr["name"]
             label_addresses[label_name] = current_address
+        elif instr["type"] == "m" and instr["name"] == "seg":
+            # Handle .SEG directive
+            if current_segment_file:
+                current_segment_file.close()
+            segment_address = instr["imm"]
+            if type(segment_address) == dict:
+                segment_address = segment_address["value"]
+            print(f"Switching to segment at address {segment_address}")
+            
+            # ["value"]
+            segment_file_name = f"segment_{segment_address:08X}.bin"
+            current_segment_file = open(segment_file_name, "wb")
+            segments.append((segment_address, segment_file_name))
+            current_segment = segment_address
+            current_address = segment_address
         else:
+            if instr["type"] in ["i", "l"] and isinstance(instr.get("imm"), dict):
+                label_name = instr["imm"].get("name")
+                if label_name in label_addresses:
+                    label_address = label_addresses[label_name]
+                    offset = label_address - current_address
+
+                    # Check if the immediate value is out of range
+                    if not (-32768 <= offset <= 65535):
+                        # Replace the instruction with a sequence to load the large immediate value
+                        rd = instr["rd"]
+                        new_instructions = generate_immediate_loading(label_address, rd)
+
+                        # Write the new instructions to the segment file
+                        if current_segment_file:
+                            current_segment_file.write(new_instructions)
+                        else:
+                            raise ValueError("Segment file is not initialized. Ensure segments are properly set up before writing instructions.")
+
+                        continue
+
+                    instr["imm"] = offset
+
             current_address += 4  # Each instruction is 4 bytes
 
+# First pass: Resolve labels
 resolve_labels(ast)
 
 for instr in ast:
@@ -263,7 +308,7 @@ for instr in ast:
         if type_id == 0:
             assert rd is not None, "RD is required for R-type"
             assert rs1 is not None, "RS1 is required for R-type"
-            assert rs2 is not None, "RS2 is required for R-type"
+            assert rs2 is not None, "RS2 is not used for R-type"
             op_byte = (op_byte << 4) | (rd & 0x0F)
             op_byte = (op_byte << 4) | (rs1 & 0x0F)
             op_byte = (op_byte << 4) | (rs2 & 0x0F)
@@ -272,7 +317,7 @@ for instr in ast:
             assert rs1 is not None, "RS is required for I/L-type"
             assert imm is not None, "IMM is required for I/L-type"
             assert isinstance(imm, int), f"IMM must be an integer for I/L-type, is {imm}"
-            assert -32768 <= imm <= 65535, "IMM out of range for I/L-type"
+            assert -32768 <= imm <= 65535, f"IMM out of range for I/L-type, is {imm}"
             op_byte = (op_byte << 4) | (rd & 0x0F)
             op_byte = (op_byte << 4) | (rs1 & 0x0F)
             op_byte = (op_byte << 16) | (imm & 0xFFFF)
@@ -300,7 +345,14 @@ for instr in ast:
             assert rs2 is None, "RS2 is not used for S-type"
             op_byte = op_byte << 24
 
-        file += op_byte.to_bytes(4, byteorder="big")
+        if current_segment_file:
+            current_segment_file.write(op_byte.to_bytes(4, byteorder="big"))
 
-with open("output.bin", "wb") as f:
-    f.write(file)
+# Close the last segment file
+if current_segment_file:
+    current_segment_file.close()
+
+# Generate mmap.txt
+with open("mmap.txt", "w") as mmap_file:
+    for segment_address, segment_file_name in segments:
+        mmap_file.write(f"{segment_address:08X}: {segment_file_name}\n")
