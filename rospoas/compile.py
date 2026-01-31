@@ -1,8 +1,8 @@
 import json
-from lark import Lark, Transformer
-from enum import Enum, auto
 import os
+from lark import Lark, Transformer
 from maps import * # Yes, bad practice, but it is correct here.
+import struct
 with open("./rospoas.lark", "r") as f:
     rospoas_grammar = f.read()
 
@@ -393,7 +393,22 @@ for instr in ast:
 if current_segment_file:
     current_segment_file.close()
 
-# Generate mmap.txt
-with open("mmap.txt", "w") as mmap_file:
-    for segment_address, segment_file_name in segments:
-        mmap_file.write(f"{segment_address:08X}: {segment_file_name}\n")
+# TODO: Optimize # of segments used, merge together segments if they overlap or close enough
+
+MAGIC = 0x524F5350
+VERSION = 1
+
+with open("output.bin", "wb") as f:
+    # Header
+    f.write(struct.pack("<III", MAGIC, VERSION, len(segments)))
+
+    # Segments
+    for addr, path in segments:
+        with open(path, "rb") as segment_file:
+            data = segment_file.read()
+        f.write(struct.pack("<II", addr, len(data)))
+        f.write(data)
+
+for addr, path in segments:
+    print(f"Segment at address {addr} written to {path}")
+    os.remove(path)
