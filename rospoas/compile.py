@@ -8,9 +8,11 @@ from maps import opcode_type_map, instr_type_maps
 
 # Parse command-line arguments
 parser = argparse.ArgumentParser(description="Compile RospoAS source code.")
-parser.add_argument("--input", type=str, required=True, help="Input source file to compile.")
-parser.add_argument("--output", type=str, required=True, help="Output binary file.")
+parser.add_argument("--input", type=str, required=True, help="Input source file to compile. Should be a .ros file")
+parser.add_argument("--output", type=str, required=False, help="Output binary file. If not provided, will use the input filename with .rosp extension.")
 args = parser.parse_args()
+if args.output is None:
+    args.output = args.input.rsplit(".", 1)[0] + ".rosp" #ROS Program
 
 # Read source code
 with open(args.input, "r") as f:
