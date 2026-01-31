@@ -296,6 +296,21 @@ def generate_immediate_loading(value, rd):
     return file
 
 
+label_addresses = {}
+current_address = 0
+
+# First pass: Resolve labels
+def resolve_labels(ast):
+    global current_address
+    for instr in ast:
+        if instr["type"] == "a":  # Label definition
+            label_name = instr["name"]
+            label_addresses[label_name] = current_address
+        else:
+            current_address += 4  # Each instruction is 4 bytes
+
+resolve_labels(ast)
+
 for instr in ast:
     if instr["type"] in ["r", "i", "l", "b", "j", "s"]:
         t_type = instr["type"]
@@ -304,6 +319,14 @@ for instr in ast:
         rs1 = instr.get("rs1", None)
         rs2 = instr.get("rs2", None)
         imm = instr.get("imm", None)
+
+        # Resolve label to address for jump and branch instructions
+        if isinstance(imm, dict) and imm.get("type") == "u":
+            label_name = imm["name"]
+            if label_name not in label_addresses:
+                raise ValueError(f"Undefined label: {label_name}")
+            imm = label_addresses[label_name] - current_address
+
         print(f"Compiling instruction: {instr}")
         if isinstance(imm, dict) and imm.get("type") == "li":
 
@@ -330,6 +353,8 @@ for instr in ast:
             assert rd is not None, "RD is required for I/L-type"
             assert rs1 is not None, "RS is required for I/L-type"
             assert imm is not None, "IMM is required for I/L-type"
+            assert isinstance(imm, int), f"IMM must be an integer for I/L-type, is {imm}"
+            assert -32768 <= imm <= 65535, "IMM out of range for I/L-type"
             op_byte = (op_byte << 4) | (rd & 0x0F)
             op_byte = (op_byte << 4) | (rs1 & 0x0F)
             op_byte = (op_byte << 16) | (imm & 0xFFFF)
@@ -337,7 +362,7 @@ for instr in ast:
             assert rd is not None, "RD is required for B-type"
             assert rs1 is not None, "RS is required for B-type"
             assert imm is not None, "IMM is required for B-type"
-            assert isinstance(imm, int), "IMM must be an integer for B-type"
+            assert isinstance(imm, int), f"IMM must be an integer for B-type, is {imm}"
             op_byte = (op_byte << 4) | (rd & 0x0F)
             op_byte = (op_byte << 4) | (rs1 & 0x0F)
             op_byte = (op_byte << 16) | (imm & 0xFFFF)
@@ -345,6 +370,8 @@ for instr in ast:
             assert rd is not None, "RD is required for J-type"
             assert rs1 is not None, "RS is required for J-type"
             assert imm is not None, "IMM is required for J-type"
+            assert isinstance(imm, int), f"IMM must be an integer for J-type, is {imm}"
+            
             op_byte = (op_byte << 4) | (rd & 0x0F)
             op_byte = (op_byte << 4) | (rs1 & 0x0F)
             op_byte = (op_byte << 16) | (imm & 0xFFFF)
