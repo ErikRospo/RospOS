@@ -128,7 +128,7 @@ class RospoasTransformer(Transformer):
         except:
             pass
 
-        return {"type": "j", "name": "jal", "rd": 0, "rs1": 0, "imm": imm_v}
+        return {"type": "p", "name": "jmp", "imm": imm_v}
 
     def systeminstructuse(self, items):
         name_t = items[0]

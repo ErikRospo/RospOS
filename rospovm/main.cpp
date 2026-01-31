@@ -23,6 +23,8 @@ int main(int argc, char* argv[]) {
 
     RospOSVM vm;
     for (const auto& segment : binary.segments) {
+        std::cout << "Loading segment at address 0x" << std::hex << segment.address 
+                  << " with size " << std::dec << segment.data.size() << " bytes." << std::endl;
         vm.loadBinaryAtAddress(std::vector<char>(segment.data.begin(), segment.data.end()), segment.address);
     }
     exit(0); // Temporary exit to avoid infinite loop during testing

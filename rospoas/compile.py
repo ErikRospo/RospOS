@@ -3,7 +3,7 @@ import json
 import struct
 from grammar_parser import parse_source
 from transformer import transform_parse_tree
-from code_generator import generate_immediate_loading, generate_stack_push, generate_stack_pop
+from code_generator import generate_absolute_jump, generate_immediate_loading, generate_stack_push, generate_stack_pop
 from maps import opcode_type_map, instr_type_maps
 
 # Parse command-line arguments
@@ -70,35 +70,11 @@ def resolve_labels(ast):
             current_address = segment_address
             seg += 1
         else:
-            if instr["type"] in ["i", "l"] and isinstance(instr.get("imm"), dict):
-                label_name = instr["imm"].get("name")
-                if label_name in label_addresses:
-                    label_address = label_addresses[label_name]
-                    offset = label_address - current_address
-
-                    # Check if the immediate value is out of range
-                    if not (-32768 <= offset <= 65535):
-                        # Replace the instruction with a sequence to load the large immediate value
-                        rd = instr["rd"]
-                        new_instructions = generate_immediate_loading(label_address, rd)
-
-                        # Write the new instructions to the current segment data
-                        if current_segment_data is not None:
-                            current_segment_data.extend(new_instructions)
-                        else:
-                            raise ValueError("Segment data is not initialized. Ensure segments are properly set up before writing instructions.")
-
-                        continue
-
-                    instr["imm"] = offset
-
-            # Write the instruction to the current segment data
-            if current_segment_data is not None:
-                current_segment_data.extend(compile_instruction(instr))
-            else:
-                raise ValueError("Segment data is not initialized. Ensure segments are properly set up before writing instructions.")
-
             current_address += 4  # Each instruction is 4 bytes
+
+    # Add the last segment to the list
+    if current_segment_data is not None:
+        segments.append((current_segment, current_segment_data))
 
 
 # Function to compile an individual instruction into binary representation
@@ -156,98 +132,105 @@ def compile_instruction(instr):
     return op_byte.to_bytes(4, byteorder="big")
 
 
-# First pass: Resolve labels
-resolve_labels(ast)
-print(f"Label addresses: {label_addresses}")
-for instr in ast:
-    if instr["type"] in ["r", "i", "l", "b", "j", "s"]:
-        t_type = instr["type"]
-        name = instr["name"]
-        rd = instr.get("rd", None)
-        rs1 = instr.get("rs1", None)
-        rs2 = instr.get("rs2", None)
-        imm = instr.get("imm", None)
+# First pass: Resolve labels and segment addresses
+def first_pass(ast):
+    global current_address, current_segment, current_segment_data
+    for instr in ast:
+        if instr["type"] == "a":  # Label definition
+            label_name = instr["name"]
+            label_addresses[label_name] = current_address
+        elif instr["type"] == "m" and instr["name"] == "seg":
+            # Handle .SEG directive
+            if current_segment_data is not None:
+                segments.append((current_segment, current_segment_data))
+            segment_address = instr["imm"]
+            if type(segment_address) == dict:
+                segment_address = segment_address["value"]
+            print(f"Switching to segment at address {segment_address}")
 
-        # Resolve label to address for jump and branch instructions
-        if isinstance(imm, dict) and imm.get("type") == "u":
-            label_name = imm["name"]
-            if label_name not in label_addresses:
-                raise ValueError(f"Undefined label: {label_name}")
-            imm = (label_addresses[label_name] - current_address) // 4  # PC-relative addressing, 4-byte aligned
-            print(f"Resolved label {label_name} to address {imm}")
-        print(f"Compiling instruction: {instr}")
-        if isinstance(imm, dict) and imm.get("type") == "li":
+            current_segment_data = bytearray()
+            current_segment = segment_address
+            current_address = segment_address
+        else:
+            current_address += 4  # Each instruction is 4 bytes
 
-            const_value = imm["value"]
-            const_rd = imm["rd"]
-            file += generate_immediate_loading(const_value, const_rd)
-            rs2 = const_rd  # Use the register holding the constant as the second source
-            imm = 0  # Clear immediate since we're using a register now
-            t_type = "r"  # Change instruction type to I-type since immediate is now in a register
-            name: str = i_to_r_map.get(
-                name, name
-            )  # Map I-type instruction to R-type equivalent to use register
-        if isinstance(imm, int) and (-32768 > imm or imm > 65535):
-            if t_type in ["j", "b", "i", "l"]:
-                # For jump and branch instructions, we need to load the immediate into a register first.
-                const_value = imm
-                const_rd = rd
-                file += generate_stack_push(rd)
-                file += generate_immediate_loading(const_value, const_rd)
-                rs1 = const_rd  # Use the register holding the constant as the first source
-                imm = 0  # Clear immediate since we're using a register now
-                file += generate_stack_pop(rd)
-        type_id = opcode_type_map[t_type]
-        opcode = instr_type_maps[type_id][name]
-        op_byte = type_id << 4 | opcode
-        if type_id == 0:
-            assert rd is not None, "RD is required for R-type"
-            assert rs1 is not None, "RS1 is required for R-type"
-            assert rs2 is not None, "RS2 is not used for R-type"
-            op_byte = (op_byte << 4) | (rd & 0x0F)
-            op_byte = (op_byte << 4) | (rs1 & 0x0F)
-            op_byte = (op_byte << 4) | (rs2 & 0x0F)
-        elif type_id in [1, 2]:
-            assert rd is not None, "RD is required for I/L-type"
-            assert rs1 is not None, "RS is required for I/L-type"
-            assert imm is not None, "IMM is required for I/L-type"
-            assert isinstance(imm, int), f"IMM must be an integer for I/L-type, is {imm}"
-            assert -32768 <= imm <= 65535, f"IMM out of range for I/L-type, is {imm}"
-            op_byte = (op_byte << 4) | (rd & 0x0F)
-            op_byte = (op_byte << 4) | (rs1 & 0x0F)
-            op_byte = (op_byte << 16) | (imm & 0xFFFF)
-        elif type_id == 3:
-            assert rd is not None, "RD is required for B-type"
-            assert rs1 is not None, "RS is required for B-type"
-            assert imm is not None, "IMM is required for B-type"
-            assert isinstance(imm, int), f"IMM must be an integer for B-type, is {imm}"
-            op_byte = (op_byte << 4) | (rd & 0x0F)
-            op_byte = (op_byte << 4) | (rs1 & 0x0F)
-            op_byte = (op_byte << 16) | (imm & 0xFFFF)
-        elif type_id == 4:
-            assert rd is not None, "RD is required for J-type"
-            assert rs1 is not None, "RS is required for J-type"
-            assert imm is not None, "IMM is required for J-type"
-            assert isinstance(imm, int), f"IMM must be an integer for J-type, is {imm}"
+    # Add the last segment to the list
+    if current_segment_data is not None:
+        segments.append((current_segment, current_segment_data))
 
-            op_byte = (op_byte << 4) | (rd & 0x0F)
-            op_byte = (op_byte << 4) | (rs1 & 0x0F)
-            op_byte = (op_byte << 16) | (imm & 0xFFFF)
-        elif type_id == 5:
-            assert imm is None, "IMM is not used for S-type"
-            assert rd is None, "RD is not used for S-type"
-            assert rs1 is None, "RS is not used for S-type"
-            assert rs2 is None, "RS2 is not used for S-type"
-            op_byte = op_byte << 24
 
-        if current_segment_data is not None:
-            current_segment_data.extend(op_byte.to_bytes(4, byteorder="big"))
+# Second pass: Compile instructions and write to segments
+def second_pass(ast):
+    global current_address, current_segment, current_segment_data
+    for instr in ast:
+        if instr["type"] == "m" and instr["name"] == "seg":
+            # Handle .SEG directive
+            segment_address = instr["imm"]
+            if type(segment_address) == dict:
+                segment_address = segment_address["value"]
+            current_segment_data = next((data for addr, data in segments if addr == segment_address), None)
+            current_segment = segment_address
+            current_address = segment_address
+        else:
+            print("Compiling instruction at address", hex(current_address), ":", instr)
+            if instr["type"] =="a":
+                continue  # Skip label definitions
+            if instr["type"] == "p" and instr["name"]=="jmp":
+                imm=instr["imm"]
+                if isinstance(instr["imm"], dict):
+                    label_name = instr["imm"].get("name")
+                    if label_name in label_addresses:
+                        imm = label_addresses[label_name]
+                    else:
+                        raise ValueError(f"Undefined label: {label_name}")
+                abs_jump_instr = generate_absolute_jump(imm)
+                if current_segment_data is not None:
+                    current_segment_data.extend(abs_jump_instr)
+                else:
+                    raise ValueError("Segment data is not initialized. Ensure segments are properly set up before writing instructions.")
+                continue
+            
 
-# Add the last segment to the list
-if current_segment_data is not None:
-    segments.append((current_segment, current_segment_data))
+            if instr["type"] in ["i", "l"] and isinstance(instr.get("imm"), dict):
+                label_name = instr["imm"].get("name")
+                if label_name in label_addresses:
+                    label_address = label_addresses[label_name]
+                    offset = label_address - current_address
 
-MAGIC= 0x50534F52  # 'ROSP' in little-endian
+                    # Check if the immediate value is out of range
+                    if not (-32768 <= offset <= 65535):
+                        # Replace the instruction with a sequence to load the large immediate value
+                        rd = instr["rd"]
+                        new_instructions = generate_immediate_loading(label_address, rd)
+
+                        # Write the new instructions to the current segment data
+                        if current_segment_data is not None:
+                            current_segment_data.extend(new_instructions)
+                        else:
+                            raise ValueError("Segment data is not initialized. Ensure segments are properly set up before writing instructions.")
+
+                        continue
+
+                    instr["imm"] = offset
+
+            # Write the instruction to the current segment data
+            if current_segment_data is not None:
+                current_segment_data.extend(compile_instruction(instr))
+            else:
+                raise ValueError("Segment data is not initialized. Ensure segments are properly set up before writing instructions.")
+
+            current_address += 4  # Each instruction is 4 bytes
+
+
+# Perform the two-pass compilation
+first_pass(ast)
+current_address = 0  # Reset for second pass
+current_segment = None
+current_segment_data = None
+second_pass(ast)
+
+# Write the output file
+MAGIC = 0x50534F52  # 'ROSP' in little-endian
 VERSION = 1
 print("final segments:", [(hex(addr), len(data)) for addr, data in segments])
 with open(args.output, "wb") as f:
