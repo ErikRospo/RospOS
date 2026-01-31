@@ -208,7 +208,7 @@ def second_pass(ast):
                 elif "name" in instr["imm"]:
                     label_name = instr["imm"].get("name")
                     if label_name in label_addresses:
-                        instr["imm"] = (current_address-label_addresses[label_name])//4
+                        instr["imm"] = (label_addresses[label_name]-current_address)//4
                     else:
                         raise ValueError(f"Undefined label: {label_name}")
                     
@@ -254,7 +254,7 @@ def second_pass(ast):
                         current_address+=8*4 # 8 instructions added
                         
                         
-            
+            print("Resolved instruction:", instr)
             # Write the instruction to the current segment data
             current_segment_data.extend(compile_instruction(instr))
 
