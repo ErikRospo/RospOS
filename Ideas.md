@@ -49,3 +49,15 @@ Idea: if two segs overlap or are contiguous, merge them
     - To call the function, use JAL r14, my_function
     - The return address is stored in r14 by convention
     - The function can return using JALR r0, r14, 0
+
+.INC "filename"
+    - Includes the contents of another assembly file at this point.
+    - Filename is relative to the current file's location
+    - The included file is processed as if its contents were written directly in place of the .INC directive
+    - ex: .INC "common_functions.ros"
+        - This will include and assemble the contents of common_functions.ros at this point in the current file
+    - This is processed first, before any other assembly or directives in the current file
+    - This can be nested, i.e. included files can themselves contain .INC directives
+    - Circular includes should be detected and reported as an error
+    - Included files share the same namespace for labels and functions as the including file
+  
