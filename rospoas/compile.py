@@ -172,6 +172,7 @@ def second_pass(ast):
             current_segment = segment_address
             current_address = segment_address
         else:
+            assert current_segment_data is not None, "Current segment data is not initialized. Ensure segments are properly set up before writing instructions."
             print("Compiling instruction at address", hex(current_address), ":", instr)
             if instr["type"] =="a":
                 continue  # Skip label definitions
@@ -189,35 +190,73 @@ def second_pass(ast):
                 else:
                     raise ValueError("Segment data is not initialized. Ensure segments are properly set up before writing instructions.")
                 continue
-            
-
-            if instr["type"] in ["i", "l"] and isinstance(instr.get("imm"), dict):
-                label_name = instr["imm"].get("name")
-                if label_name in label_addresses:
-                    label_address = label_addresses[label_name]
-                    offset = label_address - current_address
-
-                    # Check if the immediate value is out of range
-                    if not (-32768 <= offset <= 65535):
-                        # Replace the instruction with a sequence to load the large immediate value
-                        rd = instr["rd"]
-                        new_instructions = generate_immediate_loading(label_address, rd)
-
-                        # Write the new instructions to the current segment data
-                        if current_segment_data is not None:
-                            current_segment_data.extend(new_instructions)
+            if instr["type"]=="m" and instr["name"]=="data":
+                data_value = instr["imm"]
+                if isinstance(data_value, dict):
+                    data_value = data_value["value"]
+                data_bytes = data_value.to_bytes(4, byteorder="little", signed=True)
+                if current_segment_data is not None:
+                    current_segment_data.extend(data_bytes)
+                else:
+                    raise ValueError("Segment data is not initialized. Ensure segments are properly set up before writing instructions.")
+                current_address +=4
+                continue
+            # Resolve all immediates to actual addresses/values
+            if instr.get("imm") is not None and type(instr["imm"]) == dict:
+                if "value" in instr["imm"]:
+                    instr["imm"] = instr["imm"]["value"]
+                elif "name" in instr["imm"]:
+                    label_name = instr["imm"].get("name")
+                    if label_name in label_addresses:
+                        instr["imm"] = (current_address-label_addresses[label_name])//4
+                    else:
+                        raise ValueError(f"Undefined label: {label_name}")
+                    
+            # Now, try to correct immediates if they don't fit
+            if instr["type"] == "l":
+                imm = instr.get("imm")
+                if -32768 <= imm <= 65535:
+                    pass  # Fits in I-type
+                else:
+                    if instr["rs1"] == 0: # if loading with an offset of r0 (absolute load)
+                        # Use immediate loading sequence to get the address into the destination register
+                        # Because that's the only register that is guaranteed to be able to be clobbered safely
+                        current_segment_data.extend(generate_immediate_loading(imm, instr["rd"]))
+                        # Then change
+                        instr["imm"] = 0
+                        instr["rs1"] = instr["rd"]
+                        current_address+=12 # 3 instructions added
+                    else:
+                        # If we are actually loading from an address + offset, we need to use a temp register to calculate the sum ourselves
+                        # Find a temp register that is not used in this instruction
+                        if instr["rd"] != 1 and instr["rs1"] != 1:
+                            temp_reg = 1
+                        elif instr["rd"] != 2 and instr["rs1"] != 2:
+                            temp_reg = 2
                         else:
-                            raise ValueError("Segment data is not initialized. Ensure segments are properly set up before writing instructions.")
-
-                        continue
-
-                    instr["imm"] = offset
-
+                            temp_reg = 3
+                        # Push temp register
+                        current_segment_data.extend(generate_stack_push(temp_reg)) # 2 instructions
+                        # Load full address into temp register
+                        current_segment_data.extend(generate_immediate_loading(imm, temp_reg)) # 3 instructions
+                        # Generate an ADD instruction to add base + offset into rs1
+                        add_op_byte = opcode_type_map["r"] << 4 | instr_type_maps[opcode_type_map["r"]]["add"]
+                        add_op_byte = (add_op_byte << 4) | (temp_reg & 0x0F)  # rd = temp_reg
+                        add_op_byte = (add_op_byte << 4) | (instr["rs1"] & 0x0F)  # rs1 = original rs1
+                        add_op_byte = (add_op_byte << 4) | (temp_reg & 0x0F)  # rs2 = temp_reg
+                        current_segment_data.extend(add_op_byte.to_bytes(4, byteorder="big")) # 1 instruction
+                        # Change rs1 to temp_reg
+                        instr["rs1"] = temp_reg
+                        instr["imm"] = 0
+                        
+                        # Pop temp register
+                        current_segment_data.extend(generate_stack_pop(temp_reg)) # 2 instructions
+                        current_address+=8*4 # 8 instructions added
+                        
+                        
+            
             # Write the instruction to the current segment data
-            if current_segment_data is not None:
-                current_segment_data.extend(compile_instruction(instr))
-            else:
-                raise ValueError("Segment data is not initialized. Ensure segments are properly set up before writing instructions.")
+            current_segment_data.extend(compile_instruction(instr))
 
             current_address += 4  # Each instruction is 4 bytes
 
