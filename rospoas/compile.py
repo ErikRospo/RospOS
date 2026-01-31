@@ -23,7 +23,8 @@ parse_tree = parse_source(source_code)
 ast, lifted_constants = transform_parse_tree(parse_tree)
 
 # Write AST to JSON
-with open("./ast.json", "w") as f:
+filename_json = args.output.rsplit(".", 1)[0] + "_ast.json"
+with open(filename_json, "w") as f:
     json.dump({"ast": ast, "lifted_constants": lifted_constants}, f, indent=4)
 
 file = bytearray()
