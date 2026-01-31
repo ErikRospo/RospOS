@@ -93,6 +93,7 @@ def compile_instruction(instr):
         op_byte = (op_byte << 4) | (rd & 0x0F)
         op_byte = (op_byte << 4) | (rs1 & 0x0F)
         op_byte = (op_byte << 4) | (rs2 & 0x0F)
+        op_byte = op_byte << 12 # Unused bits
     elif type_id in [1, 2]:  # I/L-type
         assert rd is not None, "RD is required for I/L-type"
         assert rs1 is not None, "RS is required for I/L-type"

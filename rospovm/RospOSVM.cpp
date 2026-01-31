@@ -29,9 +29,13 @@ void RospOSVM::step()
     uint32_t instruction = memory.readWord(pc);
     std::cerr << "PC: " << std::hex << pc << std::dec << " ";
     std::cerr << "I: " << decodeInstruction(instruction, regFile, memory, pc) << std::endl;
-    executeInstruction(instruction);
+    std::cerr << "RI: " << std::hex << instruction << std::dec << std::endl;
     std::cerr << "Registers: " << getRegisterState() << std::endl;
-    std::cerr << "----------------------------------------" << std::endl;
+    executeInstruction(instruction);
+    std::cerr << "After Execution:" << std::endl;
+    std::cerr << "PC: " << std::hex << pc << std::dec << " ";
+    std::cerr << "Registers: " << getRegisterState() << std::endl;
+    std::cerr << "----------------------------------------" << std::endl <<std::endl;
 }
 
 std::string RospOSVM::getRegisterState() const
@@ -63,6 +67,7 @@ void RospOSVM::executeInstruction(uint32_t instruction)
         break;
     case 0x4: // Jump (J-type)
         jTypeInstruction(instruction);
+        pc-=4; // Adjust PC since J-type modifies it directly (WARNING: Hacky fix)
         break;
     case 0x5: // Special (S-type)
         sTypeInstruction(instruction);
