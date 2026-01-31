@@ -25,7 +25,7 @@ int main(int argc, char* argv[]) {
         std::ifstream file(filename, std::ios::binary | std::ios::ate);
         if (!file) {
             std::cerr << "Failed to open binary file: " << filename << std::endl;
-            continue;
+            exit(1);
         }
 
         std::streamsize size = file.tellg();
@@ -34,7 +34,7 @@ int main(int argc, char* argv[]) {
         std::vector<char> buffer(size);
         if (!file.read(buffer.data(), size)) {
             std::cerr << "Failed to read binary file: " << filename << std::endl;
-            continue;
+            exit(1);
         }
 
         try {
@@ -42,6 +42,7 @@ int main(int argc, char* argv[]) {
             std::cerr << "Loaded " << filename << " at address 0x" << std::hex << address << std::endl;
         } catch (const std::exception& e) {
             std::cerr << "Error loading binary at address 0x" << std::hex << address << ": " << e.what() << std::endl;
+            exit(1);
         }
     }
 
