@@ -1,5 +1,6 @@
+#!/bin/bash
 source rospoas/venv/bin/activate
 python3 rospoas/compile.py --input rospoas/test.ros --output rospovm/test.rosp
 cd rospovm
 make -j8
-./main ./rospovm/test.rosp
+./main ./test.rosp
