@@ -48,6 +48,7 @@ i_to_r_map = {
 
 
 # Update resolve_labels to ensure current_segment is always set
+
 def resolve_labels(ast):
     global current_address, current_segment, current_segment_data
     seg = 0
@@ -91,7 +92,68 @@ def resolve_labels(ast):
 
                     instr["imm"] = offset
 
+            # Write the instruction to the current segment data
+            if current_segment_data is not None:
+                current_segment_data.extend(compile_instruction(instr))
+            else:
+                raise ValueError("Segment data is not initialized. Ensure segments are properly set up before writing instructions.")
+
             current_address += 4  # Each instruction is 4 bytes
+
+
+# Function to compile an individual instruction into binary representation
+def compile_instruction(instr):
+    t_type = instr["type"]
+    name = instr["name"]
+    rd = instr.get("rd", None)
+    rs1 = instr.get("rs1", None)
+    rs2 = instr.get("rs2", None)
+    imm = instr.get("imm", None)
+
+    type_id = opcode_type_map[t_type]
+    opcode = instr_type_maps[type_id][name]
+    op_byte = type_id << 4 | opcode
+
+    if type_id == 0:  # R-type
+        assert rd is not None, "RD is required for R-type"
+        assert rs1 is not None, "RS1 is required for R-type"
+        assert rs2 is not None, "RS2 is required for R-type"
+        op_byte = (op_byte << 4) | (rd & 0x0F)
+        op_byte = (op_byte << 4) | (rs1 & 0x0F)
+        op_byte = (op_byte << 4) | (rs2 & 0x0F)
+    elif type_id in [1, 2]:  # I/L-type
+        assert rd is not None, "RD is required for I/L-type"
+        assert rs1 is not None, "RS is required for I/L-type"
+        assert imm is not None, "IMM is required for I/L-type"
+        assert isinstance(imm, int), f"IMM must be an integer for I/L-type, is {imm}"
+        assert -32768 <= imm <= 65535, f"IMM out of range for I/L-type, is {imm}"
+        op_byte = (op_byte << 4) | (rd & 0x0F)
+        op_byte = (op_byte << 4) | (rs1 & 0x0F)
+        op_byte = (op_byte << 16) | (imm & 0xFFFF)
+    elif type_id == 3:  # B-type
+        assert rd is not None, "RD is required for B-type"
+        assert rs1 is not None, "RS is required for B-type"
+        assert imm is not None, "IMM is required for B-type"
+        assert isinstance(imm, int), f"IMM must be an integer for B-type, is {imm}"
+        op_byte = (op_byte << 4) | (rd & 0x0F)
+        op_byte = (op_byte << 4) | (rs1 & 0x0F)
+        op_byte = (op_byte << 16) | (imm & 0xFFFF)
+    elif type_id == 4:  # J-type
+        assert rd is not None, "RD is required for J-type"
+        assert rs1 is not None, "RS is required for J-type"
+        assert imm is not None, "IMM is required for J-type"
+        assert isinstance(imm, int), f"IMM must be an integer for J-type, is {imm}"
+        op_byte = (op_byte << 4) | (rd & 0x0F)
+        op_byte = (op_byte << 4) | (rs1 & 0x0F)
+        op_byte = (op_byte << 16) | (imm & 0xFFFF)
+    elif type_id == 5:  # S-type
+        assert imm is None, "IMM is not used for S-type"
+        assert rd is None, "RD is not used for S-type"
+        assert rs1 is None, "RS is not used for S-type"
+        assert rs2 is None, "RS2 is not used for S-type"
+        op_byte = op_byte << 24
+
+    return op_byte.to_bytes(4, byteorder="big")
 
 
 # First pass: Resolve labels
@@ -187,7 +249,7 @@ if current_segment_data is not None:
 
 MAGIC= 0x50534F52  # 'ROSP' in little-endian
 VERSION = 1
-
+print("final segments:", [(hex(addr), len(data)) for addr, data in segments])
 with open(args.output, "wb") as f:
     # Header
     f.write(struct.pack("<III", MAGIC, VERSION, len(segments)))
