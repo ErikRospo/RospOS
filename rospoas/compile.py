@@ -247,36 +247,31 @@ def generate_stack_pop(rd):
 label_addresses = {}
 current_address = 0
 
-# Track segments and their corresponding binary files
+current_segment = None 
 segments = []
-current_segment = None
-current_segment_file = None
+current_segment_data = None 
 
-# Update resolve_labels to properly handle large immediate values
-# Replace the instruction with a sequence of instructions to load the large immediate value
-
+# Update resolve_labels to ensure current_segment is always set
 def resolve_labels(ast):
-    global current_address, current_segment, current_segment_file
-    seg=0
+    global current_address, current_segment, current_segment_data
+    seg = 0
     for instr in ast:
         if instr["type"] == "a":  # Label definition
             label_name = instr["name"]
             label_addresses[label_name] = current_address
         elif instr["type"] == "m" and instr["name"] == "seg":
             # Handle .SEG directive
-            if current_segment_file:
-                current_segment_file.close()
+            if current_segment_data is not None:
+                segments.append((current_segment, current_segment_data))
             segment_address = instr["imm"]
             if type(segment_address) == dict:
                 segment_address = segment_address["value"]
             print(f"Switching to segment at address {segment_address}")
-            
-            segment_file_name = f"segment_{seg:02}.bin"
-            current_segment_file = open(segment_file_name, "wb")
-            segments.append((segment_address, segment_file_name))
+
+            current_segment_data = bytearray()
             current_segment = segment_address
             current_address = segment_address
-            seg+=1
+            seg += 1
         else:
             if instr["type"] in ["i", "l"] and isinstance(instr.get("imm"), dict):
                 label_name = instr["imm"].get("name")
@@ -290,11 +285,11 @@ def resolve_labels(ast):
                         rd = instr["rd"]
                         new_instructions = generate_immediate_loading(label_address, rd)
 
-                        # Write the new instructions to the segment file
-                        if current_segment_file:
-                            current_segment_file.write(new_instructions)
+                        # Write the new instructions to the current segment data
+                        if current_segment_data is not None:
+                            current_segment_data.extend(new_instructions)
                         else:
-                            raise ValueError("Segment file is not initialized. Ensure segments are properly set up before writing instructions.")
+                            raise ValueError("Segment data is not initialized. Ensure segments are properly set up before writing instructions.")
 
                         continue
 
@@ -319,7 +314,7 @@ for instr in ast:
             label_name = imm["name"]
             if label_name not in label_addresses:
                 raise ValueError(f"Undefined label: {label_name}")
-            imm = (label_addresses[label_name] - current_address)//4 # PC-relative addressing, 4-byte aligned
+            imm = (label_addresses[label_name] - current_address) // 4  # PC-relative addressing, 4-byte aligned
             print(f"Resolved label {label_name} to address {imm}")
         print(f"Compiling instruction: {instr}")
         if isinstance(imm, dict) and imm.get("type") == "li":
@@ -334,7 +329,7 @@ for instr in ast:
                 name, name
             )  # Map I-type instruction to R-type equivalent to use register
         if isinstance(imm, int) and (-32768 > imm or imm > 65535):
-            if t_type in ["j", "b","i","l"]:
+            if t_type in ["j", "b", "i", "l"]:
                 # For jump and branch instructions, we need to load the immediate into a register first. 
                 const_value = imm
                 const_rd = rd 
@@ -375,7 +370,7 @@ for instr in ast:
             assert rs1 is not None, "RS is required for J-type"
             assert imm is not None, "IMM is required for J-type"
             assert isinstance(imm, int), f"IMM must be an integer for J-type, is {imm}"
-            
+
             op_byte = (op_byte << 4) | (rd & 0x0F)
             op_byte = (op_byte << 4) | (rs1 & 0x0F)
             op_byte = (op_byte << 16) | (imm & 0xFFFF)
@@ -386,14 +381,12 @@ for instr in ast:
             assert rs2 is None, "RS2 is not used for S-type"
             op_byte = op_byte << 24
 
-        if current_segment_file:
-            current_segment_file.write(op_byte.to_bytes(4, byteorder="big"))
+        if current_segment_data is not None:
+            current_segment_data.extend(op_byte.to_bytes(4, byteorder="big"))
 
-# Close the last segment file
-if current_segment_file:
-    current_segment_file.close()
-
-# TODO: Optimize # of segments used, merge together segments if they overlap or close enough
+# Add the last segment to the list
+if current_segment_data is not None:
+    segments.append((current_segment, current_segment_data))
 
 MAGIC = 0x524F5350
 VERSION = 1
@@ -403,12 +396,6 @@ with open("output.bin", "wb") as f:
     f.write(struct.pack("<III", MAGIC, VERSION, len(segments)))
 
     # Segments
-    for addr, path in segments:
-        with open(path, "rb") as segment_file:
-            data = segment_file.read()
+    for addr, data in segments:
         f.write(struct.pack("<II", addr, len(data)))
         f.write(data)
-
-for addr, path in segments:
-    print(f"Segment at address {addr} written to {path}")
-    os.remove(path)
