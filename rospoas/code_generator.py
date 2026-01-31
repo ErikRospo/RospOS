@@ -62,3 +62,25 @@ def generate_stack_pop(rd):
     op_byte = (op_byte << 16) | (0 & 0xFFFF)  # offset 0
     file += op_byte.to_bytes(4, byteorder="big")
     return file
+
+def generate_absolute_jump(address):
+    file = bytearray()
+    if address > 0xFFFF:
+        file += generate_stack_push(register_map["r1"])
+        # Load full address into a register first
+        file += generate_immediate_loading(address, register_map["r1"])
+        # Generate JALR instruction to jump to address in r1
+        op_byte = opcode_type_map["j"] << 4 | j_type_map["jalr"]
+        op_byte = (op_byte << 4) | 0  # rd = 0 (no return address)
+        op_byte = (op_byte << 4) | (register_map["r1"] & 0x0F)  # rs1 = r1
+        op_byte = (op_byte << 16) | 0  # immediate 0
+        file += op_byte.to_bytes(4, byteorder="big")
+        file += generate_stack_pop(register_map["r1"])
+        return file
+    # Generate JALR instruction to jump to absolute address
+    op_byte = opcode_type_map["j"] << 4 | j_type_map["jalr"]
+    op_byte = (op_byte << 4) | 0  # rd = 0 (no return address)
+    op_byte = (op_byte << 4) | 0  # rs1 = r0
+    op_byte = (op_byte << 16) | (address & 0xFFFF)  # immediate address
+    file += op_byte.to_bytes(4, byteorder="big")
+    return file
