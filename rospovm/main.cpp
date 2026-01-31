@@ -25,6 +25,7 @@ int main(int argc, char* argv[]) {
     for (const auto& segment : binary.segments) {
         vm.loadBinaryAtAddress(std::vector<char>(segment.data.begin(), segment.data.end()), segment.address);
     }
+    exit(0); // Temporary exit to avoid infinite loop during testing
 
     // Simple execution loop
     while (true){

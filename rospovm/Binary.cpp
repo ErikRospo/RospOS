@@ -2,6 +2,7 @@
 #include <vector>
 #include <cstdint>
 #include <stdexcept>
+#include <iostream>
 #include "Binary.h"
 
 Binary Binary::load_binary(const std::string& path) {
@@ -18,9 +19,10 @@ Binary Binary::load_binary(const std::string& path) {
     f.read(reinterpret_cast<char*>(&version), sizeof(version));
     f.read(reinterpret_cast<char*>(&segment_count), sizeof(segment_count));
 
-    if (magic != 0x524F5350) { // "ROSP"
+    if (magic != 0x50534F52) { // "ROSP"
         throw std::runtime_error("Invalid magic");
     }
+    std::cout << "Loading binary version " << version << " with " << segment_count << " segments." << std::endl;
 
     Binary bin;
     bin.version = version;

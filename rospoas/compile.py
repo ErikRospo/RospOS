@@ -185,7 +185,7 @@ for instr in ast:
 if current_segment_data is not None:
     segments.append((current_segment, current_segment_data))
 
-MAGIC = 0x524F5350
+MAGIC= 0x50534F52  # 'ROSP' in little-endian
 VERSION = 1
 
 with open(args.output, "wb") as f:
