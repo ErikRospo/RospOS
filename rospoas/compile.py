@@ -212,8 +212,38 @@ def generate_immediate_loading(value, rd):
     op_byte = (op_byte << 16) | (high & 0xFFFF)
     file += op_byte.to_bytes(4, byteorder="big")
     return file
+def generate_stack_push(rs):
+    file = bytearray()
+    # Generate SW instruction to push register onto stack
+    op_byte = opcode_type_map["s"] << 4 | l_type_map["sw"]
+    op_byte = (op_byte << 4) | (0 & 0x0F)  # rd is not used
+    op_byte = (op_byte << 4) | (rs & 0x0F)  # rs2 = rs
+    op_byte = (op_byte << 16) | (-4 & 0xFFFF)  # offset -4
+    file += op_byte.to_bytes(4, byteorder="big")
 
+    # Generate ADDI to decrement stack pointer
+    op_byte = opcode_type_map["i"] << 4 | i_type_map["addi"]
+    op_byte = (op_byte << 4) | (register_map["sp"] & 0x0F)  # rd = sp
+    op_byte = (op_byte << 4) | (register_map["sp"] & 0x0F)  # rs1 = sp
+    op_byte = (op_byte << 16) | (-4 & 0xFFFF)  # immediate -4
+    file += op_byte.to_bytes(4, byteorder="big")
+    return file
+def generate_stack_pop(rd):
+    file = bytearray()
+    # Generate ADDI to increment stack pointer
+    op_byte = opcode_type_map["i"] << 4 | i_type_map["addi"]
+    op_byte = (op_byte << 4) | (register_map["sp"] & 0x0F)  # rd = sp
+    op_byte = (op_byte << 4) | (register_map["sp"] & 0x0F)  # rs1 = sp
+    op_byte = (op_byte << 16) | (4 & 0xFFFF)  # immediate +4
+    file += op_byte.to_bytes(4, byteorder="big")
 
+    # Generate LW instruction to pop register from stack
+    op_byte = opcode_type_map["l"] << 4 | l_type_map["lw"]
+    op_byte = (op_byte << 4) | (rd & 0x0F)  # rd = rd
+    op_byte = (op_byte << 4) | (register_map["sp"] & 0x0F)  # rs1 = sp
+    op_byte = (op_byte << 16) | (0 & 0xFFFF)  # offset 0
+    file += op_byte.to_bytes(4, byteorder="big")
+    return file
 label_addresses = {}
 current_address = 0
 
@@ -227,6 +257,7 @@ current_segment_file = None
 
 def resolve_labels(ast):
     global current_address, current_segment, current_segment_file
+    seg=0
     for instr in ast:
         if instr["type"] == "a":  # Label definition
             label_name = instr["name"]
@@ -240,12 +271,12 @@ def resolve_labels(ast):
                 segment_address = segment_address["value"]
             print(f"Switching to segment at address {segment_address}")
             
-            # ["value"]
-            segment_file_name = f"segment_{segment_address:08X}.bin"
+            segment_file_name = f"segment_{seg:02}.bin"
             current_segment_file = open(segment_file_name, "wb")
             segments.append((segment_address, segment_file_name))
             current_segment = segment_address
             current_address = segment_address
+            seg+=1
         else:
             if instr["type"] in ["i", "l"] and isinstance(instr.get("imm"), dict):
                 label_name = instr["imm"].get("name")
@@ -273,7 +304,7 @@ def resolve_labels(ast):
 
 # First pass: Resolve labels
 resolve_labels(ast)
-
+print(f"Label addresses: {label_addresses}")
 for instr in ast:
     if instr["type"] in ["r", "i", "l", "b", "j", "s"]:
         t_type = instr["type"]
@@ -288,8 +319,8 @@ for instr in ast:
             label_name = imm["name"]
             if label_name not in label_addresses:
                 raise ValueError(f"Undefined label: {label_name}")
-            imm = label_addresses[label_name] - current_address
-
+            imm = (label_addresses[label_name] - current_address)//4 # PC-relative addressing, 4-byte aligned
+            print(f"Resolved label {label_name} to address {imm}")
         print(f"Compiling instruction: {instr}")
         if isinstance(imm, dict) and imm.get("type") == "li":
 
@@ -302,6 +333,16 @@ for instr in ast:
             name: str = i_to_r_map.get(
                 name, name
             )  # Map I-type instruction to R-type equivalent to use register
+        if isinstance(imm, int) and (-32768 > imm or imm > 65535):
+            if t_type in ["j", "b","i","l"]:
+                # For jump and branch instructions, we need to load the immediate into a register first. 
+                const_value = imm
+                const_rd = rd 
+                file += generate_stack_push(rd)
+                file += generate_immediate_loading(const_value, const_rd)
+                rs1 = const_rd  # Use the register holding the constant as the first source
+                imm = 0  # Clear immediate since we're using a register now
+                file += generate_stack_pop(rd)
         type_id = opcode_type_map[t_type]
         opcode = instr_type_maps[type_id][name]
         op_byte = type_id << 4 | opcode

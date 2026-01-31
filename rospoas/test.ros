@@ -8,12 +8,13 @@ _START:
 
 JMP LOOP
 
-TTY_ADDR:
+TTY_ADDR: // It is the responsibility of code to know how how long the address is, and to use LW/LH/LB appropriately
     .DATA 0x10000000
 
 
 
 .SEG 0x00000000
+
 LOOP:
     ADD r5, r2, r3 // c = a + b
     ADD r2, r3, r0 // a = b
