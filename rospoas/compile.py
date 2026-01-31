@@ -214,10 +214,10 @@ def generate_immediate_loading(value, rd):
     return file
 def generate_stack_push(rs):
     file = bytearray()
-    # Generate SW instruction to push register onto stack
+    # Generate SW instruction to store register to stack
     op_byte = opcode_type_map["s"] << 4 | l_type_map["sw"]
-    op_byte = (op_byte << 4) | (0 & 0x0F)  # rd is not used
-    op_byte = (op_byte << 4) | (rs & 0x0F)  # rs2 = rs
+    op_byte = (op_byte << 4) | (rs & 0x0F)  # data=rs 
+    op_byte = (op_byte << 4) | (register_map["sp"] & 0x0F)  # rs1 = sp
     op_byte = (op_byte << 16) | (-4 & 0xFFFF)  # offset -4
     file += op_byte.to_bytes(4, byteorder="big")
 
