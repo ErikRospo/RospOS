@@ -21,11 +21,15 @@ with open(args.input, "r") as f:
 # Parse and transform source code
 parse_tree = parse_source(source_code)
 ast, lifted_constants = transform_parse_tree(parse_tree)
+with open("debug_parse.txt", "w") as f:
+    f.write(str(parse_tree.pretty()))
+    f.write("\n\n")
+    f.write(str(ast))
 
 # Write AST to JSON
 filename_json = args.output.rsplit(".", 1)[0] + "_ast.json"
 with open(filename_json, "w") as f:
-    json.dump({"ast": ast, "lifted_constants": lifted_constants}, f, indent=4)
+    json.dump({"ast": ast, "lifted_constants": lifted_constants}, f, indent=4, default=str)
 
 file = bytearray()
 
@@ -136,7 +140,7 @@ def first_pass(ast):
         if instr["type"] == "a":  # Label definition
             label_name = instr["name"]
             label_addresses[label_name] = current_address
-        elif instr["type"] == "m" and instr["name"] == "seg":
+        elif instr["type"] == "d" and instr["name"] == "seg":
             # Handle .SEG directive
             if current_segment_data is not None:
                 segments.append((current_segment, current_segment_data))
@@ -160,7 +164,7 @@ def first_pass(ast):
 def second_pass(ast):
     global current_segment, current_segment_data
     for instr in ast:
-        if instr["type"] == "m" and instr["name"] == "seg":
+        if instr["type"] == "d" and instr["name"] == "seg":
             # Handle .SEG directive
             segment_address = instr["imm"]
             if type(segment_address) == dict:
@@ -172,7 +176,7 @@ def second_pass(ast):
             print("Compiling instruction at address", hex(len(current_segment_data)), ":", instr)
             if instr["type"] =="a":
                 continue  # Skip label definitions
-            if instr["type"] == "p" and instr["name"]=="jmp":
+            if instr["type"] =="p":
                 imm=instr["imm"]
                 if isinstance(instr["imm"], dict):
                     label_name = instr["imm"].get("name")
@@ -180,17 +184,25 @@ def second_pass(ast):
                         imm = label_addresses[label_name]
                     else:
                         raise ValueError(f"Undefined label: {label_name}")
-                abs_jump_instr = generate_absolute_jump(imm)
+                generated_instrs = None
+                if instr["name"]=="jmp":
+                    generated_instrs = generate_absolute_jump(imm)
+                elif instr["name"]=="lli":
+                    generated_instrs = generate_immediate_loading(imm, instr["reg"])
+                assert generated_instrs is not None, f"Unknown pseudo-instruction: {instr['name']}"
+
                 if current_segment_data is not None:
-                    current_segment_data.extend(abs_jump_instr)
+                    current_segment_data.extend(generated_instrs)
                 else:
                     raise ValueError("Segment data is not initialized. Ensure segments are properly set up before writing instructions.")
+
                 continue
-            if instr["type"]=="m" and instr["name"]=="data":
+            if instr["type"]=="d" and instr["name"]=="data":
                 data_value = instr["imm"]
                 if isinstance(data_value, dict):
                     data_value = data_value["value"]
-                data_bytes = data_value.to_bytes(4, byteorder="little", signed=True)
+                print(instr)
+                data_bytes = data_value.to_bytes(instr["len"], byteorder="little", signed=True)
                 if current_segment_data is not None:
                     current_segment_data.extend(data_bytes)
                 else:

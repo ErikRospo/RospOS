@@ -9,10 +9,13 @@ _START:
 JMP LOOP
 
 TTY_ADDR: // It is the responsibility of code to know how how long the address is, and to use LW/LH/LB appropriately
-    .DATA 0x10000000
-
-
-
+    .DATA 0x1000_0000
+HELLO_WORLD:
+    .STR "Hello, World!\n"
+NEWLINE:
+    .STR "\n"
+RAND_DATA:
+    .RAND 4 // 4 bytes of random data
 .SEG 0x00000000
 
 LOOP:
@@ -21,27 +24,20 @@ LOOP:
     ADD r3, r5, r0 // b = c
     ADDI r4, r4, 1 // i++
     BLT r4, r1, LOOP // if i < n, repeat
-    
-// Write result to TTY (must convert to decimal ASCII):
-// Prepare divisor
-ADDI r6, r0, 10
 
-// Prepare TTY address
-LW r2, r0, TTY_ADDR
+//r5 now contains the nth Fibonacci number
+ADDI r1, r5, 0 // Move result to r1 for printing
 
-// r2 now holds the TTY address
-// r5 holds the number to print
-// r6 holds the divisor (10)
-DIV_LOOP:
-    // Find remainder of r5 / 10 (to get last digit)
-    REM r1, r5, r6
-    // Convert to ASCII
-    ADDI r1, r1, 48
-    // Write digit to TTY
-    SW r1, r2, 0
-    // Update r5 = r5 / 10
-    DIV r5, r5, r6
-    // Repeat until r5 == 0 (all digits printed)
-    BNE r5, r0, DIV_LOOP
+CALL PRINT_NUMBER // Print the Fibonacci number
+ADDI r1, r0, NEWLINE
+CALL PRINT_STRING // Print newline
+
+ADDI r1, r0, HELLO_WORLD
+CALL PRINT_STRING // Print "Hello, World!\n"
+
+ADDI r2, r0, RAND_DATA
+LW r1, r2, 0 // Load random data 
+CALL PRINT_NUMBER 
 
 BREAK
+.INC "common_functions.ros"

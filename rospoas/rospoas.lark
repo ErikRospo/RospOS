@@ -61,8 +61,13 @@ lsinstructuse: lstypeinstructions register "," register "," imm
 binstructuse: btypeinstructions register "," register "," imm
 jinstructuser: jtypeinstructions register "," register "," imm 
 jinstructusei: jtypeinstructions register "," imm
-jmppseudo: "JMP" imm -> jmppseudo
 systeminstructuse: systeminstructions
+pseudoinstructions: "PUSH" register -> push
+    | "POP" register -> pop
+    | "LLI" register "," imm -> lli
+    | "JMP" imm -> jmpseudo
+    | "CALL" imm -> callpseudo
+    | "RET" -> retpseudo
 
 instruction: rinstructuse
            | iinstructuse
@@ -71,17 +76,19 @@ instruction: rinstructuse
            | jinstructuser
            | jinstructusei
            | systeminstructuse
-           | jmppseudo
-
-specialmarkers:"SEG" -> seg 
-    | "DATA" -> data
-
-specialmarkeruse: "." specialmarkers imm?
+           | pseudoinstructions
+directive:    "SEG" imm -> seg 
+            | "DATA" imm -> data
+            | "STR" ESCAPED_STRING -> strv # str is a reserved word in Python
+            | "FUNC" label -> func
+            | "INC" ESCAPED_STRING -> inc
+            | "RAND" imm -> rand
+directiveuse: "." directive imm?
 label: /[a-zA-Z_][a-zA-Z0-9_]*:/
 labeluse: /[a-zA-Z_][a-zA-Z0-9_]*/
 
 codeline: label
-    | specialmarkeruse
+    | directiveuse
     | instruction
     
 program: codeline*
@@ -92,3 +99,4 @@ program: codeline*
 %ignore C_COMMENT
 %import common.CPP_COMMENT
 %ignore CPP_COMMENT
+%import common.ESCAPED_STRING

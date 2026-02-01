@@ -1,0 +1,71 @@
+.FUNC PRINT_NUMBER
+    // Function to print a number in r1
+    PUSH r2
+    PUSH r3
+    PUSH r4
+    ADDI r2, r0, 10 // Divisor = 10
+    LLI r3, 0x1000_0000 // TTY address
+PRINT_LOOP:
+    REM r4, r1, r2 // r4 = r1 % 10
+    ADDI r4, r4, 48 // Convert to ASCII
+    SW r4, r3, 0 // Write to TTY
+    DIV r1, r1, r2 // r1 = r1 / 10
+    BNE r1, r0, PRINT_LOOP
+    POP r4
+    POP r3
+    POP r2
+    RET
+
+.FUNC PRINT_STRING
+    // Function to print a character string pointed to by r1
+    PUSH r2
+    PUSH r3
+    LLI r2, 0x1000_0000 // TTY address
+PRINT_CHAR_LOOP:
+    LB r3, r1, 0
+    BEQ r3, r0, END_PRINT_CHAR_LOOP
+    SW r3, r2, 0
+    ADDI r1, r1, 1
+    JMP PRINT_CHAR_LOOP
+END_PRINT_CHAR_LOOP:
+    POP r3
+    POP r2
+    RET
+
+.FUNC SAVE_REGISTERS
+    // Save all general-purpose registers to the stack
+    PUSH r1
+    PUSH r2
+    PUSH r3
+    PUSH r4
+    PUSH r5
+    PUSH r6
+    PUSH r7
+    PUSH r8
+    PUSH r9
+    PUSH r10
+    PUSH r11
+    PUSH r12
+    PUSH r13
+    PUSH r14
+    PUSH r15
+    RET
+
+.FUNC RESTORE_REGISTERS
+    // Restore all general-purpose registers from the stack
+    POP r15
+    POP r14
+    POP r13
+    POP r12
+    POP r11
+    POP r10
+    POP r9
+    POP r8
+    POP r7
+    POP r6
+    POP r5
+    POP r4
+    POP r3
+    POP r2
+    POP r1
+    RET

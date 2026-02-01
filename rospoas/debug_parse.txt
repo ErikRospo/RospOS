@@ -1,0 +1,172 @@
+program
+  codeline
+    directiveuse
+      seg
+        imm	0xFFFF0000
+  codeline
+    label	_START:
+  codeline
+    instruction
+      iinstructuse
+        addi
+        register	r1
+        register	r0
+        imm	10
+  codeline
+    instruction
+      iinstructuse
+        addi
+        register	r2
+        register	r0
+        imm	0
+  codeline
+    instruction
+      iinstructuse
+        addi
+        register	r3
+        register	r0
+        imm	1
+  codeline
+    instruction
+      iinstructuse
+        addi
+        register	r4
+        register	r0
+        imm	1
+  codeline
+    instruction
+      jmpseudo
+        imm
+          labeluse	LOOP
+  codeline
+    label	TTY_ADDR:
+  codeline
+    directiveuse
+      data
+        imm	0x1000_0000
+  codeline
+    label	HELLO_WORLD:
+  codeline
+    directiveuse
+      strv	"Hello, World!\n"
+  codeline
+    label	NEWLINE:
+  codeline
+    directiveuse
+      strv	"\n"
+  codeline
+    label	RAND_DATA:
+  codeline
+    directiveuse
+      rand
+        imm	4
+  codeline
+    directiveuse
+      seg
+        imm	0x00000000
+  codeline
+    label	LOOP:
+  codeline
+    instruction
+      rinstructuse
+        add
+        register	r5
+        register	r2
+        register	r3
+  codeline
+    instruction
+      rinstructuse
+        add
+        register	r2
+        register	r3
+        register	r0
+  codeline
+    instruction
+      rinstructuse
+        add
+        register	r3
+        register	r5
+        register	r0
+  codeline
+    instruction
+      iinstructuse
+        addi
+        register	r4
+        register	r4
+        imm	1
+  codeline
+    instruction
+      binstructuse
+        blt
+        register	r4
+        register	r1
+        imm
+          labeluse	LOOP
+  codeline
+    instruction
+      iinstructuse
+        addi
+        register	r1
+        register	r5
+        imm	0
+  codeline
+    instruction
+      callpseudo
+        imm
+          labeluse	PRINT_NUMBER
+  codeline
+    instruction
+      iinstructuse
+        addi
+        register	r1
+        register	r0
+        imm
+          labeluse	NEWLINE
+  codeline
+    instruction
+      callpseudo
+        imm
+          labeluse	PRINT_STRING
+  codeline
+    instruction
+      iinstructuse
+        addi
+        register	r1
+        register	r0
+        imm
+          labeluse	HELLO_WORLD
+  codeline
+    instruction
+      callpseudo
+        imm
+          labeluse	PRINT_STRING
+  codeline
+    instruction
+      iinstructuse
+        addi
+        register	r2
+        register	r0
+        imm
+          labeluse	RAND_DATA
+  codeline
+    instruction
+      lsinstructuse
+        lw
+        register	r1
+        register	r2
+        imm	0
+  codeline
+    instruction
+      callpseudo
+        imm
+          labeluse	PRINT_NUMBER
+  codeline
+    instruction
+      systeminstructuse
+        break
+  codeline
+    directiveuse
+      inc	"common_functions.ros"
+
+
+[{'type': 'd', 'name': 'seg', 'imm': {'type': 'li', 'name': 'LCONST_0', 'value': 4294901760}}, {'type': 'a', 'name': '_START', 'd': 'label'}, {'type': 'i', 'name': 'addi', 'rd': 1, 'rs1': 0, 'imm': 10}, {'type': 'i', 'name': 'addi', 'rd': 2, 'rs1': 0, 'imm': 0}, {'type': 'i', 'name': 'addi', 'rd': 3, 'rs1': 0, 'imm': 1}, {'type': 'i', 'name': 'addi', 'rd': 4, 'rs1': 0, 'imm': 1}, {'type': 'p', 'name': 'jmp', 'imm': {'type': 'u', 'name': 'LOOP'}}, {'type': 'a', 'name': 'TTY_ADDR', 'd': 'label'}, {'type': 'd', 'name': 'data', 'imm': 268435456, 'd': 'data', 'len': 4}, {'type': 'a', 'name': 'HELLO_WORLD', 'd': 'label'}, {'type': 'd', 'name': 'data', 'imm': 205469705004861725972941750691144, 'd': 'str', 'len': 15}, {'type': 'a', 'name': 'NEWLINE', 'd': 'label'}, {'type': 'd', 'name': 'data', 'imm': 10, 'd': 'str', 'len': 2}, {'type': 'a', 'name': 'RAND_DATA', 'd': 'label'}, {'type': 'd', 'name': 'data', 'imm': 482216188, 'd': 'rand', 'len': 4}, {'type': 'd', 'name': 'seg', 'imm': 0}, {'type': 'a', 'name': 'LOOP', 'd': 'label'}, {'type': 'r', 'name': 'add', 'rd': 5, 'rs1': 2, 'rs2': 3}, {'type': 'r', 'name': 'add', 'rd': 2, 'rs1': 3, 'rs2': 0}, {'type': 'r', 'name': 'add', 'rd': 3, 'rs1': 5, 'rs2': 0}, {'type': 'i', 'name': 'addi', 'rd': 4, 'rs1': 4, 'imm': 1}, {'type': 'b', 'name': 'blt', 'rd': 4, 'rs1': 1, 'imm': {'type': 'u', 'name': 'LOOP'}}, {'type': 'i', 'name': 'addi', 'rd': 1, 'rs1': 5, 'imm': 0}, {'type': 'j', 'rd': 'r14', 'rs1': 0, 'name': 'jal', 'imm': {'type': 'u', 'name': 'PRINT_NUMBER'}}, {'type': 'i', 'name': 'addi', 'rd': 1, 'rs1': 0, 'imm': {'type': 'u', 'name': 'NEWLINE'}}, {'type': 'j', 'rd': 'r14', 'rs1': 0, 'name': 'jal', 'imm': {'type': 'u', 'name': 'PRINT_STRING'}}, {'type': 'i', 'name': 'addi', 'rd': 1, 'rs1': 0, 'imm': {'type': 'u', 'name': 'HELLO_WORLD'}}, {'type': 'j', 'rd': 'r14', 'rs1': 0, 'name': 'jal', 'imm': {'type': 'u', 'name': 'PRINT_STRING'}}, {'type': 'i', 'name': 'addi', 'rd': 2, 'rs1': 0, 'imm': {'type': 'u', 'name': 'RAND_DATA'}}, {'type': 'l', 'name': 'lw', 'rd': 1, 'rs1': 2, 'imm': 0}, {'type': 'j', 'rd': 'r14', 'rs1': 0, 'name': 'jal', 'imm': {'type': 'u', 'name': 'PRINT_NUMBER'}}, {'type': 's', 'name': 'break'}, {'type': 'd', 'name': 'inc', 'imm': 'common_functions.ros'}]

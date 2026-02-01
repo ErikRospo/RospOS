@@ -43,12 +43,12 @@ Idea: if two segs overlap or are contiguous, merge them
 .FUNC name
     - Defines the start of a function named 'name'
     - A label is automatically created at this point
-    - Returns are handled with the JAL and JALR instructions
+    - Returns are handled with the CALL and RET instructions
     - ex: .FUNC my_function
         - This creates a label 'my_function' at the current address
-    - To call the function, use JAL r14, my_function
+    - To call the function, use CALL my_function
     - The return address is stored in r14 by convention
-    - The function can return using JALR r0, r14, 0
+    - The function can return using RET
 
 .INC "filename"
     - Includes the contents of another assembly file at this point.
