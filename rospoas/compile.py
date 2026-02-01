@@ -1,7 +1,7 @@
 import argparse
 import json
 import struct
-from grammar_parser import parse_source
+from grammar_parser import parse_source, preprocess_includes
 from transformer import transform_parse_tree
 from code_generator import generate_absolute_jump, generate_immediate_loading, generate_stack_push, generate_stack_pop
 from maps import opcode_type_map, instr_type_maps
@@ -18,6 +18,12 @@ if args.output is None:
 with open(args.input, "r") as f:
     source_code = f.read()
 
+
+preprocessed_code = "\n".join(preprocess_includes(source_code, args.input))
+
+# Parse and transform the preprocessed source code
+parse_tree = parse_source(preprocessed_code)
+ast, lifted_constants = transform_parse_tree(parse_tree)
 # Parse and transform source code
 parse_tree = parse_source(source_code)
 ast, lifted_constants = transform_parse_tree(parse_tree)
@@ -25,6 +31,8 @@ with open("debug_parse.txt", "w") as f:
     f.write(str(parse_tree.pretty()))
     f.write("\n\n")
     f.write(str(ast))
+    f.write("\n\n")
+    f.write(preprocessed_code)
 
 # Write AST to JSON
 filename_json = args.output.rsplit(".", 1)[0] + "_ast.json"
