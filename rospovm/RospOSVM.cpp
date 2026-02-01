@@ -12,7 +12,7 @@
 RospOSVM::RospOSVM(bool debugMode) : memory(1ULL << 32) // Initialize 4GB memory
 {
     this->debugMode = debugMode;
-    pc = 0xFFFF0000;              // Start of kernel space
+    pc=memory.readWord(0xFFFFFFFC); // Set PC to reset vector
     regFile.sp().set(0x0FFFFFFF); // Top of RAM
     regFile[0].setReadOnly(true);   // R0 is always zero
     // Setup TTY MMIO range

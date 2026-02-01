@@ -184,7 +184,7 @@ This allows for easier initialization of memory to zero.
 | 0x10000000–0x1000FFFF | TTY                        | Read input / write output              |
 | 0x20000000–0x20000FFF | Display (128×128 2-bit)    | 4096 bytes linear framebuffer          |
 | 0x30000000–0x3000FFFF | Audio (SID-like)           | freq, waveform, volume, gate registers |
-| 0xFFFF0000–0xFFFFFFFF | Kernel / interrupt vectors | Reserved                               |
+| 0xFFFFFF00–0xFFFFFFFF | Kernel / interrupt vectors | Reserved                               |
 
 
 ## Calling Convention (ABI)
@@ -226,5 +226,5 @@ Stack pointer is initialized to top of RAM (`0x0FFFFFFF`) on reset. Stack grows 
 ### Reset Behavior
 * Clear registers to 0
 * Stack pointer (r15) initialized to top of RAM (`0x0FFFFFFF`)
-* PC set to `0xFFFF0000` (start of kernel space)
+* PC set to value at reset vector (`0xFFFFFFFC`)
 * Execution begins

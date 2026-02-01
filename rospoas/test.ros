@@ -1,14 +1,5 @@
-.SEG 0xFFFF0000
-JMP MAIN
-
-
-HELLO_WORLD:
-    .STR "Hello, World!\n"
-NEWLINE:
-    .STR "\n"
-RAND_DATA:
-    .DATA 0x1234_5678 // Example random data to keep the program deterministic for testing
-    //.RAND 4 // 4 bytes of random data
+.SEG 0xFFFF_FFFC
+    .DATA 0x0000_0000 // Reset vector points to address 0x00000000
 .SEG 0x00000000
 MAIN:
     ADDI r1, r0, 6  // n = 6
@@ -38,4 +29,11 @@ LW r1, r2, 0 // Load random data
 CALL PRINT_NUMBER 
 
 BREAK
+HELLO_WORLD:
+    .STR "Hello, World!\n"
+NEWLINE:
+    .STR "\n"
+RAND_DATA:
+    .DATA 0x1234_5678 // Example random data to keep the program deterministic for testing
+    //.RAND 4 // 4 bytes of random data
 .INC "common_functions.ros"
