@@ -10,8 +10,57 @@
             }
         },
         {
+            "type": "p",
+            "name": "jmp",
+            "imm": {
+                "type": "u",
+                "name": "MAIN"
+            }
+        },
+        {
             "type": "a",
-            "name": "_START",
+            "name": "HELLO_WORLD",
+            "d": "label"
+        },
+        {
+            "type": "d",
+            "name": "data",
+            "imm": "b'Hello, World!\\n\\x00'",
+            "d": "str",
+            "len": 15
+        },
+        {
+            "type": "a",
+            "name": "NEWLINE",
+            "d": "label"
+        },
+        {
+            "type": "d",
+            "name": "data",
+            "imm": "b'\\n\\x00'",
+            "d": "str",
+            "len": 2
+        },
+        {
+            "type": "a",
+            "name": "RAND_DATA",
+            "d": "label"
+        },
+        {
+            "type": "d",
+            "name": "data",
+            "imm": 305419896,
+            "d": "data",
+            "len": 4
+        },
+        {
+            "type": "d",
+            "name": "seg",
+            "imm": 0
+        },
+        {
+            "type": "a",
+            "name": "MAIN",
             "d": "label"
         },
         {
@@ -19,7 +68,7 @@
             "name": "addi",
             "rd": 1,
             "rs1": 0,
-            "imm": 10
+            "imm": 6
         },
         {
             "type": "i",
@@ -43,67 +92,6 @@
             "imm": 1
         },
         {
-            "type": "p",
-            "name": "jmp",
-            "imm": {
-                "type": "u",
-                "name": "LOOP"
-            }
-        },
-        {
-            "type": "a",
-            "name": "TTY_ADDR",
-            "d": "label"
-        },
-        {
-            "type": "d",
-            "name": "data",
-            "imm": 268435456,
-            "d": "data",
-            "len": 4
-        },
-        {
-            "type": "a",
-            "name": "HELLO_WORLD",
-            "d": "label"
-        },
-        {
-            "type": "d",
-            "name": "data",
-            "imm": 205469705004861725972941750691144,
-            "d": "str",
-            "len": 15
-        },
-        {
-            "type": "a",
-            "name": "NEWLINE",
-            "d": "label"
-        },
-        {
-            "type": "d",
-            "name": "data",
-            "imm": 10,
-            "d": "str",
-            "len": 2
-        },
-        {
-            "type": "a",
-            "name": "RAND_DATA",
-            "d": "label"
-        },
-        {
-            "type": "d",
-            "name": "data",
-            "imm": 15639566,
-            "d": "rand",
-            "len": 4
-        },
-        {
-            "type": "d",
-            "name": "seg",
-            "imm": 0
-        },
-        {
             "type": "a",
             "name": "LOOP",
             "d": "label"
@@ -116,18 +104,18 @@
             "rs2": 3
         },
         {
-            "type": "r",
-            "name": "add",
+            "type": "i",
+            "name": "addi",
             "rd": 2,
             "rs1": 3,
-            "rs2": 0
+            "imm": 0
         },
         {
-            "type": "r",
-            "name": "add",
+            "type": "i",
+            "name": "addi",
             "rd": 3,
             "rs1": 5,
-            "rs2": 0
+            "imm": 0
         },
         {
             "type": "i",
@@ -606,7 +594,7 @@
     ],
     "lifted_constants": {
         "LCONST_0": 4294901760,
-        "LCONST_1": 268435456,
+        "LCONST_1": 305419896,
         "LCONST_2": 268435456,
         "LCONST_3": 268435456
     }

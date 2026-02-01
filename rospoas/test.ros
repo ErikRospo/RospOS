@@ -1,27 +1,25 @@
 .SEG 0xFFFF0000
-_START:
-    // Initialize registers
-    ADDI r1, r0, 10  // n = 10
-    ADDI r2, r0, 0   // a = 0
-    ADDI r3, r0, 1   // b = 1
-    ADDI r4, r0, 1   // i = 1
+JMP MAIN
 
-JMP LOOP
 
-TTY_ADDR: // It is the responsibility of code to know how how long the address is, and to use LW/LH/LB appropriately
-    .DATA 0x1000_0000
 HELLO_WORLD:
     .STR "Hello, World!\n"
 NEWLINE:
     .STR "\n"
 RAND_DATA:
-    .RAND 4 // 4 bytes of random data
+    .DATA 0x1234_5678 // Example random data to keep the program deterministic for testing
+    //.RAND 4 // 4 bytes of random data
 .SEG 0x00000000
+MAIN:
+    ADDI r1, r0, 6  // n = 6
+    ADDI r2, r0, 0   // a = 0
+    ADDI r3, r0, 1   // b = 1
+    ADDI r4, r0, 1   // i = 1
 
 LOOP:
     ADD r5, r2, r3 // c = a + b
-    ADD r2, r3, r0 // a = b
-    ADD r3, r5, r0 // b = c
+    ADDI r2, r3, 0 // a = b
+    ADDI r3, r5, 0 // b = c
     ADDI r4, r4, 1 // i++
     BLT r4, r1, LOOP // if i < n, repeat
 

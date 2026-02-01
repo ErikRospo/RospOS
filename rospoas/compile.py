@@ -39,9 +39,6 @@ with open(filename_json, "w") as f:
 
 file = bytearray()
 
-label_addresses = {}
-current_address = 0
-
 current_segment = None
 segments = []
 current_segment_data = None
@@ -55,32 +52,6 @@ i_to_r_map = {
     "shri": "shr",
     "sari": "sar",
 }
-
-
-# Update resolve_labels to remove manual address updates
-def resolve_labels(ast):
-    global current_segment, current_segment_data
-    seg = 0
-    for instr in ast:
-        if instr["type"] == "a":  # Label definition
-            label_name = instr["name"]
-            label_addresses[label_name] = len(current_segment_data) if current_segment_data else 0
-        elif instr["type"] == "m" and instr["name"] == "seg":
-            # Handle .SEG directive
-            if current_segment_data is not None:
-                segments.append((current_segment, current_segment_data))
-            segment_address = instr["imm"]
-            if type(segment_address) == dict:
-                segment_address = segment_address["value"]
-            print(f"Switching to segment at address {segment_address}")
-
-            current_segment_data = bytearray()
-            current_segment = segment_address
-            seg += 1
-
-    # Add the last segment to the list
-    if current_segment_data is not None:
-        segments.append((current_segment, current_segment_data))
 
 
 # Function to compile an individual instruction into binary representation
@@ -139,36 +110,108 @@ def compile_instruction(instr):
     return op_byte.to_bytes(4, byteorder="big")
 
 
-# First pass: Resolve labels and segment addresses
-def first_pass(ast):
-    global current_address, current_segment, current_segment_data
+def resolve_imm(imm, addresses):
+    if isinstance(imm, dict):
+        if "value" in imm:
+            return imm["value"]
+        elif "name" in imm:
+            name = imm["name"]
+            if name in addresses:
+                return addresses[name]
+            else:
+                raise ValueError(f"Undefined label: {name}")
+    return imm
+
+def calculate_size(instr, addresses):
+    t_type = instr["type"]
+    name = instr["name"]
+    if t_type == "d" and name == "data":
+        return instr["len"]
+    elif t_type == "p":
+        imm = resolve_imm(instr["imm"], addresses)
+        if name == "jmp":
+            return len(generate_absolute_jump(imm))
+        elif name == "lli":
+            return len(generate_immediate_loading(imm, instr["reg"]))
+        elif name == "push":
+            return len(generate_stack_push(imm))
+        elif name == "pop":
+            return len(generate_stack_pop(imm))
+    elif t_type in ["i", "l"]:
+        imm = instr.get("imm")
+        if imm is not None:
+            imm = resolve_imm(imm, addresses)
+            assert isinstance(imm, int), "Immediate value must be an integer at this point"
+            if not (-32768 <= imm <= 65535):
+                rd = instr["rd"]
+                rs1 = instr["rs1"]
+                if t_type == "l" and rs1 == 0:
+                    # load from absolute address
+                    return len(generate_immediate_loading(imm, rd)) + 4  # + lw
+                elif t_type == "l":
+                    # use temp reg
+                    temp_reg = 1 if rd != 1 and rs1 != 1 else (2 if rd != 2 and rs1 != 2 else 3)
+                    return len(generate_stack_push(temp_reg)) + len(generate_immediate_loading(imm, temp_reg)) + 4 + len(generate_stack_pop(temp_reg)) + 4  # push, imm, add, pop, lw
+                else:  # i type
+                    return len(generate_immediate_loading(imm, rd))
+    return 4  # default 4 bytes
+
+
+# Tentative pass: Assume all instructions are 4 bytes
+def tentative_pass(ast):
+    tentative_addresses = {}
+    current_address = 0
     for instr in ast:
-        if instr["type"] == "a":  # Label definition
-            label_name = instr["name"]
-            label_addresses[label_name] = current_address
+        if instr["type"] == "a":
+            tentative_addresses[instr["name"]] = current_address
         elif instr["type"] == "d" and instr["name"] == "seg":
-            # Handle .SEG directive
+            segment_address = instr["imm"]
+            if isinstance(segment_address, dict):
+                segment_address = segment_address["value"]
+            current_address = segment_address
+        else:
+            current_address += 4  # assume 4 bytes
+    return tentative_addresses
+
+# Actual pass: Calculate actual addresses accounting for expansions
+def actual_pass(ast, tentative_addresses):
+    actual_addresses = {}
+    current_address = 0
+    for instr in ast:
+        if instr["type"] == "a":
+            actual_addresses[instr["name"]] = current_address
+        elif instr["type"] == "d" and instr["name"] == "seg":
+            segment_address = instr["imm"]
+            if isinstance(segment_address, dict):
+                segment_address = segment_address["value"]
+            current_address = segment_address
+        else:
+            size = calculate_size(instr, tentative_addresses)
+            current_address += size
+    return actual_addresses
+
+def initialize_segments(ast):
+    segments = []
+    current_segment_data = None
+    current_segment = None
+    for instr in ast:
+        if instr["type"] == "d" and instr["name"] == "seg":
             if current_segment_data is not None:
                 segments.append((current_segment, current_segment_data))
             segment_address = instr["imm"]
-            if type(segment_address) == dict:
+            if isinstance(segment_address, dict):
                 segment_address = segment_address["value"]
-            print(f"Switching to segment at address {segment_address}")
-
             current_segment_data = bytearray()
             current_segment = segment_address
-            current_address = segment_address
-        else:
-            current_address += 4  # Each instruction is 4 bytes
-
-    # Add the last segment to the list
     if current_segment_data is not None:
         segments.append((current_segment, current_segment_data))
+    return segments
 
 
 # Second pass: Compile instructions and write to segments
-def second_pass(ast):
-    global current_segment, current_segment_data
+def second_pass(ast, actual_addresses, segments):
+    current_segment = None
+    current_segment_data = None
     for instr in ast:
         if instr["type"] == "d" and instr["name"] == "seg":
             # Handle .SEG directive
@@ -190,8 +233,8 @@ def second_pass(ast):
                         imm = label_value
                     else:
                         label_name = instr["imm"].get("name")
-                        if label_name in label_addresses:
-                            imm = label_addresses[label_name]
+                        if label_name in actual_addresses:
+                            imm = actual_addresses[label_name]
                         else:
                             raise ValueError(f"Undefined label: {label_name}")
                 generated_instrs = None
@@ -231,10 +274,11 @@ def second_pass(ast):
                     instr["imm"] = instr["imm"]["value"]
                 elif "name" in instr["imm"]:
                     label_name = instr["imm"].get("name")
-                    if label_name in label_addresses:
-                        instr["imm"] = (label_addresses[label_name]-len(current_segment_data))//4
+                    if label_name in actual_addresses:
+                        assert current_segment is not None, "Current segment is None while resolving label addresses"
+                        instr["imm"] = (actual_addresses[label_name] - (current_segment + len(current_segment_data))) // 4
                     else:
-                        raise ValueError(f"Undefined label: {label_name}. Current instruction: {instr}. Labels: {label_addresses.keys()}")
+                        raise ValueError(f"Undefined label: {label_name}. Current instruction: {instr}. Labels: {actual_addresses.keys()}")
 
             # Now, try to correct immediates if they don't fit
             if instr["type"] == "l" or instr["type"] == "i":
@@ -284,12 +328,11 @@ def second_pass(ast):
             current_segment_data.extend(compile_instruction(instr))
 
 
-# Perform the two-pass compilation
-first_pass(ast)
-current_address = 0  # Reset for second pass
-current_segment = None
-current_segment_data = None
-second_pass(ast)
+# Perform the compilation
+tentative_addresses = tentative_pass(ast)
+actual_addresses = actual_pass(ast, tentative_addresses)
+segments = initialize_segments(ast)
+second_pass(ast, actual_addresses, segments)
 
 # Write the output file
 MAGIC = 0x50534F52  # 'ROSP' in little-endian

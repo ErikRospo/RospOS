@@ -4,14 +4,39 @@ program
       seg
         imm	0xFFFF0000
   codeline
-    label	_START:
+    instruction
+      jmpseudo
+        imm
+          labeluse	MAIN
+  codeline
+    label	HELLO_WORLD:
+  codeline
+    directiveuse
+      strv	"Hello, World!\n"
+  codeline
+    label	NEWLINE:
+  codeline
+    directiveuse
+      strv	"\n"
+  codeline
+    label	RAND_DATA:
+  codeline
+    directiveuse
+      data
+        imm	0x1234_5678
+  codeline
+    directiveuse
+      seg
+        imm	0x00000000
+  codeline
+    label	MAIN:
   codeline
     instruction
       iinstructuse
         addi
         register	r1
         register	r0
-        imm	10
+        imm	6
   codeline
     instruction
       iinstructuse
@@ -34,37 +59,6 @@ program
         register	r0
         imm	1
   codeline
-    instruction
-      jmpseudo
-        imm
-          labeluse	LOOP
-  codeline
-    label	TTY_ADDR:
-  codeline
-    directiveuse
-      data
-        imm	0x1000_0000
-  codeline
-    label	HELLO_WORLD:
-  codeline
-    directiveuse
-      strv	"Hello, World!\n"
-  codeline
-    label	NEWLINE:
-  codeline
-    directiveuse
-      strv	"\n"
-  codeline
-    label	RAND_DATA:
-  codeline
-    directiveuse
-      rand
-        imm	4
-  codeline
-    directiveuse
-      seg
-        imm	0x00000000
-  codeline
     label	LOOP:
   codeline
     instruction
@@ -75,18 +69,18 @@ program
         register	r3
   codeline
     instruction
-      rinstructuse
-        add
+      iinstructuse
+        addi
         register	r2
         register	r3
-        register	r0
+        imm	0
   codeline
     instruction
-      rinstructuse
-        add
+      iinstructuse
+        addi
         register	r3
         register	r5
-        register	r0
+        imm	0
   codeline
     instruction
       iinstructuse
@@ -447,32 +441,30 @@ program
       retpseudo
 
 
-[{'type': 'd', 'name': 'seg', 'imm': {'type': 'li', 'name': 'LCONST_0', 'value': 4294901760}}, {'type': 'a', 'name': '_START', 'd': 'label'}, {'type': 'i', 'name': 'addi', 'rd': 1, 'rs1': 0, 'imm': 10}, {'type': 'i', 'name': 'addi', 'rd': 2, 'rs1': 0, 'imm': 0}, {'type': 'i', 'name': 'addi', 'rd': 3, 'rs1': 0, 'imm': 1}, {'type': 'i', 'name': 'addi', 'rd': 4, 'rs1': 0, 'imm': 1}, {'type': 'p', 'name': 'jmp', 'imm': {'type': 'u', 'name': 'LOOP'}}, {'type': 'a', 'name': 'TTY_ADDR', 'd': 'label'}, {'type': 'd', 'name': 'data', 'imm': 268435456, 'd': 'data', 'len': 4}, {'type': 'a', 'name': 'HELLO_WORLD', 'd': 'label'}, {'type': 'd', 'name': 'data', 'imm': 205469705004861725972941750691144, 'd': 'str', 'len': 15}, {'type': 'a', 'name': 'NEWLINE', 'd': 'label'}, {'type': 'd', 'name': 'data', 'imm': 10, 'd': 'str', 'len': 2}, {'type': 'a', 'name': 'RAND_DATA', 'd': 'label'}, {'type': 'd', 'name': 'data', 'imm': 15639566, 'd': 'rand', 'len': 4}, {'type': 'd', 'name': 'seg', 'imm': 0}, {'type': 'a', 'name': 'LOOP', 'd': 'label'}, {'type': 'r', 'name': 'add', 'rd': 5, 'rs1': 2, 'rs2': 3}, {'type': 'r', 'name': 'add', 'rd': 2, 'rs1': 3, 'rs2': 0}, {'type': 'r', 'name': 'add', 'rd': 3, 'rs1': 5, 'rs2': 0}, {'type': 'i', 'name': 'addi', 'rd': 4, 'rs1': 4, 'imm': 1}, {'type': 'b', 'name': 'blt', 'rd': 4, 'rs1': 1, 'imm': {'type': 'u', 'name': 'LOOP'}}, {'type': 'i', 'name': 'addi', 'rd': 1, 'rs1': 5, 'imm': 0}, {'type': 'j', 'rd': 14, 'rs1': 0, 'name': 'jal', 'imm': {'type': 'u', 'name': 'PRINT_NUMBER'}}, {'type': 'i', 'name': 'addi', 'rd': 1, 'rs1': 0, 'imm': {'type': 'u', 'name': 'NEWLINE'}}, {'type': 'j', 'rd': 14, 'rs1': 0, 'name': 'jal', 'imm': {'type': 'u', 'name': 'PRINT_STRING'}}, {'type': 'i', 'name': 'addi', 'rd': 1, 'rs1': 0, 'imm': {'type': 'u', 'name': 'HELLO_WORLD'}}, {'type': 'j', 'rd': 14, 'rs1': 0, 'name': 'jal', 'imm': {'type': 'u', 'name': 'PRINT_STRING'}}, {'type': 'i', 'name': 'addi', 'rd': 2, 'rs1': 0, 'imm': {'type': 'u', 'name': 'RAND_DATA'}}, {'type': 'l', 'name': 'lw', 'rd': 1, 'rs1': 2, 'imm': 0}, {'type': 'j', 'rd': 14, 'rs1': 0, 'name': 'jal', 'imm': {'type': 'u', 'name': 'PRINT_NUMBER'}}, {'type': 's', 'name': 'break'}, {'type': 'a', 'name': 'PRINT_NUMBER', 'd': 'label'}, {'type': 'p', 'name': 'push', 'imm': 2}, {'type': 'p', 'name': 'push', 'imm': 3}, {'type': 'p', 'name': 'push', 'imm': 4}, {'type': 'i', 'name': 'addi', 'rd': 2, 'rs1': 0, 'imm': 10}, {'type': 'p', 'name': 'lli', 'reg': 3, 'imm': {'type': 'li', 'name': 'LCONST_2', 'value': 268435456, 'rd': 3}}, {'type': 'a', 'name': 'PRINT_LOOP', 'd': 'label'}, {'type': 'r', 'name': 'rem', 'rd': 4, 'rs1': 1, 'rs2': 2}, {'type': 'i', 'name': 'addi', 'rd': 4, 'rs1': 4, 'imm': 48}, {'type': 'l', 'name': 'sw', 'rd': 4, 'rs1': 3, 'imm': 0}, {'type': 'r', 'name': 'div', 'rd': 1, 'rs1': 1, 'rs2': 2}, {'type': 'b', 'name': 'bne', 'rd': 1, 'rs1': 0, 'imm': {'type': 'u', 'name': 'PRINT_LOOP'}}, {'type': 'p', 'name': 'pop', 'imm': 4}, {'type': 'p', 'name': 'pop', 'imm': 3}, {'type': 'p', 'name': 'pop', 'imm': 2}, {'type': 'j', 'rd': 0, 'rs1': 14, 'name': 'jalr', 'imm': 0}, {'type': 'a', 'name': 'PRINT_STRING', 'd': 'label'}, {'type': 'p', 'name': 'push', 'imm': 2}, {'type': 'p', 'name': 'push', 'imm': 3}, {'type': 'p', 'name': 'lli', 'reg': 2, 'imm': {'type': 'li', 'name': 'LCONST_3', 'value': 268435456, 'rd': 2}}, {'type': 'a', 'name': 'PRINT_CHAR_LOOP', 'd': 'label'}, {'type': 'l', 'name': 'lb', 'rd': 3, 'rs1': 1, 'imm': 0}, {'type': 'b', 'name': 'beq', 'rd': 3, 'rs1': 0, 'imm': {'type': 'u', 'name': 'END_PRINT_CHAR_LOOP'}}, {'type': 'l', 'name': 'sw', 'rd': 3, 'rs1': 2, 'imm': 0}, {'type': 'i', 'name': 'addi', 'rd': 1, 'rs1': 1, 'imm': 1}, {'type': 'p', 'name': 'jmp', 'imm': {'type': 'u', 'name': 'PRINT_CHAR_LOOP'}}, {'type': 'a', 'name': 'END_PRINT_CHAR_LOOP', 'd': 'label'}, {'type': 'p', 'name': 'pop', 'imm': 3}, {'type': 'p', 'name': 'pop', 'imm': 2}, {'type': 'j', 'rd': 0, 'rs1': 14, 'name': 'jalr', 'imm': 0}, {'type': 'a', 'name': 'SAVE_REGISTERS', 'd': 'label'}, {'type': 'p', 'name': 'push', 'imm': 1}, {'type': 'p', 'name': 'push', 'imm': 2}, {'type': 'p', 'name': 'push', 'imm': 3}, {'type': 'p', 'name': 'push', 'imm': 4}, {'type': 'p', 'name': 'push', 'imm': 5}, {'type': 'p', 'name': 'push', 'imm': 6}, {'type': 'p', 'name': 'push', 'imm': 7}, {'type': 'p', 'name': 'push', 'imm': 8}, {'type': 'p', 'name': 'push', 'imm': 9}, {'type': 'p', 'name': 'push', 'imm': 10}, {'type': 'p', 'name': 'push', 'imm': 11}, {'type': 'p', 'name': 'push', 'imm': 12}, {'type': 'p', 'name': 'push', 'imm': 13}, {'type': 'p', 'name': 'push', 'imm': 14}, {'type': 'p', 'name': 'push', 'imm': 15}, {'type': 'j', 'rd': 0, 'rs1': 14, 'name': 'jalr', 'imm': 0}, {'type': 'a', 'name': 'RESTORE_REGISTERS', 'd': 'label'}, {'type': 'p', 'name': 'pop', 'imm': 15}, {'type': 'p', 'name': 'pop', 'imm': 14}, {'type': 'p', 'name': 'pop', 'imm': 13}, {'type': 'p', 'name': 'pop', 'imm': 12}, {'type': 'p', 'name': 'pop', 'imm': 11}, {'type': 'p', 'name': 'pop', 'imm': 10}, {'type': 'p', 'name': 'pop', 'imm': 9}, {'type': 'p', 'name': 'pop', 'imm': 8}, {'type': 'p', 'name': 'pop', 'imm': 7}, {'type': 'p', 'name': 'pop', 'imm': 6}, {'type': 'p', 'name': 'pop', 'imm': 5}, {'type': 'p', 'name': 'pop', 'imm': 4}, {'type': 'p', 'name': 'pop', 'imm': 3}, {'type': 'p', 'name': 'pop', 'imm': 2}, {'type': 'p', 'name': 'pop', 'imm': 1}, {'type': 'j', 'rd': 0, 'rs1': 14, 'name': 'jalr', 'imm': 0}]
+[{'type': 'd', 'name': 'seg', 'imm': {'type': 'li', 'name': 'LCONST_0', 'value': 4294901760}}, {'type': 'p', 'name': 'jmp', 'imm': {'type': 'u', 'name': 'MAIN'}}, {'type': 'a', 'name': 'HELLO_WORLD', 'd': 'label'}, {'type': 'd', 'name': 'data', 'imm': b'Hello, World!\n\x00', 'd': 'str', 'len': 15}, {'type': 'a', 'name': 'NEWLINE', 'd': 'label'}, {'type': 'd', 'name': 'data', 'imm': b'\n\x00', 'd': 'str', 'len': 2}, {'type': 'a', 'name': 'RAND_DATA', 'd': 'label'}, {'type': 'd', 'name': 'data', 'imm': 305419896, 'd': 'data', 'len': 4}, {'type': 'd', 'name': 'seg', 'imm': 0}, {'type': 'a', 'name': 'MAIN', 'd': 'label'}, {'type': 'i', 'name': 'addi', 'rd': 1, 'rs1': 0, 'imm': 6}, {'type': 'i', 'name': 'addi', 'rd': 2, 'rs1': 0, 'imm': 0}, {'type': 'i', 'name': 'addi', 'rd': 3, 'rs1': 0, 'imm': 1}, {'type': 'i', 'name': 'addi', 'rd': 4, 'rs1': 0, 'imm': 1}, {'type': 'a', 'name': 'LOOP', 'd': 'label'}, {'type': 'r', 'name': 'add', 'rd': 5, 'rs1': 2, 'rs2': 3}, {'type': 'i', 'name': 'addi', 'rd': 2, 'rs1': 3, 'imm': 0}, {'type': 'i', 'name': 'addi', 'rd': 3, 'rs1': 5, 'imm': 0}, {'type': 'i', 'name': 'addi', 'rd': 4, 'rs1': 4, 'imm': 1}, {'type': 'b', 'name': 'blt', 'rd': 4, 'rs1': 1, 'imm': {'type': 'u', 'name': 'LOOP'}}, {'type': 'i', 'name': 'addi', 'rd': 1, 'rs1': 5, 'imm': 0}, {'type': 'j', 'rd': 14, 'rs1': 0, 'name': 'jal', 'imm': {'type': 'u', 'name': 'PRINT_NUMBER'}}, {'type': 'i', 'name': 'addi', 'rd': 1, 'rs1': 0, 'imm': {'type': 'u', 'name': 'NEWLINE'}}, {'type': 'j', 'rd': 14, 'rs1': 0, 'name': 'jal', 'imm': {'type': 'u', 'name': 'PRINT_STRING'}}, {'type': 'i', 'name': 'addi', 'rd': 1, 'rs1': 0, 'imm': {'type': 'u', 'name': 'HELLO_WORLD'}}, {'type': 'j', 'rd': 14, 'rs1': 0, 'name': 'jal', 'imm': {'type': 'u', 'name': 'PRINT_STRING'}}, {'type': 'i', 'name': 'addi', 'rd': 2, 'rs1': 0, 'imm': {'type': 'u', 'name': 'RAND_DATA'}}, {'type': 'l', 'name': 'lw', 'rd': 1, 'rs1': 2, 'imm': 0}, {'type': 'j', 'rd': 14, 'rs1': 0, 'name': 'jal', 'imm': {'type': 'u', 'name': 'PRINT_NUMBER'}}, {'type': 's', 'name': 'break'}, {'type': 'a', 'name': 'PRINT_NUMBER', 'd': 'label'}, {'type': 'p', 'name': 'push', 'imm': 2}, {'type': 'p', 'name': 'push', 'imm': 3}, {'type': 'p', 'name': 'push', 'imm': 4}, {'type': 'i', 'name': 'addi', 'rd': 2, 'rs1': 0, 'imm': 10}, {'type': 'p', 'name': 'lli', 'reg': 3, 'imm': {'type': 'li', 'name': 'LCONST_2', 'value': 268435456, 'rd': 3}}, {'type': 'a', 'name': 'PRINT_LOOP', 'd': 'label'}, {'type': 'r', 'name': 'rem', 'rd': 4, 'rs1': 1, 'rs2': 2}, {'type': 'i', 'name': 'addi', 'rd': 4, 'rs1': 4, 'imm': 48}, {'type': 'l', 'name': 'sw', 'rd': 4, 'rs1': 3, 'imm': 0}, {'type': 'r', 'name': 'div', 'rd': 1, 'rs1': 1, 'rs2': 2}, {'type': 'b', 'name': 'bne', 'rd': 1, 'rs1': 0, 'imm': {'type': 'u', 'name': 'PRINT_LOOP'}}, {'type': 'p', 'name': 'pop', 'imm': 4}, {'type': 'p', 'name': 'pop', 'imm': 3}, {'type': 'p', 'name': 'pop', 'imm': 2}, {'type': 'j', 'rd': 0, 'rs1': 14, 'name': 'jalr', 'imm': 0}, {'type': 'a', 'name': 'PRINT_STRING', 'd': 'label'}, {'type': 'p', 'name': 'push', 'imm': 2}, {'type': 'p', 'name': 'push', 'imm': 3}, {'type': 'p', 'name': 'lli', 'reg': 2, 'imm': {'type': 'li', 'name': 'LCONST_3', 'value': 268435456, 'rd': 2}}, {'type': 'a', 'name': 'PRINT_CHAR_LOOP', 'd': 'label'}, {'type': 'l', 'name': 'lb', 'rd': 3, 'rs1': 1, 'imm': 0}, {'type': 'b', 'name': 'beq', 'rd': 3, 'rs1': 0, 'imm': {'type': 'u', 'name': 'END_PRINT_CHAR_LOOP'}}, {'type': 'l', 'name': 'sw', 'rd': 3, 'rs1': 2, 'imm': 0}, {'type': 'i', 'name': 'addi', 'rd': 1, 'rs1': 1, 'imm': 1}, {'type': 'p', 'name': 'jmp', 'imm': {'type': 'u', 'name': 'PRINT_CHAR_LOOP'}}, {'type': 'a', 'name': 'END_PRINT_CHAR_LOOP', 'd': 'label'}, {'type': 'p', 'name': 'pop', 'imm': 3}, {'type': 'p', 'name': 'pop', 'imm': 2}, {'type': 'j', 'rd': 0, 'rs1': 14, 'name': 'jalr', 'imm': 0}, {'type': 'a', 'name': 'SAVE_REGISTERS', 'd': 'label'}, {'type': 'p', 'name': 'push', 'imm': 1}, {'type': 'p', 'name': 'push', 'imm': 2}, {'type': 'p', 'name': 'push', 'imm': 3}, {'type': 'p', 'name': 'push', 'imm': 4}, {'type': 'p', 'name': 'push', 'imm': 5}, {'type': 'p', 'name': 'push', 'imm': 6}, {'type': 'p', 'name': 'push', 'imm': 7}, {'type': 'p', 'name': 'push', 'imm': 8}, {'type': 'p', 'name': 'push', 'imm': 9}, {'type': 'p', 'name': 'push', 'imm': 10}, {'type': 'p', 'name': 'push', 'imm': 11}, {'type': 'p', 'name': 'push', 'imm': 12}, {'type': 'p', 'name': 'push', 'imm': 13}, {'type': 'p', 'name': 'push', 'imm': 14}, {'type': 'p', 'name': 'push', 'imm': 15}, {'type': 'j', 'rd': 0, 'rs1': 14, 'name': 'jalr', 'imm': 0}, {'type': 'a', 'name': 'RESTORE_REGISTERS', 'd': 'label'}, {'type': 'p', 'name': 'pop', 'imm': 15}, {'type': 'p', 'name': 'pop', 'imm': 14}, {'type': 'p', 'name': 'pop', 'imm': 13}, {'type': 'p', 'name': 'pop', 'imm': 12}, {'type': 'p', 'name': 'pop', 'imm': 11}, {'type': 'p', 'name': 'pop', 'imm': 10}, {'type': 'p', 'name': 'pop', 'imm': 9}, {'type': 'p', 'name': 'pop', 'imm': 8}, {'type': 'p', 'name': 'pop', 'imm': 7}, {'type': 'p', 'name': 'pop', 'imm': 6}, {'type': 'p', 'name': 'pop', 'imm': 5}, {'type': 'p', 'name': 'pop', 'imm': 4}, {'type': 'p', 'name': 'pop', 'imm': 3}, {'type': 'p', 'name': 'pop', 'imm': 2}, {'type': 'p', 'name': 'pop', 'imm': 1}, {'type': 'j', 'rd': 0, 'rs1': 14, 'name': 'jalr', 'imm': 0}]
 
 .SEG 0xFFFF0000
-_START:
-// Initialize registers
-ADDI r1, r0, 10  // n = 10
-ADDI r2, r0, 0   // a = 0
-ADDI r3, r0, 1   // b = 1
-ADDI r4, r0, 1   // i = 1
+JMP MAIN
 
-JMP LOOP
 
-TTY_ADDR: // It is the responsibility of code to know how how long the address is, and to use LW/LH/LB appropriately
-.DATA 0x1000_0000
 HELLO_WORLD:
 .STR "Hello, World!\n"
 NEWLINE:
 .STR "\n"
 RAND_DATA:
-.RAND 4 // 4 bytes of random data
+.DATA 0x1234_5678 // Example random data to keep the program deterministic for testing
+//.RAND 4 // 4 bytes of random data
 .SEG 0x00000000
+MAIN:
+ADDI r1, r0, 6  // n = 6
+ADDI r2, r0, 0   // a = 0
+ADDI r3, r0, 1   // b = 1
+ADDI r4, r0, 1   // i = 1
 
 LOOP:
 ADD r5, r2, r3 // c = a + b
-ADD r2, r3, r0 // a = b
-ADD r3, r5, r0 // b = c
+ADDI r2, r3, 0 // a = b
+ADDI r3, r5, 0 // b = c
 ADDI r4, r4, 1 // i++
 BLT r4, r1, LOOP // if i < n, repeat
 
