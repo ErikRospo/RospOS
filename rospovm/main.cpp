@@ -7,7 +7,6 @@
 #include "InstructionDecoder.h"
 #include "Register.h"
 #include "RospOSVM.h"
-#include "MemoryMapParser.h"
 #include "Binary.h"
 
 int main(int argc, char* argv[]) {
