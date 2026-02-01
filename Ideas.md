@@ -50,6 +50,8 @@ Idea: if two segs overlap or are contiguous, merge them
     - The return address is stored in r14 by convention
     - The function can return using RET
 
+    - Functions are globally visible and can be called from other files if linked together TODO
+    - Labels are local to the file unless defined within a .FUNC block TODO
 .INC "filename"
     - Includes the contents of another assembly file at this point.
     - Filename is relative to the current file's location
@@ -60,4 +62,3 @@ Idea: if two segs overlap or are contiguous, merge them
     - This can be nested, i.e. included files can themselves contain .INC directives
     - Circular includes should be detected and reported as an error
     - Included files share the same namespace for labels and functions as the including file
-  
