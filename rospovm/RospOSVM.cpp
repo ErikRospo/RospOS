@@ -29,7 +29,7 @@ void RospOSVM::step()
     uint32_t instruction = memory.readWord(pc);
     std::cerr << "PC: " << std::hex << pc << std::dec << " ";
     std::cerr << "I: " << decodeInstruction(instruction, regFile, memory, pc) << std::endl;
-    std::cerr << "RI: " << std::hex << instruction << std::dec << std::endl;
+    std::cerr << "RI: " << std::hex << std::setw(8) << std::setfill('0') << instruction << std::dec << std::endl;
     std::cerr << "Registers: " << getRegisterState() << std::endl;
     executeInstruction(instruction);
     std::cerr << "After Execution:" << std::endl;
