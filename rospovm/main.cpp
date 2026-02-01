@@ -37,14 +37,16 @@ int main(int argc, char* argv[]) {
     // Simple execution loop
     if (debugMode)
         std::cout << "Press Enter to step, 'q' to quit." << std::endl;
-    while (true){
-        if (debugMode) {
-            std::cin.get(ch);
-            if (ch == 'q') break;
-        }
+    // while (true){
+    //     if (debugMode) {
+    //         std::cin.get(ch);
+    //         if (ch == 'q') break;
+    //     }
+    //     vm.step();
+    // }
+    
+    for (int i = 0; i < 50; ++i) {
         vm.step();
     }
-    
-
     return 0;
 }

@@ -1,0 +1,575 @@
+Defining function: {'type': 'a', 'name': 'PRINT_NUMBER', 'd': 'label'}
+Defining function: {'type': 'a', 'name': 'PRINT_STRING', 'd': 'label'}
+Defining function: {'type': 'a', 'name': 'SAVE_REGISTERS', 'd': 'label'}
+Defining function: {'type': 'a', 'name': 'RESTORE_REGISTERS', 'd': 'label'}
+Compiling instruction at address 0x0 : {'type': 'p', 'name': 'jmp', 'imm': {'type': 'u', 'name': 'MAIN'}}
+Compiling instruction at address 0x4 : {'type': 'a', 'name': 'HELLO_WORLD', 'd': 'label'}
+Compiling instruction at address 0x4 : {'type': 'd', 'name': 'data', 'imm': b'Hello, World!\n\x00', 'd': 'str', 'len': 15}
+{'type': 'd', 'name': 'data', 'imm': b'Hello, World!\n\x00', 'd': 'str', 'len': 15}
+Compiling instruction at address 0x13 : {'type': 'a', 'name': 'NEWLINE', 'd': 'label'}
+Compiling instruction at address 0x13 : {'type': 'd', 'name': 'data', 'imm': b'\n\x00', 'd': 'str', 'len': 2}
+{'type': 'd', 'name': 'data', 'imm': b'\n\x00', 'd': 'str', 'len': 2}
+Compiling instruction at address 0x15 : {'type': 'a', 'name': 'RAND_DATA', 'd': 'label'}
+Compiling instruction at address 0x15 : {'type': 'd', 'name': 'data', 'imm': 305419896, 'd': 'data', 'len': 4}
+{'type': 'd', 'name': 'data', 'imm': 305419896, 'd': 'data', 'len': 4}
+Compiling instruction at address 0x0 : {'type': 'a', 'name': 'MAIN', 'd': 'label'}
+Compiling instruction at address 0x0 : {'type': 'i', 'name': 'addi', 'rd': 1, 'rs1': 0, 'imm': 6}
+Final instruction after immediate resolution: {'type': 'i', 'name': 'addi', 'rd': 1, 'rs1': 0, 'imm': 6}
+----------------------------------------
+Compiling instruction at address 0x4 : {'type': 'i', 'name': 'addi', 'rd': 2, 'rs1': 0, 'imm': 0}
+Final instruction after immediate resolution: {'type': 'i', 'name': 'addi', 'rd': 2, 'rs1': 0, 'imm': 0}
+----------------------------------------
+Compiling instruction at address 0x8 : {'type': 'i', 'name': 'addi', 'rd': 3, 'rs1': 0, 'imm': 1}
+Final instruction after immediate resolution: {'type': 'i', 'name': 'addi', 'rd': 3, 'rs1': 0, 'imm': 1}
+----------------------------------------
+Compiling instruction at address 0xc : {'type': 'i', 'name': 'addi', 'rd': 4, 'rs1': 0, 'imm': 1}
+Final instruction after immediate resolution: {'type': 'i', 'name': 'addi', 'rd': 4, 'rs1': 0, 'imm': 1}
+----------------------------------------
+Compiling instruction at address 0x10 : {'type': 'a', 'name': 'LOOP', 'd': 'label'}
+Compiling instruction at address 0x10 : {'type': 'r', 'name': 'add', 'rd': 5, 'rs1': 2, 'rs2': 3}
+Final instruction after immediate resolution: {'type': 'r', 'name': 'add', 'rd': 5, 'rs1': 2, 'rs2': 3}
+----------------------------------------
+Compiling instruction at address 0x14 : {'type': 'i', 'name': 'addi', 'rd': 2, 'rs1': 3, 'imm': 0}
+Final instruction after immediate resolution: {'type': 'i', 'name': 'addi', 'rd': 2, 'rs1': 3, 'imm': 0}
+----------------------------------------
+Compiling instruction at address 0x18 : {'type': 'i', 'name': 'addi', 'rd': 3, 'rs1': 5, 'imm': 0}
+Final instruction after immediate resolution: {'type': 'i', 'name': 'addi', 'rd': 3, 'rs1': 5, 'imm': 0}
+----------------------------------------
+Compiling instruction at address 0x1c : {'type': 'i', 'name': 'addi', 'rd': 4, 'rs1': 4, 'imm': 1}
+Final instruction after immediate resolution: {'type': 'i', 'name': 'addi', 'rd': 4, 'rs1': 4, 'imm': 1}
+----------------------------------------
+Compiling instruction at address 0x20 : {'type': 'b', 'name': 'blt', 'rd': 4, 'rs1': 1, 'imm': {'type': 'u', 'name': 'LOOP'}}
+Final instruction after immediate resolution: {'type': 'b', 'name': 'blt', 'rd': 4, 'rs1': 1, 'imm': -4}
+----------------------------------------
+Compiling instruction at address 0x24 : {'type': 'i', 'name': 'addi', 'rd': 1, 'rs1': 5, 'imm': 0}
+Final instruction after immediate resolution: {'type': 'i', 'name': 'addi', 'rd': 1, 'rs1': 5, 'imm': 0}
+----------------------------------------
+Compiling instruction at address 0x28 : {'type': 'p', 'name': 'jmp', 'imm': {'type': 'u', 'name': 'PRINT_NUMBER'}, 'rd': 14}
+Compiling instruction at address 0x30 : {'type': 'i', 'name': 'addi', 'rd': 1, 'rs1': 0, 'imm': {'type': 'u', 'name': 'NEWLINE'}}
+Rewrote load instruction to load from address in rd register due to large immediate (4294901779)
+Final instruction after immediate resolution: {'type': 'i', 'name': 'addi', 'rd': 1, 'rs1': 1, 'imm': 0}
+----------------------------------------
+Compiling instruction at address 0x40 : {'type': 'p', 'name': 'jmp', 'imm': {'type': 'u', 'name': 'PRINT_STRING'}, 'rd': 14}
+Compiling instruction at address 0x48 : {'type': 'i', 'name': 'addi', 'rd': 1, 'rs1': 0, 'imm': {'type': 'u', 'name': 'HELLO_WORLD'}}
+Rewrote load instruction to load from address in rd register due to large immediate (4294901764)
+Final instruction after immediate resolution: {'type': 'i', 'name': 'addi', 'rd': 1, 'rs1': 1, 'imm': 0}
+----------------------------------------
+Compiling instruction at address 0x58 : {'type': 'p', 'name': 'jmp', 'imm': {'type': 'u', 'name': 'PRINT_STRING'}, 'rd': 14}
+Compiling instruction at address 0x60 : {'type': 'i', 'name': 'addi', 'rd': 2, 'rs1': 0, 'imm': {'type': 'u', 'name': 'RAND_DATA'}}
+Rewrote load instruction to load from address in rd register due to large immediate (4294901781)
+Final instruction after immediate resolution: {'type': 'i', 'name': 'addi', 'rd': 2, 'rs1': 2, 'imm': 0}
+----------------------------------------
+Compiling instruction at address 0x70 : {'type': 'l', 'name': 'lw', 'rd': 1, 'rs1': 2, 'imm': 0}
+Final instruction after immediate resolution: {'type': 'l', 'name': 'lw', 'rd': 1, 'rs1': 2, 'imm': 0}
+----------------------------------------
+Compiling instruction at address 0x74 : {'type': 'p', 'name': 'jmp', 'imm': {'type': 'u', 'name': 'PRINT_NUMBER'}, 'rd': 14}
+Compiling instruction at address 0x7c : {'type': 's', 'name': 'break'}
+Final instruction after immediate resolution: {'type': 's', 'name': 'break'}
+----------------------------------------
+Compiling instruction at address 0x80 : {'type': 'a', 'name': 'PRINT_NUMBER', 'd': 'label'}
+Compiling instruction at address 0x80 : {'type': 'p', 'name': 'push', 'imm': 2}
+Compiling instruction at address 0x88 : {'type': 'p', 'name': 'push', 'imm': 3}
+Compiling instruction at address 0x90 : {'type': 'p', 'name': 'push', 'imm': 4}
+Compiling instruction at address 0x98 : {'type': 'i', 'name': 'addi', 'rd': 2, 'rs1': 0, 'imm': 10}
+Final instruction after immediate resolution: {'type': 'i', 'name': 'addi', 'rd': 2, 'rs1': 0, 'imm': 10}
+----------------------------------------
+Compiling instruction at address 0x9c : {'type': 'p', 'name': 'lli', 'reg': 3, 'imm': {'type': 'li', 'name': 'LCONST_2', 'value': 268435456, 'rd': 3}}
+Compiling instruction at address 0xa4 : {'type': 'a', 'name': 'PRINT_LOOP', 'd': 'label'}
+Compiling instruction at address 0xa4 : {'type': 'r', 'name': 'rem', 'rd': 4, 'rs1': 1, 'rs2': 2}
+Final instruction after immediate resolution: {'type': 'r', 'name': 'rem', 'rd': 4, 'rs1': 1, 'rs2': 2}
+----------------------------------------
+Compiling instruction at address 0xa8 : {'type': 'i', 'name': 'addi', 'rd': 4, 'rs1': 4, 'imm': 48}
+Final instruction after immediate resolution: {'type': 'i', 'name': 'addi', 'rd': 4, 'rs1': 4, 'imm': 48}
+----------------------------------------
+Compiling instruction at address 0xac : {'type': 'l', 'name': 'sw', 'rd': 4, 'rs1': 3, 'imm': 0}
+Final instruction after immediate resolution: {'type': 'l', 'name': 'sw', 'rd': 4, 'rs1': 3, 'imm': 0}
+----------------------------------------
+Compiling instruction at address 0xb0 : {'type': 'r', 'name': 'div', 'rd': 1, 'rs1': 1, 'rs2': 2}
+Final instruction after immediate resolution: {'type': 'r', 'name': 'div', 'rd': 1, 'rs1': 1, 'rs2': 2}
+----------------------------------------
+Compiling instruction at address 0xb4 : {'type': 'b', 'name': 'bne', 'rd': 1, 'rs1': 0, 'imm': {'type': 'u', 'name': 'PRINT_LOOP'}}
+Final instruction after immediate resolution: {'type': 'b', 'name': 'bne', 'rd': 1, 'rs1': 0, 'imm': -11}
+----------------------------------------
+Compiling instruction at address 0xb8 : {'type': 'p', 'name': 'pop', 'imm': 4}
+Compiling instruction at address 0xc0 : {'type': 'p', 'name': 'pop', 'imm': 3}
+Compiling instruction at address 0xc8 : {'type': 'p', 'name': 'pop', 'imm': 2}
+Compiling instruction at address 0xd0 : {'type': 'j', 'rd': 0, 'rs1': 14, 'name': 'jalr', 'imm': 0}
+Final instruction after immediate resolution: {'type': 'j', 'rd': 0, 'rs1': 14, 'name': 'jalr', 'imm': 0}
+----------------------------------------
+Compiling instruction at address 0xd4 : {'type': 'a', 'name': 'PRINT_STRING', 'd': 'label'}
+Compiling instruction at address 0xd4 : {'type': 'p', 'name': 'push', 'imm': 2}
+Compiling instruction at address 0xdc : {'type': 'p', 'name': 'push', 'imm': 3}
+Compiling instruction at address 0xe4 : {'type': 'p', 'name': 'lli', 'reg': 2, 'imm': {'type': 'li', 'name': 'LCONST_3', 'value': 268435456, 'rd': 2}}
+Compiling instruction at address 0xec : {'type': 'a', 'name': 'PRINT_CHAR_LOOP', 'd': 'label'}
+Compiling instruction at address 0xec : {'type': 'l', 'name': 'lb', 'rd': 3, 'rs1': 1, 'imm': 0}
+Final instruction after immediate resolution: {'type': 'l', 'name': 'lb', 'rd': 3, 'rs1': 1, 'imm': 0}
+----------------------------------------
+Compiling instruction at address 0xf0 : {'type': 'b', 'name': 'beq', 'rd': 3, 'rs1': 0, 'imm': {'type': 'u', 'name': 'END_PRINT_CHAR_LOOP'}}
+Final instruction after immediate resolution: {'type': 'b', 'name': 'beq', 'rd': 3, 'rs1': 0, 'imm': -3}
+----------------------------------------
+Compiling instruction at address 0xf4 : {'type': 'l', 'name': 'sw', 'rd': 3, 'rs1': 2, 'imm': 0}
+Final instruction after immediate resolution: {'type': 'l', 'name': 'sw', 'rd': 3, 'rs1': 2, 'imm': 0}
+----------------------------------------
+Compiling instruction at address 0xf8 : {'type': 'i', 'name': 'addi', 'rd': 1, 'rs1': 1, 'imm': 1}
+Final instruction after immediate resolution: {'type': 'i', 'name': 'addi', 'rd': 1, 'rs1': 1, 'imm': 1}
+----------------------------------------
+Compiling instruction at address 0xfc : {'type': 'p', 'name': 'jmp', 'imm': {'type': 'u', 'name': 'PRINT_CHAR_LOOP'}}
+Compiling instruction at address 0x100 : {'type': 'a', 'name': 'END_PRINT_CHAR_LOOP', 'd': 'label'}
+Compiling instruction at address 0x100 : {'type': 'p', 'name': 'pop', 'imm': 3}
+Compiling instruction at address 0x108 : {'type': 'p', 'name': 'pop', 'imm': 2}
+Compiling instruction at address 0x110 : {'type': 'j', 'rd': 0, 'rs1': 14, 'name': 'jalr', 'imm': 0}
+Final instruction after immediate resolution: {'type': 'j', 'rd': 0, 'rs1': 14, 'name': 'jalr', 'imm': 0}
+----------------------------------------
+Compiling instruction at address 0x114 : {'type': 'a', 'name': 'SAVE_REGISTERS', 'd': 'label'}
+Compiling instruction at address 0x114 : {'type': 'p', 'name': 'push', 'imm': 1}
+Compiling instruction at address 0x11c : {'type': 'p', 'name': 'push', 'imm': 2}
+Compiling instruction at address 0x124 : {'type': 'p', 'name': 'push', 'imm': 3}
+Compiling instruction at address 0x12c : {'type': 'p', 'name': 'push', 'imm': 4}
+Compiling instruction at address 0x134 : {'type': 'p', 'name': 'push', 'imm': 5}
+Compiling instruction at address 0x13c : {'type': 'p', 'name': 'push', 'imm': 6}
+Compiling instruction at address 0x144 : {'type': 'p', 'name': 'push', 'imm': 7}
+Compiling instruction at address 0x14c : {'type': 'p', 'name': 'push', 'imm': 8}
+Compiling instruction at address 0x154 : {'type': 'p', 'name': 'push', 'imm': 9}
+Compiling instruction at address 0x15c : {'type': 'p', 'name': 'push', 'imm': 10}
+Compiling instruction at address 0x164 : {'type': 'p', 'name': 'push', 'imm': 11}
+Compiling instruction at address 0x16c : {'type': 'p', 'name': 'push', 'imm': 12}
+Compiling instruction at address 0x174 : {'type': 'p', 'name': 'push', 'imm': 13}
+Compiling instruction at address 0x17c : {'type': 'p', 'name': 'push', 'imm': 14}
+Compiling instruction at address 0x184 : {'type': 'p', 'name': 'push', 'imm': 15}
+Compiling instruction at address 0x18c : {'type': 'j', 'rd': 0, 'rs1': 14, 'name': 'jalr', 'imm': 0}
+Final instruction after immediate resolution: {'type': 'j', 'rd': 0, 'rs1': 14, 'name': 'jalr', 'imm': 0}
+----------------------------------------
+Compiling instruction at address 0x190 : {'type': 'a', 'name': 'RESTORE_REGISTERS', 'd': 'label'}
+Compiling instruction at address 0x190 : {'type': 'p', 'name': 'pop', 'imm': 15}
+Compiling instruction at address 0x198 : {'type': 'p', 'name': 'pop', 'imm': 14}
+Compiling instruction at address 0x1a0 : {'type': 'p', 'name': 'pop', 'imm': 13}
+Compiling instruction at address 0x1a8 : {'type': 'p', 'name': 'pop', 'imm': 12}
+Compiling instruction at address 0x1b0 : {'type': 'p', 'name': 'pop', 'imm': 11}
+Compiling instruction at address 0x1b8 : {'type': 'p', 'name': 'pop', 'imm': 10}
+Compiling instruction at address 0x1c0 : {'type': 'p', 'name': 'pop', 'imm': 9}
+Compiling instruction at address 0x1c8 : {'type': 'p', 'name': 'pop', 'imm': 8}
+Compiling instruction at address 0x1d0 : {'type': 'p', 'name': 'pop', 'imm': 7}
+Compiling instruction at address 0x1d8 : {'type': 'p', 'name': 'pop', 'imm': 6}
+Compiling instruction at address 0x1e0 : {'type': 'p', 'name': 'pop', 'imm': 5}
+Compiling instruction at address 0x1e8 : {'type': 'p', 'name': 'pop', 'imm': 4}
+Compiling instruction at address 0x1f0 : {'type': 'p', 'name': 'pop', 'imm': 3}
+Compiling instruction at address 0x1f8 : {'type': 'p', 'name': 'pop', 'imm': 2}
+Compiling instruction at address 0x200 : {'type': 'p', 'name': 'pop', 'imm': 1}
+Compiling instruction at address 0x208 : {'type': 'j', 'rd': 0, 'rs1': 14, 'name': 'jalr', 'imm': 0}
+Final instruction after immediate resolution: {'type': 'j', 'rd': 0, 'rs1': 14, 'name': 'jalr', 'imm': 0}
+----------------------------------------
+final segments: [('0xffff0000', 25), ('0x0', 524)]
+make: Nothing to be done for 'all'.
+RospOS Virtual Machine starting...
+Loading binary version 1 with 2 segments.
+Loading segment at address 0xffff0000 with size 25 bytes.
+41 0 0 0 48 65 6c 6c 6f 2c 20 57 6f 72 6c 64 21 a 0 a 0 78 56 34 12 
+Loading segment at address 0x0 with size 524 bytes.
+10 10 0 6 10 20 0 0 10 30 0 1 10 40 0 1 0 52 30 0 10 23 0 0 10 35 0 0 10 44 0 1 32 41 ff fc 10 15 0 0 10 e0 0 30 41 0 0 19 10 10 ff ff 14 11 0 10 12 11 0 13 10 11 0 0 10 e0 0 48 41 0 0 2e 10 10 ff ff 14 11 0 10 12 11 0 4 10 11 0 0 10 e0 0 60 41 0 0 2e 10 20 ff ff 14 22 0 10 12 22 0 15 10 22 0 0 24 12 0 0 10 e0 0 7c 41 0 0 19 51 0 0 0 57 2f ff fc 10 ff ff fc 57 3f ff fc 10 ff ff fc 57 4f ff fc 10 ff ff fc 10 20 0 a 10 30 10 0 14 33 0 10 e 41 20 0 10 44 0 30 27 43 0 0 c 11 20 0 31 10 ff f5 10 ff 0 4 24 4f 0 0 10 ff 0 4 24 3f 0 0 10 ff 0 4 24 2f 0 0 41 e 0 0 57 2f ff fc 10 ff ff fc 57 3f ff fc 10 ff ff fc 10 20 10 0 14 22 0 10 20 31 0 0 30 30 ff fd 27 32 0 0 10 11 0 1 41 0 0 34 10 ff 0 4 24 3f 0 0 10 ff 0 4 24 2f 0 0 41 e 0 0 57 1f ff fc 10 ff ff fc 57 2f ff fc 10 ff ff fc 57 3f ff fc 10 ff ff fc 57 4f ff fc 10 ff ff fc 57 5f ff fc 10 ff ff fc 57 6f ff fc 10 ff ff fc 57 7f ff fc 10 ff ff fc 57 8f ff fc 10 ff ff fc 57 9f ff fc 10 ff ff fc 57 af ff fc 10 ff ff fc 57 bf ff fc 10 ff ff fc 57 cf ff fc 10 ff ff fc 57 df ff fc 10 ff ff fc 57 ef ff fc 10 ff ff fc 57 ff ff fc 10 ff ff fc 41 e 0 0 10 ff 0 4 24 ff 0 0 10 ff 0 4 24 ef 0 0 10 ff 0 4 24 df 0 0 10 ff 0 4 24 cf 0 0 10 ff 0 4 24 bf 0 0 10 ff 0 4 24 af 0 0 10 ff 0 4 24 9f 0 0 10 ff 0 4 24 8f 0 0 10 ff 0 4 24 7f 0 0 10 ff 0 4 24 6f 0 0 10 ff 0 4 24 5f 0 0 10 ff 0 4 24 4f 0 0 10 ff 0 4 24 3f 0 0 10 ff 0 4 24 2f 0 0 10 ff 0 4 24 1f 0 0 41 e 0 0 
+Loaded. Starting execution...
+Press Enter to step, 'q' to quit.
+PC: ffff0000 I: JALR  r0: 0, r0: 0, 0
+RI: 41000000
+Registers: R0: 0 R1: 0 R2: 0 R3: 0 R4: 0 R5: 0 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 0 R15: 268435455 
+After Execution:
+PC: 0
+Registers: R0: 0 R1: 0 R2: 0 R3: 0 R4: 0 R5: 0 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 0 R15: 268435455 
+----------------------------------------
+
+PC: 0 I: ADDI  r1: 0, r0: 0, 6
+RI: 10100006
+Registers: R0: 0 R1: 0 R2: 0 R3: 0 R4: 0 R5: 0 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 0 R15: 268435455 
+After Execution:
+PC: 4
+Registers: R0: 0 R1: 6 R2: 0 R3: 0 R4: 0 R5: 0 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 0 R15: 268435455 
+----------------------------------------
+
+PC: 4 I: ADDI  r2: 0, r0: 0, 0
+RI: 10200000
+Registers: R0: 0 R1: 6 R2: 0 R3: 0 R4: 0 R5: 0 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 0 R15: 268435455 
+After Execution:
+PC: 8
+Registers: R0: 0 R1: 6 R2: 0 R3: 0 R4: 0 R5: 0 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 0 R15: 268435455 
+----------------------------------------
+
+PC: 8 I: ADDI  r3: 0, r0: 0, 1
+RI: 10300001
+Registers: R0: 0 R1: 6 R2: 0 R3: 0 R4: 0 R5: 0 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 0 R15: 268435455 
+After Execution:
+PC: c
+Registers: R0: 0 R1: 6 R2: 0 R3: 1 R4: 0 R5: 0 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 0 R15: 268435455 
+----------------------------------------
+
+PC: c I: ADDI  r4: 0, r0: 0, 1
+RI: 10400001
+Registers: R0: 0 R1: 6 R2: 0 R3: 1 R4: 0 R5: 0 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 0 R15: 268435455 
+After Execution:
+PC: 10
+Registers: R0: 0 R1: 6 R2: 0 R3: 1 R4: 1 R5: 0 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 0 R15: 268435455 
+----------------------------------------
+
+PC: 10 I: ADD r5: 0, r2: 0, r3: 1
+RI: 00523000
+Registers: R0: 0 R1: 6 R2: 0 R3: 1 R4: 1 R5: 0 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 0 R15: 268435455 
+After Execution:
+PC: 14
+Registers: R0: 0 R1: 6 R2: 0 R3: 1 R4: 1 R5: 1 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 0 R15: 268435455 
+----------------------------------------
+
+PC: 14 I: ADDI  r2: 0, r3: 1, 0
+RI: 10230000
+Registers: R0: 0 R1: 6 R2: 0 R3: 1 R4: 1 R5: 1 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 0 R15: 268435455 
+After Execution:
+PC: 18
+Registers: R0: 0 R1: 6 R2: 1 R3: 1 R4: 1 R5: 1 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 0 R15: 268435455 
+----------------------------------------
+
+PC: 18 I: ADDI  r3: 1, r5: 1, 0
+RI: 10350000
+Registers: R0: 0 R1: 6 R2: 1 R3: 1 R4: 1 R5: 1 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 0 R15: 268435455 
+After Execution:
+PC: 1c
+Registers: R0: 0 R1: 6 R2: 1 R3: 1 R4: 1 R5: 1 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 0 R15: 268435455 
+----------------------------------------
+
+PC: 1c I: ADDI  r4: 1, r4: 1, 1
+RI: 10440001
+Registers: R0: 0 R1: 6 R2: 1 R3: 1 R4: 1 R5: 1 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 0 R15: 268435455 
+After Execution:
+PC: 20
+Registers: R0: 0 R1: 6 R2: 1 R3: 1 R4: 2 R5: 1 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 0 R15: 268435455 
+----------------------------------------
+
+PC: 20 I: BLT  r4: 2, r1: 6, -4
+RI: 3241fffc
+Registers: R0: 0 R1: 6 R2: 1 R3: 1 R4: 2 R5: 1 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 0 R15: 268435455 
+Branch check: R4=2, R1=6
+After Execution:
+PC: 10
+Registers: R0: 0 R1: 6 R2: 1 R3: 1 R4: 2 R5: 1 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 0 R15: 268435455 
+----------------------------------------
+
+PC: 10 I: ADD r5: 1, r2: 1, r3: 1
+RI: 00523000
+Registers: R0: 0 R1: 6 R2: 1 R3: 1 R4: 2 R5: 1 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 0 R15: 268435455 
+After Execution:
+PC: 14
+Registers: R0: 0 R1: 6 R2: 1 R3: 1 R4: 2 R5: 2 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 0 R15: 268435455 
+----------------------------------------
+
+PC: 14 I: ADDI  r2: 1, r3: 1, 0
+RI: 10230000
+Registers: R0: 0 R1: 6 R2: 1 R3: 1 R4: 2 R5: 2 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 0 R15: 268435455 
+After Execution:
+PC: 18
+Registers: R0: 0 R1: 6 R2: 1 R3: 1 R4: 2 R5: 2 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 0 R15: 268435455 
+----------------------------------------
+
+PC: 18 I: ADDI  r3: 1, r5: 2, 0
+RI: 10350000
+Registers: R0: 0 R1: 6 R2: 1 R3: 1 R4: 2 R5: 2 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 0 R15: 268435455 
+After Execution:
+PC: 1c
+Registers: R0: 0 R1: 6 R2: 1 R3: 2 R4: 2 R5: 2 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 0 R15: 268435455 
+----------------------------------------
+
+PC: 1c I: ADDI  r4: 2, r4: 2, 1
+RI: 10440001
+Registers: R0: 0 R1: 6 R2: 1 R3: 2 R4: 2 R5: 2 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 0 R15: 268435455 
+After Execution:
+PC: 20
+Registers: R0: 0 R1: 6 R2: 1 R3: 2 R4: 3 R5: 2 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 0 R15: 268435455 
+----------------------------------------
+
+PC: 20 I: BLT  r4: 3, r1: 6, -4
+RI: 3241fffc
+Registers: R0: 0 R1: 6 R2: 1 R3: 2 R4: 3 R5: 2 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 0 R15: 268435455 
+Branch check: R4=3, R1=6
+After Execution:
+PC: 10
+Registers: R0: 0 R1: 6 R2: 1 R3: 2 R4: 3 R5: 2 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 0 R15: 268435455 
+----------------------------------------
+
+PC: 10 I: ADD r5: 2, r2: 1, r3: 2
+RI: 00523000
+Registers: R0: 0 R1: 6 R2: 1 R3: 2 R4: 3 R5: 2 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 0 R15: 268435455 
+After Execution:
+PC: 14
+Registers: R0: 0 R1: 6 R2: 1 R3: 2 R4: 3 R5: 3 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 0 R15: 268435455 
+----------------------------------------
+
+PC: 14 I: ADDI  r2: 1, r3: 2, 0
+RI: 10230000
+Registers: R0: 0 R1: 6 R2: 1 R3: 2 R4: 3 R5: 3 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 0 R15: 268435455 
+After Execution:
+PC: 18
+Registers: R0: 0 R1: 6 R2: 2 R3: 2 R4: 3 R5: 3 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 0 R15: 268435455 
+----------------------------------------
+
+PC: 18 I: ADDI  r3: 2, r5: 3, 0
+RI: 10350000
+Registers: R0: 0 R1: 6 R2: 2 R3: 2 R4: 3 R5: 3 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 0 R15: 268435455 
+After Execution:
+PC: 1c
+Registers: R0: 0 R1: 6 R2: 2 R3: 3 R4: 3 R5: 3 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 0 R15: 268435455 
+----------------------------------------
+
+PC: 1c I: ADDI  r4: 3, r4: 3, 1
+RI: 10440001
+Registers: R0: 0 R1: 6 R2: 2 R3: 3 R4: 3 R5: 3 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 0 R15: 268435455 
+After Execution:
+PC: 20
+Registers: R0: 0 R1: 6 R2: 2 R3: 3 R4: 4 R5: 3 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 0 R15: 268435455 
+----------------------------------------
+
+PC: 20 I: BLT  r4: 4, r1: 6, -4
+RI: 3241fffc
+Registers: R0: 0 R1: 6 R2: 2 R3: 3 R4: 4 R5: 3 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 0 R15: 268435455 
+Branch check: R4=4, R1=6
+After Execution:
+PC: 10
+Registers: R0: 0 R1: 6 R2: 2 R3: 3 R4: 4 R5: 3 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 0 R15: 268435455 
+----------------------------------------
+
+PC: 10 I: ADD r5: 3, r2: 2, r3: 3
+RI: 00523000
+Registers: R0: 0 R1: 6 R2: 2 R3: 3 R4: 4 R5: 3 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 0 R15: 268435455 
+After Execution:
+PC: 14
+Registers: R0: 0 R1: 6 R2: 2 R3: 3 R4: 4 R5: 5 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 0 R15: 268435455 
+----------------------------------------
+
+PC: 14 I: ADDI  r2: 2, r3: 3, 0
+RI: 10230000
+Registers: R0: 0 R1: 6 R2: 2 R3: 3 R4: 4 R5: 5 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 0 R15: 268435455 
+After Execution:
+PC: 18
+Registers: R0: 0 R1: 6 R2: 3 R3: 3 R4: 4 R5: 5 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 0 R15: 268435455 
+----------------------------------------
+
+PC: 18 I: ADDI  r3: 3, r5: 5, 0
+RI: 10350000
+Registers: R0: 0 R1: 6 R2: 3 R3: 3 R4: 4 R5: 5 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 0 R15: 268435455 
+After Execution:
+PC: 1c
+Registers: R0: 0 R1: 6 R2: 3 R3: 5 R4: 4 R5: 5 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 0 R15: 268435455 
+----------------------------------------
+
+PC: 1c I: ADDI  r4: 4, r4: 4, 1
+RI: 10440001
+Registers: R0: 0 R1: 6 R2: 3 R3: 5 R4: 4 R5: 5 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 0 R15: 268435455 
+After Execution:
+PC: 20
+Registers: R0: 0 R1: 6 R2: 3 R3: 5 R4: 5 R5: 5 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 0 R15: 268435455 
+----------------------------------------
+
+PC: 20 I: BLT  r4: 5, r1: 6, -4
+RI: 3241fffc
+Registers: R0: 0 R1: 6 R2: 3 R3: 5 R4: 5 R5: 5 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 0 R15: 268435455 
+Branch check: R4=5, R1=6
+After Execution:
+PC: 10
+Registers: R0: 0 R1: 6 R2: 3 R3: 5 R4: 5 R5: 5 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 0 R15: 268435455 
+----------------------------------------
+
+PC: 10 I: ADD r5: 5, r2: 3, r3: 5
+RI: 00523000
+Registers: R0: 0 R1: 6 R2: 3 R3: 5 R4: 5 R5: 5 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 0 R15: 268435455 
+After Execution:
+PC: 14
+Registers: R0: 0 R1: 6 R2: 3 R3: 5 R4: 5 R5: 8 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 0 R15: 268435455 
+----------------------------------------
+
+PC: 14 I: ADDI  r2: 3, r3: 5, 0
+RI: 10230000
+Registers: R0: 0 R1: 6 R2: 3 R3: 5 R4: 5 R5: 8 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 0 R15: 268435455 
+After Execution:
+PC: 18
+Registers: R0: 0 R1: 6 R2: 5 R3: 5 R4: 5 R5: 8 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 0 R15: 268435455 
+----------------------------------------
+
+PC: 18 I: ADDI  r3: 5, r5: 8, 0
+RI: 10350000
+Registers: R0: 0 R1: 6 R2: 5 R3: 5 R4: 5 R5: 8 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 0 R15: 268435455 
+After Execution:
+PC: 1c
+Registers: R0: 0 R1: 6 R2: 5 R3: 8 R4: 5 R5: 8 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 0 R15: 268435455 
+----------------------------------------
+
+PC: 1c I: ADDI  r4: 5, r4: 5, 1
+RI: 10440001
+Registers: R0: 0 R1: 6 R2: 5 R3: 8 R4: 5 R5: 8 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 0 R15: 268435455 
+After Execution:
+PC: 20
+Registers: R0: 0 R1: 6 R2: 5 R3: 8 R4: 6 R5: 8 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 0 R15: 268435455 
+----------------------------------------
+
+PC: 20 I: BLT  r4: 6, r1: 6, -4
+RI: 3241fffc
+Registers: R0: 0 R1: 6 R2: 5 R3: 8 R4: 6 R5: 8 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 0 R15: 268435455 
+Branch check: R4=6, R1=6
+After Execution:
+PC: 24
+Registers: R0: 0 R1: 6 R2: 5 R3: 8 R4: 6 R5: 8 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 0 R15: 268435455 
+----------------------------------------
+
+PC: 24 I: ADDI  r1: 6, r5: 8, 0
+RI: 10150000
+Registers: R0: 0 R1: 6 R2: 5 R3: 8 R4: 6 R5: 8 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 0 R15: 268435455 
+After Execution:
+PC: 28
+Registers: R0: 0 R1: 8 R2: 5 R3: 8 R4: 6 R5: 8 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 0 R15: 268435455 
+----------------------------------------
+
+PC: 28 I: ADDI  r14: 0, r0: 0, 48
+RI: 10e00030
+Registers: R0: 0 R1: 8 R2: 5 R3: 8 R4: 6 R5: 8 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 0 R15: 268435455 
+After Execution:
+PC: 2c
+Registers: R0: 0 R1: 8 R2: 5 R3: 8 R4: 6 R5: 8 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 48 R15: 268435455 
+----------------------------------------
+
+PC: 2c I: JALR  r0: 0, r0: 0, 25
+RI: 41000019
+Registers: R0: 0 R1: 8 R2: 5 R3: 8 R4: 6 R5: 8 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 48 R15: 268435455 
+After Execution:
+PC: 64
+Registers: R0: 0 R1: 8 R2: 5 R3: 8 R4: 6 R5: 8 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 48 R15: 268435455 
+----------------------------------------
+
+PC: 64 I: SHLI  r2: 5, r2: 5, 16
+RI: 14220010
+Registers: R0: 0 R1: 8 R2: 5 R3: 8 R4: 6 R5: 8 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 48 R15: 268435455 
+After Execution:
+PC: 68
+Registers: R0: 0 R1: 8 R2: 327680 R3: 8 R4: 6 R5: 8 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 48 R15: 268435455 
+----------------------------------------
+
+PC: 68 I: ORI  r2: 327680, r2: 327680, 21
+RI: 12220015
+Registers: R0: 0 R1: 8 R2: 327680 R3: 8 R4: 6 R5: 8 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 48 R15: 268435455 
+After Execution:
+PC: 6c
+Registers: R0: 0 R1: 8 R2: 327701 R3: 8 R4: 6 R5: 8 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 48 R15: 268435455 
+----------------------------------------
+
+PC: 6c I: ADDI  r2: 327701, r2: 327701, 0
+RI: 10220000
+Registers: R0: 0 R1: 8 R2: 327701 R3: 8 R4: 6 R5: 8 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 48 R15: 268435455 
+After Execution:
+PC: 70
+Registers: R0: 0 R1: 8 R2: 327701 R3: 8 R4: 6 R5: 8 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 48 R15: 268435455 
+----------------------------------------
+
+PC: 70 I: LW  r1: 8, 0(r2: 327701)
+RI: 24120000
+Registers: R0: 0 R1: 8 R2: 327701 R3: 8 R4: 6 R5: 8 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 48 R15: 268435455 
+After Execution:
+PC: 74
+Registers: R0: 0 R1: 0 R2: 327701 R3: 8 R4: 6 R5: 8 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 48 R15: 268435455 
+----------------------------------------
+
+PC: 74 I: ADDI  r14: 48, r0: 0, 124
+RI: 10e0007c
+Registers: R0: 0 R1: 0 R2: 327701 R3: 8 R4: 6 R5: 8 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 48 R15: 268435455 
+After Execution:
+PC: 78
+Registers: R0: 0 R1: 0 R2: 327701 R3: 8 R4: 6 R5: 8 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 124 R15: 268435455 
+----------------------------------------
+
+PC: 78 I: JALR  r0: 0, r0: 0, 25
+RI: 41000019
+Registers: R0: 0 R1: 0 R2: 327701 R3: 8 R4: 6 R5: 8 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 124 R15: 268435455 
+After Execution:
+PC: 64
+Registers: R0: 0 R1: 0 R2: 327701 R3: 8 R4: 6 R5: 8 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 124 R15: 268435455 
+----------------------------------------
+
+PC: 64 I: SHLI  r2: 327701, r2: 327701, 16
+RI: 14220010
+Registers: R0: 0 R1: 0 R2: 327701 R3: 8 R4: 6 R5: 8 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 124 R15: 268435455 
+After Execution:
+PC: 68
+Registers: R0: 0 R1: 0 R2: 1376256 R3: 8 R4: 6 R5: 8 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 124 R15: 268435455 
+----------------------------------------
+
+PC: 68 I: ORI  r2: 1376256, r2: 1376256, 21
+RI: 12220015
+Registers: R0: 0 R1: 0 R2: 1376256 R3: 8 R4: 6 R5: 8 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 124 R15: 268435455 
+After Execution:
+PC: 6c
+Registers: R0: 0 R1: 0 R2: 1376277 R3: 8 R4: 6 R5: 8 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 124 R15: 268435455 
+----------------------------------------
+
+PC: 6c I: ADDI  r2: 1376277, r2: 1376277, 0
+RI: 10220000
+Registers: R0: 0 R1: 0 R2: 1376277 R3: 8 R4: 6 R5: 8 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 124 R15: 268435455 
+After Execution:
+PC: 70
+Registers: R0: 0 R1: 0 R2: 1376277 R3: 8 R4: 6 R5: 8 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 124 R15: 268435455 
+----------------------------------------
+
+PC: 70 I: LW  r1: 0, 0(r2: 1376277)
+RI: 24120000
+Registers: R0: 0 R1: 0 R2: 1376277 R3: 8 R4: 6 R5: 8 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 124 R15: 268435455 
+After Execution:
+PC: 74
+Registers: R0: 0 R1: 0 R2: 1376277 R3: 8 R4: 6 R5: 8 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 124 R15: 268435455 
+----------------------------------------
+
+PC: 74 I: ADDI  r14: 124, r0: 0, 124
+RI: 10e0007c
+Registers: R0: 0 R1: 0 R2: 1376277 R3: 8 R4: 6 R5: 8 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 124 R15: 268435455 
+After Execution:
+PC: 78
+Registers: R0: 0 R1: 0 R2: 1376277 R3: 8 R4: 6 R5: 8 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 124 R15: 268435455 
+----------------------------------------
+
+PC: 78 I: JALR  r0: 0, r0: 0, 25
+RI: 41000019
+Registers: R0: 0 R1: 0 R2: 1376277 R3: 8 R4: 6 R5: 8 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 124 R15: 268435455 
+After Execution:
+PC: 64
+Registers: R0: 0 R1: 0 R2: 1376277 R3: 8 R4: 6 R5: 8 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 124 R15: 268435455 
+----------------------------------------
+
+PC: 64 I: SHLI  r2: 1376277, r2: 1376277, 16
+RI: 14220010
+Registers: R0: 0 R1: 0 R2: 1376277 R3: 8 R4: 6 R5: 8 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 124 R15: 268435455 
+After Execution:
+PC: 68
+Registers: R0: 0 R1: 0 R2: 1376256 R3: 8 R4: 6 R5: 8 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 124 R15: 268435455 
+----------------------------------------
+
+PC: 68 I: ORI  r2: 1376256, r2: 1376256, 21
+RI: 12220015
+Registers: R0: 0 R1: 0 R2: 1376256 R3: 8 R4: 6 R5: 8 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 124 R15: 268435455 
+After Execution:
+PC: 6c
+Registers: R0: 0 R1: 0 R2: 1376277 R3: 8 R4: 6 R5: 8 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 124 R15: 268435455 
+----------------------------------------
+
+PC: 6c I: ADDI  r2: 1376277, r2: 1376277, 0
+RI: 10220000
+Registers: R0: 0 R1: 0 R2: 1376277 R3: 8 R4: 6 R5: 8 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 124 R15: 268435455 
+After Execution:
+PC: 70
+Registers: R0: 0 R1: 0 R2: 1376277 R3: 8 R4: 6 R5: 8 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 124 R15: 268435455 
+----------------------------------------
+
+PC: 70 I: LW  r1: 0, 0(r2: 1376277)
+RI: 24120000
+Registers: R0: 0 R1: 0 R2: 1376277 R3: 8 R4: 6 R5: 8 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 124 R15: 268435455 
+After Execution:
+PC: 74
+Registers: R0: 0 R1: 0 R2: 1376277 R3: 8 R4: 6 R5: 8 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 124 R15: 268435455 
+----------------------------------------
+
+PC: 74 I: ADDI  r14: 124, r0: 0, 124
+RI: 10e0007c
+Registers: R0: 0 R1: 0 R2: 1376277 R3: 8 R4: 6 R5: 8 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 124 R15: 268435455 
+After Execution:
+PC: 78
+Registers: R0: 0 R1: 0 R2: 1376277 R3: 8 R4: 6 R5: 8 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 124 R15: 268435455 
+----------------------------------------
+

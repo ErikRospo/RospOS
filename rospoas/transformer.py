@@ -164,7 +164,9 @@ class RospoasTransformer(Transformer):
         except:
             pass
 
-        return {"type": "j", "rd": 14, "rs1": 0, "name": "jal", "imm": imm_v}
+        # Emit as a pseudo jump so the assembler can expand to an absolute-call
+        # sequence that properly sets the link register (rd=14).
+        return {"type": "p", "name": "jmp", "imm": imm_v, "rd": 14}
 
     def retpseudo(self, items):
         return {"type": "j", "rd": 0, "rs1": 14, "name": "jalr", "imm": 0}
