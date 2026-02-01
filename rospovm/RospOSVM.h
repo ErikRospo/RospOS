@@ -21,7 +21,8 @@ private:
     void executeInstruction(uint32_t instruction);
 
 public:
-    RospOSVM();
+    bool debugMode;
+    RospOSVM(bool debugMode);
     void loadBinaryAtAddress(const std::vector<char>& binary, uint32_t address);
     void step();
     std::string getRegisterState() const;

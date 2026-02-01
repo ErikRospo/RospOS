@@ -13,15 +13,16 @@
 int main(int argc, char* argv[]) {
     std::cerr << "RospOS Virtual Machine starting..." << std::endl;
     if (argc < 2) {
-        std::cerr << "Usage: " << argv[0] << " <file.rosp>" << std::endl;
+        std::cerr << "Usage: " << argv[0] << " <file.rosp> [debug]" << std::endl;
         return 1;
     }
 
     std::string rospFile = argv[1];
+    bool debugMode = (argc >= 3 && std::string(argv[2]) == "debug");
     
     Binary binary = Binary().load_binary(rospFile);
 
-    RospOSVM vm;
+    RospOSVM vm(debugMode);
     for (const auto& segment : binary.segments) {
         std::cout << "Loading segment at address 0x" << std::hex << segment.address 
                   << " with size " << std::dec << segment.data.size() << " bytes." << std::endl;
@@ -35,9 +36,13 @@ int main(int argc, char* argv[]) {
 
     char ch;
     // Simple execution loop
+    if (debugMode)
+        std::cout << "Press Enter to step, 'q' to quit." << std::endl;
     while (true){
-        std::cin.get(ch);
-        if (ch == 'q') break;
+        if (debugMode) {
+            std::cin.get(ch);
+            if (ch == 'q') break;
+        }
         vm.step();
     }
     

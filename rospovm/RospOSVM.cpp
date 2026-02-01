@@ -9,8 +9,9 @@
 
 
 
-RospOSVM::RospOSVM() : memory(1ULL << 32) // Initialize 4GB memory
+RospOSVM::RospOSVM(bool debugMode) : memory(1ULL << 32) // Initialize 4GB memory
 {
+    this->debugMode = debugMode;
     pc = 0xFFFF0000;              // Start of kernel space
     regFile.sp().set(0x0FFFFFFF); // Top of RAM
     regFile[0].setReadOnly(true);   // R0 is always zero
@@ -27,15 +28,21 @@ void RospOSVM::loadBinaryAtAddress(const std::vector<char> &binary, uint32_t add
 void RospOSVM::step()
 {
     uint32_t instruction = memory.readWord(pc);
-    std::cerr << "PC: " << std::hex << pc << std::dec << " ";
-    std::cerr << "I: " << decodeInstruction(instruction, regFile, memory, pc) << std::endl;
-    std::cerr << "RI: " << std::hex << std::setw(8) << std::setfill('0') << instruction << std::dec << std::endl;
-    std::cerr << "Registers: " << getRegisterState() << std::endl;
+    if (debugMode)
+    {
+        std::cerr << "PC: " << std::hex << pc << std::dec << " ";
+        std::cerr << "I: " << decodeInstruction(instruction, regFile, memory, pc) << std::endl;
+        std::cerr << "RI: " << std::hex << std::setw(8) << std::setfill('0') << instruction << std::dec << std::endl;
+        std::cerr << "Registers: " << getRegisterState() << std::endl;
+    }
     executeInstruction(instruction);
-    std::cerr << "After Execution:" << std::endl;
-    std::cerr << "PC: " << std::hex << pc << std::dec << " ";
-    std::cerr << "Registers: " << getRegisterState() << std::endl;
-    std::cerr << "----------------------------------------" << std::endl <<std::endl;
+    if (debugMode)
+    {
+        std::cerr << "After Execution:" << std::endl;
+        std::cerr << "PC: " << std::hex << pc << std::dec << " ";
+        std::cerr << "Registers: " << getRegisterState() << std::endl;
+        std::cerr << "----------------------------------------" << std::endl <<std::endl;
+    }
 }
 
 std::string RospOSVM::getRegisterState() const
