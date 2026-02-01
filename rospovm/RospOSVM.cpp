@@ -39,7 +39,7 @@ void RospOSVM::step()
     if (debugMode)
     {
         std::cerr << "After Execution:" << std::endl;
-        std::cerr << "PC: " << std::hex << pc << std::dec << " ";
+        std::cerr << "PC: " << std::hex << pc << std::dec << std::endl;
         std::cerr << "Registers: " << getRegisterState() << std::endl;
         std::cerr << "----------------------------------------" << std::endl <<std::endl;
     }
@@ -58,6 +58,7 @@ std::string RospOSVM::getRegisterState() const
 void RospOSVM::executeInstruction(uint32_t instruction)
 {
     uint32_t opcode = (instruction >> 28) & 0x0F;
+    bool pcModified = false;
     switch (opcode)
     {
     case 0x0: // R-type arithmetic
@@ -70,11 +71,11 @@ void RospOSVM::executeInstruction(uint32_t instruction)
         iTypeLSInstruction(instruction);
         break;
     case 0x3: // Branch (B-type)
-        bTypeInstruction(instruction);
+        pcModified=bTypeInstruction(instruction);
         break;
     case 0x4: // Jump (J-type)
         jTypeInstruction(instruction);
-        pc-=4; // Adjust PC since J-type modifies it directly (WARNING: Hacky fix)
+        pcModified = true;
         break;
     case 0x5: // Special (S-type)
         sTypeInstruction(instruction);
@@ -86,7 +87,9 @@ void RospOSVM::executeInstruction(uint32_t instruction)
         std::cerr << "Unknown opcode: " << opcode << std::endl;
         break;
     }
-    pc += 4; // Move to next instruction
+    if (!pcModified){
+        pc += 4; // Move to next instruction
+    }
 }
 void RospOSVM::rTypeInstruction(uint32_t instruction)
 {
@@ -273,7 +276,7 @@ void RospOSVM::iTypeLSInstruction(uint32_t instruction)
         break;
     }
 }
-void RospOSVM::bTypeInstruction(uint32_t instruction)
+bool RospOSVM::bTypeInstruction(uint32_t instruction)
 {
     /*
     | 31-28 | 27-24 | 23-20 | 19-16 | 15-0                     |
@@ -318,6 +321,7 @@ void RospOSVM::bTypeInstruction(uint32_t instruction)
     {
         pc += sign_ext_imm;
     }
+    return takeBranch;
 }
 void RospOSVM::jTypeInstruction(uint32_t instruction)
 {

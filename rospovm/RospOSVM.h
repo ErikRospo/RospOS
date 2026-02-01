@@ -15,7 +15,7 @@ private:
     void rTypeInstruction(uint32_t instruction);
     void iArithTypeInstruction(uint32_t instruction);
     void iTypeLSInstruction(uint32_t instruction);
-    void bTypeInstruction(uint32_t instruction);
+    bool bTypeInstruction(uint32_t instruction);
     void jTypeInstruction(uint32_t instruction);
     void sTypeInstruction(uint32_t instruction);
     void executeInstruction(uint32_t instruction);
