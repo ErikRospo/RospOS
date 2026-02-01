@@ -24,8 +24,8 @@ preprocessed_code = "\n".join(preprocess_includes(source_code, args.input))
 # Parse and transform the preprocessed source code
 parse_tree = parse_source(preprocessed_code)
 ast, lifted_constants = transform_parse_tree(parse_tree)
-
-with open("debug_parse.txt", "w") as f:
+debug_parse_filename = args.output.rsplit(".", 1)[0] + "_debug_parse.txt"
+with open(debug_parse_filename, "w") as f:
     f.write(str(parse_tree.pretty()))
     f.write("\n\n")
     f.write(str(ast))

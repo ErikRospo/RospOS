@@ -1,7 +1,7 @@
 {
     "ast": [
         {
-            "type": "m",
+            "type": "d",
             "name": "seg",
             "imm": {
                 "type": "li",
@@ -11,7 +11,8 @@
         },
         {
             "type": "a",
-            "name": "_START"
+            "name": "_START",
+            "d": "label"
         },
         {
             "type": "i",
@@ -51,25 +52,61 @@
         },
         {
             "type": "a",
-            "name": "TTY_ADDR"
+            "name": "TTY_ADDR",
+            "d": "label"
         },
         {
-            "type": "m",
+            "type": "d",
             "name": "data",
-            "imm": {
-                "type": "li",
-                "name": "LCONST_1",
-                "value": 268435456
-            }
+            "imm": 268435456,
+            "d": "data",
+            "len": 4
         },
         {
-            "type": "m",
+            "type": "a",
+            "name": "HELLO_WORLD",
+            "d": "label"
+        },
+        {
+            "type": "d",
+            "name": "data",
+            "imm": 205469705004861725972941750691144,
+            "d": "str",
+            "len": 15
+        },
+        {
+            "type": "a",
+            "name": "NEWLINE",
+            "d": "label"
+        },
+        {
+            "type": "d",
+            "name": "data",
+            "imm": 10,
+            "d": "str",
+            "len": 2
+        },
+        {
+            "type": "a",
+            "name": "RAND_DATA",
+            "d": "label"
+        },
+        {
+            "type": "d",
+            "name": "data",
+            "imm": 15639566,
+            "d": "rand",
+            "len": 4
+        },
+        {
+            "type": "d",
             "name": "seg",
             "imm": 0
         },
         {
             "type": "a",
-            "name": "LOOP"
+            "name": "LOOP",
+            "d": "label"
         },
         {
             "type": "r",
@@ -112,69 +149,465 @@
         {
             "type": "i",
             "name": "addi",
-            "rd": 6,
-            "rs1": 0,
-            "imm": 10
+            "rd": 1,
+            "rs1": 5,
+            "imm": 0
         },
         {
-            "type": "l",
-            "name": "lw",
+            "type": "j",
+            "rd": 14,
+            "rs1": 0,
+            "name": "jal",
+            "imm": {
+                "type": "u",
+                "name": "PRINT_NUMBER"
+            }
+        },
+        {
+            "type": "i",
+            "name": "addi",
+            "rd": 1,
+            "rs1": 0,
+            "imm": {
+                "type": "u",
+                "name": "NEWLINE"
+            }
+        },
+        {
+            "type": "j",
+            "rd": 14,
+            "rs1": 0,
+            "name": "jal",
+            "imm": {
+                "type": "u",
+                "name": "PRINT_STRING"
+            }
+        },
+        {
+            "type": "i",
+            "name": "addi",
+            "rd": 1,
+            "rs1": 0,
+            "imm": {
+                "type": "u",
+                "name": "HELLO_WORLD"
+            }
+        },
+        {
+            "type": "j",
+            "rd": 14,
+            "rs1": 0,
+            "name": "jal",
+            "imm": {
+                "type": "u",
+                "name": "PRINT_STRING"
+            }
+        },
+        {
+            "type": "i",
+            "name": "addi",
             "rd": 2,
             "rs1": 0,
             "imm": {
                 "type": "u",
-                "name": "TTY_ADDR"
+                "name": "RAND_DATA"
+            }
+        },
+        {
+            "type": "l",
+            "name": "lw",
+            "rd": 1,
+            "rs1": 2,
+            "imm": 0
+        },
+        {
+            "type": "j",
+            "rd": 14,
+            "rs1": 0,
+            "name": "jal",
+            "imm": {
+                "type": "u",
+                "name": "PRINT_NUMBER"
+            }
+        },
+        {
+            "type": "s",
+            "name": "break"
+        },
+        {
+            "type": "a",
+            "name": "PRINT_NUMBER",
+            "d": "label"
+        },
+        {
+            "type": "p",
+            "name": "push",
+            "imm": 2
+        },
+        {
+            "type": "p",
+            "name": "push",
+            "imm": 3
+        },
+        {
+            "type": "p",
+            "name": "push",
+            "imm": 4
+        },
+        {
+            "type": "i",
+            "name": "addi",
+            "rd": 2,
+            "rs1": 0,
+            "imm": 10
+        },
+        {
+            "type": "p",
+            "name": "lli",
+            "reg": 3,
+            "imm": {
+                "type": "li",
+                "name": "LCONST_2",
+                "value": 268435456,
+                "rd": 3
             }
         },
         {
             "type": "a",
-            "name": "DIV_LOOP"
+            "name": "PRINT_LOOP",
+            "d": "label"
         },
         {
             "type": "r",
             "name": "rem",
+            "rd": 4,
+            "rs1": 1,
+            "rs2": 2
+        },
+        {
+            "type": "i",
+            "name": "addi",
+            "rd": 4,
+            "rs1": 4,
+            "imm": 48
+        },
+        {
+            "type": "l",
+            "name": "sw",
+            "rd": 4,
+            "rs1": 3,
+            "imm": 0
+        },
+        {
+            "type": "r",
+            "name": "div",
             "rd": 1,
-            "rs1": 5,
-            "rs2": 6
+            "rs1": 1,
+            "rs2": 2
+        },
+        {
+            "type": "b",
+            "name": "bne",
+            "rd": 1,
+            "rs1": 0,
+            "imm": {
+                "type": "u",
+                "name": "PRINT_LOOP"
+            }
+        },
+        {
+            "type": "p",
+            "name": "pop",
+            "imm": 4
+        },
+        {
+            "type": "p",
+            "name": "pop",
+            "imm": 3
+        },
+        {
+            "type": "p",
+            "name": "pop",
+            "imm": 2
+        },
+        {
+            "type": "j",
+            "rd": 0,
+            "rs1": 14,
+            "name": "jalr",
+            "imm": 0
+        },
+        {
+            "type": "a",
+            "name": "PRINT_STRING",
+            "d": "label"
+        },
+        {
+            "type": "p",
+            "name": "push",
+            "imm": 2
+        },
+        {
+            "type": "p",
+            "name": "push",
+            "imm": 3
+        },
+        {
+            "type": "p",
+            "name": "lli",
+            "reg": 2,
+            "imm": {
+                "type": "li",
+                "name": "LCONST_3",
+                "value": 268435456,
+                "rd": 2
+            }
+        },
+        {
+            "type": "a",
+            "name": "PRINT_CHAR_LOOP",
+            "d": "label"
+        },
+        {
+            "type": "l",
+            "name": "lb",
+            "rd": 3,
+            "rs1": 1,
+            "imm": 0
+        },
+        {
+            "type": "b",
+            "name": "beq",
+            "rd": 3,
+            "rs1": 0,
+            "imm": {
+                "type": "u",
+                "name": "END_PRINT_CHAR_LOOP"
+            }
+        },
+        {
+            "type": "l",
+            "name": "sw",
+            "rd": 3,
+            "rs1": 2,
+            "imm": 0
         },
         {
             "type": "i",
             "name": "addi",
             "rd": 1,
             "rs1": 1,
-            "imm": 48
+            "imm": 1
         },
         {
-            "type": "l",
-            "name": "sw",
-            "rd": 1,
-            "rs1": 2,
-            "imm": 0
-        },
-        {
-            "type": "r",
-            "name": "div",
-            "rd": 5,
-            "rs1": 5,
-            "rs2": 6
-        },
-        {
-            "type": "b",
-            "name": "bne",
-            "rd": 5,
-            "rs1": 0,
+            "type": "p",
+            "name": "jmp",
             "imm": {
                 "type": "u",
-                "name": "DIV_LOOP"
+                "name": "PRINT_CHAR_LOOP"
             }
         },
         {
-            "type": "s",
-            "name": "break"
+            "type": "a",
+            "name": "END_PRINT_CHAR_LOOP",
+            "d": "label"
+        },
+        {
+            "type": "p",
+            "name": "pop",
+            "imm": 3
+        },
+        {
+            "type": "p",
+            "name": "pop",
+            "imm": 2
+        },
+        {
+            "type": "j",
+            "rd": 0,
+            "rs1": 14,
+            "name": "jalr",
+            "imm": 0
+        },
+        {
+            "type": "a",
+            "name": "SAVE_REGISTERS",
+            "d": "label"
+        },
+        {
+            "type": "p",
+            "name": "push",
+            "imm": 1
+        },
+        {
+            "type": "p",
+            "name": "push",
+            "imm": 2
+        },
+        {
+            "type": "p",
+            "name": "push",
+            "imm": 3
+        },
+        {
+            "type": "p",
+            "name": "push",
+            "imm": 4
+        },
+        {
+            "type": "p",
+            "name": "push",
+            "imm": 5
+        },
+        {
+            "type": "p",
+            "name": "push",
+            "imm": 6
+        },
+        {
+            "type": "p",
+            "name": "push",
+            "imm": 7
+        },
+        {
+            "type": "p",
+            "name": "push",
+            "imm": 8
+        },
+        {
+            "type": "p",
+            "name": "push",
+            "imm": 9
+        },
+        {
+            "type": "p",
+            "name": "push",
+            "imm": 10
+        },
+        {
+            "type": "p",
+            "name": "push",
+            "imm": 11
+        },
+        {
+            "type": "p",
+            "name": "push",
+            "imm": 12
+        },
+        {
+            "type": "p",
+            "name": "push",
+            "imm": 13
+        },
+        {
+            "type": "p",
+            "name": "push",
+            "imm": 14
+        },
+        {
+            "type": "p",
+            "name": "push",
+            "imm": 15
+        },
+        {
+            "type": "j",
+            "rd": 0,
+            "rs1": 14,
+            "name": "jalr",
+            "imm": 0
+        },
+        {
+            "type": "a",
+            "name": "RESTORE_REGISTERS",
+            "d": "label"
+        },
+        {
+            "type": "p",
+            "name": "pop",
+            "imm": 15
+        },
+        {
+            "type": "p",
+            "name": "pop",
+            "imm": 14
+        },
+        {
+            "type": "p",
+            "name": "pop",
+            "imm": 13
+        },
+        {
+            "type": "p",
+            "name": "pop",
+            "imm": 12
+        },
+        {
+            "type": "p",
+            "name": "pop",
+            "imm": 11
+        },
+        {
+            "type": "p",
+            "name": "pop",
+            "imm": 10
+        },
+        {
+            "type": "p",
+            "name": "pop",
+            "imm": 9
+        },
+        {
+            "type": "p",
+            "name": "pop",
+            "imm": 8
+        },
+        {
+            "type": "p",
+            "name": "pop",
+            "imm": 7
+        },
+        {
+            "type": "p",
+            "name": "pop",
+            "imm": 6
+        },
+        {
+            "type": "p",
+            "name": "pop",
+            "imm": 5
+        },
+        {
+            "type": "p",
+            "name": "pop",
+            "imm": 4
+        },
+        {
+            "type": "p",
+            "name": "pop",
+            "imm": 3
+        },
+        {
+            "type": "p",
+            "name": "pop",
+            "imm": 2
+        },
+        {
+            "type": "p",
+            "name": "pop",
+            "imm": 1
+        },
+        {
+            "type": "j",
+            "rd": 0,
+            "rs1": 14,
+            "name": "jalr",
+            "imm": 0
         }
     ],
     "lifted_constants": {
         "LCONST_0": 4294901760,
-        "LCONST_1": 268435456
+        "LCONST_1": 268435456,
+        "LCONST_2": 268435456,
+        "LCONST_3": 268435456
     }
 }
