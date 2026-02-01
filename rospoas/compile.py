@@ -143,7 +143,6 @@ def compile_instruction(instr):
 def first_pass(ast):
     global current_address, current_segment, current_segment_data
     for instr in ast:
-        print(f"{type(instr)}: {instr}")
         if instr["type"] == "a":  # Label definition
             label_name = instr["name"]
             label_addresses[label_name] = current_address
@@ -217,7 +216,10 @@ def second_pass(ast):
                 if isinstance(data_value, dict):
                     data_value = data_value["value"]
                 print(instr)
-                data_bytes = data_value.to_bytes(instr["len"], byteorder="little", signed=True)
+                if isinstance(data_value, bytes):
+                    data_bytes = data_value
+                else:
+                    data_bytes = data_value.to_bytes(instr["len"], byteorder="little", signed=True)
                 if current_segment_data is not None:
                     current_segment_data.extend(data_bytes)
                 else:

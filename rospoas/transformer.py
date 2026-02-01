@@ -218,17 +218,17 @@ class RospoasTransformer(Transformer):
         str_v = str_t[1:-1]  # Remove the surrounding quotes
         value = str_v.encode().decode("unicode_escape")  # Handle escape sequences
         value_bytes = value.encode("utf-8") + b"\x00"  # Null-terminated
-        int_value = int.from_bytes(value_bytes, byteorder="little")
         return {
             "type": "d",
             "name": "data",
-            "imm": int_value,
+            "imm": value_bytes,
             "d": "str",
             "len": len(value_bytes),
         }
 
     def func(self, items):
         label_t = items[0]
+        print(f"Defining function: {label_t}")
         return label_t
 
 
@@ -243,8 +243,8 @@ class RospoasTransformer(Transformer):
         # -1 bit to allow for negative values
         # Whether we interpret it as signed or unsigned is the user's responsibility
         # But the assembler assumes signed values for data directives
-        imm_v = random.getrandbits(imm_l * 8 - 1) * (1 if random.choice([True, False]) else -1)
-        return {"type": "d", "name": "data", "imm": imm_v, "d": "rand", "len": imm_l}
+        imm_v = random.getrandbits(imm_l * 8)
+        return {"type": "d", "name": "data", "imm": imm_v.to_bytes(imm_l, byteorder="little"), "d": "rand", "len": imm_l}
 
     def label(self, items):
         name_t = items[0]
