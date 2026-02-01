@@ -5,7 +5,7 @@
             "name": "seg",
             "imm": {
                 "type": "li",
-                "name": "LCONST_4",
+                "name": "LCONST_0",
                 "value": 4294901760
             }
         },
@@ -94,7 +94,7 @@
         {
             "type": "d",
             "name": "data",
-            "imm": -1527886194,
+            "imm": -1742879204,
             "d": "rand",
             "len": 4
         },
@@ -155,7 +155,7 @@
         },
         {
             "type": "j",
-            "rd": "r14",
+            "rd": 14,
             "rs1": 0,
             "name": "jal",
             "imm": {
@@ -175,7 +175,7 @@
         },
         {
             "type": "j",
-            "rd": "r14",
+            "rd": 14,
             "rs1": 0,
             "name": "jal",
             "imm": {
@@ -195,7 +195,7 @@
         },
         {
             "type": "j",
-            "rd": "r14",
+            "rd": 14,
             "rs1": 0,
             "name": "jal",
             "imm": {
@@ -222,7 +222,7 @@
         },
         {
             "type": "j",
-            "rd": "r14",
+            "rd": 14,
             "rs1": 0,
             "name": "jal",
             "imm": {
@@ -235,17 +235,379 @@
             "name": "break"
         },
         {
-            "type": "d",
-            "name": "inc",
-            "imm": "common_functions.ros"
+            "type": "a",
+            "name": "PRINT_NUMBER",
+            "d": "label"
+        },
+        {
+            "type": "p",
+            "name": "push",
+            "imm": 2
+        },
+        {
+            "type": "p",
+            "name": "push",
+            "imm": 3
+        },
+        {
+            "type": "p",
+            "name": "push",
+            "imm": 4
+        },
+        {
+            "type": "i",
+            "name": "addi",
+            "rd": 2,
+            "rs1": 0,
+            "imm": 10
+        },
+        {
+            "type": "p",
+            "name": "lli",
+            "reg": 3,
+            "imm": {
+                "type": "li",
+                "name": "LCONST_2",
+                "value": 268435456,
+                "rd": 3
+            }
+        },
+        {
+            "type": "a",
+            "name": "PRINT_LOOP",
+            "d": "label"
+        },
+        {
+            "type": "r",
+            "name": "rem",
+            "rd": 4,
+            "rs1": 1,
+            "rs2": 2
+        },
+        {
+            "type": "i",
+            "name": "addi",
+            "rd": 4,
+            "rs1": 4,
+            "imm": 48
+        },
+        {
+            "type": "l",
+            "name": "sw",
+            "rd": 4,
+            "rs1": 3,
+            "imm": 0
+        },
+        {
+            "type": "r",
+            "name": "div",
+            "rd": 1,
+            "rs1": 1,
+            "rs2": 2
+        },
+        {
+            "type": "b",
+            "name": "bne",
+            "rd": 1,
+            "rs1": 0,
+            "imm": {
+                "type": "u",
+                "name": "PRINT_LOOP"
+            }
+        },
+        {
+            "type": "p",
+            "name": "pop",
+            "imm": 4
+        },
+        {
+            "type": "p",
+            "name": "pop",
+            "imm": 3
+        },
+        {
+            "type": "p",
+            "name": "pop",
+            "imm": 2
+        },
+        {
+            "type": "j",
+            "rd": 0,
+            "rs1": 14,
+            "name": "jalr",
+            "imm": 0
+        },
+        {
+            "type": "a",
+            "name": "PRINT_STRING",
+            "d": "label"
+        },
+        {
+            "type": "p",
+            "name": "push",
+            "imm": 2
+        },
+        {
+            "type": "p",
+            "name": "push",
+            "imm": 3
+        },
+        {
+            "type": "p",
+            "name": "lli",
+            "reg": 2,
+            "imm": {
+                "type": "li",
+                "name": "LCONST_3",
+                "value": 268435456,
+                "rd": 2
+            }
+        },
+        {
+            "type": "a",
+            "name": "PRINT_CHAR_LOOP",
+            "d": "label"
+        },
+        {
+            "type": "l",
+            "name": "lb",
+            "rd": 3,
+            "rs1": 1,
+            "imm": 0
+        },
+        {
+            "type": "b",
+            "name": "beq",
+            "rd": 3,
+            "rs1": 0,
+            "imm": {
+                "type": "u",
+                "name": "END_PRINT_CHAR_LOOP"
+            }
+        },
+        {
+            "type": "l",
+            "name": "sw",
+            "rd": 3,
+            "rs1": 2,
+            "imm": 0
+        },
+        {
+            "type": "i",
+            "name": "addi",
+            "rd": 1,
+            "rs1": 1,
+            "imm": 1
+        },
+        {
+            "type": "p",
+            "name": "jmp",
+            "imm": {
+                "type": "u",
+                "name": "PRINT_CHAR_LOOP"
+            }
+        },
+        {
+            "type": "a",
+            "name": "END_PRINT_CHAR_LOOP",
+            "d": "label"
+        },
+        {
+            "type": "p",
+            "name": "pop",
+            "imm": 3
+        },
+        {
+            "type": "p",
+            "name": "pop",
+            "imm": 2
+        },
+        {
+            "type": "j",
+            "rd": 0,
+            "rs1": 14,
+            "name": "jalr",
+            "imm": 0
+        },
+        {
+            "type": "a",
+            "name": "SAVE_REGISTERS",
+            "d": "label"
+        },
+        {
+            "type": "p",
+            "name": "push",
+            "imm": 1
+        },
+        {
+            "type": "p",
+            "name": "push",
+            "imm": 2
+        },
+        {
+            "type": "p",
+            "name": "push",
+            "imm": 3
+        },
+        {
+            "type": "p",
+            "name": "push",
+            "imm": 4
+        },
+        {
+            "type": "p",
+            "name": "push",
+            "imm": 5
+        },
+        {
+            "type": "p",
+            "name": "push",
+            "imm": 6
+        },
+        {
+            "type": "p",
+            "name": "push",
+            "imm": 7
+        },
+        {
+            "type": "p",
+            "name": "push",
+            "imm": 8
+        },
+        {
+            "type": "p",
+            "name": "push",
+            "imm": 9
+        },
+        {
+            "type": "p",
+            "name": "push",
+            "imm": 10
+        },
+        {
+            "type": "p",
+            "name": "push",
+            "imm": 11
+        },
+        {
+            "type": "p",
+            "name": "push",
+            "imm": 12
+        },
+        {
+            "type": "p",
+            "name": "push",
+            "imm": 13
+        },
+        {
+            "type": "p",
+            "name": "push",
+            "imm": 14
+        },
+        {
+            "type": "p",
+            "name": "push",
+            "imm": 15
+        },
+        {
+            "type": "j",
+            "rd": 0,
+            "rs1": 14,
+            "name": "jalr",
+            "imm": 0
+        },
+        {
+            "type": "a",
+            "name": "RESTORE_REGISTERS",
+            "d": "label"
+        },
+        {
+            "type": "p",
+            "name": "pop",
+            "imm": 15
+        },
+        {
+            "type": "p",
+            "name": "pop",
+            "imm": 14
+        },
+        {
+            "type": "p",
+            "name": "pop",
+            "imm": 13
+        },
+        {
+            "type": "p",
+            "name": "pop",
+            "imm": 12
+        },
+        {
+            "type": "p",
+            "name": "pop",
+            "imm": 11
+        },
+        {
+            "type": "p",
+            "name": "pop",
+            "imm": 10
+        },
+        {
+            "type": "p",
+            "name": "pop",
+            "imm": 9
+        },
+        {
+            "type": "p",
+            "name": "pop",
+            "imm": 8
+        },
+        {
+            "type": "p",
+            "name": "pop",
+            "imm": 7
+        },
+        {
+            "type": "p",
+            "name": "pop",
+            "imm": 6
+        },
+        {
+            "type": "p",
+            "name": "pop",
+            "imm": 5
+        },
+        {
+            "type": "p",
+            "name": "pop",
+            "imm": 4
+        },
+        {
+            "type": "p",
+            "name": "pop",
+            "imm": 3
+        },
+        {
+            "type": "p",
+            "name": "pop",
+            "imm": 2
+        },
+        {
+            "type": "p",
+            "name": "pop",
+            "imm": 1
+        },
+        {
+            "type": "j",
+            "rd": 0,
+            "rs1": 14,
+            "name": "jalr",
+            "imm": 0
         }
     ],
     "lifted_constants": {
         "LCONST_0": 4294901760,
         "LCONST_1": 268435456,
         "LCONST_2": 268435456,
-        "LCONST_3": 268435456,
-        "LCONST_4": 4294901760,
-        "LCONST_5": 268435456
+        "LCONST_3": 268435456
     }
 }

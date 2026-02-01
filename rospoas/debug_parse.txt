@@ -166,10 +166,288 @@ program
         break
   codeline
     directiveuse
-      inc	"common_functions.ros"
+      func
+        label	PRINT_NUMBER:
+  codeline
+    instruction
+      push
+        register	r2
+  codeline
+    instruction
+      push
+        register	r3
+  codeline
+    instruction
+      push
+        register	r4
+  codeline
+    instruction
+      iinstructuse
+        addi
+        register	r2
+        register	r0
+        imm	10
+  codeline
+    instruction
+      lli
+        register	r3
+        imm	0x1000_0000
+  codeline
+    label	PRINT_LOOP:
+  codeline
+    instruction
+      rinstructuse
+        rem
+        register	r4
+        register	r1
+        register	r2
+  codeline
+    instruction
+      iinstructuse
+        addi
+        register	r4
+        register	r4
+        imm	48
+  codeline
+    instruction
+      lsinstructuse
+        sw
+        register	r4
+        register	r3
+        imm	0
+  codeline
+    instruction
+      rinstructuse
+        div
+        register	r1
+        register	r1
+        register	r2
+  codeline
+    instruction
+      binstructuse
+        bne
+        register	r1
+        register	r0
+        imm
+          labeluse	PRINT_LOOP
+  codeline
+    instruction
+      pop
+        register	r4
+  codeline
+    instruction
+      pop
+        register	r3
+  codeline
+    instruction
+      pop
+        register	r2
+  codeline
+    instruction
+      retpseudo
+  codeline
+    directiveuse
+      func
+        label	PRINT_STRING:
+  codeline
+    instruction
+      push
+        register	r2
+  codeline
+    instruction
+      push
+        register	r3
+  codeline
+    instruction
+      lli
+        register	r2
+        imm	0x1000_0000
+  codeline
+    label	PRINT_CHAR_LOOP:
+  codeline
+    instruction
+      lsinstructuse
+        lb
+        register	r3
+        register	r1
+        imm	0
+  codeline
+    instruction
+      binstructuse
+        beq
+        register	r3
+        register	r0
+        imm
+          labeluse	END_PRINT_CHAR_LOOP
+  codeline
+    instruction
+      lsinstructuse
+        sw
+        register	r3
+        register	r2
+        imm	0
+  codeline
+    instruction
+      iinstructuse
+        addi
+        register	r1
+        register	r1
+        imm	1
+  codeline
+    instruction
+      jmpseudo
+        imm
+          labeluse	PRINT_CHAR_LOOP
+  codeline
+    label	END_PRINT_CHAR_LOOP:
+  codeline
+    instruction
+      pop
+        register	r3
+  codeline
+    instruction
+      pop
+        register	r2
+  codeline
+    instruction
+      retpseudo
+  codeline
+    directiveuse
+      func
+        label	SAVE_REGISTERS:
+  codeline
+    instruction
+      push
+        register	r1
+  codeline
+    instruction
+      push
+        register	r2
+  codeline
+    instruction
+      push
+        register	r3
+  codeline
+    instruction
+      push
+        register	r4
+  codeline
+    instruction
+      push
+        register	r5
+  codeline
+    instruction
+      push
+        register	r6
+  codeline
+    instruction
+      push
+        register	r7
+  codeline
+    instruction
+      push
+        register	r8
+  codeline
+    instruction
+      push
+        register	r9
+  codeline
+    instruction
+      push
+        register	r10
+  codeline
+    instruction
+      push
+        register	r11
+  codeline
+    instruction
+      push
+        register	r12
+  codeline
+    instruction
+      push
+        register	r13
+  codeline
+    instruction
+      push
+        register	r14
+  codeline
+    instruction
+      push
+        register	r15
+  codeline
+    instruction
+      retpseudo
+  codeline
+    directiveuse
+      func
+        label	RESTORE_REGISTERS:
+  codeline
+    instruction
+      pop
+        register	r15
+  codeline
+    instruction
+      pop
+        register	r14
+  codeline
+    instruction
+      pop
+        register	r13
+  codeline
+    instruction
+      pop
+        register	r12
+  codeline
+    instruction
+      pop
+        register	r11
+  codeline
+    instruction
+      pop
+        register	r10
+  codeline
+    instruction
+      pop
+        register	r9
+  codeline
+    instruction
+      pop
+        register	r8
+  codeline
+    instruction
+      pop
+        register	r7
+  codeline
+    instruction
+      pop
+        register	r6
+  codeline
+    instruction
+      pop
+        register	r5
+  codeline
+    instruction
+      pop
+        register	r4
+  codeline
+    instruction
+      pop
+        register	r3
+  codeline
+    instruction
+      pop
+        register	r2
+  codeline
+    instruction
+      pop
+        register	r1
+  codeline
+    instruction
+      retpseudo
 
 
-[{'type': 'd', 'name': 'seg', 'imm': {'type': 'li', 'name': 'LCONST_4', 'value': 4294901760}}, {'type': 'a', 'name': '_START', 'd': 'label'}, {'type': 'i', 'name': 'addi', 'rd': 1, 'rs1': 0, 'imm': 10}, {'type': 'i', 'name': 'addi', 'rd': 2, 'rs1': 0, 'imm': 0}, {'type': 'i', 'name': 'addi', 'rd': 3, 'rs1': 0, 'imm': 1}, {'type': 'i', 'name': 'addi', 'rd': 4, 'rs1': 0, 'imm': 1}, {'type': 'p', 'name': 'jmp', 'imm': {'type': 'u', 'name': 'LOOP'}}, {'type': 'a', 'name': 'TTY_ADDR', 'd': 'label'}, {'type': 'd', 'name': 'data', 'imm': 268435456, 'd': 'data', 'len': 4}, {'type': 'a', 'name': 'HELLO_WORLD', 'd': 'label'}, {'type': 'd', 'name': 'data', 'imm': 205469705004861725972941750691144, 'd': 'str', 'len': 15}, {'type': 'a', 'name': 'NEWLINE', 'd': 'label'}, {'type': 'd', 'name': 'data', 'imm': 10, 'd': 'str', 'len': 2}, {'type': 'a', 'name': 'RAND_DATA', 'd': 'label'}, {'type': 'd', 'name': 'data', 'imm': -1527886194, 'd': 'rand', 'len': 4}, {'type': 'd', 'name': 'seg', 'imm': 0}, {'type': 'a', 'name': 'LOOP', 'd': 'label'}, {'type': 'r', 'name': 'add', 'rd': 5, 'rs1': 2, 'rs2': 3}, {'type': 'r', 'name': 'add', 'rd': 2, 'rs1': 3, 'rs2': 0}, {'type': 'r', 'name': 'add', 'rd': 3, 'rs1': 5, 'rs2': 0}, {'type': 'i', 'name': 'addi', 'rd': 4, 'rs1': 4, 'imm': 1}, {'type': 'b', 'name': 'blt', 'rd': 4, 'rs1': 1, 'imm': {'type': 'u', 'name': 'LOOP'}}, {'type': 'i', 'name': 'addi', 'rd': 1, 'rs1': 5, 'imm': 0}, {'type': 'j', 'rd': 'r14', 'rs1': 0, 'name': 'jal', 'imm': {'type': 'u', 'name': 'PRINT_NUMBER'}}, {'type': 'i', 'name': 'addi', 'rd': 1, 'rs1': 0, 'imm': {'type': 'u', 'name': 'NEWLINE'}}, {'type': 'j', 'rd': 'r14', 'rs1': 0, 'name': 'jal', 'imm': {'type': 'u', 'name': 'PRINT_STRING'}}, {'type': 'i', 'name': 'addi', 'rd': 1, 'rs1': 0, 'imm': {'type': 'u', 'name': 'HELLO_WORLD'}}, {'type': 'j', 'rd': 'r14', 'rs1': 0, 'name': 'jal', 'imm': {'type': 'u', 'name': 'PRINT_STRING'}}, {'type': 'i', 'name': 'addi', 'rd': 2, 'rs1': 0, 'imm': {'type': 'u', 'name': 'RAND_DATA'}}, {'type': 'l', 'name': 'lw', 'rd': 1, 'rs1': 2, 'imm': 0}, {'type': 'j', 'rd': 'r14', 'rs1': 0, 'name': 'jal', 'imm': {'type': 'u', 'name': 'PRINT_NUMBER'}}, {'type': 's', 'name': 'break'}, {'type': 'd', 'name': 'inc', 'imm': 'common_functions.ros'}]
+[{'type': 'd', 'name': 'seg', 'imm': {'type': 'li', 'name': 'LCONST_0', 'value': 4294901760}}, {'type': 'a', 'name': '_START', 'd': 'label'}, {'type': 'i', 'name': 'addi', 'rd': 1, 'rs1': 0, 'imm': 10}, {'type': 'i', 'name': 'addi', 'rd': 2, 'rs1': 0, 'imm': 0}, {'type': 'i', 'name': 'addi', 'rd': 3, 'rs1': 0, 'imm': 1}, {'type': 'i', 'name': 'addi', 'rd': 4, 'rs1': 0, 'imm': 1}, {'type': 'p', 'name': 'jmp', 'imm': {'type': 'u', 'name': 'LOOP'}}, {'type': 'a', 'name': 'TTY_ADDR', 'd': 'label'}, {'type': 'd', 'name': 'data', 'imm': 268435456, 'd': 'data', 'len': 4}, {'type': 'a', 'name': 'HELLO_WORLD', 'd': 'label'}, {'type': 'd', 'name': 'data', 'imm': 205469705004861725972941750691144, 'd': 'str', 'len': 15}, {'type': 'a', 'name': 'NEWLINE', 'd': 'label'}, {'type': 'd', 'name': 'data', 'imm': 10, 'd': 'str', 'len': 2}, {'type': 'a', 'name': 'RAND_DATA', 'd': 'label'}, {'type': 'd', 'name': 'data', 'imm': -1742879204, 'd': 'rand', 'len': 4}, {'type': 'd', 'name': 'seg', 'imm': 0}, {'type': 'a', 'name': 'LOOP', 'd': 'label'}, {'type': 'r', 'name': 'add', 'rd': 5, 'rs1': 2, 'rs2': 3}, {'type': 'r', 'name': 'add', 'rd': 2, 'rs1': 3, 'rs2': 0}, {'type': 'r', 'name': 'add', 'rd': 3, 'rs1': 5, 'rs2': 0}, {'type': 'i', 'name': 'addi', 'rd': 4, 'rs1': 4, 'imm': 1}, {'type': 'b', 'name': 'blt', 'rd': 4, 'rs1': 1, 'imm': {'type': 'u', 'name': 'LOOP'}}, {'type': 'i', 'name': 'addi', 'rd': 1, 'rs1': 5, 'imm': 0}, {'type': 'j', 'rd': 14, 'rs1': 0, 'name': 'jal', 'imm': {'type': 'u', 'name': 'PRINT_NUMBER'}}, {'type': 'i', 'name': 'addi', 'rd': 1, 'rs1': 0, 'imm': {'type': 'u', 'name': 'NEWLINE'}}, {'type': 'j', 'rd': 14, 'rs1': 0, 'name': 'jal', 'imm': {'type': 'u', 'name': 'PRINT_STRING'}}, {'type': 'i', 'name': 'addi', 'rd': 1, 'rs1': 0, 'imm': {'type': 'u', 'name': 'HELLO_WORLD'}}, {'type': 'j', 'rd': 14, 'rs1': 0, 'name': 'jal', 'imm': {'type': 'u', 'name': 'PRINT_STRING'}}, {'type': 'i', 'name': 'addi', 'rd': 2, 'rs1': 0, 'imm': {'type': 'u', 'name': 'RAND_DATA'}}, {'type': 'l', 'name': 'lw', 'rd': 1, 'rs1': 2, 'imm': 0}, {'type': 'j', 'rd': 14, 'rs1': 0, 'name': 'jal', 'imm': {'type': 'u', 'name': 'PRINT_NUMBER'}}, {'type': 's', 'name': 'break'}, {'type': 'a', 'name': 'PRINT_NUMBER', 'd': 'label'}, {'type': 'p', 'name': 'push', 'imm': 2}, {'type': 'p', 'name': 'push', 'imm': 3}, {'type': 'p', 'name': 'push', 'imm': 4}, {'type': 'i', 'name': 'addi', 'rd': 2, 'rs1': 0, 'imm': 10}, {'type': 'p', 'name': 'lli', 'reg': 3, 'imm': {'type': 'li', 'name': 'LCONST_2', 'value': 268435456, 'rd': 3}}, {'type': 'a', 'name': 'PRINT_LOOP', 'd': 'label'}, {'type': 'r', 'name': 'rem', 'rd': 4, 'rs1': 1, 'rs2': 2}, {'type': 'i', 'name': 'addi', 'rd': 4, 'rs1': 4, 'imm': 48}, {'type': 'l', 'name': 'sw', 'rd': 4, 'rs1': 3, 'imm': 0}, {'type': 'r', 'name': 'div', 'rd': 1, 'rs1': 1, 'rs2': 2}, {'type': 'b', 'name': 'bne', 'rd': 1, 'rs1': 0, 'imm': {'type': 'u', 'name': 'PRINT_LOOP'}}, {'type': 'p', 'name': 'pop', 'imm': 4}, {'type': 'p', 'name': 'pop', 'imm': 3}, {'type': 'p', 'name': 'pop', 'imm': 2}, {'type': 'j', 'rd': 0, 'rs1': 14, 'name': 'jalr', 'imm': 0}, {'type': 'a', 'name': 'PRINT_STRING', 'd': 'label'}, {'type': 'p', 'name': 'push', 'imm': 2}, {'type': 'p', 'name': 'push', 'imm': 3}, {'type': 'p', 'name': 'lli', 'reg': 2, 'imm': {'type': 'li', 'name': 'LCONST_3', 'value': 268435456, 'rd': 2}}, {'type': 'a', 'name': 'PRINT_CHAR_LOOP', 'd': 'label'}, {'type': 'l', 'name': 'lb', 'rd': 3, 'rs1': 1, 'imm': 0}, {'type': 'b', 'name': 'beq', 'rd': 3, 'rs1': 0, 'imm': {'type': 'u', 'name': 'END_PRINT_CHAR_LOOP'}}, {'type': 'l', 'name': 'sw', 'rd': 3, 'rs1': 2, 'imm': 0}, {'type': 'i', 'name': 'addi', 'rd': 1, 'rs1': 1, 'imm': 1}, {'type': 'p', 'name': 'jmp', 'imm': {'type': 'u', 'name': 'PRINT_CHAR_LOOP'}}, {'type': 'a', 'name': 'END_PRINT_CHAR_LOOP', 'd': 'label'}, {'type': 'p', 'name': 'pop', 'imm': 3}, {'type': 'p', 'name': 'pop', 'imm': 2}, {'type': 'j', 'rd': 0, 'rs1': 14, 'name': 'jalr', 'imm': 0}, {'type': 'a', 'name': 'SAVE_REGISTERS', 'd': 'label'}, {'type': 'p', 'name': 'push', 'imm': 1}, {'type': 'p', 'name': 'push', 'imm': 2}, {'type': 'p', 'name': 'push', 'imm': 3}, {'type': 'p', 'name': 'push', 'imm': 4}, {'type': 'p', 'name': 'push', 'imm': 5}, {'type': 'p', 'name': 'push', 'imm': 6}, {'type': 'p', 'name': 'push', 'imm': 7}, {'type': 'p', 'name': 'push', 'imm': 8}, {'type': 'p', 'name': 'push', 'imm': 9}, {'type': 'p', 'name': 'push', 'imm': 10}, {'type': 'p', 'name': 'push', 'imm': 11}, {'type': 'p', 'name': 'push', 'imm': 12}, {'type': 'p', 'name': 'push', 'imm': 13}, {'type': 'p', 'name': 'push', 'imm': 14}, {'type': 'p', 'name': 'push', 'imm': 15}, {'type': 'j', 'rd': 0, 'rs1': 14, 'name': 'jalr', 'imm': 0}, {'type': 'a', 'name': 'RESTORE_REGISTERS', 'd': 'label'}, {'type': 'p', 'name': 'pop', 'imm': 15}, {'type': 'p', 'name': 'pop', 'imm': 14}, {'type': 'p', 'name': 'pop', 'imm': 13}, {'type': 'p', 'name': 'pop', 'imm': 12}, {'type': 'p', 'name': 'pop', 'imm': 11}, {'type': 'p', 'name': 'pop', 'imm': 10}, {'type': 'p', 'name': 'pop', 'imm': 9}, {'type': 'p', 'name': 'pop', 'imm': 8}, {'type': 'p', 'name': 'pop', 'imm': 7}, {'type': 'p', 'name': 'pop', 'imm': 6}, {'type': 'p', 'name': 'pop', 'imm': 5}, {'type': 'p', 'name': 'pop', 'imm': 4}, {'type': 'p', 'name': 'pop', 'imm': 3}, {'type': 'p', 'name': 'pop', 'imm': 2}, {'type': 'p', 'name': 'pop', 'imm': 1}, {'type': 'j', 'rd': 0, 'rs1': 14, 'name': 'jalr', 'imm': 0}]
 
 .SEG 0xFFFF0000
 _START:

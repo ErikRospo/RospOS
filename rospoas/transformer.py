@@ -134,12 +134,12 @@ class RospoasTransformer(Transformer):
     def push(self, items):
         reg_t = items[0]
         reg_v = reg_t
-        return {"type": "p", "name": "push", "reg": reg_v}
+        return {"type": "p", "name": "push", "imm": reg_v} # Yes, imm is register here for simplicity. Should really be "arg" or something
 
     def pop(self, items):
         reg_t = items[0]
         reg_v = reg_t
-        return {"type": "p", "name": "pop", "reg": reg_v}
+        return {"type": "p", "name": "pop", "imm": reg_v} # Same as above
 
     def lli(self, items):
         reg_t = items[0]
@@ -164,10 +164,10 @@ class RospoasTransformer(Transformer):
         except:
             pass
 
-        return {"type": "j", "rd": "r14", "rs1": 0, "name": "jal", "imm": imm_v}
+        return {"type": "j", "rd": 14, "rs1": 0, "name": "jal", "imm": imm_v}
 
     def retpseudo(self, items):
-        return {"type": "j", "rd": "r0", "rs1": "r14", "name": "jalr", "imm": 0}
+        return {"type": "j", "rd": 0, "rs1": 14, "name": "jalr", "imm": 0}
 
     def systeminstructuse(self, items):
         name_t = items[0]
@@ -229,15 +229,8 @@ class RospoasTransformer(Transformer):
 
     def func(self, items):
         label_t = items[0]
-        label_str = str(label_t)
-        label_v = label_str[:-1]  # Remove the trailing colon
-        return {"type": "a", "name": label_v, "d": "func"}
+        return label_t
 
-    def inc(self, items):
-        str_t = items[0]
-        str_v = str_t[1:-1]  # Remove the surrounding quotes
-        value = str_v.encode().decode("unicode_escape")  # Handle escape sequences
-        return {"type": "d", "name": "inc", "imm": value}
 
     def rand(self, items):
         imm_t = items[0]
@@ -259,7 +252,6 @@ class RospoasTransformer(Transformer):
         name_v = name_str[:-1]
         return {"type": "a", "name": name_v, "d": "label"}
     def directiveuse(self, items):
-        print(items)
         return items[0]
     def codeline(self, items):
         return items[0]

@@ -24,9 +24,7 @@ preprocessed_code = "\n".join(preprocess_includes(source_code, args.input))
 # Parse and transform the preprocessed source code
 parse_tree = parse_source(preprocessed_code)
 ast, lifted_constants = transform_parse_tree(parse_tree)
-# Parse and transform source code
-parse_tree = parse_source(source_code)
-ast, lifted_constants = transform_parse_tree(parse_tree)
+
 with open("debug_parse.txt", "w") as f:
     f.write(str(parse_tree.pretty()))
     f.write("\n\n")
@@ -145,6 +143,7 @@ def compile_instruction(instr):
 def first_pass(ast):
     global current_address, current_segment, current_segment_data
     for instr in ast:
+        print(f"{type(instr)}: {instr}")
         if instr["type"] == "a":  # Label definition
             label_name = instr["name"]
             label_addresses[label_name] = current_address
@@ -187,16 +186,24 @@ def second_pass(ast):
             if instr["type"] =="p":
                 imm=instr["imm"]
                 if isinstance(instr["imm"], dict):
-                    label_name = instr["imm"].get("name")
-                    if label_name in label_addresses:
-                        imm = label_addresses[label_name]
+                    label_value= instr["imm"].get("value")
+                    if label_value is not None:
+                        imm = label_value
                     else:
-                        raise ValueError(f"Undefined label: {label_name}")
+                        label_name = instr["imm"].get("name")
+                        if label_name in label_addresses:
+                            imm = label_addresses[label_name]
+                        else:
+                            raise ValueError(f"Undefined label: {label_name}")
                 generated_instrs = None
                 if instr["name"]=="jmp":
                     generated_instrs = generate_absolute_jump(imm)
                 elif instr["name"]=="lli":
                     generated_instrs = generate_immediate_loading(imm, instr["reg"])
+                elif instr["name"]=="push":
+                    generated_instrs = generate_stack_push(imm)
+                elif instr["name"]=="pop":
+                    generated_instrs = generate_stack_pop(imm)
                 assert generated_instrs is not None, f"Unknown pseudo-instruction: {instr['name']}"
 
                 if current_segment_data is not None:
@@ -225,10 +232,10 @@ def second_pass(ast):
                     if label_name in label_addresses:
                         instr["imm"] = (label_addresses[label_name]-len(current_segment_data))//4
                     else:
-                        raise ValueError(f"Undefined label: {label_name}")
+                        raise ValueError(f"Undefined label: {label_name}. Current instruction: {instr}. Labels: {label_addresses.keys()}")
 
             # Now, try to correct immediates if they don't fit
-            if instr["type"] == "l":
+            if instr["type"] == "l" or instr["type"] == "i":
                 imm = instr.get("imm")
                 if -32768 <= imm <= 65535:
                     pass  # Fits in I-type
