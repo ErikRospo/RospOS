@@ -20,7 +20,7 @@ from ir import (
 from encoding import register_map, i_to_r_map
 
 
-TEMP_REG = register_map["r1"]
+TEMP_REG = register_map["r13"]
 SP_REG = register_map["sp"]
 
 
@@ -47,7 +47,6 @@ def _emit_immediate_loading_for_label(label_name: str, rd: int) -> List[Instruct
 
 
 def _emit_stack_push(reg: int) -> List[Instruction]:
-    # Correct canonical push: ADDI sp, sp, -4; SW reg, 0(sp)
     return [
         Instruction(type="i", name="addi", rd=SP_REG, rs1=SP_REG, imm=ImmValue(-4)),
         Instruction(type="l", name="sw", rd=reg, rs1=SP_REG, imm=ImmValue(0)),
@@ -55,7 +54,6 @@ def _emit_stack_push(reg: int) -> List[Instruction]:
 
 
 def _emit_stack_pop(reg: int) -> List[Instruction]:
-    # Correct canonical pop: LW reg, 0(sp); ADDI sp, sp, 4
     return [
         Instruction(type="l", name="lw", rd=reg, rs1=SP_REG, imm=ImmValue(0)),
         Instruction(type="i", name="addi", rd=SP_REG, rs1=SP_REG, imm=ImmValue(4)),
@@ -104,7 +102,6 @@ def lower_ir(ir_list: List) -> List:
             if name == "jmp":
                 rd = node.rd if node.rd is not None else 0
                 imm = node.imm
-                out.extend(_emit_stack_push(TEMP_REG))
                 if isinstance(imm, ImmLifted):
                     out.extend(_emit_immediate_loading_for_value(int(imm.value), TEMP_REG))
                 elif isinstance(imm, ImmLabel):
@@ -114,7 +111,6 @@ def lower_ir(ir_list: List) -> List:
                 else:
                     raise ValueError(f"Unhandled immediate in jmp pseudo: {imm}")
                 out.append(Instruction(type="j", name="jalr", rd=rd, rs1=TEMP_REG, imm=ImmValue(0)))
-                out.extend(_emit_stack_pop(TEMP_REG))
                 continue
 
         # For normal instructions, handle lifted `li` immediates.

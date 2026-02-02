@@ -189,12 +189,9 @@ This allows for easier initialization of memory to zero.
 
 ## Calling Convention (ABI)
 
+Up to you to define full ABI, but basic register usage:
 r0   = hardwired zero 
-r1   = return value
-r2–r5 = arg0–arg3
-r6–r9 = caller-saved
-r10–r12 = callee-saved
-r13 = frame pointer
+r13 = temp / scratch register (do not rely on value being preserved)
 r14 = link register (return address)
 r15 = stack pointer
 
