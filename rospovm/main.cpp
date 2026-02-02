@@ -3,6 +3,7 @@
 #include <vector>
 #include <string>
 #include <cstdint>
+#include <algorithm> // For std::find
 
 #include "InstructionDecoder.h"
 #include "Register.h"
@@ -12,34 +13,36 @@
 int main(int argc, char* argv[]) {
     std::cerr << "RospOS Virtual Machine starting..." << std::endl;
     if (argc < 2) {
-        std::cerr << "Usage: " << argv[0] << " <file.rosp> [debug]" << std::endl;
+        std::cerr << "Usage: " << argv[0] << " <file.rosp> [--verbose] [--step]" << std::endl;
         return 1;
     }
 
     std::string rospFile = argv[1];
-    bool debugMode = (argc >= 3 && std::string(argv[2]) == "debug");
-    
+    bool verboseMode = (std::find(argv, argv + argc, std::string("--verbose")) != argv + argc);
+    bool stepMode = (std::find(argv, argv + argc, std::string("--step")) != argv + argc);
+
     Binary binary = Binary().load_binary(rospFile);
 
-    RospOSVM vm(debugMode);
+    RospOSVM vm(verboseMode);
     for (const auto& segment : binary.segments) {
-        std::cout << "Loading segment at address 0x" << std::hex << segment.address 
-                  << " with size " << std::dec << segment.data.size() << " bytes." << std::endl;
-        for (uint8_t byte : segment.data) {
-            std::cout << std::hex << static_cast<int>(byte) << " ";
+        if (verboseMode) {
+            std::cout << "Loading segment at address 0x" << std::hex << segment.address 
+                      << " with size " << std::dec << segment.data.size() << " bytes." << std::endl;
+            for (uint8_t byte : segment.data) {
+                std::cout << std::hex << static_cast<int>(byte) << " ";
+            }
+            std::cout << std::dec << std::endl;
         }
-        std::cout << std::dec << std::endl;
         vm.loadBinaryAtAddress(std::vector<char>(segment.data.begin(), segment.data.end()), segment.address);
     }
     std::cout << "Loaded. Starting execution..." << std::endl;
 
     char ch;
-    // Simple execution loop
-    if (debugMode){
+    if (stepMode) {
         std::cout << "Press Enter to step, 'q' to quit." << std::endl;
     }
-    while (true){
-        if (debugMode) {
+    while (true) {
+        if (stepMode) {
             std::cin.get(ch);
             if (ch == 'q') break;
         }

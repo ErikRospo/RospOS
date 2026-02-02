@@ -291,7 +291,6 @@ bool RospOSVM::bTypeInstruction(uint32_t instruction)
 
     sign_ext_imm <<= 2; // Branch addresses are word-aligned
 
-    std::cerr << "Branch check: R" << rs1 << "=" << regFile[rs1].get() << ", R" << rs2 << "=" << regFile[rs2].get() << std::endl;
     bool takeBranch = false;
     switch (sub_op)
     {

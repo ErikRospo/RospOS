@@ -6,4 +6,4 @@ hexdump -C rospos/build/rospos.rosp
 cd rospovm
 make -j8
 cd ..
-./rospovm/rospovm ./rospos/build/rospos.rosp debug
+./rospovm/rospovm ./rospos/build/rospos.rosp --verbose
