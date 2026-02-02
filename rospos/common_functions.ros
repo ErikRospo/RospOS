@@ -44,3 +44,72 @@ END_READ_LINE_LOOP:
     POP r2
     POP r1 // Restore original r1 (will point to the start of the buffer)
     RET
+
+.FUNC DRAW_CHAR_TO_DISPLAY:
+    // Function to draw character in r1 to display at (r2, r3)
+    // r1: character to draw
+    // r2: X coordinate
+    // r3: Y coordinate
+    PUSH r4
+    PUSH r5
+    PUSH r6
+    PUSH r7
+    PUSH r8
+    PUSH r9
+
+    // Calculate font bitmap address
+    LLI r4, BASE_FB_ADDR       // Base address of font bitmap
+    LLI r8, 0x20               // ASCII space character
+    SUB r5, r1, r8             // Offset from space character
+    LLI r8, 4                  // Each character is 4 bytes
+    MUL r5, r5, r8             // Offset in bytes
+    ADD r4, r4, r5             // r4 now points to the font bitmap for the character
+
+    // Load font bitmap
+    LW r5, r4, 0               // Load 4 bytes of font bitmap into r5
+
+    // Draw character pixel by pixel
+    LLI r6, 0                  // Bit index (0-31)
+DRAW_CHAR_PIXEL_LOOP:
+    LLI r8, 32
+    BEQ r6, r8, END_DRAW_CHAR_PIXEL_LOOP // Exit loop after 32 bits
+
+    // Calculate pixel position
+    LLI r8, 8                  // 8 pixels per row
+    DIV r7, r6, r8             // Row (0-3)
+    REM r9, r6, r8             // Column (0-7)
+
+    // Check if pixel is set
+    LLI r8, 31                 // Highest bit index
+    SUB r8, r8, r6             // Calculate bit position from the left
+    SHR r8, r5, r8             // Shift the bit into position
+    ANDI r8, r8, 1             // Mask out all but the least significant bit
+    BEQ r8, r0, SKIP_PIXEL_DRAW // Skip if the bit is not set
+
+    // Draw pixel to display
+    LLI r8, 128                // Display width
+    MUL r7, r7, r8             // Y * width
+    ADD r7, r7, r2             // Add X coordinate
+    ADD r7, r7, r3             // Add Y coordinate
+    LLI r8, 0x2000_0000        // Display base address
+    ADD r7, r7, r8             // Calculate final display address
+
+    // Set pixel to white (0b11)
+    LB r8, r7, 0               // Load current byte
+    LLI r9, 0b11               // White pixel value
+    SHL r9, r9, r6             // Shift to correct position
+    OR r8, r8, r9              // Set pixel bits
+    SB r8, r7, 0               // Store byte back
+
+SKIP_PIXEL_DRAW:
+    ADDI r6, r6, 1             // Increment bit index
+    JMP DRAW_CHAR_PIXEL_LOOP
+
+END_DRAW_CHAR_PIXEL_LOOP:
+    POP r9
+    POP r8
+    POP r7
+    POP r6
+    POP r5
+    POP r4
+    RET

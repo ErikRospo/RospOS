@@ -6,17 +6,29 @@ CALL PRINT_STRING
 LLI r1, PROMPT
 CALL PRINT_STRING
 LLI r3, 0x0A
+LLI r4, 0 // X coordinate
+LLI r5, 0 // Y coordinate
 MAIN_LOOP:
     LLI r1, TTY_BUFFER
     CALL READ_CHAR
     //READ_CHAR puts the character in r1
     BEQ r1, r3, NEWLINE_LABEL
-
+    PUSH r2
+    PUSH r3
+    ADDI r2, r4, 0 // X coordinate
+    ADDI r3, r5, 0 // Y coordinate
+    // Draw character to display
+    CALL DRAW_CHAR_TO_DISPLAY
+    ADDI r4, r4, 8 // Move X coordinate for next character
+    POP r3
+    POP r2
     LLI r2, 0x1000_0000 // TTY address
     SB r1, r2, 0 // Echo first character back to TTY
     JMP MAIN_LOOP
 
 NEWLINE_LABEL:
+    ADDI r5, r5, 16 // Move Y coordinate down for newline
+    LLI r4, 0 // Reset X coordinate to 0
     LLI r1, PROMPT
     CALL PRINT_STRING
     JMP MAIN_LOOP
@@ -39,3 +51,5 @@ PROMPT:
     .STR "\nROSPOS> "
 TTY_BUFFER:
     .SPACE 256 // Buffer for TTY input
+
+.INC "./font_bitmap.ros"

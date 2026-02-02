@@ -1,0 +1,1 @@
+Refactor MULI to shifts if 2^n

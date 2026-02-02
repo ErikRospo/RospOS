@@ -1,0 +1,258 @@
+.SEG 0xFFFF_FFFC
+.DATA 0x0000_0000 // Reset vector points to address 0x00000000
+.SEG 0x00000000
+LLI r1, MOTD
+CALL PRINT_STRING
+LLI r1, PROMPT
+CALL PRINT_STRING
+LLI r3, 0x0A
+LLI r4, 0 // X coordinate
+LLI r5, 0 // Y coordinate
+MAIN_LOOP:
+LLI r1, TTY_BUFFER
+CALL READ_CHAR
+//READ_CHAR puts the character in r1
+BEQ r1, r3, NEWLINE_LABEL
+PUSH r2
+PUSH r3
+ADDI r2, r4, 0 // X coordinate
+ADDI r3, r5, 0 // Y coordinate
+// Draw character to display
+CALL DRAW_CHAR_TO_DISPLAY
+ADDI r4, r4, 8 // Move X coordinate for next character
+POP r3
+POP r2
+LLI r2, 0x1000_0000 // TTY address
+SB r1, r2, 0 // Echo first character back to TTY
+JMP MAIN_LOOP
+
+NEWLINE_LABEL:
+ADDI r5, r5, 16 // Move Y coordinate down for newline
+LLI r4, 0 // Reset X coordinate to 0
+LLI r1, PROMPT
+CALL PRINT_STRING
+JMP MAIN_LOOP
+
+BREAK_LABEL:
+BREAK
+
+
+.SEG 0x0000_0500
+//This includes common functions
+.FUNC PRINT_STRING:
+// Function to print a character string pointed to by r1
+PUSH r2
+PUSH r3
+LLI r2, 0x1000_0000 // TTY address
+PRINT_CHAR_LOOP:
+LB r3, r1, 0
+BEQ r3, r0, END_PRINT_CHAR_LOOP //error occurs around here
+SB r3, r2, 0
+ADDI r1, r1, 1
+JMP PRINT_CHAR_LOOP
+END_PRINT_CHAR_LOOP:
+POP r3
+POP r2
+RET
+
+.FUNC READ_CHAR:
+// Function to read a character from TTY into r1
+PUSH r2
+LLI r2, 0x1000_0000 // TTY address
+LB r1, r2, 0
+POP r2
+RET
+
+
+.FUNC READ_LINE:
+// Function to read a line of input into the buffer pointed to by r1
+// r1 will point to the start of the buffer
+PUSH r1
+PUSH r2
+PUSH r3
+
+READ_LINE_LOOP:
+CALL READ_CHAR
+ADDI r3, r0, 0x0A // Newline character
+BEQ r1, r3, END_READ_LINE_LOOP // End on newline
+SB r1, r2, 0
+ADDI r2, r2, 1
+JMP READ_LINE_LOOP
+
+END_READ_LINE_LOOP:
+SB r0, r2, 0 // Null-terminate the string
+POP r3
+POP r2
+POP r1 // Restore original r1 (will point to the start of the buffer)
+RET
+
+.FUNC DRAW_CHAR_TO_DISPLAY:
+// Function to draw character in r1 to display at (r2, r3)
+// r1: character to draw
+// r2: X coordinate
+// r3: Y coordinate
+PUSH r4
+PUSH r5
+PUSH r6
+PUSH r7
+PUSH r8
+
+// Calculate font bitmap address
+LLI r4, BASE_FB_ADDR
+LLI r8, 0x20 // ASCII space character
+SUB r5, r1, r8 // Offset from space character
+LLI r8, 4 // Each character is 4 bytes
+MUL r5, r5, r8 // No MULI
+ADD r4, r4, r5 // r4 now has address of font bitmap
+// Load font bitmap
+LW r5, r4, 0
+// Draw character pixel by pixel
+LLI r6, 0 // Bit index
+DRAW_CHAR_PIXEL_LOOP:
+LLI r8, 32
+BEQ r6, r8, END_DRAW_CHAR_PIXEL_LOOP // 32 bits per character
+// Calculate pixel position
+LLI r8, 8
+DIV r7, r6, r8 // Row (0-3)
+REM r9, r6, r8 // Column (0-7)
+// Check if pixel is set
+NEG r6, r0, r6
+ADDI r6, r6, 31
+SHR r1, r5, r6
+ANDI r1, r1, 1
+BEQ r1, r0, SKIP_PIXEL_DRAW
+// Draw pixel to display
+LLI r1, 0x2000_0000 // Display base address
+LLI r8, 128 // Display width
+MUL r2, r7, r8 // Y * width
+ADD r1, r1, r2 // Base + Y offset
+LLI r8, 4 // 2-bit grayscale, 4 pixels per byte
+DIV r2, r1, r8 // Byte offset
+REM r3, r1, r8 // Pixel within byte
+LB r4, r2, 0 // Load byte
+// Set pixel to white (0b11)
+LLI r6, 0b11 // White pixel value
+SHL r6, r6, r3 // Shift to correct position
+OR r4, r4, r6 // Set pixel bits
+SB r4, r2, 0 // Store byte back
+SKIP_PIXEL_DRAW:
+ADDI r6, r6, 1
+JMP DRAW_CHAR_PIXEL_LOOP
+END_DRAW_CHAR_PIXEL_LOOP:
+POP r8
+POP r7
+POP r6
+POP r5
+POP r4
+RET
+
+
+.SEG 0x0000_1000
+TTY:
+.DATA 0x1000_0000 // Memory-mapped TTY address
+MOTD:
+.STR "WELCOME TO ROSPOS. Copyleft 2026 Erik Rospo\n"
+PROMPT:
+.STR "\nROSPOS> "
+TTY_BUFFER:
+.SPACE 256 // Buffer for TTY input
+
+// Font bitmap data for characters 0x20 to 0x7E
+// Thanks to azmr's blit-fonts project for the original font data
+// (https://github.com/azmr/blit-fonts)
+BASE_FB_ADDR:
+FB_SPACE:      .DATA 0x00000000
+FB_EXCLAM:     .DATA 0x08021084
+FB_QUOTE:      .DATA 0x0000294a
+FB_HASH:       .DATA 0x15f52bea
+FB_DOLLAR:     .DATA 0x08fa38be
+FB_PERCENT:    .DATA 0x33a22e60
+FB_AMPERSAND:  .DATA 0x2e94d8a6
+FB_APOSTROPHE: .DATA 0x00001084
+FB_LPAREN:     .DATA 0x10421088
+FB_RPAREN:     .DATA 0x04421082
+FB_ASTERISK:   .DATA 0x00a23880
+FB_PLUS:       .DATA 0x00471000
+FB_COMMA:      .DATA 0x04420000
+FB_HYPHEN:     .DATA 0x00070000
+FB_PERIOD:     .DATA 0x0c600000
+FB_SLASH:      .DATA 0x02222200
+FB_0:          .DATA 0x1d3ad72e
+FB_1:          .DATA 0x3e4214c4
+FB_2:          .DATA 0x3e22222e
+FB_3:          .DATA 0x1d18320f
+FB_4:          .DATA 0x210fc888
+FB_5:          .DATA 0x1d183c3f
+FB_6:          .DATA 0x1d17844c
+FB_7:          .DATA 0x0222221f
+FB_8:          .DATA 0x1d18ba2e
+FB_9:          .DATA 0x210f463e
+FB_COLON:      .DATA 0x0c6018c0
+FB_SEMICOLON:  .DATA 0x04401000
+FB_LT:         .DATA 0x10411100
+FB_EQUAL:      .DATA 0x00e03800
+FB_GT:         .DATA 0x04441040
+FB_QUESTION:   .DATA 0x0802322e
+FB_AT:         .DATA 0x3c1ef62e
+FB_A:          .DATA 0x231fc544
+FB_B:          .DATA 0x1f18be2f
+FB_C:          .DATA 0x3c10862e
+FB_D:          .DATA 0x1f18c62f
+FB_E:          .DATA 0x3e10bc3f
+FB_F:          .DATA 0x0210bc3f
+FB_G:          .DATA 0x1d1c843e
+FB_H:          .DATA 0x2318fe31
+FB_I:          .DATA 0x3e42109f
+FB_J:          .DATA 0x0c94211f
+FB_K:          .DATA 0x23149d31
+FB_L:          .DATA 0x3e108421
+FB_M:          .DATA 0x231ad6bb
+FB_N:          .DATA 0x239cd671
+FB_O:          .DATA 0x1d18c62e
+FB_P:          .DATA 0x0217c62f
+FB_Q:          .DATA 0x30eac62e
+FB_R:          .DATA 0x2297c62f
+FB_S:          .DATA 0x1d141a2e
+FB_T:          .DATA 0x0842109f
+FB_U:          .DATA 0x1d18c631
+FB_V:          .DATA 0x08454631
+FB_W:          .DATA 0x375ad631
+FB_X:          .DATA 0x22a21151
+FB_Y:          .DATA 0x08421151
+FB_Z:          .DATA 0x3e22221f
+FB_LBRACKET:   .DATA 0x1842108c
+FB_BACKSLASH:  .DATA 0x20820820
+FB_RBRACKET:   .DATA 0x0c421086
+FB_CARET:      .DATA 0x00004544
+FB_UNDERSCORE: .DATA 0xbe000000
+FB_BACKTICK:   .DATA 0x00000082
+FB_a:          .DATA 0x1c97b000
+FB_b:          .DATA 0x0e949c21
+FB_c:          .DATA 0x1c10b800
+FB_d:          .DATA 0x1c94b908
+FB_e:          .DATA 0x3c1fc5c0
+FB_f:          .DATA 0x42211c4c
+FB_g:          .DATA 0x4e87252e
+FB_h:          .DATA 0x12949c21
+FB_i:          .DATA 0x0c210040
+FB_j:          .DATA 0x8c421004
+FB_k:          .DATA 0x12519521
+FB_l:          .DATA 0x0c210842
+FB_m:          .DATA 0x235aac00
+FB_n:          .DATA 0x12949c00
+FB_o:          .DATA 0x0c949800
+FB_p:          .DATA 0x4213a526
+FB_q:          .DATA 0x7087252e
+FB_r:          .DATA 0x02149800
+FB_s:          .DATA 0x0e837000
+FB_t:          .DATA 0x0c213c42
+FB_u:          .DATA 0x0e94a400
+FB_v:          .DATA 0x0464a400
+FB_w:          .DATA 0x155ac400
+FB_x:          .DATA 0x36426c00
+FB_y:          .DATA 0x4e872529
+FB_z:          .DATA 0x1e223c00
+FB_LCURLY:     .DATA 0x1843188c
+FB_PIPE:       .DATA 0x08421084
+FB_RCURLY:     .DATA 0x0c463086
+FB_TILDE:      .DATA 0x0006d800

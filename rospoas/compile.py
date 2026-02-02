@@ -36,7 +36,9 @@ with open(args.input, "r") as f:
 
 
 preprocessed_code = "\n".join(preprocess_includes(source_code, args.input))
-
+preprocessed_filename = args.output.rsplit(".", 1)[0] + "_preprocessed.ros"
+with open(preprocessed_filename, "w") as f:
+    f.write(preprocessed_code)
 # Parse and transform the preprocessed source code
 parse_tree = parse_source(preprocessed_code)
 # Produce typed IR (from legacy AST) and lifted constants

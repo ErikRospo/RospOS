@@ -17,97 +17,179 @@ INSTR idx=14 @ 0x2c name=shli rd=13 rs1=13 rs2=None imm=ImmValue(value=16)
 INSTR idx=15 @ 0x30 name=ori rd=13 rs1=13 rs2=None imm=ImmLabelPart(label='PRINT_STRING', part='low')
 INSTR idx=16 @ 0x34 name=jalr rd=14 rs1=13 rs2=None imm=ImmValue(value=0)
 INSTR idx=17 @ 0x38 name=addi rd=3 rs1=0 rs2=None imm=ImmValue(value=10)
-LABEL MAIN_LOOP -> 0x3c
-INSTR idx=19 @ 0x3c name=addi rd=1 rs1=0 rs2=None imm=ImmLabelPart(label='TTY_BUFFER', part='high')
-INSTR idx=20 @ 0x40 name=shli rd=1 rs1=1 rs2=None imm=ImmValue(value=16)
-INSTR idx=21 @ 0x44 name=ori rd=1 rs1=1 rs2=None imm=ImmLabelPart(label='TTY_BUFFER', part='low')
-INSTR idx=22 @ 0x48 name=addi rd=13 rs1=0 rs2=None imm=ImmLabelPart(label='READ_CHAR', part='high')
-INSTR idx=23 @ 0x4c name=shli rd=13 rs1=13 rs2=None imm=ImmValue(value=16)
-INSTR idx=24 @ 0x50 name=ori rd=13 rs1=13 rs2=None imm=ImmLabelPart(label='READ_CHAR', part='low')
-INSTR idx=25 @ 0x54 name=jalr rd=14 rs1=13 rs2=None imm=ImmValue(value=0)
-INSTR idx=26 @ 0x58 name=beq rd=1 rs1=3 rs2=None imm=ImmLabel(name='NEWLINE_LABEL')
-INSTR idx=27 @ 0x5c name=addi rd=2 rs1=0 rs2=None imm=ImmValue(value=4096)
-INSTR idx=28 @ 0x60 name=shli rd=2 rs1=2 rs2=None imm=ImmValue(value=16)
-INSTR idx=29 @ 0x64 name=sb rd=1 rs1=2 rs2=None imm=ImmValue(value=0)
-INSTR idx=30 @ 0x68 name=addi rd=13 rs1=0 rs2=None imm=ImmLabelPart(label='MAIN_LOOP', part='high')
-INSTR idx=31 @ 0x6c name=shli rd=13 rs1=13 rs2=None imm=ImmValue(value=16)
-INSTR idx=32 @ 0x70 name=ori rd=13 rs1=13 rs2=None imm=ImmLabelPart(label='MAIN_LOOP', part='low')
-INSTR idx=33 @ 0x74 name=jalr rd=0 rs1=13 rs2=None imm=ImmValue(value=0)
-LABEL NEWLINE_LABEL -> 0x78
-INSTR idx=35 @ 0x78 name=addi rd=1 rs1=0 rs2=None imm=ImmLabelPart(label='PROMPT', part='high')
-INSTR idx=36 @ 0x7c name=shli rd=1 rs1=1 rs2=None imm=ImmValue(value=16)
-INSTR idx=37 @ 0x80 name=ori rd=1 rs1=1 rs2=None imm=ImmLabelPart(label='PROMPT', part='low')
-INSTR idx=38 @ 0x84 name=addi rd=13 rs1=0 rs2=None imm=ImmLabelPart(label='PRINT_STRING', part='high')
-INSTR idx=39 @ 0x88 name=shli rd=13 rs1=13 rs2=None imm=ImmValue(value=16)
-INSTR idx=40 @ 0x8c name=ori rd=13 rs1=13 rs2=None imm=ImmLabelPart(label='PRINT_STRING', part='low')
-INSTR idx=41 @ 0x90 name=jalr rd=14 rs1=13 rs2=None imm=ImmValue(value=0)
-INSTR idx=42 @ 0x94 name=addi rd=13 rs1=0 rs2=None imm=ImmLabelPart(label='MAIN_LOOP', part='high')
-INSTR idx=43 @ 0x98 name=shli rd=13 rs1=13 rs2=None imm=ImmValue(value=16)
-INSTR idx=44 @ 0x9c name=ori rd=13 rs1=13 rs2=None imm=ImmLabelPart(label='MAIN_LOOP', part='low')
-INSTR idx=45 @ 0xa0 name=jalr rd=0 rs1=13 rs2=None imm=ImmValue(value=0)
-LABEL BREAK_LABEL -> 0xa4
-INSTR idx=47 @ 0xa4 name=break rd=None rs1=None rs2=None imm=None
+INSTR idx=18 @ 0x3c name=addi rd=4 rs1=0 rs2=None imm=ImmValue(value=0)
+INSTR idx=19 @ 0x40 name=addi rd=5 rs1=0 rs2=None imm=ImmValue(value=0)
+LABEL MAIN_LOOP -> 0x44
+INSTR idx=21 @ 0x44 name=addi rd=1 rs1=0 rs2=None imm=ImmLabelPart(label='TTY_BUFFER', part='high')
+INSTR idx=22 @ 0x48 name=shli rd=1 rs1=1 rs2=None imm=ImmValue(value=16)
+INSTR idx=23 @ 0x4c name=ori rd=1 rs1=1 rs2=None imm=ImmLabelPart(label='TTY_BUFFER', part='low')
+INSTR idx=24 @ 0x50 name=addi rd=13 rs1=0 rs2=None imm=ImmLabelPart(label='READ_CHAR', part='high')
+INSTR idx=25 @ 0x54 name=shli rd=13 rs1=13 rs2=None imm=ImmValue(value=16)
+INSTR idx=26 @ 0x58 name=ori rd=13 rs1=13 rs2=None imm=ImmLabelPart(label='READ_CHAR', part='low')
+INSTR idx=27 @ 0x5c name=jalr rd=14 rs1=13 rs2=None imm=ImmValue(value=0)
+INSTR idx=28 @ 0x60 name=beq rd=1 rs1=3 rs2=None imm=ImmLabel(name='NEWLINE_LABEL')
+INSTR idx=29 @ 0x64 name=addi rd=15 rs1=15 rs2=None imm=ImmValue(value=-4)
+INSTR idx=30 @ 0x68 name=sw rd=ImmValue(value=2) rs1=15 rs2=None imm=ImmValue(value=0)
+INSTR idx=31 @ 0x6c name=addi rd=15 rs1=15 rs2=None imm=ImmValue(value=-4)
+INSTR idx=32 @ 0x70 name=sw rd=ImmValue(value=3) rs1=15 rs2=None imm=ImmValue(value=0)
+INSTR idx=33 @ 0x74 name=addi rd=2 rs1=4 rs2=None imm=ImmValue(value=0)
+INSTR idx=34 @ 0x78 name=addi rd=3 rs1=5 rs2=None imm=ImmValue(value=0)
+INSTR idx=35 @ 0x7c name=addi rd=13 rs1=0 rs2=None imm=ImmLabelPart(label='DRAW_CHAR_TO_DISPLAY', part='high')
+INSTR idx=36 @ 0x80 name=shli rd=13 rs1=13 rs2=None imm=ImmValue(value=16)
+INSTR idx=37 @ 0x84 name=ori rd=13 rs1=13 rs2=None imm=ImmLabelPart(label='DRAW_CHAR_TO_DISPLAY', part='low')
+INSTR idx=38 @ 0x88 name=jalr rd=14 rs1=13 rs2=None imm=ImmValue(value=0)
+INSTR idx=39 @ 0x8c name=addi rd=4 rs1=4 rs2=None imm=ImmValue(value=8)
+INSTR idx=40 @ 0x90 name=lw rd=ImmValue(value=3) rs1=15 rs2=None imm=ImmValue(value=0)
+INSTR idx=41 @ 0x94 name=addi rd=15 rs1=15 rs2=None imm=ImmValue(value=4)
+INSTR idx=42 @ 0x98 name=lw rd=ImmValue(value=2) rs1=15 rs2=None imm=ImmValue(value=0)
+INSTR idx=43 @ 0x9c name=addi rd=15 rs1=15 rs2=None imm=ImmValue(value=4)
+INSTR idx=44 @ 0xa0 name=addi rd=2 rs1=0 rs2=None imm=ImmValue(value=4096)
+INSTR idx=45 @ 0xa4 name=shli rd=2 rs1=2 rs2=None imm=ImmValue(value=16)
+INSTR idx=46 @ 0xa8 name=sb rd=1 rs1=2 rs2=None imm=ImmValue(value=0)
+INSTR idx=47 @ 0xac name=addi rd=13 rs1=0 rs2=None imm=ImmLabelPart(label='MAIN_LOOP', part='high')
+INSTR idx=48 @ 0xb0 name=shli rd=13 rs1=13 rs2=None imm=ImmValue(value=16)
+INSTR idx=49 @ 0xb4 name=ori rd=13 rs1=13 rs2=None imm=ImmLabelPart(label='MAIN_LOOP', part='low')
+INSTR idx=50 @ 0xb8 name=jalr rd=0 rs1=13 rs2=None imm=ImmValue(value=0)
+LABEL NEWLINE_LABEL -> 0xbc
+INSTR idx=52 @ 0xbc name=addi rd=5 rs1=5 rs2=None imm=ImmValue(value=16)
+INSTR idx=53 @ 0xc0 name=addi rd=4 rs1=0 rs2=None imm=ImmValue(value=0)
+INSTR idx=54 @ 0xc4 name=addi rd=1 rs1=0 rs2=None imm=ImmLabelPart(label='PROMPT', part='high')
+INSTR idx=55 @ 0xc8 name=shli rd=1 rs1=1 rs2=None imm=ImmValue(value=16)
+INSTR idx=56 @ 0xcc name=ori rd=1 rs1=1 rs2=None imm=ImmLabelPart(label='PROMPT', part='low')
+INSTR idx=57 @ 0xd0 name=addi rd=13 rs1=0 rs2=None imm=ImmLabelPart(label='PRINT_STRING', part='high')
+INSTR idx=58 @ 0xd4 name=shli rd=13 rs1=13 rs2=None imm=ImmValue(value=16)
+INSTR idx=59 @ 0xd8 name=ori rd=13 rs1=13 rs2=None imm=ImmLabelPart(label='PRINT_STRING', part='low')
+INSTR idx=60 @ 0xdc name=jalr rd=14 rs1=13 rs2=None imm=ImmValue(value=0)
+INSTR idx=61 @ 0xe0 name=addi rd=13 rs1=0 rs2=None imm=ImmLabelPart(label='MAIN_LOOP', part='high')
+INSTR idx=62 @ 0xe4 name=shli rd=13 rs1=13 rs2=None imm=ImmValue(value=16)
+INSTR idx=63 @ 0xe8 name=ori rd=13 rs1=13 rs2=None imm=ImmLabelPart(label='MAIN_LOOP', part='low')
+INSTR idx=64 @ 0xec name=jalr rd=0 rs1=13 rs2=None imm=ImmValue(value=0)
+LABEL BREAK_LABEL -> 0xf0
+INSTR idx=66 @ 0xf0 name=break rd=None rs1=None rs2=None imm=None
 SEGMENT 0x500
 LABEL PRINT_STRING -> 0x500
-INSTR idx=50 @ 0x500 name=addi rd=15 rs1=15 rs2=None imm=ImmValue(value=-4)
-INSTR idx=51 @ 0x504 name=sw rd=ImmValue(value=2) rs1=15 rs2=None imm=ImmValue(value=0)
-INSTR idx=52 @ 0x508 name=addi rd=15 rs1=15 rs2=None imm=ImmValue(value=-4)
-INSTR idx=53 @ 0x50c name=sw rd=ImmValue(value=3) rs1=15 rs2=None imm=ImmValue(value=0)
-INSTR idx=54 @ 0x510 name=addi rd=2 rs1=0 rs2=None imm=ImmValue(value=4096)
-INSTR idx=55 @ 0x514 name=shli rd=2 rs1=2 rs2=None imm=ImmValue(value=16)
+INSTR idx=69 @ 0x500 name=addi rd=15 rs1=15 rs2=None imm=ImmValue(value=-4)
+INSTR idx=70 @ 0x504 name=sw rd=ImmValue(value=2) rs1=15 rs2=None imm=ImmValue(value=0)
+INSTR idx=71 @ 0x508 name=addi rd=15 rs1=15 rs2=None imm=ImmValue(value=-4)
+INSTR idx=72 @ 0x50c name=sw rd=ImmValue(value=3) rs1=15 rs2=None imm=ImmValue(value=0)
+INSTR idx=73 @ 0x510 name=addi rd=2 rs1=0 rs2=None imm=ImmValue(value=4096)
+INSTR idx=74 @ 0x514 name=shli rd=2 rs1=2 rs2=None imm=ImmValue(value=16)
 LABEL PRINT_CHAR_LOOP -> 0x518
-INSTR idx=57 @ 0x518 name=lb rd=3 rs1=1 rs2=None imm=ImmValue(value=0)
-INSTR idx=58 @ 0x51c name=beq rd=3 rs1=0 rs2=None imm=ImmLabel(name='END_PRINT_CHAR_LOOP')
-INSTR idx=59 @ 0x520 name=sb rd=3 rs1=2 rs2=None imm=ImmValue(value=0)
-INSTR idx=60 @ 0x524 name=addi rd=1 rs1=1 rs2=None imm=ImmValue(value=1)
-INSTR idx=61 @ 0x528 name=addi rd=13 rs1=0 rs2=None imm=ImmLabelPart(label='PRINT_CHAR_LOOP', part='high')
-INSTR idx=62 @ 0x52c name=shli rd=13 rs1=13 rs2=None imm=ImmValue(value=16)
-INSTR idx=63 @ 0x530 name=ori rd=13 rs1=13 rs2=None imm=ImmLabelPart(label='PRINT_CHAR_LOOP', part='low')
-INSTR idx=64 @ 0x534 name=jalr rd=0 rs1=13 rs2=None imm=ImmValue(value=0)
+INSTR idx=76 @ 0x518 name=lb rd=3 rs1=1 rs2=None imm=ImmValue(value=0)
+INSTR idx=77 @ 0x51c name=beq rd=3 rs1=0 rs2=None imm=ImmLabel(name='END_PRINT_CHAR_LOOP')
+INSTR idx=78 @ 0x520 name=sb rd=3 rs1=2 rs2=None imm=ImmValue(value=0)
+INSTR idx=79 @ 0x524 name=addi rd=1 rs1=1 rs2=None imm=ImmValue(value=1)
+INSTR idx=80 @ 0x528 name=addi rd=13 rs1=0 rs2=None imm=ImmLabelPart(label='PRINT_CHAR_LOOP', part='high')
+INSTR idx=81 @ 0x52c name=shli rd=13 rs1=13 rs2=None imm=ImmValue(value=16)
+INSTR idx=82 @ 0x530 name=ori rd=13 rs1=13 rs2=None imm=ImmLabelPart(label='PRINT_CHAR_LOOP', part='low')
+INSTR idx=83 @ 0x534 name=jalr rd=0 rs1=13 rs2=None imm=ImmValue(value=0)
 LABEL END_PRINT_CHAR_LOOP -> 0x538
-INSTR idx=66 @ 0x538 name=lw rd=ImmValue(value=3) rs1=15 rs2=None imm=ImmValue(value=0)
-INSTR idx=67 @ 0x53c name=addi rd=15 rs1=15 rs2=None imm=ImmValue(value=4)
-INSTR idx=68 @ 0x540 name=lw rd=ImmValue(value=2) rs1=15 rs2=None imm=ImmValue(value=0)
-INSTR idx=69 @ 0x544 name=addi rd=15 rs1=15 rs2=None imm=ImmValue(value=4)
-INSTR idx=70 @ 0x548 name=jalr rd=0 rs1=14 rs2=None imm=ImmValue(value=0)
+INSTR idx=85 @ 0x538 name=lw rd=ImmValue(value=3) rs1=15 rs2=None imm=ImmValue(value=0)
+INSTR idx=86 @ 0x53c name=addi rd=15 rs1=15 rs2=None imm=ImmValue(value=4)
+INSTR idx=87 @ 0x540 name=lw rd=ImmValue(value=2) rs1=15 rs2=None imm=ImmValue(value=0)
+INSTR idx=88 @ 0x544 name=addi rd=15 rs1=15 rs2=None imm=ImmValue(value=4)
+INSTR idx=89 @ 0x548 name=jalr rd=0 rs1=14 rs2=None imm=ImmValue(value=0)
 LABEL READ_CHAR -> 0x54c
-INSTR idx=72 @ 0x54c name=addi rd=15 rs1=15 rs2=None imm=ImmValue(value=-4)
-INSTR idx=73 @ 0x550 name=sw rd=ImmValue(value=2) rs1=15 rs2=None imm=ImmValue(value=0)
-INSTR idx=74 @ 0x554 name=addi rd=2 rs1=0 rs2=None imm=ImmValue(value=4096)
-INSTR idx=75 @ 0x558 name=shli rd=2 rs1=2 rs2=None imm=ImmValue(value=16)
-INSTR idx=76 @ 0x55c name=lb rd=1 rs1=2 rs2=None imm=ImmValue(value=0)
-INSTR idx=77 @ 0x560 name=lw rd=ImmValue(value=2) rs1=15 rs2=None imm=ImmValue(value=0)
-INSTR idx=78 @ 0x564 name=addi rd=15 rs1=15 rs2=None imm=ImmValue(value=4)
-INSTR idx=79 @ 0x568 name=jalr rd=0 rs1=14 rs2=None imm=ImmValue(value=0)
+INSTR idx=91 @ 0x54c name=addi rd=15 rs1=15 rs2=None imm=ImmValue(value=-4)
+INSTR idx=92 @ 0x550 name=sw rd=ImmValue(value=2) rs1=15 rs2=None imm=ImmValue(value=0)
+INSTR idx=93 @ 0x554 name=addi rd=2 rs1=0 rs2=None imm=ImmValue(value=4096)
+INSTR idx=94 @ 0x558 name=shli rd=2 rs1=2 rs2=None imm=ImmValue(value=16)
+INSTR idx=95 @ 0x55c name=lb rd=1 rs1=2 rs2=None imm=ImmValue(value=0)
+INSTR idx=96 @ 0x560 name=lw rd=ImmValue(value=2) rs1=15 rs2=None imm=ImmValue(value=0)
+INSTR idx=97 @ 0x564 name=addi rd=15 rs1=15 rs2=None imm=ImmValue(value=4)
+INSTR idx=98 @ 0x568 name=jalr rd=0 rs1=14 rs2=None imm=ImmValue(value=0)
 LABEL READ_LINE -> 0x56c
-INSTR idx=81 @ 0x56c name=addi rd=15 rs1=15 rs2=None imm=ImmValue(value=-4)
-INSTR idx=82 @ 0x570 name=sw rd=ImmValue(value=1) rs1=15 rs2=None imm=ImmValue(value=0)
-INSTR idx=83 @ 0x574 name=addi rd=15 rs1=15 rs2=None imm=ImmValue(value=-4)
-INSTR idx=84 @ 0x578 name=sw rd=ImmValue(value=2) rs1=15 rs2=None imm=ImmValue(value=0)
-INSTR idx=85 @ 0x57c name=addi rd=15 rs1=15 rs2=None imm=ImmValue(value=-4)
-INSTR idx=86 @ 0x580 name=sw rd=ImmValue(value=3) rs1=15 rs2=None imm=ImmValue(value=0)
+INSTR idx=100 @ 0x56c name=addi rd=15 rs1=15 rs2=None imm=ImmValue(value=-4)
+INSTR idx=101 @ 0x570 name=sw rd=ImmValue(value=1) rs1=15 rs2=None imm=ImmValue(value=0)
+INSTR idx=102 @ 0x574 name=addi rd=15 rs1=15 rs2=None imm=ImmValue(value=-4)
+INSTR idx=103 @ 0x578 name=sw rd=ImmValue(value=2) rs1=15 rs2=None imm=ImmValue(value=0)
+INSTR idx=104 @ 0x57c name=addi rd=15 rs1=15 rs2=None imm=ImmValue(value=-4)
+INSTR idx=105 @ 0x580 name=sw rd=ImmValue(value=3) rs1=15 rs2=None imm=ImmValue(value=0)
 LABEL READ_LINE_LOOP -> 0x584
-INSTR idx=88 @ 0x584 name=addi rd=13 rs1=0 rs2=None imm=ImmLabelPart(label='READ_CHAR', part='high')
-INSTR idx=89 @ 0x588 name=shli rd=13 rs1=13 rs2=None imm=ImmValue(value=16)
-INSTR idx=90 @ 0x58c name=ori rd=13 rs1=13 rs2=None imm=ImmLabelPart(label='READ_CHAR', part='low')
-INSTR idx=91 @ 0x590 name=jalr rd=14 rs1=13 rs2=None imm=ImmValue(value=0)
-INSTR idx=92 @ 0x594 name=addi rd=3 rs1=0 rs2=None imm=ImmValue(value=10)
-INSTR idx=93 @ 0x598 name=beq rd=1 rs1=3 rs2=None imm=ImmLabel(name='END_READ_LINE_LOOP')
-INSTR idx=94 @ 0x59c name=sb rd=1 rs1=2 rs2=None imm=ImmValue(value=0)
-INSTR idx=95 @ 0x5a0 name=addi rd=2 rs1=2 rs2=None imm=ImmValue(value=1)
-INSTR idx=96 @ 0x5a4 name=addi rd=13 rs1=0 rs2=None imm=ImmLabelPart(label='READ_LINE_LOOP', part='high')
-INSTR idx=97 @ 0x5a8 name=shli rd=13 rs1=13 rs2=None imm=ImmValue(value=16)
-INSTR idx=98 @ 0x5ac name=ori rd=13 rs1=13 rs2=None imm=ImmLabelPart(label='READ_LINE_LOOP', part='low')
-INSTR idx=99 @ 0x5b0 name=jalr rd=0 rs1=13 rs2=None imm=ImmValue(value=0)
+INSTR idx=107 @ 0x584 name=addi rd=13 rs1=0 rs2=None imm=ImmLabelPart(label='READ_CHAR', part='high')
+INSTR idx=108 @ 0x588 name=shli rd=13 rs1=13 rs2=None imm=ImmValue(value=16)
+INSTR idx=109 @ 0x58c name=ori rd=13 rs1=13 rs2=None imm=ImmLabelPart(label='READ_CHAR', part='low')
+INSTR idx=110 @ 0x590 name=jalr rd=14 rs1=13 rs2=None imm=ImmValue(value=0)
+INSTR idx=111 @ 0x594 name=addi rd=3 rs1=0 rs2=None imm=ImmValue(value=10)
+INSTR idx=112 @ 0x598 name=beq rd=1 rs1=3 rs2=None imm=ImmLabel(name='END_READ_LINE_LOOP')
+INSTR idx=113 @ 0x59c name=sb rd=1 rs1=2 rs2=None imm=ImmValue(value=0)
+INSTR idx=114 @ 0x5a0 name=addi rd=2 rs1=2 rs2=None imm=ImmValue(value=1)
+INSTR idx=115 @ 0x5a4 name=addi rd=13 rs1=0 rs2=None imm=ImmLabelPart(label='READ_LINE_LOOP', part='high')
+INSTR idx=116 @ 0x5a8 name=shli rd=13 rs1=13 rs2=None imm=ImmValue(value=16)
+INSTR idx=117 @ 0x5ac name=ori rd=13 rs1=13 rs2=None imm=ImmLabelPart(label='READ_LINE_LOOP', part='low')
+INSTR idx=118 @ 0x5b0 name=jalr rd=0 rs1=13 rs2=None imm=ImmValue(value=0)
 LABEL END_READ_LINE_LOOP -> 0x5b4
-INSTR idx=101 @ 0x5b4 name=sb rd=0 rs1=2 rs2=None imm=ImmValue(value=0)
-INSTR idx=102 @ 0x5b8 name=lw rd=ImmValue(value=3) rs1=15 rs2=None imm=ImmValue(value=0)
-INSTR idx=103 @ 0x5bc name=addi rd=15 rs1=15 rs2=None imm=ImmValue(value=4)
-INSTR idx=104 @ 0x5c0 name=lw rd=ImmValue(value=2) rs1=15 rs2=None imm=ImmValue(value=0)
-INSTR idx=105 @ 0x5c4 name=addi rd=15 rs1=15 rs2=None imm=ImmValue(value=4)
-INSTR idx=106 @ 0x5c8 name=lw rd=ImmValue(value=1) rs1=15 rs2=None imm=ImmValue(value=0)
-INSTR idx=107 @ 0x5cc name=addi rd=15 rs1=15 rs2=None imm=ImmValue(value=4)
-INSTR idx=108 @ 0x5d0 name=jalr rd=0 rs1=14 rs2=None imm=ImmValue(value=0)
+INSTR idx=120 @ 0x5b4 name=sb rd=0 rs1=2 rs2=None imm=ImmValue(value=0)
+INSTR idx=121 @ 0x5b8 name=lw rd=ImmValue(value=3) rs1=15 rs2=None imm=ImmValue(value=0)
+INSTR idx=122 @ 0x5bc name=addi rd=15 rs1=15 rs2=None imm=ImmValue(value=4)
+INSTR idx=123 @ 0x5c0 name=lw rd=ImmValue(value=2) rs1=15 rs2=None imm=ImmValue(value=0)
+INSTR idx=124 @ 0x5c4 name=addi rd=15 rs1=15 rs2=None imm=ImmValue(value=4)
+INSTR idx=125 @ 0x5c8 name=lw rd=ImmValue(value=1) rs1=15 rs2=None imm=ImmValue(value=0)
+INSTR idx=126 @ 0x5cc name=addi rd=15 rs1=15 rs2=None imm=ImmValue(value=4)
+INSTR idx=127 @ 0x5d0 name=jalr rd=0 rs1=14 rs2=None imm=ImmValue(value=0)
+LABEL DRAW_CHAR_TO_DISPLAY -> 0x5d4
+INSTR idx=129 @ 0x5d4 name=addi rd=15 rs1=15 rs2=None imm=ImmValue(value=-4)
+INSTR idx=130 @ 0x5d8 name=sw rd=ImmValue(value=4) rs1=15 rs2=None imm=ImmValue(value=0)
+INSTR idx=131 @ 0x5dc name=addi rd=15 rs1=15 rs2=None imm=ImmValue(value=-4)
+INSTR idx=132 @ 0x5e0 name=sw rd=ImmValue(value=5) rs1=15 rs2=None imm=ImmValue(value=0)
+INSTR idx=133 @ 0x5e4 name=addi rd=15 rs1=15 rs2=None imm=ImmValue(value=-4)
+INSTR idx=134 @ 0x5e8 name=sw rd=ImmValue(value=6) rs1=15 rs2=None imm=ImmValue(value=0)
+INSTR idx=135 @ 0x5ec name=addi rd=15 rs1=15 rs2=None imm=ImmValue(value=-4)
+INSTR idx=136 @ 0x5f0 name=sw rd=ImmValue(value=7) rs1=15 rs2=None imm=ImmValue(value=0)
+INSTR idx=137 @ 0x5f4 name=addi rd=15 rs1=15 rs2=None imm=ImmValue(value=-4)
+INSTR idx=138 @ 0x5f8 name=sw rd=ImmValue(value=8) rs1=15 rs2=None imm=ImmValue(value=0)
+INSTR idx=139 @ 0x5fc name=addi rd=4 rs1=0 rs2=None imm=ImmLabelPart(label='BASE_FB_ADDR', part='high')
+INSTR idx=140 @ 0x600 name=shli rd=4 rs1=4 rs2=None imm=ImmValue(value=16)
+INSTR idx=141 @ 0x604 name=ori rd=4 rs1=4 rs2=None imm=ImmLabelPart(label='BASE_FB_ADDR', part='low')
+INSTR idx=142 @ 0x608 name=addi rd=8 rs1=0 rs2=None imm=ImmValue(value=32)
+INSTR idx=143 @ 0x60c name=sub rd=5 rs1=1 rs2=8 imm=None
+INSTR idx=144 @ 0x610 name=addi rd=8 rs1=0 rs2=None imm=ImmValue(value=4)
+INSTR idx=145 @ 0x614 name=mul rd=5 rs1=5 rs2=8 imm=None
+INSTR idx=146 @ 0x618 name=add rd=4 rs1=4 rs2=5 imm=None
+INSTR idx=147 @ 0x61c name=lw rd=5 rs1=4 rs2=None imm=ImmValue(value=0)
+INSTR idx=148 @ 0x620 name=addi rd=6 rs1=0 rs2=None imm=ImmValue(value=0)
+LABEL DRAW_CHAR_PIXEL_LOOP -> 0x624
+INSTR idx=150 @ 0x624 name=addi rd=8 rs1=0 rs2=None imm=ImmValue(value=32)
+INSTR idx=151 @ 0x628 name=beq rd=6 rs1=8 rs2=None imm=ImmLabel(name='END_DRAW_CHAR_PIXEL_LOOP')
+INSTR idx=152 @ 0x62c name=addi rd=8 rs1=0 rs2=None imm=ImmValue(value=8)
+INSTR idx=153 @ 0x630 name=div rd=7 rs1=6 rs2=8 imm=None
+INSTR idx=154 @ 0x634 name=rem rd=9 rs1=6 rs2=8 imm=None
+INSTR idx=155 @ 0x638 name=neg rd=6 rs1=0 rs2=6 imm=None
+INSTR idx=156 @ 0x63c name=addi rd=6 rs1=6 rs2=None imm=ImmValue(value=31)
+INSTR idx=157 @ 0x640 name=shr rd=1 rs1=5 rs2=6 imm=None
+INSTR idx=158 @ 0x644 name=andi rd=1 rs1=1 rs2=None imm=ImmValue(value=1)
+INSTR idx=159 @ 0x648 name=beq rd=1 rs1=0 rs2=None imm=ImmLabel(name='SKIP_PIXEL_DRAW')
+INSTR idx=160 @ 0x64c name=addi rd=1 rs1=0 rs2=None imm=ImmValue(value=8192)
+INSTR idx=161 @ 0x650 name=shli rd=1 rs1=1 rs2=None imm=ImmValue(value=16)
+INSTR idx=162 @ 0x654 name=addi rd=8 rs1=0 rs2=None imm=ImmValue(value=128)
+INSTR idx=163 @ 0x658 name=mul rd=2 rs1=7 rs2=8 imm=None
+INSTR idx=164 @ 0x65c name=add rd=1 rs1=1 rs2=2 imm=None
+INSTR idx=165 @ 0x660 name=addi rd=8 rs1=0 rs2=None imm=ImmValue(value=4)
+INSTR idx=166 @ 0x664 name=div rd=2 rs1=1 rs2=8 imm=None
+INSTR idx=167 @ 0x668 name=rem rd=3 rs1=1 rs2=8 imm=None
+INSTR idx=168 @ 0x66c name=lb rd=4 rs1=2 rs2=None imm=ImmValue(value=0)
+INSTR idx=169 @ 0x670 name=addi rd=6 rs1=0 rs2=None imm=ImmValue(value=3)
+INSTR idx=170 @ 0x674 name=shl rd=6 rs1=6 rs2=3 imm=None
+INSTR idx=171 @ 0x678 name=or rd=4 rs1=4 rs2=6 imm=None
+INSTR idx=172 @ 0x67c name=sb rd=4 rs1=2 rs2=None imm=ImmValue(value=0)
+LABEL SKIP_PIXEL_DRAW -> 0x680
+INSTR idx=174 @ 0x680 name=addi rd=6 rs1=6 rs2=None imm=ImmValue(value=1)
+INSTR idx=175 @ 0x684 name=addi rd=13 rs1=0 rs2=None imm=ImmLabelPart(label='DRAW_CHAR_PIXEL_LOOP', part='high')
+INSTR idx=176 @ 0x688 name=shli rd=13 rs1=13 rs2=None imm=ImmValue(value=16)
+INSTR idx=177 @ 0x68c name=ori rd=13 rs1=13 rs2=None imm=ImmLabelPart(label='DRAW_CHAR_PIXEL_LOOP', part='low')
+INSTR idx=178 @ 0x690 name=jalr rd=0 rs1=13 rs2=None imm=ImmValue(value=0)
+LABEL END_DRAW_CHAR_PIXEL_LOOP -> 0x694
+INSTR idx=180 @ 0x694 name=lw rd=ImmValue(value=8) rs1=15 rs2=None imm=ImmValue(value=0)
+INSTR idx=181 @ 0x698 name=addi rd=15 rs1=15 rs2=None imm=ImmValue(value=4)
+INSTR idx=182 @ 0x69c name=lw rd=ImmValue(value=7) rs1=15 rs2=None imm=ImmValue(value=0)
+INSTR idx=183 @ 0x6a0 name=addi rd=15 rs1=15 rs2=None imm=ImmValue(value=4)
+INSTR idx=184 @ 0x6a4 name=lw rd=ImmValue(value=6) rs1=15 rs2=None imm=ImmValue(value=0)
+INSTR idx=185 @ 0x6a8 name=addi rd=15 rs1=15 rs2=None imm=ImmValue(value=4)
+INSTR idx=186 @ 0x6ac name=lw rd=ImmValue(value=5) rs1=15 rs2=None imm=ImmValue(value=0)
+INSTR idx=187 @ 0x6b0 name=addi rd=15 rs1=15 rs2=None imm=ImmValue(value=4)
+INSTR idx=188 @ 0x6b4 name=lw rd=ImmValue(value=4) rs1=15 rs2=None imm=ImmValue(value=0)
+INSTR idx=189 @ 0x6b8 name=addi rd=15 rs1=15 rs2=None imm=ImmValue(value=4)
+INSTR idx=190 @ 0x6bc name=jalr rd=0 rs1=14 rs2=None imm=ImmValue(value=0)
 SEGMENT 0x1000
 LABEL TTY -> 0x1000
 DATA @ 0x1000 size 4: ImmValue(value=268435456)
@@ -117,3 +199,194 @@ LABEL PROMPT -> 0x1031
 DATA @ 0x1031 size 10: b'\nROSPOS> \x00'
 LABEL TTY_BUFFER -> 0x103b
 DATA @ 0x103b size 256: b'\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00'
+LABEL BASE_FB_ADDR -> 0x113b
+LABEL FB_SPACE -> 0x113b
+DATA @ 0x113b size 4: ImmValue(value=0)
+LABEL FB_EXCLAM -> 0x113f
+DATA @ 0x113f size 4: ImmValue(value=134353028)
+LABEL FB_QUOTE -> 0x1143
+DATA @ 0x1143 size 4: ImmValue(value=10570)
+LABEL FB_HASH -> 0x1147
+DATA @ 0x1147 size 4: ImmValue(value=368389098)
+LABEL FB_DOLLAR -> 0x114b
+DATA @ 0x114b size 4: ImmValue(value=150616254)
+LABEL FB_PERCENT -> 0x114f
+DATA @ 0x114f size 4: ImmValue(value=866266720)
+LABEL FB_AMPERSAND -> 0x1153
+DATA @ 0x1153 size 4: ImmValue(value=781506726)
+LABEL FB_APOSTROPHE -> 0x1157
+DATA @ 0x1157 size 4: ImmValue(value=4228)
+LABEL FB_LPAREN -> 0x115b
+DATA @ 0x115b size 4: ImmValue(value=272765064)
+LABEL FB_RPAREN -> 0x115f
+DATA @ 0x115f size 4: ImmValue(value=71438466)
+LABEL FB_ASTERISK -> 0x1163
+DATA @ 0x1163 size 4: ImmValue(value=10631296)
+LABEL FB_PLUS -> 0x1167
+DATA @ 0x1167 size 4: ImmValue(value=4657152)
+LABEL FB_COMMA -> 0x116b
+DATA @ 0x116b size 4: ImmValue(value=71434240)
+LABEL FB_HYPHEN -> 0x116f
+DATA @ 0x116f size 4: ImmValue(value=458752)
+LABEL FB_PERIOD -> 0x1173
+DATA @ 0x1173 size 4: ImmValue(value=207618048)
+LABEL FB_SLASH -> 0x1177
+DATA @ 0x1177 size 4: ImmValue(value=35791360)
+LABEL FB_0 -> 0x117b
+DATA @ 0x117b size 4: ImmValue(value=490395438)
+LABEL FB_1 -> 0x117f
+DATA @ 0x117f size 4: ImmValue(value=1044518084)
+LABEL FB_2 -> 0x1183
+DATA @ 0x1183 size 4: ImmValue(value=1042424366)
+LABEL FB_3 -> 0x1187
+DATA @ 0x1187 size 4: ImmValue(value=488124943)
+LABEL FB_4 -> 0x118b
+DATA @ 0x118b size 4: ImmValue(value=554682504)
+LABEL FB_5 -> 0x118f
+DATA @ 0x118f size 4: ImmValue(value=488127551)
+LABEL FB_6 -> 0x1193
+DATA @ 0x1193 size 4: ImmValue(value=488080460)
+LABEL FB_7 -> 0x1197
+DATA @ 0x1197 size 4: ImmValue(value=35791391)
+LABEL FB_8 -> 0x119b
+DATA @ 0x119b size 4: ImmValue(value=488159790)
+LABEL FB_9 -> 0x119f
+DATA @ 0x119f size 4: ImmValue(value=554649150)
+LABEL FB_COLON -> 0x11a3
+DATA @ 0x11a3 size 4: ImmValue(value=207624384)
+LABEL FB_SEMICOLON -> 0x11a7
+DATA @ 0x11a7 size 4: ImmValue(value=71307264)
+LABEL FB_LT -> 0x11ab
+DATA @ 0x11ab size 4: ImmValue(value=272699648)
+LABEL FB_EQUAL -> 0x11af
+DATA @ 0x11af size 4: ImmValue(value=14694400)
+LABEL FB_GT -> 0x11b3
+DATA @ 0x11b3 size 4: ImmValue(value=71569472)
+LABEL FB_QUESTION -> 0x11b7
+DATA @ 0x11b7 size 4: ImmValue(value=134361646)
+LABEL FB_AT -> 0x11bb
+DATA @ 0x11bb size 4: ImmValue(value=1008662062)
+LABEL FB_A -> 0x11bf
+DATA @ 0x11bf size 4: ImmValue(value=589284676)
+LABEL FB_B -> 0x11c3
+DATA @ 0x11c3 size 4: ImmValue(value=521715247)
+LABEL FB_C -> 0x11c7
+DATA @ 0x11c7 size 4: ImmValue(value=1007715886)
+LABEL FB_D -> 0x11cb
+DATA @ 0x11cb size 4: ImmValue(value=521717295)
+LABEL FB_E -> 0x11cf
+DATA @ 0x11cf size 4: ImmValue(value=1041284159)
+LABEL FB_F -> 0x11d3
+DATA @ 0x11d3 size 4: ImmValue(value=34651199)
+LABEL FB_G -> 0x11d7
+DATA @ 0x11d7 size 4: ImmValue(value=488408126)
+LABEL FB_H -> 0x11db
+DATA @ 0x11db size 4: ImmValue(value=588840497)
+LABEL FB_I -> 0x11df
+DATA @ 0x11df size 4: ImmValue(value=1044517023)
+LABEL FB_J -> 0x11e3
+DATA @ 0x11e3 size 4: ImmValue(value=211034399)
+LABEL FB_K -> 0x11e7
+DATA @ 0x11e7 size 4: ImmValue(value=588553521)
+LABEL FB_L -> 0x11eb
+DATA @ 0x11eb size 4: ImmValue(value=1041269793)
+LABEL FB_M -> 0x11ef
+DATA @ 0x11ef size 4: ImmValue(value=588961467)
+LABEL FB_N -> 0x11f3
+DATA @ 0x11f3 size 4: ImmValue(value=597481073)
+LABEL FB_O -> 0x11f7
+DATA @ 0x11f7 size 4: ImmValue(value=488162862)
+LABEL FB_P -> 0x11fb
+DATA @ 0x11fb size 4: ImmValue(value=35112495)
+LABEL FB_Q -> 0x11ff
+DATA @ 0x11ff size 4: ImmValue(value=820692526)
+LABEL FB_R -> 0x1203
+DATA @ 0x1203 size 4: ImmValue(value=580372015)
+LABEL FB_S -> 0x1207
+DATA @ 0x1207 size 4: ImmValue(value=487856686)
+LABEL FB_T -> 0x120b
+DATA @ 0x120b size 4: ImmValue(value=138547359)
+LABEL FB_U -> 0x120f
+DATA @ 0x120f size 4: ImmValue(value=488162865)
+LABEL FB_V -> 0x1213
+DATA @ 0x1213 size 4: ImmValue(value=138757681)
+LABEL FB_W -> 0x1217
+DATA @ 0x1217 size 4: ImmValue(value=928699953)
+LABEL FB_X -> 0x121b
+DATA @ 0x121b size 4: ImmValue(value=581046609)
+LABEL FB_Y -> 0x121f
+DATA @ 0x121f size 4: ImmValue(value=138547537)
+LABEL FB_Z -> 0x1223
+DATA @ 0x1223 size 4: ImmValue(value=1042424351)
+LABEL FB_LBRACKET -> 0x1227
+DATA @ 0x1227 size 4: ImmValue(value=406982796)
+LABEL FB_BACKSLASH -> 0x122b
+DATA @ 0x122b size 4: ImmValue(value=545392672)
+LABEL FB_RBRACKET -> 0x122f
+DATA @ 0x122f size 4: ImmValue(value=205656198)
+LABEL FB_CARET -> 0x1233
+DATA @ 0x1233 size 4: ImmValue(value=17732)
+LABEL FB_UNDERSCORE -> 0x1237
+DATA @ 0x1237 size 5: ImmValue(value=3187671040)
+LABEL FB_BACKTICK -> 0x123c
+DATA @ 0x123c size 4: ImmValue(value=130)
+LABEL FB_a -> 0x1240
+DATA @ 0x1240 size 4: ImmValue(value=479703040)
+LABEL FB_b -> 0x1244
+DATA @ 0x1244 size 4: ImmValue(value=244620321)
+LABEL FB_c -> 0x1248
+DATA @ 0x1248 size 4: ImmValue(value=470857728)
+LABEL FB_d -> 0x124c
+DATA @ 0x124c size 4: ImmValue(value=479508744)
+LABEL FB_e -> 0x1250
+DATA @ 0x1250 size 4: ImmValue(value=1008715200)
+LABEL FB_f -> 0x1254
+DATA @ 0x1254 size 4: ImmValue(value=1109466188)
+LABEL FB_g -> 0x1258
+DATA @ 0x1258 size 4: ImmValue(value=1317479726)
+LABEL FB_h -> 0x125c
+DATA @ 0x125c size 4: ImmValue(value=311729185)
+LABEL FB_i -> 0x1260
+DATA @ 0x1260 size 4: ImmValue(value=203489344)
+LABEL FB_j -> 0x1264
+DATA @ 0x1264 size 5: ImmValue(value=2353139716)
+LABEL FB_k -> 0x1269
+DATA @ 0x1269 size 4: ImmValue(value=307336481)
+LABEL FB_l -> 0x126d
+DATA @ 0x126d size 4: ImmValue(value=203491394)
+LABEL FB_m -> 0x1271
+DATA @ 0x1271 size 4: ImmValue(value=593144832)
+LABEL FB_n -> 0x1275
+DATA @ 0x1275 size 4: ImmValue(value=311729152)
+LABEL FB_o -> 0x1279
+DATA @ 0x1279 size 4: ImmValue(value=211064832)
+LABEL FB_p -> 0x127d
+DATA @ 0x127d size 4: ImmValue(value=1108583718)
+LABEL FB_q -> 0x1281
+DATA @ 0x1281 size 4: ImmValue(value=1887905070)
+LABEL FB_r -> 0x1285
+DATA @ 0x1285 size 4: ImmValue(value=34904064)
+LABEL FB_s -> 0x1289
+DATA @ 0x1289 size 4: ImmValue(value=243494912)
+LABEL FB_t -> 0x128d
+DATA @ 0x128d size 4: ImmValue(value=203504706)
+LABEL FB_u -> 0x1291
+DATA @ 0x1291 size 4: ImmValue(value=244622336)
+LABEL FB_v -> 0x1295
+DATA @ 0x1295 size 4: ImmValue(value=73704448)
+LABEL FB_w -> 0x1299
+DATA @ 0x1299 size 4: ImmValue(value=358269952)
+LABEL FB_x -> 0x129d
+DATA @ 0x129d size 4: ImmValue(value=910322688)
+LABEL FB_y -> 0x12a1
+DATA @ 0x12a1 size 4: ImmValue(value=1317479721)
+LABEL FB_z -> 0x12a5
+DATA @ 0x12a5 size 4: ImmValue(value=505560064)
+LABEL FB_LCURLY -> 0x12a9
+DATA @ 0x12a9 size 4: ImmValue(value=407050380)
+LABEL FB_PIPE -> 0x12ad
+DATA @ 0x12ad size 4: ImmValue(value=138547332)
+LABEL FB_RCURLY -> 0x12b1
+DATA @ 0x12b1 size 4: ImmValue(value=205926534)
+LABEL FB_TILDE -> 0x12b5
+DATA @ 0x12b5 size 4: ImmValue(value=448512)
