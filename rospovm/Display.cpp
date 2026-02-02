@@ -70,7 +70,10 @@ void Display::write(uint32_t address, uint8_t value)
 
     SDL_UpdateTexture(texture, NULL, pixels, WIDTH * sizeof(uint32_t));
     SDL_RenderClear(renderer);
-    SDL_RenderCopy(renderer, texture, NULL, NULL);
+
+    SDL_Rect destRect = {0, 0, SCALED_WIDTH, SCALED_HEIGHT};
+    SDL_RenderCopy(renderer, texture, NULL, &destRect);
+
     SDL_RenderPresent(renderer);
 }
 
@@ -88,7 +91,7 @@ Display::Display()
         throw std::runtime_error("SDL could not initialize!");
     }
 
-    window = SDL_CreateWindow("RospOS 2-bit Grayscale Display", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, WIDTH, HEIGHT, SDL_WINDOW_SHOWN);
+    window = SDL_CreateWindow("RospOS 2-bit Grayscale Display", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCALED_WIDTH, SCALED_HEIGHT, SDL_WINDOW_SHOWN);
     if (!window)
     {
         throw std::runtime_error("Window could not be created!");

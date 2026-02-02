@@ -18,6 +18,9 @@ private:
     static const int WIDTH = 128;
     static const int HEIGHT = 128;
     static const int FB_SIZE = WIDTH * HEIGHT / 4; // 4 pixels per byte
+    static const int SCALE = 4; // Scaling factor for rendering;
+    static const int SCALED_WIDTH = WIDTH * SCALE;
+    static const int SCALED_HEIGHT = HEIGHT * SCALE;
 
     uint8_t framebuffer[FB_SIZE];
 
