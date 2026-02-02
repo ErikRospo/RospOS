@@ -1,6 +1,7 @@
 import random
 from lark import Transformer
 from maps import register_map
+from ir import instr_list_from_legacy
 
 
 class RospoasTransformer(Transformer):
@@ -265,3 +266,13 @@ class RospoasTransformer(Transformer):
 def transform_parse_tree(parse_tree):
     transformer = RospoasTransformer()
     return transformer.transform(parse_tree), RospoasTransformer.lifted_constants
+
+
+def transform_parse_tree_ir(parse_tree):
+    """Compatibility helper: transform parse tree and convert legacy dict AST
+    into the typed IR defined in `rospoas/ir.py`.
+    Returns: (ir_list, lifted_constants)
+    """
+    legacy_ast, lifted = transform_parse_tree(parse_tree)
+    ir_list = instr_list_from_legacy(legacy_ast)
+    return ir_list, lifted

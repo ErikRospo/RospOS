@@ -1,0 +1,91 @@
+"""Layout stage: compute symbol addresses and segment buffers from typed IR.
+
+This module performs a deterministic single-pass layout that records
+label addresses and allocates segment bytearrays sized to hold the
+instructions/data. It does not perform relocations; it only computes
+addresses and sizes to be used by the encoder stage.
+"""
+from typing import List, Tuple, Dict
+
+from ir import Instruction, LabelDecl, Directive, Segment, ImmValue
+
+
+def _instr_size(node) -> int:
+    if isinstance(node, Instruction):
+        return 4
+    if isinstance(node, Directive) and node.name == "data":
+        if node.length is not None:
+            return node.length
+        # fallback: if immediate is ImmValue, estimate minimum bytes
+        if isinstance(node.imm, ImmValue):
+            v = node.imm.value
+            return (v.bit_length() // 8) + 1
+        return 4
+    return 0
+
+
+def layout_ir(ir_list: List) -> Tuple[Dict[str, int], List[Tuple[int, bytearray]]]:
+    """Compute addresses for labels and allocate segments.
+
+    Returns (addresses, segments) where segments is a list of (addr, data_bytearray).
+    """
+    addresses: Dict[str, int] = {}
+    segments: List[Tuple[int, bytearray]] = []
+
+    current_segment_addr = 0
+    current_segment_data = None
+    current_address = 0
+
+    for node in ir_list:
+        # Segment directive
+        if isinstance(node, Directive) and node.name == "seg":
+            # flush previous segment
+            if current_segment_data is not None:
+                segments.append((current_segment_addr, current_segment_data))
+
+            # start new segment
+            seg_addr = None
+            if node.imm is not None:
+                if hasattr(node.imm, "value"):
+                    seg_addr = int(node.imm.value)
+                else:
+                    seg_addr = int(node.imm)
+            else:
+                seg_addr = 0
+
+            current_segment_addr = seg_addr
+            current_segment_data = bytearray()
+            current_address = seg_addr
+            continue
+
+        # Ensure we have a segment
+        if current_segment_data is None:
+            current_segment_addr = 0
+            current_segment_data = bytearray()
+            current_address = 0
+
+        # Label declaration
+        if isinstance(node, LabelDecl):
+            addresses[node.name] = current_address
+            continue
+
+        # Data directive
+        if isinstance(node, Directive) and node.name == "data":
+            size = _instr_size(node)
+            # reserve bytes
+            current_segment_data.extend(b"\x00" * size)
+            current_address += size
+            continue
+
+        # Instruction
+        if isinstance(node, Instruction):
+            current_segment_data.extend(b"\x00" * 4)
+            current_address += 4
+            continue
+
+        # Unknown node: ignore
+
+    if current_segment_data is not None:
+        segments.append((current_segment_addr, current_segment_data))
+
+    return addresses, segments

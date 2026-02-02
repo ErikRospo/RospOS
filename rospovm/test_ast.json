@@ -1,591 +1,176 @@
 {
-    "ast": [
-        {
-            "type": "d",
-            "name": "seg",
-            "imm": {
-                "type": "li",
-                "name": "LCONST_0",
-                "value": 4294967292
-            }
-        },
-        {
-            "type": "d",
-            "name": "data",
-            "imm": 0,
-            "d": "data",
-            "len": 1
-        },
-        {
-            "type": "d",
-            "name": "seg",
-            "imm": 0
-        },
-        {
-            "type": "a",
-            "name": "MAIN",
-            "d": "label"
-        },
-        {
-            "type": "i",
-            "name": "addi",
-            "rd": 1,
-            "rs1": 0,
-            "imm": 6
-        },
-        {
-            "type": "i",
-            "name": "addi",
-            "rd": 2,
-            "rs1": 0,
-            "imm": 0
-        },
-        {
-            "type": "i",
-            "name": "addi",
-            "rd": 3,
-            "rs1": 0,
-            "imm": 1
-        },
-        {
-            "type": "i",
-            "name": "addi",
-            "rd": 4,
-            "rs1": 0,
-            "imm": 1
-        },
-        {
-            "type": "a",
-            "name": "LOOP",
-            "d": "label"
-        },
-        {
-            "type": "r",
-            "name": "add",
-            "rd": 5,
-            "rs1": 2,
-            "rs2": 3
-        },
-        {
-            "type": "i",
-            "name": "addi",
-            "rd": 2,
-            "rs1": 3,
-            "imm": 0
-        },
-        {
-            "type": "i",
-            "name": "addi",
-            "rd": 3,
-            "rs1": 5,
-            "imm": 0
-        },
-        {
-            "type": "i",
-            "name": "addi",
-            "rd": 4,
-            "rs1": 4,
-            "imm": 1
-        },
-        {
-            "type": "b",
-            "name": "blt",
-            "rd": 4,
-            "rs1": 1,
-            "imm": {
-                "type": "u",
-                "name": "LOOP"
-            }
-        },
-        {
-            "type": "i",
-            "name": "addi",
-            "rd": 1,
-            "rs1": 5,
-            "imm": 0
-        },
-        {
-            "type": "p",
-            "name": "jmp",
-            "imm": {
-                "type": "u",
-                "name": "PRINT_NUMBER"
-            },
-            "rd": 14
-        },
-        {
-            "type": "i",
-            "name": "addi",
-            "rd": 1,
-            "rs1": 0,
-            "imm": {
-                "type": "u",
-                "name": "NEWLINE"
-            }
-        },
-        {
-            "type": "p",
-            "name": "jmp",
-            "imm": {
-                "type": "u",
-                "name": "PRINT_STRING"
-            },
-            "rd": 14
-        },
-        {
-            "type": "i",
-            "name": "addi",
-            "rd": 1,
-            "rs1": 0,
-            "imm": {
-                "type": "u",
-                "name": "HELLO_WORLD"
-            }
-        },
-        {
-            "type": "p",
-            "name": "jmp",
-            "imm": {
-                "type": "u",
-                "name": "PRINT_STRING"
-            },
-            "rd": 14
-        },
-        {
-            "type": "i",
-            "name": "addi",
-            "rd": 2,
-            "rs1": 0,
-            "imm": {
-                "type": "u",
-                "name": "RAND_DATA"
-            }
-        },
-        {
-            "type": "l",
-            "name": "lw",
-            "rd": 1,
-            "rs1": 2,
-            "imm": 0
-        },
-        {
-            "type": "p",
-            "name": "jmp",
-            "imm": {
-                "type": "u",
-                "name": "PRINT_NUMBER"
-            },
-            "rd": 14
-        },
-        {
-            "type": "s",
-            "name": "break"
-        },
-        {
-            "type": "a",
-            "name": "HELLO_WORLD",
-            "d": "label"
-        },
-        {
-            "type": "d",
-            "name": "data",
-            "imm": "b'Hello, World!\\n\\x00'",
-            "d": "str",
-            "len": 15
-        },
-        {
-            "type": "a",
-            "name": "NEWLINE",
-            "d": "label"
-        },
-        {
-            "type": "d",
-            "name": "data",
-            "imm": "b'\\n\\x00'",
-            "d": "str",
-            "len": 2
-        },
-        {
-            "type": "a",
-            "name": "RAND_DATA",
-            "d": "label"
-        },
-        {
-            "type": "d",
-            "name": "data",
-            "imm": 305419896,
-            "d": "data",
-            "len": 4
-        },
-        {
-            "type": "a",
-            "name": "PRINT_NUMBER",
-            "d": "label"
-        },
-        {
-            "type": "p",
-            "name": "push",
-            "imm": 2
-        },
-        {
-            "type": "p",
-            "name": "push",
-            "imm": 3
-        },
-        {
-            "type": "p",
-            "name": "push",
-            "imm": 4
-        },
-        {
-            "type": "i",
-            "name": "addi",
-            "rd": 2,
-            "rs1": 0,
-            "imm": 10
-        },
-        {
-            "type": "p",
-            "name": "lli",
-            "reg": 3,
-            "imm": {
-                "type": "li",
-                "name": "LCONST_2",
-                "value": 268435456,
-                "rd": 3
-            }
-        },
-        {
-            "type": "a",
-            "name": "PRINT_LOOP",
-            "d": "label"
-        },
-        {
-            "type": "r",
-            "name": "rem",
-            "rd": 4,
-            "rs1": 1,
-            "rs2": 2
-        },
-        {
-            "type": "i",
-            "name": "addi",
-            "rd": 4,
-            "rs1": 4,
-            "imm": 48
-        },
-        {
-            "type": "l",
-            "name": "sw",
-            "rd": 4,
-            "rs1": 3,
-            "imm": 0
-        },
-        {
-            "type": "r",
-            "name": "div",
-            "rd": 1,
-            "rs1": 1,
-            "rs2": 2
-        },
-        {
-            "type": "b",
-            "name": "bne",
-            "rd": 1,
-            "rs1": 0,
-            "imm": {
-                "type": "u",
-                "name": "PRINT_LOOP"
-            }
-        },
-        {
-            "type": "p",
-            "name": "pop",
-            "imm": 4
-        },
-        {
-            "type": "p",
-            "name": "pop",
-            "imm": 3
-        },
-        {
-            "type": "p",
-            "name": "pop",
-            "imm": 2
-        },
-        {
-            "type": "j",
-            "rd": 0,
-            "rs1": 14,
-            "name": "jalr",
-            "imm": 0
-        },
-        {
-            "type": "a",
-            "name": "PRINT_STRING",
-            "d": "label"
-        },
-        {
-            "type": "p",
-            "name": "push",
-            "imm": 2
-        },
-        {
-            "type": "p",
-            "name": "push",
-            "imm": 3
-        },
-        {
-            "type": "p",
-            "name": "lli",
-            "reg": 2,
-            "imm": {
-                "type": "li",
-                "name": "LCONST_3",
-                "value": 268435456,
-                "rd": 2
-            }
-        },
-        {
-            "type": "a",
-            "name": "PRINT_CHAR_LOOP",
-            "d": "label"
-        },
-        {
-            "type": "l",
-            "name": "lb",
-            "rd": 3,
-            "rs1": 1,
-            "imm": 0
-        },
-        {
-            "type": "b",
-            "name": "beq",
-            "rd": 3,
-            "rs1": 0,
-            "imm": {
-                "type": "u",
-                "name": "END_PRINT_CHAR_LOOP"
-            }
-        },
-        {
-            "type": "l",
-            "name": "sw",
-            "rd": 3,
-            "rs1": 2,
-            "imm": 0
-        },
-        {
-            "type": "i",
-            "name": "addi",
-            "rd": 1,
-            "rs1": 1,
-            "imm": 1
-        },
-        {
-            "type": "p",
-            "name": "jmp",
-            "imm": {
-                "type": "u",
-                "name": "PRINT_CHAR_LOOP"
-            }
-        },
-        {
-            "type": "a",
-            "name": "END_PRINT_CHAR_LOOP",
-            "d": "label"
-        },
-        {
-            "type": "p",
-            "name": "pop",
-            "imm": 3
-        },
-        {
-            "type": "p",
-            "name": "pop",
-            "imm": 2
-        },
-        {
-            "type": "j",
-            "rd": 0,
-            "rs1": 14,
-            "name": "jalr",
-            "imm": 0
-        },
-        {
-            "type": "a",
-            "name": "SAVE_REGISTERS",
-            "d": "label"
-        },
-        {
-            "type": "p",
-            "name": "push",
-            "imm": 1
-        },
-        {
-            "type": "p",
-            "name": "push",
-            "imm": 2
-        },
-        {
-            "type": "p",
-            "name": "push",
-            "imm": 3
-        },
-        {
-            "type": "p",
-            "name": "push",
-            "imm": 4
-        },
-        {
-            "type": "p",
-            "name": "push",
-            "imm": 5
-        },
-        {
-            "type": "p",
-            "name": "push",
-            "imm": 6
-        },
-        {
-            "type": "p",
-            "name": "push",
-            "imm": 7
-        },
-        {
-            "type": "p",
-            "name": "push",
-            "imm": 8
-        },
-        {
-            "type": "p",
-            "name": "push",
-            "imm": 9
-        },
-        {
-            "type": "p",
-            "name": "push",
-            "imm": 10
-        },
-        {
-            "type": "p",
-            "name": "push",
-            "imm": 11
-        },
-        {
-            "type": "p",
-            "name": "push",
-            "imm": 12
-        },
-        {
-            "type": "p",
-            "name": "push",
-            "imm": 13
-        },
-        {
-            "type": "p",
-            "name": "push",
-            "imm": 14
-        },
-        {
-            "type": "p",
-            "name": "push",
-            "imm": 15
-        },
-        {
-            "type": "j",
-            "rd": 0,
-            "rs1": 14,
-            "name": "jalr",
-            "imm": 0
-        },
-        {
-            "type": "a",
-            "name": "RESTORE_REGISTERS",
-            "d": "label"
-        },
-        {
-            "type": "p",
-            "name": "pop",
-            "imm": 15
-        },
-        {
-            "type": "p",
-            "name": "pop",
-            "imm": 14
-        },
-        {
-            "type": "p",
-            "name": "pop",
-            "imm": 13
-        },
-        {
-            "type": "p",
-            "name": "pop",
-            "imm": 12
-        },
-        {
-            "type": "p",
-            "name": "pop",
-            "imm": 11
-        },
-        {
-            "type": "p",
-            "name": "pop",
-            "imm": 10
-        },
-        {
-            "type": "p",
-            "name": "pop",
-            "imm": 9
-        },
-        {
-            "type": "p",
-            "name": "pop",
-            "imm": 8
-        },
-        {
-            "type": "p",
-            "name": "pop",
-            "imm": 7
-        },
-        {
-            "type": "p",
-            "name": "pop",
-            "imm": 6
-        },
-        {
-            "type": "p",
-            "name": "pop",
-            "imm": 5
-        },
-        {
-            "type": "p",
-            "name": "pop",
-            "imm": 4
-        },
-        {
-            "type": "p",
-            "name": "pop",
-            "imm": 3
-        },
-        {
-            "type": "p",
-            "name": "pop",
-            "imm": 2
-        },
-        {
-            "type": "p",
-            "name": "pop",
-            "imm": 1
-        },
-        {
-            "type": "j",
-            "rd": 0,
-            "rs1": 14,
-            "name": "jalr",
-            "imm": 0
-        }
+    "ir": [
+        "Directive(name='seg', imm=ImmValue(value=4294967292), length=None)",
+        "Directive(name='data', imm=ImmValue(value=0), length=1)",
+        "Directive(name='seg', imm=ImmValue(value=0), length=None)",
+        "LabelDecl(name='MAIN')",
+        "Instruction(type='i', name='addi', rd=1, rs1=0, rs2=None, imm=ImmValue(value=6), legacy={'type': 'i', 'name': 'addi', 'rd': 1, 'rs1': 0, 'imm': 6})",
+        "Instruction(type='i', name='addi', rd=2, rs1=0, rs2=None, imm=ImmValue(value=0), legacy={'type': 'i', 'name': 'addi', 'rd': 2, 'rs1': 0, 'imm': 0})",
+        "Instruction(type='i', name='addi', rd=3, rs1=0, rs2=None, imm=ImmValue(value=1), legacy={'type': 'i', 'name': 'addi', 'rd': 3, 'rs1': 0, 'imm': 1})",
+        "Instruction(type='i', name='addi', rd=4, rs1=0, rs2=None, imm=ImmValue(value=1), legacy={'type': 'i', 'name': 'addi', 'rd': 4, 'rs1': 0, 'imm': 1})",
+        "LabelDecl(name='LOOP')",
+        "Instruction(type='r', name='add', rd=5, rs1=2, rs2=3, imm=None, legacy={'type': 'r', 'name': 'add', 'rd': 5, 'rs1': 2, 'rs2': 3})",
+        "Instruction(type='i', name='addi', rd=2, rs1=3, rs2=None, imm=ImmValue(value=0), legacy={'type': 'i', 'name': 'addi', 'rd': 2, 'rs1': 3, 'imm': 0})",
+        "Instruction(type='i', name='addi', rd=3, rs1=5, rs2=None, imm=ImmValue(value=0), legacy={'type': 'i', 'name': 'addi', 'rd': 3, 'rs1': 5, 'imm': 0})",
+        "Instruction(type='i', name='addi', rd=4, rs1=4, rs2=None, imm=ImmValue(value=1), legacy={'type': 'i', 'name': 'addi', 'rd': 4, 'rs1': 4, 'imm': 1})",
+        "Instruction(type='b', name='blt', rd=4, rs1=1, rs2=None, imm=ImmLabel(name='LOOP'), legacy={'type': 'b', 'name': 'blt', 'rd': 4, 'rs1': 1, 'imm': {'type': 'u', 'name': 'LOOP'}})",
+        "Instruction(type='i', name='addi', rd=1, rs1=5, rs2=None, imm=ImmValue(value=0), legacy={'type': 'i', 'name': 'addi', 'rd': 1, 'rs1': 5, 'imm': 0})",
+        "Instruction(type='i', name='addi', rd=15, rs1=15, rs2=None, imm=ImmValue(value=-4), legacy=None)",
+        "Instruction(type='l', name='sw', rd=1, rs1=15, rs2=None, imm=ImmValue(value=0), legacy=None)",
+        "Instruction(type='i', name='addi', rd=1, rs1=0, rs2=None, imm=ImmLabelPart(label='PRINT_NUMBER', part='high'), legacy=None)",
+        "Instruction(type='i', name='shli', rd=1, rs1=1, rs2=None, imm=ImmValue(value=16), legacy=None)",
+        "Instruction(type='i', name='ori', rd=1, rs1=1, rs2=None, imm=ImmLabelPart(label='PRINT_NUMBER', part='low'), legacy=None)",
+        "Instruction(type='j', name='jalr', rd=14, rs1=1, rs2=None, imm=ImmValue(value=0), legacy=None)",
+        "Instruction(type='l', name='lw', rd=1, rs1=15, rs2=None, imm=ImmValue(value=0), legacy=None)",
+        "Instruction(type='i', name='addi', rd=15, rs1=15, rs2=None, imm=ImmValue(value=4), legacy=None)",
+        "Instruction(type='i', name='addi', rd=1, rs1=0, rs2=None, imm=ImmLabel(name='NEWLINE'), legacy={'type': 'i', 'name': 'addi', 'rd': 1, 'rs1': 0, 'imm': {'type': 'u', 'name': 'NEWLINE'}})",
+        "Instruction(type='i', name='addi', rd=15, rs1=15, rs2=None, imm=ImmValue(value=-4), legacy=None)",
+        "Instruction(type='l', name='sw', rd=1, rs1=15, rs2=None, imm=ImmValue(value=0), legacy=None)",
+        "Instruction(type='i', name='addi', rd=1, rs1=0, rs2=None, imm=ImmLabelPart(label='PRINT_STRING', part='high'), legacy=None)",
+        "Instruction(type='i', name='shli', rd=1, rs1=1, rs2=None, imm=ImmValue(value=16), legacy=None)",
+        "Instruction(type='i', name='ori', rd=1, rs1=1, rs2=None, imm=ImmLabelPart(label='PRINT_STRING', part='low'), legacy=None)",
+        "Instruction(type='j', name='jalr', rd=14, rs1=1, rs2=None, imm=ImmValue(value=0), legacy=None)",
+        "Instruction(type='l', name='lw', rd=1, rs1=15, rs2=None, imm=ImmValue(value=0), legacy=None)",
+        "Instruction(type='i', name='addi', rd=15, rs1=15, rs2=None, imm=ImmValue(value=4), legacy=None)",
+        "Instruction(type='i', name='addi', rd=1, rs1=0, rs2=None, imm=ImmLabel(name='HELLO_WORLD'), legacy={'type': 'i', 'name': 'addi', 'rd': 1, 'rs1': 0, 'imm': {'type': 'u', 'name': 'HELLO_WORLD'}})",
+        "Instruction(type='i', name='addi', rd=15, rs1=15, rs2=None, imm=ImmValue(value=-4), legacy=None)",
+        "Instruction(type='l', name='sw', rd=1, rs1=15, rs2=None, imm=ImmValue(value=0), legacy=None)",
+        "Instruction(type='i', name='addi', rd=1, rs1=0, rs2=None, imm=ImmLabelPart(label='PRINT_STRING', part='high'), legacy=None)",
+        "Instruction(type='i', name='shli', rd=1, rs1=1, rs2=None, imm=ImmValue(value=16), legacy=None)",
+        "Instruction(type='i', name='ori', rd=1, rs1=1, rs2=None, imm=ImmLabelPart(label='PRINT_STRING', part='low'), legacy=None)",
+        "Instruction(type='j', name='jalr', rd=14, rs1=1, rs2=None, imm=ImmValue(value=0), legacy=None)",
+        "Instruction(type='l', name='lw', rd=1, rs1=15, rs2=None, imm=ImmValue(value=0), legacy=None)",
+        "Instruction(type='i', name='addi', rd=15, rs1=15, rs2=None, imm=ImmValue(value=4), legacy=None)",
+        "Instruction(type='i', name='addi', rd=2, rs1=0, rs2=None, imm=ImmLabel(name='RAND_DATA'), legacy={'type': 'i', 'name': 'addi', 'rd': 2, 'rs1': 0, 'imm': {'type': 'u', 'name': 'RAND_DATA'}})",
+        "Instruction(type='l', name='lw', rd=1, rs1=2, rs2=None, imm=ImmValue(value=0), legacy={'type': 'l', 'name': 'lw', 'rd': 1, 'rs1': 2, 'imm': 0})",
+        "Instruction(type='i', name='addi', rd=15, rs1=15, rs2=None, imm=ImmValue(value=-4), legacy=None)",
+        "Instruction(type='l', name='sw', rd=1, rs1=15, rs2=None, imm=ImmValue(value=0), legacy=None)",
+        "Instruction(type='i', name='addi', rd=1, rs1=0, rs2=None, imm=ImmLabelPart(label='PRINT_NUMBER', part='high'), legacy=None)",
+        "Instruction(type='i', name='shli', rd=1, rs1=1, rs2=None, imm=ImmValue(value=16), legacy=None)",
+        "Instruction(type='i', name='ori', rd=1, rs1=1, rs2=None, imm=ImmLabelPart(label='PRINT_NUMBER', part='low'), legacy=None)",
+        "Instruction(type='j', name='jalr', rd=14, rs1=1, rs2=None, imm=ImmValue(value=0), legacy=None)",
+        "Instruction(type='l', name='lw', rd=1, rs1=15, rs2=None, imm=ImmValue(value=0), legacy=None)",
+        "Instruction(type='i', name='addi', rd=15, rs1=15, rs2=None, imm=ImmValue(value=4), legacy=None)",
+        "Instruction(type='s', name='break', rd=None, rs1=None, rs2=None, imm=None, legacy={'type': 's', 'name': 'break'})",
+        "LabelDecl(name='HELLO_WORLD')",
+        "Directive(name='data', imm=b'Hello, World!\\n\\x00', length=15)",
+        "LabelDecl(name='NEWLINE')",
+        "Directive(name='data', imm=b'\\n\\x00', length=2)",
+        "LabelDecl(name='RAND_DATA')",
+        "Directive(name='data', imm=ImmValue(value=305419896), length=4)",
+        "LabelDecl(name='PRINT_NUMBER')",
+        "Instruction(type='i', name='addi', rd=15, rs1=15, rs2=None, imm=ImmValue(value=-4), legacy=None)",
+        "Instruction(type='l', name='sw', rd=ImmValue(value=2), rs1=15, rs2=None, imm=ImmValue(value=0), legacy=None)",
+        "Instruction(type='i', name='addi', rd=15, rs1=15, rs2=None, imm=ImmValue(value=-4), legacy=None)",
+        "Instruction(type='l', name='sw', rd=ImmValue(value=3), rs1=15, rs2=None, imm=ImmValue(value=0), legacy=None)",
+        "Instruction(type='i', name='addi', rd=15, rs1=15, rs2=None, imm=ImmValue(value=-4), legacy=None)",
+        "Instruction(type='l', name='sw', rd=ImmValue(value=4), rs1=15, rs2=None, imm=ImmValue(value=0), legacy=None)",
+        "Instruction(type='i', name='addi', rd=2, rs1=0, rs2=None, imm=ImmValue(value=10), legacy={'type': 'i', 'name': 'addi', 'rd': 2, 'rs1': 0, 'imm': 10})",
+        "Instruction(type='i', name='addi', rd=3, rs1=0, rs2=None, imm=ImmValue(value=4096), legacy=None)",
+        "Instruction(type='i', name='shli', rd=3, rs1=3, rs2=None, imm=ImmValue(value=16), legacy=None)",
+        "LabelDecl(name='PRINT_LOOP')",
+        "Instruction(type='r', name='rem', rd=4, rs1=1, rs2=2, imm=None, legacy={'type': 'r', 'name': 'rem', 'rd': 4, 'rs1': 1, 'rs2': 2})",
+        "Instruction(type='i', name='addi', rd=4, rs1=4, rs2=None, imm=ImmValue(value=48), legacy={'type': 'i', 'name': 'addi', 'rd': 4, 'rs1': 4, 'imm': 48})",
+        "Instruction(type='l', name='sw', rd=4, rs1=3, rs2=None, imm=ImmValue(value=0), legacy={'type': 'l', 'name': 'sw', 'rd': 4, 'rs1': 3, 'imm': 0})",
+        "Instruction(type='r', name='div', rd=1, rs1=1, rs2=2, imm=None, legacy={'type': 'r', 'name': 'div', 'rd': 1, 'rs1': 1, 'rs2': 2})",
+        "Instruction(type='b', name='bne', rd=1, rs1=0, rs2=None, imm=ImmLabel(name='PRINT_LOOP'), legacy={'type': 'b', 'name': 'bne', 'rd': 1, 'rs1': 0, 'imm': {'type': 'u', 'name': 'PRINT_LOOP'}})",
+        "Instruction(type='l', name='lw', rd=ImmValue(value=4), rs1=15, rs2=None, imm=ImmValue(value=0), legacy=None)",
+        "Instruction(type='i', name='addi', rd=15, rs1=15, rs2=None, imm=ImmValue(value=4), legacy=None)",
+        "Instruction(type='l', name='lw', rd=ImmValue(value=3), rs1=15, rs2=None, imm=ImmValue(value=0), legacy=None)",
+        "Instruction(type='i', name='addi', rd=15, rs1=15, rs2=None, imm=ImmValue(value=4), legacy=None)",
+        "Instruction(type='l', name='lw', rd=ImmValue(value=2), rs1=15, rs2=None, imm=ImmValue(value=0), legacy=None)",
+        "Instruction(type='i', name='addi', rd=15, rs1=15, rs2=None, imm=ImmValue(value=4), legacy=None)",
+        "Instruction(type='j', name='jalr', rd=0, rs1=14, rs2=None, imm=ImmValue(value=0), legacy={'type': 'j', 'rd': 0, 'rs1': 14, 'name': 'jalr', 'imm': 0})",
+        "LabelDecl(name='PRINT_STRING')",
+        "Instruction(type='i', name='addi', rd=15, rs1=15, rs2=None, imm=ImmValue(value=-4), legacy=None)",
+        "Instruction(type='l', name='sw', rd=ImmValue(value=2), rs1=15, rs2=None, imm=ImmValue(value=0), legacy=None)",
+        "Instruction(type='i', name='addi', rd=15, rs1=15, rs2=None, imm=ImmValue(value=-4), legacy=None)",
+        "Instruction(type='l', name='sw', rd=ImmValue(value=3), rs1=15, rs2=None, imm=ImmValue(value=0), legacy=None)",
+        "Instruction(type='i', name='addi', rd=2, rs1=0, rs2=None, imm=ImmValue(value=4096), legacy=None)",
+        "Instruction(type='i', name='shli', rd=2, rs1=2, rs2=None, imm=ImmValue(value=16), legacy=None)",
+        "LabelDecl(name='PRINT_CHAR_LOOP')",
+        "Instruction(type='l', name='lb', rd=3, rs1=1, rs2=None, imm=ImmValue(value=0), legacy={'type': 'l', 'name': 'lb', 'rd': 3, 'rs1': 1, 'imm': 0})",
+        "Instruction(type='b', name='beq', rd=3, rs1=0, rs2=None, imm=ImmLabel(name='END_PRINT_CHAR_LOOP'), legacy={'type': 'b', 'name': 'beq', 'rd': 3, 'rs1': 0, 'imm': {'type': 'u', 'name': 'END_PRINT_CHAR_LOOP'}})",
+        "Instruction(type='l', name='sw', rd=3, rs1=2, rs2=None, imm=ImmValue(value=0), legacy={'type': 'l', 'name': 'sw', 'rd': 3, 'rs1': 2, 'imm': 0})",
+        "Instruction(type='i', name='addi', rd=1, rs1=1, rs2=None, imm=ImmValue(value=1), legacy={'type': 'i', 'name': 'addi', 'rd': 1, 'rs1': 1, 'imm': 1})",
+        "Instruction(type='i', name='addi', rd=15, rs1=15, rs2=None, imm=ImmValue(value=-4), legacy=None)",
+        "Instruction(type='l', name='sw', rd=1, rs1=15, rs2=None, imm=ImmValue(value=0), legacy=None)",
+        "Instruction(type='i', name='addi', rd=1, rs1=0, rs2=None, imm=ImmLabelPart(label='PRINT_CHAR_LOOP', part='high'), legacy=None)",
+        "Instruction(type='i', name='shli', rd=1, rs1=1, rs2=None, imm=ImmValue(value=16), legacy=None)",
+        "Instruction(type='i', name='ori', rd=1, rs1=1, rs2=None, imm=ImmLabelPart(label='PRINT_CHAR_LOOP', part='low'), legacy=None)",
+        "Instruction(type='j', name='jalr', rd=0, rs1=1, rs2=None, imm=ImmValue(value=0), legacy=None)",
+        "Instruction(type='l', name='lw', rd=1, rs1=15, rs2=None, imm=ImmValue(value=0), legacy=None)",
+        "Instruction(type='i', name='addi', rd=15, rs1=15, rs2=None, imm=ImmValue(value=4), legacy=None)",
+        "LabelDecl(name='END_PRINT_CHAR_LOOP')",
+        "Instruction(type='l', name='lw', rd=ImmValue(value=3), rs1=15, rs2=None, imm=ImmValue(value=0), legacy=None)",
+        "Instruction(type='i', name='addi', rd=15, rs1=15, rs2=None, imm=ImmValue(value=4), legacy=None)",
+        "Instruction(type='l', name='lw', rd=ImmValue(value=2), rs1=15, rs2=None, imm=ImmValue(value=0), legacy=None)",
+        "Instruction(type='i', name='addi', rd=15, rs1=15, rs2=None, imm=ImmValue(value=4), legacy=None)",
+        "Instruction(type='j', name='jalr', rd=0, rs1=14, rs2=None, imm=ImmValue(value=0), legacy={'type': 'j', 'rd': 0, 'rs1': 14, 'name': 'jalr', 'imm': 0})",
+        "LabelDecl(name='SAVE_REGISTERS')",
+        "Instruction(type='i', name='addi', rd=15, rs1=15, rs2=None, imm=ImmValue(value=-4), legacy=None)",
+        "Instruction(type='l', name='sw', rd=ImmValue(value=1), rs1=15, rs2=None, imm=ImmValue(value=0), legacy=None)",
+        "Instruction(type='i', name='addi', rd=15, rs1=15, rs2=None, imm=ImmValue(value=-4), legacy=None)",
+        "Instruction(type='l', name='sw', rd=ImmValue(value=2), rs1=15, rs2=None, imm=ImmValue(value=0), legacy=None)",
+        "Instruction(type='i', name='addi', rd=15, rs1=15, rs2=None, imm=ImmValue(value=-4), legacy=None)",
+        "Instruction(type='l', name='sw', rd=ImmValue(value=3), rs1=15, rs2=None, imm=ImmValue(value=0), legacy=None)",
+        "Instruction(type='i', name='addi', rd=15, rs1=15, rs2=None, imm=ImmValue(value=-4), legacy=None)",
+        "Instruction(type='l', name='sw', rd=ImmValue(value=4), rs1=15, rs2=None, imm=ImmValue(value=0), legacy=None)",
+        "Instruction(type='i', name='addi', rd=15, rs1=15, rs2=None, imm=ImmValue(value=-4), legacy=None)",
+        "Instruction(type='l', name='sw', rd=ImmValue(value=5), rs1=15, rs2=None, imm=ImmValue(value=0), legacy=None)",
+        "Instruction(type='i', name='addi', rd=15, rs1=15, rs2=None, imm=ImmValue(value=-4), legacy=None)",
+        "Instruction(type='l', name='sw', rd=ImmValue(value=6), rs1=15, rs2=None, imm=ImmValue(value=0), legacy=None)",
+        "Instruction(type='i', name='addi', rd=15, rs1=15, rs2=None, imm=ImmValue(value=-4), legacy=None)",
+        "Instruction(type='l', name='sw', rd=ImmValue(value=7), rs1=15, rs2=None, imm=ImmValue(value=0), legacy=None)",
+        "Instruction(type='i', name='addi', rd=15, rs1=15, rs2=None, imm=ImmValue(value=-4), legacy=None)",
+        "Instruction(type='l', name='sw', rd=ImmValue(value=8), rs1=15, rs2=None, imm=ImmValue(value=0), legacy=None)",
+        "Instruction(type='i', name='addi', rd=15, rs1=15, rs2=None, imm=ImmValue(value=-4), legacy=None)",
+        "Instruction(type='l', name='sw', rd=ImmValue(value=9), rs1=15, rs2=None, imm=ImmValue(value=0), legacy=None)",
+        "Instruction(type='i', name='addi', rd=15, rs1=15, rs2=None, imm=ImmValue(value=-4), legacy=None)",
+        "Instruction(type='l', name='sw', rd=ImmValue(value=10), rs1=15, rs2=None, imm=ImmValue(value=0), legacy=None)",
+        "Instruction(type='i', name='addi', rd=15, rs1=15, rs2=None, imm=ImmValue(value=-4), legacy=None)",
+        "Instruction(type='l', name='sw', rd=ImmValue(value=11), rs1=15, rs2=None, imm=ImmValue(value=0), legacy=None)",
+        "Instruction(type='i', name='addi', rd=15, rs1=15, rs2=None, imm=ImmValue(value=-4), legacy=None)",
+        "Instruction(type='l', name='sw', rd=ImmValue(value=12), rs1=15, rs2=None, imm=ImmValue(value=0), legacy=None)",
+        "Instruction(type='i', name='addi', rd=15, rs1=15, rs2=None, imm=ImmValue(value=-4), legacy=None)",
+        "Instruction(type='l', name='sw', rd=ImmValue(value=13), rs1=15, rs2=None, imm=ImmValue(value=0), legacy=None)",
+        "Instruction(type='i', name='addi', rd=15, rs1=15, rs2=None, imm=ImmValue(value=-4), legacy=None)",
+        "Instruction(type='l', name='sw', rd=ImmValue(value=14), rs1=15, rs2=None, imm=ImmValue(value=0), legacy=None)",
+        "Instruction(type='i', name='addi', rd=15, rs1=15, rs2=None, imm=ImmValue(value=-4), legacy=None)",
+        "Instruction(type='l', name='sw', rd=ImmValue(value=15), rs1=15, rs2=None, imm=ImmValue(value=0), legacy=None)",
+        "Instruction(type='j', name='jalr', rd=0, rs1=14, rs2=None, imm=ImmValue(value=0), legacy={'type': 'j', 'rd': 0, 'rs1': 14, 'name': 'jalr', 'imm': 0})",
+        "LabelDecl(name='RESTORE_REGISTERS')",
+        "Instruction(type='l', name='lw', rd=ImmValue(value=15), rs1=15, rs2=None, imm=ImmValue(value=0), legacy=None)",
+        "Instruction(type='i', name='addi', rd=15, rs1=15, rs2=None, imm=ImmValue(value=4), legacy=None)",
+        "Instruction(type='l', name='lw', rd=ImmValue(value=14), rs1=15, rs2=None, imm=ImmValue(value=0), legacy=None)",
+        "Instruction(type='i', name='addi', rd=15, rs1=15, rs2=None, imm=ImmValue(value=4), legacy=None)",
+        "Instruction(type='l', name='lw', rd=ImmValue(value=13), rs1=15, rs2=None, imm=ImmValue(value=0), legacy=None)",
+        "Instruction(type='i', name='addi', rd=15, rs1=15, rs2=None, imm=ImmValue(value=4), legacy=None)",
+        "Instruction(type='l', name='lw', rd=ImmValue(value=12), rs1=15, rs2=None, imm=ImmValue(value=0), legacy=None)",
+        "Instruction(type='i', name='addi', rd=15, rs1=15, rs2=None, imm=ImmValue(value=4), legacy=None)",
+        "Instruction(type='l', name='lw', rd=ImmValue(value=11), rs1=15, rs2=None, imm=ImmValue(value=0), legacy=None)",
+        "Instruction(type='i', name='addi', rd=15, rs1=15, rs2=None, imm=ImmValue(value=4), legacy=None)",
+        "Instruction(type='l', name='lw', rd=ImmValue(value=10), rs1=15, rs2=None, imm=ImmValue(value=0), legacy=None)",
+        "Instruction(type='i', name='addi', rd=15, rs1=15, rs2=None, imm=ImmValue(value=4), legacy=None)",
+        "Instruction(type='l', name='lw', rd=ImmValue(value=9), rs1=15, rs2=None, imm=ImmValue(value=0), legacy=None)",
+        "Instruction(type='i', name='addi', rd=15, rs1=15, rs2=None, imm=ImmValue(value=4), legacy=None)",
+        "Instruction(type='l', name='lw', rd=ImmValue(value=8), rs1=15, rs2=None, imm=ImmValue(value=0), legacy=None)",
+        "Instruction(type='i', name='addi', rd=15, rs1=15, rs2=None, imm=ImmValue(value=4), legacy=None)",
+        "Instruction(type='l', name='lw', rd=ImmValue(value=7), rs1=15, rs2=None, imm=ImmValue(value=0), legacy=None)",
+        "Instruction(type='i', name='addi', rd=15, rs1=15, rs2=None, imm=ImmValue(value=4), legacy=None)",
+        "Instruction(type='l', name='lw', rd=ImmValue(value=6), rs1=15, rs2=None, imm=ImmValue(value=0), legacy=None)",
+        "Instruction(type='i', name='addi', rd=15, rs1=15, rs2=None, imm=ImmValue(value=4), legacy=None)",
+        "Instruction(type='l', name='lw', rd=ImmValue(value=5), rs1=15, rs2=None, imm=ImmValue(value=0), legacy=None)",
+        "Instruction(type='i', name='addi', rd=15, rs1=15, rs2=None, imm=ImmValue(value=4), legacy=None)",
+        "Instruction(type='l', name='lw', rd=ImmValue(value=4), rs1=15, rs2=None, imm=ImmValue(value=0), legacy=None)",
+        "Instruction(type='i', name='addi', rd=15, rs1=15, rs2=None, imm=ImmValue(value=4), legacy=None)",
+        "Instruction(type='l', name='lw', rd=ImmValue(value=3), rs1=15, rs2=None, imm=ImmValue(value=0), legacy=None)",
+        "Instruction(type='i', name='addi', rd=15, rs1=15, rs2=None, imm=ImmValue(value=4), legacy=None)",
+        "Instruction(type='l', name='lw', rd=ImmValue(value=2), rs1=15, rs2=None, imm=ImmValue(value=0), legacy=None)",
+        "Instruction(type='i', name='addi', rd=15, rs1=15, rs2=None, imm=ImmValue(value=4), legacy=None)",
+        "Instruction(type='l', name='lw', rd=ImmValue(value=1), rs1=15, rs2=None, imm=ImmValue(value=0), legacy=None)",
+        "Instruction(type='i', name='addi', rd=15, rs1=15, rs2=None, imm=ImmValue(value=4), legacy=None)",
+        "Instruction(type='j', name='jalr', rd=0, rs1=14, rs2=None, imm=ImmValue(value=0), legacy={'type': 'j', 'rd': 0, 'rs1': 14, 'name': 'jalr', 'imm': 0})"
     ],
     "lifted_constants": {
         "LCONST_0": 4294967292,
