@@ -93,7 +93,7 @@ with open(mapping_filename, "w") as mf:
     mf.write("Node mapping:\n")
     cur_seg = None
     cur_cursor = 0
-    for node in ir_list:
+    for idx, node in enumerate(ir_list):
         if isinstance(node, Directive) and node.name == "seg":
             seg_addr = _imm_to_int(node.imm)
             if seg_addr is None:
@@ -109,7 +109,6 @@ with open(mapping_filename, "w") as mf:
         if isinstance(node, LabelDecl):
             addr = addresses.get(node.name, cur_seg + cur_cursor)
             mf.write(f"LABEL {node.name} -> {hex(addr)}\n")
-            # keep the mapping cursor in sync with actual layout addresses
             try:
                 cur_cursor = addr - cur_seg
             except Exception:
@@ -131,11 +130,11 @@ with open(mapping_filename, "w") as mf:
             continue
 
         if isinstance(node, IRInstruction):
-            # ensure 4-byte alignment before an instruction (matches layout_ir behavior)
             align = (4 - (cur_cursor % 4)) % 4
             if align:
                 cur_cursor += align
-            mf.write(f"INSTR {node.name} @ {hex(cur_seg + cur_cursor)}\n")
+            # Print detailed info for each instruction
+            mf.write(f"INSTR idx={idx} @ {hex(cur_seg + cur_cursor)} name={node.name} rd={getattr(node, 'rd', None)} rs1={getattr(node, 'rs1', None)} rs2={getattr(node, 'rs2', None)} imm={getattr(node, 'imm', None)}\n")
             cur_cursor += 4
             continue
 
