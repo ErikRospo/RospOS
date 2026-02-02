@@ -138,9 +138,9 @@ def print_bitmap(value, width, height):
         for x in range(width):
             bit_index = y * width + x
             if value & (1 << (width * height - 1 - bit_index)):
-                row += "00"
+                row += "0"
             else:
-                row += "11"
+                row += "1"
         row += "\n"
     return row
 
@@ -162,7 +162,7 @@ for i, desc in enumerate(descriptions):
 
     # Format the bitmap for display
     formatted_bitmap = (
-        bitmap.replace("\n", "\n//").replace("00", "##").replace("11", "  ")
+        bitmap.replace("\n", "\n//").replace("0", "##").replace("1", "  ")
     )
 
     # Flatten the bitmap for data representation

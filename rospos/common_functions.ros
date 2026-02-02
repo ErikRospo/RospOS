@@ -56,6 +56,8 @@ END_READ_LINE_LOOP:
     PUSH r7
     PUSH r8
     PUSH r9
+    PUSH r10
+    PUSH r11
 
     // Calculate font bitmap address
     LLI r4, BASE_FB_ADDR       // Base address of font bitmap
@@ -65,47 +67,64 @@ END_READ_LINE_LOOP:
     MUL r5, r5, r8             // Offset in bytes
     ADD r4, r4, r5             // r4 now points to the font bitmap for the character
 
-    // Load font bitmap
     LW r5, r4, 0               // Load 4 bytes of font bitmap into r5
 
-    // Draw character pixel by pixel
-    LLI r6, 0                  // Bit index (0-31)
-DRAW_CHAR_PIXEL_LOOP:
-    LLI r8, 32
-    BEQ r6, r8, END_DRAW_CHAR_PIXEL_LOOP // Exit loop after 32 bits
+    LLI r6, 0                  // Row index (0-5)
+DRAW_CHAR_ROW_LOOP:
+    LLI r8, 6
+    BEQ r6, r8, END_DRAW_CHAR_PIXEL_LOOP // Exit loop after 6 rows
 
-    // Calculate pixel position
-    LLI r8, 8                  // 8 pixels per row
-    DIV r7, r6, r8             // Row (0-3)
-    REM r9, r6, r8             // Column (0-7)
+    LLI r7, 0                  // Column index (0-4)
+DRAW_CHAR_COLUMN_LOOP:
+    LLI r8, 5
+    BEQ r7, r8, END_DRAW_CHAR_COLUMN_LOOP // Exit loop after 5 columns
 
-    // Check if pixel is set
-    LLI r8, 31                 // Highest bit index
-    SUB r8, r8, r6             // Calculate bit position from the left
-    SHR r8, r5, r8             // Shift the bit into position
+    // Calculate bit index for this pixel in the 5x6 font (row-major order)
+    LLI r10, 5                  // Temporary for multiplication
+    MUL r10, r6, r10            // row * 5
+    ADD r10, r10, r7           // + col
+    LLI r11, 29                // Highest bit index for 5x6 font (0..29)
+    SUB r11, r11, r10          // 29 - (row*5 + col)
+    SHR r8, r5, r11            // Shift bit into LSB
     ANDI r8, r8, 1             // Mask out all but the least significant bit
     BEQ r8, r0, SKIP_PIXEL_DRAW // Skip if the bit is not set
 
-    // Draw pixel to display
-    LLI r8, 128                // Display width
-    MUL r7, r7, r8             // Y * width
-    ADD r7, r7, r2             // Add X coordinate
-    ADD r7, r7, r3             // Add Y coordinate
-    LLI r8, 0x2000_0000        // Display base address
-    ADD r7, r7, r8             // Calculate final display address
+    // Calculate framebuffer address for pixel (x = r2 + col, y = r3 + row)
+    ADD r8, r2, r7             // x = r2 + col
+    ADD r9, r3, r6             // y = r3 + row
+    LLI r10, 128               // Display width
+    MUL r9, r9, r10            // y * width
+    ADD r9, r9, r8             // y * width + x
 
-    // Set pixel to white (0b11)
-    LB r8, r7, 0               // Load current byte
-    LLI r9, 0b11               // White pixel value
-    SHL r9, r9, r6             // Shift to correct position
-    OR r8, r8, r9              // Set pixel bits
-    SB r8, r7, 0               // Store byte back
+    // For 2bpp packed: 4 pixels per byte, 2 bits per pixel
+    LLI r10, 4
+    DIV r11, r9, r10           // byte offset = pixel_index / 4
+    LLI r10, 0x2000_0000       // Display base address
+    ADD r11, r11, r10          // Absolute byte address
+
+    ANDI r10, r9, 0x3          // pixel_in_byte = pixel_index % 4
+    LLI r8, 3                  // 2 bits per pixel, so shift = (3 - pixel_in_byte) * 2
+    SUB r8, r8, r10            // (3 - pixel_in_byte)
+    LLI r10, 2
+    MUL r8, r8, r10            // shift amount
+
+    LB r10, r11, 0             // Load current byte
+    LLI r9, 0b11               // White pixel value (0b11)
+    SHL r9, r9, r8             // Shift to correct position
+    OR r10, r10, r9            // Set pixel bits
+    SB r10, r11, 0             // Store byte back
 
 SKIP_PIXEL_DRAW:
-    ADDI r6, r6, 1             // Increment bit index
-    JMP DRAW_CHAR_PIXEL_LOOP
+    ADDI r7, r7, 1             // Increment column index
+    JMP DRAW_CHAR_COLUMN_LOOP
+
+END_DRAW_CHAR_COLUMN_LOOP:
+    ADDI r6, r6, 1             // Increment row index
+    JMP DRAW_CHAR_ROW_LOOP
 
 END_DRAW_CHAR_PIXEL_LOOP:
+    POP r11
+    POP r10
     POP r9
     POP r8
     POP r7

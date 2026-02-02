@@ -4,6 +4,7 @@
 #include <string>
 #include <cstdint>
 #include <algorithm> // For std::find
+#include <SDL2/SDL.h>
 
 #include "InstructionDecoder.h"
 #include "Register.h"
@@ -42,6 +43,13 @@ int main(int argc, char* argv[]) {
         std::cout << "Press Enter to step, 'q' to quit." << std::endl;
     }
     while (true) {
+        SDL_Event event;
+        while (SDL_PollEvent(&event)) {
+            if (event.type == SDL_QUIT) {
+                std::cout << "SDL_QUIT received, exiting..." << std::endl;
+                return 0;
+            }
+        }
         if (stepMode) {
             std::cin.get(ch);
             if (ch == 'q') break;

@@ -3,7 +3,7 @@
 #include "Memory.h"
 #include <SDL2/SDL.h>
 #include <stdexcept>
-
+#include <iostream>
 // Add a static instance for the Display class
 static Display* displayInstance = nullptr;
 
@@ -47,6 +47,7 @@ void Display::write(uint32_t address, uint8_t value)
     }
     uint32_t offset = address - 0x20000000;
     framebuffer[offset] = value;
+    std::cerr << "Display: Wrote value " << std::hex << static_cast<int>(value) << " to address " << address << std::dec << std::endl;
 
     // Update the SDL texture with the new framebuffer data
     uint32_t pixels[WIDTH * HEIGHT];
