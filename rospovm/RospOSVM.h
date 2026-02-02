@@ -3,6 +3,7 @@
 
 #include "Register.h"
 #include "Memory.h"
+#include "Display.h"
 #include <vector>
 #include <cstdint>
 #include <string>
@@ -12,6 +13,7 @@ private:
     RegisterFile regFile;
     uint32_t pc; // Program Counter
     Memory memory;
+    // Display display;
     void rTypeInstruction(uint32_t instruction);
     void iArithTypeInstruction(uint32_t instruction);
     void iTypeLSInstruction(uint32_t instruction);

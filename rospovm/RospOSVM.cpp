@@ -2,6 +2,7 @@
 #include "Memory.h"
 #include "TTY.h"
 #include "InstructionDecoder.h"
+#include "Display.h"
 
 #include <iostream>
 #include <iomanip>
@@ -18,6 +19,10 @@ RospOSVM::RospOSVM(bool debugMode) : memory(1ULL << 32) // Initialize 4GB memory
     // Setup TTY MMIO range
     memory.addSpecialRange((char *)"TTY ",0x10000000, 0x100001FF, SpecialMemoryRange::Type::MMIO, true, true,
                            TTYReadHandler, TTYWriteHandler);
+    // Setup Display MMIO range
+    // display = Display();
+    memory.addSpecialRange((char *)"DISP",0x20000000, 0x20000FFF, SpecialMemoryRange::Type::MMIO, true, true,
+                           Display::displayReadHandler, Display::displayWriteHandler);
 }
 
 void RospOSVM::loadBinaryAtAddress(const std::vector<char> &binary, uint32_t address)

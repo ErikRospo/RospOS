@@ -1,9 +1,5 @@
 from maps import i_to_r_map, register_map
 
-# Preprocess an AST: expand pseudo-instructions and lifted constants into
-# concrete instruction AST nodes so instruction sizes are fixed before
-# assembly. Uses `r1` (register 1) as a temporary and emits push/pop
-# around uses that clobber it.
 
 TEMP_REG = register_map["r13"] # Temporary register for constant loading
 SP_REG = register_map["sp"]

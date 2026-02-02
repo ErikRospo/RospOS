@@ -13,18 +13,23 @@ private:
     SDL_Window *window;
     SDL_Renderer *renderer;
     SDL_Texture *texture;
-    
+
     //FB size: 128*128 pixels * 2 bits/pixel = 32768 bits = 4096 bytes
     static const int WIDTH = 128;
     static const int HEIGHT = 128;
     static const int FB_SIZE = WIDTH * HEIGHT / 4; // 4 pixels per byte
-    
+
     uint8_t framebuffer[FB_SIZE];
-    
+
+    // Internal methods for MMIO logic
+    uint8_t read(uint32_t address);
+    void write(uint32_t address, uint8_t value);
 
 public:
-    uint8_t displayReadHandler(uint32_t address);
-    void displayWriteHandler(uint32_t address, uint8_t value);
+    // Static MMIO handlers
+    static uint8_t displayReadHandler(uint32_t address);
+    static void displayWriteHandler(uint32_t address, uint8_t value);
+
     Display();
     ~Display();
 };
