@@ -81,3 +81,17 @@ register_map = {"r" + str(i): i for i in range(16)}
 register_map["sp"] = 15
 register_map["lr"] = 14
 register_map["fp"] = 13
+
+
+
+def validate_immediate_for_type(type_id: int, imm: int) -> None:
+    """Validate imm range for I/L/B/J types where 16-bit immediates are expected.
+    Raises AssertionError on invalid values.
+    """
+    if type_id in [1, 2, 3, 4]:
+        assert isinstance(
+            imm, int
+        ), f"IMM must be an integer for type_id {type_id}, is {imm}"
+        assert (
+            -32768 <= imm <= 65535
+        ), f"IMM out of range for type_id {type_id}, is {imm}"

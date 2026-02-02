@@ -3,10 +3,9 @@
 import sys
 from typing import Dict, List, Tuple
 
-from encoding import (instr_type_maps, opcode_type_map,
-                      validate_immediate_for_type)
 from ir import (Directive, ImmLabel, ImmLabelPart, ImmLifted, ImmValue,
                 Instruction, LabelDecl)
+from maps import instr_type_maps, opcode_type_map, validate_immediate_for_type
 
 
 def _resolve_imm(imm, addresses, current_segment_addr, cursor):

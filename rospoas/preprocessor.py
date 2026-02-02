@@ -5,7 +5,7 @@ from maps import i_to_r_map, register_map
 # assembly. Uses `r1` (register 1) as a temporary and emits push/pop
 # around uses that clobber it.
 
-TEMP_REG = register_map["r1"]
+TEMP_REG = register_map["r13"] # Temporary register for constant loading
 SP_REG = register_map["sp"]
 
 
