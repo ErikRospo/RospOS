@@ -218,7 +218,21 @@ class RospoasTransformer(Transformer):
                 "d": "data",
                 "len": 4,
             }  # allocate 4 bytes by default
-
+    def space(self, items):
+        imm_t = items[0]
+        imm_v = imm_t
+        try:
+            imm_v = int(imm_v)
+        except:
+            pass
+        assert isinstance(imm_v, int), "SPACE directive requires an integer immediate value"
+        return {
+            "type": "d",
+            "name": "data",
+            "imm": bytes(imm_v),
+            "d": "space",
+            "len": imm_v,
+        }
     def strv(self, items):
         str_t = items[0]
         str_v = str_t[1:-1]  # Remove the surrounding quotes

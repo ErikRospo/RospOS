@@ -125,7 +125,7 @@ with open(mapping_filename, "w") as mf:
                 else:
                     size = 4
             size = max(4, size)
-            mf.write(f"DATA @ {hex(cur_seg + cur_cursor)} size {size}\n")
+            mf.write(f"DATA @ {hex(cur_seg + cur_cursor)} size {size}: {node.imm}\n")
             cur_cursor += size
             continue
 
