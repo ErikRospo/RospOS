@@ -5,9 +5,10 @@ label addresses and allocates segment bytearrays sized to hold the
 instructions/data. It does not perform relocations; it only computes
 addresses and sizes to be used by the encoder stage.
 """
-from typing import List, Tuple, Dict
 
-from ir import Instruction, LabelDecl, Directive, Segment, ImmValue
+from typing import Dict, List, Tuple
+
+from ir import Directive, ImmValue, Instruction, LabelDecl, Segment
 
 
 def _instr_size(node) -> int:
@@ -123,7 +124,9 @@ def layout_ir(ir_list: List) -> Tuple[Dict[str, int], List[Tuple[int, bytearray]
         prev_end = prev_addr + len(prev_data)
         for addr, data in segments_sorted[1:]:
             if addr < prev_end:
-                raise ValueError(f"Segment overlap detected: segment at {hex(addr)} overlaps previous end {hex(prev_end)}")
+                raise ValueError(
+                    f"Segment overlap detected: segment at {hex(addr)} overlaps previous end {hex(prev_end)}"
+                )
             prev_end = addr + len(data)
 
     return addresses, segments

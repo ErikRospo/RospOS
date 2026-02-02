@@ -1,5 +1,5 @@
-"""Centralized encoding maps and helpers for RospoAS.
-"""
+"""Centralized encoding maps and helpers for RospoAS."""
+
 opcode_type_map = {
     "r": 0b0000,
     "i": 0b0001,
@@ -98,5 +98,9 @@ def validate_immediate_for_type(type_id: int, imm: int) -> None:
     Raises AssertionError on invalid values.
     """
     if type_id in [1, 2, 3, 4]:
-        assert isinstance(imm, int), f"IMM must be an integer for type_id {type_id}, is {imm}"
-        assert -32768 <= imm <= 65535, f"IMM out of range for type_id {type_id}, is {imm}"
+        assert isinstance(
+            imm, int
+        ), f"IMM must be an integer for type_id {type_id}, is {imm}"
+        assert (
+            -32768 <= imm <= 65535
+        ), f"IMM out of range for type_id {type_id}, is {imm}"

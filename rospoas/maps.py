@@ -1,4 +1,3 @@
-
 opcode_type_map = {
     "r": 0b0000,
     "i": 0b0001,

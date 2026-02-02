@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Optional, Union, List
+from typing import List, Optional, Union
 
 
 # Immediate kinds
@@ -129,5 +129,7 @@ def instr_from_legacy(d: dict) -> Union[Instruction, LabelDecl, Directive]:
     )
 
 
-def instr_list_from_legacy(ast: List[dict]) -> List[Union[Instruction, LabelDecl, Directive]]:
+def instr_list_from_legacy(
+    ast: List[dict],
+) -> List[Union[Instruction, LabelDecl, Directive]]:
     return [instr_from_legacy(i) for i in ast]

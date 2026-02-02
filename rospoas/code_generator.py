@@ -1,5 +1,6 @@
 from maps import *
 
+
 def generate_immediate_loading(value, rd):
     file = bytearray()
 
@@ -37,11 +38,12 @@ def generate_immediate_loading(value, rd):
             file += op_byte.to_bytes(4, byteorder="big")
     return file
 
+
 def generate_stack_push(rs):
     file = bytearray()
     # Generate SW instruction to store register to stack
     op_byte = opcode_type_map["s"] << 4 | l_type_map["sw"]
-    op_byte = (op_byte << 4) | (rs & 0x0F)  # data=rs 
+    op_byte = (op_byte << 4) | (rs & 0x0F)  # data=rs
     op_byte = (op_byte << 4) | (register_map["sp"] & 0x0F)  # rs1 = sp
     op_byte = (op_byte << 16) | (-4 & 0xFFFF)  # offset -4
     file += op_byte.to_bytes(4, byteorder="big")
@@ -53,6 +55,7 @@ def generate_stack_push(rs):
     op_byte = (op_byte << 16) | (-4 & 0xFFFF)  # immediate -4
     file += op_byte.to_bytes(4, byteorder="big")
     return file
+
 
 def generate_stack_pop(rd):
     file = bytearray()
@@ -70,6 +73,7 @@ def generate_stack_pop(rd):
     op_byte = (op_byte << 16) | (0 & 0xFFFF)  # offset 0
     file += op_byte.to_bytes(4, byteorder="big")
     return file
+
 
 def generate_absolute_jump(address, rd=0):
     file = bytearray()

@@ -2,22 +2,33 @@ import argparse
 import json
 import struct
 import sys
-from grammar_parser import parse_source, preprocess_includes
-from transformer import transform_parse_tree, transform_parse_tree_ir
-from lower import lower_ir
-from layout import layout_ir
+
 from encode import encode_ir
-from preprocessor import preprocess_ast
-from code_generator import generate_absolute_jump, generate_immediate_loading, generate_stack_push, generate_stack_pop
-from encoding import opcode_type_map, instr_type_maps, i_to_r_map, register_map
+from grammar_parser import parse_source, preprocess_includes
+from ir import Directive
+from ir import Instruction as IRInstruction
+from ir import LabelDecl
+from layout import layout_ir
+from lower import lower_ir
+from transformer import transform_parse_tree_ir
 
 # Parse command-line arguments
 parser = argparse.ArgumentParser(description="Compile RospoAS source code.")
-parser.add_argument("--input", type=str, required=True, help="Input source file to compile. Should be a .ros file")
-parser.add_argument("--output", type=str, required=False, help="Output binary file. If not provided, will use the input filename with .rosp extension.")
+parser.add_argument(
+    "--input",
+    type=str,
+    required=True,
+    help="Input source file to compile. Should be a .ros file",
+)
+parser.add_argument(
+    "--output",
+    type=str,
+    required=False,
+    help="Output binary file. If not provided, will use the input filename with .rosp extension.",
+)
 args = parser.parse_args()
 if args.output is None:
-    args.output = args.input.rsplit(".", 1)[0] + ".rosp" #ROS Program
+    args.output = args.input.rsplit(".", 1)[0] + ".rosp"  # ROS Program
 
 # Read source code
 with open(args.input, "r") as f:
@@ -47,7 +58,9 @@ with open(debug_parse_filename, "w") as f:
 # Write AST to JSON
 filename_json = args.output.rsplit(".", 1)[0] + "_ast.json"
 with open(filename_json, "w") as f:
-    json.dump({"ir": ir_list, "lifted_constants": lifted_constants}, f, indent=4, default=str)
+    json.dump(
+        {"ir": ir_list, "lifted_constants": lifted_constants}, f, indent=4, default=str
+    )
 
 # Layout and encode
 addresses, segments = layout_ir(ir_list)
@@ -69,12 +82,12 @@ with open(args.output, "wb") as f:
     for addr, data in segments:
         f.write(struct.pack("<II", addr, len(data)))
         f.write(data)
-    
+
 print(f"Wrote binary to {args.output}")
 
 # Now write a detailed mapping of IR nodes to addresses using resolved `addresses` and `segments`.
 mapping_filename = args.output.rsplit(".", 1)[0] + "_mapping.txt"
-from ir import Directive, LabelDecl, Instruction as IRInstruction
+
 
 def _imm_to_int(imm):
     if imm is None:
@@ -88,6 +101,7 @@ def _imm_to_int(imm):
         return int(imm)
     except Exception:
         return None
+
 
 with open(mapping_filename, "w") as mf:
     mf.write("Node mapping:\n")
@@ -134,7 +148,9 @@ with open(mapping_filename, "w") as mf:
             if align:
                 cur_cursor += align
             # Print detailed info for each instruction
-            mf.write(f"INSTR idx={idx} @ {hex(cur_seg + cur_cursor)} name={node.name} rd={getattr(node, 'rd', None)} rs1={getattr(node, 'rs1', None)} rs2={getattr(node, 'rs2', None)} imm={getattr(node, 'imm', None)}\n")
+            mf.write(
+                f"INSTR idx={idx} @ {hex(cur_seg + cur_cursor)} name={node.name} rd={getattr(node, 'rd', None)} rs1={getattr(node, 'rs1', None)} rs2={getattr(node, 'rs2', None)} imm={getattr(node, 'imm', None)}\n"
+            )
             cur_cursor += 4
             continue
 

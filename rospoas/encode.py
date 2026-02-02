@@ -1,9 +1,13 @@
-"""Encoding stage: resolve immediates, validate ranges, and write final bytes.
-"""
-from typing import List, Tuple, Dict
+"""Encoding stage: resolve immediates, validate ranges, and write final bytes."""
+
 import sys
-from ir import Instruction, LabelDecl, Directive, ImmValue, ImmLabel, ImmLabelPart, ImmLifted
-from encoding import opcode_type_map, instr_type_maps, validate_immediate_for_type
+from typing import Dict, List, Tuple
+
+from encoding import (instr_type_maps, opcode_type_map,
+                      validate_immediate_for_type)
+from ir import (Directive, ImmLabel, ImmLabelPart, ImmLifted, ImmValue,
+                Instruction, LabelDecl)
+
 
 def _resolve_imm(imm, addresses, current_segment_addr, cursor):
     if imm is None:
@@ -33,7 +37,9 @@ def _resolve_imm(imm, addresses, current_segment_addr, cursor):
     return int(imm)
 
 
-def encode_ir(ir_list: List, addresses: Dict[str, int], segments: List[Tuple[int, bytearray]]):
+def encode_ir(
+    ir_list: List, addresses: Dict[str, int], segments: List[Tuple[int, bytearray]]
+):
     current_segment = None
     current_segment_data = None
     cursor = 0
@@ -81,10 +87,14 @@ def encode_ir(ir_list: List, addresses: Dict[str, int], segments: List[Tuple[int
                 length = node.length or ((v.bit_length() // 8) + 1)
                 data_bytes = v.to_bytes(length, byteorder="little", signed=True)
             if cursor + len(data_bytes) > len(current_segment_data):
-                raise ValueError(f"Data write would overflow segment {hex(current_segment)} at cursor {cursor}")
-            current_segment_data[cursor:cursor+len(data_bytes)] = data_bytes
+                raise ValueError(
+                    f"Data write would overflow segment {hex(current_segment)} at cursor {cursor}"
+                )
+            current_segment_data[cursor : cursor + len(data_bytes)] = data_bytes
             # record node
-            segment_node_map.setdefault(current_segment, []).append((cursor, len(data_bytes), 'data'))
+            segment_node_map.setdefault(current_segment, []).append(
+                (cursor, len(data_bytes), "data")
+            )
             cursor += len(data_bytes)
             continue
 
@@ -135,21 +145,27 @@ def encode_ir(ir_list: List, addresses: Dict[str, int], segments: List[Tuple[int
                     op_byte = op_byte << 12
 
                 elif type_id in [1, 2]:  # I/L-type
-                    assert rd is not None and rs1 is not None and resolved_imm is not None
+                    assert (
+                        rd is not None and rs1 is not None and resolved_imm is not None
+                    )
                     validate_immediate_for_type(type_id, resolved_imm)
                     op_byte = (op_byte << 4) | (rd & 0x0F)
                     op_byte = (op_byte << 4) | (rs1 & 0x0F)
                     op_byte = (op_byte << 16) | (resolved_imm & 0xFFFF)
 
                 elif type_id == 3:  # B-type
-                    assert rd is not None and rs1 is not None and resolved_imm is not None
+                    assert (
+                        rd is not None and rs1 is not None and resolved_imm is not None
+                    )
                     validate_immediate_for_type(type_id, resolved_imm)
                     op_byte = (op_byte << 4) | (rd & 0x0F)
                     op_byte = (op_byte << 4) | (rs1 & 0x0F)
                     op_byte = (op_byte << 16) | (resolved_imm & 0xFFFF)
 
                 elif type_id == 4:  # J-type
-                    assert rd is not None and rs1 is not None and resolved_imm is not None
+                    assert (
+                        rd is not None and rs1 is not None and resolved_imm is not None
+                    )
                     validate_immediate_for_type(type_id, resolved_imm)
                     op_byte = (op_byte << 4) | (rd & 0x0F)
                     op_byte = (op_byte << 4) | (rs1 & 0x0F)
@@ -158,13 +174,19 @@ def encode_ir(ir_list: List, addresses: Dict[str, int], segments: List[Tuple[int
                 elif type_id == 5:  # S-type
                     op_byte = op_byte << 24
             except AssertionError:
-                raise ValueError(f"Encoding assertion failed at segment {current_segment} cursor {cursor} for node: {node}")
+                raise ValueError(
+                    f"Encoding assertion failed at segment {current_segment} cursor {cursor} for node: {node}"
+                )
 
             bytes_out = (op_byte & 0xFFFFFFFF).to_bytes(4, byteorder="big")
             if cursor + 4 > len(current_segment_data):
-                raise ValueError(f"Instruction write would overflow segment {hex(current_segment)} at cursor {cursor}")
-            current_segment_data[cursor:cursor+4] = bytes_out
-            segment_node_map.setdefault(current_segment, []).append((cursor, 4, 'instr'))
+                raise ValueError(
+                    f"Instruction write would overflow segment {hex(current_segment)} at cursor {cursor}"
+                )
+            current_segment_data[cursor : cursor + 4] = bytes_out
+            segment_node_map.setdefault(current_segment, []).append(
+                (cursor, 4, "instr")
+            )
             cursor += 4
             continue
 
@@ -180,7 +202,10 @@ def encode_ir(ir_list: List, addresses: Dict[str, int], segments: List[Tuple[int
                 found_seg = (seg_addr, seg_data)
                 break
         if found_seg is None:
-            print(f"Warning: label {name} at {hex(addr)} is not in any segment", file=sys.stderr)
+            print(
+                f"Warning: label {name} at {hex(addr)} is not in any segment",
+                file=sys.stderr,
+            )
             continue
         seg_addr, seg_data = found_seg
         offset = addr - seg_addr
@@ -192,15 +217,24 @@ def encode_ir(ir_list: List, addresses: Dict[str, int], segments: List[Tuple[int
                 break
         if hit is None:
             # label points between nodes: OK but warn
-            print(f"Note: label {name} at {hex(addr)} points between nodes in segment {hex(seg_addr)}", file=sys.stderr)
+            print(
+                f"Note: label {name} at {hex(addr)} points between nodes in segment {hex(seg_addr)}",
+                file=sys.stderr,
+            )
         else:
-            if hit[2] == 'data':
-                print(f"Warning: label {name} at {hex(addr)} falls inside a data region (segment {hex(seg_addr)} offset {hit[0]})", file=sys.stderr)
+            if hit[2] == "data":
+                print(
+                    f"Warning: label {name} at {hex(addr)} falls inside a data region (segment {hex(seg_addr)} offset {hit[0]})",
+                    file=sys.stderr,
+                )
 
     # Print per-segment node map for debugging
     print("--- Segment node layout ---", file=sys.stderr)
     for seg_addr, nodes in segment_node_map.items():
-        print(f"Segment {hex(seg_addr)} (size {len(next(d for a,d in segments if a==seg_addr))}):", file=sys.stderr)
+        print(
+            f"Segment {hex(seg_addr)} (size {len(next(d for a,d in segments if a==seg_addr))}):",
+            file=sys.stderr,
+        )
         for start, size, ntype in nodes:
             print(f"  {start:04} - {start+size-1:04} : {ntype}", file=sys.stderr)
 
@@ -209,14 +243,17 @@ def encode_ir(ir_list: List, addresses: Dict[str, int], segments: List[Tuple[int
         reserved = len(data)
         used = segment_cursor_map.get(seg_addr, 0)
         if used != reserved:
-            print(f"Warning: segment {hex(seg_addr)} reserved {reserved} bytes but encoder used {used} bytes", file=sys.stderr)
+            print(
+                f"Warning: segment {hex(seg_addr)} reserved {reserved} bytes but encoder used {used} bytes",
+                file=sys.stderr,
+            )
 
     # Post-encode verification: check that each instruction slot decodes to a valid opcode/type
     for seg_addr, seg_data in segments:
         node_list = segment_node_map.get(seg_addr, [])
         for start, size, ntype in node_list:
-            if ntype == 'instr':
-                word = int.from_bytes(seg_data[start:start+4], byteorder='big')
+            if ntype == "instr":
+                word = int.from_bytes(seg_data[start : start + 4], byteorder="big")
                 op_nibble = (word >> 28) & 0xF
                 opcode = (word >> 24) & 0xF
                 valid = False
@@ -225,5 +262,8 @@ def encode_ir(ir_list: List, addresses: Dict[str, int], segments: List[Tuple[int
                     if opcode in t_map.values():
                         valid = True
                 if not valid:
-                    print(f"Warning: instruction at segment {hex(seg_addr)} offset {start} decodes as NOP/UNKNOWN (word={word:08x})", file=sys.stderr)
+                    print(
+                        f"Warning: instruction at segment {hex(seg_addr)} offset {start} decodes as NOP/UNKNOWN (word={word:08x})",
+                        file=sys.stderr,
+                    )
     return segments

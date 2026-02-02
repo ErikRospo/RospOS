@@ -1,7 +1,9 @@
 import random
+
 from lark import Transformer
-from maps import register_map
+
 from ir import instr_list_from_legacy
+from maps import register_map
 
 
 class RospoasTransformer(Transformer):
@@ -135,12 +137,16 @@ class RospoasTransformer(Transformer):
     def push(self, items):
         reg_t = items[0]
         reg_v = reg_t
-        return {"type": "p", "name": "push", "imm": reg_v} # Yes, imm is register here for simplicity. Should really be "arg" or something
+        return {
+            "type": "p",
+            "name": "push",
+            "imm": reg_v,
+        }  # Yes, imm is register here for simplicity. Should really be "arg" or something
 
     def pop(self, items):
         reg_t = items[0]
         reg_v = reg_t
-        return {"type": "p", "name": "pop", "imm": reg_v} # Same as above
+        return {"type": "p", "name": "pop", "imm": reg_v}  # Same as above
 
     def lli(self, items):
         reg_t = items[0]
@@ -198,8 +204,10 @@ class RospoasTransformer(Transformer):
             except:
                 pass
             if isinstance(imm_v, dict) and imm_v.get("type") == "li":
-                imm_v= imm_v["value"]
-            assert isinstance(imm_v, int), "Data directive requires an integer immediate value"
+                imm_v = imm_v["value"]
+            assert isinstance(
+                imm_v, int
+            ), "Data directive requires an integer immediate value"
             # Use at least 4 bytes for numeric data directives (word-sized)
             computed_len = int.bit_length(imm_v) // 8 + 1
             length = max(4, computed_len)
@@ -218,6 +226,7 @@ class RospoasTransformer(Transformer):
                 "d": "data",
                 "len": 4,
             }  # allocate 4 bytes by default
+
     def space(self, items):
         imm_t = items[0]
         imm_v = imm_t
@@ -225,7 +234,9 @@ class RospoasTransformer(Transformer):
             imm_v = int(imm_v)
         except:
             pass
-        assert isinstance(imm_v, int), "SPACE directive requires an integer immediate value"
+        assert isinstance(
+            imm_v, int
+        ), "SPACE directive requires an integer immediate value"
         return {
             "type": "d",
             "name": "data",
@@ -233,6 +244,7 @@ class RospoasTransformer(Transformer):
             "d": "space",
             "len": imm_v,
         }
+
     def strv(self, items):
         str_t = items[0]
         str_v = str_t[1:-1]  # Remove the surrounding quotes
@@ -251,7 +263,6 @@ class RospoasTransformer(Transformer):
         print(f"Defining function: {label_t}")
         return label_t
 
-
     def rand(self, items):
         imm_t = items[0]
         imm_l = imm_t
@@ -264,15 +275,23 @@ class RospoasTransformer(Transformer):
         # Whether we interpret it as signed or unsigned is the user's responsibility
         # But the assembler assumes signed values for data directives
         imm_v = random.getrandbits(imm_l * 8)
-        return {"type": "d", "name": "data", "imm": imm_v.to_bytes(imm_l, byteorder="little"), "d": "rand", "len": imm_l}
+        return {
+            "type": "d",
+            "name": "data",
+            "imm": imm_v.to_bytes(imm_l, byteorder="little"),
+            "d": "rand",
+            "len": imm_l,
+        }
 
     def label(self, items):
         name_t = items[0]
         name_str = str(name_t)
         name_v = name_str[:-1]
         return {"type": "a", "name": name_v, "d": "label"}
+
     def directiveuse(self, items):
         return items[0]
+
     def codeline(self, items):
         return items[0]
 

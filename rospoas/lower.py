@@ -6,19 +6,12 @@ or relocations, it only expands pseudos and normalizes immediates
 into `ImmValue`/`ImmLabel`/`ImmLabelPart`/`ImmLifted` forms already
 defined in `rospoas.ir`.
 """
+
 from typing import List
 
-from ir import (
-    Instruction,
-    ImmValue,
-    ImmLabel,
-    ImmLabelPart,
-    ImmLifted,
-    LabelDecl,
-    Directive,
-)
-from encoding import register_map, i_to_r_map
-
+from encoding import i_to_r_map, register_map
+from ir import (Directive, ImmLabel, ImmLabelPart, ImmLifted, ImmValue,
+                Instruction, LabelDecl)
 
 TEMP_REG = register_map["r13"]
 SP_REG = register_map["sp"]
@@ -29,20 +22,40 @@ def _emit_immediate_loading_for_value(value: int, rd: int) -> List[Instruction]:
     high = (value >> 16) & 0xFFFF
     low = value & 0xFFFF
     if high != 0:
-        instrs.append(Instruction(type="i", name="addi", rd=rd, rs1=0, imm=ImmValue(high)))
-        instrs.append(Instruction(type="i", name="shli", rd=rd, rs1=rd, imm=ImmValue(16)))
+        instrs.append(
+            Instruction(type="i", name="addi", rd=rd, rs1=0, imm=ImmValue(high))
+        )
+        instrs.append(
+            Instruction(type="i", name="shli", rd=rd, rs1=rd, imm=ImmValue(16))
+        )
         if low != 0:
-            instrs.append(Instruction(type="i", name="ori", rd=rd, rs1=rd, imm=ImmValue(low)))
+            instrs.append(
+                Instruction(type="i", name="ori", rd=rd, rs1=rd, imm=ImmValue(low))
+            )
     else:
-        instrs.append(Instruction(type="i", name="addi", rd=rd, rs1=0, imm=ImmValue(low)))
+        instrs.append(
+            Instruction(type="i", name="addi", rd=rd, rs1=0, imm=ImmValue(low))
+        )
     return instrs
 
 
 def _emit_immediate_loading_for_label(label_name: str, rd: int) -> List[Instruction]:
     return [
-        Instruction(type="i", name="addi", rd=rd, rs1=0, imm=ImmLabelPart(label=label_name, part="high")),
+        Instruction(
+            type="i",
+            name="addi",
+            rd=rd,
+            rs1=0,
+            imm=ImmLabelPart(label=label_name, part="high"),
+        ),
         Instruction(type="i", name="shli", rd=rd, rs1=rd, imm=ImmValue(16)),
-        Instruction(type="i", name="ori", rd=rd, rs1=rd, imm=ImmLabelPart(label=label_name, part="low")),
+        Instruction(
+            type="i",
+            name="ori",
+            rd=rd,
+            rs1=rd,
+            imm=ImmLabelPart(label=label_name, part="low"),
+        ),
     ]
 
 
@@ -103,14 +116,22 @@ def lower_ir(ir_list: List) -> List:
                 rd = node.rd if node.rd is not None else 0
                 imm = node.imm
                 if isinstance(imm, ImmLifted):
-                    out.extend(_emit_immediate_loading_for_value(int(imm.value), TEMP_REG))
+                    out.extend(
+                        _emit_immediate_loading_for_value(int(imm.value), TEMP_REG)
+                    )
                 elif isinstance(imm, ImmLabel):
                     out.extend(_emit_immediate_loading_for_label(imm.name, TEMP_REG))
                 elif isinstance(imm, ImmValue):
-                    out.extend(_emit_immediate_loading_for_value(int(imm.value), TEMP_REG))
+                    out.extend(
+                        _emit_immediate_loading_for_value(int(imm.value), TEMP_REG)
+                    )
                 else:
                     raise ValueError(f"Unhandled immediate in jmp pseudo: {imm}")
-                out.append(Instruction(type="j", name="jalr", rd=rd, rs1=TEMP_REG, imm=ImmValue(0)))
+                out.append(
+                    Instruction(
+                        type="j", name="jalr", rd=rd, rs1=TEMP_REG, imm=ImmValue(0)
+                    )
+                )
                 continue
 
         # For normal instructions, handle lifted `li` immediates.
@@ -125,7 +146,9 @@ def lower_ir(ir_list: List) -> List:
                 # Convert I-type to R-type using i_to_r_map
                 rname = i_to_r_map.get(node.name)
                 if rname is None:
-                    raise AssertionError(f"Cannot convert I-op {node.name} to R-op for lifted constant handling")
+                    raise AssertionError(
+                        f"Cannot convert I-op {node.name} to R-op for lifted constant handling"
+                    )
                 out.append(
                     Instruction(
                         type="r",
@@ -139,10 +162,34 @@ def lower_ir(ir_list: List) -> List:
                 # For load with large constant offset: compute address in TEMP_REG,
                 # then LW from 0(TEMP_REG)
                 if node.rs1 == 0:
-                    out.append(Instruction(type="l", name="lw", rd=node.rd, rs1=TEMP_REG, imm=ImmValue(0)))
+                    out.append(
+                        Instruction(
+                            type="l",
+                            name="lw",
+                            rd=node.rd,
+                            rs1=TEMP_REG,
+                            imm=ImmValue(0),
+                        )
+                    )
                 else:
-                    out.append(Instruction(type="r", name="add", rd=TEMP_REG, rs1=TEMP_REG, rs2=node.rs1))
-                    out.append(Instruction(type="l", name="lw", rd=node.rd, rs1=TEMP_REG, imm=ImmValue(0)))
+                    out.append(
+                        Instruction(
+                            type="r",
+                            name="add",
+                            rd=TEMP_REG,
+                            rs1=TEMP_REG,
+                            rs2=node.rs1,
+                        )
+                    )
+                    out.append(
+                        Instruction(
+                            type="l",
+                            name="lw",
+                            rd=node.rd,
+                            rs1=TEMP_REG,
+                            imm=ImmValue(0),
+                        )
+                    )
 
             out.extend(_emit_stack_pop(TEMP_REG))
             continue

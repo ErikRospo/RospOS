@@ -1,5 +1,6 @@
-from lark import Lark
 from pathlib import Path
+
+from lark import Lark
 
 grammar_file = Path(__file__).parent / "rospoas.lark"
 with open(grammar_file, "r") as f:
@@ -7,8 +8,10 @@ with open(grammar_file, "r") as f:
 
 parser = Lark(rospoas_grammar, start="program", parser="lalr")
 
+
 def parse_source(source_code):
     return parser.parse(source_code)
+
 
 def preprocess_includes(source_code, current_file, included_files=None):
     if included_files is None:
@@ -37,7 +40,9 @@ def preprocess_includes(source_code, current_file, included_files=None):
                 raise FileNotFoundError(f"Included file not found: {include_path}")
             with open(include_path, "r") as f:
                 included_code = f.read()
-            processed_lines.extend(preprocess_includes(included_code, include_path, included_files))
+            processed_lines.extend(
+                preprocess_includes(included_code, include_path, included_files)
+            )
         else:
             processed_lines.append(line)
 
