@@ -5,13 +5,12 @@ LLI r1, MOTD
 CALL PRINT_STRING
 LLI r1, PROMPT
 CALL PRINT_STRING
-LLI r2, 0x51 // 51h = 'Q' key to break
+LLI r2, 0x51 // 0x51 = 'Q' key to break
 MAIN_LOOP:
     LLI r1, TTY_BUFFER
-    CALL READ_LINE
+    CALL READ_CHAR
     LB r3, r1, 0 // Load first character of input
     BEQ r3, r2, BREAK_LABEL // If input is 'Q', break
-    
     LLI r1, TTY_BUFFER
     CALL PRINT_STRING
     LLI r1, PROMPT
