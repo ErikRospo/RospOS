@@ -200,12 +200,15 @@ class RospoasTransformer(Transformer):
             if isinstance(imm_v, dict) and imm_v.get("type") == "li":
                 imm_v= imm_v["value"]
             assert isinstance(imm_v, int), "Data directive requires an integer immediate value"
+            # Use at least 4 bytes for numeric data directives (word-sized)
+            computed_len = int.bit_length(imm_v) // 8 + 1
+            length = max(4, computed_len)
             return {
                 "type": "d",
                 "name": "data",
                 "imm": imm_v,
                 "d": "data",
-                "len": int.bit_length(imm_v) // 8 + 1,
+                "len": length,
             }
         else:
             return {

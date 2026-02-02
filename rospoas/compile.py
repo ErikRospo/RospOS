@@ -1,6 +1,7 @@
 import argparse
 import json
 import struct
+import sys
 from grammar_parser import parse_source, preprocess_includes
 from transformer import transform_parse_tree, transform_parse_tree_ir
 from lower import lower_ir
@@ -40,6 +41,9 @@ with open(debug_parse_filename, "w") as f:
     f.write("\n\n")
     f.write(preprocessed_code)
 
+# Detailed mapping: for each IR node, show segment and offset where it was laid out/encoded.
+# (mapping will be written after layout/encode where `addresses` and `segments` exist)
+
 # Write AST to JSON
 filename_json = args.output.rsplit(".", 1)[0] + "_ast.json"
 with open(filename_json, "w") as f:
@@ -47,7 +51,11 @@ with open(filename_json, "w") as f:
 
 # Layout and encode
 addresses, segments = layout_ir(ir_list)
-segments = encode_ir(ir_list, addresses, segments)
+try:
+    segments = encode_ir(ir_list, addresses, segments)
+except Exception as e:
+    print(f"Error during encoding: {e}")
+    sys.exit(1)
 
 # Write the output file
 MAGIC = 0x50534F52  # 'ROSP' in little-endian
@@ -61,3 +69,74 @@ with open(args.output, "wb") as f:
     for addr, data in segments:
         f.write(struct.pack("<II", addr, len(data)))
         f.write(data)
+    
+print(f"Wrote binary to {args.output}")
+
+# Now write a detailed mapping of IR nodes to addresses using resolved `addresses` and `segments`.
+mapping_filename = args.output.rsplit(".", 1)[0] + "_mapping.txt"
+from ir import Directive, LabelDecl, Instruction as IRInstruction
+
+def _imm_to_int(imm):
+    if imm is None:
+        return None
+    if hasattr(imm, "value"):
+        try:
+            return int(imm.value)
+        except Exception:
+            pass
+    try:
+        return int(imm)
+    except Exception:
+        return None
+
+with open(mapping_filename, "w") as mf:
+    mf.write("Node mapping:\n")
+    cur_seg = None
+    cur_cursor = 0
+    for node in ir_list:
+        if isinstance(node, Directive) and node.name == "seg":
+            seg_addr = _imm_to_int(node.imm)
+            if seg_addr is None:
+                seg_addr = 0
+            cur_seg = seg_addr
+            cur_cursor = 0
+            mf.write(f"SEGMENT {hex(cur_seg)}\n")
+            continue
+
+        if cur_seg is None:
+            cur_seg = 0
+
+        if isinstance(node, LabelDecl):
+            addr = addresses.get(node.name, cur_seg + cur_cursor)
+            mf.write(f"LABEL {node.name} -> {hex(addr)}\n")
+            # keep the mapping cursor in sync with actual layout addresses
+            try:
+                cur_cursor = addr - cur_seg
+            except Exception:
+                cur_cursor = cur_cursor
+            continue
+
+        if isinstance(node, Directive) and node.name == "data":
+            if node.length is not None:
+                size = int(node.length)
+            else:
+                imm_int = _imm_to_int(node.imm)
+                if imm_int is not None:
+                    size = (imm_int.bit_length() // 8) + 1
+                else:
+                    size = 4
+            size = max(4, size)
+            mf.write(f"DATA @ {hex(cur_seg + cur_cursor)} size {size}\n")
+            cur_cursor += size
+            continue
+
+        if isinstance(node, IRInstruction):
+            # ensure 4-byte alignment before an instruction (matches layout_ir behavior)
+            align = (4 - (cur_cursor % 4)) % 4
+            if align:
+                cur_cursor += align
+            mf.write(f"INSTR {node.name} @ {hex(cur_seg + cur_cursor)}\n")
+            cur_cursor += 4
+            continue
+
+        mf.write(f"UNKNOWN NODE {node}\n")
