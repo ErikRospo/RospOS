@@ -63,13 +63,13 @@ fi
 # past commands the $PATH changes we made may not be respected
 hash -r 2> /dev/null
 python3 rospoas/compile.py --input rospoas/test.ros --output rospovm/test.rosp
-Warning: label HELLO_WORLD at 0x2b0 falls inside a data region (segment 0x0 offset 688)
-Warning: label NEWLINE at 0x2bf falls inside a data region (segment 0x0 offset 703)
-Warning: label RAND_DATA at 0x2c3 falls inside a data region (segment 0x0 offset 705)
+Warning: label HELLO_WORLD at 0x1000 falls inside a data region (segment 0x1000 offset 0)
+Warning: label NEWLINE at 0x100f falls inside a data region (segment 0x1000 offset 15)
+Warning: label RAND_DATA at 0x1013 falls inside a data region (segment 0x1000 offset 17)
 --- Segment node layout ---
 Segment 0xfffffffc (size 4):
   0000 - 0003 : data
-Segment 0x0 (size 711):
+Segment 0x0 (size 688):
   0000 - 0003 : instr
   0004 - 0007 : instr
   0008 - 0011 : instr
@@ -242,32 +242,34 @@ Segment 0x0 (size 711):
   0676 - 0679 : instr
   0680 - 0683 : instr
   0684 - 0687 : instr
-  0688 - 0702 : data
-  0703 - 0704 : data
-  0705 - 0708 : data
-Warning: segment 0x0 reserved 711 bytes but encoder used 709 bytes
+Segment 0x1000 (size 23):
+  0000 - 0014 : data
+  0015 - 0016 : data
+  0017 - 0020 : data
+Warning: segment 0x1000 reserved 23 bytes but encoder used 21 bytes
 Defining function: {'type': 'a', 'name': 'PRINT_NUMBER', 'd': 'label'}
 Defining function: {'type': 'a', 'name': 'PRINT_STRING', 'd': 'label'}
 Defining function: {'type': 'a', 'name': 'SAVE_REGISTERS', 'd': 'label'}
 Defining function: {'type': 'a', 'name': 'RESTORE_REGISTERS', 'd': 'label'}
-final segments: [('0xfffffffc', 4), ('0x0', 711)]
+final segments: [('0xfffffffc', 4), ('0x0', 688), ('0x1000', 23)]
 Wrote binary to rospovm/test.rosp
 cd rospovm
 make -j8
-make: Nothing to be done for 'all'.
+g++ -std=c++17 -c main.cpp -o main.o
+g++ -std=c++17 -o main main.o RospOSVM.o InstructionDecoder.o Register.o Memory.o TTY.o Binary.o -lSDL2
 hexdump -C test.rosp
-00000000  52 4f 53 50 01 00 00 00  02 00 00 00 fc ff ff ff  |ROSP............|
-00000010  04 00 00 00 00 00 00 00  00 00 00 00 c7 02 00 00  |................|
+00000000  52 4f 53 50 01 00 00 00  03 00 00 00 fc ff ff ff  |ROSP............|
+00000010  04 00 00 00 00 00 00 00  00 00 00 00 b0 02 00 00  |................|
 00000020  10 10 00 06 10 20 00 00  10 30 00 01 10 40 00 01  |..... ...0...@..|
 00000030  00 52 30 00 10 23 00 00  10 35 00 00 10 44 00 01  |.R0..#...5...D..|
 00000040  32 41 ff fc 10 15 00 00  10 ff ff fc 27 1f 00 00  |2A..........'...|
 00000050  10 10 00 00 14 11 00 10  12 11 00 bc 41 e1 00 00  |............A...|
-00000060  24 1f 00 00 10 ff 00 04  10 10 00 9d 10 ff ff fc  |$...............|
+00000060  24 1f 00 00 10 ff 00 04  10 10 03 f1 10 ff ff fc  |$...............|
 00000070  27 1f 00 00 10 10 00 00  14 11 00 10 12 11 01 8c  |'...............|
-00000080  41 e1 00 00 24 1f 00 00  10 ff 00 04 10 10 00 91  |A...$...........|
+00000080  41 e1 00 00 24 1f 00 00  10 ff 00 04 10 10 03 e5  |A...$...........|
 00000090  10 ff ff fc 27 1f 00 00  10 10 00 00 14 11 00 10  |....'...........|
 000000a0  12 11 01 8c 41 e1 00 00  24 1f 00 00 10 ff 00 04  |....A...$.......|
-000000b0  10 20 00 8c 24 12 00 00  10 ff ff fc 27 1f 00 00  |. ..$.......'...|
+000000b0  10 20 03 e0 24 12 00 00  10 ff ff fc 27 1f 00 00  |. ..$.......'...|
 000000c0  10 10 00 00 14 11 00 10  12 11 00 bc 41 e1 00 00  |............A...|
 000000d0  24 1f 00 00 10 ff 00 04  51 00 00 00 10 ff ff fc  |$.......Q.......|
 000000e0  27 2f 00 00 10 ff ff fc  27 3f 00 00 10 ff ff fc  |'/......'?......|
@@ -301,16 +303,18 @@ hexdump -C test.rosp
 000002a0  10 ff 00 04 24 5f 00 00  10 ff 00 04 24 4f 00 00  |....$_......$O..|
 000002b0  10 ff 00 04 24 3f 00 00  10 ff 00 04 24 2f 00 00  |....$?......$/..|
 000002c0  10 ff 00 04 24 1f 00 00  10 ff 00 04 41 0e 00 00  |....$.......A...|
-000002d0  48 65 6c 6c 6f 2c 20 57  6f 72 6c 64 21 0a 00 0a  |Hello, World!...|
-000002e0  00 78 56 34 12 00 00                              |.xV4...|
-000002e7
+000002d0  00 10 00 00 17 00 00 00  48 65 6c 6c 6f 2c 20 57  |........Hello, W|
+000002e0  6f 72 6c 64 21 0a 00 0a  00 78 56 34 12 00 00     |orld!....xV4...|
+000002ef
 ./main ./test.rosp debug
 RospOS Virtual Machine starting...
-Loading binary version 1 with 2 segments.
+Loading binary version 1 with 3 segments.
 Loading segment at address 0xfffffffc with size 4 bytes.
 0 0 0 0 
-Loading segment at address 0x0 with size 711 bytes.
-10 10 0 6 10 20 0 0 10 30 0 1 10 40 0 1 0 52 30 0 10 23 0 0 10 35 0 0 10 44 0 1 32 41 ff fc 10 15 0 0 10 ff ff fc 27 1f 0 0 10 10 0 0 14 11 0 10 12 11 0 bc 41 e1 0 0 24 1f 0 0 10 ff 0 4 10 10 0 9d 10 ff ff fc 27 1f 0 0 10 10 0 0 14 11 0 10 12 11 1 8c 41 e1 0 0 24 1f 0 0 10 ff 0 4 10 10 0 91 10 ff ff fc 27 1f 0 0 10 10 0 0 14 11 0 10 12 11 1 8c 41 e1 0 0 24 1f 0 0 10 ff 0 4 10 20 0 8c 24 12 0 0 10 ff ff fc 27 1f 0 0 10 10 0 0 14 11 0 10 12 11 0 bc 41 e1 0 0 24 1f 0 0 10 ff 0 4 51 0 0 0 10 ff ff fc 27 2f 0 0 10 ff ff fc 27 3f 0 0 10 ff ff fc 27 4f 0 0 10 ff ff fc 27 5f 0 0 10 20 0 a 10 30 10 0 14 33 0 10 10 50 0 0 30 10 0 15 e 41 20 0 10 44 0 30 10 ff ff fc 27 4f 0 0 c 11 20 0 10 55 0 1 31 10 ff fa 30 50 0 17 24 4f 0 0 10 ff 0 4 27 43 0 0 10 55 ff ff 10 ff ff fc 27 1f 0 0 10 10 0 0 14 11 0 10 12 11 1 c 41 1 0 0 24 1f 0 0 10 ff 0 4 10 40 0 30 27 43 0 0 10 ff ff fc 27 1f 0 0 10 10 0 0 14 11 0 10 12 11 1 c 41 1 0 0 24 1f 0 0 10 ff 0 4 24 5f 0 0 10 ff 0 4 24 4f 0 0 10 ff 0 4 24 3f 0 0 10 ff 0 4 24 2f 0 0 10 ff 0 4 41 e 0 0 10 ff ff fc 27 2f 0 0 10 ff ff fc 27 3f 0 0 10 20 10 0 14 22 0 10 20 31 0 0 30 30 0 b 27 32 0 0 10 11 0 1 10 ff ff fc 27 1f 0 0 10 10 0 0 14 11 0 10 12 11 1 a4 41 1 0 0 24 1f 0 0 10 ff 0 4 24 3f 0 0 10 ff 0 4 24 2f 0 0 10 ff 0 4 41 e 0 0 10 ff ff fc 27 1f 0 0 10 ff ff fc 27 2f 0 0 10 ff ff fc 27 3f 0 0 10 ff ff fc 27 4f 0 0 10 ff ff fc 27 5f 0 0 10 ff ff fc 27 6f 0 0 10 ff ff fc 27 7f 0 0 10 ff ff fc 27 8f 0 0 10 ff ff fc 27 9f 0 0 10 ff ff fc 27 af 0 0 10 ff ff fc 27 bf 0 0 10 ff ff fc 27 cf 0 0 41 e 0 0 24 cf 0 0 10 ff 0 4 24 bf 0 0 10 ff 0 4 24 af 0 0 10 ff 0 4 24 9f 0 0 10 ff 0 4 24 8f 0 0 10 ff 0 4 24 7f 0 0 10 ff 0 4 24 6f 0 0 10 ff 0 4 24 5f 0 0 10 ff 0 4 24 4f 0 0 10 ff 0 4 24 3f 0 0 10 ff 0 4 24 2f 0 0 10 ff 0 4 24 1f 0 0 10 ff 0 4 41 e 0 0 48 65 6c 6c 6f 2c 20 57 6f 72 6c 64 21 a 0 a 0 78 56 34 12 0 0 
+Loading segment at address 0x0 with size 688 bytes.
+10 10 0 6 10 20 0 0 10 30 0 1 10 40 0 1 0 52 30 0 10 23 0 0 10 35 0 0 10 44 0 1 32 41 ff fc 10 15 0 0 10 ff ff fc 27 1f 0 0 10 10 0 0 14 11 0 10 12 11 0 bc 41 e1 0 0 24 1f 0 0 10 ff 0 4 10 10 3 f1 10 ff ff fc 27 1f 0 0 10 10 0 0 14 11 0 10 12 11 1 8c 41 e1 0 0 24 1f 0 0 10 ff 0 4 10 10 3 e5 10 ff ff fc 27 1f 0 0 10 10 0 0 14 11 0 10 12 11 1 8c 41 e1 0 0 24 1f 0 0 10 ff 0 4 10 20 3 e0 24 12 0 0 10 ff ff fc 27 1f 0 0 10 10 0 0 14 11 0 10 12 11 0 bc 41 e1 0 0 24 1f 0 0 10 ff 0 4 51 0 0 0 10 ff ff fc 27 2f 0 0 10 ff ff fc 27 3f 0 0 10 ff ff fc 27 4f 0 0 10 ff ff fc 27 5f 0 0 10 20 0 a 10 30 10 0 14 33 0 10 10 50 0 0 30 10 0 15 e 41 20 0 10 44 0 30 10 ff ff fc 27 4f 0 0 c 11 20 0 10 55 0 1 31 10 ff fa 30 50 0 17 24 4f 0 0 10 ff 0 4 27 43 0 0 10 55 ff ff 10 ff ff fc 27 1f 0 0 10 10 0 0 14 11 0 10 12 11 1 c 41 1 0 0 24 1f 0 0 10 ff 0 4 10 40 0 30 27 43 0 0 10 ff ff fc 27 1f 0 0 10 10 0 0 14 11 0 10 12 11 1 c 41 1 0 0 24 1f 0 0 10 ff 0 4 24 5f 0 0 10 ff 0 4 24 4f 0 0 10 ff 0 4 24 3f 0 0 10 ff 0 4 24 2f 0 0 10 ff 0 4 41 e 0 0 10 ff ff fc 27 2f 0 0 10 ff ff fc 27 3f 0 0 10 20 10 0 14 22 0 10 20 31 0 0 30 30 0 b 27 32 0 0 10 11 0 1 10 ff ff fc 27 1f 0 0 10 10 0 0 14 11 0 10 12 11 1 a4 41 1 0 0 24 1f 0 0 10 ff 0 4 24 3f 0 0 10 ff 0 4 24 2f 0 0 10 ff 0 4 41 e 0 0 10 ff ff fc 27 1f 0 0 10 ff ff fc 27 2f 0 0 10 ff ff fc 27 3f 0 0 10 ff ff fc 27 4f 0 0 10 ff ff fc 27 5f 0 0 10 ff ff fc 27 6f 0 0 10 ff ff fc 27 7f 0 0 10 ff ff fc 27 8f 0 0 10 ff ff fc 27 9f 0 0 10 ff ff fc 27 af 0 0 10 ff ff fc 27 bf 0 0 10 ff ff fc 27 cf 0 0 41 e 0 0 24 cf 0 0 10 ff 0 4 24 bf 0 0 10 ff 0 4 24 af 0 0 10 ff 0 4 24 9f 0 0 10 ff 0 4 24 8f 0 0 10 ff 0 4 24 7f 0 0 10 ff 0 4 24 6f 0 0 10 ff 0 4 24 5f 0 0 10 ff 0 4 24 4f 0 0 10 ff 0 4 24 3f 0 0 10 ff 0 4 24 2f 0 0 10 ff 0 4 24 1f 0 0 10 ff 0 4 41 e 0 0 
+Loading segment at address 0x1000 with size 23 bytes.
+48 65 6c 6c 6f 2c 20 57 6f 72 6c 64 21 a 0 a 0 78 56 34 12 0 0 
 Loaded. Starting execution...
 Press Enter to step, 'q' to quit.
 PC: 0 I: ADDI  r1: 0, r0: 0, 6
@@ -367,355 +371,5 @@ Registers: R0: 0 R1: 6 R2: 1 R3: 1 R4: 1 R5: 1 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R1
 After Execution:
 PC: 1c
 Registers: R0: 0 R1: 6 R2: 1 R3: 1 R4: 1 R5: 1 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 0 R15: 268435455 
-----------------------------------------
-
-PC: 1c I: ADDI  r4: 1, r4: 1, 1
-RI: 10440001
-Registers: R0: 0 R1: 6 R2: 1 R3: 1 R4: 1 R5: 1 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 0 R15: 268435455 
-After Execution:
-PC: 20
-Registers: R0: 0 R1: 6 R2: 1 R3: 1 R4: 2 R5: 1 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 0 R15: 268435455 
-----------------------------------------
-
-PC: 20 I: BLT  r4: 2, r1: 6, -4
-RI: 3241fffc
-Registers: R0: 0 R1: 6 R2: 1 R3: 1 R4: 2 R5: 1 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 0 R15: 268435455 
-Branch check: R4=2, R1=6
-After Execution:
-PC: 10
-Registers: R0: 0 R1: 6 R2: 1 R3: 1 R4: 2 R5: 1 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 0 R15: 268435455 
-----------------------------------------
-
-PC: 10 I: ADD r5: 1, r2: 1, r3: 1
-RI: 00523000
-Registers: R0: 0 R1: 6 R2: 1 R3: 1 R4: 2 R5: 1 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 0 R15: 268435455 
-After Execution:
-PC: 14
-Registers: R0: 0 R1: 6 R2: 1 R3: 1 R4: 2 R5: 2 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 0 R15: 268435455 
-----------------------------------------
-
-PC: 14 I: ADDI  r2: 1, r3: 1, 0
-RI: 10230000
-Registers: R0: 0 R1: 6 R2: 1 R3: 1 R4: 2 R5: 2 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 0 R15: 268435455 
-After Execution:
-PC: 18
-Registers: R0: 0 R1: 6 R2: 1 R3: 1 R4: 2 R5: 2 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 0 R15: 268435455 
-----------------------------------------
-
-PC: 18 I: ADDI  r3: 1, r5: 2, 0
-RI: 10350000
-Registers: R0: 0 R1: 6 R2: 1 R3: 1 R4: 2 R5: 2 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 0 R15: 268435455 
-After Execution:
-PC: 1c
-Registers: R0: 0 R1: 6 R2: 1 R3: 2 R4: 2 R5: 2 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 0 R15: 268435455 
-----------------------------------------
-
-PC: 1c I: ADDI  r4: 2, r4: 2, 1
-RI: 10440001
-Registers: R0: 0 R1: 6 R2: 1 R3: 2 R4: 2 R5: 2 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 0 R15: 268435455 
-After Execution:
-PC: 20
-Registers: R0: 0 R1: 6 R2: 1 R3: 2 R4: 3 R5: 2 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 0 R15: 268435455 
-----------------------------------------
-
-PC: 20 I: BLT  r4: 3, r1: 6, -4
-RI: 3241fffc
-Registers: R0: 0 R1: 6 R2: 1 R3: 2 R4: 3 R5: 2 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 0 R15: 268435455 
-Branch check: R4=3, R1=6
-After Execution:
-PC: 10
-Registers: R0: 0 R1: 6 R2: 1 R3: 2 R4: 3 R5: 2 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 0 R15: 268435455 
-----------------------------------------
-
-PC: 10 I: ADD r5: 2, r2: 1, r3: 2
-RI: 00523000
-Registers: R0: 0 R1: 6 R2: 1 R3: 2 R4: 3 R5: 2 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 0 R15: 268435455 
-After Execution:
-PC: 14
-Registers: R0: 0 R1: 6 R2: 1 R3: 2 R4: 3 R5: 3 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 0 R15: 268435455 
-----------------------------------------
-
-PC: 14 I: ADDI  r2: 1, r3: 2, 0
-RI: 10230000
-Registers: R0: 0 R1: 6 R2: 1 R3: 2 R4: 3 R5: 3 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 0 R15: 268435455 
-After Execution:
-PC: 18
-Registers: R0: 0 R1: 6 R2: 2 R3: 2 R4: 3 R5: 3 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 0 R15: 268435455 
-----------------------------------------
-
-PC: 18 I: ADDI  r3: 2, r5: 3, 0
-RI: 10350000
-Registers: R0: 0 R1: 6 R2: 2 R3: 2 R4: 3 R5: 3 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 0 R15: 268435455 
-After Execution:
-PC: 1c
-Registers: R0: 0 R1: 6 R2: 2 R3: 3 R4: 3 R5: 3 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 0 R15: 268435455 
-----------------------------------------
-
-PC: 1c I: ADDI  r4: 3, r4: 3, 1
-RI: 10440001
-Registers: R0: 0 R1: 6 R2: 2 R3: 3 R4: 3 R5: 3 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 0 R15: 268435455 
-After Execution:
-PC: 20
-Registers: R0: 0 R1: 6 R2: 2 R3: 3 R4: 4 R5: 3 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 0 R15: 268435455 
-----------------------------------------
-
-PC: 20 I: BLT  r4: 4, r1: 6, -4
-RI: 3241fffc
-Registers: R0: 0 R1: 6 R2: 2 R3: 3 R4: 4 R5: 3 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 0 R15: 268435455 
-Branch check: R4=4, R1=6
-After Execution:
-PC: 10
-Registers: R0: 0 R1: 6 R2: 2 R3: 3 R4: 4 R5: 3 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 0 R15: 268435455 
-----------------------------------------
-
-PC: 10 I: ADD r5: 3, r2: 2, r3: 3
-RI: 00523000
-Registers: R0: 0 R1: 6 R2: 2 R3: 3 R4: 4 R5: 3 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 0 R15: 268435455 
-After Execution:
-PC: 14
-Registers: R0: 0 R1: 6 R2: 2 R3: 3 R4: 4 R5: 5 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 0 R15: 268435455 
-----------------------------------------
-
-PC: 14 I: ADDI  r2: 2, r3: 3, 0
-RI: 10230000
-Registers: R0: 0 R1: 6 R2: 2 R3: 3 R4: 4 R5: 5 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 0 R15: 268435455 
-After Execution:
-PC: 18
-Registers: R0: 0 R1: 6 R2: 3 R3: 3 R4: 4 R5: 5 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 0 R15: 268435455 
-----------------------------------------
-
-PC: 18 I: ADDI  r3: 3, r5: 5, 0
-RI: 10350000
-Registers: R0: 0 R1: 6 R2: 3 R3: 3 R4: 4 R5: 5 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 0 R15: 268435455 
-After Execution:
-PC: 1c
-Registers: R0: 0 R1: 6 R2: 3 R3: 5 R4: 4 R5: 5 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 0 R15: 268435455 
-----------------------------------------
-
-PC: 1c I: ADDI  r4: 4, r4: 4, 1
-RI: 10440001
-Registers: R0: 0 R1: 6 R2: 3 R3: 5 R4: 4 R5: 5 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 0 R15: 268435455 
-After Execution:
-PC: 20
-Registers: R0: 0 R1: 6 R2: 3 R3: 5 R4: 5 R5: 5 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 0 R15: 268435455 
-----------------------------------------
-
-PC: 20 I: BLT  r4: 5, r1: 6, -4
-RI: 3241fffc
-Registers: R0: 0 R1: 6 R2: 3 R3: 5 R4: 5 R5: 5 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 0 R15: 268435455 
-Branch check: R4=5, R1=6
-After Execution:
-PC: 10
-Registers: R0: 0 R1: 6 R2: 3 R3: 5 R4: 5 R5: 5 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 0 R15: 268435455 
-----------------------------------------
-
-PC: 10 I: ADD r5: 5, r2: 3, r3: 5
-RI: 00523000
-Registers: R0: 0 R1: 6 R2: 3 R3: 5 R4: 5 R5: 5 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 0 R15: 268435455 
-After Execution:
-PC: 14
-Registers: R0: 0 R1: 6 R2: 3 R3: 5 R4: 5 R5: 8 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 0 R15: 268435455 
-----------------------------------------
-
-PC: 14 I: ADDI  r2: 3, r3: 5, 0
-RI: 10230000
-Registers: R0: 0 R1: 6 R2: 3 R3: 5 R4: 5 R5: 8 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 0 R15: 268435455 
-After Execution:
-PC: 18
-Registers: R0: 0 R1: 6 R2: 5 R3: 5 R4: 5 R5: 8 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 0 R15: 268435455 
-----------------------------------------
-
-PC: 18 I: ADDI  r3: 5, r5: 8, 0
-RI: 10350000
-Registers: R0: 0 R1: 6 R2: 5 R3: 5 R4: 5 R5: 8 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 0 R15: 268435455 
-After Execution:
-PC: 1c
-Registers: R0: 0 R1: 6 R2: 5 R3: 8 R4: 5 R5: 8 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 0 R15: 268435455 
-----------------------------------------
-
-PC: 1c I: ADDI  r4: 5, r4: 5, 1
-RI: 10440001
-Registers: R0: 0 R1: 6 R2: 5 R3: 8 R4: 5 R5: 8 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 0 R15: 268435455 
-After Execution:
-PC: 20
-Registers: R0: 0 R1: 6 R2: 5 R3: 8 R4: 6 R5: 8 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 0 R15: 268435455 
-----------------------------------------
-
-PC: 20 I: BLT  r4: 6, r1: 6, -4
-RI: 3241fffc
-Registers: R0: 0 R1: 6 R2: 5 R3: 8 R4: 6 R5: 8 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 0 R15: 268435455 
-Branch check: R4=6, R1=6
-After Execution:
-PC: 24
-Registers: R0: 0 R1: 6 R2: 5 R3: 8 R4: 6 R5: 8 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 0 R15: 268435455 
-----------------------------------------
-
-PC: 24 I: ADDI  r1: 6, r5: 8, 0
-RI: 10150000
-Registers: R0: 0 R1: 6 R2: 5 R3: 8 R4: 6 R5: 8 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 0 R15: 268435455 
-After Execution:
-PC: 28
-Registers: R0: 0 R1: 8 R2: 5 R3: 8 R4: 6 R5: 8 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 0 R15: 268435455 
-----------------------------------------
-
-PC: 28 I: ADDI  r15: 268435455, r15: 268435455, -4
-RI: 10fffffc
-Registers: R0: 0 R1: 8 R2: 5 R3: 8 R4: 6 R5: 8 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 0 R15: 268435455 
-After Execution:
-PC: 2c
-Registers: R0: 0 R1: 8 R2: 5 R3: 8 R4: 6 R5: 8 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 0 R15: 268435451 
-----------------------------------------
-
-PC: 2c I: SW  r1: 8, 0(r15: 268435451)
-RI: 271f0000
-Registers: R0: 0 R1: 8 R2: 5 R3: 8 R4: 6 R5: 8 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 0 R15: 268435451 
-After Execution:
-PC: 30
-Registers: R0: 0 R1: 8 R2: 5 R3: 8 R4: 6 R5: 8 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 0 R15: 268435451 
-----------------------------------------
-
-PC: 30 I: ADDI  r1: 8, r0: 0, 0
-RI: 10100000
-Registers: R0: 0 R1: 8 R2: 5 R3: 8 R4: 6 R5: 8 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 0 R15: 268435451 
-After Execution:
-PC: 34
-Registers: R0: 0 R1: 0 R2: 5 R3: 8 R4: 6 R5: 8 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 0 R15: 268435451 
-----------------------------------------
-
-PC: 34 I: SHLI  r1: 0, r1: 0, 16
-RI: 14110010
-Registers: R0: 0 R1: 0 R2: 5 R3: 8 R4: 6 R5: 8 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 0 R15: 268435451 
-After Execution:
-PC: 38
-Registers: R0: 0 R1: 0 R2: 5 R3: 8 R4: 6 R5: 8 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 0 R15: 268435451 
-----------------------------------------
-
-PC: 38 I: ORI  r1: 0, r1: 0, 188
-RI: 121100bc
-Registers: R0: 0 R1: 0 R2: 5 R3: 8 R4: 6 R5: 8 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 0 R15: 268435451 
-After Execution:
-PC: 3c
-Registers: R0: 0 R1: 188 R2: 5 R3: 8 R4: 6 R5: 8 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 0 R15: 268435451 
-----------------------------------------
-
-PC: 3c I: JALR  r14: 0, r1: 188, 0
-RI: 41e10000
-Registers: R0: 0 R1: 188 R2: 5 R3: 8 R4: 6 R5: 8 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 0 R15: 268435451 
-After Execution:
-PC: bc
-Registers: R0: 0 R1: 188 R2: 5 R3: 8 R4: 6 R5: 8 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 64 R15: 268435451 
-----------------------------------------
-
-PC: bc I: ADDI  r15: 268435451, r15: 268435451, -4
-RI: 10fffffc
-Registers: R0: 0 R1: 188 R2: 5 R3: 8 R4: 6 R5: 8 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 64 R15: 268435451 
-After Execution:
-PC: c0
-Registers: R0: 0 R1: 188 R2: 5 R3: 8 R4: 6 R5: 8 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 64 R15: 268435447 
-----------------------------------------
-
-PC: c0 I: SW  r2: 5, 0(r15: 268435447)
-RI: 272f0000
-Registers: R0: 0 R1: 188 R2: 5 R3: 8 R4: 6 R5: 8 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 64 R15: 268435447 
-After Execution:
-PC: c4
-Registers: R0: 0 R1: 188 R2: 5 R3: 8 R4: 6 R5: 8 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 64 R15: 268435447 
-----------------------------------------
-
-PC: c4 I: ADDI  r15: 268435447, r15: 268435447, -4
-RI: 10fffffc
-Registers: R0: 0 R1: 188 R2: 5 R3: 8 R4: 6 R5: 8 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 64 R15: 268435447 
-After Execution:
-PC: c8
-Registers: R0: 0 R1: 188 R2: 5 R3: 8 R4: 6 R5: 8 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 64 R15: 268435443 
-----------------------------------------
-
-PC: c8 I: SW  r3: 8, 0(r15: 268435443)
-RI: 273f0000
-Registers: R0: 0 R1: 188 R2: 5 R3: 8 R4: 6 R5: 8 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 64 R15: 268435443 
-After Execution:
-PC: cc
-Registers: R0: 0 R1: 188 R2: 5 R3: 8 R4: 6 R5: 8 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 64 R15: 268435443 
-----------------------------------------
-
-PC: cc I: ADDI  r15: 268435443, r15: 268435443, -4
-RI: 10fffffc
-Registers: R0: 0 R1: 188 R2: 5 R3: 8 R4: 6 R5: 8 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 64 R15: 268435443 
-After Execution:
-PC: d0
-Registers: R0: 0 R1: 188 R2: 5 R3: 8 R4: 6 R5: 8 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 64 R15: 268435439 
-----------------------------------------
-
-PC: d0 I: SW  r4: 6, 0(r15: 268435439)
-RI: 274f0000
-Registers: R0: 0 R1: 188 R2: 5 R3: 8 R4: 6 R5: 8 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 64 R15: 268435439 
-After Execution:
-PC: d4
-Registers: R0: 0 R1: 188 R2: 5 R3: 8 R4: 6 R5: 8 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 64 R15: 268435439 
-----------------------------------------
-
-PC: d4 I: ADDI  r15: 268435439, r15: 268435439, -4
-RI: 10fffffc
-Registers: R0: 0 R1: 188 R2: 5 R3: 8 R4: 6 R5: 8 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 64 R15: 268435439 
-After Execution:
-PC: d8
-Registers: R0: 0 R1: 188 R2: 5 R3: 8 R4: 6 R5: 8 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 64 R15: 268435435 
-----------------------------------------
-
-PC: d8 I: SW  r5: 8, 0(r15: 268435435)
-RI: 275f0000
-Registers: R0: 0 R1: 188 R2: 5 R3: 8 R4: 6 R5: 8 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 64 R15: 268435435 
-After Execution:
-PC: dc
-Registers: R0: 0 R1: 188 R2: 5 R3: 8 R4: 6 R5: 8 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 64 R15: 268435435 
-----------------------------------------
-
-PC: dc I: ADDI  r2: 5, r0: 0, 10
-RI: 1020000a
-Registers: R0: 0 R1: 188 R2: 5 R3: 8 R4: 6 R5: 8 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 64 R15: 268435435 
-After Execution:
-PC: e0
-Registers: R0: 0 R1: 188 R2: 10 R3: 8 R4: 6 R5: 8 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 64 R15: 268435435 
-----------------------------------------
-
-PC: e0 I: ADDI  r3: 8, r0: 0, 4096
-RI: 10301000
-Registers: R0: 0 R1: 188 R2: 10 R3: 8 R4: 6 R5: 8 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 64 R15: 268435435 
-After Execution:
-PC: e4
-Registers: R0: 0 R1: 188 R2: 10 R3: 4096 R4: 6 R5: 8 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 64 R15: 268435435 
-----------------------------------------
-
-PC: e4 I: SHLI  r3: 4096, r3: 4096, 16
-RI: 14330010
-Registers: R0: 0 R1: 188 R2: 10 R3: 4096 R4: 6 R5: 8 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 64 R15: 268435435 
-After Execution:
-PC: e8
-Registers: R0: 0 R1: 188 R2: 10 R3: 268435456 R4: 6 R5: 8 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 64 R15: 268435435 
-----------------------------------------
-
-PC: e8 I: ADDI  r5: 8, r0: 0, 0
-RI: 10500000
-Registers: R0: 0 R1: 188 R2: 10 R3: 268435456 R4: 6 R5: 8 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 64 R15: 268435435 
-After Execution:
-PC: ec
-Registers: R0: 0 R1: 188 R2: 10 R3: 268435456 R4: 6 R5: 0 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 64 R15: 268435435 
-----------------------------------------
-
-PC: ec I: BEQ  r1: 188, r0: 0, 21
-RI: 30100015
-Registers: R0: 0 R1: 188 R2: 10 R3: 268435456 R4: 6 R5: 0 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 64 R15: 268435435 
-Branch check: R1=188, R0=0
-After Execution:
-PC: f0
-Registers: R0: 0 R1: 188 R2: 10 R3: 268435456 R4: 6 R5: 0 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 64 R15: 268435435 
-----------------------------------------
-
-PC: f0 I: REM r4: 6, r1: 188, r2: 10
-RI: 0e412000
-Registers: R0: 0 R1: 188 R2: 10 R3: 268435456 R4: 6 R5: 0 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 64 R15: 268435435 
-After Execution:
-PC: f4
-Registers: R0: 0 R1: 188 R2: 10 R3: 268435456 R4: 8 R5: 0 R6: 0 R7: 0 R8: 0 R9: 0 R10: 0 R11: 0 R12: 0 R13: 0 R14: 64 R15: 268435435 
 ----------------------------------------
 
