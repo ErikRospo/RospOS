@@ -5,14 +5,18 @@ LLI r1, MOTD
 CALL PRINT_STRING
 LLI r1, PROMPT
 CALL PRINT_STRING
-LLI r2, 0x51 // 0x51 = 'Q' key to break
+LLI r3, 0x0A
 MAIN_LOOP:
     LLI r1, TTY_BUFFER
     CALL READ_CHAR
-    LB r3, r1, 0 // Load first character of input
-    BEQ r3, r2, BREAK_LABEL // If input is 'Q', break
-    LLI r1, TTY_BUFFER
-    CALL PRINT_STRING
+    //READ_CHAR puts the character in r1
+    BEQ r1, r3, NEWLINE_LABEL
+
+    LLI r2, 0x1000_0000 // TTY address
+    SB r1, r2, 0 // Echo first character back to TTY
+    JMP MAIN_LOOP
+
+NEWLINE_LABEL:
     LLI r1, PROMPT
     CALL PRINT_STRING
     JMP MAIN_LOOP
@@ -32,6 +36,6 @@ TTY:
 MOTD:
     .STR "WELCOME TO ROSPOS. Copyleft 2026 Erik Rospo\n"
 PROMPT:
-    .STR "ROSPOS> "
+    .STR "\nROSPOS> "
 TTY_BUFFER:
     .SPACE 256 // Buffer for TTY input
