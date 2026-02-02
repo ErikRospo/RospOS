@@ -29,6 +29,9 @@ LW r1, r2, 0 // Load random data
 CALL PRINT_NUMBER 
 
 BREAK
+.INC "common_functions.ros"
+
+.SEG 0x0000_1000
 HELLO_WORLD:
     .STR "Hello, World!\n"
 NEWLINE:
@@ -36,4 +39,3 @@ NEWLINE:
 RAND_DATA:
     .DATA 0x1234_5678 // Example random data to keep the program deterministic for testing
     //.RAND 4 // 4 bytes of random data
-.INC "common_functions.ros"
