@@ -19,7 +19,7 @@ MAIN_LOOP:
     ADDI r3, r5, 0 // Y coordinate
     // Draw character to display
     CALL DRAW_CHAR_TO_DISPLAY
-    ADDI r4, r4, 8 // Move X coordinate for next character
+    ADDI r4, r4, 5 // Move X coordinate for next character
     POP r3
     POP r2
     LLI r2, 0x1000_0000 // TTY address
@@ -27,7 +27,7 @@ MAIN_LOOP:
     JMP MAIN_LOOP
 
 NEWLINE_LABEL:
-    ADDI r5, r5, 16 // Move Y coordinate down for newline
+    ADDI r5, r5, 8 // Move Y coordinate down for newline
     LLI r4, 0 // Reset X coordinate to 0
     LLI r1, PROMPT
     CALL PRINT_STRING
