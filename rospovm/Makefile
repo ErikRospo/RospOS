@@ -5,7 +5,7 @@ CXXFLAGS := -std=c++17
 LDFLAGS := -lSDL2
 SRC := main.cpp RospOSVM.cpp InstructionDecoder.cpp Register.cpp Memory.cpp TTY.cpp Binary.cpp
 OBJ := $(SRC:.cpp=.o)
-TARGET := main
+TARGET := rospovm
 
 all: $(TARGET)
 
