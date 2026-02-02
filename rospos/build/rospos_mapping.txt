@@ -1,4 +1,119 @@
 Node mapping:
 SEGMENT 0xfffffffc
-DATA @ 0xfffffffc size 4
+DATA @ 0xfffffffc size 4: ImmValue(value=0)
 SEGMENT 0x0
+INSTR idx=3 @ 0x0 name=addi rd=1 rs1=0 rs2=None imm=ImmLabelPart(label='MOTD', part='high')
+INSTR idx=4 @ 0x4 name=shli rd=1 rs1=1 rs2=None imm=ImmValue(value=16)
+INSTR idx=5 @ 0x8 name=ori rd=1 rs1=1 rs2=None imm=ImmLabelPart(label='MOTD', part='low')
+INSTR idx=6 @ 0xc name=addi rd=13 rs1=0 rs2=None imm=ImmLabelPart(label='PRINT_STRING', part='high')
+INSTR idx=7 @ 0x10 name=shli rd=13 rs1=13 rs2=None imm=ImmValue(value=16)
+INSTR idx=8 @ 0x14 name=ori rd=13 rs1=13 rs2=None imm=ImmLabelPart(label='PRINT_STRING', part='low')
+INSTR idx=9 @ 0x18 name=jalr rd=14 rs1=13 rs2=None imm=ImmValue(value=0)
+INSTR idx=10 @ 0x1c name=addi rd=1 rs1=0 rs2=None imm=ImmLabelPart(label='PROMPT', part='high')
+INSTR idx=11 @ 0x20 name=shli rd=1 rs1=1 rs2=None imm=ImmValue(value=16)
+INSTR idx=12 @ 0x24 name=ori rd=1 rs1=1 rs2=None imm=ImmLabelPart(label='PROMPT', part='low')
+INSTR idx=13 @ 0x28 name=addi rd=13 rs1=0 rs2=None imm=ImmLabelPart(label='PRINT_STRING', part='high')
+INSTR idx=14 @ 0x2c name=shli rd=13 rs1=13 rs2=None imm=ImmValue(value=16)
+INSTR idx=15 @ 0x30 name=ori rd=13 rs1=13 rs2=None imm=ImmLabelPart(label='PRINT_STRING', part='low')
+INSTR idx=16 @ 0x34 name=jalr rd=14 rs1=13 rs2=None imm=ImmValue(value=0)
+INSTR idx=17 @ 0x38 name=addi rd=2 rs1=0 rs2=None imm=ImmValue(value=81)
+LABEL MAIN_LOOP -> 0x3c
+INSTR idx=19 @ 0x3c name=addi rd=1 rs1=0 rs2=None imm=ImmLabelPart(label='TTY_BUFFER', part='high')
+INSTR idx=20 @ 0x40 name=shli rd=1 rs1=1 rs2=None imm=ImmValue(value=16)
+INSTR idx=21 @ 0x44 name=ori rd=1 rs1=1 rs2=None imm=ImmLabelPart(label='TTY_BUFFER', part='low')
+INSTR idx=22 @ 0x48 name=addi rd=13 rs1=0 rs2=None imm=ImmLabelPart(label='READ_LINE', part='high')
+INSTR idx=23 @ 0x4c name=shli rd=13 rs1=13 rs2=None imm=ImmValue(value=16)
+INSTR idx=24 @ 0x50 name=ori rd=13 rs1=13 rs2=None imm=ImmLabelPart(label='READ_LINE', part='low')
+INSTR idx=25 @ 0x54 name=jalr rd=14 rs1=13 rs2=None imm=ImmValue(value=0)
+INSTR idx=26 @ 0x58 name=lb rd=3 rs1=1 rs2=None imm=ImmValue(value=0)
+INSTR idx=27 @ 0x5c name=beq rd=3 rs1=2 rs2=None imm=ImmLabel(name='BREAK_LABEL')
+INSTR idx=28 @ 0x60 name=addi rd=1 rs1=0 rs2=None imm=ImmLabelPart(label='TTY_BUFFER', part='high')
+INSTR idx=29 @ 0x64 name=shli rd=1 rs1=1 rs2=None imm=ImmValue(value=16)
+INSTR idx=30 @ 0x68 name=ori rd=1 rs1=1 rs2=None imm=ImmLabelPart(label='TTY_BUFFER', part='low')
+INSTR idx=31 @ 0x6c name=addi rd=13 rs1=0 rs2=None imm=ImmLabelPart(label='PRINT_STRING', part='high')
+INSTR idx=32 @ 0x70 name=shli rd=13 rs1=13 rs2=None imm=ImmValue(value=16)
+INSTR idx=33 @ 0x74 name=ori rd=13 rs1=13 rs2=None imm=ImmLabelPart(label='PRINT_STRING', part='low')
+INSTR idx=34 @ 0x78 name=jalr rd=14 rs1=13 rs2=None imm=ImmValue(value=0)
+INSTR idx=35 @ 0x7c name=addi rd=1 rs1=0 rs2=None imm=ImmLabelPart(label='PROMPT', part='high')
+INSTR idx=36 @ 0x80 name=shli rd=1 rs1=1 rs2=None imm=ImmValue(value=16)
+INSTR idx=37 @ 0x84 name=ori rd=1 rs1=1 rs2=None imm=ImmLabelPart(label='PROMPT', part='low')
+INSTR idx=38 @ 0x88 name=addi rd=13 rs1=0 rs2=None imm=ImmLabelPart(label='PRINT_STRING', part='high')
+INSTR idx=39 @ 0x8c name=shli rd=13 rs1=13 rs2=None imm=ImmValue(value=16)
+INSTR idx=40 @ 0x90 name=ori rd=13 rs1=13 rs2=None imm=ImmLabelPart(label='PRINT_STRING', part='low')
+INSTR idx=41 @ 0x94 name=jalr rd=14 rs1=13 rs2=None imm=ImmValue(value=0)
+INSTR idx=42 @ 0x98 name=addi rd=13 rs1=0 rs2=None imm=ImmLabelPart(label='MAIN_LOOP', part='high')
+INSTR idx=43 @ 0x9c name=shli rd=13 rs1=13 rs2=None imm=ImmValue(value=16)
+INSTR idx=44 @ 0xa0 name=ori rd=13 rs1=13 rs2=None imm=ImmLabelPart(label='MAIN_LOOP', part='low')
+INSTR idx=45 @ 0xa4 name=jalr rd=0 rs1=13 rs2=None imm=ImmValue(value=0)
+LABEL BREAK_LABEL -> 0xa8
+INSTR idx=47 @ 0xa8 name=break rd=None rs1=None rs2=None imm=None
+SEGMENT 0x500
+LABEL PRINT_STRING -> 0x500
+INSTR idx=50 @ 0x500 name=addi rd=15 rs1=15 rs2=None imm=ImmValue(value=-4)
+INSTR idx=51 @ 0x504 name=sw rd=ImmValue(value=2) rs1=15 rs2=None imm=ImmValue(value=0)
+INSTR idx=52 @ 0x508 name=addi rd=15 rs1=15 rs2=None imm=ImmValue(value=-4)
+INSTR idx=53 @ 0x50c name=sw rd=ImmValue(value=3) rs1=15 rs2=None imm=ImmValue(value=0)
+INSTR idx=54 @ 0x510 name=addi rd=2 rs1=0 rs2=None imm=ImmValue(value=4096)
+INSTR idx=55 @ 0x514 name=shli rd=2 rs1=2 rs2=None imm=ImmValue(value=16)
+LABEL PRINT_CHAR_LOOP -> 0x518
+INSTR idx=57 @ 0x518 name=lb rd=3 rs1=1 rs2=None imm=ImmValue(value=0)
+INSTR idx=58 @ 0x51c name=beq rd=3 rs1=0 rs2=None imm=ImmLabel(name='END_PRINT_CHAR_LOOP')
+INSTR idx=59 @ 0x520 name=sw rd=3 rs1=2 rs2=None imm=ImmValue(value=0)
+INSTR idx=60 @ 0x524 name=addi rd=1 rs1=1 rs2=None imm=ImmValue(value=1)
+INSTR idx=61 @ 0x528 name=addi rd=13 rs1=0 rs2=None imm=ImmLabelPart(label='PRINT_CHAR_LOOP', part='high')
+INSTR idx=62 @ 0x52c name=shli rd=13 rs1=13 rs2=None imm=ImmValue(value=16)
+INSTR idx=63 @ 0x530 name=ori rd=13 rs1=13 rs2=None imm=ImmLabelPart(label='PRINT_CHAR_LOOP', part='low')
+INSTR idx=64 @ 0x534 name=jalr rd=0 rs1=13 rs2=None imm=ImmValue(value=0)
+LABEL END_PRINT_CHAR_LOOP -> 0x538
+INSTR idx=66 @ 0x538 name=lw rd=ImmValue(value=3) rs1=15 rs2=None imm=ImmValue(value=0)
+INSTR idx=67 @ 0x53c name=addi rd=15 rs1=15 rs2=None imm=ImmValue(value=4)
+INSTR idx=68 @ 0x540 name=lw rd=ImmValue(value=2) rs1=15 rs2=None imm=ImmValue(value=0)
+INSTR idx=69 @ 0x544 name=addi rd=15 rs1=15 rs2=None imm=ImmValue(value=4)
+INSTR idx=70 @ 0x548 name=jalr rd=0 rs1=14 rs2=None imm=ImmValue(value=0)
+LABEL READ_CHAR -> 0x54c
+INSTR idx=72 @ 0x54c name=addi rd=15 rs1=15 rs2=None imm=ImmValue(value=-4)
+INSTR idx=73 @ 0x550 name=sw rd=ImmValue(value=2) rs1=15 rs2=None imm=ImmValue(value=0)
+INSTR idx=74 @ 0x554 name=addi rd=2 rs1=0 rs2=None imm=ImmValue(value=4096)
+INSTR idx=75 @ 0x558 name=shli rd=2 rs1=2 rs2=None imm=ImmValue(value=16)
+INSTR idx=76 @ 0x55c name=lb rd=1 rs1=2 rs2=None imm=ImmValue(value=0)
+INSTR idx=77 @ 0x560 name=lw rd=ImmValue(value=2) rs1=15 rs2=None imm=ImmValue(value=0)
+INSTR idx=78 @ 0x564 name=addi rd=15 rs1=15 rs2=None imm=ImmValue(value=4)
+INSTR idx=79 @ 0x568 name=jalr rd=0 rs1=14 rs2=None imm=ImmValue(value=0)
+LABEL READ_LINE -> 0x56c
+INSTR idx=81 @ 0x56c name=addi rd=15 rs1=15 rs2=None imm=ImmValue(value=-4)
+INSTR idx=82 @ 0x570 name=sw rd=ImmValue(value=1) rs1=15 rs2=None imm=ImmValue(value=0)
+INSTR idx=83 @ 0x574 name=addi rd=15 rs1=15 rs2=None imm=ImmValue(value=-4)
+INSTR idx=84 @ 0x578 name=sw rd=ImmValue(value=2) rs1=15 rs2=None imm=ImmValue(value=0)
+INSTR idx=85 @ 0x57c name=addi rd=15 rs1=15 rs2=None imm=ImmValue(value=-4)
+INSTR idx=86 @ 0x580 name=sw rd=ImmValue(value=3) rs1=15 rs2=None imm=ImmValue(value=0)
+LABEL READ_LINE_LOOP -> 0x584
+INSTR idx=88 @ 0x584 name=addi rd=13 rs1=0 rs2=None imm=ImmLabelPart(label='READ_CHAR', part='high')
+INSTR idx=89 @ 0x588 name=shli rd=13 rs1=13 rs2=None imm=ImmValue(value=16)
+INSTR idx=90 @ 0x58c name=ori rd=13 rs1=13 rs2=None imm=ImmLabelPart(label='READ_CHAR', part='low')
+INSTR idx=91 @ 0x590 name=jalr rd=14 rs1=13 rs2=None imm=ImmValue(value=0)
+INSTR idx=92 @ 0x594 name=addi rd=3 rs1=0 rs2=None imm=ImmValue(value=10)
+INSTR idx=93 @ 0x598 name=beq rd=1 rs1=3 rs2=None imm=ImmLabel(name='END_READ_LINE_LOOP')
+INSTR idx=94 @ 0x59c name=sb rd=1 rs1=2 rs2=None imm=ImmValue(value=0)
+INSTR idx=95 @ 0x5a0 name=addi rd=2 rs1=2 rs2=None imm=ImmValue(value=1)
+INSTR idx=96 @ 0x5a4 name=addi rd=13 rs1=0 rs2=None imm=ImmLabelPart(label='READ_LINE_LOOP', part='high')
+INSTR idx=97 @ 0x5a8 name=shli rd=13 rs1=13 rs2=None imm=ImmValue(value=16)
+INSTR idx=98 @ 0x5ac name=ori rd=13 rs1=13 rs2=None imm=ImmLabelPart(label='READ_LINE_LOOP', part='low')
+INSTR idx=99 @ 0x5b0 name=jalr rd=0 rs1=13 rs2=None imm=ImmValue(value=0)
+LABEL END_READ_LINE_LOOP -> 0x5b4
+INSTR idx=101 @ 0x5b4 name=sb rd=0 rs1=2 rs2=None imm=ImmValue(value=0)
+INSTR idx=102 @ 0x5b8 name=lw rd=ImmValue(value=3) rs1=15 rs2=None imm=ImmValue(value=0)
+INSTR idx=103 @ 0x5bc name=addi rd=15 rs1=15 rs2=None imm=ImmValue(value=4)
+INSTR idx=104 @ 0x5c0 name=lw rd=ImmValue(value=2) rs1=15 rs2=None imm=ImmValue(value=0)
+INSTR idx=105 @ 0x5c4 name=addi rd=15 rs1=15 rs2=None imm=ImmValue(value=4)
+INSTR idx=106 @ 0x5c8 name=lw rd=ImmValue(value=1) rs1=15 rs2=None imm=ImmValue(value=0)
+INSTR idx=107 @ 0x5cc name=addi rd=15 rs1=15 rs2=None imm=ImmValue(value=4)
+INSTR idx=108 @ 0x5d0 name=jalr rd=0 rs1=14 rs2=None imm=ImmValue(value=0)
+SEGMENT 0x1000
+LABEL TTY -> 0x1000
+DATA @ 0x1000 size 4: ImmValue(value=268435456)
+LABEL MOTD -> 0x1004
+DATA @ 0x1004 size 45: b'WELCOME TO ROSPOS. Copyleft 2026 Erik Rospo\n\x00'
+LABEL PROMPT -> 0x1031
+DATA @ 0x1031 size 9: b'ROSPOS> \x00'
+LABEL TTY_BUFFER -> 0x103a
+DATA @ 0x103a size 256: b'\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00'

@@ -11,10 +11,382 @@ program
     directiveuse
       seg
         imm	0x00000000
+  codeline
+    instruction
+      lli
+        register	r1
+        imm
+          labeluse	MOTD
+  codeline
+    instruction
+      callpseudo
+        imm
+          labeluse	PRINT_STRING
+  codeline
+    instruction
+      lli
+        register	r1
+        imm
+          labeluse	PROMPT
+  codeline
+    instruction
+      callpseudo
+        imm
+          labeluse	PRINT_STRING
+  codeline
+    instruction
+      lli
+        register	r2
+        imm	0x51
+  codeline
+    label	MAIN_LOOP:
+  codeline
+    instruction
+      lli
+        register	r1
+        imm
+          labeluse	TTY_BUFFER
+  codeline
+    instruction
+      callpseudo
+        imm
+          labeluse	READ_LINE
+  codeline
+    instruction
+      lsinstructuse
+        lb
+        register	r3
+        register	r1
+        imm	0
+  codeline
+    instruction
+      binstructuse
+        beq
+        register	r3
+        register	r2
+        imm
+          labeluse	BREAK_LABEL
+  codeline
+    instruction
+      lli
+        register	r1
+        imm
+          labeluse	TTY_BUFFER
+  codeline
+    instruction
+      callpseudo
+        imm
+          labeluse	PRINT_STRING
+  codeline
+    instruction
+      lli
+        register	r1
+        imm
+          labeluse	PROMPT
+  codeline
+    instruction
+      callpseudo
+        imm
+          labeluse	PRINT_STRING
+  codeline
+    instruction
+      jmpseudo
+        imm
+          labeluse	MAIN_LOOP
+  codeline
+    label	BREAK_LABEL:
+  codeline
+    instruction
+      systeminstructuse
+        break
+  codeline
+    directiveuse
+      seg
+        imm	0x0000_0500
+  codeline
+    directiveuse
+      func
+        label	PRINT_STRING:
+  codeline
+    instruction
+      push
+        register	r2
+  codeline
+    instruction
+      push
+        register	r3
+  codeline
+    instruction
+      lli
+        register	r2
+        imm	0x1000_0000
+  codeline
+    label	PRINT_CHAR_LOOP:
+  codeline
+    instruction
+      lsinstructuse
+        lb
+        register	r3
+        register	r1
+        imm	0
+  codeline
+    instruction
+      binstructuse
+        beq
+        register	r3
+        register	r0
+        imm
+          labeluse	END_PRINT_CHAR_LOOP
+  codeline
+    instruction
+      lsinstructuse
+        sw
+        register	r3
+        register	r2
+        imm	0
+  codeline
+    instruction
+      iinstructuse
+        addi
+        register	r1
+        register	r1
+        imm	1
+  codeline
+    instruction
+      jmpseudo
+        imm
+          labeluse	PRINT_CHAR_LOOP
+  codeline
+    label	END_PRINT_CHAR_LOOP:
+  codeline
+    instruction
+      pop
+        register	r3
+  codeline
+    instruction
+      pop
+        register	r2
+  codeline
+    instruction
+      retpseudo
+  codeline
+    directiveuse
+      func
+        label	READ_CHAR:
+  codeline
+    instruction
+      push
+        register	r2
+  codeline
+    instruction
+      lli
+        register	r2
+        imm	0x1000_0000
+  codeline
+    instruction
+      lsinstructuse
+        lb
+        register	r1
+        register	r2
+        imm	0
+  codeline
+    instruction
+      pop
+        register	r2
+  codeline
+    instruction
+      retpseudo
+  codeline
+    directiveuse
+      func
+        label	READ_LINE:
+  codeline
+    instruction
+      push
+        register	r1
+  codeline
+    instruction
+      push
+        register	r2
+  codeline
+    instruction
+      push
+        register	r3
+  codeline
+    label	READ_LINE_LOOP:
+  codeline
+    instruction
+      callpseudo
+        imm
+          labeluse	READ_CHAR
+  codeline
+    instruction
+      iinstructuse
+        addi
+        register	r3
+        register	r0
+        imm	0x0A
+  codeline
+    instruction
+      binstructuse
+        beq
+        register	r1
+        register	r3
+        imm
+          labeluse	END_READ_LINE_LOOP
+  codeline
+    instruction
+      lsinstructuse
+        sb
+        register	r1
+        register	r2
+        imm	0
+  codeline
+    instruction
+      iinstructuse
+        addi
+        register	r2
+        register	r2
+        imm	1
+  codeline
+    instruction
+      jmpseudo
+        imm
+          labeluse	READ_LINE_LOOP
+  codeline
+    label	END_READ_LINE_LOOP:
+  codeline
+    instruction
+      lsinstructuse
+        sb
+        register	r0
+        register	r2
+        imm	0
+  codeline
+    instruction
+      pop
+        register	r3
+  codeline
+    instruction
+      pop
+        register	r2
+  codeline
+    instruction
+      pop
+        register	r1
+  codeline
+    instruction
+      retpseudo
+  codeline
+    directiveuse
+      seg
+        imm	0x0000_1000
+  codeline
+    label	TTY:
+  codeline
+    directiveuse
+      data
+        imm	0x1000_0000
+  codeline
+    label	MOTD:
+  codeline
+    directiveuse
+      strv	"WELCOME TO ROSPOS. Copyleft 2026 Erik Rospo\n"
+  codeline
+    label	PROMPT:
+  codeline
+    directiveuse
+      strv	"ROSPOS> "
+  codeline
+    label	TTY_BUFFER:
+  codeline
+    directiveuse
+      space
+        imm	256
 
 
-[Directive(name='seg', imm=ImmValue(value=4294967292), length=None), Directive(name='data', imm=ImmValue(value=0), length=4), Directive(name='seg', imm=ImmValue(value=0), length=None)]
+[Directive(name='seg', imm=ImmValue(value=4294967292), length=None), Directive(name='data', imm=ImmValue(value=0), length=4), Directive(name='seg', imm=ImmValue(value=0), length=None), Instruction(type='i', name='addi', rd=1, rs1=0, rs2=None, imm=ImmLabelPart(label='MOTD', part='high'), legacy=None), Instruction(type='i', name='shli', rd=1, rs1=1, rs2=None, imm=ImmValue(value=16), legacy=None), Instruction(type='i', name='ori', rd=1, rs1=1, rs2=None, imm=ImmLabelPart(label='MOTD', part='low'), legacy=None), Instruction(type='i', name='addi', rd=13, rs1=0, rs2=None, imm=ImmLabelPart(label='PRINT_STRING', part='high'), legacy=None), Instruction(type='i', name='shli', rd=13, rs1=13, rs2=None, imm=ImmValue(value=16), legacy=None), Instruction(type='i', name='ori', rd=13, rs1=13, rs2=None, imm=ImmLabelPart(label='PRINT_STRING', part='low'), legacy=None), Instruction(type='j', name='jalr', rd=14, rs1=13, rs2=None, imm=ImmValue(value=0), legacy=None), Instruction(type='i', name='addi', rd=1, rs1=0, rs2=None, imm=ImmLabelPart(label='PROMPT', part='high'), legacy=None), Instruction(type='i', name='shli', rd=1, rs1=1, rs2=None, imm=ImmValue(value=16), legacy=None), Instruction(type='i', name='ori', rd=1, rs1=1, rs2=None, imm=ImmLabelPart(label='PROMPT', part='low'), legacy=None), Instruction(type='i', name='addi', rd=13, rs1=0, rs2=None, imm=ImmLabelPart(label='PRINT_STRING', part='high'), legacy=None), Instruction(type='i', name='shli', rd=13, rs1=13, rs2=None, imm=ImmValue(value=16), legacy=None), Instruction(type='i', name='ori', rd=13, rs1=13, rs2=None, imm=ImmLabelPart(label='PRINT_STRING', part='low'), legacy=None), Instruction(type='j', name='jalr', rd=14, rs1=13, rs2=None, imm=ImmValue(value=0), legacy=None), Instruction(type='i', name='addi', rd=2, rs1=0, rs2=None, imm=ImmValue(value=81), legacy=None), LabelDecl(name='MAIN_LOOP'), Instruction(type='i', name='addi', rd=1, rs1=0, rs2=None, imm=ImmLabelPart(label='TTY_BUFFER', part='high'), legacy=None), Instruction(type='i', name='shli', rd=1, rs1=1, rs2=None, imm=ImmValue(value=16), legacy=None), Instruction(type='i', name='ori', rd=1, rs1=1, rs2=None, imm=ImmLabelPart(label='TTY_BUFFER', part='low'), legacy=None), Instruction(type='i', name='addi', rd=13, rs1=0, rs2=None, imm=ImmLabelPart(label='READ_LINE', part='high'), legacy=None), Instruction(type='i', name='shli', rd=13, rs1=13, rs2=None, imm=ImmValue(value=16), legacy=None), Instruction(type='i', name='ori', rd=13, rs1=13, rs2=None, imm=ImmLabelPart(label='READ_LINE', part='low'), legacy=None), Instruction(type='j', name='jalr', rd=14, rs1=13, rs2=None, imm=ImmValue(value=0), legacy=None), Instruction(type='l', name='lb', rd=3, rs1=1, rs2=None, imm=ImmValue(value=0), legacy={'type': 'l', 'name': 'lb', 'rd': 3, 'rs1': 1, 'imm': 0}), Instruction(type='b', name='beq', rd=3, rs1=2, rs2=None, imm=ImmLabel(name='BREAK_LABEL'), legacy={'type': 'b', 'name': 'beq', 'rd': 3, 'rs1': 2, 'imm': {'type': 'u', 'name': 'BREAK_LABEL'}}), Instruction(type='i', name='addi', rd=1, rs1=0, rs2=None, imm=ImmLabelPart(label='TTY_BUFFER', part='high'), legacy=None), Instruction(type='i', name='shli', rd=1, rs1=1, rs2=None, imm=ImmValue(value=16), legacy=None), Instruction(type='i', name='ori', rd=1, rs1=1, rs2=None, imm=ImmLabelPart(label='TTY_BUFFER', part='low'), legacy=None), Instruction(type='i', name='addi', rd=13, rs1=0, rs2=None, imm=ImmLabelPart(label='PRINT_STRING', part='high'), legacy=None), Instruction(type='i', name='shli', rd=13, rs1=13, rs2=None, imm=ImmValue(value=16), legacy=None), Instruction(type='i', name='ori', rd=13, rs1=13, rs2=None, imm=ImmLabelPart(label='PRINT_STRING', part='low'), legacy=None), Instruction(type='j', name='jalr', rd=14, rs1=13, rs2=None, imm=ImmValue(value=0), legacy=None), Instruction(type='i', name='addi', rd=1, rs1=0, rs2=None, imm=ImmLabelPart(label='PROMPT', part='high'), legacy=None), Instruction(type='i', name='shli', rd=1, rs1=1, rs2=None, imm=ImmValue(value=16), legacy=None), Instruction(type='i', name='ori', rd=1, rs1=1, rs2=None, imm=ImmLabelPart(label='PROMPT', part='low'), legacy=None), Instruction(type='i', name='addi', rd=13, rs1=0, rs2=None, imm=ImmLabelPart(label='PRINT_STRING', part='high'), legacy=None), Instruction(type='i', name='shli', rd=13, rs1=13, rs2=None, imm=ImmValue(value=16), legacy=None), Instruction(type='i', name='ori', rd=13, rs1=13, rs2=None, imm=ImmLabelPart(label='PRINT_STRING', part='low'), legacy=None), Instruction(type='j', name='jalr', rd=14, rs1=13, rs2=None, imm=ImmValue(value=0), legacy=None), Instruction(type='i', name='addi', rd=13, rs1=0, rs2=None, imm=ImmLabelPart(label='MAIN_LOOP', part='high'), legacy=None), Instruction(type='i', name='shli', rd=13, rs1=13, rs2=None, imm=ImmValue(value=16), legacy=None), Instruction(type='i', name='ori', rd=13, rs1=13, rs2=None, imm=ImmLabelPart(label='MAIN_LOOP', part='low'), legacy=None), Instruction(type='j', name='jalr', rd=0, rs1=13, rs2=None, imm=ImmValue(value=0), legacy=None), LabelDecl(name='BREAK_LABEL'), Instruction(type='s', name='break', rd=None, rs1=None, rs2=None, imm=None, legacy={'type': 's', 'name': 'break'}), Directive(name='seg', imm=ImmValue(value=1280), length=None), LabelDecl(name='PRINT_STRING'), Instruction(type='i', name='addi', rd=15, rs1=15, rs2=None, imm=ImmValue(value=-4), legacy=None), Instruction(type='l', name='sw', rd=ImmValue(value=2), rs1=15, rs2=None, imm=ImmValue(value=0), legacy=None), Instruction(type='i', name='addi', rd=15, rs1=15, rs2=None, imm=ImmValue(value=-4), legacy=None), Instruction(type='l', name='sw', rd=ImmValue(value=3), rs1=15, rs2=None, imm=ImmValue(value=0), legacy=None), Instruction(type='i', name='addi', rd=2, rs1=0, rs2=None, imm=ImmValue(value=4096), legacy=None), Instruction(type='i', name='shli', rd=2, rs1=2, rs2=None, imm=ImmValue(value=16), legacy=None), LabelDecl(name='PRINT_CHAR_LOOP'), Instruction(type='l', name='lb', rd=3, rs1=1, rs2=None, imm=ImmValue(value=0), legacy={'type': 'l', 'name': 'lb', 'rd': 3, 'rs1': 1, 'imm': 0}), Instruction(type='b', name='beq', rd=3, rs1=0, rs2=None, imm=ImmLabel(name='END_PRINT_CHAR_LOOP'), legacy={'type': 'b', 'name': 'beq', 'rd': 3, 'rs1': 0, 'imm': {'type': 'u', 'name': 'END_PRINT_CHAR_LOOP'}}), Instruction(type='l', name='sw', rd=3, rs1=2, rs2=None, imm=ImmValue(value=0), legacy={'type': 'l', 'name': 'sw', 'rd': 3, 'rs1': 2, 'imm': 0}), Instruction(type='i', name='addi', rd=1, rs1=1, rs2=None, imm=ImmValue(value=1), legacy={'type': 'i', 'name': 'addi', 'rd': 1, 'rs1': 1, 'imm': 1}), Instruction(type='i', name='addi', rd=13, rs1=0, rs2=None, imm=ImmLabelPart(label='PRINT_CHAR_LOOP', part='high'), legacy=None), Instruction(type='i', name='shli', rd=13, rs1=13, rs2=None, imm=ImmValue(value=16), legacy=None), Instruction(type='i', name='ori', rd=13, rs1=13, rs2=None, imm=ImmLabelPart(label='PRINT_CHAR_LOOP', part='low'), legacy=None), Instruction(type='j', name='jalr', rd=0, rs1=13, rs2=None, imm=ImmValue(value=0), legacy=None), LabelDecl(name='END_PRINT_CHAR_LOOP'), Instruction(type='l', name='lw', rd=ImmValue(value=3), rs1=15, rs2=None, imm=ImmValue(value=0), legacy=None), Instruction(type='i', name='addi', rd=15, rs1=15, rs2=None, imm=ImmValue(value=4), legacy=None), Instruction(type='l', name='lw', rd=ImmValue(value=2), rs1=15, rs2=None, imm=ImmValue(value=0), legacy=None), Instruction(type='i', name='addi', rd=15, rs1=15, rs2=None, imm=ImmValue(value=4), legacy=None), Instruction(type='j', name='jalr', rd=0, rs1=14, rs2=None, imm=ImmValue(value=0), legacy={'type': 'j', 'rd': 0, 'rs1': 14, 'name': 'jalr', 'imm': 0}), LabelDecl(name='READ_CHAR'), Instruction(type='i', name='addi', rd=15, rs1=15, rs2=None, imm=ImmValue(value=-4), legacy=None), Instruction(type='l', name='sw', rd=ImmValue(value=2), rs1=15, rs2=None, imm=ImmValue(value=0), legacy=None), Instruction(type='i', name='addi', rd=2, rs1=0, rs2=None, imm=ImmValue(value=4096), legacy=None), Instruction(type='i', name='shli', rd=2, rs1=2, rs2=None, imm=ImmValue(value=16), legacy=None), Instruction(type='l', name='lb', rd=1, rs1=2, rs2=None, imm=ImmValue(value=0), legacy={'type': 'l', 'name': 'lb', 'rd': 1, 'rs1': 2, 'imm': 0}), Instruction(type='l', name='lw', rd=ImmValue(value=2), rs1=15, rs2=None, imm=ImmValue(value=0), legacy=None), Instruction(type='i', name='addi', rd=15, rs1=15, rs2=None, imm=ImmValue(value=4), legacy=None), Instruction(type='j', name='jalr', rd=0, rs1=14, rs2=None, imm=ImmValue(value=0), legacy={'type': 'j', 'rd': 0, 'rs1': 14, 'name': 'jalr', 'imm': 0}), LabelDecl(name='READ_LINE'), Instruction(type='i', name='addi', rd=15, rs1=15, rs2=None, imm=ImmValue(value=-4), legacy=None), Instruction(type='l', name='sw', rd=ImmValue(value=1), rs1=15, rs2=None, imm=ImmValue(value=0), legacy=None), Instruction(type='i', name='addi', rd=15, rs1=15, rs2=None, imm=ImmValue(value=-4), legacy=None), Instruction(type='l', name='sw', rd=ImmValue(value=2), rs1=15, rs2=None, imm=ImmValue(value=0), legacy=None), Instruction(type='i', name='addi', rd=15, rs1=15, rs2=None, imm=ImmValue(value=-4), legacy=None), Instruction(type='l', name='sw', rd=ImmValue(value=3), rs1=15, rs2=None, imm=ImmValue(value=0), legacy=None), LabelDecl(name='READ_LINE_LOOP'), Instruction(type='i', name='addi', rd=13, rs1=0, rs2=None, imm=ImmLabelPart(label='READ_CHAR', part='high'), legacy=None), Instruction(type='i', name='shli', rd=13, rs1=13, rs2=None, imm=ImmValue(value=16), legacy=None), Instruction(type='i', name='ori', rd=13, rs1=13, rs2=None, imm=ImmLabelPart(label='READ_CHAR', part='low'), legacy=None), Instruction(type='j', name='jalr', rd=14, rs1=13, rs2=None, imm=ImmValue(value=0), legacy=None), Instruction(type='i', name='addi', rd=3, rs1=0, rs2=None, imm=ImmValue(value=10), legacy={'type': 'i', 'name': 'addi', 'rd': 3, 'rs1': 0, 'imm': 10}), Instruction(type='b', name='beq', rd=1, rs1=3, rs2=None, imm=ImmLabel(name='END_READ_LINE_LOOP'), legacy={'type': 'b', 'name': 'beq', 'rd': 1, 'rs1': 3, 'imm': {'type': 'u', 'name': 'END_READ_LINE_LOOP'}}), Instruction(type='l', name='sb', rd=1, rs1=2, rs2=None, imm=ImmValue(value=0), legacy={'type': 'l', 'name': 'sb', 'rd': 1, 'rs1': 2, 'imm': 0}), Instruction(type='i', name='addi', rd=2, rs1=2, rs2=None, imm=ImmValue(value=1), legacy={'type': 'i', 'name': 'addi', 'rd': 2, 'rs1': 2, 'imm': 1}), Instruction(type='i', name='addi', rd=13, rs1=0, rs2=None, imm=ImmLabelPart(label='READ_LINE_LOOP', part='high'), legacy=None), Instruction(type='i', name='shli', rd=13, rs1=13, rs2=None, imm=ImmValue(value=16), legacy=None), Instruction(type='i', name='ori', rd=13, rs1=13, rs2=None, imm=ImmLabelPart(label='READ_LINE_LOOP', part='low'), legacy=None), Instruction(type='j', name='jalr', rd=0, rs1=13, rs2=None, imm=ImmValue(value=0), legacy=None), LabelDecl(name='END_READ_LINE_LOOP'), Instruction(type='l', name='sb', rd=0, rs1=2, rs2=None, imm=ImmValue(value=0), legacy={'type': 'l', 'name': 'sb', 'rd': 0, 'rs1': 2, 'imm': 0}), Instruction(type='l', name='lw', rd=ImmValue(value=3), rs1=15, rs2=None, imm=ImmValue(value=0), legacy=None), Instruction(type='i', name='addi', rd=15, rs1=15, rs2=None, imm=ImmValue(value=4), legacy=None), Instruction(type='l', name='lw', rd=ImmValue(value=2), rs1=15, rs2=None, imm=ImmValue(value=0), legacy=None), Instruction(type='i', name='addi', rd=15, rs1=15, rs2=None, imm=ImmValue(value=4), legacy=None), Instruction(type='l', name='lw', rd=ImmValue(value=1), rs1=15, rs2=None, imm=ImmValue(value=0), legacy=None), Instruction(type='i', name='addi', rd=15, rs1=15, rs2=None, imm=ImmValue(value=4), legacy=None), Instruction(type='j', name='jalr', rd=0, rs1=14, rs2=None, imm=ImmValue(value=0), legacy={'type': 'j', 'rd': 0, 'rs1': 14, 'name': 'jalr', 'imm': 0}), Directive(name='seg', imm=ImmValue(value=4096), length=None), LabelDecl(name='TTY'), Directive(name='data', imm=ImmValue(value=268435456), length=4), LabelDecl(name='MOTD'), Directive(name='data', imm=b'WELCOME TO ROSPOS. Copyleft 2026 Erik Rospo\n\x00', length=45), LabelDecl(name='PROMPT'), Directive(name='data', imm=b'ROSPOS> \x00', length=9), LabelDecl(name='TTY_BUFFER'), Directive(name='data', imm=b'\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00', length=256)]
 
 .SEG 0xFFFF_FFFC
 .DATA 0x0000_0000 // Reset vector points to address 0x00000000
 .SEG 0x00000000
+LLI r1, MOTD
+CALL PRINT_STRING
+LLI r1, PROMPT
+CALL PRINT_STRING
+LLI r2, 0x51 // 51h = 'Q' key to break
+MAIN_LOOP:
+LLI r1, TTY_BUFFER
+CALL READ_LINE
+LB r3, r1, 0 // Load first character of input
+BEQ r3, r2, BREAK_LABEL // If input is 'Q', break
+
+LLI r1, TTY_BUFFER
+CALL PRINT_STRING
+LLI r1, PROMPT
+CALL PRINT_STRING
+JMP MAIN_LOOP
+
+BREAK_LABEL:
+BREAK
+
+
+.SEG 0x0000_0500
+//This includes common functions
+.FUNC PRINT_STRING:
+// Function to print a character string pointed to by r1
+PUSH r2
+PUSH r3
+LLI r2, 0x1000_0000 // TTY address
+PRINT_CHAR_LOOP:
+LB r3, r1, 0
+BEQ r3, r0, END_PRINT_CHAR_LOOP
+SW r3, r2, 0
+ADDI r1, r1, 1
+JMP PRINT_CHAR_LOOP
+END_PRINT_CHAR_LOOP:
+POP r3
+POP r2
+RET
+
+.FUNC READ_CHAR:
+// Function to read a character from TTY into r1
+PUSH r2
+LLI r2, 0x1000_0000 // TTY address
+LB r1, r2, 0
+POP r2
+RET
+
+
+.FUNC READ_LINE:
+// Function to read a line of input into the buffer pointed to by r1
+// r1 will point to the start of the buffer
+PUSH r1
+PUSH r2
+PUSH r3
+
+READ_LINE_LOOP:
+CALL READ_CHAR
+ADDI r3, r0, 0x0A // Newline character
+BEQ r1, r3, END_READ_LINE_LOOP // End on newline
+SB r1, r2, 0
+ADDI r2, r2, 1
+JMP READ_LINE_LOOP
+
+END_READ_LINE_LOOP:
+SB r0, r2, 0 // Null-terminate the string
+POP r3
+POP r2
+POP r1 // Restore original r1 (will point to the start of the buffer)
+RET
+
+
+.SEG 0x0000_1000
+TTY:
+.DATA 0x1000_0000 // Memory-mapped TTY address
+MOTD:
+.STR "WELCOME TO ROSPOS. Copyleft 2026 Erik Rospo\n"
+PROMPT:
+.STR "ROSPOS> "
+TTY_BUFFER:
+.SPACE 256 // Buffer for TTY input
