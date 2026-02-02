@@ -138,9 +138,9 @@ def print_bitmap(value, width, height):
         for x in range(width):
             bit_index = y * width + x
             if value & (1 << (width * height - 1 - bit_index)):
-                row += "0"
-            else:
                 row += "1"
+            else:
+                row += "0"
         row += "\n"
     return row
 
