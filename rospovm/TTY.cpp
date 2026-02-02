@@ -10,16 +10,16 @@
 
 uint8_t TTYReadHandler(uint32_t address)
 {
-    // Disable terminal echo
+    // Disable terminal echo and enable non-canonical mode
     struct termios oldt, newt;
     tcgetattr(STDIN_FILENO, &oldt); // Get current terminal settings
     newt = oldt;
-    newt.c_lflag &= ~ECHO;         // Disable echo
+    newt.c_lflag &= ~(ECHO | ICANON); // Disable echo and canonical mode
     tcsetattr(STDIN_FILENO, TCSANOW, &newt); // Apply new settings
 
     // Blocking read from TTY
     char ch;
-    std::cin.get(ch);
+    read(STDIN_FILENO, &ch, 1); // Use low-level read to capture raw input
 
     // Restore terminal settings
     tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
