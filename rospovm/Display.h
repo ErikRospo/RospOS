@@ -6,18 +6,19 @@
 
 class Display
 {
-    // 128x128, 2-bit grayscale display
-    // Memory-mapped at 0x20000000 - 0x20000FFF
-    // Each pixel is represented by 2 bits (00=black, 01=dark gray, 10=light gray, 11=white)
+    // 256x256, 8-bit color framebuffer
+    // Memory-mapped at 0x20000000 - 0x2000FFFF
+    // Pixel format: 8-bit value in 00RRGGBB where each component is 2 bits.
+    // Components expand to 0..255 by multiplying by 85 (0->0,1->85,2->170,3->255).
 private:
     SDL_Window *window;
     SDL_Renderer *renderer;
     SDL_Texture *texture;
 
-    //FB size: 128*128 pixels * 2 bits/pixel = 32768 bits = 4096 bytes
-    static const int WIDTH = 128;
-    static const int HEIGHT = 128;
-    static const int FB_SIZE = WIDTH * HEIGHT / 4; // 4 pixels per byte
+    // FB size: 256*256 pixels * 8 bits/pixel = 65536 bytes
+    static const int WIDTH = 256;
+    static const int HEIGHT = 256;
+    static const int FB_SIZE = WIDTH * HEIGHT; // 1 byte per pixel
     static const int SCALE = 4; // Scaling factor for rendering;
     static const int SCALED_WIDTH = WIDTH * SCALE;
     static const int SCALED_HEIGHT = HEIGHT * SCALE;

@@ -7,7 +7,7 @@ Goal:
 * `bc`-like calculator
 * `nano`-like text editor
 * **Audio**: SID-like synth
-* **Display**: 128×128 2-bit framebuffer
+* **Display**: 256x256 8-bit framebuffer
 * **TTY**: terminal interface
 
 Design principles:
@@ -182,7 +182,7 @@ This allows for easier initialization of memory to zero.
 | --------------------- | -------------------------- | -------------------------------------- |
 | 0x00000000–0x0FFFFFFF | RAM                        | Program + stack + heap                 |
 | 0x10000000–0x1000FFFF | TTY                        | Read input / write output              |
-| 0x20000000–0x20000FFF | Display (128×128 2-bit)    | 4096 bytes linear framebuffer          |
+| 0x20000000–0x2007FFFF | Display (256x256 8-bit)    | 0x80000 bytes linear framebuffer       |
 | 0x30000000–0x3000FFFF | Audio (SID-like)           | freq, waveform, volume, gate registers |
 | 0xFFFFFF00–0xFFFFFFFF | Kernel / interrupt vectors | Reserved                               |
 

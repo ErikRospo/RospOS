@@ -87,31 +87,14 @@ DRAW_CHAR_COL_LOOP:
         // x = r2 + r8, y = r3 + r6
         ADD r9, r2, r8 // x
         ADD r10, r3, r6 // y
-        // pixel_index = y * 128 + x
-        MULI r11, r10, 128
+        // pixel_index = y * 256 + x
+        MULI r11, r10, 256
         ADD r11, r11, r9
-        // Save r11 (pixel_index) to stack
-        PUSH r11
-        // byte_index = pixel_index / 4
-        SHRI r12, r11, 2
-        ADD r12, r5, r12
-        // pixel_in_byte = pixel_index % 4
-        ANDI r11, r11, 3
-        LLI r9, 3
-        SUB r9, r9, r11
-        MULI r9, r9, 2 // bit_offset
-        // Read-modify-write framebuffer byte
-        LB r10, r12, 0
-        LLI r11, 0x3
-        SHL r11, r11, r9
-        NOT r11, r11, r0
-        AND r10, r10, r11
-        LLI r11, 0x3
-        SHL r11, r11, r9
-        OR r10, r10, r11
+        // address = fb_base + pixel_index (1 byte per pixel)
+        ADD r12, r5, r11
+        // Store white pixel (00RRGGBB -> 0x3F)
+        LLI r10, 0x3F
         SB r10, r12, 0
-        // Restore r11
-        POP r11
 SKIP_PIXEL:
         ADDI r8, r8, 1
         JMP DRAW_CHAR_COL_LOOP
