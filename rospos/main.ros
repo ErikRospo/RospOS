@@ -13,8 +13,17 @@ MAIN_LOOP:
     CALL READ_CHAR
     //READ_CHAR puts the character in r1
     BEQ r1, r3, NEWLINE_LABEL
+    // If lowercase, convert to uppercase if alphabetic
     PUSH r2
     PUSH r3
+    LLI r2, 0x61 // 'a'
+    BLT r1, r2, SKIP_UPPERCASE_CONVERSION
+    LLI r2, 0x7A // 'z'
+    ADDI r2, r2, 1
+    BGE r1, r2, SKIP_UPPERCASE_CONVERSION
+    LLI r2, 0x20
+    SUB r1, r1, r2 // Convert to uppercase
+SKIP_UPPERCASE_CONVERSION:
     ADDI r2, r4, 0 // X coordinate
     ADDI r3, r5, 0 // Y coordinate
     // Draw character to display

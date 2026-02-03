@@ -156,18 +156,19 @@ print("BASE_FB_ADDR:")
 for i, desc in enumerate(descriptions):
     val = v[i]
     # Reverse the bits of the value to match the desired orientation
-    reversed_val = int(format(val, "030b")[::-1], 2)
+    # reversed_val = int(format(val, "030b")[::-1], 2)
     # Generate the bitmap representation
-    bitmap = print_bitmap(reversed_val, glyph_width, glyph_height)
+    bitmap = print_bitmap(val, glyph_width, glyph_height)
 
     # Format the bitmap for display
     formatted_bitmap = (
-        bitmap.replace("\n", "\n//").replace("0", "##").replace("1", "  ")
+        bitmap.replace("\n", "\n//").replace("0", "  ").replace("1", "##")
     )
 
     # Flatten the bitmap for data representation
     flattened_bitmap = bitmap.replace("\n", "")
-
-    print(f"FB_DATA_{desc}:\n.DATA 0b{flattened_bitmap}")
+    bm_val=int(flattened_bitmap,2) <<2
+    bm_hex=format(bm_val,'0{}X'.format(8))
+    print(f"FB_DATA_{desc}:\n.DATA 0x{bm_hex}  // Glyph: {desc}")
     print(f"//{formatted_bitmap}")
     print()

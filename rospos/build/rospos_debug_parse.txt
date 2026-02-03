@@ -79,6 +79,53 @@ program
         register	r3
   codeline
     instruction
+      lli
+        register	r2
+        imm	0x61
+  codeline
+    instruction
+      binstructuse
+        blt
+        register	r1
+        register	r2
+        imm
+          labeluse	SKIP_UPPERCASE_CONVERSION
+  codeline
+    instruction
+      lli
+        register	r2
+        imm	0x7A
+  codeline
+    instruction
+      iinstructuse
+        addi
+        register	r2
+        register	r2
+        imm	1
+  codeline
+    instruction
+      binstructuse
+        bge
+        register	r1
+        register	r2
+        imm
+          labeluse	SKIP_UPPERCASE_CONVERSION
+  codeline
+    instruction
+      lli
+        register	r2
+        imm	0x20
+  codeline
+    instruction
+      rinstructuse
+        sub
+        register	r1
+        register	r1
+        register	r2
+  codeline
+    label	SKIP_UPPERCASE_CONVERSION:
+  codeline
+    instruction
       iinstructuse
         addi
         register	r2
@@ -463,6 +510,8 @@ program
         imm
           labeluse	END_DRAW_CHAR_COLUMN_LOOP
   codeline
+    label	CALC_PIXEL_BIT_INDEX:
+  codeline
     instruction
       lli
         register	r10
@@ -516,6 +565,8 @@ program
         imm
           labeluse	SKIP_PIXEL_DRAW
   codeline
+    label	CALC_FRAMEBUFFER_ADDR:
+  codeline
     instruction
       rinstructuse
         add
@@ -548,6 +599,8 @@ program
         register	r9
         register	r9
         register	r8
+  codeline
+    label	SET_PIXEL:
   codeline
     instruction
       lli
@@ -734,574 +787,574 @@ program
   codeline
     directiveuse
       data
-        imm	0b111111111111111111111111111111
+        imm	0x00000000
   codeline
     label	FB_DATA_EXCLAM:
   codeline
     directiveuse
       data
-        imm	0b110111111111011110111101111011
+        imm	0x20084210
   codeline
     label	FB_DATA_QUOTE:
   codeline
     directiveuse
       data
-        imm	0b111111111111111101011010110101
+        imm	0x0000A528
   codeline
     label	FB_DATA_HASH:
   codeline
     directiveuse
       data
-        imm	0b101010000010101101010000010101
+        imm	0x57D4AFA8
   codeline
     label	FB_DATA_DOLLAR:
   codeline
     directiveuse
       data
-        imm	0b110111000001011100011101000001
+        imm	0x23E8E2F8
   codeline
     label	FB_DATA_PERCENT:
   codeline
     directiveuse
       data
-        imm	0b001100010111011101000110011111
+        imm	0xCE88B980
   codeline
     label	FB_DATA_AMPERSAND:
   codeline
     directiveuse
       data
-        imm	0b010001011010110010011101011001
+        imm	0xBA536298
   codeline
     label	FB_DATA_APOSTROPHE:
   codeline
     directiveuse
       data
-        imm	0b111111111111111110111101111011
+        imm	0x00004210
   codeline
     label	FB_DATA_PARENLEFT:
   codeline
     directiveuse
       data
-        imm	0b101111101111011110111101110111
+        imm	0x41084220
   codeline
     label	FB_DATA_PARENRIGHT:
   codeline
     directiveuse
       data
-        imm	0b111011101111011110111101111101
+        imm	0x11084208
   codeline
     label	FB_DATA_ASTERISK:
   codeline
     directiveuse
       data
-        imm	0b111111010111011100011101111111
+        imm	0x0288E200
   codeline
     label	FB_DATA_PLUS:
   codeline
     directiveuse
       data
-        imm	0b111111101110001110111111111111
+        imm	0x011C4000
   codeline
     label	FB_DATA_COMMA:
   codeline
     directiveuse
       data
-        imm	0b111011101111011111111111111111
+        imm	0x11080000
   codeline
     label	FB_DATA_HYPHEN:
   codeline
     directiveuse
       data
-        imm	0b111111111110001111111111111111
+        imm	0x001C0000
   codeline
     label	FB_DATA_PERIOD:
   codeline
     directiveuse
       data
-        imm	0b110011100111111111111111111111
+        imm	0x31800000
   codeline
     label	FB_DATA_SLASH:
   codeline
     directiveuse
       data
-        imm	0b111101110111011101110111111111
+        imm	0x08888800
   codeline
     label	FB_DATA_0:
   codeline
     directiveuse
       data
-        imm	0b100010110001010010100011010001
+        imm	0x74EB5CB8
   codeline
     label	FB_DATA_1:
   codeline
     directiveuse
       data
-        imm	0b000001101111011110101100111011
+        imm	0xF9085310
   codeline
     label	FB_DATA_2:
   codeline
     directiveuse
       data
-        imm	0b000001110111011101110111010001
+        imm	0xF88888B8
   codeline
     label	FB_DATA_3:
   codeline
     directiveuse
       data
-        imm	0b100010111001111100110111110000
+        imm	0x7460C83C
   codeline
     label	FB_DATA_4:
   codeline
     directiveuse
       data
-        imm	0b011110111100000011011101110111
+        imm	0x843F2220
   codeline
     label	FB_DATA_5:
   codeline
     directiveuse
       data
-        imm	0b100010111001111100001111000000
+        imm	0x7460F0FC
   codeline
     label	FB_DATA_6:
   codeline
     directiveuse
       data
-        imm	0b100010111010000111101110110011
+        imm	0x745E1130
   codeline
     label	FB_DATA_7:
   codeline
     directiveuse
       data
-        imm	0b111101110111011101110111100000
+        imm	0x0888887C
   codeline
     label	FB_DATA_8:
   codeline
     directiveuse
       data
-        imm	0b100010111001110100010111010001
+        imm	0x7462E8B8
   codeline
     label	FB_DATA_9:
   codeline
     directiveuse
       data
-        imm	0b011110111100001011100111000001
+        imm	0x843D18F8
   codeline
     label	FB_DATA_COLON:
   codeline
     directiveuse
       data
-        imm	0b110011100111111110011100111111
+        imm	0x31806300
   codeline
     label	FB_DATA_SEMICOLON:
   codeline
     directiveuse
       data
-        imm	0b111011101111111110111111111111
+        imm	0x11004000
   codeline
     label	FB_DATA_LESS:
   codeline
     directiveuse
       data
-        imm	0b101111101111101110111011111111
+        imm	0x41044400
   codeline
     label	FB_DATA_EQUAL:
   codeline
     directiveuse
       data
-        imm	0b111111000111111100011111111111
+        imm	0x0380E000
   codeline
     label	FB_DATA_GREATER:
   codeline
     directiveuse
       data
-        imm	0b111011101110111110111110111111
+        imm	0x11104100
   codeline
     label	FB_DATA_QUESTION:
   codeline
     directiveuse
       data
-        imm	0b110111111111011100110111010001
+        imm	0x2008C8B8
   codeline
     label	FB_DATA_AT:
   codeline
     directiveuse
       data
-        imm	0b000011111000010000100111010001
+        imm	0xF07BD8B8
   codeline
     label	FB_DATA_A:
   codeline
     directiveuse
       data
-        imm	0b011100111000000011101010111011
+        imm	0x8C7F1510
   codeline
     label	FB_DATA_B:
   codeline
     directiveuse
       data
-        imm	0b100000111001110100000111010000
+        imm	0x7C62F8BC
   codeline
     label	FB_DATA_C:
   codeline
     directiveuse
       data
-        imm	0b000011111011110111100111010001
+        imm	0xF04218B8
   codeline
     label	FB_DATA_D:
   codeline
     directiveuse
       data
-        imm	0b100000111001110011100111010000
+        imm	0x7C6318BC
   codeline
     label	FB_DATA_E:
   codeline
     directiveuse
       data
-        imm	0b000001111011110100001111000000
+        imm	0xF842F0FC
   codeline
     label	FB_DATA_F:
   codeline
     directiveuse
       data
-        imm	0b111101111011110100001111000000
+        imm	0x0842F0FC
   codeline
     label	FB_DATA_G:
   codeline
     directiveuse
       data
-        imm	0b100010111000110111101111000001
+        imm	0x747210F8
   codeline
     label	FB_DATA_H:
   codeline
     directiveuse
       data
-        imm	0b011100111001110000000111001110
+        imm	0x8C63F8C4
   codeline
     label	FB_DATA_I:
   codeline
     directiveuse
       data
-        imm	0b000001101111011110111101100000
+        imm	0xF908427C
   codeline
     label	FB_DATA_J:
   codeline
     directiveuse
       data
-        imm	0b110011011010111101111011100000
+        imm	0x3250847C
   codeline
     label	FB_DATA_K:
   codeline
     directiveuse
       data
-        imm	0b011100111010110110001011001110
+        imm	0x8C5274C4
   codeline
     label	FB_DATA_L:
   codeline
     directiveuse
       data
-        imm	0b000001111011110111101111011110
+        imm	0xF8421084
   codeline
     label	FB_DATA_M:
   codeline
     directiveuse
       data
-        imm	0b011100111001010010100101000100
+        imm	0x8C6B5AEC
   codeline
     label	FB_DATA_N:
   codeline
     directiveuse
       data
-        imm	0b011100011000110010100110001110
+        imm	0x8E7359C4
   codeline
     label	FB_DATA_O:
   codeline
     directiveuse
       data
-        imm	0b100010111001110011100111010001
+        imm	0x746318B8
   codeline
     label	FB_DATA_P:
   codeline
     directiveuse
       data
-        imm	0b111101111010000011100111010000
+        imm	0x085F18BC
   codeline
     label	FB_DATA_Q:
   codeline
     directiveuse
       data
-        imm	0b001111000101010011100111010001
+        imm	0xC3AB18B8
   codeline
     label	FB_DATA_R:
   codeline
     directiveuse
       data
-        imm	0b011101011010000011100111010000
+        imm	0x8A5F18BC
   codeline
     label	FB_DATA_S:
   codeline
     directiveuse
       data
-        imm	0b100010111010111110010111010001
+        imm	0x745068B8
   codeline
     label	FB_DATA_T:
   codeline
     directiveuse
       data
-        imm	0b110111101111011110111101100000
+        imm	0x2108427C
   codeline
     label	FB_DATA_U:
   codeline
     directiveuse
       data
-        imm	0b100010111001110011100111001110
+        imm	0x746318C4
   codeline
     label	FB_DATA_V:
   codeline
     directiveuse
       data
-        imm	0b110111101110101011100111001110
+        imm	0x211518C4
   codeline
     label	FB_DATA_W:
   codeline
     directiveuse
       data
-        imm	0b001000101001010010100111001110
+        imm	0xDD6B58C4
   codeline
     label	FB_DATA_X:
   codeline
     directiveuse
       data
-        imm	0b011101010111011110111010101110
+        imm	0x8A884544
   codeline
     label	FB_DATA_Y:
   codeline
     directiveuse
       data
-        imm	0b110111101111011110111010101110
+        imm	0x21084544
   codeline
     label	FB_DATA_Z:
   codeline
     directiveuse
       data
-        imm	0b000001110111011101110111100000
+        imm	0xF888887C
   codeline
     label	FB_DATA_BRACKETLEFT:
   codeline
     directiveuse
       data
-        imm	0b100111101111011110111101110011
+        imm	0x61084230
   codeline
     label	FB_DATA_BACKSLASH:
   codeline
     directiveuse
       data
-        imm	0b011111011111011111011111011111
+        imm	0x82082080
   codeline
     label	FB_DATA_BRACKETRIGHT:
   codeline
     directiveuse
       data
-        imm	0b110011101111011110111101111001
+        imm	0x31084218
   codeline
     label	FB_DATA_CARET:
   codeline
     directiveuse
       data
-        imm	0b111111111111111011101010111011
+        imm	0x00011510
   codeline
     label	FB_DATA_UNDERSCORE:
   codeline
     directiveuse
       data
-        imm	0b000001111111111111111111111111
+        imm	0xF8000000
   codeline
     label	FB_DATA_BACKTICK:
   codeline
     directiveuse
       data
-        imm	0b111111111111111111111101111101
+        imm	0x00000208
   codeline
     label	FB_DATA_a:
   codeline
     directiveuse
       data
-        imm	0b100011011010000100111111111111
+        imm	0x725EC000
   codeline
     label	FB_DATA_b:
   codeline
     directiveuse
       data
-        imm	0b110001011010110110001111011110
+        imm	0x3A527084
   codeline
     label	FB_DATA_c:
   codeline
     directiveuse
       data
-        imm	0b100011111011110100011111111111
+        imm	0x7042E000
   codeline
     label	FB_DATA_d:
   codeline
     directiveuse
       data
-        imm	0b100011011010110100011011110111
+        imm	0x7252E420
   codeline
     label	FB_DATA_e:
   codeline
     directiveuse
       data
-        imm	0b000011111000000011101000111111
+        imm	0xF07F1700
   codeline
     label	FB_DATA_f:
   codeline
     directiveuse
       data
-        imm	0b111101110111101110001110110011
+        imm	0x08847130
   codeline
     label	FB_DATA_g:
   codeline
     directiveuse
       data
-        imm	0b110001011110001101101011010001
+        imm	0x3A1C94B8
   codeline
     label	FB_DATA_h:
   codeline
     directiveuse
       data
-        imm	0b101101011010110110001111011110
+        imm	0x4A527084
   codeline
     label	FB_DATA_i:
   codeline
     directiveuse
       data
-        imm	0b110011110111101111111110111111
+        imm	0x30840100
   codeline
     label	FB_DATA_j:
   codeline
     directiveuse
       data
-        imm	0b110011101111011110111111111011
+        imm	0x31084010
   codeline
     label	FB_DATA_k:
   codeline
     directiveuse
       data
-        imm	0b101101101011100110101011011110
+        imm	0x49465484
   codeline
     label	FB_DATA_l:
   codeline
     directiveuse
       data
-        imm	0b110011110111101111011110111101
+        imm	0x30842108
   codeline
     label	FB_DATA_m:
   codeline
     directiveuse
       data
-        imm	0b011100101001010101001111111111
+        imm	0x8D6AB000
   codeline
     label	FB_DATA_n:
   codeline
     directiveuse
       data
-        imm	0b101101011010110110001111111111
+        imm	0x4A527000
   codeline
     label	FB_DATA_o:
   codeline
     directiveuse
       data
-        imm	0b110011011010110110011111111111
+        imm	0x32526000
   codeline
     label	FB_DATA_p:
   codeline
     directiveuse
       data
-        imm	0b111101111011000101101011011001
+        imm	0x084E9498
   codeline
     label	FB_DATA_q:
   codeline
     directiveuse
       data
-        imm	0b001111011110001101101011010001
+        imm	0xC21C94B8
   codeline
     label	FB_DATA_r:
   codeline
     directiveuse
       data
-        imm	0b111101111010110110011111111111
+        imm	0x08526000
   codeline
     label	FB_DATA_s:
   codeline
     directiveuse
       data
-        imm	0b110001011111001000111111111111
+        imm	0x3A0DC000
   codeline
     label	FB_DATA_t:
   codeline
     directiveuse
       data
-        imm	0b110011110111101100001110111101
+        imm	0x3084F108
   codeline
     label	FB_DATA_u:
   codeline
     directiveuse
       data
-        imm	0b110001011010110101101111111111
+        imm	0x3A529000
   codeline
     label	FB_DATA_v:
   codeline
     directiveuse
       data
-        imm	0b111011100110110101101111111111
+        imm	0x11929000
   codeline
     label	FB_DATA_w:
   codeline
     directiveuse
       data
-        imm	0b101010101001010011101111111111
+        imm	0x556B1000
   codeline
     label	FB_DATA_x:
   codeline
     directiveuse
       data
-        imm	0b001001101111011001001111111111
+        imm	0xD909B000
   codeline
     label	FB_DATA_y:
   codeline
     directiveuse
       data
-        imm	0b110001011110001101101011010110
+        imm	0x3A1C94A4
   codeline
     label	FB_DATA_z:
   codeline
     directiveuse
       data
-        imm	0b100001110111011100001111111111
+        imm	0x7888F000
   codeline
     label	FB_DATA_BRACELEFT:
   codeline
     directiveuse
       data
-        imm	0b100111101111001110011101110011
+        imm	0x610C6230
   codeline
     label	FB_DATA_BAR:
   codeline
     directiveuse
       data
-        imm	0b110111101111011110111101111011
+        imm	0x21084210
   codeline
     label	FB_DATA_BRACERIGHT:
   codeline
     directiveuse
       data
-        imm	0b110011101110011100111101111001
+        imm	0x3118C218
   codeline
     label	FB_DATA_TILDE:
   codeline
     directiveuse
       data
-        imm	0b111111111110010010011111111111
+        imm	0x001B6000
 
 
-[Directive(name='seg', imm=ImmValue(value=4294967292), length=None), Directive(name='data', imm=ImmValue(value=0), length=4), Directive(name='seg', imm=ImmValue(value=0), length=None), Instruction(type='i', name='addi', rd=1, rs1=0, rs2=None, imm=ImmLabelPart(label='MOTD', part='high'), legacy=None), Instruction(type='i', name='shli', rd=1, rs1=1, rs2=None, imm=ImmValue(value=16), legacy=None), Instruction(type='i', name='ori', rd=1, rs1=1, rs2=None, imm=ImmLabelPart(label='MOTD', part='low'), legacy=None), Instruction(type='i', name='addi', rd=13, rs1=0, rs2=None, imm=ImmLabelPart(label='PRINT_STRING', part='high'), legacy=None), Instruction(type='i', name='shli', rd=13, rs1=13, rs2=None, imm=ImmValue(value=16), legacy=None), Instruction(type='i', name='ori', rd=13, rs1=13, rs2=None, imm=ImmLabelPart(label='PRINT_STRING', part='low'), legacy=None), Instruction(type='j', name='jalr', rd=14, rs1=13, rs2=None, imm=ImmValue(value=0), legacy=None), Instruction(type='i', name='addi', rd=1, rs1=0, rs2=None, imm=ImmLabelPart(label='PROMPT', part='high'), legacy=None), Instruction(type='i', name='shli', rd=1, rs1=1, rs2=None, imm=ImmValue(value=16), legacy=None), Instruction(type='i', name='ori', rd=1, rs1=1, rs2=None, imm=ImmLabelPart(label='PROMPT', part='low'), legacy=None), Instruction(type='i', name='addi', rd=13, rs1=0, rs2=None, imm=ImmLabelPart(label='PRINT_STRING', part='high'), legacy=None), Instruction(type='i', name='shli', rd=13, rs1=13, rs2=None, imm=ImmValue(value=16), legacy=None), Instruction(type='i', name='ori', rd=13, rs1=13, rs2=None, imm=ImmLabelPart(label='PRINT_STRING', part='low'), legacy=None), Instruction(type='j', name='jalr', rd=14, rs1=13, rs2=None, imm=ImmValue(value=0), legacy=None), Instruction(type='i', name='addi', rd=3, rs1=0, rs2=None, imm=ImmValue(value=10), legacy=None), Instruction(type='i', name='addi', rd=4, rs1=0, rs2=None, imm=ImmValue(value=0), legacy=None), Instruction(type='i', name='addi', rd=5, rs1=0, rs2=None, imm=ImmValue(value=0), legacy=None), LabelDecl(name='MAIN_LOOP'), Instruction(type='i', name='addi', rd=1, rs1=0, rs2=None, imm=ImmLabelPart(label='TTY_BUFFER', part='high'), legacy=None), Instruction(type='i', name='shli', rd=1, rs1=1, rs2=None, imm=ImmValue(value=16), legacy=None), Instruction(type='i', name='ori', rd=1, rs1=1, rs2=None, imm=ImmLabelPart(label='TTY_BUFFER', part='low'), legacy=None), Instruction(type='i', name='addi', rd=13, rs1=0, rs2=None, imm=ImmLabelPart(label='READ_CHAR', part='high'), legacy=None), Instruction(type='i', name='shli', rd=13, rs1=13, rs2=None, imm=ImmValue(value=16), legacy=None), Instruction(type='i', name='ori', rd=13, rs1=13, rs2=None, imm=ImmLabelPart(label='READ_CHAR', part='low'), legacy=None), Instruction(type='j', name='jalr', rd=14, rs1=13, rs2=None, imm=ImmValue(value=0), legacy=None), Instruction(type='b', name='beq', rd=1, rs1=3, rs2=None, imm=ImmLabel(name='NEWLINE_LABEL'), legacy={'type': 'b', 'name': 'beq', 'rd': 1, 'rs1': 3, 'imm': {'type': 'u', 'name': 'NEWLINE_LABEL'}}), Instruction(type='i', name='addi', rd=15, rs1=15, rs2=None, imm=ImmValue(value=-4), legacy=None), Instruction(type='l', name='sw', rd=ImmValue(value=2), rs1=15, rs2=None, imm=ImmValue(value=0), legacy=None), Instruction(type='i', name='addi', rd=15, rs1=15, rs2=None, imm=ImmValue(value=-4), legacy=None), Instruction(type='l', name='sw', rd=ImmValue(value=3), rs1=15, rs2=None, imm=ImmValue(value=0), legacy=None), Instruction(type='i', name='addi', rd=2, rs1=4, rs2=None, imm=ImmValue(value=0), legacy={'type': 'i', 'name': 'addi', 'rd': 2, 'rs1': 4, 'imm': 0}), Instruction(type='i', name='addi', rd=3, rs1=5, rs2=None, imm=ImmValue(value=0), legacy={'type': 'i', 'name': 'addi', 'rd': 3, 'rs1': 5, 'imm': 0}), Instruction(type='i', name='addi', rd=13, rs1=0, rs2=None, imm=ImmLabelPart(label='DRAW_CHAR_TO_DISPLAY', part='high'), legacy=None), Instruction(type='i', name='shli', rd=13, rs1=13, rs2=None, imm=ImmValue(value=16), legacy=None), Instruction(type='i', name='ori', rd=13, rs1=13, rs2=None, imm=ImmLabelPart(label='DRAW_CHAR_TO_DISPLAY', part='low'), legacy=None), Instruction(type='j', name='jalr', rd=14, rs1=13, rs2=None, imm=ImmValue(value=0), legacy=None), Instruction(type='i', name='addi', rd=4, rs1=4, rs2=None, imm=ImmValue(value=5), legacy={'type': 'i', 'name': 'addi', 'rd': 4, 'rs1': 4, 'imm': 5}), Instruction(type='l', name='lw', rd=ImmValue(value=3), rs1=15, rs2=None, imm=ImmValue(value=0), legacy=None), Instruction(type='i', name='addi', rd=15, rs1=15, rs2=None, imm=ImmValue(value=4), legacy=None), Instruction(type='l', name='lw', rd=ImmValue(value=2), rs1=15, rs2=None, imm=ImmValue(value=0), legacy=None), Instruction(type='i', name='addi', rd=15, rs1=15, rs2=None, imm=ImmValue(value=4), legacy=None), Instruction(type='i', name='addi', rd=2, rs1=0, rs2=None, imm=ImmValue(value=4096), legacy=None), Instruction(type='i', name='shli', rd=2, rs1=2, rs2=None, imm=ImmValue(value=16), legacy=None), Instruction(type='l', name='sb', rd=1, rs1=2, rs2=None, imm=ImmValue(value=0), legacy={'type': 'l', 'name': 'sb', 'rd': 1, 'rs1': 2, 'imm': 0}), Instruction(type='i', name='addi', rd=13, rs1=0, rs2=None, imm=ImmLabelPart(label='MAIN_LOOP', part='high'), legacy=None), Instruction(type='i', name='shli', rd=13, rs1=13, rs2=None, imm=ImmValue(value=16), legacy=None), Instruction(type='i', name='ori', rd=13, rs1=13, rs2=None, imm=ImmLabelPart(label='MAIN_LOOP', part='low'), legacy=None), Instruction(type='j', name='jalr', rd=0, rs1=13, rs2=None, imm=ImmValue(value=0), legacy=None), LabelDecl(name='NEWLINE_LABEL'), Instruction(type='i', name='addi', rd=5, rs1=5, rs2=None, imm=ImmValue(value=8), legacy={'type': 'i', 'name': 'addi', 'rd': 5, 'rs1': 5, 'imm': 8}), Instruction(type='i', name='addi', rd=4, rs1=0, rs2=None, imm=ImmValue(value=0), legacy=None), Instruction(type='i', name='addi', rd=1, rs1=0, rs2=None, imm=ImmLabelPart(label='PROMPT', part='high'), legacy=None), Instruction(type='i', name='shli', rd=1, rs1=1, rs2=None, imm=ImmValue(value=16), legacy=None), Instruction(type='i', name='ori', rd=1, rs1=1, rs2=None, imm=ImmLabelPart(label='PROMPT', part='low'), legacy=None), Instruction(type='i', name='addi', rd=13, rs1=0, rs2=None, imm=ImmLabelPart(label='PRINT_STRING', part='high'), legacy=None), Instruction(type='i', name='shli', rd=13, rs1=13, rs2=None, imm=ImmValue(value=16), legacy=None), Instruction(type='i', name='ori', rd=13, rs1=13, rs2=None, imm=ImmLabelPart(label='PRINT_STRING', part='low'), legacy=None), Instruction(type='j', name='jalr', rd=14, rs1=13, rs2=None, imm=ImmValue(value=0), legacy=None), Instruction(type='i', name='addi', rd=13, rs1=0, rs2=None, imm=ImmLabelPart(label='MAIN_LOOP', part='high'), legacy=None), Instruction(type='i', name='shli', rd=13, rs1=13, rs2=None, imm=ImmValue(value=16), legacy=None), Instruction(type='i', name='ori', rd=13, rs1=13, rs2=None, imm=ImmLabelPart(label='MAIN_LOOP', part='low'), legacy=None), Instruction(type='j', name='jalr', rd=0, rs1=13, rs2=None, imm=ImmValue(value=0), legacy=None), LabelDecl(name='BREAK_LABEL'), Instruction(type='s', name='break', rd=None, rs1=None, rs2=None, imm=None, legacy={'type': 's', 'name': 'break'}), Directive(name='seg', imm=ImmValue(value=1280), length=None), LabelDecl(name='PRINT_STRING'), Instruction(type='i', name='addi', rd=15, rs1=15, rs2=None, imm=ImmValue(value=-4), legacy=None), Instruction(type='l', name='sw', rd=ImmValue(value=2), rs1=15, rs2=None, imm=ImmValue(value=0), legacy=None), Instruction(type='i', name='addi', rd=15, rs1=15, rs2=None, imm=ImmValue(value=-4), legacy=None), Instruction(type='l', name='sw', rd=ImmValue(value=3), rs1=15, rs2=None, imm=ImmValue(value=0), legacy=None), Instruction(type='i', name='addi', rd=2, rs1=0, rs2=None, imm=ImmValue(value=4096), legacy=None), Instruction(type='i', name='shli', rd=2, rs1=2, rs2=None, imm=ImmValue(value=16), legacy=None), LabelDecl(name='PRINT_CHAR_LOOP'), Instruction(type='l', name='lb', rd=3, rs1=1, rs2=None, imm=ImmValue(value=0), legacy={'type': 'l', 'name': 'lb', 'rd': 3, 'rs1': 1, 'imm': 0}), Instruction(type='b', name='beq', rd=3, rs1=0, rs2=None, imm=ImmLabel(name='END_PRINT_CHAR_LOOP'), legacy={'type': 'b', 'name': 'beq', 'rd': 3, 'rs1': 0, 'imm': {'type': 'u', 'name': 'END_PRINT_CHAR_LOOP'}}), Instruction(type='l', name='sb', rd=3, rs1=2, rs2=None, imm=ImmValue(value=0), legacy={'type': 'l', 'name': 'sb', 'rd': 3, 'rs1': 2, 'imm': 0}), Instruction(type='i', name='addi', rd=1, rs1=1, rs2=None, imm=ImmValue(value=1), legacy={'type': 'i', 'name': 'addi', 'rd': 1, 'rs1': 1, 'imm': 1}), Instruction(type='i', name='addi', rd=13, rs1=0, rs2=None, imm=ImmLabelPart(label='PRINT_CHAR_LOOP', part='high'), legacy=None), Instruction(type='i', name='shli', rd=13, rs1=13, rs2=None, imm=ImmValue(value=16), legacy=None), Instruction(type='i', name='ori', rd=13, rs1=13, rs2=None, imm=ImmLabelPart(label='PRINT_CHAR_LOOP', part='low'), legacy=None), Instruction(type='j', name='jalr', rd=0, rs1=13, rs2=None, imm=ImmValue(value=0), legacy=None), LabelDecl(name='END_PRINT_CHAR_LOOP'), Instruction(type='l', name='lw', rd=ImmValue(value=3), rs1=15, rs2=None, imm=ImmValue(value=0), legacy=None), Instruction(type='i', name='addi', rd=15, rs1=15, rs2=None, imm=ImmValue(value=4), legacy=None), Instruction(type='l', name='lw', rd=ImmValue(value=2), rs1=15, rs2=None, imm=ImmValue(value=0), legacy=None), Instruction(type='i', name='addi', rd=15, rs1=15, rs2=None, imm=ImmValue(value=4), legacy=None), Instruction(type='j', name='jalr', rd=0, rs1=14, rs2=None, imm=ImmValue(value=0), legacy={'type': 'j', 'rd': 0, 'rs1': 14, 'name': 'jalr', 'imm': 0}), LabelDecl(name='READ_CHAR'), Instruction(type='i', name='addi', rd=15, rs1=15, rs2=None, imm=ImmValue(value=-4), legacy=None), Instruction(type='l', name='sw', rd=ImmValue(value=2), rs1=15, rs2=None, imm=ImmValue(value=0), legacy=None), Instruction(type='i', name='addi', rd=2, rs1=0, rs2=None, imm=ImmValue(value=4096), legacy=None), Instruction(type='i', name='shli', rd=2, rs1=2, rs2=None, imm=ImmValue(value=16), legacy=None), Instruction(type='l', name='lb', rd=1, rs1=2, rs2=None, imm=ImmValue(value=0), legacy={'type': 'l', 'name': 'lb', 'rd': 1, 'rs1': 2, 'imm': 0}), Instruction(type='l', name='lw', rd=ImmValue(value=2), rs1=15, rs2=None, imm=ImmValue(value=0), legacy=None), Instruction(type='i', name='addi', rd=15, rs1=15, rs2=None, imm=ImmValue(value=4), legacy=None), Instruction(type='j', name='jalr', rd=0, rs1=14, rs2=None, imm=ImmValue(value=0), legacy={'type': 'j', 'rd': 0, 'rs1': 14, 'name': 'jalr', 'imm': 0}), LabelDecl(name='READ_LINE'), Instruction(type='i', name='addi', rd=15, rs1=15, rs2=None, imm=ImmValue(value=-4), legacy=None), Instruction(type='l', name='sw', rd=ImmValue(value=1), rs1=15, rs2=None, imm=ImmValue(value=0), legacy=None), Instruction(type='i', name='addi', rd=15, rs1=15, rs2=None, imm=ImmValue(value=-4), legacy=None), Instruction(type='l', name='sw', rd=ImmValue(value=2), rs1=15, rs2=None, imm=ImmValue(value=0), legacy=None), Instruction(type='i', name='addi', rd=15, rs1=15, rs2=None, imm=ImmValue(value=-4), legacy=None), Instruction(type='l', name='sw', rd=ImmValue(value=3), rs1=15, rs2=None, imm=ImmValue(value=0), legacy=None), LabelDecl(name='READ_LINE_LOOP'), Instruction(type='i', name='addi', rd=13, rs1=0, rs2=None, imm=ImmLabelPart(label='READ_CHAR', part='high'), legacy=None), Instruction(type='i', name='shli', rd=13, rs1=13, rs2=None, imm=ImmValue(value=16), legacy=None), Instruction(type='i', name='ori', rd=13, rs1=13, rs2=None, imm=ImmLabelPart(label='READ_CHAR', part='low'), legacy=None), Instruction(type='j', name='jalr', rd=14, rs1=13, rs2=None, imm=ImmValue(value=0), legacy=None), Instruction(type='i', name='addi', rd=3, rs1=0, rs2=None, imm=ImmValue(value=10), legacy={'type': 'i', 'name': 'addi', 'rd': 3, 'rs1': 0, 'imm': 10}), Instruction(type='b', name='beq', rd=1, rs1=3, rs2=None, imm=ImmLabel(name='END_READ_LINE_LOOP'), legacy={'type': 'b', 'name': 'beq', 'rd': 1, 'rs1': 3, 'imm': {'type': 'u', 'name': 'END_READ_LINE_LOOP'}}), Instruction(type='l', name='sb', rd=1, rs1=2, rs2=None, imm=ImmValue(value=0), legacy={'type': 'l', 'name': 'sb', 'rd': 1, 'rs1': 2, 'imm': 0}), Instruction(type='i', name='addi', rd=2, rs1=2, rs2=None, imm=ImmValue(value=1), legacy={'type': 'i', 'name': 'addi', 'rd': 2, 'rs1': 2, 'imm': 1}), Instruction(type='i', name='addi', rd=13, rs1=0, rs2=None, imm=ImmLabelPart(label='READ_LINE_LOOP', part='high'), legacy=None), Instruction(type='i', name='shli', rd=13, rs1=13, rs2=None, imm=ImmValue(value=16), legacy=None), Instruction(type='i', name='ori', rd=13, rs1=13, rs2=None, imm=ImmLabelPart(label='READ_LINE_LOOP', part='low'), legacy=None), Instruction(type='j', name='jalr', rd=0, rs1=13, rs2=None, imm=ImmValue(value=0), legacy=None), LabelDecl(name='END_READ_LINE_LOOP'), Instruction(type='l', name='sb', rd=0, rs1=2, rs2=None, imm=ImmValue(value=0), legacy={'type': 'l', 'name': 'sb', 'rd': 0, 'rs1': 2, 'imm': 0}), Instruction(type='l', name='lw', rd=ImmValue(value=3), rs1=15, rs2=None, imm=ImmValue(value=0), legacy=None), Instruction(type='i', name='addi', rd=15, rs1=15, rs2=None, imm=ImmValue(value=4), legacy=None), Instruction(type='l', name='lw', rd=ImmValue(value=2), rs1=15, rs2=None, imm=ImmValue(value=0), legacy=None), Instruction(type='i', name='addi', rd=15, rs1=15, rs2=None, imm=ImmValue(value=4), legacy=None), Instruction(type='l', name='lw', rd=ImmValue(value=1), rs1=15, rs2=None, imm=ImmValue(value=0), legacy=None), Instruction(type='i', name='addi', rd=15, rs1=15, rs2=None, imm=ImmValue(value=4), legacy=None), Instruction(type='j', name='jalr', rd=0, rs1=14, rs2=None, imm=ImmValue(value=0), legacy={'type': 'j', 'rd': 0, 'rs1': 14, 'name': 'jalr', 'imm': 0}), LabelDecl(name='DRAW_CHAR_TO_DISPLAY'), Instruction(type='i', name='addi', rd=15, rs1=15, rs2=None, imm=ImmValue(value=-4), legacy=None), Instruction(type='l', name='sw', rd=ImmValue(value=4), rs1=15, rs2=None, imm=ImmValue(value=0), legacy=None), Instruction(type='i', name='addi', rd=15, rs1=15, rs2=None, imm=ImmValue(value=-4), legacy=None), Instruction(type='l', name='sw', rd=ImmValue(value=5), rs1=15, rs2=None, imm=ImmValue(value=0), legacy=None), Instruction(type='i', name='addi', rd=15, rs1=15, rs2=None, imm=ImmValue(value=-4), legacy=None), Instruction(type='l', name='sw', rd=ImmValue(value=6), rs1=15, rs2=None, imm=ImmValue(value=0), legacy=None), Instruction(type='i', name='addi', rd=15, rs1=15, rs2=None, imm=ImmValue(value=-4), legacy=None), Instruction(type='l', name='sw', rd=ImmValue(value=7), rs1=15, rs2=None, imm=ImmValue(value=0), legacy=None), Instruction(type='i', name='addi', rd=15, rs1=15, rs2=None, imm=ImmValue(value=-4), legacy=None), Instruction(type='l', name='sw', rd=ImmValue(value=8), rs1=15, rs2=None, imm=ImmValue(value=0), legacy=None), Instruction(type='i', name='addi', rd=15, rs1=15, rs2=None, imm=ImmValue(value=-4), legacy=None), Instruction(type='l', name='sw', rd=ImmValue(value=9), rs1=15, rs2=None, imm=ImmValue(value=0), legacy=None), Instruction(type='i', name='addi', rd=15, rs1=15, rs2=None, imm=ImmValue(value=-4), legacy=None), Instruction(type='l', name='sw', rd=ImmValue(value=10), rs1=15, rs2=None, imm=ImmValue(value=0), legacy=None), Instruction(type='i', name='addi', rd=15, rs1=15, rs2=None, imm=ImmValue(value=-4), legacy=None), Instruction(type='l', name='sw', rd=ImmValue(value=11), rs1=15, rs2=None, imm=ImmValue(value=0), legacy=None), Instruction(type='i', name='addi', rd=4, rs1=0, rs2=None, imm=ImmLabelPart(label='BASE_FB_ADDR', part='high'), legacy=None), Instruction(type='i', name='shli', rd=4, rs1=4, rs2=None, imm=ImmValue(value=16), legacy=None), Instruction(type='i', name='ori', rd=4, rs1=4, rs2=None, imm=ImmLabelPart(label='BASE_FB_ADDR', part='low'), legacy=None), Instruction(type='i', name='addi', rd=8, rs1=0, rs2=None, imm=ImmValue(value=32), legacy=None), Instruction(type='r', name='sub', rd=5, rs1=1, rs2=8, imm=None, legacy={'type': 'r', 'name': 'sub', 'rd': 5, 'rs1': 1, 'rs2': 8}), Instruction(type='i', name='addi', rd=8, rs1=0, rs2=None, imm=ImmValue(value=4), legacy=None), Instruction(type='r', name='mul', rd=5, rs1=5, rs2=8, imm=None, legacy={'type': 'r', 'name': 'mul', 'rd': 5, 'rs1': 5, 'rs2': 8}), Instruction(type='r', name='add', rd=4, rs1=4, rs2=5, imm=None, legacy={'type': 'r', 'name': 'add', 'rd': 4, 'rs1': 4, 'rs2': 5}), Instruction(type='l', name='lw', rd=5, rs1=4, rs2=None, imm=ImmValue(value=0), legacy={'type': 'l', 'name': 'lw', 'rd': 5, 'rs1': 4, 'imm': 0}), Instruction(type='i', name='addi', rd=6, rs1=0, rs2=None, imm=ImmValue(value=0), legacy=None), LabelDecl(name='DRAW_CHAR_ROW_LOOP'), Instruction(type='i', name='addi', rd=8, rs1=0, rs2=None, imm=ImmValue(value=6), legacy=None), Instruction(type='b', name='beq', rd=6, rs1=8, rs2=None, imm=ImmLabel(name='END_DRAW_CHAR_PIXEL_LOOP'), legacy={'type': 'b', 'name': 'beq', 'rd': 6, 'rs1': 8, 'imm': {'type': 'u', 'name': 'END_DRAW_CHAR_PIXEL_LOOP'}}), Instruction(type='i', name='addi', rd=7, rs1=0, rs2=None, imm=ImmValue(value=0), legacy=None), LabelDecl(name='DRAW_CHAR_COLUMN_LOOP'), Instruction(type='i', name='addi', rd=8, rs1=0, rs2=None, imm=ImmValue(value=5), legacy=None), Instruction(type='b', name='beq', rd=7, rs1=8, rs2=None, imm=ImmLabel(name='END_DRAW_CHAR_COLUMN_LOOP'), legacy={'type': 'b', 'name': 'beq', 'rd': 7, 'rs1': 8, 'imm': {'type': 'u', 'name': 'END_DRAW_CHAR_COLUMN_LOOP'}}), Instruction(type='i', name='addi', rd=10, rs1=0, rs2=None, imm=ImmValue(value=5), legacy=None), Instruction(type='r', name='mul', rd=10, rs1=6, rs2=10, imm=None, legacy={'type': 'r', 'name': 'mul', 'rd': 10, 'rs1': 6, 'rs2': 10}), Instruction(type='r', name='add', rd=10, rs1=10, rs2=7, imm=None, legacy={'type': 'r', 'name': 'add', 'rd': 10, 'rs1': 10, 'rs2': 7}), Instruction(type='i', name='addi', rd=11, rs1=0, rs2=None, imm=ImmValue(value=29), legacy=None), Instruction(type='r', name='sub', rd=11, rs1=11, rs2=10, imm=None, legacy={'type': 'r', 'name': 'sub', 'rd': 11, 'rs1': 11, 'rs2': 10}), Instruction(type='r', name='shr', rd=8, rs1=5, rs2=11, imm=None, legacy={'type': 'r', 'name': 'shr', 'rd': 8, 'rs1': 5, 'rs2': 11}), Instruction(type='i', name='andi', rd=8, rs1=8, rs2=None, imm=ImmValue(value=1), legacy={'type': 'i', 'name': 'andi', 'rd': 8, 'rs1': 8, 'imm': 1}), Instruction(type='b', name='beq', rd=8, rs1=0, rs2=None, imm=ImmLabel(name='SKIP_PIXEL_DRAW'), legacy={'type': 'b', 'name': 'beq', 'rd': 8, 'rs1': 0, 'imm': {'type': 'u', 'name': 'SKIP_PIXEL_DRAW'}}), Instruction(type='r', name='add', rd=8, rs1=2, rs2=7, imm=None, legacy={'type': 'r', 'name': 'add', 'rd': 8, 'rs1': 2, 'rs2': 7}), Instruction(type='r', name='add', rd=9, rs1=3, rs2=6, imm=None, legacy={'type': 'r', 'name': 'add', 'rd': 9, 'rs1': 3, 'rs2': 6}), Instruction(type='i', name='addi', rd=10, rs1=0, rs2=None, imm=ImmValue(value=128), legacy=None), Instruction(type='r', name='mul', rd=9, rs1=9, rs2=10, imm=None, legacy={'type': 'r', 'name': 'mul', 'rd': 9, 'rs1': 9, 'rs2': 10}), Instruction(type='r', name='add', rd=9, rs1=9, rs2=8, imm=None, legacy={'type': 'r', 'name': 'add', 'rd': 9, 'rs1': 9, 'rs2': 8}), Instruction(type='i', name='addi', rd=10, rs1=0, rs2=None, imm=ImmValue(value=4), legacy=None), Instruction(type='r', name='div', rd=11, rs1=9, rs2=10, imm=None, legacy={'type': 'r', 'name': 'div', 'rd': 11, 'rs1': 9, 'rs2': 10}), Instruction(type='i', name='addi', rd=10, rs1=0, rs2=None, imm=ImmValue(value=8192), legacy=None), Instruction(type='i', name='shli', rd=10, rs1=10, rs2=None, imm=ImmValue(value=16), legacy=None), Instruction(type='r', name='add', rd=11, rs1=11, rs2=10, imm=None, legacy={'type': 'r', 'name': 'add', 'rd': 11, 'rs1': 11, 'rs2': 10}), Instruction(type='i', name='andi', rd=10, rs1=9, rs2=None, imm=ImmValue(value=3), legacy={'type': 'i', 'name': 'andi', 'rd': 10, 'rs1': 9, 'imm': 3}), Instruction(type='i', name='addi', rd=8, rs1=0, rs2=None, imm=ImmValue(value=3), legacy=None), Instruction(type='r', name='sub', rd=8, rs1=8, rs2=10, imm=None, legacy={'type': 'r', 'name': 'sub', 'rd': 8, 'rs1': 8, 'rs2': 10}), Instruction(type='i', name='addi', rd=10, rs1=0, rs2=None, imm=ImmValue(value=2), legacy=None), Instruction(type='r', name='mul', rd=8, rs1=8, rs2=10, imm=None, legacy={'type': 'r', 'name': 'mul', 'rd': 8, 'rs1': 8, 'rs2': 10}), Instruction(type='l', name='lb', rd=10, rs1=11, rs2=None, imm=ImmValue(value=0), legacy={'type': 'l', 'name': 'lb', 'rd': 10, 'rs1': 11, 'imm': 0}), Instruction(type='i', name='addi', rd=9, rs1=0, rs2=None, imm=ImmValue(value=3), legacy=None), Instruction(type='r', name='shl', rd=9, rs1=9, rs2=8, imm=None, legacy={'type': 'r', 'name': 'shl', 'rd': 9, 'rs1': 9, 'rs2': 8}), Instruction(type='r', name='or', rd=10, rs1=10, rs2=9, imm=None, legacy={'type': 'r', 'name': 'or', 'rd': 10, 'rs1': 10, 'rs2': 9}), Instruction(type='l', name='sb', rd=10, rs1=11, rs2=None, imm=ImmValue(value=0), legacy={'type': 'l', 'name': 'sb', 'rd': 10, 'rs1': 11, 'imm': 0}), LabelDecl(name='SKIP_PIXEL_DRAW'), Instruction(type='i', name='addi', rd=7, rs1=7, rs2=None, imm=ImmValue(value=1), legacy={'type': 'i', 'name': 'addi', 'rd': 7, 'rs1': 7, 'imm': 1}), Instruction(type='i', name='addi', rd=13, rs1=0, rs2=None, imm=ImmLabelPart(label='DRAW_CHAR_COLUMN_LOOP', part='high'), legacy=None), Instruction(type='i', name='shli', rd=13, rs1=13, rs2=None, imm=ImmValue(value=16), legacy=None), Instruction(type='i', name='ori', rd=13, rs1=13, rs2=None, imm=ImmLabelPart(label='DRAW_CHAR_COLUMN_LOOP', part='low'), legacy=None), Instruction(type='j', name='jalr', rd=0, rs1=13, rs2=None, imm=ImmValue(value=0), legacy=None), LabelDecl(name='END_DRAW_CHAR_COLUMN_LOOP'), Instruction(type='i', name='addi', rd=6, rs1=6, rs2=None, imm=ImmValue(value=1), legacy={'type': 'i', 'name': 'addi', 'rd': 6, 'rs1': 6, 'imm': 1}), Instruction(type='i', name='addi', rd=13, rs1=0, rs2=None, imm=ImmLabelPart(label='DRAW_CHAR_ROW_LOOP', part='high'), legacy=None), Instruction(type='i', name='shli', rd=13, rs1=13, rs2=None, imm=ImmValue(value=16), legacy=None), Instruction(type='i', name='ori', rd=13, rs1=13, rs2=None, imm=ImmLabelPart(label='DRAW_CHAR_ROW_LOOP', part='low'), legacy=None), Instruction(type='j', name='jalr', rd=0, rs1=13, rs2=None, imm=ImmValue(value=0), legacy=None), LabelDecl(name='END_DRAW_CHAR_PIXEL_LOOP'), Instruction(type='l', name='lw', rd=ImmValue(value=11), rs1=15, rs2=None, imm=ImmValue(value=0), legacy=None), Instruction(type='i', name='addi', rd=15, rs1=15, rs2=None, imm=ImmValue(value=4), legacy=None), Instruction(type='l', name='lw', rd=ImmValue(value=10), rs1=15, rs2=None, imm=ImmValue(value=0), legacy=None), Instruction(type='i', name='addi', rd=15, rs1=15, rs2=None, imm=ImmValue(value=4), legacy=None), Instruction(type='l', name='lw', rd=ImmValue(value=9), rs1=15, rs2=None, imm=ImmValue(value=0), legacy=None), Instruction(type='i', name='addi', rd=15, rs1=15, rs2=None, imm=ImmValue(value=4), legacy=None), Instruction(type='l', name='lw', rd=ImmValue(value=8), rs1=15, rs2=None, imm=ImmValue(value=0), legacy=None), Instruction(type='i', name='addi', rd=15, rs1=15, rs2=None, imm=ImmValue(value=4), legacy=None), Instruction(type='l', name='lw', rd=ImmValue(value=7), rs1=15, rs2=None, imm=ImmValue(value=0), legacy=None), Instruction(type='i', name='addi', rd=15, rs1=15, rs2=None, imm=ImmValue(value=4), legacy=None), Instruction(type='l', name='lw', rd=ImmValue(value=6), rs1=15, rs2=None, imm=ImmValue(value=0), legacy=None), Instruction(type='i', name='addi', rd=15, rs1=15, rs2=None, imm=ImmValue(value=4), legacy=None), Instruction(type='l', name='lw', rd=ImmValue(value=5), rs1=15, rs2=None, imm=ImmValue(value=0), legacy=None), Instruction(type='i', name='addi', rd=15, rs1=15, rs2=None, imm=ImmValue(value=4), legacy=None), Instruction(type='l', name='lw', rd=ImmValue(value=4), rs1=15, rs2=None, imm=ImmValue(value=0), legacy=None), Instruction(type='i', name='addi', rd=15, rs1=15, rs2=None, imm=ImmValue(value=4), legacy=None), Instruction(type='j', name='jalr', rd=0, rs1=14, rs2=None, imm=ImmValue(value=0), legacy={'type': 'j', 'rd': 0, 'rs1': 14, 'name': 'jalr', 'imm': 0}), Directive(name='seg', imm=ImmValue(value=4096), length=None), LabelDecl(name='TTY'), Directive(name='data', imm=ImmValue(value=268435456), length=4), LabelDecl(name='MOTD'), Directive(name='data', imm=b'WELCOME TO ROSPOS. Copyleft 2026 Erik Rospo\n\x00', length=45), LabelDecl(name='PROMPT'), Directive(name='data', imm=b'\nROSPOS> \x00', length=10), LabelDecl(name='TTY_BUFFER'), Directive(name='data', imm=b'\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00', length=256), LabelDecl(name='BASE_FB_ADDR'), LabelDecl(name='FB_DATA_SPACE'), Directive(name='data', imm=ImmValue(value=1073741823), length=4), LabelDecl(name='FB_DATA_EXCLAM'), Directive(name='data', imm=ImmValue(value=939388795), length=4), LabelDecl(name='FB_DATA_QUOTE'), Directive(name='data', imm=ImmValue(value=1073731253), length=4), LabelDecl(name='FB_DATA_HASH'), Directive(name='data', imm=ImmValue(value=705352725), length=4), LabelDecl(name='FB_DATA_DOLLAR'), Directive(name='data', imm=ImmValue(value=923125569), length=4), LabelDecl(name='FB_DATA_PERCENT'), Directive(name='data', imm=ImmValue(value=207475103), length=4), LabelDecl(name='FB_DATA_AMPERSAND'), Directive(name='data', imm=ImmValue(value=292235097), length=4), LabelDecl(name='FB_DATA_APOSTROPHE'), Directive(name='data', imm=ImmValue(value=1073737595), length=4), LabelDecl(name='FB_DATA_PARENLEFT'), Directive(name='data', imm=ImmValue(value=800976759), length=4), LabelDecl(name='FB_DATA_PARENRIGHT'), Directive(name='data', imm=ImmValue(value=1002303357), length=4), LabelDecl(name='FB_DATA_ASTERISK'), Directive(name='data', imm=ImmValue(value=1063110527), length=4), LabelDecl(name='FB_DATA_PLUS'), Directive(name='data', imm=ImmValue(value=1069084671), length=4), LabelDecl(name='FB_DATA_COMMA'), Directive(name='data', imm=ImmValue(value=1002307583), length=4), LabelDecl(name='FB_DATA_HYPHEN'), Directive(name='data', imm=ImmValue(value=1073283071), length=4), LabelDecl(name='FB_DATA_PERIOD'), Directive(name='data', imm=ImmValue(value=866123775), length=4), LabelDecl(name='FB_DATA_SLASH'), Directive(name='data', imm=ImmValue(value=1037950463), length=4), LabelDecl(name='FB_DATA_0'), Directive(name='data', imm=ImmValue(value=583346385), length=4), LabelDecl(name='FB_DATA_1'), Directive(name='data', imm=ImmValue(value=29223739), length=4), LabelDecl(name='FB_DATA_2'), Directive(name='data', imm=ImmValue(value=31317457), length=4), LabelDecl(name='FB_DATA_3'), Directive(name='data', imm=ImmValue(value=585616880), length=4), LabelDecl(name='FB_DATA_4'), Directive(name='data', imm=ImmValue(value=519059319), length=4), LabelDecl(name='FB_DATA_5'), Directive(name='data', imm=ImmValue(value=585614272), length=4), LabelDecl(name='FB_DATA_6'), Directive(name='data', imm=ImmValue(value=585661363), length=4), LabelDecl(name='FB_DATA_7'), Directive(name='data', imm=ImmValue(value=1037950432), length=4), LabelDecl(name='FB_DATA_8'), Directive(name='data', imm=ImmValue(value=585582033), length=4), LabelDecl(name='FB_DATA_9'), Directive(name='data', imm=ImmValue(value=519092673), length=4), LabelDecl(name='FB_DATA_COLON'), Directive(name='data', imm=ImmValue(value=866117439), length=4), LabelDecl(name='FB_DATA_SEMICOLON'), Directive(name='data', imm=ImmValue(value=1002434559), length=4), LabelDecl(name='FB_DATA_LESS'), Directive(name='data', imm=ImmValue(value=801042175), length=4), LabelDecl(name='FB_DATA_EQUAL'), Directive(name='data', imm=ImmValue(value=1059047423), length=4), LabelDecl(name='FB_DATA_GREATER'), Directive(name='data', imm=ImmValue(value=1002172351), length=4), LabelDecl(name='FB_DATA_QUESTION'), Directive(name='data', imm=ImmValue(value=939380177), length=4), LabelDecl(name='FB_DATA_AT'), Directive(name='data', imm=ImmValue(value=65079761), length=4), LabelDecl(name='FB_DATA_A'), Directive(name='data', imm=ImmValue(value=484457147), length=4), LabelDecl(name='FB_DATA_B'), Directive(name='data', imm=ImmValue(value=552026576), length=4), LabelDecl(name='FB_DATA_C'), Directive(name='data', imm=ImmValue(value=66025937), length=4), LabelDecl(name='FB_DATA_D'), Directive(name='data', imm=ImmValue(value=552024528), length=4), LabelDecl(name='FB_DATA_E'), Directive(name='data', imm=ImmValue(value=32457664), length=4), LabelDecl(name='FB_DATA_F'), Directive(name='data', imm=ImmValue(value=1039090624), length=4), LabelDecl(name='FB_DATA_G'), Directive(name='data', imm=ImmValue(value=585333697), length=4), LabelDecl(name='FB_DATA_H'), Directive(name='data', imm=ImmValue(value=484901326), length=4), LabelDecl(name='FB_DATA_I'), Directive(name='data', imm=ImmValue(value=29224800), length=4), LabelDecl(name='FB_DATA_J'), Directive(name='data', imm=ImmValue(value=862707424), length=4), LabelDecl(name='FB_DATA_K'), Directive(name='data', imm=ImmValue(value=485188302), length=4), LabelDecl(name='FB_DATA_L'), Directive(name='data', imm=ImmValue(value=32472030), length=4), LabelDecl(name='FB_DATA_M'), Directive(name='data', imm=ImmValue(value=484780356), length=4), LabelDecl(name='FB_DATA_N'), Directive(name='data', imm=ImmValue(value=476260750), length=4), LabelDecl(name='FB_DATA_O'), Directive(name='data', imm=ImmValue(value=585578961), length=4), LabelDecl(name='FB_DATA_P'), Directive(name='data', imm=ImmValue(value=1038629328), length=4), LabelDecl(name='FB_DATA_Q'), Directive(name='data', imm=ImmValue(value=253049297), length=4), LabelDecl(name='FB_DATA_R'), Directive(name='data', imm=ImmValue(value=493369808), length=4), LabelDecl(name='FB_DATA_S'), Directive(name='data', imm=ImmValue(value=585885137), length=4), LabelDecl(name='FB_DATA_T'), Directive(name='data', imm=ImmValue(value=935194464), length=4), LabelDecl(name='FB_DATA_U'), Directive(name='data', imm=ImmValue(value=585578958), length=4), LabelDecl(name='FB_DATA_V'), Directive(name='data', imm=ImmValue(value=934984142), length=4), LabelDecl(name='FB_DATA_W'), Directive(name='data', imm=ImmValue(value=145041870), length=4), LabelDecl(name='FB_DATA_X'), Directive(name='data', imm=ImmValue(value=492695214), length=4), LabelDecl(name='FB_DATA_Y'), Directive(name='data', imm=ImmValue(value=935194286), length=4), LabelDecl(name='FB_DATA_Z'), Directive(name='data', imm=ImmValue(value=31317472), length=4), LabelDecl(name='FB_DATA_BRACKETLEFT'), Directive(name='data', imm=ImmValue(value=666759027), length=4), LabelDecl(name='FB_DATA_BACKSLASH'), Directive(name='data', imm=ImmValue(value=528349151), length=4), LabelDecl(name='FB_DATA_BRACKETRIGHT'), Directive(name='data', imm=ImmValue(value=868085625), length=4), LabelDecl(name='FB_DATA_CARET'), Directive(name='data', imm=ImmValue(value=1073724091), length=4), LabelDecl(name='FB_DATA_UNDERSCORE'), Directive(name='data', imm=ImmValue(value=33554431), length=4), LabelDecl(name='FB_DATA_BACKTICK'), Directive(name='data', imm=ImmValue(value=1073741693), length=4), LabelDecl(name='FB_DATA_a'), Directive(name='data', imm=ImmValue(value=594038783), length=4), LabelDecl(name='FB_DATA_b'), Directive(name='data', imm=ImmValue(value=829121502), length=4), LabelDecl(name='FB_DATA_c'), Directive(name='data', imm=ImmValue(value=602884095), length=4), LabelDecl(name='FB_DATA_d'), Directive(name='data', imm=ImmValue(value=594233079), length=4), LabelDecl(name='FB_DATA_e'), Directive(name='data', imm=ImmValue(value=65026623), length=4), LabelDecl(name='FB_DATA_f'), Directive(name='data', imm=ImmValue(value=1038017459), length=4), LabelDecl(name='FB_DATA_g'), Directive(name='data', imm=ImmValue(value=830003921), length=4), LabelDecl(name='FB_DATA_h'), Directive(name='data', imm=ImmValue(value=762012638), length=4), LabelDecl(name='FB_DATA_i'), Directive(name='data', imm=ImmValue(value=870252479), length=4), LabelDecl(name='FB_DATA_j'), Directive(name='data', imm=ImmValue(value=868085755), length=4), LabelDecl(name='FB_DATA_k'), Directive(name='data', imm=ImmValue(value=766405342), length=4), LabelDecl(name='FB_DATA_l'), Directive(name='data', imm=ImmValue(value=870250429), length=4), LabelDecl(name='FB_DATA_m'), Directive(name='data', imm=ImmValue(value=480596991), length=4), LabelDecl(name='FB_DATA_n'), Directive(name='data', imm=ImmValue(value=762012671), length=4), LabelDecl(name='FB_DATA_o'), Directive(name='data', imm=ImmValue(value=862676991), length=4), LabelDecl(name='FB_DATA_p'), Directive(name='data', imm=ImmValue(value=1038899929), length=4), LabelDecl(name='FB_DATA_q'), Directive(name='data', imm=ImmValue(value=259578577), length=4), LabelDecl(name='FB_DATA_r'), Directive(name='data', imm=ImmValue(value=1038837759), length=4), LabelDecl(name='FB_DATA_s'), Directive(name='data', imm=ImmValue(value=830246911), length=4), LabelDecl(name='FB_DATA_t'), Directive(name='data', imm=ImmValue(value=870237117), length=4), LabelDecl(name='FB_DATA_u'), Directive(name='data', imm=ImmValue(value=829119487), length=4), LabelDecl(name='FB_DATA_v'), Directive(name='data', imm=ImmValue(value=1000037375), length=4), LabelDecl(name='FB_DATA_w'), Directive(name='data', imm=ImmValue(value=715471871), length=4), LabelDecl(name='FB_DATA_x'), Directive(name='data', imm=ImmValue(value=163419135), length=4), LabelDecl(name='FB_DATA_y'), Directive(name='data', imm=ImmValue(value=830003926), length=4), LabelDecl(name='FB_DATA_z'), Directive(name='data', imm=ImmValue(value=568181759), length=4), LabelDecl(name='FB_DATA_BRACELEFT'), Directive(name='data', imm=ImmValue(value=666691443), length=4), LabelDecl(name='FB_DATA_BAR'), Directive(name='data', imm=ImmValue(value=935194491), length=4), LabelDecl(name='FB_DATA_BRACERIGHT'), Directive(name='data', imm=ImmValue(value=867815289), length=4), LabelDecl(name='FB_DATA_TILDE'), Directive(name='data', imm=ImmValue(value=1073293311), length=4)]
+[Directive(name='seg', imm=ImmValue(value=4294967292), length=None), Directive(name='data', imm=ImmValue(value=0), length=4), Directive(name='seg', imm=ImmValue(value=0), length=None), Instruction(type='i', name='addi', rd=1, rs1=0, rs2=None, imm=ImmLabelPart(label='MOTD', part='high'), legacy=None), Instruction(type='i', name='shli', rd=1, rs1=1, rs2=None, imm=ImmValue(value=16), legacy=None), Instruction(type='i', name='ori', rd=1, rs1=1, rs2=None, imm=ImmLabelPart(label='MOTD', part='low'), legacy=None), Instruction(type='i', name='addi', rd=13, rs1=0, rs2=None, imm=ImmLabelPart(label='PRINT_STRING', part='high'), legacy=None), Instruction(type='i', name='shli', rd=13, rs1=13, rs2=None, imm=ImmValue(value=16), legacy=None), Instruction(type='i', name='ori', rd=13, rs1=13, rs2=None, imm=ImmLabelPart(label='PRINT_STRING', part='low'), legacy=None), Instruction(type='j', name='jalr', rd=14, rs1=13, rs2=None, imm=ImmValue(value=0), legacy=None), Instruction(type='i', name='addi', rd=1, rs1=0, rs2=None, imm=ImmLabelPart(label='PROMPT', part='high'), legacy=None), Instruction(type='i', name='shli', rd=1, rs1=1, rs2=None, imm=ImmValue(value=16), legacy=None), Instruction(type='i', name='ori', rd=1, rs1=1, rs2=None, imm=ImmLabelPart(label='PROMPT', part='low'), legacy=None), Instruction(type='i', name='addi', rd=13, rs1=0, rs2=None, imm=ImmLabelPart(label='PRINT_STRING', part='high'), legacy=None), Instruction(type='i', name='shli', rd=13, rs1=13, rs2=None, imm=ImmValue(value=16), legacy=None), Instruction(type='i', name='ori', rd=13, rs1=13, rs2=None, imm=ImmLabelPart(label='PRINT_STRING', part='low'), legacy=None), Instruction(type='j', name='jalr', rd=14, rs1=13, rs2=None, imm=ImmValue(value=0), legacy=None), Instruction(type='i', name='addi', rd=3, rs1=0, rs2=None, imm=ImmValue(value=10), legacy=None), Instruction(type='i', name='addi', rd=4, rs1=0, rs2=None, imm=ImmValue(value=0), legacy=None), Instruction(type='i', name='addi', rd=5, rs1=0, rs2=None, imm=ImmValue(value=0), legacy=None), LabelDecl(name='MAIN_LOOP'), Instruction(type='i', name='addi', rd=1, rs1=0, rs2=None, imm=ImmLabelPart(label='TTY_BUFFER', part='high'), legacy=None), Instruction(type='i', name='shli', rd=1, rs1=1, rs2=None, imm=ImmValue(value=16), legacy=None), Instruction(type='i', name='ori', rd=1, rs1=1, rs2=None, imm=ImmLabelPart(label='TTY_BUFFER', part='low'), legacy=None), Instruction(type='i', name='addi', rd=13, rs1=0, rs2=None, imm=ImmLabelPart(label='READ_CHAR', part='high'), legacy=None), Instruction(type='i', name='shli', rd=13, rs1=13, rs2=None, imm=ImmValue(value=16), legacy=None), Instruction(type='i', name='ori', rd=13, rs1=13, rs2=None, imm=ImmLabelPart(label='READ_CHAR', part='low'), legacy=None), Instruction(type='j', name='jalr', rd=14, rs1=13, rs2=None, imm=ImmValue(value=0), legacy=None), Instruction(type='b', name='beq', rd=1, rs1=3, rs2=None, imm=ImmLabel(name='NEWLINE_LABEL'), legacy={'type': 'b', 'name': 'beq', 'rd': 1, 'rs1': 3, 'imm': {'type': 'u', 'name': 'NEWLINE_LABEL'}}), Instruction(type='i', name='addi', rd=15, rs1=15, rs2=None, imm=ImmValue(value=-4), legacy=None), Instruction(type='l', name='sw', rd=ImmValue(value=2), rs1=15, rs2=None, imm=ImmValue(value=0), legacy=None), Instruction(type='i', name='addi', rd=15, rs1=15, rs2=None, imm=ImmValue(value=-4), legacy=None), Instruction(type='l', name='sw', rd=ImmValue(value=3), rs1=15, rs2=None, imm=ImmValue(value=0), legacy=None), Instruction(type='i', name='addi', rd=2, rs1=0, rs2=None, imm=ImmValue(value=97), legacy=None), Instruction(type='b', name='blt', rd=1, rs1=2, rs2=None, imm=ImmLabel(name='SKIP_UPPERCASE_CONVERSION'), legacy={'type': 'b', 'name': 'blt', 'rd': 1, 'rs1': 2, 'imm': {'type': 'u', 'name': 'SKIP_UPPERCASE_CONVERSION'}}), Instruction(type='i', name='addi', rd=2, rs1=0, rs2=None, imm=ImmValue(value=122), legacy=None), Instruction(type='i', name='addi', rd=2, rs1=2, rs2=None, imm=ImmValue(value=1), legacy={'type': 'i', 'name': 'addi', 'rd': 2, 'rs1': 2, 'imm': 1}), Instruction(type='b', name='bge', rd=1, rs1=2, rs2=None, imm=ImmLabel(name='SKIP_UPPERCASE_CONVERSION'), legacy={'type': 'b', 'name': 'bge', 'rd': 1, 'rs1': 2, 'imm': {'type': 'u', 'name': 'SKIP_UPPERCASE_CONVERSION'}}), Instruction(type='i', name='addi', rd=2, rs1=0, rs2=None, imm=ImmValue(value=32), legacy=None), Instruction(type='r', name='sub', rd=1, rs1=1, rs2=2, imm=None, legacy={'type': 'r', 'name': 'sub', 'rd': 1, 'rs1': 1, 'rs2': 2}), LabelDecl(name='SKIP_UPPERCASE_CONVERSION'), Instruction(type='i', name='addi', rd=2, rs1=4, rs2=None, imm=ImmValue(value=0), legacy={'type': 'i', 'name': 'addi', 'rd': 2, 'rs1': 4, 'imm': 0}), Instruction(type='i', name='addi', rd=3, rs1=5, rs2=None, imm=ImmValue(value=0), legacy={'type': 'i', 'name': 'addi', 'rd': 3, 'rs1': 5, 'imm': 0}), Instruction(type='i', name='addi', rd=13, rs1=0, rs2=None, imm=ImmLabelPart(label='DRAW_CHAR_TO_DISPLAY', part='high'), legacy=None), Instruction(type='i', name='shli', rd=13, rs1=13, rs2=None, imm=ImmValue(value=16), legacy=None), Instruction(type='i', name='ori', rd=13, rs1=13, rs2=None, imm=ImmLabelPart(label='DRAW_CHAR_TO_DISPLAY', part='low'), legacy=None), Instruction(type='j', name='jalr', rd=14, rs1=13, rs2=None, imm=ImmValue(value=0), legacy=None), Instruction(type='i', name='addi', rd=4, rs1=4, rs2=None, imm=ImmValue(value=5), legacy={'type': 'i', 'name': 'addi', 'rd': 4, 'rs1': 4, 'imm': 5}), Instruction(type='l', name='lw', rd=ImmValue(value=3), rs1=15, rs2=None, imm=ImmValue(value=0), legacy=None), Instruction(type='i', name='addi', rd=15, rs1=15, rs2=None, imm=ImmValue(value=4), legacy=None), Instruction(type='l', name='lw', rd=ImmValue(value=2), rs1=15, rs2=None, imm=ImmValue(value=0), legacy=None), Instruction(type='i', name='addi', rd=15, rs1=15, rs2=None, imm=ImmValue(value=4), legacy=None), Instruction(type='i', name='addi', rd=2, rs1=0, rs2=None, imm=ImmValue(value=4096), legacy=None), Instruction(type='i', name='shli', rd=2, rs1=2, rs2=None, imm=ImmValue(value=16), legacy=None), Instruction(type='l', name='sb', rd=1, rs1=2, rs2=None, imm=ImmValue(value=0), legacy={'type': 'l', 'name': 'sb', 'rd': 1, 'rs1': 2, 'imm': 0}), Instruction(type='i', name='addi', rd=13, rs1=0, rs2=None, imm=ImmLabelPart(label='MAIN_LOOP', part='high'), legacy=None), Instruction(type='i', name='shli', rd=13, rs1=13, rs2=None, imm=ImmValue(value=16), legacy=None), Instruction(type='i', name='ori', rd=13, rs1=13, rs2=None, imm=ImmLabelPart(label='MAIN_LOOP', part='low'), legacy=None), Instruction(type='j', name='jalr', rd=0, rs1=13, rs2=None, imm=ImmValue(value=0), legacy=None), LabelDecl(name='NEWLINE_LABEL'), Instruction(type='i', name='addi', rd=5, rs1=5, rs2=None, imm=ImmValue(value=8), legacy={'type': 'i', 'name': 'addi', 'rd': 5, 'rs1': 5, 'imm': 8}), Instruction(type='i', name='addi', rd=4, rs1=0, rs2=None, imm=ImmValue(value=0), legacy=None), Instruction(type='i', name='addi', rd=1, rs1=0, rs2=None, imm=ImmLabelPart(label='PROMPT', part='high'), legacy=None), Instruction(type='i', name='shli', rd=1, rs1=1, rs2=None, imm=ImmValue(value=16), legacy=None), Instruction(type='i', name='ori', rd=1, rs1=1, rs2=None, imm=ImmLabelPart(label='PROMPT', part='low'), legacy=None), Instruction(type='i', name='addi', rd=13, rs1=0, rs2=None, imm=ImmLabelPart(label='PRINT_STRING', part='high'), legacy=None), Instruction(type='i', name='shli', rd=13, rs1=13, rs2=None, imm=ImmValue(value=16), legacy=None), Instruction(type='i', name='ori', rd=13, rs1=13, rs2=None, imm=ImmLabelPart(label='PRINT_STRING', part='low'), legacy=None), Instruction(type='j', name='jalr', rd=14, rs1=13, rs2=None, imm=ImmValue(value=0), legacy=None), Instruction(type='i', name='addi', rd=13, rs1=0, rs2=None, imm=ImmLabelPart(label='MAIN_LOOP', part='high'), legacy=None), Instruction(type='i', name='shli', rd=13, rs1=13, rs2=None, imm=ImmValue(value=16), legacy=None), Instruction(type='i', name='ori', rd=13, rs1=13, rs2=None, imm=ImmLabelPart(label='MAIN_LOOP', part='low'), legacy=None), Instruction(type='j', name='jalr', rd=0, rs1=13, rs2=None, imm=ImmValue(value=0), legacy=None), LabelDecl(name='BREAK_LABEL'), Instruction(type='s', name='break', rd=None, rs1=None, rs2=None, imm=None, legacy={'type': 's', 'name': 'break'}), Directive(name='seg', imm=ImmValue(value=1280), length=None), LabelDecl(name='PRINT_STRING'), Instruction(type='i', name='addi', rd=15, rs1=15, rs2=None, imm=ImmValue(value=-4), legacy=None), Instruction(type='l', name='sw', rd=ImmValue(value=2), rs1=15, rs2=None, imm=ImmValue(value=0), legacy=None), Instruction(type='i', name='addi', rd=15, rs1=15, rs2=None, imm=ImmValue(value=-4), legacy=None), Instruction(type='l', name='sw', rd=ImmValue(value=3), rs1=15, rs2=None, imm=ImmValue(value=0), legacy=None), Instruction(type='i', name='addi', rd=2, rs1=0, rs2=None, imm=ImmValue(value=4096), legacy=None), Instruction(type='i', name='shli', rd=2, rs1=2, rs2=None, imm=ImmValue(value=16), legacy=None), LabelDecl(name='PRINT_CHAR_LOOP'), Instruction(type='l', name='lb', rd=3, rs1=1, rs2=None, imm=ImmValue(value=0), legacy={'type': 'l', 'name': 'lb', 'rd': 3, 'rs1': 1, 'imm': 0}), Instruction(type='b', name='beq', rd=3, rs1=0, rs2=None, imm=ImmLabel(name='END_PRINT_CHAR_LOOP'), legacy={'type': 'b', 'name': 'beq', 'rd': 3, 'rs1': 0, 'imm': {'type': 'u', 'name': 'END_PRINT_CHAR_LOOP'}}), Instruction(type='l', name='sb', rd=3, rs1=2, rs2=None, imm=ImmValue(value=0), legacy={'type': 'l', 'name': 'sb', 'rd': 3, 'rs1': 2, 'imm': 0}), Instruction(type='i', name='addi', rd=1, rs1=1, rs2=None, imm=ImmValue(value=1), legacy={'type': 'i', 'name': 'addi', 'rd': 1, 'rs1': 1, 'imm': 1}), Instruction(type='i', name='addi', rd=13, rs1=0, rs2=None, imm=ImmLabelPart(label='PRINT_CHAR_LOOP', part='high'), legacy=None), Instruction(type='i', name='shli', rd=13, rs1=13, rs2=None, imm=ImmValue(value=16), legacy=None), Instruction(type='i', name='ori', rd=13, rs1=13, rs2=None, imm=ImmLabelPart(label='PRINT_CHAR_LOOP', part='low'), legacy=None), Instruction(type='j', name='jalr', rd=0, rs1=13, rs2=None, imm=ImmValue(value=0), legacy=None), LabelDecl(name='END_PRINT_CHAR_LOOP'), Instruction(type='l', name='lw', rd=ImmValue(value=3), rs1=15, rs2=None, imm=ImmValue(value=0), legacy=None), Instruction(type='i', name='addi', rd=15, rs1=15, rs2=None, imm=ImmValue(value=4), legacy=None), Instruction(type='l', name='lw', rd=ImmValue(value=2), rs1=15, rs2=None, imm=ImmValue(value=0), legacy=None), Instruction(type='i', name='addi', rd=15, rs1=15, rs2=None, imm=ImmValue(value=4), legacy=None), Instruction(type='j', name='jalr', rd=0, rs1=14, rs2=None, imm=ImmValue(value=0), legacy={'type': 'j', 'rd': 0, 'rs1': 14, 'name': 'jalr', 'imm': 0}), LabelDecl(name='READ_CHAR'), Instruction(type='i', name='addi', rd=15, rs1=15, rs2=None, imm=ImmValue(value=-4), legacy=None), Instruction(type='l', name='sw', rd=ImmValue(value=2), rs1=15, rs2=None, imm=ImmValue(value=0), legacy=None), Instruction(type='i', name='addi', rd=2, rs1=0, rs2=None, imm=ImmValue(value=4096), legacy=None), Instruction(type='i', name='shli', rd=2, rs1=2, rs2=None, imm=ImmValue(value=16), legacy=None), Instruction(type='l', name='lb', rd=1, rs1=2, rs2=None, imm=ImmValue(value=0), legacy={'type': 'l', 'name': 'lb', 'rd': 1, 'rs1': 2, 'imm': 0}), Instruction(type='l', name='lw', rd=ImmValue(value=2), rs1=15, rs2=None, imm=ImmValue(value=0), legacy=None), Instruction(type='i', name='addi', rd=15, rs1=15, rs2=None, imm=ImmValue(value=4), legacy=None), Instruction(type='j', name='jalr', rd=0, rs1=14, rs2=None, imm=ImmValue(value=0), legacy={'type': 'j', 'rd': 0, 'rs1': 14, 'name': 'jalr', 'imm': 0}), LabelDecl(name='READ_LINE'), Instruction(type='i', name='addi', rd=15, rs1=15, rs2=None, imm=ImmValue(value=-4), legacy=None), Instruction(type='l', name='sw', rd=ImmValue(value=1), rs1=15, rs2=None, imm=ImmValue(value=0), legacy=None), Instruction(type='i', name='addi', rd=15, rs1=15, rs2=None, imm=ImmValue(value=-4), legacy=None), Instruction(type='l', name='sw', rd=ImmValue(value=2), rs1=15, rs2=None, imm=ImmValue(value=0), legacy=None), Instruction(type='i', name='addi', rd=15, rs1=15, rs2=None, imm=ImmValue(value=-4), legacy=None), Instruction(type='l', name='sw', rd=ImmValue(value=3), rs1=15, rs2=None, imm=ImmValue(value=0), legacy=None), LabelDecl(name='READ_LINE_LOOP'), Instruction(type='i', name='addi', rd=13, rs1=0, rs2=None, imm=ImmLabelPart(label='READ_CHAR', part='high'), legacy=None), Instruction(type='i', name='shli', rd=13, rs1=13, rs2=None, imm=ImmValue(value=16), legacy=None), Instruction(type='i', name='ori', rd=13, rs1=13, rs2=None, imm=ImmLabelPart(label='READ_CHAR', part='low'), legacy=None), Instruction(type='j', name='jalr', rd=14, rs1=13, rs2=None, imm=ImmValue(value=0), legacy=None), Instruction(type='i', name='addi', rd=3, rs1=0, rs2=None, imm=ImmValue(value=10), legacy={'type': 'i', 'name': 'addi', 'rd': 3, 'rs1': 0, 'imm': 10}), Instruction(type='b', name='beq', rd=1, rs1=3, rs2=None, imm=ImmLabel(name='END_READ_LINE_LOOP'), legacy={'type': 'b', 'name': 'beq', 'rd': 1, 'rs1': 3, 'imm': {'type': 'u', 'name': 'END_READ_LINE_LOOP'}}), Instruction(type='l', name='sb', rd=1, rs1=2, rs2=None, imm=ImmValue(value=0), legacy={'type': 'l', 'name': 'sb', 'rd': 1, 'rs1': 2, 'imm': 0}), Instruction(type='i', name='addi', rd=2, rs1=2, rs2=None, imm=ImmValue(value=1), legacy={'type': 'i', 'name': 'addi', 'rd': 2, 'rs1': 2, 'imm': 1}), Instruction(type='i', name='addi', rd=13, rs1=0, rs2=None, imm=ImmLabelPart(label='READ_LINE_LOOP', part='high'), legacy=None), Instruction(type='i', name='shli', rd=13, rs1=13, rs2=None, imm=ImmValue(value=16), legacy=None), Instruction(type='i', name='ori', rd=13, rs1=13, rs2=None, imm=ImmLabelPart(label='READ_LINE_LOOP', part='low'), legacy=None), Instruction(type='j', name='jalr', rd=0, rs1=13, rs2=None, imm=ImmValue(value=0), legacy=None), LabelDecl(name='END_READ_LINE_LOOP'), Instruction(type='l', name='sb', rd=0, rs1=2, rs2=None, imm=ImmValue(value=0), legacy={'type': 'l', 'name': 'sb', 'rd': 0, 'rs1': 2, 'imm': 0}), Instruction(type='l', name='lw', rd=ImmValue(value=3), rs1=15, rs2=None, imm=ImmValue(value=0), legacy=None), Instruction(type='i', name='addi', rd=15, rs1=15, rs2=None, imm=ImmValue(value=4), legacy=None), Instruction(type='l', name='lw', rd=ImmValue(value=2), rs1=15, rs2=None, imm=ImmValue(value=0), legacy=None), Instruction(type='i', name='addi', rd=15, rs1=15, rs2=None, imm=ImmValue(value=4), legacy=None), Instruction(type='l', name='lw', rd=ImmValue(value=1), rs1=15, rs2=None, imm=ImmValue(value=0), legacy=None), Instruction(type='i', name='addi', rd=15, rs1=15, rs2=None, imm=ImmValue(value=4), legacy=None), Instruction(type='j', name='jalr', rd=0, rs1=14, rs2=None, imm=ImmValue(value=0), legacy={'type': 'j', 'rd': 0, 'rs1': 14, 'name': 'jalr', 'imm': 0}), LabelDecl(name='DRAW_CHAR_TO_DISPLAY'), Instruction(type='i', name='addi', rd=15, rs1=15, rs2=None, imm=ImmValue(value=-4), legacy=None), Instruction(type='l', name='sw', rd=ImmValue(value=4), rs1=15, rs2=None, imm=ImmValue(value=0), legacy=None), Instruction(type='i', name='addi', rd=15, rs1=15, rs2=None, imm=ImmValue(value=-4), legacy=None), Instruction(type='l', name='sw', rd=ImmValue(value=5), rs1=15, rs2=None, imm=ImmValue(value=0), legacy=None), Instruction(type='i', name='addi', rd=15, rs1=15, rs2=None, imm=ImmValue(value=-4), legacy=None), Instruction(type='l', name='sw', rd=ImmValue(value=6), rs1=15, rs2=None, imm=ImmValue(value=0), legacy=None), Instruction(type='i', name='addi', rd=15, rs1=15, rs2=None, imm=ImmValue(value=-4), legacy=None), Instruction(type='l', name='sw', rd=ImmValue(value=7), rs1=15, rs2=None, imm=ImmValue(value=0), legacy=None), Instruction(type='i', name='addi', rd=15, rs1=15, rs2=None, imm=ImmValue(value=-4), legacy=None), Instruction(type='l', name='sw', rd=ImmValue(value=8), rs1=15, rs2=None, imm=ImmValue(value=0), legacy=None), Instruction(type='i', name='addi', rd=15, rs1=15, rs2=None, imm=ImmValue(value=-4), legacy=None), Instruction(type='l', name='sw', rd=ImmValue(value=9), rs1=15, rs2=None, imm=ImmValue(value=0), legacy=None), Instruction(type='i', name='addi', rd=15, rs1=15, rs2=None, imm=ImmValue(value=-4), legacy=None), Instruction(type='l', name='sw', rd=ImmValue(value=10), rs1=15, rs2=None, imm=ImmValue(value=0), legacy=None), Instruction(type='i', name='addi', rd=15, rs1=15, rs2=None, imm=ImmValue(value=-4), legacy=None), Instruction(type='l', name='sw', rd=ImmValue(value=11), rs1=15, rs2=None, imm=ImmValue(value=0), legacy=None), Instruction(type='i', name='addi', rd=4, rs1=0, rs2=None, imm=ImmLabelPart(label='BASE_FB_ADDR', part='high'), legacy=None), Instruction(type='i', name='shli', rd=4, rs1=4, rs2=None, imm=ImmValue(value=16), legacy=None), Instruction(type='i', name='ori', rd=4, rs1=4, rs2=None, imm=ImmLabelPart(label='BASE_FB_ADDR', part='low'), legacy=None), Instruction(type='i', name='addi', rd=8, rs1=0, rs2=None, imm=ImmValue(value=32), legacy=None), Instruction(type='r', name='sub', rd=5, rs1=1, rs2=8, imm=None, legacy={'type': 'r', 'name': 'sub', 'rd': 5, 'rs1': 1, 'rs2': 8}), Instruction(type='i', name='addi', rd=8, rs1=0, rs2=None, imm=ImmValue(value=4), legacy=None), Instruction(type='r', name='mul', rd=5, rs1=5, rs2=8, imm=None, legacy={'type': 'r', 'name': 'mul', 'rd': 5, 'rs1': 5, 'rs2': 8}), Instruction(type='r', name='add', rd=4, rs1=4, rs2=5, imm=None, legacy={'type': 'r', 'name': 'add', 'rd': 4, 'rs1': 4, 'rs2': 5}), Instruction(type='l', name='lw', rd=5, rs1=4, rs2=None, imm=ImmValue(value=0), legacy={'type': 'l', 'name': 'lw', 'rd': 5, 'rs1': 4, 'imm': 0}), Instruction(type='i', name='addi', rd=6, rs1=0, rs2=None, imm=ImmValue(value=0), legacy=None), LabelDecl(name='DRAW_CHAR_ROW_LOOP'), Instruction(type='i', name='addi', rd=8, rs1=0, rs2=None, imm=ImmValue(value=6), legacy=None), Instruction(type='b', name='beq', rd=6, rs1=8, rs2=None, imm=ImmLabel(name='END_DRAW_CHAR_PIXEL_LOOP'), legacy={'type': 'b', 'name': 'beq', 'rd': 6, 'rs1': 8, 'imm': {'type': 'u', 'name': 'END_DRAW_CHAR_PIXEL_LOOP'}}), Instruction(type='i', name='addi', rd=7, rs1=0, rs2=None, imm=ImmValue(value=0), legacy=None), LabelDecl(name='DRAW_CHAR_COLUMN_LOOP'), Instruction(type='i', name='addi', rd=8, rs1=0, rs2=None, imm=ImmValue(value=5), legacy=None), Instruction(type='b', name='beq', rd=7, rs1=8, rs2=None, imm=ImmLabel(name='END_DRAW_CHAR_COLUMN_LOOP'), legacy={'type': 'b', 'name': 'beq', 'rd': 7, 'rs1': 8, 'imm': {'type': 'u', 'name': 'END_DRAW_CHAR_COLUMN_LOOP'}}), LabelDecl(name='CALC_PIXEL_BIT_INDEX'), Instruction(type='i', name='addi', rd=10, rs1=0, rs2=None, imm=ImmValue(value=5), legacy=None), Instruction(type='r', name='mul', rd=10, rs1=6, rs2=10, imm=None, legacy={'type': 'r', 'name': 'mul', 'rd': 10, 'rs1': 6, 'rs2': 10}), Instruction(type='r', name='add', rd=10, rs1=10, rs2=7, imm=None, legacy={'type': 'r', 'name': 'add', 'rd': 10, 'rs1': 10, 'rs2': 7}), Instruction(type='i', name='addi', rd=11, rs1=0, rs2=None, imm=ImmValue(value=29), legacy=None), Instruction(type='r', name='sub', rd=11, rs1=11, rs2=10, imm=None, legacy={'type': 'r', 'name': 'sub', 'rd': 11, 'rs1': 11, 'rs2': 10}), Instruction(type='r', name='shr', rd=8, rs1=5, rs2=11, imm=None, legacy={'type': 'r', 'name': 'shr', 'rd': 8, 'rs1': 5, 'rs2': 11}), Instruction(type='i', name='andi', rd=8, rs1=8, rs2=None, imm=ImmValue(value=1), legacy={'type': 'i', 'name': 'andi', 'rd': 8, 'rs1': 8, 'imm': 1}), Instruction(type='b', name='beq', rd=8, rs1=0, rs2=None, imm=ImmLabel(name='SKIP_PIXEL_DRAW'), legacy={'type': 'b', 'name': 'beq', 'rd': 8, 'rs1': 0, 'imm': {'type': 'u', 'name': 'SKIP_PIXEL_DRAW'}}), LabelDecl(name='CALC_FRAMEBUFFER_ADDR'), Instruction(type='r', name='add', rd=8, rs1=2, rs2=7, imm=None, legacy={'type': 'r', 'name': 'add', 'rd': 8, 'rs1': 2, 'rs2': 7}), Instruction(type='r', name='add', rd=9, rs1=3, rs2=6, imm=None, legacy={'type': 'r', 'name': 'add', 'rd': 9, 'rs1': 3, 'rs2': 6}), Instruction(type='i', name='addi', rd=10, rs1=0, rs2=None, imm=ImmValue(value=128), legacy=None), Instruction(type='r', name='mul', rd=9, rs1=9, rs2=10, imm=None, legacy={'type': 'r', 'name': 'mul', 'rd': 9, 'rs1': 9, 'rs2': 10}), Instruction(type='r', name='add', rd=9, rs1=9, rs2=8, imm=None, legacy={'type': 'r', 'name': 'add', 'rd': 9, 'rs1': 9, 'rs2': 8}), LabelDecl(name='SET_PIXEL'), Instruction(type='i', name='addi', rd=10, rs1=0, rs2=None, imm=ImmValue(value=4), legacy=None), Instruction(type='r', name='div', rd=11, rs1=9, rs2=10, imm=None, legacy={'type': 'r', 'name': 'div', 'rd': 11, 'rs1': 9, 'rs2': 10}), Instruction(type='i', name='addi', rd=10, rs1=0, rs2=None, imm=ImmValue(value=8192), legacy=None), Instruction(type='i', name='shli', rd=10, rs1=10, rs2=None, imm=ImmValue(value=16), legacy=None), Instruction(type='r', name='add', rd=11, rs1=11, rs2=10, imm=None, legacy={'type': 'r', 'name': 'add', 'rd': 11, 'rs1': 11, 'rs2': 10}), Instruction(type='i', name='andi', rd=10, rs1=9, rs2=None, imm=ImmValue(value=3), legacy={'type': 'i', 'name': 'andi', 'rd': 10, 'rs1': 9, 'imm': 3}), Instruction(type='i', name='addi', rd=8, rs1=0, rs2=None, imm=ImmValue(value=3), legacy=None), Instruction(type='r', name='sub', rd=8, rs1=8, rs2=10, imm=None, legacy={'type': 'r', 'name': 'sub', 'rd': 8, 'rs1': 8, 'rs2': 10}), Instruction(type='i', name='addi', rd=10, rs1=0, rs2=None, imm=ImmValue(value=2), legacy=None), Instruction(type='r', name='mul', rd=8, rs1=8, rs2=10, imm=None, legacy={'type': 'r', 'name': 'mul', 'rd': 8, 'rs1': 8, 'rs2': 10}), Instruction(type='l', name='lb', rd=10, rs1=11, rs2=None, imm=ImmValue(value=0), legacy={'type': 'l', 'name': 'lb', 'rd': 10, 'rs1': 11, 'imm': 0}), Instruction(type='i', name='addi', rd=9, rs1=0, rs2=None, imm=ImmValue(value=3), legacy=None), Instruction(type='r', name='shl', rd=9, rs1=9, rs2=8, imm=None, legacy={'type': 'r', 'name': 'shl', 'rd': 9, 'rs1': 9, 'rs2': 8}), Instruction(type='r', name='or', rd=10, rs1=10, rs2=9, imm=None, legacy={'type': 'r', 'name': 'or', 'rd': 10, 'rs1': 10, 'rs2': 9}), Instruction(type='l', name='sb', rd=10, rs1=11, rs2=None, imm=ImmValue(value=0), legacy={'type': 'l', 'name': 'sb', 'rd': 10, 'rs1': 11, 'imm': 0}), LabelDecl(name='SKIP_PIXEL_DRAW'), Instruction(type='i', name='addi', rd=7, rs1=7, rs2=None, imm=ImmValue(value=1), legacy={'type': 'i', 'name': 'addi', 'rd': 7, 'rs1': 7, 'imm': 1}), Instruction(type='i', name='addi', rd=13, rs1=0, rs2=None, imm=ImmLabelPart(label='DRAW_CHAR_COLUMN_LOOP', part='high'), legacy=None), Instruction(type='i', name='shli', rd=13, rs1=13, rs2=None, imm=ImmValue(value=16), legacy=None), Instruction(type='i', name='ori', rd=13, rs1=13, rs2=None, imm=ImmLabelPart(label='DRAW_CHAR_COLUMN_LOOP', part='low'), legacy=None), Instruction(type='j', name='jalr', rd=0, rs1=13, rs2=None, imm=ImmValue(value=0), legacy=None), LabelDecl(name='END_DRAW_CHAR_COLUMN_LOOP'), Instruction(type='i', name='addi', rd=6, rs1=6, rs2=None, imm=ImmValue(value=1), legacy={'type': 'i', 'name': 'addi', 'rd': 6, 'rs1': 6, 'imm': 1}), Instruction(type='i', name='addi', rd=13, rs1=0, rs2=None, imm=ImmLabelPart(label='DRAW_CHAR_ROW_LOOP', part='high'), legacy=None), Instruction(type='i', name='shli', rd=13, rs1=13, rs2=None, imm=ImmValue(value=16), legacy=None), Instruction(type='i', name='ori', rd=13, rs1=13, rs2=None, imm=ImmLabelPart(label='DRAW_CHAR_ROW_LOOP', part='low'), legacy=None), Instruction(type='j', name='jalr', rd=0, rs1=13, rs2=None, imm=ImmValue(value=0), legacy=None), LabelDecl(name='END_DRAW_CHAR_PIXEL_LOOP'), Instruction(type='l', name='lw', rd=ImmValue(value=11), rs1=15, rs2=None, imm=ImmValue(value=0), legacy=None), Instruction(type='i', name='addi', rd=15, rs1=15, rs2=None, imm=ImmValue(value=4), legacy=None), Instruction(type='l', name='lw', rd=ImmValue(value=10), rs1=15, rs2=None, imm=ImmValue(value=0), legacy=None), Instruction(type='i', name='addi', rd=15, rs1=15, rs2=None, imm=ImmValue(value=4), legacy=None), Instruction(type='l', name='lw', rd=ImmValue(value=9), rs1=15, rs2=None, imm=ImmValue(value=0), legacy=None), Instruction(type='i', name='addi', rd=15, rs1=15, rs2=None, imm=ImmValue(value=4), legacy=None), Instruction(type='l', name='lw', rd=ImmValue(value=8), rs1=15, rs2=None, imm=ImmValue(value=0), legacy=None), Instruction(type='i', name='addi', rd=15, rs1=15, rs2=None, imm=ImmValue(value=4), legacy=None), Instruction(type='l', name='lw', rd=ImmValue(value=7), rs1=15, rs2=None, imm=ImmValue(value=0), legacy=None), Instruction(type='i', name='addi', rd=15, rs1=15, rs2=None, imm=ImmValue(value=4), legacy=None), Instruction(type='l', name='lw', rd=ImmValue(value=6), rs1=15, rs2=None, imm=ImmValue(value=0), legacy=None), Instruction(type='i', name='addi', rd=15, rs1=15, rs2=None, imm=ImmValue(value=4), legacy=None), Instruction(type='l', name='lw', rd=ImmValue(value=5), rs1=15, rs2=None, imm=ImmValue(value=0), legacy=None), Instruction(type='i', name='addi', rd=15, rs1=15, rs2=None, imm=ImmValue(value=4), legacy=None), Instruction(type='l', name='lw', rd=ImmValue(value=4), rs1=15, rs2=None, imm=ImmValue(value=0), legacy=None), Instruction(type='i', name='addi', rd=15, rs1=15, rs2=None, imm=ImmValue(value=4), legacy=None), Instruction(type='j', name='jalr', rd=0, rs1=14, rs2=None, imm=ImmValue(value=0), legacy={'type': 'j', 'rd': 0, 'rs1': 14, 'name': 'jalr', 'imm': 0}), Directive(name='seg', imm=ImmValue(value=4096), length=None), LabelDecl(name='TTY'), Directive(name='data', imm=ImmValue(value=268435456), length=4), LabelDecl(name='MOTD'), Directive(name='data', imm=b'WELCOME TO ROSPOS. Copyleft 2026 Erik Rospo\n\x00', length=45), LabelDecl(name='PROMPT'), Directive(name='data', imm=b'\nROSPOS> \x00', length=10), LabelDecl(name='TTY_BUFFER'), Directive(name='data', imm=b'\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00', length=256), LabelDecl(name='BASE_FB_ADDR'), LabelDecl(name='FB_DATA_SPACE'), Directive(name='data', imm=ImmValue(value=0), length=4), LabelDecl(name='FB_DATA_EXCLAM'), Directive(name='data', imm=ImmValue(value=537412112), length=4), LabelDecl(name='FB_DATA_QUOTE'), Directive(name='data', imm=ImmValue(value=42280), length=4), LabelDecl(name='FB_DATA_HASH'), Directive(name='data', imm=ImmValue(value=1473556392), length=4), LabelDecl(name='FB_DATA_DOLLAR'), Directive(name='data', imm=ImmValue(value=602465016), length=4), LabelDecl(name='FB_DATA_PERCENT'), Directive(name='data', imm=ImmValue(value=3465066880), length=5), LabelDecl(name='FB_DATA_AMPERSAND'), Directive(name='data', imm=ImmValue(value=3126026904), length=5), LabelDecl(name='FB_DATA_APOSTROPHE'), Directive(name='data', imm=ImmValue(value=16912), length=4), LabelDecl(name='FB_DATA_PARENLEFT'), Directive(name='data', imm=ImmValue(value=1091060256), length=4), LabelDecl(name='FB_DATA_PARENRIGHT'), Directive(name='data', imm=ImmValue(value=285753864), length=4), LabelDecl(name='FB_DATA_ASTERISK'), Directive(name='data', imm=ImmValue(value=42525184), length=4), LabelDecl(name='FB_DATA_PLUS'), Directive(name='data', imm=ImmValue(value=18628608), length=4), LabelDecl(name='FB_DATA_COMMA'), Directive(name='data', imm=ImmValue(value=285736960), length=4), LabelDecl(name='FB_DATA_HYPHEN'), Directive(name='data', imm=ImmValue(value=1835008), length=4), LabelDecl(name='FB_DATA_PERIOD'), Directive(name='data', imm=ImmValue(value=830472192), length=4), LabelDecl(name='FB_DATA_SLASH'), Directive(name='data', imm=ImmValue(value=143165440), length=4), LabelDecl(name='FB_DATA_0'), Directive(name='data', imm=ImmValue(value=1961581752), length=4), LabelDecl(name='FB_DATA_1'), Directive(name='data', imm=ImmValue(value=4178072336), length=5), LabelDecl(name='FB_DATA_2'), Directive(name='data', imm=ImmValue(value=4169697464), length=5), LabelDecl(name='FB_DATA_3'), Directive(name='data', imm=ImmValue(value=1952499772), length=4), LabelDecl(name='FB_DATA_4'), Directive(name='data', imm=ImmValue(value=2218730016), length=5), LabelDecl(name='FB_DATA_5'), Directive(name='data', imm=ImmValue(value=1952510204), length=4), LabelDecl(name='FB_DATA_6'), Directive(name='data', imm=ImmValue(value=1952321840), length=4), LabelDecl(name='FB_DATA_7'), Directive(name='data', imm=ImmValue(value=143165564), length=4), LabelDecl(name='FB_DATA_8'), Directive(name='data', imm=ImmValue(value=1952639160), length=4), LabelDecl(name='FB_DATA_9'), Directive(name='data', imm=ImmValue(value=2218596600), length=5), LabelDecl(name='FB_DATA_COLON'), Directive(name='data', imm=ImmValue(value=830497536), length=4), LabelDecl(name='FB_DATA_SEMICOLON'), Directive(name='data', imm=ImmValue(value=285229056), length=4), LabelDecl(name='FB_DATA_LESS'), Directive(name='data', imm=ImmValue(value=1090798592), length=4), LabelDecl(name='FB_DATA_EQUAL'), Directive(name='data', imm=ImmValue(value=58777600), length=4), LabelDecl(name='FB_DATA_GREATER'), Directive(name='data', imm=ImmValue(value=286277888), length=4), LabelDecl(name='FB_DATA_QUESTION'), Directive(name='data', imm=ImmValue(value=537446584), length=4), LabelDecl(name='FB_DATA_AT'), Directive(name='data', imm=ImmValue(value=4034648248), length=5), LabelDecl(name='FB_DATA_A'), Directive(name='data', imm=ImmValue(value=2357138704), length=5), LabelDecl(name='FB_DATA_B'), Directive(name='data', imm=ImmValue(value=2086860988), length=4), LabelDecl(name='FB_DATA_C'), Directive(name='data', imm=ImmValue(value=4030863544), length=5), LabelDecl(name='FB_DATA_D'), Directive(name='data', imm=ImmValue(value=2086869180), length=4), LabelDecl(name='FB_DATA_E'), Directive(name='data', imm=ImmValue(value=4165136636), length=5), LabelDecl(name='FB_DATA_F'), Directive(name='data', imm=ImmValue(value=138604796), length=4), LabelDecl(name='FB_DATA_G'), Directive(name='data', imm=ImmValue(value=1953632504), length=4), LabelDecl(name='FB_DATA_H'), Directive(name='data', imm=ImmValue(value=2355361988), length=5), LabelDecl(name='FB_DATA_I'), Directive(name='data', imm=ImmValue(value=4178068092), length=5), LabelDecl(name='FB_DATA_J'), Directive(name='data', imm=ImmValue(value=844137596), length=4), LabelDecl(name='FB_DATA_K'), Directive(name='data', imm=ImmValue(value=2354214084), length=5), LabelDecl(name='FB_DATA_L'), Directive(name='data', imm=ImmValue(value=4165079172), length=5), LabelDecl(name='FB_DATA_M'), Directive(name='data', imm=ImmValue(value=2355845868), length=5), LabelDecl(name='FB_DATA_N'), Directive(name='data', imm=ImmValue(value=2389924292), length=5), LabelDecl(name='FB_DATA_O'), Directive(name='data', imm=ImmValue(value=1952651448), length=4), LabelDecl(name='FB_DATA_P'), Directive(name='data', imm=ImmValue(value=140449980), length=4), LabelDecl(name='FB_DATA_Q'), Directive(name='data', imm=ImmValue(value=3282770104), length=5), LabelDecl(name='FB_DATA_R'), Directive(name='data', imm=ImmValue(value=2321488060), length=5), LabelDecl(name='FB_DATA_S'), Directive(name='data', imm=ImmValue(value=1951426744), length=4), LabelDecl(name='FB_DATA_T'), Directive(name='data', imm=ImmValue(value=554189436), length=4), LabelDecl(name='FB_DATA_U'), Directive(name='data', imm=ImmValue(value=1952651460), length=4), LabelDecl(name='FB_DATA_V'), Directive(name='data', imm=ImmValue(value=555030724), length=4), LabelDecl(name='FB_DATA_W'), Directive(name='data', imm=ImmValue(value=3714799812), length=5), LabelDecl(name='FB_DATA_X'), Directive(name='data', imm=ImmValue(value=2324186436), length=5), LabelDecl(name='FB_DATA_Y'), Directive(name='data', imm=ImmValue(value=554190148), length=4), LabelDecl(name='FB_DATA_Z'), Directive(name='data', imm=ImmValue(value=4169697404), length=5), LabelDecl(name='FB_DATA_BRACKETLEFT'), Directive(name='data', imm=ImmValue(value=1627931184), length=4), LabelDecl(name='FB_DATA_BACKSLASH'), Directive(name='data', imm=ImmValue(value=2181570688), length=5), LabelDecl(name='FB_DATA_BRACKETRIGHT'), Directive(name='data', imm=ImmValue(value=822624792), length=4), LabelDecl(name='FB_DATA_CARET'), Directive(name='data', imm=ImmValue(value=70928), length=4), LabelDecl(name='FB_DATA_UNDERSCORE'), Directive(name='data', imm=ImmValue(value=4160749568), length=5), LabelDecl(name='FB_DATA_BACKTICK'), Directive(name='data', imm=ImmValue(value=520), length=4), LabelDecl(name='FB_DATA_a'), Directive(name='data', imm=ImmValue(value=1918812160), length=4), LabelDecl(name='FB_DATA_b'), Directive(name='data', imm=ImmValue(value=978481284), length=4), LabelDecl(name='FB_DATA_c'), Directive(name='data', imm=ImmValue(value=1883430912), length=4), LabelDecl(name='FB_DATA_d'), Directive(name='data', imm=ImmValue(value=1918034976), length=4), LabelDecl(name='FB_DATA_e'), Directive(name='data', imm=ImmValue(value=4034860800), length=5), LabelDecl(name='FB_DATA_f'), Directive(name='data', imm=ImmValue(value=142897456), length=4), LabelDecl(name='FB_DATA_g'), Directive(name='data', imm=ImmValue(value=974951608), length=4), LabelDecl(name='FB_DATA_h'), Directive(name='data', imm=ImmValue(value=1246916740), length=4), LabelDecl(name='FB_DATA_i'), Directive(name='data', imm=ImmValue(value=813957376), length=4), LabelDecl(name='FB_DATA_j'), Directive(name='data', imm=ImmValue(value=822624272), length=4), LabelDecl(name='FB_DATA_k'), Directive(name='data', imm=ImmValue(value=1229345924), length=4), LabelDecl(name='FB_DATA_l'), Directive(name='data', imm=ImmValue(value=813965576), length=4), LabelDecl(name='FB_DATA_m'), Directive(name='data', imm=ImmValue(value=2372579328), length=5), LabelDecl(name='FB_DATA_n'), Directive(name='data', imm=ImmValue(value=1246916608), length=4), LabelDecl(name='FB_DATA_o'), Directive(name='data', imm=ImmValue(value=844259328), length=4), LabelDecl(name='FB_DATA_p'), Directive(name='data', imm=ImmValue(value=139367576), length=4), LabelDecl(name='FB_DATA_q'), Directive(name='data', imm=ImmValue(value=3256652984), length=5), LabelDecl(name='FB_DATA_r'), Directive(name='data', imm=ImmValue(value=139616256), length=4), LabelDecl(name='FB_DATA_s'), Directive(name='data', imm=ImmValue(value=973979648), length=4), LabelDecl(name='FB_DATA_t'), Directive(name='data', imm=ImmValue(value=814018824), length=4), LabelDecl(name='FB_DATA_u'), Directive(name='data', imm=ImmValue(value=978489344), length=4), LabelDecl(name='FB_DATA_v'), Directive(name='data', imm=ImmValue(value=294817792), length=4), LabelDecl(name='FB_DATA_w'), Directive(name='data', imm=ImmValue(value=1433079808), length=4), LabelDecl(name='FB_DATA_x'), Directive(name='data', imm=ImmValue(value=3641290752), length=5), LabelDecl(name='FB_DATA_y'), Directive(name='data', imm=ImmValue(value=974951588), length=4), LabelDecl(name='FB_DATA_z'), Directive(name='data', imm=ImmValue(value=2022240256), length=4), LabelDecl(name='FB_DATA_BRACELEFT'), Directive(name='data', imm=ImmValue(value=1628201520), length=4), LabelDecl(name='FB_DATA_BAR'), Directive(name='data', imm=ImmValue(value=554189328), length=4), LabelDecl(name='FB_DATA_BRACERIGHT'), Directive(name='data', imm=ImmValue(value=823706136), length=4), LabelDecl(name='FB_DATA_TILDE'), Directive(name='data', imm=ImmValue(value=1794048), length=4)]
 
 .SEG 0xFFFF_FFFC
 .DATA 0x0000_0000 // Reset vector points to address 0x00000000
@@ -1318,8 +1371,17 @@ LLI r1, TTY_BUFFER
 CALL READ_CHAR
 //READ_CHAR puts the character in r1
 BEQ r1, r3, NEWLINE_LABEL
+// If lowercase, convert to uppercase if alphabetic
 PUSH r2
 PUSH r3
+LLI r2, 0x61 // 'a'
+BLT r1, r2, SKIP_UPPERCASE_CONVERSION
+LLI r2, 0x7A // 'z'
+ADDI r2, r2, 1
+BGE r1, r2, SKIP_UPPERCASE_CONVERSION
+LLI r2, 0x20
+SUB r1, r1, r2 // Convert to uppercase
+SKIP_UPPERCASE_CONVERSION:
 ADDI r2, r4, 0 // X coordinate
 ADDI r3, r5, 0 // Y coordinate
 // Draw character to display
@@ -1415,6 +1477,7 @@ ADD r4, r4, r5             // r4 now points to the font bitmap for the character
 
 LW r5, r4, 0               // Load 4 bytes of font bitmap into r5
 
+// Loop through rows and columns of the character bitmap
 LLI r6, 0                  // Row index (0-5)
 DRAW_CHAR_ROW_LOOP:
 LLI r8, 6
@@ -1425,24 +1488,27 @@ DRAW_CHAR_COLUMN_LOOP:
 LLI r8, 5
 BEQ r7, r8, END_DRAW_CHAR_COLUMN_LOOP // Exit loop after 5 columns
 
-// Calculate bit index for this pixel in the 5x6 font (row-major order)
+// Check if the pixel should be drawn
+CALC_PIXEL_BIT_INDEX:
 LLI r10, 5                  // Temporary for multiplication
 MUL r10, r6, r10            // row * 5
-ADD r10, r10, r7           // + col
-LLI r11, 29                // Highest bit index for 5x6 font (0..29)
-SUB r11, r11, r10          // 29 - (row*5 + col)
-SHR r8, r5, r11            // Shift bit into LSB
-ANDI r8, r8, 1             // Mask out all but the least significant bit
+ADD r10, r10, r7            // + col
+LLI r11, 29                 // Highest bit index for 5x6 font (0..29)
+SUB r11, r11, r10           // 29 - (row*5 + col)
+SHR r8, r5, r11             // Shift bit into LSB
+ANDI r8, r8, 1              // Mask out all but the least significant bit
 BEQ r8, r0, SKIP_PIXEL_DRAW // Skip if the bit is not set
 
 // Calculate framebuffer address for pixel (x = r2 + col, y = r3 + row)
+CALC_FRAMEBUFFER_ADDR:
 ADD r8, r2, r7             // x = r2 + col
 ADD r9, r3, r6             // y = r3 + row
 LLI r10, 128               // Display width
 MUL r9, r9, r10            // y * width
 ADD r9, r9, r8             // y * width + x
 
-// For 2bpp packed: 4 pixels per byte, 2 bits per pixel
+// Set the pixel in the framebuffer
+SET_PIXEL:
 LLI r10, 4
 DIV r11, r9, r10           // byte offset = pixel_index / 4
 LLI r10, 0x2000_0000       // Display base address
@@ -1461,11 +1527,11 @@ OR r10, r10, r9            // Set pixel bits
 SB r10, r11, 0             // Store byte back
 
 SKIP_PIXEL_DRAW:
-ADDI r7, r7, 1             // Increment column index
+ADDI r7, r7, 1                // Increment column index
 JMP DRAW_CHAR_COLUMN_LOOP
 
 END_DRAW_CHAR_COLUMN_LOOP:
-ADDI r6, r6, 1             // Increment row index
+ADDI r6, r6, 1                // Increment row index
 JMP DRAW_CHAR_ROW_LOOP
 
 END_DRAW_CHAR_PIXEL_LOOP:
@@ -1495,7 +1561,7 @@ TTY_BUFFER:
 // Using custom script to convert to RospOS framebuffer format and assembly data
 BASE_FB_ADDR:
 FB_DATA_SPACE:
-.DATA 0b111111111111111111111111111111
+.DATA 0x00000000  // Glyph: SPACE
 //
 //
 //
@@ -1505,7 +1571,7 @@ FB_DATA_SPACE:
 //
 
 FB_DATA_EXCLAM:
-.DATA 0b110111111111011110111101111011
+.DATA 0x20084210  // Glyph: EXCLAM
 //    ##
 //
 //    ##
@@ -1515,7 +1581,7 @@ FB_DATA_EXCLAM:
 //
 
 FB_DATA_QUOTE:
-.DATA 0b111111111111111101011010110101
+.DATA 0x0000A528  // Glyph: QUOTE
 //
 //
 //
@@ -1525,7 +1591,7 @@ FB_DATA_QUOTE:
 //
 
 FB_DATA_HASH:
-.DATA 0b101010000010101101010000010101
+.DATA 0x57D4AFA8  // Glyph: HASH
 //  ##  ##
 //##########
 //  ##  ##
@@ -1535,7 +1601,7 @@ FB_DATA_HASH:
 //
 
 FB_DATA_DOLLAR:
-.DATA 0b110111000001011100011101000001
+.DATA 0x23E8E2F8  // Glyph: DOLLAR
 //    ##
 //  ########
 //##  ##
@@ -1545,7 +1611,7 @@ FB_DATA_DOLLAR:
 //
 
 FB_DATA_PERCENT:
-.DATA 0b001100010111011101000110011111
+.DATA 0xCE88B980  // Glyph: PERCENT
 //####    ##
 //####  ##
 //    ##
@@ -1555,7 +1621,7 @@ FB_DATA_PERCENT:
 //
 
 FB_DATA_AMPERSAND:
-.DATA 0b010001011010110010011101011001
+.DATA 0xBA536298  // Glyph: AMPERSAND
 //##  ######
 //  ##    ##
 //  ##    ##
@@ -1565,7 +1631,7 @@ FB_DATA_AMPERSAND:
 //
 
 FB_DATA_APOSTROPHE:
-.DATA 0b111111111111111110111101111011
+.DATA 0x00004210  // Glyph: APOSTROPHE
 //
 //
 //
@@ -1575,7 +1641,7 @@ FB_DATA_APOSTROPHE:
 //
 
 FB_DATA_PARENLEFT:
-.DATA 0b101111101111011110111101110111
+.DATA 0x41084220  // Glyph: PARENLEFT
 //  ##
 //    ##
 //    ##
@@ -1585,7 +1651,7 @@ FB_DATA_PARENLEFT:
 //
 
 FB_DATA_PARENRIGHT:
-.DATA 0b111011101111011110111101111101
+.DATA 0x11084208  // Glyph: PARENRIGHT
 //      ##
 //    ##
 //    ##
@@ -1595,7 +1661,7 @@ FB_DATA_PARENRIGHT:
 //
 
 FB_DATA_ASTERISK:
-.DATA 0b111111010111011100011101111111
+.DATA 0x0288E200  // Glyph: ASTERISK
 //
 //  ##  ##
 //    ##
@@ -1605,7 +1671,7 @@ FB_DATA_ASTERISK:
 //
 
 FB_DATA_PLUS:
-.DATA 0b111111101110001110111111111111
+.DATA 0x011C4000  // Glyph: PLUS
 //
 //    ##
 //  ######
@@ -1615,7 +1681,7 @@ FB_DATA_PLUS:
 //
 
 FB_DATA_COMMA:
-.DATA 0b111011101111011111111111111111
+.DATA 0x11080000  // Glyph: COMMA
 //      ##
 //    ##
 //    ##
@@ -1625,7 +1691,7 @@ FB_DATA_COMMA:
 //
 
 FB_DATA_HYPHEN:
-.DATA 0b111111111110001111111111111111
+.DATA 0x001C0000  // Glyph: HYPHEN
 //
 //
 //  ######
@@ -1635,7 +1701,7 @@ FB_DATA_HYPHEN:
 //
 
 FB_DATA_PERIOD:
-.DATA 0b110011100111111111111111111111
+.DATA 0x31800000  // Glyph: PERIOD
 //    ####
 //    ####
 //
@@ -1645,7 +1711,7 @@ FB_DATA_PERIOD:
 //
 
 FB_DATA_SLASH:
-.DATA 0b111101110111011101110111111111
+.DATA 0x08888800  // Glyph: SLASH
 //        ##
 //      ##
 //    ##
@@ -1655,7 +1721,7 @@ FB_DATA_SLASH:
 //
 
 FB_DATA_0:
-.DATA 0b100010110001010010100011010001
+.DATA 0x74EB5CB8  // Glyph: 0
 //  ######
 //##    ####
 //##  ##  ##
@@ -1665,7 +1731,7 @@ FB_DATA_0:
 //
 
 FB_DATA_1:
-.DATA 0b000001101111011110101100111011
+.DATA 0xF9085310  // Glyph: 1
 //##########
 //    ##
 //    ##
@@ -1675,7 +1741,7 @@ FB_DATA_1:
 //
 
 FB_DATA_2:
-.DATA 0b000001110111011101110111010001
+.DATA 0xF88888B8  // Glyph: 2
 //##########
 //      ##
 //    ##
@@ -1685,7 +1751,7 @@ FB_DATA_2:
 //
 
 FB_DATA_3:
-.DATA 0b100010111001111100110111110000
+.DATA 0x7460C83C  // Glyph: 3
 //  ######
 //##      ##
 //##
@@ -1695,7 +1761,7 @@ FB_DATA_3:
 //
 
 FB_DATA_4:
-.DATA 0b011110111100000011011101110111
+.DATA 0x843F2220  // Glyph: 4
 //##
 //##
 //##########
@@ -1705,7 +1771,7 @@ FB_DATA_4:
 //
 
 FB_DATA_5:
-.DATA 0b100010111001111100001111000000
+.DATA 0x7460F0FC  // Glyph: 5
 //  ######
 //##      ##
 //##
@@ -1715,7 +1781,7 @@ FB_DATA_5:
 //
 
 FB_DATA_6:
-.DATA 0b100010111010000111101110110011
+.DATA 0x745E1130  // Glyph: 6
 //  ######
 //##      ##
 //  ########
@@ -1725,7 +1791,7 @@ FB_DATA_6:
 //
 
 FB_DATA_7:
-.DATA 0b111101110111011101110111100000
+.DATA 0x0888887C  // Glyph: 7
 //        ##
 //      ##
 //    ##
@@ -1735,7 +1801,7 @@ FB_DATA_7:
 //
 
 FB_DATA_8:
-.DATA 0b100010111001110100010111010001
+.DATA 0x7462E8B8  // Glyph: 8
 //  ######
 //##      ##
 //##      ##
@@ -1745,7 +1811,7 @@ FB_DATA_8:
 //
 
 FB_DATA_9:
-.DATA 0b011110111100001011100111000001
+.DATA 0x843D18F8  // Glyph: 9
 //##
 //##
 //########
@@ -1755,7 +1821,7 @@ FB_DATA_9:
 //
 
 FB_DATA_COLON:
-.DATA 0b110011100111111110011100111111
+.DATA 0x31806300  // Glyph: COLON
 //    ####
 //    ####
 //
@@ -1765,7 +1831,7 @@ FB_DATA_COLON:
 //
 
 FB_DATA_SEMICOLON:
-.DATA 0b111011101111111110111111111111
+.DATA 0x11004000  // Glyph: SEMICOLON
 //      ##
 //    ##
 //
@@ -1775,7 +1841,7 @@ FB_DATA_SEMICOLON:
 //
 
 FB_DATA_LESS:
-.DATA 0b101111101111101110111011111111
+.DATA 0x41044400  // Glyph: LESS
 //  ##
 //    ##
 //      ##
@@ -1785,7 +1851,7 @@ FB_DATA_LESS:
 //
 
 FB_DATA_EQUAL:
-.DATA 0b111111000111111100011111111111
+.DATA 0x0380E000  // Glyph: EQUAL
 //
 //  ######
 //
@@ -1795,7 +1861,7 @@ FB_DATA_EQUAL:
 //
 
 FB_DATA_GREATER:
-.DATA 0b111011101110111110111110111111
+.DATA 0x11104100  // Glyph: GREATER
 //      ##
 //    ##
 //  ##
@@ -1805,7 +1871,7 @@ FB_DATA_GREATER:
 //
 
 FB_DATA_QUESTION:
-.DATA 0b110111111111011100110111010001
+.DATA 0x2008C8B8  // Glyph: QUESTION
 //    ##
 //
 //    ##
@@ -1815,7 +1881,7 @@ FB_DATA_QUESTION:
 //
 
 FB_DATA_AT:
-.DATA 0b000011111000010000100111010001
+.DATA 0xF07BD8B8  // Glyph: AT
 //########
 //        ##
 //######  ##
@@ -1825,7 +1891,7 @@ FB_DATA_AT:
 //
 
 FB_DATA_A:
-.DATA 0b011100111000000011101010111011
+.DATA 0x8C7F1510  // Glyph: A
 //##      ##
 //##      ##
 //##########
@@ -1835,7 +1901,7 @@ FB_DATA_A:
 //
 
 FB_DATA_B:
-.DATA 0b100000111001110100000111010000
+.DATA 0x7C62F8BC  // Glyph: B
 //  ########
 //##      ##
 //##      ##
@@ -1845,7 +1911,7 @@ FB_DATA_B:
 //
 
 FB_DATA_C:
-.DATA 0b000011111011110111100111010001
+.DATA 0xF04218B8  // Glyph: C
 //########
 //        ##
 //        ##
@@ -1855,7 +1921,7 @@ FB_DATA_C:
 //
 
 FB_DATA_D:
-.DATA 0b100000111001110011100111010000
+.DATA 0x7C6318BC  // Glyph: D
 //  ########
 //##      ##
 //##      ##
@@ -1865,7 +1931,7 @@ FB_DATA_D:
 //
 
 FB_DATA_E:
-.DATA 0b000001111011110100001111000000
+.DATA 0xF842F0FC  // Glyph: E
 //##########
 //        ##
 //        ##
@@ -1875,7 +1941,7 @@ FB_DATA_E:
 //
 
 FB_DATA_F:
-.DATA 0b111101111011110100001111000000
+.DATA 0x0842F0FC  // Glyph: F
 //        ##
 //        ##
 //        ##
@@ -1885,7 +1951,7 @@ FB_DATA_F:
 //
 
 FB_DATA_G:
-.DATA 0b100010111000110111101111000001
+.DATA 0x747210F8  // Glyph: G
 //  ######
 //##      ##
 //####    ##
@@ -1895,7 +1961,7 @@ FB_DATA_G:
 //
 
 FB_DATA_H:
-.DATA 0b011100111001110000000111001110
+.DATA 0x8C63F8C4  // Glyph: H
 //##      ##
 //##      ##
 //##      ##
@@ -1905,7 +1971,7 @@ FB_DATA_H:
 //
 
 FB_DATA_I:
-.DATA 0b000001101111011110111101100000
+.DATA 0xF908427C  // Glyph: I
 //##########
 //    ##
 //    ##
@@ -1915,7 +1981,7 @@ FB_DATA_I:
 //
 
 FB_DATA_J:
-.DATA 0b110011011010111101111011100000
+.DATA 0x3250847C  // Glyph: J
 //    ####
 //  ##    ##
 //  ##
@@ -1925,7 +1991,7 @@ FB_DATA_J:
 //
 
 FB_DATA_K:
-.DATA 0b011100111010110110001011001110
+.DATA 0x8C5274C4  // Glyph: K
 //##      ##
 //##      ##
 //  ##    ##
@@ -1935,7 +2001,7 @@ FB_DATA_K:
 //
 
 FB_DATA_L:
-.DATA 0b000001111011110111101111011110
+.DATA 0xF8421084  // Glyph: L
 //##########
 //        ##
 //        ##
@@ -1945,7 +2011,7 @@ FB_DATA_L:
 //
 
 FB_DATA_M:
-.DATA 0b011100111001010010100101000100
+.DATA 0x8C6B5AEC  // Glyph: M
 //##      ##
 //##      ##
 //##  ##  ##
@@ -1955,7 +2021,7 @@ FB_DATA_M:
 //
 
 FB_DATA_N:
-.DATA 0b011100011000110010100110001110
+.DATA 0x8E7359C4  // Glyph: N
 //##      ##
 //####    ##
 //####    ##
@@ -1965,7 +2031,7 @@ FB_DATA_N:
 //
 
 FB_DATA_O:
-.DATA 0b100010111001110011100111010001
+.DATA 0x746318B8  // Glyph: O
 //  ######
 //##      ##
 //##      ##
@@ -1975,7 +2041,7 @@ FB_DATA_O:
 //
 
 FB_DATA_P:
-.DATA 0b111101111010000011100111010000
+.DATA 0x085F18BC  // Glyph: P
 //        ##
 //        ##
 //  ########
@@ -1985,7 +2051,7 @@ FB_DATA_P:
 //
 
 FB_DATA_Q:
-.DATA 0b001111000101010011100111010001
+.DATA 0xC3AB18B8  // Glyph: Q
 //####
 //  ######
 //##  ##  ##
@@ -1995,7 +2061,7 @@ FB_DATA_Q:
 //
 
 FB_DATA_R:
-.DATA 0b011101011010000011100111010000
+.DATA 0x8A5F18BC  // Glyph: R
 //##      ##
 //  ##    ##
 //  ########
@@ -2005,7 +2071,7 @@ FB_DATA_R:
 //
 
 FB_DATA_S:
-.DATA 0b100010111010111110010111010001
+.DATA 0x745068B8  // Glyph: S
 //  ######
 //##      ##
 //  ##
@@ -2015,7 +2081,7 @@ FB_DATA_S:
 //
 
 FB_DATA_T:
-.DATA 0b110111101111011110111101100000
+.DATA 0x2108427C  // Glyph: T
 //    ##
 //    ##
 //    ##
@@ -2025,7 +2091,7 @@ FB_DATA_T:
 //
 
 FB_DATA_U:
-.DATA 0b100010111001110011100111001110
+.DATA 0x746318C4  // Glyph: U
 //  ######
 //##      ##
 //##      ##
@@ -2035,7 +2101,7 @@ FB_DATA_U:
 //
 
 FB_DATA_V:
-.DATA 0b110111101110101011100111001110
+.DATA 0x211518C4  // Glyph: V
 //    ##
 //    ##
 //  ##  ##
@@ -2045,7 +2111,7 @@ FB_DATA_V:
 //
 
 FB_DATA_W:
-.DATA 0b001000101001010010100111001110
+.DATA 0xDD6B58C4  // Glyph: W
 //####  ####
 //##  ##  ##
 //##  ##  ##
@@ -2055,7 +2121,7 @@ FB_DATA_W:
 //
 
 FB_DATA_X:
-.DATA 0b011101010111011110111010101110
+.DATA 0x8A884544  // Glyph: X
 //##      ##
 //  ##  ##
 //    ##
@@ -2065,7 +2131,7 @@ FB_DATA_X:
 //
 
 FB_DATA_Y:
-.DATA 0b110111101111011110111010101110
+.DATA 0x21084544  // Glyph: Y
 //    ##
 //    ##
 //    ##
@@ -2075,7 +2141,7 @@ FB_DATA_Y:
 //
 
 FB_DATA_Z:
-.DATA 0b000001110111011101110111100000
+.DATA 0xF888887C  // Glyph: Z
 //##########
 //      ##
 //    ##
@@ -2085,7 +2151,7 @@ FB_DATA_Z:
 //
 
 FB_DATA_BRACKETLEFT:
-.DATA 0b100111101111011110111101110011
+.DATA 0x61084230  // Glyph: BRACKETLEFT
 //  ####
 //    ##
 //    ##
@@ -2095,7 +2161,7 @@ FB_DATA_BRACKETLEFT:
 //
 
 FB_DATA_BACKSLASH:
-.DATA 0b011111011111011111011111011111
+.DATA 0x82082080  // Glyph: BACKSLASH
 //##
 //  ##
 //    ##
@@ -2105,7 +2171,7 @@ FB_DATA_BACKSLASH:
 //
 
 FB_DATA_BRACKETRIGHT:
-.DATA 0b110011101111011110111101111001
+.DATA 0x31084218  // Glyph: BRACKETRIGHT
 //    ####
 //    ##
 //    ##
@@ -2115,7 +2181,7 @@ FB_DATA_BRACKETRIGHT:
 //
 
 FB_DATA_CARET:
-.DATA 0b111111111111111011101010111011
+.DATA 0x00011510  // Glyph: CARET
 //
 //
 //
@@ -2125,7 +2191,7 @@ FB_DATA_CARET:
 //
 
 FB_DATA_UNDERSCORE:
-.DATA 0b000001111111111111111111111111
+.DATA 0xF8000000  // Glyph: UNDERSCORE
 //##########
 //
 //
@@ -2135,7 +2201,7 @@ FB_DATA_UNDERSCORE:
 //
 
 FB_DATA_BACKTICK:
-.DATA 0b111111111111111111111101111101
+.DATA 0x00000208  // Glyph: BACKTICK
 //
 //
 //
@@ -2145,7 +2211,7 @@ FB_DATA_BACKTICK:
 //
 
 FB_DATA_a:
-.DATA 0b100011011010000100111111111111
+.DATA 0x725EC000  // Glyph: a
 //  ######
 //  ##    ##
 //  ########
@@ -2155,7 +2221,7 @@ FB_DATA_a:
 //
 
 FB_DATA_b:
-.DATA 0b110001011010110110001111011110
+.DATA 0x3A527084  // Glyph: b
 //    ######
 //  ##    ##
 //  ##    ##
@@ -2165,7 +2231,7 @@ FB_DATA_b:
 //
 
 FB_DATA_c:
-.DATA 0b100011111011110100011111111111
+.DATA 0x7042E000  // Glyph: c
 //  ######
 //        ##
 //        ##
@@ -2175,7 +2241,7 @@ FB_DATA_c:
 //
 
 FB_DATA_d:
-.DATA 0b100011011010110100011011110111
+.DATA 0x7252E420  // Glyph: d
 //  ######
 //  ##    ##
 //  ##    ##
@@ -2185,7 +2251,7 @@ FB_DATA_d:
 //
 
 FB_DATA_e:
-.DATA 0b000011111000000011101000111111
+.DATA 0xF07F1700  // Glyph: e
 //########
 //        ##
 //##########
@@ -2195,7 +2261,7 @@ FB_DATA_e:
 //
 
 FB_DATA_f:
-.DATA 0b111101110111101110001110110011
+.DATA 0x08847130  // Glyph: f
 //        ##
 //      ##
 //      ##
@@ -2205,7 +2271,7 @@ FB_DATA_f:
 //
 
 FB_DATA_g:
-.DATA 0b110001011110001101101011010001
+.DATA 0x3A1C94B8  // Glyph: g
 //    ######
 //  ##
 //  ######
@@ -2215,7 +2281,7 @@ FB_DATA_g:
 //
 
 FB_DATA_h:
-.DATA 0b101101011010110110001111011110
+.DATA 0x4A527084  // Glyph: h
 //  ##    ##
 //  ##    ##
 //  ##    ##
@@ -2225,7 +2291,7 @@ FB_DATA_h:
 //
 
 FB_DATA_i:
-.DATA 0b110011110111101111111110111111
+.DATA 0x30840100  // Glyph: i
 //    ####
 //      ##
 //      ##
@@ -2235,7 +2301,7 @@ FB_DATA_i:
 //
 
 FB_DATA_j:
-.DATA 0b110011101111011110111111111011
+.DATA 0x31084010  // Glyph: j
 //    ####
 //    ##
 //    ##
@@ -2245,7 +2311,7 @@ FB_DATA_j:
 //
 
 FB_DATA_k:
-.DATA 0b101101101011100110101011011110
+.DATA 0x49465484  // Glyph: k
 //  ##    ##
 //    ##  ##
 //      ####
@@ -2255,7 +2321,7 @@ FB_DATA_k:
 //
 
 FB_DATA_l:
-.DATA 0b110011110111101111011110111101
+.DATA 0x30842108  // Glyph: l
 //    ####
 //      ##
 //      ##
@@ -2265,7 +2331,7 @@ FB_DATA_l:
 //
 
 FB_DATA_m:
-.DATA 0b011100101001010101001111111111
+.DATA 0x8D6AB000  // Glyph: m
 //##      ##
 //##  ##  ##
 //##  ##  ##
@@ -2275,7 +2341,7 @@ FB_DATA_m:
 //
 
 FB_DATA_n:
-.DATA 0b101101011010110110001111111111
+.DATA 0x4A527000  // Glyph: n
 //  ##    ##
 //  ##    ##
 //  ##    ##
@@ -2285,7 +2351,7 @@ FB_DATA_n:
 //
 
 FB_DATA_o:
-.DATA 0b110011011010110110011111111111
+.DATA 0x32526000  // Glyph: o
 //    ####
 //  ##    ##
 //  ##    ##
@@ -2295,7 +2361,7 @@ FB_DATA_o:
 //
 
 FB_DATA_p:
-.DATA 0b111101111011000101101011011001
+.DATA 0x084E9498  // Glyph: p
 //        ##
 //        ##
 //    ######
@@ -2305,7 +2371,7 @@ FB_DATA_p:
 //
 
 FB_DATA_q:
-.DATA 0b001111011110001101101011010001
+.DATA 0xC21C94B8  // Glyph: q
 //####
 //  ##
 //  ######
@@ -2315,7 +2381,7 @@ FB_DATA_q:
 //
 
 FB_DATA_r:
-.DATA 0b111101111010110110011111111111
+.DATA 0x08526000  // Glyph: r
 //        ##
 //        ##
 //  ##    ##
@@ -2325,7 +2391,7 @@ FB_DATA_r:
 //
 
 FB_DATA_s:
-.DATA 0b110001011111001000111111111111
+.DATA 0x3A0DC000  // Glyph: s
 //    ######
 //  ##
 //    ####
@@ -2335,7 +2401,7 @@ FB_DATA_s:
 //
 
 FB_DATA_t:
-.DATA 0b110011110111101100001110111101
+.DATA 0x3084F108  // Glyph: t
 //    ####
 //      ##
 //      ##
@@ -2345,7 +2411,7 @@ FB_DATA_t:
 //
 
 FB_DATA_u:
-.DATA 0b110001011010110101101111111111
+.DATA 0x3A529000  // Glyph: u
 //    ######
 //  ##    ##
 //  ##    ##
@@ -2355,7 +2421,7 @@ FB_DATA_u:
 //
 
 FB_DATA_v:
-.DATA 0b111011100110110101101111111111
+.DATA 0x11929000  // Glyph: v
 //      ##
 //    ####
 //  ##    ##
@@ -2365,7 +2431,7 @@ FB_DATA_v:
 //
 
 FB_DATA_w:
-.DATA 0b101010101001010011101111111111
+.DATA 0x556B1000  // Glyph: w
 //  ##  ##
 //##  ##  ##
 //##  ##  ##
@@ -2375,7 +2441,7 @@ FB_DATA_w:
 //
 
 FB_DATA_x:
-.DATA 0b001001101111011001001111111111
+.DATA 0xD909B000  // Glyph: x
 //####  ####
 //    ##
 //    ##
@@ -2385,7 +2451,7 @@ FB_DATA_x:
 //
 
 FB_DATA_y:
-.DATA 0b110001011110001101101011010110
+.DATA 0x3A1C94A4  // Glyph: y
 //    ######
 //  ##
 //  ######
@@ -2395,7 +2461,7 @@ FB_DATA_y:
 //
 
 FB_DATA_z:
-.DATA 0b100001110111011100001111111111
+.DATA 0x7888F000  // Glyph: z
 //  ########
 //      ##
 //    ##
@@ -2405,7 +2471,7 @@ FB_DATA_z:
 //
 
 FB_DATA_BRACELEFT:
-.DATA 0b100111101111001110011101110011
+.DATA 0x610C6230  // Glyph: BRACELEFT
 //  ####
 //    ##
 //    ####
@@ -2415,7 +2481,7 @@ FB_DATA_BRACELEFT:
 //
 
 FB_DATA_BAR:
-.DATA 0b110111101111011110111101111011
+.DATA 0x21084210  // Glyph: BAR
 //    ##
 //    ##
 //    ##
@@ -2425,7 +2491,7 @@ FB_DATA_BAR:
 //
 
 FB_DATA_BRACERIGHT:
-.DATA 0b110011101110011100111101111001
+.DATA 0x3118C218  // Glyph: BRACERIGHT
 //    ####
 //    ##
 //  ####
@@ -2435,7 +2501,7 @@ FB_DATA_BRACERIGHT:
 //
 
 FB_DATA_TILDE:
-.DATA 0b111111111110010010011111111111
+.DATA 0x001B6000  // Glyph: TILDE
 //
 //
 //  ####  ##

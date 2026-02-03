@@ -69,6 +69,7 @@ END_READ_LINE_LOOP:
 
     LW r5, r4, 0               // Load 4 bytes of font bitmap into r5
 
+    // Loop through rows and columns of the character bitmap
     LLI r6, 0                  // Row index (0-5)
 DRAW_CHAR_ROW_LOOP:
     LLI r8, 6
@@ -79,47 +80,50 @@ DRAW_CHAR_COLUMN_LOOP:
     LLI r8, 5
     BEQ r7, r8, END_DRAW_CHAR_COLUMN_LOOP // Exit loop after 5 columns
 
-    // Calculate bit index for this pixel in the 5x6 font (row-major order)
-    LLI r10, 5                  // Temporary for multiplication
-    MUL r10, r6, r10            // row * 5
-    ADD r10, r10, r7           // + col
-    LLI r11, 29                // Highest bit index for 5x6 font (0..29)
-    SUB r11, r11, r10          // 29 - (row*5 + col)
-    SHR r8, r5, r11            // Shift bit into LSB
-    ANDI r8, r8, 1             // Mask out all but the least significant bit
-    BEQ r8, r0, SKIP_PIXEL_DRAW // Skip if the bit is not set
+    // Check if the pixel should be drawn
+    CALC_PIXEL_BIT_INDEX:
+        LLI r10, 5                  // Temporary for multiplication
+        MUL r10, r6, r10            // row * 5
+        ADD r10, r10, r7            // + col
+        LLI r11, 29                 // Highest bit index for 5x6 font (0..29)
+        SUB r11, r11, r10           // 29 - (row*5 + col)
+        SHR r8, r5, r11             // Shift bit into LSB
+        ANDI r8, r8, 1              // Mask out all but the least significant bit
+        BEQ r8, r0, SKIP_PIXEL_DRAW // Skip if the bit is not set
 
     // Calculate framebuffer address for pixel (x = r2 + col, y = r3 + row)
-    ADD r8, r2, r7             // x = r2 + col
-    ADD r9, r3, r6             // y = r3 + row
-    LLI r10, 128               // Display width
-    MUL r9, r9, r10            // y * width
-    ADD r9, r9, r8             // y * width + x
+    CALC_FRAMEBUFFER_ADDR:
+        ADD r8, r2, r7             // x = r2 + col
+        ADD r9, r3, r6             // y = r3 + row
+        LLI r10, 128               // Display width
+        MUL r9, r9, r10            // y * width
+        ADD r9, r9, r8             // y * width + x
 
-    // For 2bpp packed: 4 pixels per byte, 2 bits per pixel
-    LLI r10, 4
-    DIV r11, r9, r10           // byte offset = pixel_index / 4
-    LLI r10, 0x2000_0000       // Display base address
-    ADD r11, r11, r10          // Absolute byte address
+    // Set the pixel in the framebuffer
+    SET_PIXEL:
+        LLI r10, 4
+        DIV r11, r9, r10           // byte offset = pixel_index / 4
+        LLI r10, 0x2000_0000       // Display base address
+        ADD r11, r11, r10          // Absolute byte address
 
-    ANDI r10, r9, 0x3          // pixel_in_byte = pixel_index % 4
-    LLI r8, 3                  // 2 bits per pixel, so shift = (3 - pixel_in_byte) * 2
-    SUB r8, r8, r10            // (3 - pixel_in_byte)
-    LLI r10, 2
-    MUL r8, r8, r10            // shift amount
+        ANDI r10, r9, 0x3          // pixel_in_byte = pixel_index % 4
+        LLI r8, 3                  // 2 bits per pixel, so shift = (3 - pixel_in_byte) * 2
+        SUB r8, r8, r10            // (3 - pixel_in_byte)
+        LLI r10, 2
+        MUL r8, r8, r10            // shift amount
 
-    LB r10, r11, 0             // Load current byte
-    LLI r9, 0b11               // White pixel value (0b11)
-    SHL r9, r9, r8             // Shift to correct position
-    OR r10, r10, r9            // Set pixel bits
-    SB r10, r11, 0             // Store byte back
+        LB r10, r11, 0             // Load current byte
+        LLI r9, 0b11               // White pixel value (0b11)
+        SHL r9, r9, r8             // Shift to correct position
+        OR r10, r10, r9            // Set pixel bits
+        SB r10, r11, 0             // Store byte back
 
 SKIP_PIXEL_DRAW:
-    ADDI r7, r7, 1             // Increment column index
+    ADDI r7, r7, 1                // Increment column index
     JMP DRAW_CHAR_COLUMN_LOOP
 
 END_DRAW_CHAR_COLUMN_LOOP:
-    ADDI r6, r6, 1             // Increment row index
+    ADDI r6, r6, 1                // Increment row index
     JMP DRAW_CHAR_ROW_LOOP
 
 END_DRAW_CHAR_PIXEL_LOOP:
