@@ -28,7 +28,7 @@ ADDI r2, r4, 0 // X coordinate
 ADDI r3, r5, 0 // Y coordinate
 // Draw character to display
 CALL DRAW_CHAR_TO_DISPLAY
-ADDI r4, r4, 5 // Move X coordinate for next character
+ADDI r4, r4, 8 // Move X coordinate for next character
 POP r3
 POP r2
 LLI r2, 0x1000_0000 // TTY address
@@ -97,88 +97,57 @@ RET
 
 .FUNC DRAW_CHAR_TO_DISPLAY:
 // Function to draw character in r1 to display at (r2, r3)
-// r1: character to draw
-// r2: X coordinate
-// r3: Y coordinate
+// r1: character to draw (ASCII)
+// r2: X coordinate (pixels)
+// r3: Y coordinate (pixels)
 PUSH r4
 PUSH r5
 PUSH r6
 PUSH r7
 PUSH r8
 PUSH r9
-PUSH r10
-PUSH r11
-
-// Calculate font bitmap address
-LLI r4, BASE_FB_ADDR       // Base address of font bitmap
-LLI r8, 0x20               // ASCII space character
-SUB r5, r1, r8             // Offset from space character
-LLI r8, 4                  // Each character is 4 bytes
-MUL r5, r5, r8             // Offset in bytes
-ADD r4, r4, r5             // r4 now points to the font bitmap for the character
-
-LW r5, r4, 0               // Load 4 bytes of font bitmap into r5
-
-// Loop through rows and columns of the character bitmap
-LLI r6, 0                  // Row index (0-5)
+// Font bitmap base address
+LLI r4, BASE_FB_ADDR
+// Each glyph is 8 bytes (8x8 font)
+MULI r5, r1, 8
+ADD r4, r4, r5 // r4 = address of glyph bitmap
+// Display framebuffer base address
+LLI r5, 0x2000_0000
+// Loop over 8 rows (y)
+LLI r6, 0 // row = 0
 DRAW_CHAR_ROW_LOOP:
-LLI r8, 6
-BEQ r6, r8, END_DRAW_CHAR_PIXEL_LOOP // Exit loop after 6 rows
-
-LLI r7, 0                  // Column index (0-4)
-DRAW_CHAR_COLUMN_LOOP:
-LLI r8, 5
-BEQ r7, r8, END_DRAW_CHAR_COLUMN_LOOP // Exit loop after 5 columns
-
-// Check if the pixel should be drawn
-CALC_PIXEL_BIT_INDEX:
-LLI r10, 5                  // Temporary for multiplication
-MUL r10, r6, r10            // row * 5
-ADD r10, r10, r7            // + col
-LLI r11, 29                 // Highest bit index for 5x6 font (0..29)
-SUB r11, r11, r10           // 29 - (row*5 + col)
-SHR r8, r5, r11             // Shift bit into LSB
-ANDI r8, r8, 1              // Mask out all but the least significant bit
-BEQ r8, r0, SKIP_PIXEL_DRAW // Skip if the bit is not set
-
-// Calculate framebuffer address for pixel (x = r2 + col, y = r3 + row)
-CALC_FRAMEBUFFER_ADDR:
-ADD r8, r2, r7             // x = r2 + col
-ADD r9, r3, r6             // y = r3 + row
-LLI r10, 128               // Display width
-MUL r9, r9, r10            // y * width
-ADD r9, r9, r8             // y * width + x
-
-// Set the pixel in the framebuffer
-SET_PIXEL:
-LLI r10, 4
-DIV r11, r9, r10           // byte offset = pixel_index / 4
-LLI r10, 0x2000_0000       // Display base address
-ADD r11, r11, r10          // Absolute byte address
-
-ANDI r10, r9, 0x3          // pixel_in_byte = pixel_index % 4
-LLI r8, 3                  // 2 bits per pixel, so shift = (3 - pixel_in_byte) * 2
-SUB r8, r8, r10            // (3 - pixel_in_byte)
-LLI r10, 2
-MUL r8, r8, r10            // shift amount
-
-LB r10, r11, 0             // Load current byte
-LLI r9, 0b11               // White pixel value (0b11)
-SHL r9, r9, r8             // Shift to correct position
-OR r10, r10, r9            // Set pixel bits
-SB r10, r11, 0             // Store byte back
-
-SKIP_PIXEL_DRAW:
-ADDI r7, r7, 1                // Increment column index
-JMP DRAW_CHAR_COLUMN_LOOP
-
-END_DRAW_CHAR_COLUMN_LOOP:
-ADDI r6, r6, 1                // Increment row index
+LLI r13, 8
+BGE r6, r13, END_DRAW_CHAR_LOOP
+// Load glyph row byte
+LB r7, r4, 0
+// Loop over 8 columns (x)
+LLI r8, 0 // col = 0
+DRAW_CHAR_COL_LOOP:
+LLI r13, 8
+BGE r8, r13, END_DRAW_CHAR_COL_LOOP
+// Get bit for this pixel
+LLI r9, 7
+SUB r9, r9, r8
+SHR r10, r7, r9
+ANDI r10, r10, 1
+BEQ r10, r0, SKIP_PIXEL
+// Calculate framebuffer address: fb_addr = base + ((y + r3) * WIDTH + (x + r2))
+ADD r11, r3, r6 // y + row
+MULI r11, r11, 128 // WIDTH = 128
+ADD r11, r11, r2 // x offset
+ADD r11, r11, r8 // x + col
+ADD r11, r5, r11 // fb_addr
+// Write white pixel (0x3 for 2-bit per pixel)
+LLI r12, 0x3
+SB r12, r11, 0
+SKIP_PIXEL:
+ADDI r8, r8, 1
+JMP DRAW_CHAR_COL_LOOP
+END_DRAW_CHAR_COL_LOOP:
+ADDI r4, r4, 1 // next glyph row
+ADDI r6, r6, 1
 JMP DRAW_CHAR_ROW_LOOP
-
-END_DRAW_CHAR_PIXEL_LOOP:
-POP r11
-POP r10
+END_DRAW_CHAR_LOOP:
 POP r9
 POP r8
 POP r7
@@ -186,6 +155,7 @@ POP r6
 POP r5
 POP r4
 RET
+
 
 
 .SEG 0x0000_1000
@@ -202,8 +172,10 @@ TTY_BUFFER:
 // Generated from azmr's 5x6 font (https://github.com/azmr/blit-fonts)
 // Using custom script to convert to RospOS framebuffer format and assembly data
 BASE_FB_ADDR:
-FB_DATA_SPACE:
-.DATA 0x00000000  // Glyph: SPACE
+FB_DATA_nul:
+.DATA 0x0000000000000000  // Glyph: nul
+//
+//
 //
 //
 //
@@ -212,942 +184,1142 @@ FB_DATA_SPACE:
 //
 //
 
-FB_DATA_EXCLAM:
-.DATA 0x20084210  // Glyph: EXCLAM
-//    ##
+FB_DATA_space:
+.DATA 0x0000000000000000  // Glyph: space
 //
-//    ##
-//    ##
-//    ##
-//    ##
+//
+//
+//
+//
+//
+//
+//
 //
 
-FB_DATA_QUOTE:
-.DATA 0x0000A528  // Glyph: QUOTE
+FB_DATA_EXCLAMATION_MARK:
+.DATA 0x183C3C1818001800  // Glyph: EXCLAMATION_MARK
+//      ####
+//    ########
+//    ########
+//      ####
+//      ####
+//
+//      ####
+//
+//
+
+FB_DATA_DOUBLE_QUOTE:
+.DATA 0x3636000000000000  // Glyph: DOUBLE_QUOTE
+//    ####  ####
+//    ####  ####
 //
 //
 //
-//  ##  ##
-//  ##  ##
-//  ##  ##
+//
+//
+//
 //
 
 FB_DATA_HASH:
-.DATA 0x57D4AFA8  // Glyph: HASH
-//  ##  ##
-//##########
-//  ##  ##
-//  ##  ##
-//##########
-//  ##  ##
+.DATA 0x36367F367F363600  // Glyph: HASH
+//    ####  ####
+//    ####  ####
+//  ##############
+//    ####  ####
+//  ##############
+//    ####  ####
+//    ####  ####
+//
 //
 
-FB_DATA_DOLLAR:
-.DATA 0x23E8E2F8  // Glyph: DOLLAR
-//    ##
-//  ########
-//##  ##
-//  ######
-//    ##  ##
-//########
+FB_DATA_DOLLAR_SIGN:
+.DATA 0x0C3E031E301F0C00  // Glyph: DOLLAR_SIGN
+//        ####
+//    ##########
+//            ####
+//      ########
+//    ####
+//      ##########
+//        ####
+//
 //
 
 FB_DATA_PERCENT:
-.DATA 0xCE88B980  // Glyph: PERCENT
-//####    ##
-//####  ##
-//    ##
-//  ##  ####
-//##    ####
+.DATA 0x006333180C666300  // Glyph: PERCENT
+//
+//  ####      ####
+//    ####    ####
+//      ####
+//        ####
+//  ####    ####
+//  ####      ####
 //
 //
 
 FB_DATA_AMPERSAND:
-.DATA 0xBA536298  // Glyph: AMPERSAND
-//##  ######
-//  ##    ##
-//  ##    ##
-//##  ####
-//    ##  ##
-//    ####
+.DATA 0x1C361C6E3B336E00  // Glyph: AMPERSAND
+//      ######
+//    ####  ####
+//      ######
+//  ####  ######
+//    ######  ####
+//    ####    ####
+//  ####  ######
+//
 //
 
-FB_DATA_APOSTROPHE:
-.DATA 0x00004210  // Glyph: APOSTROPHE
+FB_DATA_SINGLE_QUOTE:
+.DATA 0x0606030000000000  // Glyph: SINGLE_QUOTE
+//          ####
+//          ####
+//            ####
 //
 //
 //
-//    ##
-//    ##
-//    ##
+//
+//
 //
 
-FB_DATA_PARENLEFT:
-.DATA 0x41084220  // Glyph: PARENLEFT
-//  ##
-//    ##
-//    ##
-//    ##
-//    ##
-//  ##
+FB_DATA_LEFT_PARENTHESIS:
+.DATA 0x180C0606060C1800  // Glyph: LEFT_PARENTHESIS
+//      ####
+//        ####
+//          ####
+//          ####
+//          ####
+//        ####
+//      ####
+//
 //
 
-FB_DATA_PARENRIGHT:
-.DATA 0x11084208  // Glyph: PARENRIGHT
-//      ##
-//    ##
-//    ##
-//    ##
-//    ##
-//      ##
+FB_DATA_RIGHT_PARENTHESIS:
+.DATA 0x060C1818180C0600  // Glyph: RIGHT_PARENTHESIS
+//          ####
+//        ####
+//      ####
+//      ####
+//      ####
+//        ####
+//          ####
+//
 //
 
 FB_DATA_ASTERISK:
-.DATA 0x0288E200  // Glyph: ASTERISK
+.DATA 0x00663CFF3C660000  // Glyph: ASTERISK
 //
-//  ##  ##
-//    ##
-//  ######
-//    ##
+//  ####    ####
+//    ########
+//################
+//    ########
+//  ####    ####
+//
 //
 //
 
 FB_DATA_PLUS:
-.DATA 0x011C4000  // Glyph: PLUS
+.DATA 0x000C0C3F0C0C0000  // Glyph: PLUS
 //
-//    ##
-//  ######
-//    ##
+//        ####
+//        ####
+//    ############
+//        ####
+//        ####
 //
 //
 //
 
 FB_DATA_COMMA:
-.DATA 0x11080000  // Glyph: COMMA
-//      ##
-//    ##
-//    ##
+.DATA 0x00000000000C0C06  // Glyph: COMMA
 //
 //
 //
+//
+//
+//        ####
+//        ####
+//          ####
 //
 
 FB_DATA_HYPHEN:
-.DATA 0x001C0000  // Glyph: HYPHEN
+.DATA 0x0000003F00000000  // Glyph: HYPHEN
 //
 //
-//  ######
+//
+//    ############
+//
 //
 //
 //
 //
 
 FB_DATA_PERIOD:
-.DATA 0x31800000  // Glyph: PERIOD
-//    ####
-//    ####
+.DATA 0x00000000000C0C00  // Glyph: PERIOD
 //
 //
 //
+//
+//
+//        ####
+//        ####
 //
 //
 
-FB_DATA_SLASH:
-.DATA 0x08888800  // Glyph: SLASH
-//        ##
-//      ##
-//    ##
-//  ##
-//##
+FB_DATA_FORWARD_SLASH:
+.DATA 0x6030180C06030100  // Glyph: FORWARD_SLASH
+//  ####
+//    ####
+//      ####
+//        ####
+//          ####
+//            ####
+//              ##
 //
 //
 
 FB_DATA_0:
-.DATA 0x74EB5CB8  // Glyph: 0
-//  ######
-//##    ####
-//##  ##  ##
-//##  ##  ##
-//####    ##
-//  ######
+.DATA 0x3E63737B6F673E00  // Glyph: 0
+//    ##########
+//  ####      ####
+//  ######    ####
+//  ########  ####
+//  ####  ########
+//  ####    ######
+//    ##########
+//
 //
 
 FB_DATA_1:
-.DATA 0xF9085310  // Glyph: 1
-//##########
-//    ##
-//    ##
-//    ##  ##
-//    ####
-//    ##
+.DATA 0x0C0E0C0C0C0C3F00  // Glyph: 1
+//        ####
+//        ######
+//        ####
+//        ####
+//        ####
+//        ####
+//    ############
+//
 //
 
 FB_DATA_2:
-.DATA 0xF88888B8  // Glyph: 2
-//##########
-//      ##
-//    ##
-//  ##
-//##      ##
-//  ######
+.DATA 0x1E33301C06333F00  // Glyph: 2
+//      ########
+//    ####    ####
+//    ####
+//      ######
+//          ####
+//    ####    ####
+//    ############
+//
 //
 
 FB_DATA_3:
-.DATA 0x7460C83C  // Glyph: 3
-//  ######
-//##      ##
-//##
-//  ####
-//##
-//  ########
+.DATA 0x1E33301C30331E00  // Glyph: 3
+//      ########
+//    ####    ####
+//    ####
+//      ######
+//    ####
+//    ####    ####
+//      ########
+//
 //
 
 FB_DATA_4:
-.DATA 0x843F2220  // Glyph: 4
-//##
-//##
-//##########
-//##    ##
-//    ##
-//  ##
+.DATA 0x383C36337F307800  // Glyph: 4
+//    ######
+//    ########
+//    ####  ####
+//    ####    ####
+//  ##############
+//    ####
+//  ########
+//
 //
 
 FB_DATA_5:
-.DATA 0x7460F0FC  // Glyph: 5
-//  ######
-//##      ##
-//##
-//  ########
-//        ##
-//##########
+.DATA 0x3F031F3030331E00  // Glyph: 5
+//    ############
+//            ####
+//      ##########
+//    ####
+//    ####
+//    ####    ####
+//      ########
+//
 //
 
 FB_DATA_6:
-.DATA 0x745E1130  // Glyph: 6
-//  ######
-//##      ##
-//  ########
-//        ##
-//      ##
-//  ####
+.DATA 0x1C06031F33331E00  // Glyph: 6
+//      ######
+//          ####
+//            ####
+//      ##########
+//    ####    ####
+//    ####    ####
+//      ########
+//
 //
 
 FB_DATA_7:
-.DATA 0x0888887C  // Glyph: 7
-//        ##
-//      ##
-//    ##
-//  ##
-//##
-//##########
+.DATA 0x3F3330180C0C0C00  // Glyph: 7
+//    ############
+//    ####    ####
+//    ####
+//      ####
+//        ####
+//        ####
+//        ####
+//
 //
 
 FB_DATA_8:
-.DATA 0x7462E8B8  // Glyph: 8
-//  ######
-//##      ##
-//##      ##
-//  ######
-//##      ##
-//  ######
+.DATA 0x1E33331E33331E00  // Glyph: 8
+//      ########
+//    ####    ####
+//    ####    ####
+//      ########
+//    ####    ####
+//    ####    ####
+//      ########
+//
 //
 
 FB_DATA_9:
-.DATA 0x843D18F8  // Glyph: 9
-//##
-//##
-//########
-//##      ##
-//##      ##
-//########
+.DATA 0x1E33333E30180E00  // Glyph: 9
+//      ########
+//    ####    ####
+//    ####    ####
+//    ##########
+//    ####
+//      ####
+//        ######
+//
 //
 
 FB_DATA_COLON:
-.DATA 0x31806300  // Glyph: COLON
-//    ####
-//    ####
+.DATA 0x000C0C00000C0C00  // Glyph: COLON
 //
-//    ####
-//    ####
+//        ####
+//        ####
+//
+//
+//        ####
+//        ####
 //
 //
 
 FB_DATA_SEMICOLON:
-.DATA 0x11004000  // Glyph: SEMICOLON
-//      ##
-//    ##
+.DATA 0x000C0C00000C0C06  // Glyph: SEMICOLON
 //
-//    ##
+//        ####
+//        ####
+//
+//
+//        ####
+//        ####
+//          ####
+//
+
+FB_DATA_LESS_THAN:
+.DATA 0x180C0603060C1800  // Glyph: LESS_THAN
+//      ####
+//        ####
+//          ####
+//            ####
+//          ####
+//        ####
+//      ####
+//
+//
+
+FB_DATA_EQUALS:
+.DATA 0x00003F00003F0000  // Glyph: EQUALS
+//
+//
+//    ############
+//
+//
+//    ############
 //
 //
 //
 
-FB_DATA_LESS:
-.DATA 0x41044400  // Glyph: LESS
-//  ##
-//    ##
-//      ##
-//    ##
-//  ##
+FB_DATA_GREATER_THAN:
+.DATA 0x060C1830180C0600  // Glyph: GREATER_THAN
+//          ####
+//        ####
+//      ####
+//    ####
+//      ####
+//        ####
+//          ####
 //
 //
 
-FB_DATA_EQUAL:
-.DATA 0x0380E000  // Glyph: EQUAL
+FB_DATA_QUESTION_MARK:
+.DATA 0x1E3330180C000C00  // Glyph: QUESTION_MARK
+//      ########
+//    ####    ####
+//    ####
+//      ####
+//        ####
 //
-//  ######
+//        ####
 //
-//  ######
-//
-//
-//
-
-FB_DATA_GREATER:
-.DATA 0x11104100  // Glyph: GREATER
-//      ##
-//    ##
-//  ##
-//    ##
-//      ##
-//
-//
-
-FB_DATA_QUESTION:
-.DATA 0x2008C8B8  // Glyph: QUESTION
-//    ##
-//
-//    ##
-//  ####
-//##      ##
-//  ######
 //
 
 FB_DATA_AT:
-.DATA 0xF07BD8B8  // Glyph: AT
-//########
-//        ##
-//######  ##
-//######  ##
-//##      ##
-//  ######
+.DATA 0x3E637B7B7B031E00  // Glyph: AT
+//    ##########
+//  ####      ####
+//  ########  ####
+//  ########  ####
+//  ########  ####
+//            ####
+//      ########
+//
 //
 
 FB_DATA_A:
-.DATA 0x8C7F1510  // Glyph: A
-//##      ##
-//##      ##
-//##########
-//##      ##
-//  ##  ##
-//    ##
+.DATA 0x0C1E33333F333300  // Glyph: A
+//        ####
+//      ########
+//    ####    ####
+//    ####    ####
+//    ############
+//    ####    ####
+//    ####    ####
+//
 //
 
 FB_DATA_B:
-.DATA 0x7C62F8BC  // Glyph: B
-//  ########
-//##      ##
-//##      ##
-//  ########
-//##      ##
-//  ########
+.DATA 0x3F66663E66663F00  // Glyph: B
+//    ############
+//  ####    ####
+//  ####    ####
+//    ##########
+//  ####    ####
+//  ####    ####
+//    ############
+//
 //
 
 FB_DATA_C:
-.DATA 0xF04218B8  // Glyph: C
-//########
-//        ##
-//        ##
-//        ##
-//##      ##
-//  ######
+.DATA 0x3C66030303663C00  // Glyph: C
+//    ########
+//  ####    ####
+//            ####
+//            ####
+//            ####
+//  ####    ####
+//    ########
+//
 //
 
 FB_DATA_D:
-.DATA 0x7C6318BC  // Glyph: D
-//  ########
-//##      ##
-//##      ##
-//##      ##
-//##      ##
-//  ########
+.DATA 0x1F36666666361F00  // Glyph: D
+//      ##########
+//    ####  ####
+//  ####    ####
+//  ####    ####
+//  ####    ####
+//    ####  ####
+//      ##########
+//
 //
 
 FB_DATA_E:
-.DATA 0xF842F0FC  // Glyph: E
-//##########
-//        ##
-//        ##
-//  ########
-//        ##
-//##########
+.DATA 0x7F46161E16467F00  // Glyph: E
+//  ##############
+//  ##      ####
+//      ##  ####
+//      ########
+//      ##  ####
+//  ##      ####
+//  ##############
+//
 //
 
 FB_DATA_F:
-.DATA 0x0842F0FC  // Glyph: F
-//        ##
-//        ##
-//        ##
-//  ########
-//        ##
-//##########
+.DATA 0x7F46161E16060F00  // Glyph: F
+//  ##############
+//  ##      ####
+//      ##  ####
+//      ########
+//      ##  ####
+//          ####
+//        ########
+//
 //
 
 FB_DATA_G:
-.DATA 0x747210F8  // Glyph: G
-//  ######
-//##      ##
-//####    ##
-//        ##
-//        ##
-//########
+.DATA 0x3C66030373667C00  // Glyph: G
+//    ########
+//  ####    ####
+//            ####
+//            ####
+//  ######    ####
+//  ####    ####
+//  ##########
+//
 //
 
 FB_DATA_H:
-.DATA 0x8C63F8C4  // Glyph: H
-//##      ##
-//##      ##
-//##      ##
-//##########
-//##      ##
-//##      ##
+.DATA 0x3333333F33333300  // Glyph: H
+//    ####    ####
+//    ####    ####
+//    ####    ####
+//    ############
+//    ####    ####
+//    ####    ####
+//    ####    ####
+//
 //
 
 FB_DATA_I:
-.DATA 0xF908427C  // Glyph: I
-//##########
-//    ##
-//    ##
-//    ##
-//    ##
-//##########
+.DATA 0x1E0C0C0C0C0C1E00  // Glyph: I
+//      ########
+//        ####
+//        ####
+//        ####
+//        ####
+//        ####
+//      ########
+//
 //
 
 FB_DATA_J:
-.DATA 0x3250847C  // Glyph: J
+.DATA 0x7830303033331E00  // Glyph: J
+//  ########
 //    ####
-//  ##    ##
-//  ##
-//  ##
-//  ##
-//##########
+//    ####
+//    ####
+//    ####    ####
+//    ####    ####
+//      ########
+//
 //
 
 FB_DATA_K:
-.DATA 0x8C5274C4  // Glyph: K
-//##      ##
-//##      ##
-//  ##    ##
-//    ######
-//  ##    ##
-//##      ##
+.DATA 0x6766361E36666700  // Glyph: K
+//  ####    ######
+//  ####    ####
+//    ####  ####
+//      ########
+//    ####  ####
+//  ####    ####
+//  ####    ######
+//
 //
 
 FB_DATA_L:
-.DATA 0xF8421084  // Glyph: L
-//##########
-//        ##
-//        ##
-//        ##
-//        ##
-//        ##
+.DATA 0x0F06060646667F00  // Glyph: L
+//        ########
+//          ####
+//          ####
+//          ####
+//  ##      ####
+//  ####    ####
+//  ##############
+//
 //
 
 FB_DATA_M:
-.DATA 0x8C6B5AEC  // Glyph: M
-//##      ##
-//##      ##
-//##  ##  ##
-//##  ##  ##
-//##  ##  ##
-//####  ####
+.DATA 0x63777F7F6B636300  // Glyph: M
+//  ####      ####
+//  ######  ######
+//  ##############
+//  ##############
+//  ####  ##  ####
+//  ####      ####
+//  ####      ####
+//
 //
 
 FB_DATA_N:
-.DATA 0x8E7359C4  // Glyph: N
-//##      ##
-//####    ##
-//####    ##
-//##  ##  ##
-//##    ####
-//##      ##
+.DATA 0x63676F7B73636300  // Glyph: N
+//  ####      ####
+//  ####    ######
+//  ####  ########
+//  ########  ####
+//  ######    ####
+//  ####      ####
+//  ####      ####
+//
 //
 
 FB_DATA_O:
-.DATA 0x746318B8  // Glyph: O
-//  ######
-//##      ##
-//##      ##
-//##      ##
-//##      ##
-//  ######
+.DATA 0x1C36636363361C00  // Glyph: O
+//      ######
+//    ####  ####
+//  ####      ####
+//  ####      ####
+//  ####      ####
+//    ####  ####
+//      ######
+//
 //
 
 FB_DATA_P:
-.DATA 0x085F18BC  // Glyph: P
-//        ##
-//        ##
-//  ########
-//##      ##
-//##      ##
-//  ########
+.DATA 0x3F66663E06060F00  // Glyph: P
+//    ############
+//  ####    ####
+//  ####    ####
+//    ##########
+//          ####
+//          ####
+//        ########
+//
 //
 
 FB_DATA_Q:
-.DATA 0xC3AB18B8  // Glyph: Q
-//####
-//  ######
-//##  ##  ##
-//##      ##
-//##      ##
-//  ######
+.DATA 0x1E3333333B1E3800  // Glyph: Q
+//      ########
+//    ####    ####
+//    ####    ####
+//    ####    ####
+//    ######  ####
+//      ########
+//    ######
+//
 //
 
 FB_DATA_R:
-.DATA 0x8A5F18BC  // Glyph: R
-//##      ##
-//  ##    ##
-//  ########
-//##      ##
-//##      ##
-//  ########
+.DATA 0x3F66663E36666700  // Glyph: R
+//    ############
+//  ####    ####
+//  ####    ####
+//    ##########
+//    ####  ####
+//  ####    ####
+//  ####    ######
+//
 //
 
 FB_DATA_S:
-.DATA 0x745068B8  // Glyph: S
-//  ######
-//##      ##
-//  ##
-//    ####
-//##      ##
-//  ######
+.DATA 0x1E33070E38331E00  // Glyph: S
+//      ########
+//    ####    ####
+//          ######
+//        ######
+//    ######
+//    ####    ####
+//      ########
+//
 //
 
 FB_DATA_T:
-.DATA 0x2108427C  // Glyph: T
-//    ##
-//    ##
-//    ##
-//    ##
-//    ##
-//##########
+.DATA 0x3F2D0C0C0C0C1E00  // Glyph: T
+//    ############
+//    ##  ####  ##
+//        ####
+//        ####
+//        ####
+//        ####
+//      ########
+//
 //
 
 FB_DATA_U:
-.DATA 0x746318C4  // Glyph: U
-//  ######
-//##      ##
-//##      ##
-//##      ##
-//##      ##
-//##      ##
+.DATA 0x3333333333333F00  // Glyph: U
+//    ####    ####
+//    ####    ####
+//    ####    ####
+//    ####    ####
+//    ####    ####
+//    ####    ####
+//    ############
+//
 //
 
 FB_DATA_V:
-.DATA 0x211518C4  // Glyph: V
-//    ##
-//    ##
-//  ##  ##
-//##      ##
-//##      ##
-//##      ##
+.DATA 0x33333333331E0C00  // Glyph: V
+//    ####    ####
+//    ####    ####
+//    ####    ####
+//    ####    ####
+//    ####    ####
+//      ########
+//        ####
+//
 //
 
 FB_DATA_W:
-.DATA 0xDD6B58C4  // Glyph: W
-//####  ####
-//##  ##  ##
-//##  ##  ##
-//##  ##  ##
-//##      ##
-//##      ##
+.DATA 0x6363636B7F776300  // Glyph: W
+//  ####      ####
+//  ####      ####
+//  ####      ####
+//  ####  ##  ####
+//  ##############
+//  ######  ######
+//  ####      ####
+//
 //
 
 FB_DATA_X:
-.DATA 0x8A884544  // Glyph: X
-//##      ##
-//  ##  ##
-//    ##
-//    ##
-//  ##  ##
-//##      ##
+.DATA 0x6363361C1C366300  // Glyph: X
+//  ####      ####
+//  ####      ####
+//    ####  ####
+//      ######
+//      ######
+//    ####  ####
+//  ####      ####
+//
 //
 
 FB_DATA_Y:
-.DATA 0x21084544  // Glyph: Y
-//    ##
-//    ##
-//    ##
-//    ##
-//  ##  ##
-//##      ##
+.DATA 0x3333331E0C0C1E00  // Glyph: Y
+//    ####    ####
+//    ####    ####
+//    ####    ####
+//      ########
+//        ####
+//        ####
+//      ########
+//
 //
 
 FB_DATA_Z:
-.DATA 0xF888887C  // Glyph: Z
-//##########
-//      ##
-//    ##
-//  ##
-//##
-//##########
+.DATA 0x7F6331184C667F00  // Glyph: Z
+//  ##############
+//  ####      ####
+//    ####      ##
+//      ####
+//  ##    ####
+//  ####    ####
+//  ##############
+//
 //
 
-FB_DATA_BRACKETLEFT:
-.DATA 0x61084230  // Glyph: BRACKETLEFT
-//  ####
-//    ##
-//    ##
-//    ##
-//    ##
-//  ####
+FB_DATA_LEFT_SQUARE_BRACKET:
+.DATA 0x1E06060606061E00  // Glyph: LEFT_SQUARE_BRACKET
+//      ########
+//          ####
+//          ####
+//          ####
+//          ####
+//          ####
+//      ########
+//
 //
 
 FB_DATA_BACKSLASH:
-.DATA 0x82082080  // Glyph: BACKSLASH
-//##
+.DATA 0x03060C1830604000  // Glyph: BACKSLASH
+//            ####
+//          ####
+//        ####
+//      ####
+//    ####
+//  ####
 //  ##
-//    ##
-//      ##
-//        ##
 //
 //
 
-FB_DATA_BRACKETRIGHT:
-.DATA 0x31084218  // Glyph: BRACKETRIGHT
-//    ####
-//    ##
-//    ##
-//    ##
-//    ##
-//    ####
+FB_DATA_RIGHT_SQUARE_BRACKET:
+.DATA 0x1E18181818181E00  // Glyph: RIGHT_SQUARE_BRACKET
+//      ########
+//      ####
+//      ####
+//      ####
+//      ####
+//      ####
+//      ########
+//
 //
 
 FB_DATA_CARET:
-.DATA 0x00011510  // Glyph: CARET
+.DATA 0x081C366300000000  // Glyph: CARET
+//        ##
+//      ######
+//    ####  ####
+//  ####      ####
 //
 //
 //
-//##      ##
-//  ##  ##
-//    ##
+//
 //
 
 FB_DATA_UNDERSCORE:
-.DATA 0xF8000000  // Glyph: UNDERSCORE
-//##########
+.DATA 0x00000000000000FF  // Glyph: UNDERSCORE
 //
 //
 //
 //
 //
+//
+//
+//################
 //
 
-FB_DATA_BACKTICK:
-.DATA 0x00000208  // Glyph: BACKTICK
+FB_DATA_GRAVE_ACCENT:
+.DATA 0x0C0C180000000000  // Glyph: GRAVE_ACCENT
+//        ####
+//        ####
+//      ####
 //
 //
 //
 //
-//    ##
-//      ##
+//
 //
 
 FB_DATA_a:
-.DATA 0x725EC000  // Glyph: a
-//  ######
-//  ##    ##
-//  ########
-//  ####
+.DATA 0x00001E303E336E00  // Glyph: a
 //
+//
+//      ########
+//    ####
+//    ##########
+//    ####    ####
+//  ####  ######
 //
 //
 
 FB_DATA_b:
-.DATA 0x3A527084  // Glyph: b
-//    ######
-//  ##    ##
-//  ##    ##
-//    ######
-//        ##
-//        ##
+.DATA 0x0706063E66663B00  // Glyph: b
+//          ######
+//          ####
+//          ####
+//    ##########
+//  ####    ####
+//  ####    ####
+//    ######  ####
+//
 //
 
 FB_DATA_c:
-.DATA 0x7042E000  // Glyph: c
-//  ######
-//        ##
-//        ##
-//  ######
+.DATA 0x00001E3303331E00  // Glyph: c
 //
+//
+//      ########
+//    ####    ####
+//            ####
+//    ####    ####
+//      ########
 //
 //
 
 FB_DATA_d:
-.DATA 0x7252E420  // Glyph: d
-//  ######
-//  ##    ##
-//  ##    ##
-//  ######
-//  ##
-//  ##
+.DATA 0x3830303E33336E00  // Glyph: d
+//    ######
+//    ####
+//    ####
+//    ##########
+//    ####    ####
+//    ####    ####
+//  ####  ######
+//
 //
 
 FB_DATA_e:
-.DATA 0xF07F1700  // Glyph: e
-//########
-//        ##
-//##########
-//##      ##
-//  ######
+.DATA 0x00001E333F031E00  // Glyph: e
+//
+//
+//      ########
+//    ####    ####
+//    ############
+//            ####
+//      ########
 //
 //
 
 FB_DATA_f:
-.DATA 0x08847130  // Glyph: f
-//        ##
-//      ##
-//      ##
-//    ######
-//      ##
-//  ####
+.DATA 0x1C36060F06060F00  // Glyph: f
+//      ######
+//    ####  ####
+//          ####
+//        ########
+//          ####
+//          ####
+//        ########
+//
 //
 
 FB_DATA_g:
-.DATA 0x3A1C94B8  // Glyph: g
-//    ######
-//  ##
-//  ######
-//  ##    ##
-//  ##    ##
-//  ######
+.DATA 0x00006E33333E301F  // Glyph: g
+//
+//
+//  ####  ######
+//    ####    ####
+//    ####    ####
+//    ##########
+//    ####
+//      ##########
 //
 
 FB_DATA_h:
-.DATA 0x4A527084  // Glyph: h
-//  ##    ##
-//  ##    ##
-//  ##    ##
-//    ######
-//        ##
-//        ##
+.DATA 0x0706366E66666700  // Glyph: h
+//          ######
+//          ####
+//    ####  ####
+//  ####  ######
+//  ####    ####
+//  ####    ####
+//  ####    ######
+//
 //
 
 FB_DATA_i:
-.DATA 0x30840100  // Glyph: i
-//    ####
-//      ##
-//      ##
+.DATA 0x0C000E0C0C0C1E00  // Glyph: i
+//        ####
 //
-//      ##
+//        ######
+//        ####
+//        ####
+//        ####
+//      ########
 //
 //
 
 FB_DATA_j:
-.DATA 0x31084010  // Glyph: j
+.DATA 0x300030303033331E  // Glyph: j
 //    ####
-//    ##
-//    ##
-//    ##
 //
-//    ##
+//    ####
+//    ####
+//    ####
+//    ####    ####
+//    ####    ####
+//      ########
 //
 
 FB_DATA_k:
-.DATA 0x49465484  // Glyph: k
-//  ##    ##
-//    ##  ##
-//      ####
-//    ##  ##
-//  ##    ##
-//        ##
+.DATA 0x070666361E366700  // Glyph: k
+//          ######
+//          ####
+//  ####    ####
+//    ####  ####
+//      ########
+//    ####  ####
+//  ####    ######
+//
 //
 
 FB_DATA_l:
-.DATA 0x30842108  // Glyph: l
-//    ####
-//      ##
-//      ##
-//      ##
-//      ##
-//      ##
+.DATA 0x0E0C0C0C0C0C1E00  // Glyph: l
+//        ######
+//        ####
+//        ####
+//        ####
+//        ####
+//        ####
+//      ########
+//
 //
 
 FB_DATA_m:
-.DATA 0x8D6AB000  // Glyph: m
-//##      ##
-//##  ##  ##
-//##  ##  ##
-//  ##  ####
+.DATA 0x0000337F7F6B6300  // Glyph: m
 //
+//
+//    ####    ####
+//  ##############
+//  ##############
+//  ####  ##  ####
+//  ####      ####
 //
 //
 
 FB_DATA_n:
-.DATA 0x4A527000  // Glyph: n
-//  ##    ##
-//  ##    ##
-//  ##    ##
-//    ######
+.DATA 0x00001F3333333300  // Glyph: n
 //
+//
+//      ##########
+//    ####    ####
+//    ####    ####
+//    ####    ####
+//    ####    ####
 //
 //
 
 FB_DATA_o:
-.DATA 0x32526000  // Glyph: o
-//    ####
-//  ##    ##
-//  ##    ##
-//    ####
+.DATA 0x00001E3333331E00  // Glyph: o
 //
+//
+//      ########
+//    ####    ####
+//    ####    ####
+//    ####    ####
+//      ########
 //
 //
 
 FB_DATA_p:
-.DATA 0x084E9498  // Glyph: p
-//        ##
-//        ##
-//    ######
-//  ##    ##
-//  ##    ##
-//    ####
+.DATA 0x00003B66663E060F  // Glyph: p
+//
+//
+//    ######  ####
+//  ####    ####
+//  ####    ####
+//    ##########
+//          ####
+//        ########
 //
 
 FB_DATA_q:
-.DATA 0xC21C94B8  // Glyph: q
-//####
-//  ##
-//  ######
-//  ##    ##
-//  ##    ##
-//  ######
+.DATA 0x00006E33333E3078  // Glyph: q
+//
+//
+//  ####  ######
+//    ####    ####
+//    ####    ####
+//    ##########
+//    ####
+//  ########
 //
 
 FB_DATA_r:
-.DATA 0x08526000  // Glyph: r
-//        ##
-//        ##
-//  ##    ##
-//    ####
+.DATA 0x00003B6E66060F00  // Glyph: r
 //
+//
+//    ######  ####
+//  ####  ######
+//  ####    ####
+//          ####
+//        ########
 //
 //
 
 FB_DATA_s:
-.DATA 0x3A0DC000  // Glyph: s
-//    ######
-//  ##
-//    ####
-//######
+.DATA 0x00003E031E301F00  // Glyph: s
 //
+//
+//    ##########
+//            ####
+//      ########
+//    ####
+//      ##########
 //
 //
 
 FB_DATA_t:
-.DATA 0x3084F108  // Glyph: t
-//    ####
-//      ##
-//      ##
-//  ########
-//      ##
-//      ##
+.DATA 0x080C3E0C0C2C1800  // Glyph: t
+//        ##
+//        ####
+//    ##########
+//        ####
+//        ####
+//    ##  ####
+//      ####
+//
 //
 
 FB_DATA_u:
-.DATA 0x3A529000  // Glyph: u
-//    ######
-//  ##    ##
-//  ##    ##
-//  ##    ##
+.DATA 0x0000333333336E00  // Glyph: u
 //
+//
+//    ####    ####
+//    ####    ####
+//    ####    ####
+//    ####    ####
+//  ####  ######
 //
 //
 
 FB_DATA_v:
-.DATA 0x11929000  // Glyph: v
-//      ##
-//    ####
-//  ##    ##
-//  ##    ##
+.DATA 0x00003333331E0C00  // Glyph: v
 //
+//
+//    ####    ####
+//    ####    ####
+//    ####    ####
+//      ########
+//        ####
 //
 //
 
 FB_DATA_w:
-.DATA 0x556B1000  // Glyph: w
-//  ##  ##
-//##  ##  ##
-//##  ##  ##
-//##      ##
+.DATA 0x0000636B7F7F3600  // Glyph: w
 //
+//
+//  ####      ####
+//  ####  ##  ####
+//  ##############
+//  ##############
+//    ####  ####
 //
 //
 
 FB_DATA_x:
-.DATA 0xD909B000  // Glyph: x
-//####  ####
-//    ##
-//    ##
-//####  ####
+.DATA 0x000063361C366300  // Glyph: x
 //
+//
+//  ####      ####
+//    ####  ####
+//      ######
+//    ####  ####
+//  ####      ####
 //
 //
 
 FB_DATA_y:
-.DATA 0x3A1C94A4  // Glyph: y
-//    ######
-//  ##
-//  ######
-//  ##    ##
-//  ##    ##
-//  ##    ##
+.DATA 0x00003333333E301F  // Glyph: y
+//
+//
+//    ####    ####
+//    ####    ####
+//    ####    ####
+//    ##########
+//    ####
+//      ##########
 //
 
 FB_DATA_z:
-.DATA 0x7888F000  // Glyph: z
-//  ########
-//      ##
-//    ##
-//  ########
+.DATA 0x00003F190C263F00  // Glyph: z
 //
+//
+//    ############
+//      ####    ##
+//        ####
+//    ##    ####
+//    ############
 //
 //
 
-FB_DATA_BRACELEFT:
-.DATA 0x610C6230  // Glyph: BRACELEFT
-//  ####
-//    ##
-//    ####
-//    ####
-//    ##
-//  ####
+FB_DATA_LEFT_CURLY_BRACKET:
+.DATA 0x380C0C070C0C3800  // Glyph: LEFT_CURLY_BRACKET
+//    ######
+//        ####
+//        ####
+//          ######
+//        ####
+//        ####
+//    ######
+//
 //
 
-FB_DATA_BAR:
-.DATA 0x21084210  // Glyph: BAR
-//    ##
-//    ##
-//    ##
-//    ##
-//    ##
-//    ##
+FB_DATA_VERTICAL_BAR:
+.DATA 0x1818180018181800  // Glyph: VERTICAL_BAR
+//      ####
+//      ####
+//      ####
+//
+//      ####
+//      ####
+//      ####
+//
 //
 
-FB_DATA_BRACERIGHT:
-.DATA 0x3118C218  // Glyph: BRACERIGHT
-//    ####
-//    ##
-//  ####
-//  ####
-//    ##
-//    ####
+FB_DATA_RIGHT_CURLY_BRACKET:
+.DATA 0x070C0C380C0C0700  // Glyph: RIGHT_CURLY_BRACKET
+//          ######
+//        ####
+//        ####
+//    ######
+//        ####
+//        ####
+//          ######
+//
 //
 
 FB_DATA_TILDE:
-.DATA 0x001B6000  // Glyph: TILDE
+.DATA 0x6E3B000000000000  // Glyph: TILDE
+//  ####  ######
+//    ######  ####
 //
 //
-//  ####  ##
-//##  ####
+//
+//
 //
 //
 //

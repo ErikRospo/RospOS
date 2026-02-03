@@ -46,7 +46,7 @@ INSTR idx=43 @ 0x98 name=addi rd=13 rs1=0 rs2=None imm=ImmLabelPart(label='DRAW_
 INSTR idx=44 @ 0x9c name=shli rd=13 rs1=13 rs2=None imm=ImmValue(value=16)
 INSTR idx=45 @ 0xa0 name=ori rd=13 rs1=13 rs2=None imm=ImmLabelPart(label='DRAW_CHAR_TO_DISPLAY', part='low')
 INSTR idx=46 @ 0xa4 name=jalr rd=14 rs1=13 rs2=None imm=ImmValue(value=0)
-INSTR idx=47 @ 0xa8 name=addi rd=4 rs1=4 rs2=None imm=ImmValue(value=5)
+INSTR idx=47 @ 0xa8 name=addi rd=4 rs1=4 rs2=None imm=ImmValue(value=8)
 INSTR idx=48 @ 0xac name=lw rd=ImmValue(value=3) rs1=15 rs2=None imm=ImmValue(value=0)
 INSTR idx=49 @ 0xb0 name=addi rd=15 rs1=15 rs2=None imm=ImmValue(value=4)
 INSTR idx=50 @ 0xb4 name=lw rd=ImmValue(value=2) rs1=15 rs2=None imm=ImmValue(value=0)
@@ -148,88 +148,63 @@ INSTR idx=145 @ 0x5f4 name=addi rd=15 rs1=15 rs2=None imm=ImmValue(value=-4)
 INSTR idx=146 @ 0x5f8 name=sw rd=ImmValue(value=8) rs1=15 rs2=None imm=ImmValue(value=0)
 INSTR idx=147 @ 0x5fc name=addi rd=15 rs1=15 rs2=None imm=ImmValue(value=-4)
 INSTR idx=148 @ 0x600 name=sw rd=ImmValue(value=9) rs1=15 rs2=None imm=ImmValue(value=0)
-INSTR idx=149 @ 0x604 name=addi rd=15 rs1=15 rs2=None imm=ImmValue(value=-4)
-INSTR idx=150 @ 0x608 name=sw rd=ImmValue(value=10) rs1=15 rs2=None imm=ImmValue(value=0)
-INSTR idx=151 @ 0x60c name=addi rd=15 rs1=15 rs2=None imm=ImmValue(value=-4)
-INSTR idx=152 @ 0x610 name=sw rd=ImmValue(value=11) rs1=15 rs2=None imm=ImmValue(value=0)
-INSTR idx=153 @ 0x614 name=addi rd=4 rs1=0 rs2=None imm=ImmLabelPart(label='BASE_FB_ADDR', part='high')
-INSTR idx=154 @ 0x618 name=shli rd=4 rs1=4 rs2=None imm=ImmValue(value=16)
-INSTR idx=155 @ 0x61c name=ori rd=4 rs1=4 rs2=None imm=ImmLabelPart(label='BASE_FB_ADDR', part='low')
-INSTR idx=156 @ 0x620 name=addi rd=8 rs1=0 rs2=None imm=ImmValue(value=32)
-INSTR idx=157 @ 0x624 name=sub rd=5 rs1=1 rs2=8 imm=None
-INSTR idx=158 @ 0x628 name=addi rd=8 rs1=0 rs2=None imm=ImmValue(value=4)
-INSTR idx=159 @ 0x62c name=mul rd=5 rs1=5 rs2=8 imm=None
-INSTR idx=160 @ 0x630 name=add rd=4 rs1=4 rs2=5 imm=None
-INSTR idx=161 @ 0x634 name=lw rd=5 rs1=4 rs2=None imm=ImmValue(value=0)
-INSTR idx=162 @ 0x638 name=addi rd=6 rs1=0 rs2=None imm=ImmValue(value=0)
-LABEL DRAW_CHAR_ROW_LOOP -> 0x63c
-INSTR idx=164 @ 0x63c name=addi rd=8 rs1=0 rs2=None imm=ImmValue(value=6)
-INSTR idx=165 @ 0x640 name=beq rd=6 rs1=8 rs2=None imm=ImmLabel(name='END_DRAW_CHAR_PIXEL_LOOP')
-INSTR idx=166 @ 0x644 name=addi rd=7 rs1=0 rs2=None imm=ImmValue(value=0)
-LABEL DRAW_CHAR_COLUMN_LOOP -> 0x648
-INSTR idx=168 @ 0x648 name=addi rd=8 rs1=0 rs2=None imm=ImmValue(value=5)
-INSTR idx=169 @ 0x64c name=beq rd=7 rs1=8 rs2=None imm=ImmLabel(name='END_DRAW_CHAR_COLUMN_LOOP')
-LABEL CALC_PIXEL_BIT_INDEX -> 0x650
-INSTR idx=171 @ 0x650 name=addi rd=10 rs1=0 rs2=None imm=ImmValue(value=5)
-INSTR idx=172 @ 0x654 name=mul rd=10 rs1=6 rs2=10 imm=None
-INSTR idx=173 @ 0x658 name=add rd=10 rs1=10 rs2=7 imm=None
-INSTR idx=174 @ 0x65c name=addi rd=11 rs1=0 rs2=None imm=ImmValue(value=29)
-INSTR idx=175 @ 0x660 name=sub rd=11 rs1=11 rs2=10 imm=None
-INSTR idx=176 @ 0x664 name=shr rd=8 rs1=5 rs2=11 imm=None
-INSTR idx=177 @ 0x668 name=andi rd=8 rs1=8 rs2=None imm=ImmValue(value=1)
-INSTR idx=178 @ 0x66c name=beq rd=8 rs1=0 rs2=None imm=ImmLabel(name='SKIP_PIXEL_DRAW')
-LABEL CALC_FRAMEBUFFER_ADDR -> 0x670
-INSTR idx=180 @ 0x670 name=add rd=8 rs1=2 rs2=7 imm=None
-INSTR idx=181 @ 0x674 name=add rd=9 rs1=3 rs2=6 imm=None
-INSTR idx=182 @ 0x678 name=addi rd=10 rs1=0 rs2=None imm=ImmValue(value=128)
-INSTR idx=183 @ 0x67c name=mul rd=9 rs1=9 rs2=10 imm=None
-INSTR idx=184 @ 0x680 name=add rd=9 rs1=9 rs2=8 imm=None
-LABEL SET_PIXEL -> 0x684
-INSTR idx=186 @ 0x684 name=addi rd=10 rs1=0 rs2=None imm=ImmValue(value=4)
-INSTR idx=187 @ 0x688 name=div rd=11 rs1=9 rs2=10 imm=None
-INSTR idx=188 @ 0x68c name=addi rd=10 rs1=0 rs2=None imm=ImmValue(value=8192)
-INSTR idx=189 @ 0x690 name=shli rd=10 rs1=10 rs2=None imm=ImmValue(value=16)
-INSTR idx=190 @ 0x694 name=add rd=11 rs1=11 rs2=10 imm=None
-INSTR idx=191 @ 0x698 name=andi rd=10 rs1=9 rs2=None imm=ImmValue(value=3)
-INSTR idx=192 @ 0x69c name=addi rd=8 rs1=0 rs2=None imm=ImmValue(value=3)
-INSTR idx=193 @ 0x6a0 name=sub rd=8 rs1=8 rs2=10 imm=None
-INSTR idx=194 @ 0x6a4 name=addi rd=10 rs1=0 rs2=None imm=ImmValue(value=2)
-INSTR idx=195 @ 0x6a8 name=mul rd=8 rs1=8 rs2=10 imm=None
-INSTR idx=196 @ 0x6ac name=lb rd=10 rs1=11 rs2=None imm=ImmValue(value=0)
-INSTR idx=197 @ 0x6b0 name=addi rd=9 rs1=0 rs2=None imm=ImmValue(value=3)
-INSTR idx=198 @ 0x6b4 name=shl rd=9 rs1=9 rs2=8 imm=None
-INSTR idx=199 @ 0x6b8 name=or rd=10 rs1=10 rs2=9 imm=None
-INSTR idx=200 @ 0x6bc name=sb rd=10 rs1=11 rs2=None imm=ImmValue(value=0)
-LABEL SKIP_PIXEL_DRAW -> 0x6c0
-INSTR idx=202 @ 0x6c0 name=addi rd=7 rs1=7 rs2=None imm=ImmValue(value=1)
-INSTR idx=203 @ 0x6c4 name=addi rd=13 rs1=0 rs2=None imm=ImmLabelPart(label='DRAW_CHAR_COLUMN_LOOP', part='high')
-INSTR idx=204 @ 0x6c8 name=shli rd=13 rs1=13 rs2=None imm=ImmValue(value=16)
-INSTR idx=205 @ 0x6cc name=ori rd=13 rs1=13 rs2=None imm=ImmLabelPart(label='DRAW_CHAR_COLUMN_LOOP', part='low')
-INSTR idx=206 @ 0x6d0 name=jalr rd=0 rs1=13 rs2=None imm=ImmValue(value=0)
-LABEL END_DRAW_CHAR_COLUMN_LOOP -> 0x6d4
-INSTR idx=208 @ 0x6d4 name=addi rd=6 rs1=6 rs2=None imm=ImmValue(value=1)
-INSTR idx=209 @ 0x6d8 name=addi rd=13 rs1=0 rs2=None imm=ImmLabelPart(label='DRAW_CHAR_ROW_LOOP', part='high')
-INSTR idx=210 @ 0x6dc name=shli rd=13 rs1=13 rs2=None imm=ImmValue(value=16)
-INSTR idx=211 @ 0x6e0 name=ori rd=13 rs1=13 rs2=None imm=ImmLabelPart(label='DRAW_CHAR_ROW_LOOP', part='low')
-INSTR idx=212 @ 0x6e4 name=jalr rd=0 rs1=13 rs2=None imm=ImmValue(value=0)
-LABEL END_DRAW_CHAR_PIXEL_LOOP -> 0x6e8
-INSTR idx=214 @ 0x6e8 name=lw rd=ImmValue(value=11) rs1=15 rs2=None imm=ImmValue(value=0)
-INSTR idx=215 @ 0x6ec name=addi rd=15 rs1=15 rs2=None imm=ImmValue(value=4)
-INSTR idx=216 @ 0x6f0 name=lw rd=ImmValue(value=10) rs1=15 rs2=None imm=ImmValue(value=0)
-INSTR idx=217 @ 0x6f4 name=addi rd=15 rs1=15 rs2=None imm=ImmValue(value=4)
-INSTR idx=218 @ 0x6f8 name=lw rd=ImmValue(value=9) rs1=15 rs2=None imm=ImmValue(value=0)
-INSTR idx=219 @ 0x6fc name=addi rd=15 rs1=15 rs2=None imm=ImmValue(value=4)
-INSTR idx=220 @ 0x700 name=lw rd=ImmValue(value=8) rs1=15 rs2=None imm=ImmValue(value=0)
-INSTR idx=221 @ 0x704 name=addi rd=15 rs1=15 rs2=None imm=ImmValue(value=4)
-INSTR idx=222 @ 0x708 name=lw rd=ImmValue(value=7) rs1=15 rs2=None imm=ImmValue(value=0)
-INSTR idx=223 @ 0x70c name=addi rd=15 rs1=15 rs2=None imm=ImmValue(value=4)
-INSTR idx=224 @ 0x710 name=lw rd=ImmValue(value=6) rs1=15 rs2=None imm=ImmValue(value=0)
-INSTR idx=225 @ 0x714 name=addi rd=15 rs1=15 rs2=None imm=ImmValue(value=4)
-INSTR idx=226 @ 0x718 name=lw rd=ImmValue(value=5) rs1=15 rs2=None imm=ImmValue(value=0)
-INSTR idx=227 @ 0x71c name=addi rd=15 rs1=15 rs2=None imm=ImmValue(value=4)
-INSTR idx=228 @ 0x720 name=lw rd=ImmValue(value=4) rs1=15 rs2=None imm=ImmValue(value=0)
-INSTR idx=229 @ 0x724 name=addi rd=15 rs1=15 rs2=None imm=ImmValue(value=4)
-INSTR idx=230 @ 0x728 name=jalr rd=0 rs1=14 rs2=None imm=ImmValue(value=0)
+INSTR idx=149 @ 0x604 name=addi rd=4 rs1=0 rs2=None imm=ImmLabelPart(label='BASE_FB_ADDR', part='high')
+INSTR idx=150 @ 0x608 name=shli rd=4 rs1=4 rs2=None imm=ImmValue(value=16)
+INSTR idx=151 @ 0x60c name=ori rd=4 rs1=4 rs2=None imm=ImmLabelPart(label='BASE_FB_ADDR', part='low')
+INSTR idx=152 @ 0x610 name=addi rd=13 rs1=0 rs2=None imm=ImmValue(value=8)
+INSTR idx=153 @ 0x614 name=mul rd=5 rs1=1 rs2=13 imm=None
+INSTR idx=154 @ 0x618 name=add rd=4 rs1=4 rs2=5 imm=None
+INSTR idx=155 @ 0x61c name=addi rd=5 rs1=0 rs2=None imm=ImmValue(value=8192)
+INSTR idx=156 @ 0x620 name=shli rd=5 rs1=5 rs2=None imm=ImmValue(value=16)
+INSTR idx=157 @ 0x624 name=addi rd=6 rs1=0 rs2=None imm=ImmValue(value=0)
+LABEL DRAW_CHAR_ROW_LOOP -> 0x628
+INSTR idx=159 @ 0x628 name=addi rd=13 rs1=0 rs2=None imm=ImmValue(value=8)
+INSTR idx=160 @ 0x62c name=bge rd=6 rs1=13 rs2=None imm=ImmLabel(name='END_DRAW_CHAR_LOOP')
+INSTR idx=161 @ 0x630 name=lb rd=7 rs1=4 rs2=None imm=ImmValue(value=0)
+INSTR idx=162 @ 0x634 name=addi rd=8 rs1=0 rs2=None imm=ImmValue(value=0)
+LABEL DRAW_CHAR_COL_LOOP -> 0x638
+INSTR idx=164 @ 0x638 name=addi rd=13 rs1=0 rs2=None imm=ImmValue(value=8)
+INSTR idx=165 @ 0x63c name=bge rd=8 rs1=13 rs2=None imm=ImmLabel(name='END_DRAW_CHAR_COL_LOOP')
+INSTR idx=166 @ 0x640 name=addi rd=9 rs1=0 rs2=None imm=ImmValue(value=7)
+INSTR idx=167 @ 0x644 name=sub rd=9 rs1=9 rs2=8 imm=None
+INSTR idx=168 @ 0x648 name=shr rd=10 rs1=7 rs2=9 imm=None
+INSTR idx=169 @ 0x64c name=andi rd=10 rs1=10 rs2=None imm=ImmValue(value=1)
+INSTR idx=170 @ 0x650 name=beq rd=10 rs1=0 rs2=None imm=ImmLabel(name='SKIP_PIXEL')
+INSTR idx=171 @ 0x654 name=add rd=11 rs1=3 rs2=6 imm=None
+INSTR idx=172 @ 0x658 name=addi rd=13 rs1=0 rs2=None imm=ImmValue(value=128)
+INSTR idx=173 @ 0x65c name=mul rd=11 rs1=11 rs2=13 imm=None
+INSTR idx=174 @ 0x660 name=add rd=11 rs1=11 rs2=2 imm=None
+INSTR idx=175 @ 0x664 name=add rd=11 rs1=11 rs2=8 imm=None
+INSTR idx=176 @ 0x668 name=add rd=11 rs1=5 rs2=11 imm=None
+INSTR idx=177 @ 0x66c name=addi rd=12 rs1=0 rs2=None imm=ImmValue(value=3)
+INSTR idx=178 @ 0x670 name=sb rd=12 rs1=11 rs2=None imm=ImmValue(value=0)
+LABEL SKIP_PIXEL -> 0x674
+INSTR idx=180 @ 0x674 name=addi rd=8 rs1=8 rs2=None imm=ImmValue(value=1)
+INSTR idx=181 @ 0x678 name=addi rd=13 rs1=0 rs2=None imm=ImmLabelPart(label='DRAW_CHAR_COL_LOOP', part='high')
+INSTR idx=182 @ 0x67c name=shli rd=13 rs1=13 rs2=None imm=ImmValue(value=16)
+INSTR idx=183 @ 0x680 name=ori rd=13 rs1=13 rs2=None imm=ImmLabelPart(label='DRAW_CHAR_COL_LOOP', part='low')
+INSTR idx=184 @ 0x684 name=jalr rd=0 rs1=13 rs2=None imm=ImmValue(value=0)
+LABEL END_DRAW_CHAR_COL_LOOP -> 0x688
+INSTR idx=186 @ 0x688 name=addi rd=4 rs1=4 rs2=None imm=ImmValue(value=1)
+INSTR idx=187 @ 0x68c name=addi rd=6 rs1=6 rs2=None imm=ImmValue(value=1)
+INSTR idx=188 @ 0x690 name=addi rd=13 rs1=0 rs2=None imm=ImmLabelPart(label='DRAW_CHAR_ROW_LOOP', part='high')
+INSTR idx=189 @ 0x694 name=shli rd=13 rs1=13 rs2=None imm=ImmValue(value=16)
+INSTR idx=190 @ 0x698 name=ori rd=13 rs1=13 rs2=None imm=ImmLabelPart(label='DRAW_CHAR_ROW_LOOP', part='low')
+INSTR idx=191 @ 0x69c name=jalr rd=0 rs1=13 rs2=None imm=ImmValue(value=0)
+LABEL END_DRAW_CHAR_LOOP -> 0x6a0
+INSTR idx=193 @ 0x6a0 name=lw rd=ImmValue(value=9) rs1=15 rs2=None imm=ImmValue(value=0)
+INSTR idx=194 @ 0x6a4 name=addi rd=15 rs1=15 rs2=None imm=ImmValue(value=4)
+INSTR idx=195 @ 0x6a8 name=lw rd=ImmValue(value=8) rs1=15 rs2=None imm=ImmValue(value=0)
+INSTR idx=196 @ 0x6ac name=addi rd=15 rs1=15 rs2=None imm=ImmValue(value=4)
+INSTR idx=197 @ 0x6b0 name=lw rd=ImmValue(value=7) rs1=15 rs2=None imm=ImmValue(value=0)
+INSTR idx=198 @ 0x6b4 name=addi rd=15 rs1=15 rs2=None imm=ImmValue(value=4)
+INSTR idx=199 @ 0x6b8 name=lw rd=ImmValue(value=6) rs1=15 rs2=None imm=ImmValue(value=0)
+INSTR idx=200 @ 0x6bc name=addi rd=15 rs1=15 rs2=None imm=ImmValue(value=4)
+INSTR idx=201 @ 0x6c0 name=lw rd=ImmValue(value=5) rs1=15 rs2=None imm=ImmValue(value=0)
+INSTR idx=202 @ 0x6c4 name=addi rd=15 rs1=15 rs2=None imm=ImmValue(value=4)
+INSTR idx=203 @ 0x6c8 name=lw rd=ImmValue(value=4) rs1=15 rs2=None imm=ImmValue(value=0)
+INSTR idx=204 @ 0x6cc name=addi rd=15 rs1=15 rs2=None imm=ImmValue(value=4)
+INSTR idx=205 @ 0x6d0 name=jalr rd=0 rs1=14 rs2=None imm=ImmValue(value=0)
 SEGMENT 0x1000
 LABEL TTY -> 0x1000
 DATA @ 0x1000 size 4: ImmValue(value=268435456)
@@ -240,193 +215,195 @@ DATA @ 0x1031 size 10: b'\nROSPOS> \x00'
 LABEL TTY_BUFFER -> 0x103b
 DATA @ 0x103b size 256: b'\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00'
 LABEL BASE_FB_ADDR -> 0x113b
-LABEL FB_DATA_SPACE -> 0x113b
+LABEL FB_DATA_nul -> 0x113b
 DATA @ 0x113b size 4: ImmValue(value=0)
-LABEL FB_DATA_EXCLAM -> 0x113f
-DATA @ 0x113f size 4: ImmValue(value=537412112)
-LABEL FB_DATA_QUOTE -> 0x1143
-DATA @ 0x1143 size 4: ImmValue(value=42280)
-LABEL FB_DATA_HASH -> 0x1147
-DATA @ 0x1147 size 4: ImmValue(value=1473556392)
-LABEL FB_DATA_DOLLAR -> 0x114b
-DATA @ 0x114b size 4: ImmValue(value=602465016)
-LABEL FB_DATA_PERCENT -> 0x114f
-DATA @ 0x114f size 5: ImmValue(value=3465066880)
-LABEL FB_DATA_AMPERSAND -> 0x1154
-DATA @ 0x1154 size 5: ImmValue(value=3126026904)
-LABEL FB_DATA_APOSTROPHE -> 0x1159
-DATA @ 0x1159 size 4: ImmValue(value=16912)
-LABEL FB_DATA_PARENLEFT -> 0x115d
-DATA @ 0x115d size 4: ImmValue(value=1091060256)
-LABEL FB_DATA_PARENRIGHT -> 0x1161
-DATA @ 0x1161 size 4: ImmValue(value=285753864)
-LABEL FB_DATA_ASTERISK -> 0x1165
-DATA @ 0x1165 size 4: ImmValue(value=42525184)
-LABEL FB_DATA_PLUS -> 0x1169
-DATA @ 0x1169 size 4: ImmValue(value=18628608)
-LABEL FB_DATA_COMMA -> 0x116d
-DATA @ 0x116d size 4: ImmValue(value=285736960)
-LABEL FB_DATA_HYPHEN -> 0x1171
-DATA @ 0x1171 size 4: ImmValue(value=1835008)
-LABEL FB_DATA_PERIOD -> 0x1175
-DATA @ 0x1175 size 4: ImmValue(value=830472192)
-LABEL FB_DATA_SLASH -> 0x1179
-DATA @ 0x1179 size 4: ImmValue(value=143165440)
-LABEL FB_DATA_0 -> 0x117d
-DATA @ 0x117d size 4: ImmValue(value=1961581752)
-LABEL FB_DATA_1 -> 0x1181
-DATA @ 0x1181 size 5: ImmValue(value=4178072336)
-LABEL FB_DATA_2 -> 0x1186
-DATA @ 0x1186 size 5: ImmValue(value=4169697464)
-LABEL FB_DATA_3 -> 0x118b
-DATA @ 0x118b size 4: ImmValue(value=1952499772)
-LABEL FB_DATA_4 -> 0x118f
-DATA @ 0x118f size 5: ImmValue(value=2218730016)
-LABEL FB_DATA_5 -> 0x1194
-DATA @ 0x1194 size 4: ImmValue(value=1952510204)
-LABEL FB_DATA_6 -> 0x1198
-DATA @ 0x1198 size 4: ImmValue(value=1952321840)
-LABEL FB_DATA_7 -> 0x119c
-DATA @ 0x119c size 4: ImmValue(value=143165564)
-LABEL FB_DATA_8 -> 0x11a0
-DATA @ 0x11a0 size 4: ImmValue(value=1952639160)
-LABEL FB_DATA_9 -> 0x11a4
-DATA @ 0x11a4 size 5: ImmValue(value=2218596600)
-LABEL FB_DATA_COLON -> 0x11a9
-DATA @ 0x11a9 size 4: ImmValue(value=830497536)
-LABEL FB_DATA_SEMICOLON -> 0x11ad
-DATA @ 0x11ad size 4: ImmValue(value=285229056)
-LABEL FB_DATA_LESS -> 0x11b1
-DATA @ 0x11b1 size 4: ImmValue(value=1090798592)
-LABEL FB_DATA_EQUAL -> 0x11b5
-DATA @ 0x11b5 size 4: ImmValue(value=58777600)
-LABEL FB_DATA_GREATER -> 0x11b9
-DATA @ 0x11b9 size 4: ImmValue(value=286277888)
-LABEL FB_DATA_QUESTION -> 0x11bd
-DATA @ 0x11bd size 4: ImmValue(value=537446584)
-LABEL FB_DATA_AT -> 0x11c1
-DATA @ 0x11c1 size 5: ImmValue(value=4034648248)
-LABEL FB_DATA_A -> 0x11c6
-DATA @ 0x11c6 size 5: ImmValue(value=2357138704)
-LABEL FB_DATA_B -> 0x11cb
-DATA @ 0x11cb size 4: ImmValue(value=2086860988)
-LABEL FB_DATA_C -> 0x11cf
-DATA @ 0x11cf size 5: ImmValue(value=4030863544)
-LABEL FB_DATA_D -> 0x11d4
-DATA @ 0x11d4 size 4: ImmValue(value=2086869180)
-LABEL FB_DATA_E -> 0x11d8
-DATA @ 0x11d8 size 5: ImmValue(value=4165136636)
-LABEL FB_DATA_F -> 0x11dd
-DATA @ 0x11dd size 4: ImmValue(value=138604796)
-LABEL FB_DATA_G -> 0x11e1
-DATA @ 0x11e1 size 4: ImmValue(value=1953632504)
-LABEL FB_DATA_H -> 0x11e5
-DATA @ 0x11e5 size 5: ImmValue(value=2355361988)
-LABEL FB_DATA_I -> 0x11ea
-DATA @ 0x11ea size 5: ImmValue(value=4178068092)
-LABEL FB_DATA_J -> 0x11ef
-DATA @ 0x11ef size 4: ImmValue(value=844137596)
-LABEL FB_DATA_K -> 0x11f3
-DATA @ 0x11f3 size 5: ImmValue(value=2354214084)
-LABEL FB_DATA_L -> 0x11f8
-DATA @ 0x11f8 size 5: ImmValue(value=4165079172)
-LABEL FB_DATA_M -> 0x11fd
-DATA @ 0x11fd size 5: ImmValue(value=2355845868)
-LABEL FB_DATA_N -> 0x1202
-DATA @ 0x1202 size 5: ImmValue(value=2389924292)
-LABEL FB_DATA_O -> 0x1207
-DATA @ 0x1207 size 4: ImmValue(value=1952651448)
-LABEL FB_DATA_P -> 0x120b
-DATA @ 0x120b size 4: ImmValue(value=140449980)
-LABEL FB_DATA_Q -> 0x120f
-DATA @ 0x120f size 5: ImmValue(value=3282770104)
-LABEL FB_DATA_R -> 0x1214
-DATA @ 0x1214 size 5: ImmValue(value=2321488060)
-LABEL FB_DATA_S -> 0x1219
-DATA @ 0x1219 size 4: ImmValue(value=1951426744)
-LABEL FB_DATA_T -> 0x121d
-DATA @ 0x121d size 4: ImmValue(value=554189436)
-LABEL FB_DATA_U -> 0x1221
-DATA @ 0x1221 size 4: ImmValue(value=1952651460)
-LABEL FB_DATA_V -> 0x1225
-DATA @ 0x1225 size 4: ImmValue(value=555030724)
-LABEL FB_DATA_W -> 0x1229
-DATA @ 0x1229 size 5: ImmValue(value=3714799812)
-LABEL FB_DATA_X -> 0x122e
-DATA @ 0x122e size 5: ImmValue(value=2324186436)
-LABEL FB_DATA_Y -> 0x1233
-DATA @ 0x1233 size 4: ImmValue(value=554190148)
-LABEL FB_DATA_Z -> 0x1237
-DATA @ 0x1237 size 5: ImmValue(value=4169697404)
-LABEL FB_DATA_BRACKETLEFT -> 0x123c
-DATA @ 0x123c size 4: ImmValue(value=1627931184)
-LABEL FB_DATA_BACKSLASH -> 0x1240
-DATA @ 0x1240 size 5: ImmValue(value=2181570688)
-LABEL FB_DATA_BRACKETRIGHT -> 0x1245
-DATA @ 0x1245 size 4: ImmValue(value=822624792)
-LABEL FB_DATA_CARET -> 0x1249
-DATA @ 0x1249 size 4: ImmValue(value=70928)
-LABEL FB_DATA_UNDERSCORE -> 0x124d
-DATA @ 0x124d size 5: ImmValue(value=4160749568)
-LABEL FB_DATA_BACKTICK -> 0x1252
-DATA @ 0x1252 size 4: ImmValue(value=520)
-LABEL FB_DATA_a -> 0x1256
-DATA @ 0x1256 size 4: ImmValue(value=1918812160)
-LABEL FB_DATA_b -> 0x125a
-DATA @ 0x125a size 4: ImmValue(value=978481284)
-LABEL FB_DATA_c -> 0x125e
-DATA @ 0x125e size 4: ImmValue(value=1883430912)
-LABEL FB_DATA_d -> 0x1262
-DATA @ 0x1262 size 4: ImmValue(value=1918034976)
-LABEL FB_DATA_e -> 0x1266
-DATA @ 0x1266 size 5: ImmValue(value=4034860800)
-LABEL FB_DATA_f -> 0x126b
-DATA @ 0x126b size 4: ImmValue(value=142897456)
-LABEL FB_DATA_g -> 0x126f
-DATA @ 0x126f size 4: ImmValue(value=974951608)
-LABEL FB_DATA_h -> 0x1273
-DATA @ 0x1273 size 4: ImmValue(value=1246916740)
-LABEL FB_DATA_i -> 0x1277
-DATA @ 0x1277 size 4: ImmValue(value=813957376)
-LABEL FB_DATA_j -> 0x127b
-DATA @ 0x127b size 4: ImmValue(value=822624272)
-LABEL FB_DATA_k -> 0x127f
-DATA @ 0x127f size 4: ImmValue(value=1229345924)
-LABEL FB_DATA_l -> 0x1283
-DATA @ 0x1283 size 4: ImmValue(value=813965576)
-LABEL FB_DATA_m -> 0x1287
-DATA @ 0x1287 size 5: ImmValue(value=2372579328)
-LABEL FB_DATA_n -> 0x128c
-DATA @ 0x128c size 4: ImmValue(value=1246916608)
-LABEL FB_DATA_o -> 0x1290
-DATA @ 0x1290 size 4: ImmValue(value=844259328)
-LABEL FB_DATA_p -> 0x1294
-DATA @ 0x1294 size 4: ImmValue(value=139367576)
-LABEL FB_DATA_q -> 0x1298
-DATA @ 0x1298 size 5: ImmValue(value=3256652984)
-LABEL FB_DATA_r -> 0x129d
-DATA @ 0x129d size 4: ImmValue(value=139616256)
-LABEL FB_DATA_s -> 0x12a1
-DATA @ 0x12a1 size 4: ImmValue(value=973979648)
-LABEL FB_DATA_t -> 0x12a5
-DATA @ 0x12a5 size 4: ImmValue(value=814018824)
-LABEL FB_DATA_u -> 0x12a9
-DATA @ 0x12a9 size 4: ImmValue(value=978489344)
-LABEL FB_DATA_v -> 0x12ad
-DATA @ 0x12ad size 4: ImmValue(value=294817792)
-LABEL FB_DATA_w -> 0x12b1
-DATA @ 0x12b1 size 4: ImmValue(value=1433079808)
-LABEL FB_DATA_x -> 0x12b5
-DATA @ 0x12b5 size 5: ImmValue(value=3641290752)
-LABEL FB_DATA_y -> 0x12ba
-DATA @ 0x12ba size 4: ImmValue(value=974951588)
-LABEL FB_DATA_z -> 0x12be
-DATA @ 0x12be size 4: ImmValue(value=2022240256)
-LABEL FB_DATA_BRACELEFT -> 0x12c2
-DATA @ 0x12c2 size 4: ImmValue(value=1628201520)
-LABEL FB_DATA_BAR -> 0x12c6
-DATA @ 0x12c6 size 4: ImmValue(value=554189328)
-LABEL FB_DATA_BRACERIGHT -> 0x12ca
-DATA @ 0x12ca size 4: ImmValue(value=823706136)
-LABEL FB_DATA_TILDE -> 0x12ce
-DATA @ 0x12ce size 4: ImmValue(value=1794048)
+LABEL FB_DATA_space -> 0x113f
+DATA @ 0x113f size 4: ImmValue(value=0)
+LABEL FB_DATA_EXCLAMATION_MARK -> 0x1143
+DATA @ 0x1143 size 8: ImmValue(value=1746336829692450816)
+LABEL FB_DATA_DOUBLE_QUOTE -> 0x114b
+DATA @ 0x114b size 8: ImmValue(value=3906309726790483968)
+LABEL FB_DATA_HASH -> 0x1153
+DATA @ 0x1153 size 8: ImmValue(value=3906449598829704704)
+LABEL FB_DATA_DOLLAR_SIGN -> 0x115b
+DATA @ 0x115b size 8: ImmValue(value=882146005202439168)
+LABEL FB_DATA_PERCENT -> 0x1163
+DATA @ 0x1163 size 7: ImmValue(value=27922201074623232)
+LABEL FB_DATA_AMPERSAND -> 0x116a
+DATA @ 0x116a size 8: ImmValue(value=2032843541569564160)
+LABEL FB_DATA_SINGLE_QUOTE -> 0x1172
+DATA @ 0x1172 size 8: ImmValue(value=434037712622714880)
+LABEL FB_DATA_LEFT_PARENTHESIS -> 0x117a
+DATA @ 0x117a size 8: ImmValue(value=1732766579571824640)
+LABEL FB_DATA_RIGHT_PARENTHESIS -> 0x1182
+DATA @ 0x1182 size 8: ImmValue(value=435749755709818368)
+LABEL FB_DATA_ASTERISK -> 0x118a
+DATA @ 0x118a size 7: ImmValue(value=28777514552131584)
+LABEL FB_DATA_PLUS -> 0x1191
+DATA @ 0x1191 size 7: ImmValue(value=3391164645113856)
+LABEL FB_DATA_COMMA -> 0x1198
+DATA @ 0x1198 size 4: ImmValue(value=789510)
+LABEL FB_DATA_HYPHEN -> 0x119c
+DATA @ 0x119c size 5: ImmValue(value=270582939648)
+LABEL FB_DATA_PERIOD -> 0x11a1
+DATA @ 0x11a1 size 4: ImmValue(value=789504)
+LABEL FB_DATA_FORWARD_SLASH -> 0x11a5
+DATA @ 0x11a5 size 8: ImmValue(value=6931066266442727680)
+LABEL FB_DATA_0 -> 0x11ad
+DATA @ 0x11ad size 8: ImmValue(value=4495563827033095680)
+LABEL FB_DATA_1 -> 0x11b5
+DATA @ 0x11b5 size 8: ImmValue(value=868645024010354432)
+LABEL FB_DATA_2 -> 0x11bd
+DATA @ 0x11bd size 8: ImmValue(value=2176135941871320832)
+LABEL FB_DATA_3 -> 0x11c5
+DATA @ 0x11c5 size 8: ImmValue(value=2176135942575955456)
+LABEL FB_DATA_4 -> 0x11cd
+DATA @ 0x11cd size 8: ImmValue(value=4052173359531718656)
+LABEL FB_DATA_5 -> 0x11d5
+DATA @ 0x11d5 size 8: ImmValue(value=4540507141147139584)
+LABEL FB_DATA_6 -> 0x11dd
+DATA @ 0x11dd size 8: ImmValue(value=2019304915460103680)
+LABEL FB_DATA_7 -> 0x11e5
+DATA @ 0x11e5 size 8: ImmValue(value=4554036528041167872)
+LABEL FB_DATA_8 -> 0x11ed
+DATA @ 0x11ed size 8: ImmValue(value=2176139249751105024)
+LABEL FB_DATA_9 -> 0x11f5
+DATA @ 0x11f5 size 8: ImmValue(value=2176139387137953280)
+LABEL FB_DATA_COLON -> 0x11fd
+DATA @ 0x11fd size 7: ImmValue(value=3390893860850688)
+LABEL FB_DATA_SEMICOLON -> 0x1204
+DATA @ 0x1204 size 7: ImmValue(value=3390893860850694)
+LABEL FB_DATA_LESS_THAN -> 0x120b
+DATA @ 0x120b size 8: ImmValue(value=1732766566686922752)
+LABEL FB_DATA_EQUALS -> 0x1213
+DATA @ 0x1213 size 6: ImmValue(value=69269236678656)
+LABEL FB_DATA_GREATER_THAN -> 0x1219
+DATA @ 0x1219 size 8: ImmValue(value=435749858789033472)
+LABEL FB_DATA_QUESTION_MARK -> 0x1221
+DATA @ 0x1221 size 8: ImmValue(value=2176135924788759552)
+LABEL FB_DATA_AT -> 0x1229
+DATA @ 0x1229 size 8: ImmValue(value=4495572623320882688)
+LABEL FB_DATA_A -> 0x1231
+DATA @ 0x1231 size 8: ImmValue(value=873191672953123584)
+LABEL FB_DATA_B -> 0x1239
+DATA @ 0x1239 size 8: ImmValue(value=4568451290205929216)
+LABEL FB_DATA_C -> 0x1241
+DATA @ 0x1241 size 8: ImmValue(value=4352169401376979968)
+LABEL FB_DATA_D -> 0x1249
+DATA @ 0x1249 size 8: ImmValue(value=2249097653905661696)
+LABEL FB_DATA_E -> 0x1251
+DATA @ 0x1251 size 8: ImmValue(value=9171042009665142528)
+LABEL FB_DATA_F -> 0x1259
+DATA @ 0x1259 size 8: ImmValue(value=9171042009660919552)
+LABEL FB_DATA_G -> 0x1261
+DATA @ 0x1261 size 8: ImmValue(value=4352169403256044544)
+LABEL FB_DATA_H -> 0x1269
+DATA @ 0x1269 size 8: ImmValue(value=3689348866281517824)
+LABEL FB_DATA_I -> 0x1271
+DATA @ 0x1271 size 8: ImmValue(value=2165118766739627520)
+LABEL FB_DATA_J -> 0x1279
+DATA @ 0x1279 size 8: ImmValue(value=8660475067009015296)
+LABEL FB_DATA_K -> 0x1281
+DATA @ 0x1281 size 8: ImmValue(value=7450702136920663808)
+LABEL FB_DATA_L -> 0x1289
+DATA @ 0x1289 size 8: ImmValue(value=1082559384449875712)
+LABEL FB_DATA_M -> 0x1291
+DATA @ 0x1291 size 8: ImmValue(value=7167337517222683392)
+LABEL FB_DATA_N -> 0x1299
+DATA @ 0x1299 size 8: ImmValue(value=7162816308363617024)
+LABEL FB_DATA_O -> 0x12a1
+DATA @ 0x12a1 size 8: ImmValue(value=2032921560321760256)
+LABEL FB_DATA_P -> 0x12a9
+DATA @ 0x12a9 size 8: ImmValue(value=4568451288589012736)
+LABEL FB_DATA_Q -> 0x12b1
+DATA @ 0x12b1 size 8: ImmValue(value=2176139340078266368)
+LABEL FB_DATA_R -> 0x12b9
+DATA @ 0x12b9 size 8: ImmValue(value=4568451289400633088)
+LABEL FB_DATA_S -> 0x12c1
+DATA @ 0x12c1 size 8: ImmValue(value=2176090802603892224)
+LABEL FB_DATA_T -> 0x12c9
+DATA @ 0x12c9 size 8: ImmValue(value=4552308044222701056)
+LABEL FB_DATA_U -> 0x12d1
+DATA @ 0x12d1 size 8: ImmValue(value=3689348814741913344)
+LABEL FB_DATA_V -> 0x12d9
+DATA @ 0x12d9 size 8: ImmValue(value=3689348814740524032)
+LABEL FB_DATA_W -> 0x12e1
+DATA @ 0x12e1 size 8: ImmValue(value=7161677145800401664)
+LABEL FB_DATA_X -> 0x12e9
+DATA @ 0x12e9 size 8: ImmValue(value=7161627326809531136)
+LABEL FB_DATA_Y -> 0x12f1
+DATA @ 0x12f1 size 8: ImmValue(value=3689348723890724352)
+LABEL FB_DATA_Z -> 0x12f9
+DATA @ 0x12f9 size 8: ImmValue(value=9179234445941964544)
+LABEL FB_DATA_LEFT_SQUARE_BRACKET -> 0x1301
+DATA @ 0x1301 size 8: ImmValue(value=2163423293938736640)
+LABEL FB_DATA_BACKSLASH -> 0x1309
+DATA @ 0x1309 size 8: ImmValue(value=217874930004410368)
+LABEL FB_DATA_RIGHT_SQUARE_BRACKET -> 0x1311
+DATA @ 0x1311 size 8: ImmValue(value=2168509712341409280)
+LABEL FB_DATA_CARET -> 0x1319
+DATA @ 0x1319 size 8: ImmValue(value=584401850480984064)
+LABEL FB_DATA_UNDERSCORE -> 0x1321
+DATA @ 0x1321 size 4: ImmValue(value=255)
+LABEL FB_DATA_GRAVE_ACCENT -> 0x1325
+DATA @ 0x1325 size 8: ImmValue(value=868095216454729728)
+LABEL FB_DATA_a -> 0x132d
+DATA @ 0x132d size 6: ImmValue(value=33192550821376)
+LABEL FB_DATA_b -> 0x1333
+DATA @ 0x1333 size 8: ImmValue(value=506098873201474304)
+LABEL FB_DATA_c -> 0x133b
+DATA @ 0x133b size 6: ImmValue(value=33204445847040)
+LABEL FB_DATA_d -> 0x1341
+DATA @ 0x1341 size 8: ImmValue(value=4048789108711190016)
+LABEL FB_DATA_e -> 0x1349
+DATA @ 0x1349 size 6: ImmValue(value=33205449334272)
+LABEL FB_DATA_f -> 0x134f
+DATA @ 0x134f size 8: ImmValue(value=2032818943399694080)
+LABEL FB_DATA_g -> 0x1357
+DATA @ 0x1357 size 6: ImmValue(value=121166182101023)
+LABEL FB_DATA_h -> 0x135d
+DATA @ 0x135d size 8: ImmValue(value=506151855918049024)
+LABEL FB_DATA_i -> 0x1365
+DATA @ 0x1365 size 8: ImmValue(value=864706573359652352)
+LABEL FB_DATA_j -> 0x136d
+DATA @ 0x136d size 8: ImmValue(value=3458817497345766174)
+LABEL FB_DATA_k -> 0x1375
+DATA @ 0x1375 size 8: ImmValue(value=506204390746908416)
+LABEL FB_DATA_l -> 0x137d
+DATA @ 0x137d size 8: ImmValue(value=1012197262132780544)
+LABEL FB_DATA_m -> 0x1385
+DATA @ 0x1385 size 6: ImmValue(value=56622691607296)
+LABEL FB_DATA_n -> 0x138b
+DATA @ 0x138b size 6: ImmValue(value=34304762786560)
+LABEL FB_DATA_o -> 0x1391
+DATA @ 0x1391 size 6: ImmValue(value=33205251153408)
+LABEL FB_DATA_p -> 0x1397
+DATA @ 0x1397 size 6: ImmValue(value=65310988043791)
+LABEL FB_DATA_q -> 0x139d
+DATA @ 0x139d size 6: ImmValue(value=121166182101112)
+LABEL FB_DATA_r -> 0x13a3
+DATA @ 0x13a3 size 6: ImmValue(value=65345344114432)
+LABEL FB_DATA_s -> 0x13a9
+DATA @ 0x13a9 size 6: ImmValue(value=68183112294144)
+LABEL FB_DATA_t -> 0x13af
+DATA @ 0x13af size 8: ImmValue(value=579906673488697344)
+LABEL FB_DATA_u -> 0x13b7
+DATA @ 0x13b7 size 6: ImmValue(value=56294995357184)
+LABEL FB_DATA_v -> 0x13bd
+DATA @ 0x13bd size 6: ImmValue(value=56294993955840)
+LABEL FB_DATA_w -> 0x13c3
+DATA @ 0x13c3 size 6: ImmValue(value=109313351693824)
+LABEL FB_DATA_x -> 0x13c9
+DATA @ 0x13c9 size 6: ImmValue(value=109084052710144)
+LABEL FB_DATA_y -> 0x13cf
+DATA @ 0x13cf size 6: ImmValue(value=56294996062239)
+LABEL FB_DATA_z -> 0x13d5
+DATA @ 0x13d5 size 6: ImmValue(value=69376810565376)
+LABEL FB_DATA_LEFT_CURLY_BRACKET -> 0x13db
+DATA @ 0x13db size 8: ImmValue(value=4038616190250924032)
+LABEL FB_DATA_VERTICAL_BAR -> 0x13e3
+DATA @ 0x13e3 size 8: ImmValue(value=1736164045034625024)
+LABEL FB_DATA_RIGHT_CURLY_BRACKET -> 0x13eb
+DATA @ 0x13eb size 8: ImmValue(value=507794292845840128)
+LABEL FB_DATA_TILDE -> 0x13f3
+DATA @ 0x13f3 size 8: ImmValue(value=7942942367798001664)

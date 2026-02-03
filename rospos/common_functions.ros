@@ -47,88 +47,57 @@ END_READ_LINE_LOOP:
 
 .FUNC DRAW_CHAR_TO_DISPLAY:
     // Function to draw character in r1 to display at (r2, r3)
-    // r1: character to draw
-    // r2: X coordinate
-    // r3: Y coordinate
+    // r1: character to draw (ASCII)
+    // r2: X coordinate (pixels)
+    // r3: Y coordinate (pixels)
     PUSH r4
     PUSH r5
     PUSH r6
     PUSH r7
     PUSH r8
     PUSH r9
-    PUSH r10
-    PUSH r11
-
-    // Calculate font bitmap address
-    LLI r4, BASE_FB_ADDR       // Base address of font bitmap
-    LLI r8, 0x20               // ASCII space character
-    SUB r5, r1, r8             // Offset from space character
-    LLI r8, 4                  // Each character is 4 bytes
-    MUL r5, r5, r8             // Offset in bytes
-    ADD r4, r4, r5             // r4 now points to the font bitmap for the character
-
-    LW r5, r4, 0               // Load 4 bytes of font bitmap into r5
-
-    // Loop through rows and columns of the character bitmap
-    LLI r6, 0                  // Row index (0-5)
+    // Font bitmap base address
+    LLI r4, BASE_FB_ADDR
+    // Each glyph is 8 bytes (8x8 font)
+    MULI r5, r1, 8
+    ADD r4, r4, r5 // r4 = address of glyph bitmap
+    // Display framebuffer base address
+    LLI r5, 0x2000_0000
+    // Loop over 8 rows (y)
+    LLI r6, 0 // row = 0
 DRAW_CHAR_ROW_LOOP:
-    LLI r8, 6
-    BEQ r6, r8, END_DRAW_CHAR_PIXEL_LOOP // Exit loop after 6 rows
-
-    LLI r7, 0                  // Column index (0-4)
-DRAW_CHAR_COLUMN_LOOP:
-    LLI r8, 5
-    BEQ r7, r8, END_DRAW_CHAR_COLUMN_LOOP // Exit loop after 5 columns
-
-    // Check if the pixel should be drawn
-    CALC_PIXEL_BIT_INDEX:
-        LLI r10, 5                  // Temporary for multiplication
-        MUL r10, r6, r10            // row * 5
-        ADD r10, r10, r7            // + col
-        LLI r11, 29                 // Highest bit index for 5x6 font (0..29)
-        SUB r11, r11, r10           // 29 - (row*5 + col)
-        SHR r8, r5, r11             // Shift bit into LSB
-        ANDI r8, r8, 1              // Mask out all but the least significant bit
-        BEQ r8, r0, SKIP_PIXEL_DRAW // Skip if the bit is not set
-
-    // Calculate framebuffer address for pixel (x = r2 + col, y = r3 + row)
-    CALC_FRAMEBUFFER_ADDR:
-        ADD r8, r2, r7             // x = r2 + col
-        ADD r9, r3, r6             // y = r3 + row
-        LLI r10, 128               // Display width
-        MUL r9, r9, r10            // y * width
-        ADD r9, r9, r8             // y * width + x
-
-    // Set the pixel in the framebuffer
-    SET_PIXEL:
-        LLI r10, 4
-        DIV r11, r9, r10           // byte offset = pixel_index / 4
-        LLI r10, 0x2000_0000       // Display base address
-        ADD r11, r11, r10          // Absolute byte address
-
-        ANDI r10, r9, 0x3          // pixel_in_byte = pixel_index % 4
-        LLI r8, 3                  // 2 bits per pixel, so shift = (3 - pixel_in_byte) * 2
-        SUB r8, r8, r10            // (3 - pixel_in_byte)
-        LLI r10, 2
-        MUL r8, r8, r10            // shift amount
-
-        LB r10, r11, 0             // Load current byte
-        LLI r9, 0b11               // White pixel value (0b11)
-        SHL r9, r9, r8             // Shift to correct position
-        OR r10, r10, r9            // Set pixel bits
-        SB r10, r11, 0             // Store byte back
-
-SKIP_PIXEL_DRAW:
-    ADDI r7, r7, 1                // Increment column index
-    JMP DRAW_CHAR_COLUMN_LOOP
-
-END_DRAW_CHAR_COLUMN_LOOP:
-    ADDI r6, r6, 1                // Increment row index
+    LLI r13, 8
+    BGE r6, r13, END_DRAW_CHAR_LOOP
+    // Load glyph row byte
+    LB r7, r4, 0
+    // Loop over 8 columns (x)
+    LLI r8, 0 // col = 0
+DRAW_CHAR_COL_LOOP:
+        LLI r13, 8
+        BGE r8, r13, END_DRAW_CHAR_COL_LOOP
+        // Get bit for this pixel
+        LLI r9, 7
+        SUB r9, r9, r8
+        SHR r10, r7, r9
+        ANDI r10, r10, 1
+        BEQ r10, r0, SKIP_PIXEL
+        // Calculate framebuffer address: fb_addr = base + ((y + r3) * WIDTH + (x + r2))
+        ADD r11, r3, r6 // y + row
+        MULI r11, r11, 128 // WIDTH = 128
+        ADD r11, r11, r2 // x offset
+        ADD r11, r11, r8 // x + col
+        ADD r11, r5, r11 // fb_addr
+        // Write white pixel (0x3 for 2-bit per pixel)
+        LLI r12, 0x3
+        SB r12, r11, 0
+SKIP_PIXEL:
+        ADDI r8, r8, 1
+        JMP DRAW_CHAR_COL_LOOP
+END_DRAW_CHAR_COL_LOOP:
+    ADDI r4, r4, 1 // next glyph row
+    ADDI r6, r6, 1
     JMP DRAW_CHAR_ROW_LOOP
-
-END_DRAW_CHAR_PIXEL_LOOP:
-    POP r11
-    POP r10
+END_DRAW_CHAR_LOOP:
     POP r9
     POP r8
     POP r7
@@ -136,3 +105,4 @@ END_DRAW_CHAR_PIXEL_LOOP:
     POP r5
     POP r4
     RET
+    
