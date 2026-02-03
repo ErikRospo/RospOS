@@ -27,7 +27,6 @@ print("BASE_FB_ADDR:")
 
 import sys
 
-# Expecting a C array named font8x8_basic[128][8] in this file (as above)
 import re
 
 def extract_font8x8_basic_and_descriptions():
@@ -35,7 +34,7 @@ def extract_font8x8_basic_and_descriptions():
     with open("./font8x8_basic_data.h", 'r') as f:
         content = f.read()
     # Find the array
-    m = re.search(r'char font8x8_basic\s*\[128\]\[8\]\s*=\s*\{(.*?)\};', content, re.DOTALL)
+    m = re.search(r'char font8x8_basic=\s*\{(.*?)\};', content, re.DOTALL)
     if not m:
         raise Exception("font8x8_basic array not found")
     arr = m.group(1)
