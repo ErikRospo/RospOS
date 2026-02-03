@@ -61,7 +61,7 @@ END_READ_LINE_LOOP:
     PUSH r11
     PUSH r12
     // r1: char, r2: x, r3: y
-    SUBI r1, r1, 31 
+    SUBI r1, r1, 35
     LLI r4, BASE_FB_ADDR // font base
     MULI r5, r1, 8
     ADD r4, r4, r5 // r4 = glyph ptr
@@ -81,30 +81,33 @@ DRAW_CHAR_COL_LOOP:
         ANDI r10, r10, 1
         BEQ r10, r0, SKIP_PIXEL
         // x = r2 + r8, y = r3 + r6
-        ADD r11, r2, r8
-        ADD r12, r3, r6
+        ADD r9, r2, r8 // x
+        ADD r10, r3, r6 // y
         // pixel_index = y * 128 + x
-        MULI r11, r12, 128
-        ADD r11, r11, r2
-        ADD r11, r11, r8
+        MULI r11, r10, 128
+        ADD r11, r11, r9
+        // Save r11 (pixel_index) to stack
+        PUSH r11
         // byte_index = pixel_index / 4
         SHRI r12, r11, 2
         ADD r12, r5, r12
         // pixel_in_byte = pixel_index % 4
-        ANDI r9, r11, 3
-        LLI r10, 3
-        SUB r10, r10, r9
-        MULI r10, r10, 2 // bit_offset
+        ANDI r11, r11, 3
+        LLI r9, 3
+        SUB r9, r9, r11
+        MULI r9, r9, 2 // bit_offset
         // Read-modify-write framebuffer byte
-        LB r9, r12, 0
+        LB r10, r12, 0
         LLI r11, 0x3
-        SHL r11, r11, r10
+        SHL r11, r11, r9
         NOT r11, r11, r0
-        AND r9, r9, r11
+        AND r10, r10, r11
         LLI r11, 0x3
-        SHL r11, r11, r10
-        OR r9, r9, r11
-        SB r9, r12, 0
+        SHL r11, r11, r9
+        OR r10, r10, r11
+        SB r10, r12, 0
+        // Restore r11
+        POP r11
 SKIP_PIXEL:
         ADDI r8, r8, 1
         JMP DRAW_CHAR_COL_LOOP
