@@ -1,39 +1,5 @@
 
-import string
 
-descriptions = [
-    "SPACE",
-    "EXCLAM",
-    "QUOTE",
-    "HASH",
-    "DOLLAR",
-    "PERCENT",
-    "AMPERSAND",
-    "APOSTROPHE",
-    "PARENLEFT",
-    "PARENRIGHT",
-    "ASTERISK",
-    "PLUS",
-    "COMMA",
-    "HYPHEN",
-    "PERIOD",
-    "SLASH",
-]
-descriptions += [str(i) for i in range(10)]
-descriptions += ["COLON", "SEMICOLON", "LESS", "EQUAL", "GREATER", "QUESTION", "AT"]
-descriptions += list(string.ascii_uppercase)
-descriptions += [
-    "BRACKETLEFT",
-    "BACKSLASH",
-    "BRACKETRIGHT",
-    "CARET",
-    "UNDERSCORE",
-    "BACKTICK",
-]
-descriptions += list(string.ascii_lowercase)
-descriptions += ["BRACELEFT", "BAR", "BRACERIGHT", "TILDE"]
-glyph_width = 5
-glyph_height = 6
 glyph_width = 8
 glyph_height = 8
 
@@ -109,6 +75,7 @@ for i, (glyph_bytes, desc) in enumerate(zip(font8x8, descriptions)):
         bitmap.replace("\n", "\n//").replace("0", "  ").replace("1", "##")
     )
     flattened_bitmap = bitmap.replace("\n", "")
+    flattened_bitmap=flattened_bitmap
     bm_val = int(flattened_bitmap, 2)
     bm_hex = format(bm_val, '016X')
     print(f"FB_DATA_{desc}:\n.DATA 0x{bm_hex}  // Glyph: {desc}")
