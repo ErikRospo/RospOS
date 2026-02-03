@@ -77,6 +77,7 @@ for i, (glyph_bytes, desc) in enumerate(zip(font8x8, descriptions)):
     flattened_bitmap=flattened_bitmap
     bm_val = int(flattened_bitmap, 2)
     bm_hex = format(bm_val, '016X')
-    print(f"FB_DATA_{desc}:\n.DATA 0x{bm_hex}  // Glyph: {desc}")
+    bm_hex_split = '_'.join([bm_hex[i:i+4] for i in range(0, len(bm_hex), 4)])
+    print(f"FB_DATA_{desc}:\n.DATA 0x{bm_hex_split}  // Glyph: {desc}")
     print(f"//{formatted_bitmap}")
     print()
