@@ -1,4 +1,4 @@
-
+import re
 
 glyph_width = 8
 glyph_height = 8
@@ -25,30 +25,27 @@ print(
 
 print("BASE_FB_ADDR:")
 
-import sys
-
-import re
 
 def extract_font8x8_basic_and_descriptions():
     # Read the C array from this file
-    with open("./font8x8_basic_data.h", 'r') as f:
+    with open("./font8x8_basic_data.h", "r") as f:
         content = f.read()
     # Find the array
-    m = re.search(r'char font8x8_basic=\s*\{(.*?)\};', content, re.DOTALL)
+    m = re.search(r"char font8x8_basic=\s*\{(.*?)\};", content, re.DOTALL)
     if not m:
         raise Exception("font8x8_basic array not found")
     arr = m.group(1)
     # Find all glyphs and their descriptions
-    glyphs = re.findall(r'\{([^}]+)\}\s*,\s*//\s*U\+([0-9A-F]{4})\s*\(([^)]+)\)', arr)
+    glyphs = re.findall(r"\{([^}]+)\}\s*,\s*//\s*U\+([0-9A-F]{4})\s*\(([^)]+)\)", arr)
     font = []
     descriptions = []
     for glyph_bytes, codepoint, desc in glyphs:
-        bytestr = glyph_bytes.split(',')
+        bytestr = glyph_bytes.split(",")
         clean_bytes = []
         for b in bytestr:
             b = b.strip()
-            if '//' in b:
-                b = b.split('//')[0].strip()
+            if "//" in b:
+                b = b.split("//")[0].strip()
             if b:
                 try:
                     clean_bytes.append(int(b, 16))
@@ -58,9 +55,10 @@ def extract_font8x8_basic_and_descriptions():
             continue
         font.append(clean_bytes)
         # Normalize description for label
-        label = desc.replace(' ', '_')
+        label = desc.replace(" ", "_")
         descriptions.append(label)
     return font, descriptions
+
 
 font8x8, descriptions = extract_font8x8_basic_and_descriptions()
 
@@ -74,10 +72,10 @@ for i, (glyph_bytes, desc) in enumerate(zip(font8x8, descriptions)):
         bitmap.replace("\n", "\n//").replace("0", "  ").replace("1", "##")
     )
     flattened_bitmap = bitmap.replace("\n", "")
-    flattened_bitmap=flattened_bitmap
+    flattened_bitmap = flattened_bitmap
     bm_val = int(flattened_bitmap, 2)
-    bm_hex = format(bm_val, '016X')
-    bm_hex_split = '_'.join([bm_hex[i:i+4] for i in range(0, len(bm_hex), 4)])
+    bm_hex = format(bm_val, "016X")
+    bm_hex_split = "_".join([bm_hex[i : i + 4] for i in range(0, len(bm_hex), 4)])
     print(f"FB_DATA_{desc}:\n.DATA 0x{bm_hex_split}  // Glyph: {desc}")
     print(f"//{formatted_bitmap}")
     print()
