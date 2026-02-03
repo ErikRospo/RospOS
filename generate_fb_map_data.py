@@ -30,16 +30,31 @@ def extract_font8x8_basic_and_descriptions():
     # Read the C array from this file
     with open("./font8x8_basic_data.h", "r") as f:
         content = f.read()
-    # Find the array
-    m = re.search(r"char font8x8_basic=\s*\{(.*?)\};", content, re.DOTALL)
-    if not m:
+    # Find the array by locating the declaration and matching braces
+    decl_index = content.find("char font8x8_basic=")
+    if decl_index == -1:
         raise Exception("font8x8_basic array not found")
-    arr = m.group(1)
+    brace_start = content.find("{", decl_index)
+    if brace_start == -1:
+        raise Exception("Opening brace for font8x8_basic array not found")
+    depth = 0
+    brace_end = None
+    for i, ch in enumerate(content[brace_start:], start=brace_start):
+        if ch == "{":
+            depth += 1
+        elif ch == "}":
+            depth -= 1
+            if depth == 0:
+                brace_end = i
+                break
+    if brace_end is None:
+        raise Exception("Closing brace for font8x8_basic array not found")
+    arr = content[brace_start + 1 : brace_end]
     # Find all glyphs and their descriptions
     glyphs = re.findall(r"\{([^}]+)\}\s*,\s*//\s*U\+([0-9A-F]{4})\s*\(([^)]+)\)", arr)
     font = []
     descriptions = []
-    for glyph_bytes, codepoint, desc in glyphs:
+    for glyph_bytes, _, desc in glyphs:
         bytestr = glyph_bytes.split(",")
         clean_bytes = []
         for b in bytestr:
@@ -62,7 +77,7 @@ def extract_font8x8_basic_and_descriptions():
 
 font8x8, descriptions = extract_font8x8_basic_and_descriptions()
 
-for i, (glyph_bytes, desc) in enumerate(zip(font8x8, descriptions)):
+for glyph_bytes, desc in zip(font8x8, descriptions):
     # Combine 8 bytes into a 64-bit integer
     val = 0
     for b in glyph_bytes:
