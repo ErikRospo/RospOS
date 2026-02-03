@@ -26,8 +26,10 @@ SUB r1, r1, r2 // Convert to uppercase
 SKIP_UPPERCASE_CONVERSION:
 ADDI r2, r4, 0 // X coordinate
 ADDI r3, r5, 0 // Y coordinate
+PUSH r1
 // Draw character to display
 CALL DRAW_CHAR_TO_DISPLAY
+POP r1
 ADDI r4, r4, 8 // Move X coordinate for next character
 POP r3
 POP r2
