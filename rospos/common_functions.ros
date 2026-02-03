@@ -78,23 +78,23 @@ DRAW_CHAR_ROW_LOOP:
     LB r7, r4, 0 // glyph row
     LLI r8, 0 // col
 DRAW_CHAR_COL_LOOP:
-        LLI r12, 8
-        BGE r8, r12, END_DRAW_CHAR_COL_LOOP
-        // For backwards: use col = r8 (if your font is stored MSB left)
-        SHR r10, r7, r8
-        ANDI r10, r10, 1
-        BEQ r10, r0, SKIP_PIXEL
-        // x = r2 + r8, y = r3 + r6
-        ADD r9, r2, r8 // x
-        ADD r10, r3, r6 // y
-        // pixel_index = y * 256 + x
-        MULI r11, r10, 256
-        ADD r11, r11, r9
-        // address = fb_base + pixel_index (1 byte per pixel)
-        ADD r12, r5, r11
-        // Store white pixel (00RRGGBB -> 0x3F)
-        LLI r10, 0x3F
-        SB r10, r12, 0
+    LLI r12, 8
+    BGE r8, r12, END_DRAW_CHAR_COL_LOOP
+    // For backwards: use col = r8 (if your font is stored MSB left)
+    SHR r10, r7, r8
+    ANDI r10, r10, 1
+    BEQ r10, r0, SKIP_PIXEL
+    // x = r2 + r8, y = r3 + r6
+    ADD r9, r2, r8 // x
+    ADD r10, r3, r6 // y
+    // pixel_index = y * 256 + x
+    MULI r11, r10, 256
+    ADD r11, r11, r9
+    // address = fb_base + pixel_index (1 byte per pixel)
+    ADD r12, r5, r11
+    // Store white pixel (00RRGGBB -> 0x3F)
+    LLI r10, 0x3F
+    SB r10, r12, 0
 SKIP_PIXEL:
         ADDI r8, r8, 1
         JMP DRAW_CHAR_COL_LOOP

@@ -5,8 +5,6 @@ rtypeinstructions: "ADD" -> add
     | "XOR" -> xor
     | "MUL" -> mul
     | "MULH" -> mulh
-    | "NEG" -> neg
-    | "NOT" -> not
     | "SHL" -> shl
     | "SHR" -> shr
     | "SAR" -> sar
@@ -73,6 +71,10 @@ pseudoinstructions: "PUSH" register -> push
     | "MULI" register "," register "," imm -> muliipseudo
     | "DIVI" register "," register "," imm -> divipseudo
     | "REMI" register "," register "," imm -> remipseudo
+    | "MOV" register "," register -> movpseudo
+    | "ZERO" register -> zeropseudo
+    | "NOT" register "," register -> notpseudo # these two are valid instructions, but it's easier to parse them as pseudoinstructions
+    | "NEG" register "," register -> negpseudo # Because they have 2 operands instead of 3
 
 instruction: rinstructuse
            | iinstructuse

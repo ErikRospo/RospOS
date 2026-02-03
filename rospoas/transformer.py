@@ -147,7 +147,25 @@ class RospoasTransformer(Transformer):
         reg_t = items[0]
         reg_v = reg_t
         return {"type": "p", "name": "pop", "imm": reg_v}  # Same as above
-
+    def movpseudo(self, items):
+        rd_t, rs_t = items
+        rd_v = rd_t
+        rs_v = rs_t
+        return {"type": "r", "name": "add", "rd": rd_v, "rs1": rs_v, "rs2": 0}  # MOV rd, rs  -> ADD rd, rs, r0
+    def zeropseudo(self, items):
+        rd_t = items[0]
+        rd_v = rd_t
+        return {"type": "r", "name": "add", "rd": rd_v, "rs1": 0, "rs2": 0}  # ZERO rd -> ADD rd, r0, r0
+    def notpseudo(self, items):
+        rd_t, rs_t = items
+        rd_v = rd_t
+        rs_v = rs_t
+        return {"type": "r", "name": "xor", "rd": rd_v, "rs1": rs_v, "rs2": -1}  # NOT rd, rs -> XOR rd, rs, -1
+    def negpseudo(self, items):
+        rd_t, rs_t = items
+        rd_v = rd_t
+        rs_v = rs_t
+        return {"type": "r", "name": "sub", "rd": rd_v, "rs1": 0, "rs2": rs_v}  # NEG rd, rs -> SUB rd, r0, rs
     def lli(self, items):
         reg_t = items[0]
         imm_t = items[1]
