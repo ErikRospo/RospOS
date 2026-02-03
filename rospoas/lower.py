@@ -134,6 +134,37 @@ def lower_ir(ir_list: List) -> List:
                 )
                 continue
 
+            # SUBI, MULI, DIVI, REMI pseudo-instructions: lower to R-type with immediate loaded in TEMP_REG
+            if name in ("subi", "muli", "divi", "remi"):
+                rd = node.rd
+                rs1 = node.rs1
+                imm = node.imm
+                # Determine the R-type instruction name
+                r_map = {"subi": "sub", "muli": "mul", "divi": "div", "remi": "rem"}
+                rname = r_map[name]
+                # Load immediate into TEMP_REG
+                if isinstance(imm, ImmLifted):
+                    out.extend(_emit_immediate_loading_for_value(int(imm.value), TEMP_REG))
+                elif isinstance(imm, ImmLabel):
+                    out.extend(_emit_immediate_loading_for_label(imm.name, TEMP_REG))
+                elif isinstance(imm, ImmValue):
+                    out.extend(_emit_immediate_loading_for_value(int(imm.value), TEMP_REG))
+                else:
+                    # unknown immediate form; keep as-is
+                    out.append(node)
+                    continue
+                # Emit the R-type instruction
+                out.append(
+                    Instruction(
+                        type="r",
+                        name=rname,
+                        rd=rd,
+                        rs1=rs1,
+                        rs2=TEMP_REG,
+                    )
+                )
+                continue
+
         # For normal instructions, handle lifted `li` immediates.
         if node.type in ["i", "l"] and isinstance(node.imm, ImmLifted):
             li = node.imm

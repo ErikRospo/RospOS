@@ -177,7 +177,63 @@ class RospoasTransformer(Transformer):
 
     def retpseudo(self, items):
         return {"type": "j", "rd": 0, "rs1": 14, "name": "jalr", "imm": 0}
-
+    
+    def subipseudo(self, items):
+        rd_t, rs1_t, imm_t = items
+        rd_v = rd_t
+        rs1_v = rs1_t
+        imm_v = imm_t
+        try:
+            imm_v = int(imm_v)
+        except:
+            pass
+        if isinstance(imm_v, dict) and imm_v.get("type") == "li":
+            imm_v["rd"] = (
+                rd_v  # Pass the destination register to the `li` pseudo-instruction
+            )
+        return {"type": "p", "name": "subi", "rd": rd_v, "rs1": rs1_v, "imm": imm_v}
+    def muliipseudo(self, items):
+        rd_t, rs1_t, imm_t = items
+        rd_v = rd_t
+        rs1_v = rs1_t
+        imm_v = imm_t
+        try:
+            imm_v = int(imm_v)
+        except:
+            pass
+        if isinstance(imm_v, dict) and imm_v.get("type") == "li":
+            imm_v["rd"] = (
+                rd_v  # Pass the destination register to the `li` pseudo-instruction
+            )
+        return {"type": "p", "name": "muli", "rd": rd_v, "rs1": rs1_v, "imm": imm_v}
+    def divipseudo(self, items):
+        rd_t, rs1_t, imm_t = items
+        rd_v = rd_t
+        rs1_v = rs1_t
+        imm_v = imm_t
+        try:
+            imm_v = int(imm_v)
+        except:
+            pass
+        if isinstance(imm_v, dict) and imm_v.get("type") == "li":
+            imm_v["rd"] = (
+                rd_v  # Pass the destination register to the `li` pseudo-instruction
+            )
+        return {"type": "p", "name": "divi", "rd": rd_v, "rs1": rs1_v, "imm": imm_v}
+    def remipseudo(self, items):
+        rd_t, rs1_t, imm_t = items
+        rd_v = rd_t
+        rs1_v = rs1_t
+        imm_v = imm_t
+        try:
+            imm_v = int(imm_v)
+        except:
+            pass
+        if isinstance(imm_v, dict) and imm_v.get("type") == "li":
+            imm_v["rd"] = (
+                rd_v  # Pass the destination register to the `li` pseudo-instruction
+            )
+        return {"type": "p", "name": "remi", "rd": rd_v, "rs1": rs1_v, "imm": imm_v}
     def systeminstructuse(self, items):
         name_t = items[0]
         name_v = name_t.data
@@ -226,7 +282,6 @@ class RospoasTransformer(Transformer):
                 "d": "data",
                 "len": 4,
             }  # allocate 4 bytes by default
-
     def space(self, items):
         imm_t = items[0]
         imm_v = imm_t
