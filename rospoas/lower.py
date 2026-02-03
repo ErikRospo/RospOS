@@ -144,11 +144,15 @@ def lower_ir(ir_list: List) -> List:
                 rname = r_map[name]
                 # Load immediate into TEMP_REG
                 if isinstance(imm, ImmLifted):
-                    out.extend(_emit_immediate_loading_for_value(int(imm.value), TEMP_REG))
+                    out.extend(
+                        _emit_immediate_loading_for_value(int(imm.value), TEMP_REG)
+                    )
                 elif isinstance(imm, ImmLabel):
                     out.extend(_emit_immediate_loading_for_label(imm.name, TEMP_REG))
                 elif isinstance(imm, ImmValue):
-                    out.extend(_emit_immediate_loading_for_value(int(imm.value), TEMP_REG))
+                    out.extend(
+                        _emit_immediate_loading_for_value(int(imm.value), TEMP_REG)
+                    )
                 else:
                     # unknown immediate form; keep as-is
                     out.append(node)

@@ -83,7 +83,6 @@ register_map["lr"] = 14
 register_map["fp"] = 13
 
 
-
 def validate_immediate_for_type(type_id: int, imm: int) -> None:
     """Validate imm range for I/L/B/J types where 16-bit immediates are expected.
     Raises AssertionError on invalid values.

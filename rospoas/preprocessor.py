@@ -1,7 +1,6 @@
 from maps import i_to_r_map, register_map
 
-
-TEMP_REG = register_map["r13"] # Temporary register for constant loading
+TEMP_REG = register_map["r13"]  # Temporary register for constant loading
 SP_REG = register_map["sp"]
 
 
