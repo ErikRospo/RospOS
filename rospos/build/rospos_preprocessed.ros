@@ -133,8 +133,9 @@ LLI r8, 0 // col
 DRAW_CHAR_COL_LOOP:
 LLI r12, 8
 BGE r8, r12, END_DRAW_CHAR_COL_LOOP
-// For backwards: use col = r8 (if your font is stored MSB left)
-SHR r10, r7, r8
+LLI r12, 7
+SUB r9, r12, r8
+SHR r10, r7, r9
 ANDI r10, r10, 1
 BEQ r10, r0, SKIP_PIXEL
 // x = r2 + r8, y = r3 + r6

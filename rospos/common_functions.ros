@@ -81,8 +81,9 @@ DRAW_CHAR_ROW_LOOP:
 DRAW_CHAR_COL_LOOP:
     LLI r12, 8
     BGE r8, r12, END_DRAW_CHAR_COL_LOOP
-    // For backwards: use col = r8 (if your font is stored MSB left)
-    SHR r10, r7, r8
+    LLI r12, 7
+    SUB r9, r12, r8
+    SHR r10, r7, r9
     ANDI r10, r10, 1
     BEQ r10, r0, SKIP_PIXEL
     // x = r2 + r8, y = r3 + r6
@@ -97,8 +98,8 @@ DRAW_CHAR_COL_LOOP:
     LLI r10, 0x3F
     SB r10, r12, 0
 SKIP_PIXEL:
-        ADDI r8, r8, 1
-        JMP DRAW_CHAR_COL_LOOP
+    ADDI r8, r8, 1
+    JMP DRAW_CHAR_COL_LOOP
 END_DRAW_CHAR_COL_LOOP:
     ADDI r4, r4, 1
     ADDI r6, r6, 1
