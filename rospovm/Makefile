@@ -1,7 +1,7 @@
 # Makefile for RospOSVM project
 
 CXX := g++
-CXXFLAGS := -std=c++17
+CXXFLAGS := -std=c++17 -Wall -Wextra -O2
 LDFLAGS := -lSDL2
 SRC := main.cpp RospOSVM.cpp InstructionDecoder.cpp Register.cpp Memory.cpp TTY.cpp Binary.cpp Display.cpp
 OBJ := $(SRC:.cpp=.o)

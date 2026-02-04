@@ -39,7 +39,7 @@ void RospOSVM::step()
     if (debugMode)
     {
         std::cerr << "PC: " << std::hex << pc << std::dec << " ";
-        std::cerr << "I: " << decodeInstruction(instruction, regFile, memory, pc) << std::endl;
+        std::cerr << "I: " << decodeInstruction(instruction, regFile) << std::endl;
         std::cerr << "RI: " << std::hex << std::setw(8) << std::setfill('0') << instruction << std::dec << std::endl;
         std::cerr << "Registers: " << getRegisterState() << std::endl;
     }

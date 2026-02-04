@@ -12,7 +12,7 @@ std::string formatRegisterValues(uint32_t rd, uint32_t rs1, uint32_t rs2, Regist
     return formatRegister(rd, regFile) + ", " + formatRegister(rs1, regFile) + ", " + formatRegister(rs2, regFile);
 }
 
-std::string decodeInstruction(uint32_t instruction, RegisterFile &regFile, Memory &memory, uint32_t &pc) {
+std::string decodeInstruction(uint32_t instruction, RegisterFile &regFile) {
     uint32_t opcode = (instruction >> 28) & 0x0F;
     std::string oss;
     switch (opcode) {
