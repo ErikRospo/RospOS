@@ -7,3 +7,5 @@ In CPP, write out the display memory to a PNG file and assert that it matches ex
 Then run it on every possible character input?
 
 Better error handling in rospoas!
+
+Evaluate simple constant expressions at compile time, esp for LLI. (e.g. 256-8 should be evaluated to 248 at compile time)

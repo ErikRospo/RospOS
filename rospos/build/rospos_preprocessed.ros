@@ -5,6 +5,7 @@ LLI r1, MOTD
 CALL PRINT_STRING
 LLI r1, PROMPT
 CALL PRINT_STRING
+
 LLI r3, 0x0A
 LLI r4, 0 // X coordinate
 LLI r5, 0 // Y coordinate
@@ -164,6 +165,29 @@ POP r9
 POP r8
 POP r7
 POP r6
+POP r5
+POP r4
+RET
+
+
+.FUNC DRAW_STRING_TO_DISPLAY:
+// Function to draw string pointed to by r1 to display at (r2, r3)
+// r1: pointer to string
+// r2: X coordinate (pixels)
+// r3: Y coordinate (pixels)
+PUSH r4
+PUSH r5
+LLI r4, 0 // char index
+DRAW_STRING_LOOP:
+LB r5, r1, 0
+BEQ r5, r0, END_DRAW_STRING_LOOP // End on null terminator
+// Draw character
+CALL DRAW_CHAR_TO_DISPLAY
+// Advance string pointer and X coordinate
+ADDI r1, r1, 1
+ADDI r2, r2, 8 // Advance X by 8 pixels
+JMP DRAW_STRING_LOOP
+END_DRAW_STRING_LOOP:
 POP r5
 POP r4
 RET
