@@ -1,6 +1,11 @@
 # RospOS 32-bit RISC CPU ISA
+By: Erik Rospo
 
+---
+geometry: margin=1in
+---
 Goal:
+
 * 32-bit RISC CPU ISA
 * Small OS atop ISA (*RospOS*)
 * `sh`-like shell
@@ -25,6 +30,7 @@ For register file, see [Calling Convention (ABI)](#calling-convention-abi).
 Each instruction is 32 bits wide and follows a fixed format within each major opcode. The binary encoding is divided into fields as follows:
 
 Major Opcode Legend (bits [31:28]):
+
 * 0000 = R-type arithmetic (register)
 * 0001 = I-type arithmetic/logical (immediate)
 * 0010 = Load/Store
@@ -65,6 +71,7 @@ Bit fields:
 
 Division by zero behavior: sets rd to all 1s (`0xFFFFFFFF`).
 Arithmetic operations (ADD, SUB, MUL, DIV, etc.) use two's complement representation for signed numbers.
+
 ### I-Type Arithmetic / Logical (immediate)
 
 Bit fields:
@@ -85,6 +92,7 @@ Bit fields:
 | SARI        | 0001         | 0110       | rd = arithmetic shift right by imm   |
 
 Shifts (SHLI, SHRI, SARI) use only the lower 5 bits of the immediate for the shift amount, and are zero-extended.
+
 ### Load / Store (I-Type)
 
 Bit fields:
@@ -173,27 +181,35 @@ Bit fields:
 
 Any opcode/sub-opcode combinations not listed above are reserved/invalid.
 Executing an invalid instruction should trigger an illegal instruction exception.
+
 NOTE: `0x00000000` is a valid NOP instruction, as it is ADD r0, r0, r0. (r0 is hardwired zero, so this is effectively a NOP.)
 This allows for easier initialization of memory to zero.
 
 ## Memory Map
 
-| Address Range         | Purpose                    | Size / Notes                           |
-| --------------------- | -------------------------- | -------------------------------------- |
-| 0x00000000–0x0FFFFFFF | RAM                        | Program + stack + heap                 |
-| 0x10000000–0x1000FFFF | TTY                        | Read input / write output              |
-| 0x20000000–0x2007FFFF | Display (256x256 8-bit)    | 0x80000 bytes linear framebuffer       |
-| 0x30000000–0x3000FFFF | Audio (SID-like)           | freq, waveform, volume, gate registers |
-| 0xFFFFFF00–0xFFFFFFFF | Kernel / interrupt vectors | Reserved                               |
+| Address Range            | Purpose                    | Size / Notes                             |
+| ------------------------ | --------------------------:| ----------------------------------------:|
+| `0x00000000–0x0FFFFFFF`    | RAM                      | Program + stack + heap                   |
+| `0x10000000–0x1000FFFF`    | TTY  MMIO                | Read input / write output                |
+| `0x20000000–0x2007FFFF`    | Display MMIO             | See [Display](#display) for more details |
+| `0x30000000–0x3000FFFF`    | Audio MMIO               | freq, waveform, volume, gate registers   |
+| `0xFFFFFF00–0xFFFFFFFF`    | Interrupt vectors        | Includes reset vector                    |
 
 
 ## Calling Convention (ABI)
 
-Up to you to define full ABI, but basic register usage:
-r0   = hardwired zero 
-r13 = temp / scratch register (do not rely on value being preserved)
-r14 = link register (return address)
-r15 = stack pointer
+Basic register usage:
+
+* `r0`   = hardwired zero 
+* `r1-r12` = GP registers (should be preserved across calls)
+* `r13` = temp / scratch register (do not rely on value being preserved)
+* `r14` = link register (return address)
+* `r15` = stack pointer
+
+Arguments can be passed in any of `r1` to `r12`. Arguments beyond 12 should be passed on the stack.
+Return values are placed in `r1` (for single return value) or `r1` and `r2` (for two return values). More than two return values should be returned via memory or stack.
+Registers that were not used for passing arguments may be used as temporary registers within functions, but their values must be preserved across function calls.
+Registers that were used as argument registers may be modified by the callee. If the caller needs to preserve their values, it must save them before the call.
 
 Stack pointer is initialized to top of RAM (`0x0FFFFFFF`) on reset. Stack grows downward. 8-byte alignment. Unaligned accesses cause exceptions.
 
@@ -207,9 +223,8 @@ Stack pointer is initialized to top of RAM (`0x0FFFFFFF`) on reset. Stack grows 
 
 ### Display
 
-* 128×128*2 bits = 4096 bytes at `0x20000000`
-* Simple framebuffer: 2 bits per pixel (BLACK, DARK GREY, LIGHT GREY, WHITE), linear layout
-* Optional: dirty flag for partial refresh
+* 128×128 by 8 bits = 16384 bytes at `0x20000000`
+* Simple framebuffer: 00RRGGBB, linear addressing
 
 ### Audio
 
@@ -218,9 +233,9 @@ Stack pointer is initialized to top of RAM (`0x0FFFFFFF`) on reset. Stack grows 
   * Waveform
   * Volume
   * Gate (on/off)
-* Simple write-only interface
 
 ### Reset Behavior
+
 * Clear registers to 0
 * Stack pointer (r15) initialized to top of RAM (`0x0FFFFFFF`)
 * PC set to value at reset vector (`0xFFFFFFFC`)
