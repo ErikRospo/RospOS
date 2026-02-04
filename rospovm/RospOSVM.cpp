@@ -49,18 +49,18 @@ void RospOSVM::step()
         std::cerr << "After Execution:" << std::endl;
         std::cerr << "PC: " << std::hex << pc << std::dec << std::endl;
         std::cerr << "Registers: " << getRegisterState() << std::endl;
-        std::cerr << "----------------------------------------" << std::endl <<std::endl;
+        std::cerr << "----------------------------------------" << std::endl;
     }
 }
 
 std::string RospOSVM::getRegisterState() const
 {
-    std::string state;
+    std::ostringstream state;
     for (int i = 0; i < 16; ++i)
     {
-        state += "R" + std::to_string(i) + ": " + std::to_string(regFile[i].get()) + " ";
+        state << "R" << i << ": " << std::hex << std::setw(8) << std::setfill('0') << regFile[i].get() << " ";
     }
-    return state;
+    return state.str();
 }
 
 void RospOSVM::executeInstruction(uint32_t instruction)

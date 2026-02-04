@@ -80,11 +80,11 @@ def encode_ir(
             elif isinstance(data_value, ImmValue):
                 v = int(data_value.value)
                 length = node.length or ((v.bit_length() // 8) + 1)
-                data_bytes = v.to_bytes(length, byteorder="little", signed=True)
+                data_bytes = v.to_bytes(length, byteorder="little", signed=False)
             else:
                 v = int(data_value)
                 length = node.length or ((v.bit_length() // 8) + 1)
-                data_bytes = v.to_bytes(length, byteorder="little", signed=True)
+                data_bytes = v.to_bytes(length, byteorder="little", signed=False)
             if cursor + len(data_bytes) > len(current_segment_data):
                 raise ValueError(
                     f"Data write would overflow segment {hex(current_segment)} at cursor {cursor}"

@@ -82,7 +82,7 @@ for glyph_bytes, desc in zip(font8x8, descriptions):
     val = 0
     for b in glyph_bytes:
         val = (val << 8) | b
-    bitmap = print_bitmap(val, glyph_width, glyph_height)
+    bitmap = print_bitmap(val, glyph_width, glyph_height)[::-1]
     formatted_bitmap = (
         bitmap.replace("\n", "\n//").replace("0", "  ").replace("1", "##")
     )
@@ -94,3 +94,4 @@ for glyph_bytes, desc in zip(font8x8, descriptions):
     print(f"FB_DATA_{desc}:\n.DATA 0x{bm_hex_split}  // Glyph: {desc}")
     print(f"//{formatted_bitmap}")
     print()
+    

@@ -61,11 +61,12 @@ END_READ_LINE_LOOP:
     PUSH r11
     PUSH r12
     // r1: char, r2: x, r3: y
-    SUBI r1, r1, 35
+    SUBI r1, r1, 34
     LLI r4, BASE_FB_ADDR // font base
     ADDI r4, r4, 2
     MULI r5, r1, 8
     ADD r4, r4, r5 // r4 = glyph ptr
+    ADDI r4, r4, 1
     LLI r5, 0x2000_0000 // fb base
     LLI r6, 0 // row
 DRAW_CHAR_ROW_LOOP:

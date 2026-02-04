@@ -28,7 +28,7 @@ class RospoasTransformer(Transformer):
             if not (-32768 <= value_v <= 65535):
                 const_name = f"LCONST_{len(self.lifted_constants)}"
                 self.lifted_constants[const_name] = value_v
-                return {"type": "li", "name": const_name, "value": value_v}
+                return {"type": "li", "name": const_name, "value": value_v, "og":value_t}
         return value_v
 
     def instruction(self, items):
@@ -277,6 +277,21 @@ class RospoasTransformer(Transformer):
         if items:
             imm_t = items[0]
             imm_v = imm_t
+            og_v=imm_v["og"] if isinstance(imm_v,dict) and "og" in imm_v else imm_v
+            print("Found data directive with immediate:", og_v)
+            og_v=og_v.replace("_","") if isinstance(og_v,str) else og_v        
+            
+            if isinstance(og_v, str):
+                if og_v.startswith("0x"):  # Hexadecimal
+                    length = (len(og_v) - 2) * 4  # Each hex digit represents 4 bits
+                elif og_v.startswith("0b"):  # Binary
+                    length = len(og_v) - 2  # Each binary digit represents 1 bit
+                else:  # Decimal
+                    length = (int(og_v).bit_length() + 7) // 8 * 8  # Round up to nearest byte
+                length//=8  # Convert bits to bytes
+            else:
+                length = 4  # Default to 4 bytes if no specific format is detected
+            
             try:
                 imm_v = int(imm_v)
             except:
@@ -286,9 +301,6 @@ class RospoasTransformer(Transformer):
             assert isinstance(
                 imm_v, int
             ), "Data directive requires an integer immediate value"
-            # Use at least 4 bytes for numeric data directives (word-sized)
-            computed_len = int.bit_length(imm_v) // 8 + 1
-            length = max(4, computed_len)
             return {
                 "type": "d",
                 "name": "data",
