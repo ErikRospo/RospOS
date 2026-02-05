@@ -8,24 +8,49 @@
 #include <termios.h>
 #include <unistd.h>
 
-uint8_t TTYReadHandler(uint32_t address)
+#include <queue>
+#include <mutex>
+#include <condition_variable>
+#include <thread>
+
+std::queue<uint8_t> inputBuffer;
+std::mutex bufferMutex;
+std::condition_variable bufferCondition;
+
+void BackgroundReader()
 {
-    (void)address; // Mark the parameter as unused to silence warnings
-    // Disable terminal echo and enable non-canonical mode
     struct termios oldt, newt;
     tcgetattr(STDIN_FILENO, &oldt); // Get current terminal settings
     newt = oldt;
     newt.c_lflag &= ~(ECHO | ICANON); // Disable echo and canonical mode
     tcsetattr(STDIN_FILENO, TCSANOW, &newt); // Apply new settings
 
-    // Blocking read from TTY
-    char ch;
-    read(STDIN_FILENO, &ch, 1); // Use low-level read to capture raw input
+    while (true)
+    {
+        char ch;
+        read(STDIN_FILENO, &ch, 1); // Blocking read from TTY
 
-    // Restore terminal settings
+        {
+            std::lock_guard<std::mutex> lock(bufferMutex);
+            inputBuffer.push(static_cast<uint8_t>(ch));
+        }
+        bufferCondition.notify_one();
+    }
+
+    // Restore terminal settings (not reachable, but good practice)
     tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
+}
 
-    return static_cast<uint8_t>(ch);
+uint8_t TTYReadHandler(uint32_t address)
+{
+    (void)address; // Mark the parameter as unused to silence warnings
+
+    std::unique_lock<std::mutex> lock(bufferMutex);
+    bufferCondition.wait(lock, [] { return !inputBuffer.empty(); });
+
+    uint8_t value = inputBuffer.front();
+    inputBuffer.pop();
+    return value;
 }
 
 void TTYWriteHandler(uint32_t address, uint8_t value)
@@ -35,3 +60,6 @@ void TTYWriteHandler(uint32_t address, uint8_t value)
     std::cout << static_cast<char>(value);
     std::cout.flush();
 }
+
+// Start the background reader thread
+std::thread backgroundReaderThread(BackgroundReader);
