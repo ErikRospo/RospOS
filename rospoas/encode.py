@@ -122,10 +122,8 @@ def encode_ir(
             rs1 = _reg_to_int(rs1)
             rs2 = _reg_to_int(rs2)
 
-            # Do not unconditionally default registers here; each type
-            # branch asserts presence when required to avoid noisy warnings.
+            # opcode construction: 4 bits type, 4 bits opcode, then up to 24 bits of operands/immediate
             imm = node.imm
-
             type_id = opcode_type_map[t_type]
             opcode = instr_type_maps[type_id][name]
             op_byte = (type_id << 4) | opcode
@@ -136,6 +134,7 @@ def encode_ir(
                 resolved_imm = _resolve_imm(imm, addresses, current_segment, cursor)
 
             try:
+                # Encode operands based on type
                 if type_id == 0:  # R-type
                     assert rd is not None and rs1 is not None and rs2 is not None
                     op_byte = (op_byte << 4) | (rd & 0x0F)
@@ -176,12 +175,15 @@ def encode_ir(
                 raise ValueError(
                     f"Encoding assertion failed at segment {current_segment} cursor {cursor} for node: {node}"
                 )
-
+            # Write the 4-byte instruction to the segment buffer
             bytes_out = (op_byte & 0xFFFFFFFF).to_bytes(4, byteorder="big")
+            
             if cursor + 4 > len(current_segment_data):
                 raise ValueError(
                     f"Instruction write would overflow segment {hex(current_segment)} at cursor {cursor}"
                 )
+                
+            # record node before writing for accurate diagnostics
             current_segment_data[cursor : cursor + 4] = bytes_out
             segment_node_map.setdefault(current_segment, []).append(
                 (cursor, 4, "instr")

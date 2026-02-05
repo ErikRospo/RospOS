@@ -6,7 +6,8 @@ CALL PRINT_STRING
 LLI r1, PROMPT
 CALL PRINT_STRING
 
-LLI r3, 0x0A
+LLI r3, 0x0A // \n
+LLI r6, 0x7E // "~" character, to clear screen.
 LLI r4, 0 // X coordinate
 LLI r5, 0 // Y coordinate
 MAIN_LOOP:
@@ -14,6 +15,7 @@ MAIN_LOOP:
     CALL READ_CHAR
     //READ_CHAR puts the character in r1
     BEQ r1, r3, NEWLINE_LABEL
+    BEQ r1, r6, CLEAR_DISPLAY_LABEL
     // If lowercase, convert to uppercase if alphabetic
     PUSH r2
     PUSH r3
@@ -44,7 +46,12 @@ NEWLINE_LABEL:
     LLI r1, PROMPT
     CALL PRINT_STRING
     JMP MAIN_LOOP
-
+    
+CLEAR_DISPLAY_LABEL:
+    LLI r2, 0 // X coordinate
+    LLI r3, 0 // Y coordinate
+    CALL CLEAR_DISPLAY
+    JMP MAIN_LOOP
 BREAK_LABEL:
     BREAK
 

@@ -138,3 +138,18 @@ END_DRAW_STRING_LOOP:
     POP r5
     POP r4
     RET
+
+.FUNC CLEAR_DISPLAY:
+    // Function to clear the display
+    PUSH r1
+    PUSH r2
+    LLI r1, 0x2000_0000 // fb base
+    LLI r2, 0x2010_0000 // fb end, 16KB framebuffer (256x256, 1 byte per pixel)
+CLEAR_DISPLAY_LOOP:
+    SB r0, r1, 0 // Write black pixel
+    ADDI r1, r1, 1 // Move to next pixel
+    BNE r1, r2, CLEAR_DISPLAY_LOOP // End when we reach the end of the framebuffer
+    // After clearing the display, reset cursor to (0, 0)
+    POP r2 
+    POP r1 
+    RET

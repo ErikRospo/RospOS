@@ -6,7 +6,8 @@ CALL PRINT_STRING
 LLI r1, PROMPT
 CALL PRINT_STRING
 
-LLI r3, 0x0A
+LLI r3, 0x0A // \n
+LLI r6, 0x7E // "~" character, to clear screen.
 LLI r4, 0 // X coordinate
 LLI r5, 0 // Y coordinate
 MAIN_LOOP:
@@ -14,6 +15,7 @@ LLI r1, TTY_BUFFER
 CALL READ_CHAR
 //READ_CHAR puts the character in r1
 BEQ r1, r3, NEWLINE_LABEL
+BEQ r1, r6, CLEAR_DISPLAY_LABEL
 // If lowercase, convert to uppercase if alphabetic
 PUSH r2
 PUSH r3
@@ -45,6 +47,11 @@ LLI r1, PROMPT
 CALL PRINT_STRING
 JMP MAIN_LOOP
 
+CLEAR_DISPLAY_LABEL:
+LLI r2, 0 // X coordinate
+LLI r3, 0 // Y coordinate
+CALL CLEAR_DISPLAY
+JMP MAIN_LOOP
 BREAK_LABEL:
 BREAK
 
@@ -190,6 +197,21 @@ JMP DRAW_STRING_LOOP
 END_DRAW_STRING_LOOP:
 POP r5
 POP r4
+RET
+
+.FUNC CLEAR_DISPLAY:
+// Function to clear the display
+PUSH r1
+PUSH r2
+LLI r1, 0x2000_0000 // fb base
+LLI r2, 0x2010_0000 // fb end, 16KB framebuffer (256x256, 1 byte per pixel)
+CLEAR_DISPLAY_LOOP:
+SB r0, r1, 0 // Write black pixel
+ADDI r1, r1, 1 // Move to next pixel
+BNE r1, r2, CLEAR_DISPLAY_LOOP // End when we reach the end of the framebuffer
+// After clearing the display, reset cursor to (0, 0)
+POP r2
+POP r1
 RET
 
 
