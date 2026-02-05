@@ -12,6 +12,7 @@
 #include <mutex>
 #include <condition_variable>
 #include <thread>
+#include "TTY.h"
 
 std::queue<uint8_t> inputBuffer;
 std::mutex bufferMutex;
@@ -63,3 +64,13 @@ void TTYWriteHandler(uint32_t address, uint8_t value)
 
 // Start the background reader thread
 std::thread backgroundReaderThread(BackgroundReader);
+
+// Allow other modules to inject bytes into the TTY input queue.
+void TTYPush(uint8_t value)
+{
+    {
+        std::lock_guard<std::mutex> lock(bufferMutex);
+        inputBuffer.push(value);
+    }
+    bufferCondition.notify_one();
+}

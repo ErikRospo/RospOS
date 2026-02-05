@@ -6,8 +6,15 @@
 #include <iostream>
 #include <algorithm>
 #include <vector>
+#include <thread>
+#include <atomic>
+#include "TTY.h"
 // Add a static instance for the Display class
 static Display* displayInstance = nullptr;
+
+// SDL event polling thread (pushes key events into the TTY queue)
+static std::atomic<bool> sdlEventThreadRunning{false};
+static std::thread sdlEventThread;
 
 // Static MMIO handlers
 uint8_t Display::displayReadHandler(uint32_t address)
@@ -119,6 +126,45 @@ Display::Display()
     static std::vector<uint32_t> pixels(WIDTH * HEIGHT, 0);
     std::fill(pixels.begin(), pixels.end(), 0xFF000000); // ARGB black
     SDL_UpdateTexture(texture, NULL, pixels.data(), WIDTH * sizeof(uint32_t));
+
+    // Start SDL event polling thread to forward key events into the TTY queue
+    sdlEventThreadRunning.store(true);
+    sdlEventThread = std::thread([]() {
+        SDL_Event e;
+        while (sdlEventThreadRunning.load())
+        {
+            while (SDL_PollEvent(&e))
+            {
+                if (e.type == SDL_QUIT)
+                {
+                    sdlEventThreadRunning.store(false);
+                }
+                else if (e.type == SDL_KEYDOWN)
+                {
+                    SDL_Keycode k = e.key.keysym.sym;
+                    uint8_t ch = 0;
+                    if (k >= 32 && k <= 126)
+                    {
+                        ch = static_cast<uint8_t>(k);
+                    }
+                    else if (k == SDLK_RETURN)
+                    {
+                        ch = '\n';
+                    }
+                    else if (k == SDLK_BACKSPACE)
+                    {
+                        ch = '\b';
+                    }
+
+                    if (ch)
+                    {
+                        TTYPush(ch);
+                    }
+                }
+            }
+            SDL_Delay(10);
+        }
+    });
 }
 
 // Update destructor to reset the static instance
@@ -128,5 +174,11 @@ Display::~Display()
     SDL_DestroyTexture(texture);
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
+    // Stop SDL event thread and join
+    sdlEventThreadRunning.store(false);
+    if (sdlEventThread.joinable())
+    {
+        sdlEventThread.join();
+    }
     SDL_Quit();
 }
