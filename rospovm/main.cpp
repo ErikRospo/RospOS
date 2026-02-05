@@ -10,6 +10,8 @@
 #include "Register.h"
 #include "RospOSVM.h"
 #include "Binary.h"
+#include "Shutdown.h"
+#include "TTY.h"
 
 int main(int argc, char* argv[]) {
     std::cerr << "RospOS Virtual Machine starting..." << std::endl;
@@ -25,6 +27,10 @@ int main(int argc, char* argv[]) {
     Binary binary = Binary().load_binary(rospFile);
 
     RospOSVM vm(verboseMode);
+    // Install SIGINT handler to request shutdown on Ctrl+C from the terminal
+    installSigintHandler();
+    // Start TTY background reader
+    TTYStart();
     for (const auto& segment : binary.segments) {
         if (verboseMode) {
             std::cout << "Loading segment at address 0x" << std::hex << segment.address 
@@ -42,19 +48,16 @@ int main(int argc, char* argv[]) {
     if (stepMode) {
         std::cout << "Press Enter to step, 'q' to quit." << std::endl;
     }
-    while (true) {
-        SDL_Event event;
-        while (SDL_PollEvent(&event)) {
-            if (event.type == SDL_QUIT) {
-                std::cout << "SDL_QUIT received, exiting..." << std::endl;
-                return 0;
-            }
-        }
+    while (!shouldShutdown()) {
+        // SDL events are handled in the display thread; main loop just steps the VM
         if (stepMode) {
             std::cin.get(ch);
             if (ch == 'q') break;
         }
         vm.step();
     }
+    // Shutdown helpers
+    TTYShutdown();
+    std::cout << "Shutdown complete." << std::endl;
     return 0;
 }

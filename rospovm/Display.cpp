@@ -8,13 +8,12 @@
 #include <vector>
 #include <thread>
 #include <atomic>
+#include <chrono>
 #include "TTY.h"
+#include "Shutdown.h"
 // Add a static instance for the Display class
 static Display* displayInstance = nullptr;
 
-// SDL event polling thread (pushes key events into the TTY queue)
-static std::atomic<bool> sdlEventThreadRunning{false};
-static std::thread sdlEventThread;
 
 // Static MMIO handlers
 uint8_t Display::displayReadHandler(uint32_t address)
@@ -66,9 +65,7 @@ void Display::write(uint32_t address, uint8_t value)
     if (framebuffer[offset] == value) return; // No change, skip update
     framebuffer[offset] = value;
 
-    // Static pixel buffer for performance
-    static std::vector<uint32_t> pixels(WIDTH * HEIGHT, 0);
-    // Only update the changed pixel
+    // Update pixel buffer under lock and mark dirty; rendering happens in the display thread
     uint8_t v = value;
     uint8_t r2 = (v >> 4) & 0x03;
     uint8_t g2 = (v >> 2) & 0x03;
@@ -76,16 +73,14 @@ void Display::write(uint32_t address, uint8_t value)
     uint8_t r = r2 * 85;
     uint8_t g = g2 * 85;
     uint8_t b = b2 * 85;
-    pixels[offset] = (0xFFu << 24) | (static_cast<uint32_t>(r) << 16) | (static_cast<uint32_t>(g) << 8) | static_cast<uint32_t>(b);
+    uint32_t pixel = (0xFFu << 24) | (static_cast<uint32_t>(r) << 16) | (static_cast<uint32_t>(g) << 8) | static_cast<uint32_t>(b);
 
-    // Update only the changed pixel in the texture
-    SDL_Rect rect = { static_cast<int>(offset % WIDTH), static_cast<int>(offset / WIDTH), 1, 1 };
-    SDL_UpdateTexture(texture, &rect, &pixels[offset], WIDTH * sizeof(uint32_t));
-
-    SDL_RenderClear(renderer);
-    SDL_Rect destRect = {0, 0, SCALED_WIDTH, SCALED_HEIGHT};
-    SDL_RenderCopy(renderer, texture, NULL, &destRect);
-    SDL_RenderPresent(renderer);
+    {
+        std::lock_guard<std::mutex> lock(fbMutex);
+        pixels[offset] = pixel;
+        framebuffer[offset] = value;
+        dirty.store(true);
+    }
 }
 
 // Update constructor to initialize the static instance
@@ -97,51 +92,77 @@ Display::Display()
     }
     displayInstance = this;
 
-    if (SDL_Init(SDL_INIT_VIDEO) < 0)
-    {
-        throw std::runtime_error("SDL could not initialize!");
-    }
-
-    window = SDL_CreateWindow("RospOS 256x256 8-bit Display", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCALED_WIDTH, SCALED_HEIGHT, SDL_WINDOW_SHOWN);
-    if (!window)
-    {
-        throw std::runtime_error("Window could not be created!");
-    }
-
-    renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
-    if (!renderer)
-    {
-        throw std::runtime_error("Renderer could not be created!");
-    }
-
-    texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, WIDTH, HEIGHT);
-    if (!texture)
-    {
-        throw std::runtime_error("Texture could not be created!");
-    }
-
-    // Initialize framebuffer to black
+    // Initialize framebuffer and pixel buffer to black
     std::fill(std::begin(framebuffer), std::end(framebuffer), 0x00);
-    // Initialize pixel buffer to black
-    static std::vector<uint32_t> pixels(WIDTH * HEIGHT, 0);
-    std::fill(pixels.begin(), pixels.end(), 0xFF000000); // ARGB black
-    SDL_UpdateTexture(texture, NULL, pixels.data(), WIDTH * sizeof(uint32_t));
+    pixels.assign(WIDTH * HEIGHT, 0xFF000000); // ARGB black
+    dirty.store(false);
 
-    // Start SDL event polling thread to forward key events into the TTY queue
-    sdlEventThreadRunning.store(true);
-    sdlEventThread = std::thread([]() {
-        SDL_Event e;
-        while (sdlEventThreadRunning.load())
+    // Start display thread which will initialize SDL, create window/renderer/texture,
+    // poll events and render at ~60Hz. All SDL calls happen on this thread.
+    displayThreadRunning.store(true);
+    displayThread = std::thread([this]() {
+        using clk = std::chrono::steady_clock;
+        const std::chrono::microseconds period(16667); // ~60Hz
+
+        if (SDL_Init(SDL_INIT_VIDEO) < 0)
         {
+            std::cerr << "SDL could not initialize: " << SDL_GetError() << std::endl;
+            displayThreadRunning.store(false);
+            return;
+        }
+
+        window = SDL_CreateWindow("RospOS 256x256 8-bit Display", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCALED_WIDTH, SCALED_HEIGHT, SDL_WINDOW_SHOWN);
+        if (!window)
+        {
+            std::cerr << "Window could not be created: " << SDL_GetError() << std::endl;
+            SDL_Quit();
+            displayThreadRunning.store(false);
+            return;
+        }
+
+        renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+        if (!renderer)
+        {
+            std::cerr << "Renderer could not be created: " << SDL_GetError() << std::endl;
+            SDL_DestroyWindow(window);
+            SDL_Quit();
+            displayThreadRunning.store(false);
+            return;
+        }
+
+        texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, WIDTH, HEIGHT);
+        if (!texture)
+        {
+            std::cerr << "Texture could not be created: " << SDL_GetError() << std::endl;
+            SDL_DestroyRenderer(renderer);
+            SDL_DestroyWindow(window);
+            SDL_Quit();
+            displayThreadRunning.store(false);
+            return;
+        }
+
+        // Upload initial texture
+        SDL_UpdateTexture(texture, NULL, pixels.data(), WIDTH * sizeof(uint32_t));
+
+        while (displayThreadRunning.load())
+        {
+            auto start = clk::now();
+            // Poll SDL events on this thread
+            SDL_Event e;
             while (SDL_PollEvent(&e))
             {
                 if (e.type == SDL_QUIT)
                 {
-                    sdlEventThreadRunning.store(false);
+                    requestShutdown();
                 }
                 else if (e.type == SDL_KEYDOWN)
                 {
                     SDL_Keycode k = e.key.keysym.sym;
+                    SDL_Keymod mods = SDL_GetModState();
+                    if ((mods & KMOD_CTRL) && (k == SDLK_c))
+                    {
+                        requestShutdown();
+                    }
                     uint8_t ch = 0;
                     if (k >= 32 && k <= 126)
                     {
@@ -162,23 +183,51 @@ Display::Display()
                     }
                 }
             }
-            SDL_Delay(10);
+
+            bool needRender = false;
+            {
+                std::lock_guard<std::mutex> lock(fbMutex);
+                if (dirty.load())
+                {
+                    // Push full texture update
+                    SDL_UpdateTexture(texture, NULL, pixels.data(), WIDTH * sizeof(uint32_t));
+                    dirty.store(false);
+                    needRender = true;
+                }
+            }
+            if (needRender)
+            {
+                SDL_RenderClear(renderer);
+                SDL_Rect destRect = {0, 0, SCALED_WIDTH, SCALED_HEIGHT};
+                SDL_RenderCopy(renderer, texture, NULL, &destRect);
+                SDL_RenderPresent(renderer);
+            }
+
+            auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(clk::now() - start);
+            if (elapsed < period)
+            {
+                std::this_thread::sleep_for(period - elapsed);
+            }
         }
+
+        // Cleanup SDL objects on this thread
+        if (texture) SDL_DestroyTexture(texture);
+        if (renderer) SDL_DestroyRenderer(renderer);
+        if (window) SDL_DestroyWindow(window);
+        SDL_Quit();
     });
+
+    
 }
 
 // Update destructor to reset the static instance
 Display::~Display()
 {
     displayInstance = nullptr;
-    SDL_DestroyTexture(texture);
-    SDL_DestroyRenderer(renderer);
-    SDL_DestroyWindow(window);
-    // Stop SDL event thread and join
-    sdlEventThreadRunning.store(false);
-    if (sdlEventThread.joinable())
+    // Stop display thread and let it clean up SDL objects
+    displayThreadRunning.store(false);
+    if (displayThread.joinable())
     {
-        sdlEventThread.join();
+        displayThread.join();
     }
-    SDL_Quit();
 }

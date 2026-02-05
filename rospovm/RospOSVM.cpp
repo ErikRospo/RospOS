@@ -3,6 +3,7 @@
 #include "TTY.h"
 #include "InstructionDecoder.h"
 #include "Display.h"
+#include "Shutdown.h"
 
 #include <iostream>
 #include <iomanip>
@@ -387,7 +388,7 @@ void RospOSVM::sTypeInstruction(uint32_t instruction)
                 std::cerr << std::endl;
             }
         }
-        exit(0);
+        requestShutdown();
         break;
     default:
         std::cerr << "Unknown S-type sub-opcode: " << sub_op << std::endl;

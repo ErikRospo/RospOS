@@ -3,6 +3,10 @@
 
 #include <cstdint>
 #include <SDL2/SDL.h>
+#include <vector>
+#include <thread>
+#include <mutex>
+#include <atomic>
 
 class Display
 {
@@ -24,6 +28,16 @@ private:
     static const int SCALED_HEIGHT = HEIGHT * SCALE;
 
     uint8_t framebuffer[FB_SIZE];
+    // Pixel buffer used for SDL texture updates (ARGB8888)
+    std::vector<uint32_t> pixels;
+
+    // Synchronization for framebuffer/pixels access
+    std::mutex fbMutex;
+    std::atomic<bool> dirty;
+
+    // Display rendering thread (updates the SDL texture at 60Hz)
+    std::thread displayThread;
+    std::atomic<bool> displayThreadRunning;
 
     // Internal methods for MMIO logic
     uint8_t read(uint32_t address);

@@ -3,7 +3,7 @@
 CXX := g++
 CXXFLAGS := -std=c++17 -Wall -Wextra -O2
 LDFLAGS := -lSDL2
-SRC := main.cpp RospOSVM.cpp InstructionDecoder.cpp Register.cpp Memory.cpp TTY.cpp Binary.cpp Display.cpp
+SRC := main.cpp RospOSVM.cpp InstructionDecoder.cpp Register.cpp Memory.cpp TTY.cpp Binary.cpp Display.cpp Shutdown.cpp
 OBJ := $(SRC:.cpp=.o)
 TARGET := rospovm
 
