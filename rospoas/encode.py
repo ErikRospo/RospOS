@@ -81,6 +81,13 @@ def encode_ir(
                 v = int(data_value.value)
                 length = node.length or ((v.bit_length() // 8) + 1)
                 data_bytes = v.to_bytes(length, byteorder="little", signed=False)
+            elif isinstance(data_value, ImmLabel):
+                name = data_value.name
+                if name not in addresses:
+                    raise ValueError(f"Undefined label in data directive: {name}")
+                addr = int(addresses[name])
+                length = node.length or 4
+                data_bytes = addr.to_bytes(length, byteorder="little", signed=False)
             else:
                 v = int(data_value)
                 length = node.length or ((v.bit_length() // 8) + 1)

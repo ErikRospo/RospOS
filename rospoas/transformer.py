@@ -277,30 +277,57 @@ class RospoasTransformer(Transformer):
         if items:
             imm_t = items[0]
             imm_v = imm_t
-            og_v=imm_v["og"] if isinstance(imm_v,dict) and "og" in imm_v else imm_v
-            print("Found data directive with immediate:", og_v)
-            og_v=og_v.replace("_","") if isinstance(og_v,str) else og_v        
-            
+            # Handle label uses (e.g. {'type':'u','name':'LABEL'}) as 4-byte references
+            if isinstance(imm_v, dict) and imm_v.get("type") == "u":
+                return {
+                    "type": "d",
+                    "name": "data",
+                    "imm": {"name": imm_v.get("name")},
+                    "d": "data",
+                    "len": 4,
+                }
+
+            # Preserve bytes (string / rand) immediates
+            if isinstance(imm_v, (bytes, bytearray)):
+                return {
+                    "type": "d",
+                    "name": "data",
+                    "imm": imm_v,
+                    "d": "data",
+                    "len": len(imm_v),
+                }
+
+            og_v = imm_v["og"] if isinstance(imm_v, dict) and "og" in imm_v else imm_v
+            og_v = og_v.replace("_", "") if isinstance(og_v, str) else og_v
+
+            # Determine length heuristically for numeric string forms
             if isinstance(og_v, str):
-                if og_v.startswith("0x"):  # Hexadecimal
-                    length = (len(og_v) - 2) * 4  # Each hex digit represents 4 bits
-                elif og_v.startswith("0b"):  # Binary
-                    length = len(og_v) - 2  # Each binary digit represents 1 bit
-                else:  # Decimal
-                    length = (int(og_v).bit_length() + 7) // 8 * 8  # Round up to nearest byte
-                length//=8  # Convert bits to bytes
+                if og_v.startswith("0x"):
+                    length = (len(og_v) - 2) * 4
+                elif og_v.startswith("0b"):
+                    length = len(og_v) - 2
+                else:
+                    try:
+                        length = (int(og_v).bit_length() + 7) // 8 * 8
+                    except Exception:
+                        length = 32
+                length //= 8
             else:
-                length = 4  # Default to 4 bytes if no specific format is detected
-            
+                length = 4
+
+            # Unwrap lifted-constant dicts produced by the parser
+            if isinstance(imm_v, dict) and imm_v.get("type") == "li":
+                imm_v = imm_v.get("value")
+
             try:
                 imm_v = int(imm_v)
-            except:
+            except Exception:
                 pass
-            if isinstance(imm_v, dict) and imm_v.get("type") == "li":
-                imm_v = imm_v["value"]
+
             assert isinstance(
                 imm_v, int
-            ), "Data directive requires an integer immediate value"
+            ), "Data directive requires an integer immediate value or a label/bytes"
+
             return {
                 "type": "d",
                 "name": "data",
