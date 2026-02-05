@@ -6,16 +6,18 @@ CALL PRINT_STRING
 LLI r1, PROMPT
 CALL PRINT_STRING
 
-LLI r3, 0x0A // \n
-LLI r6, 0x7E // "~" character, to clear screen.
 LLI r4, 0 // X coordinate
 LLI r5, 0 // Y coordinate
 MAIN_LOOP:
 LLI r1, TTY_BUFFER
 CALL READ_CHAR
 //READ_CHAR puts the character in r1
+LLI r3, 0x0A // Newline character
 BEQ r1, r3, NEWLINE_LABEL
-BEQ r1, r6, CLEAR_DISPLAY_LABEL
+LLI r3, 0x7E // "~" character, to clear screen
+BEQ r1, r3, CLEAR_DISPLAY_LABEL
+LLI r3, 0x08 // Backspace character
+BEQ r1, r3, BACKSPACE_LABEL
 // If lowercase, convert to uppercase if alphabetic
 PUSH r2
 PUSH r3
@@ -52,6 +54,14 @@ LLI r4, 0 // X coordinate
 LLI r5, 0 // Y coordinate
 CALL CLEAR_DISPLAY
 JMP MAIN_LOOP
+BACKSPACE_LABEL:
+// Handle backspace: move cursor back and clear character
+ADDI r4, r4, -8
+ADDI r2, r4, 0
+ADDI r3, r5, 0
+CALL CLEAR_CHAR_ON_DISPLAY
+JMP MAIN_LOOP
+
 BREAK_LABEL:
 BREAK
 
@@ -174,6 +184,40 @@ POP r5
 POP r4
 RET
 
+.FUNC CLEAR_CHAR_ON_DISPLAY:
+// Function to clear character at (r2, r3) by drawing black pixels
+// r2: X coordinate (pixels)
+// r3: Y coordinate (pixels)
+PUSH r4
+PUSH r5
+LLI r4, 0x2000_0000 // fb base
+LLI r5, 0 // row
+CLEAR_CHAR_ROW_LOOP:
+LLI r12, 8
+BGE r5, r12, END_CLEAR_CHAR_LOOP
+LLI r6, 0 // col
+CLEAR_CHAR_COL_LOOP:
+LLI r12, 8
+BGE r6, r12, END_CLEAR_CHAR_COL_LOOP
+// x = r2 + r6, y = r3 + r5
+ADD r9, r2, r6 // x
+ADD r10, r3, r5 // y
+// pixel_index = y * 256 + x
+MULI r11, r10, 256
+ADD r11, r11, r9
+// address = fb_base + pixel_index (1 byte per pixel)
+ADD r12, r4, r11
+// Store black pixel (0x00)
+SB r0, r12, 0
+ADDI r6, r6, 1
+JMP CLEAR_CHAR_COL_LOOP
+END_CLEAR_CHAR_COL_LOOP:
+ADDI r5, r5, 1
+JMP CLEAR_CHAR_ROW_LOOP
+END_CLEAR_CHAR_LOOP:
+POP r5
+POP r4
+RET
 
 .FUNC DRAW_STRING_TO_DISPLAY:
 // Function to draw string pointed to by r1 to display at (r2, r3)

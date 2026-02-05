@@ -6,16 +6,18 @@ CALL PRINT_STRING
 LLI r1, PROMPT
 CALL PRINT_STRING
 
-LLI r3, 0x0A // \n
-LLI r6, 0x7E // "~" character, to clear screen.
 LLI r4, 0 // X coordinate
 LLI r5, 0 // Y coordinate
 MAIN_LOOP:
     LLI r1, TTY_BUFFER
     CALL READ_CHAR
     //READ_CHAR puts the character in r1
+    LLI r3, 0x0A // Newline character
     BEQ r1, r3, NEWLINE_LABEL
-    BEQ r1, r6, CLEAR_DISPLAY_LABEL
+    LLI r3, 0x7E // "~" character, to clear screen
+    BEQ r1, r3, CLEAR_DISPLAY_LABEL
+    LLI r3, 0x08 // Backspace character
+    BEQ r1, r3, BACKSPACE_LABEL
     // If lowercase, convert to uppercase if alphabetic
     PUSH r2
     PUSH r3
@@ -52,6 +54,14 @@ CLEAR_DISPLAY_LABEL:
     LLI r5, 0 // Y coordinate
     CALL CLEAR_DISPLAY
     JMP MAIN_LOOP
+BACKSPACE_LABEL:
+    // Handle backspace: move cursor back and clear character
+    ADDI r4, r4, -8
+    ADDI r2, r4, 0
+    ADDI r3, r5, 0
+    CALL CLEAR_CHAR_ON_DISPLAY
+    JMP MAIN_LOOP
+
 BREAK_LABEL:
     BREAK
 
