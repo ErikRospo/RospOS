@@ -155,6 +155,13 @@ Display::Display()
                 {
                     requestShutdown();
                 }
+                else if (e.type == SDL_WINDOWEVENT)
+                {
+                    if (e.window.event == SDL_WINDOWEVENT_CLOSE)
+                    {
+                        requestShutdown();
+                    }
+                }
                 else if (e.type == SDL_KEYDOWN)
                 {
                     SDL_Keycode k = e.key.keysym.sym;

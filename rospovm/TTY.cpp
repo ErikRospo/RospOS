@@ -68,7 +68,17 @@ uint8_t TTYReadHandler(uint32_t address)
     (void)address; // Mark the parameter as unused to silence warnings
 
     std::unique_lock<std::mutex> lock(bufferMutex);
-    bufferCondition.wait(lock, [] { return !inputBuffer.empty(); });
+    // Wait with timeout so we can periodically check for shutdown.
+    while (inputBuffer.empty() && !shouldShutdown())
+    {
+        bufferCondition.wait_for(lock, std::chrono::milliseconds(50));
+    }
+
+    if (inputBuffer.empty())
+    {
+        // Shutdown requested (or spurious wake) and no data available.
+        return 0;
+    }
 
     uint8_t value = inputBuffer.front();
     inputBuffer.pop();
