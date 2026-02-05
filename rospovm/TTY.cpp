@@ -31,7 +31,6 @@ uint8_t TTYReadHandler(uint32_t address)
 void TTYWriteHandler(uint32_t address, uint8_t value)
 {
     (void)address; // Mark the parameter as unused to silence warnings
-    (void)value; // Same here
     // Write to TTY (console output)
     std::cout << static_cast<char>(value);
     std::cout.flush();

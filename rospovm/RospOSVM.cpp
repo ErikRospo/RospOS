@@ -8,14 +8,12 @@
 #include <iomanip>
 #include <stdexcept>
 
-
-
 RospOSVM::RospOSVM(bool debugMode) : memory(1ULL << 32) // Initialize 4GB memory
 {
     this->debugMode = debugMode;
     pc = memory.readWord(0xFFFFFFFC); // Set PC to reset vector
-    regFile.sp().set(0x0FFFFFFF); // Top of RAM
-    regFile[0].setReadOnly(true);   // R0 is always zero
+    regFile.sp().set(0x0FFFFFFF);     // Top of RAM
+    regFile[0].setReadOnly(true);     // R0 is always zero
 
     // Create Display instance before registering MMIO handlers
     static Display display;
@@ -39,17 +37,18 @@ void RospOSVM::step()
     if (debugMode)
     {
         std::cerr << "PC: " << std::hex << pc << std::dec << " ";
-        std::cerr << "I: " << decodeInstruction(instruction, regFile) << std::endl;
-        std::cerr << "RI: " << std::hex << std::setw(8) << std::setfill('0') << instruction << std::dec << std::endl;
+        std::cerr << "I: " << decodeInstruction(instruction, regFile) << "\n";
+        std::cerr << "RI: " << std::hex << std::setw(8) << std::setfill('0') << instruction << std::dec << "\n";
         std::cerr << "Registers: " << getRegisterState() << std::endl;
     }
     executeInstruction(instruction);
     if (debugMode)
     {
-        std::cerr << "After Execution:" << std::endl;
-        std::cerr << "PC: " << std::hex << pc << std::dec << std::endl;
-        std::cerr << "Registers: " << getRegisterState() << std::endl;
-        std::cerr << "----------------------------------------" << std::endl;
+        std::cerr << "After Execution:\n";
+        std::cerr << "PC: " << std::hex << pc << std::dec << "\n";
+        std::cerr << "Registers: " << getRegisterState() << "\n";
+        std::cerr << "----------------------------------------\n"
+                  << std::endl;
     }
 }
 
@@ -79,7 +78,7 @@ void RospOSVM::executeInstruction(uint32_t instruction)
         iTypeLSInstruction(instruction);
         break;
     case 0x3: // Branch (B-type)
-        pcModified=bTypeInstruction(instruction);
+        pcModified = bTypeInstruction(instruction);
         break;
     case 0x4: // Jump (J-type)
         jTypeInstruction(instruction);
@@ -95,7 +94,8 @@ void RospOSVM::executeInstruction(uint32_t instruction)
         std::cerr << "Unknown opcode: " << opcode << std::endl;
         break;
     }
-    if (!pcModified){
+    if (!pcModified)
+    {
         pc += 4; // Move to next instruction
     }
 }

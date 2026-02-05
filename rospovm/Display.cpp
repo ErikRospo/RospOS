@@ -56,28 +56,28 @@ void Display::write(uint32_t address, uint8_t value)
     {
         throw std::runtime_error("DisplayWriteHandler: Address out of range");
     }
+    if (framebuffer[offset] == value) return; // No change, skip update
     framebuffer[offset] = value;
 
-    // Update the SDL texture with the new framebuffer data
-    std::vector<uint32_t> pixels(WIDTH * HEIGHT);
-    for (int i = 0; i < WIDTH * HEIGHT; ++i)
-    {
-        uint8_t v = framebuffer[i];
-        uint8_t r2 = (v >> 4) & 0x03;
-        uint8_t g2 = (v >> 2) & 0x03;
-        uint8_t b2 = v & 0x03;
-        uint8_t r = r2 * 85; // expand 2-bit to 0-255
-        uint8_t g = g2 * 85;
-        uint8_t b = b2 * 85;
-        pixels[i] = (0xFFu << 24) | (static_cast<uint32_t>(r) << 16) | (static_cast<uint32_t>(g) << 8) | static_cast<uint32_t>(b);
-    }
+    // Static pixel buffer for performance
+    static std::vector<uint32_t> pixels(WIDTH * HEIGHT, 0);
+    // Only update the changed pixel
+    uint8_t v = value;
+    uint8_t r2 = (v >> 4) & 0x03;
+    uint8_t g2 = (v >> 2) & 0x03;
+    uint8_t b2 = v & 0x03;
+    uint8_t r = r2 * 85;
+    uint8_t g = g2 * 85;
+    uint8_t b = b2 * 85;
+    pixels[offset] = (0xFFu << 24) | (static_cast<uint32_t>(r) << 16) | (static_cast<uint32_t>(g) << 8) | static_cast<uint32_t>(b);
 
-    SDL_UpdateTexture(texture, NULL, pixels.data(), WIDTH * sizeof(uint32_t));
+    // Update only the changed pixel in the texture
+    SDL_Rect rect = { static_cast<int>(offset % WIDTH), static_cast<int>(offset / WIDTH), 1, 1 };
+    SDL_UpdateTexture(texture, &rect, &pixels[offset], WIDTH * sizeof(uint32_t));
+
     SDL_RenderClear(renderer);
-
     SDL_Rect destRect = {0, 0, SCALED_WIDTH, SCALED_HEIGHT};
     SDL_RenderCopy(renderer, texture, NULL, &destRect);
-
     SDL_RenderPresent(renderer);
 }
 
@@ -115,6 +115,10 @@ Display::Display()
 
     // Initialize framebuffer to black
     std::fill(std::begin(framebuffer), std::end(framebuffer), 0x00);
+    // Initialize pixel buffer to black
+    static std::vector<uint32_t> pixels(WIDTH * HEIGHT, 0);
+    std::fill(pixels.begin(), pixels.end(), 0xFF000000); // ARGB black
+    SDL_UpdateTexture(texture, NULL, pixels.data(), WIDTH * sizeof(uint32_t));
 }
 
 // Update destructor to reset the static instance
@@ -126,5 +130,3 @@ Display::~Display()
     SDL_DestroyWindow(window);
     SDL_Quit();
 }
-
-
