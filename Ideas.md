@@ -13,3 +13,6 @@ Evaluate simple constant expressions at compile time, esp for LLI. (e.g. 256-8 s
 Branches that have a register and a constant should be pseudo-op'd to be a LLI, then a branch. 
 
 Optimization?
+
+
+VSCode extension for rospoas? Syntax highlighting, error checking, etc. 

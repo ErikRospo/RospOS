@@ -69,4 +69,7 @@ TTY_BUFFER:
     .SPACE 256 // Buffer for TTY input
     
 .INC "./binary_register.ros" // Include the binary register, which also includes the BC binary. This allows us to load and run the BC binary from the shell.
+
+.SEG 0x0010_0000 
+// Put the font bitmap a good bit after the main program and the binary so that it's aligned well
 .INC "./font_bitmap.ros"

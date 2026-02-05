@@ -234,8 +234,8 @@ TTY_BUFFER:
 REGISTRY:
 .DATA BC_NAME // BC\0\0 - Name of binary, padded to a word
 .DATA BC      // Pointer to loader function for BC binary
-.DATA 0
-.DATA 0 // End of registry marker (name ptr = 0, loader ptr = 0)
+.SPACE 4 // "Pointer" to next entry set, but 0 because this is the end
+.SPACE 4
 .FUNC LOAD_BINARY:
 // r1: pointer to null-terminated string with binary name
 // Returns: r1 = 0xFF if not found, otherwise return value depends on binary (e.g., it could return the binary's output in r1, or it could just run the binary and return when it's done)
@@ -253,10 +253,14 @@ JMP LOAD_BINARY_LOOP
 LOAD_BINARY_FOUND:
 ADDI r2, r2, 4 // Move to loader function pointer
 LW r1, r2, 0 // Load loader function pointer into r1
-CALL r1 // Call loader function, which should run the binary
+
+//For now, this is easier to hand-write than to encode in the assembler
+//As it doesn't really support the j-type instructions with 2-register operands.
+.DATA 0b0100_0001_1110_0001_0000_0000_0000_0000 // Encoding for JALR r14, r1, 0
 // After binary finishes, we return here. It's up to the binary to decide what to do after it finishes (e.g., return to shell, halt, etc.)
-//If it does return, we'll assume that it either wrote its output to TTY, the display, memory, or in r1
-//And then we just return to the caller of LOAD_BINARY, which is likely the shell
+// If it does return, we'll assume that it either wrote its output to TTY, the display, memory, or in r1
+// And then we just return to the caller of LOAD_BINARY, which is likely the shell
+
 JMP LOAD_BINARY_CLEANUP
 LOAD_BINARY_NOT_FOUND:
 LLI r1, 0xFF // Return 0xFF for not found
@@ -318,6 +322,9 @@ RET
 BC_BUFFER:
 .SPACE 32 // Buffer for input expression
 
+
+.SEG 0x0010_0000
+// Put the font bitmap a good bit after the main program and the binary so that it's aligned well
 // Framebuffer Font Data
 // Generated from azmr's 5x6 font (https://github.com/azmr/blit-fonts)
 // Using custom script to convert to RospOS framebuffer format and assembly data
