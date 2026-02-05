@@ -1,0 +1,46 @@
+.FUNC PRINT_STRING:
+    // Function to print a character string pointed to by r1
+    PUSH r2
+    PUSH r3
+    LLI r2, 0x1000_0000 // TTY address
+PRINT_CHAR_LOOP:
+    LB r3, r1, 0
+    BEQ r3, r0, END_PRINT_CHAR_LOOP //error occurs around here
+    SB r3, r2, 0
+    ADDI r1, r1, 1
+    JMP PRINT_CHAR_LOOP
+END_PRINT_CHAR_LOOP:
+    POP r3
+    POP r2
+    RET
+
+.FUNC READ_CHAR:
+    // Function to read a character from TTY into r1
+    PUSH r2
+    LLI r2, 0x1000_0000 // TTY address
+    LB r1, r2, 0
+    POP r2
+    RET
+
+
+.FUNC READ_LINE:
+    // Function to read a line of input into the buffer pointed to by r1
+    // r1 will point to the start of the buffer
+    PUSH r1
+    PUSH r2
+    PUSH r3
+
+READ_LINE_LOOP:
+    CALL READ_CHAR
+    ADDI r3, r0, 0x0A // Newline character
+    BEQ r1, r3, END_READ_LINE_LOOP // End on newline
+    SB r1, r2, 0
+    ADDI r2, r2, 1
+    JMP READ_LINE_LOOP
+
+END_READ_LINE_LOOP:
+    SB r0, r2, 0 // Null-terminate the string
+    POP r3
+    POP r2
+    POP r1 // Restore original r1 (will point to the start of the buffer)
+    RET
