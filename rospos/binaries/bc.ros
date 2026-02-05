@@ -1,0 +1,51 @@
+BC_INTRO_1:
+    .STR "BC: BASIC CALCULATOR\n"
+BC_INTRO_2:
+    .STR "Enter an expression (e.g., 2+3) or 'q' to quit:\n"
+BC_PROMPT:
+    .STR "BC> "
+BC_NAME:
+    .STR "BC\0\0" // Name of this binary, used for registration
+    
+.FUNC BC:
+    LLI r1, BC_INTRO_1
+    CALL PRINT_STRING
+    LLI r1, BC_INTRO_2
+    CALL PRINT_STRING
+    LLI r1, BC_PROMPT
+    CALL PRINT_STRING
+    LLI r4, 0 // X coordinate for display
+    LLI r5, 0 // Y coordinate for display
+    LLI r3, BC_BUFFER // Buffer for input expression
+BC_MAIN_LOOP:
+    LLI r1, TTY_BUFFER
+    CALL READ_CHAR
+    // Check for 'q' to quit
+    LLI r2, 0x71 // 'q'
+    BEQ r1, r2, BC_EXIT_LABEL
+    LLI r2, 0x0A // Newline character
+    BEQ r1, r2, BC_NEWLINE_LABEL
+    
+    // Echo character back to TTY
+    LLI r2, 0x1000_0000 // TTY address
+    SB r1, r2, 0
+    PUSH r1
+    CALL DRAW_CHAR_TO_DISPLAY
+    POP r1
+    ADDI r4, r4, 8 // Move X coordinate for next character
+    SB r1, r3, 0 // Store character in buffer
+    ADDI r3, r3, 1 // Move buffer pointer
+    JMP BC_MAIN_LOOP
+BC_NEWLINE_LABEL:
+    LLI r3, BC_BUFFER // Reset buffer pointer to start
+    ADDI r5, r5, 8 // Move Y coordinate down for newline
+    LLI r4, 0 // Reset X coordinate to 0    
+    JMP BC_MAIN_LOOP // For now, just loop back to read next expression (no actual calculation yet)
+
+BC_EXIT_LABEL:
+    RET
+    
+
+BC_BUFFER:
+    .SPACE 32 // Buffer for input expression
+    

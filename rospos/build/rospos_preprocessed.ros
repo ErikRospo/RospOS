@@ -222,6 +222,102 @@ PROMPT:
 TTY_BUFFER:
 .SPACE 256 // Buffer for TTY input
 
+//IDEA: Includes for files in binary/*
+//binary_register.ros registered binaries declared in binary/*
+//Then, has a function to, given a string buffer, check if it matches any registered binary
+//If it does, call the corresponding loader function to load it into memory
+//And run it
+//This allows for easy inclusion of binary files into the VM
+//Binaries are registered as a mapping from name to loader function
+//Array of pairs of (name ptr, loader function ptr) stored in a special reserved block.
+
+REGISTRY:
+.DATA BC_NAME // BC\0\0 - Name of binary, padded to a word
+.DATA BC      // Pointer to loader function for BC binary
+.DATA 0
+.DATA 0 // End of registry marker (name ptr = 0, loader ptr = 0)
+.FUNC LOAD_BINARY:
+// r1: pointer to null-terminated string with binary name
+// Returns: r1 = 0xFF if not found, otherwise return value depends on binary (e.g., it could return the binary's output in r1, or it could just run the binary and return when it's done)
+PUSH r2
+PUSH r3
+PUSH r4
+LW r4, r1, 0 // Load input name pointer
+LLI r2, REGISTRY
+LOAD_BINARY_LOOP:
+LW r3, r2, 0 // Load name pointer
+BEQ r3, r0, LOAD_BINARY_NOT_FOUND // End of registry reached without match
+BEQ r3, r4, LOAD_BINARY_FOUND // Name matches
+ADDI r2, r2, 8 // Move to next registry entry (name ptr + loader ptr)
+JMP LOAD_BINARY_LOOP
+LOAD_BINARY_FOUND:
+ADDI r2, r2, 4 // Move to loader function pointer
+LW r1, r2, 0 // Load loader function pointer into r1
+CALL r1 // Call loader function, which should run the binary
+// After binary finishes, we return here. It's up to the binary to decide what to do after it finishes (e.g., return to shell, halt, etc.)
+//If it does return, we'll assume that it either wrote its output to TTY, the display, memory, or in r1
+//And then we just return to the caller of LOAD_BINARY, which is likely the shell
+JMP LOAD_BINARY_CLEANUP
+LOAD_BINARY_NOT_FOUND:
+LLI r1, 0xFF // Return 0xFF for not found
+LOAD_BINARY_CLEANUP:
+POP r4
+POP r3
+POP r2
+RET
+
+
+BC_INTRO_1:
+.STR "BC: BASIC CALCULATOR\n"
+BC_INTRO_2:
+.STR "Enter an expression (e.g., 2+3) or 'q' to quit:\n"
+BC_PROMPT:
+.STR "BC> "
+BC_NAME:
+.STR "BC\0\0" // Name of this binary, used for registration
+
+.FUNC BC:
+LLI r1, BC_INTRO_1
+CALL PRINT_STRING
+LLI r1, BC_INTRO_2
+CALL PRINT_STRING
+LLI r1, BC_PROMPT
+CALL PRINT_STRING
+LLI r4, 0 // X coordinate for display
+LLI r5, 0 // Y coordinate for display
+LLI r3, BC_BUFFER // Buffer for input expression
+BC_MAIN_LOOP:
+LLI r1, TTY_BUFFER
+CALL READ_CHAR
+// Check for 'q' to quit
+LLI r2, 0x71 // 'q'
+BEQ r1, r2, BC_EXIT_LABEL
+LLI r2, 0x0A // Newline character
+BEQ r1, r2, BC_NEWLINE_LABEL
+
+// Echo character back to TTY
+LLI r2, 0x1000_0000 // TTY address
+SB r1, r2, 0
+PUSH r1
+CALL DRAW_CHAR_TO_DISPLAY
+POP r1
+ADDI r4, r4, 8 // Move X coordinate for next character
+SB r1, r3, 0 // Store character in buffer
+ADDI r3, r3, 1 // Move buffer pointer
+JMP BC_MAIN_LOOP
+BC_NEWLINE_LABEL:
+LLI r3, BC_BUFFER // Reset buffer pointer to start
+ADDI r5, r5, 8 // Move Y coordinate down for newline
+LLI r4, 0 // Reset X coordinate to 0
+JMP BC_MAIN_LOOP // For now, just loop back to read next expression (no actual calculation yet)
+
+BC_EXIT_LABEL:
+RET
+
+
+BC_BUFFER:
+.SPACE 32 // Buffer for input expression
+
 // Framebuffer Font Data
 // Generated from azmr's 5x6 font (https://github.com/azmr/blit-fonts)
 // Using custom script to convert to RospOS framebuffer format and assembly data

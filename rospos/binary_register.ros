@@ -6,3 +6,41 @@
 //This allows for easy inclusion of binary files into the VM
 //Binaries are registered as a mapping from name to loader function
 //Array of pairs of (name ptr, loader function ptr) stored in a special reserved block.
+
+REGISTRY:
+    .DATA BC_NAME // BC\0\0 - Name of binary, padded to a word
+    .DATA BC      // Pointer to loader function for BC binary
+    .DATA 0
+    .DATA 0 // End of registry marker (name ptr = 0, loader ptr = 0)
+.FUNC LOAD_BINARY:
+    // r1: pointer to null-terminated string with binary name
+    // Returns: r1 = 0xFF if not found, otherwise return value depends on binary (e.g., it could return the binary's output in r1, or it could just run the binary and return when it's done)
+    PUSH r2
+    PUSH r3
+    PUSH r4
+    LW r4, r1, 0 // Load input name pointer
+    LLI r2, REGISTRY
+LOAD_BINARY_LOOP:
+    LW r3, r2, 0 // Load name pointer
+    BEQ r3, r0, LOAD_BINARY_NOT_FOUND // End of registry reached without match
+    BEQ r3, r4, LOAD_BINARY_FOUND // Name matches
+    ADDI r2, r2, 8 // Move to next registry entry (name ptr + loader ptr)
+    JMP LOAD_BINARY_LOOP
+LOAD_BINARY_FOUND:
+    ADDI r2, r2, 4 // Move to loader function pointer
+    LW r1, r2, 0 // Load loader function pointer into r1
+    CALL r1 // Call loader function, which should run the binary
+    // After binary finishes, we return here. It's up to the binary to decide what to do after it finishes (e.g., return to shell, halt, etc.)
+    //If it does return, we'll assume that it either wrote its output to TTY, the display, memory, or in r1
+    //And then we just return to the caller of LOAD_BINARY, which is likely the shell
+    JMP LOAD_BINARY_CLEANUP
+LOAD_BINARY_NOT_FOUND:
+    LLI r1, 0xFF // Return 0xFF for not found
+LOAD_BINARY_CLEANUP:
+    POP r4
+    POP r3
+    POP r2
+    RET
+    
+    
+.INC "./binaries/bc.ros" //Include the BC binary, which this registered in the registry above. This is relative to the current file, so it will look for rospos/binaries/bc.ros
