@@ -1,11 +1,35 @@
 .FUNC SCREEN_TEST:
-    
     PUSH r1
     PUSH r2
     PUSH r3
-    PUSH r4
+    PUSH r5
+    PUSH r6
     
     LLI r1, 0x2000_0000 // Framebuffer base
-    LLI r2, 0
-SCREEN_TEST_CLEAR_LOOP:
-    LLI r4, 256 * 256
+    LLI r3, 0x0001_0000 // Loop counter (64K pixels)
+    LLI r2, 0xBEEF     // Initial LFSR seed
+    
+SCREEN_TEST_LOOP:
+    BEQ r3, r0, SCREEN_TEST_END
+    
+    SB r2, r1, 0       // Write pattern to framebuffer
+    ADDI r1, r1, 1     // Move to next pixel
+    
+    // Update LFSR for next pattern value
+    ADDI r5, r2, 0     // Copy current value to r5
+
+    SHRI r2, r2, 1      // Shift right by 1
+    BEQ r6, r0, NO_TAP
+    XORI r2, r2, 0xB400 // Apply taps if LSB was 1
+    
+NO_TAP:
+    SUBI r3, r3, 1     // Decrement counter
+    JMP SCREEN_TEST_LOOP
+    
+SCREEN_TEST_END:
+    POP r6
+    POP r5
+    POP r3
+    POP r2
+    POP r1
+    RET
