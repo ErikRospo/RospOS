@@ -1,3 +1,4 @@
+from copy import copy
 from lark import Lark, Transformer, v_args
 from preprocess import preprocess
 with open('./rosc.lark', 'r') as f:
@@ -6,15 +7,19 @@ with open('./rosc.lark', 'r') as f:
 class ASTTransformer(Transformer):
     pass
 
-def parse_code(code):
-    parser = Lark(grammar, parser='lalr', transformer=ASTTransformer(), debug=True)
-    return parser.parse(code)
-
 with open('./first_test.rosc', 'r') as f:
     code = f.read()
 code = preprocess(code)
+preprocessed = copy(code)
 with open("./out/preprocessed_code.rosc", 'w') as f:
     f.write(code)
+def error(msg):
+    print(f"{type(msg).__name__}: {msg}")
+    print(msg.get_context(preprocessed, 40))
+    exit(1)
+def parse_code(code):
+    parser = Lark(grammar, parser='lalr', transformer=ASTTransformer(), debug=True)
+    return parser.parse(code, on_error=error)
 ast = parse_code(code)
 with open("./out/ast.txt", 'w') as f:
     f.write(ast.pretty())

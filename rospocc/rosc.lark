@@ -3,7 +3,7 @@ basetype: "int" -> int
        | "void" -> void 
        | "bool" -> bool 
        | /[A-Z][a-zA-Z0-9_]*/ -> customtype
-       
+       | "struct" name -> structtype
 ptrtype: type "*" -> ptr
 refrence: type "&" -> ref
 
@@ -15,6 +15,8 @@ type: basetype
 function: type name "(" [type name ("," type name)*] ")" "{" statement* "}" -> functiondef
 
 name: /[a-zA-Z_][a-zA-Z0-9_]*/
+    | name "." name -> membername
+    | name "->" name -> ptrmembername
 expression: expression "+" expression -> add
           | expression "-" expression -> sub
           | expression "*" expression -> mul
@@ -48,7 +50,6 @@ expression: expression "+" expression -> add
           | name "[" expression "]" "=" expression -> arrayassignexpr
           | "*" name "=" expression -> derefassignexpr
           | "&" name "=" expression -> addressassignexpr
-          | name "." name -> memberaccess
           | "nullptr" -> nullptr
           | "true" -> true
           | "false" -> false
@@ -60,7 +61,7 @@ number: HEXIMM | DECIMM | BINIMM
 statement: "return" expression? ";" -> return
          | type name "=" expression ";" -> decl
          | type name ";" -> declnodef
-         | type name "[" number "];" -> declarray
+         | type name "[" number "]" ";" -> declarray
          | name "=" expression ";" -> assign
          | name "[" expression "]=" expression ";" -> arrayassign
          | "*" name "=" expression ";" -> derefassign
@@ -72,7 +73,7 @@ statement: "return" expression? ";" -> return
          | expression ";" // expression statement (e.g. i++;), or function call (e.g. printi(result) without assignment)
 
 
-structdef: "struct" name "{" structfield* "}" -> structdef
+structdef: "typedef" "struct" name "{" structfield* "}" name ";" -> structdef
 structfield: type name ";" -> structfield
             | type name "[" number "]" ";" -> structarrayfield
 

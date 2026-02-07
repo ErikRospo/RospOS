@@ -25,7 +25,7 @@ void printi(int num){
     // Reverse the string
     for (int j = 0; j < i / 2; j++) {
         char temp = buffer[j];
-        buffer[j] = buffer[i - j - 1]
+        buffer[j] = buffer[i - j - 1];
         buffer[i - j - 1] = temp;
     }
     print_string(buffer);
@@ -40,12 +40,12 @@ char read_char(){
 // Heap starts at 0x0100_0000 and grows upwards, stack starts at 0x0FFF_FFFF and grows downwards
 int heap_top = 0x01000000;
 int heap_info_size = 0x1000; // 4KB for heap management info
-struct HeapInfo {
+typedef struct HeapInfo {
     int size;
     int addr;
     bool free;
-    HeapInfo* next;
-};
+    struct HeapInfo* next;
+} HeapInfo;
 
 // Simple linked list for heap management
 HeapInfo* heap_info_head = nullptr;
@@ -71,7 +71,7 @@ void* malloc(int size) {
         return nullptr; // Out of memory
     }
 
-    HeapInfo* new_block = (HeapInfo*)(heap_top);
+    HeapInfo* new_block = (HeapInfo*)heap_top;
     new_block->size = size;
     new_block->addr = heap_top + heap_info_size;
     new_block->free = false;

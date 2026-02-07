@@ -1,13 +1,13 @@
 // Need: Malloc, free as absolute minimum for dynamic memory management
 // Heap starts at 0x0100_0000 and grows upwards, stack starts at 0x0FFF_FFFF and grows downwards
 int heap_top = 0x01000000;
-int heap_info_size = 0x1000; // 4KB for heap management info
-struct HeapInfo {
+int heap_info_size = 0x100; // 256 bytes for heap management info
+typedef struct HeapInfo {
     int size;
     int addr;
     bool free;
-    HeapInfo* next;
-};
+    struct HeapInfo* next;
+} HeapInfo;
 
 // Simple linked list for heap management
 HeapInfo* heap_info_head = nullptr;
@@ -33,7 +33,7 @@ void* malloc(int size) {
         return nullptr; // Out of memory
     }
 
-    HeapInfo* new_block = (HeapInfo*)(heap_top);
+    HeapInfo* new_block = (HeapInfo*)heap_top;
     new_block->size = size;
     new_block->addr = heap_top + heap_info_size;
     new_block->free = false;
