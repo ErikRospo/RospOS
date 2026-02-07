@@ -1,0 +1,77 @@
+// Need: Malloc, free as absolute minimum for dynamic memory management
+// Heap starts at 0x0100_0000 and grows upwards, stack starts at 0x0FFF_FFFF and grows downwards
+int heap_top = 0x01000000;
+int heap_info_size = 0x1000; // 4KB for heap management info
+struct HeapInfo {
+    int size;
+    int addr;
+    bool free;
+    HeapInfo* next;
+};
+
+// Simple linked list for heap management
+HeapInfo* heap_info_head = nullptr;
+
+void* malloc(int size) {
+    if (size <= 0) return nullptr;
+
+    // First fit strategy
+    HeapInfo* current = heap_info_head;
+    HeapInfo* prev = nullptr;
+
+    while (current) {
+        if (current->free && current->size >= size) {
+            current->free = false;
+            return (void*)(current->addr);
+        }
+        prev = current;
+        current = current->next;
+    }
+
+    // No suitable block found, create a new one
+    if (heap_top + size > 0x0FFF0000) { // Check for stack collision
+        return nullptr; // Out of memory
+    }
+
+    HeapInfo* new_block = (HeapInfo*)(heap_top);
+    new_block->size = size;
+    new_block->addr = heap_top + heap_info_size;
+    new_block->free = false;
+    new_block->next = nullptr;
+
+    if (prev) {
+        prev->next = new_block;
+    } else {
+        heap_info_head = new_block;
+    }
+
+    heap_top += heap_info_size + size; // Move heap top
+
+    return (void*)(new_block->addr);
+}
+
+void free(void* ptr) {
+    if (!ptr) return;
+
+    HeapInfo* current = heap_info_head;
+    while (current) {
+        if (current->addr == (int)ptr) {
+            current->free = true;
+            return;
+        }
+        current = current->next;
+    }
+}
+void _dump_heap_info() {
+    HeapInfo* current = heap_info_head;
+    while (current) {
+        print_string("Block at ");
+        printi(current->addr);
+        print_string(" - Size: ");
+        printi(current->size);
+        print_string(" - Free: ");
+        printi(current->free);
+        print_string("\n");
+        current = current->next;
+    }
+}
