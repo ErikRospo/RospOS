@@ -35,14 +35,15 @@ with open(args.input, "r") as f:
     source_code = f.read()
 
 
-preprocessed_code = "\n".join(preprocess_includes(source_code, args.input))
+pre_lines, origin_map = preprocess_includes(source_code, args.input)
+preprocessed_code = "\n".join(pre_lines)
 preprocessed_filename = args.output.rsplit(".", 1)[0] + "_preprocessed.ros"
 with open(preprocessed_filename, "w") as f:
     f.write(preprocessed_code)
 # Parse and transform the preprocessed source code
 parse_tree = parse_source(preprocessed_code)
 # Produce typed IR (from legacy AST) and lifted constants
-ir_list, lifted_constants = transform_parse_tree_ir(parse_tree)
+ir_list, lifted_constants = transform_parse_tree_ir(parse_tree, origin_map=origin_map)
 
 # Lower pseudo-instructions and lifted constants into concrete IR
 ir_list = lower_ir(ir_list)
@@ -124,7 +125,9 @@ with open(mapping_filename, "w") as mf:
 
         if isinstance(node, LabelDecl):
             addr = addresses.get(node.name, cur_seg + cur_cursor)
-            mf.write(f"LABEL {node.name} -> {hex(addr)}\n")
+            src = getattr(node, "src", None)
+            src_str = f"{src.get('file')}:{src.get('line')}" if isinstance(src, dict) and src.get("file") else "<unknown>"
+            mf.write(f"LABEL {node.name} -> {hex(addr)} src={src_str}\n")
             try:
                 cur_cursor = addr - cur_seg
             except Exception:
@@ -141,7 +144,9 @@ with open(mapping_filename, "w") as mf:
                 else:
                     size = 4
             size = max(4, size)
-            mf.write(f"DATA @ {hex(cur_seg + cur_cursor)} size {size}: {node.imm}\n")
+            src = getattr(node, "src", None)
+            src_str = f"{src.get('file')}:{src.get('line')}" if isinstance(src, dict) and src.get("file") else "<unknown>"
+            mf.write(f"DATA @ {hex(cur_seg + cur_cursor)} size {size}: {node.imm} src={src_str}\n")
             cur_cursor += size
             continue
 
@@ -150,8 +155,16 @@ with open(mapping_filename, "w") as mf:
             if align:
                 cur_cursor += align
             # Print detailed info for each instruction
+            legacy = getattr(node, "legacy", None)
+            src = None
+            if isinstance(legacy, dict):
+                src = legacy.get("src")
+            src = src or getattr(node, "src", None)
+            src_str = "<unknown>"
+            if isinstance(src, dict) and src.get("file"):
+                src_str = f"{src.get('file')}:{src.get('line')}"
             mf.write(
-                f"INSTR idx={idx} @ {hex(cur_seg + cur_cursor)} name={node.name} rd={getattr(node, 'rd', None)} rs1={getattr(node, 'rs1', None)} rs2={getattr(node, 'rs2', None)} imm={getattr(node, 'imm', None)}\n"
+                f"INSTR idx={idx} @ {hex(cur_seg + cur_cursor)} name={node.name} rd={getattr(node, 'rd', None)} rs1={getattr(node, 'rs1', None)} rs2={getattr(node, 'rs2', None)} imm={getattr(node, 'imm', None)} src={src_str}\n"
             )
             cur_cursor += 4
             continue

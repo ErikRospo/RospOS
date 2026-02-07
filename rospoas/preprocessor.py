@@ -1,4 +1,5 @@
 from maps import i_to_r_map, register_map
+from errors import PreprocessError, fmt_node
 
 TEMP_REG = register_map["r13"]  # Temporary register for constant loading
 SP_REG = register_map["sp"]
@@ -84,7 +85,7 @@ def preprocess_ast(ast, lifted_constants):
                     elif "name" in imm:
                         out.extend(_emit_immediate_loading_for_label(imm["name"], rd))
                     else:
-                        raise ValueError(f"Unhandled immediate dict in lli: {imm}")
+                        raise PreprocessError(f"Unhandled immediate dict in lli: {fmt_node(imm)}; instr={fmt_node(instr)}")
                 else:
                     out.extend(_emit_immediate_loading_for_value(int(imm), rd))
                 continue
@@ -105,7 +106,7 @@ def preprocess_ast(ast, lifted_constants):
                             _emit_immediate_loading_for_label(imm["name"], TEMP_REG)
                         )
                     else:
-                        raise ValueError(f"Unhandled immediate dict in jmp: {imm}")
+                        raise PreprocessError(f"Unhandled immediate dict in jmp: {fmt_node(imm)}; instr={fmt_node(instr)}")
                 else:
                     out.extend(_emit_immediate_loading_for_value(int(imm), TEMP_REG))
                 # JALR rd, TEMP_REG, 0
@@ -134,8 +135,8 @@ def preprocess_ast(ast, lifted_constants):
                 # Convert I-type to R-type using i_to_r_map
                 rname = i_to_r_map.get(instr["name"], None)
                 if rname is None:
-                    raise AssertionError(
-                        f"Cannot convert I-op {instr['name']} to R-op for lifted constant handling"
+                    raise PreprocessError(
+                        f"Cannot convert I-op {instr.get('name')} to R-op for lifted constant handling; instr={fmt_node(instr)}"
                     )
                 out.append(
                     {

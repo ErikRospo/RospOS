@@ -6,6 +6,7 @@ from typing import Dict, List, Tuple
 from ir import (Directive, ImmLabel, ImmLabelPart, ImmLifted, ImmValue,
                 Instruction, LabelDecl)
 from maps import instr_type_maps, opcode_type_map, validate_immediate_for_type
+from errors import EncodeError, fmt_node
 
 
 def _resolve_imm(imm, addresses, current_segment_addr, cursor):
@@ -18,18 +19,18 @@ def _resolve_imm(imm, addresses, current_segment_addr, cursor):
     if isinstance(imm, ImmLabelPart):
         lbl = imm.label
         if lbl not in addresses:
-            raise ValueError(f"Undefined label for label-part: {lbl}")
+                raise EncodeError(f"Undefined label for label-part: {lbl}")
         addr = addresses[lbl]
         if imm.part == "high":
             return (addr >> 16) & 0xFFFF
         elif imm.part == "low":
             return addr & 0xFFFF
         else:
-            raise ValueError(f"Unknown label part: {imm.part}")
+            raise EncodeError(f"Unknown label part: {imm.part}")
     if isinstance(imm, ImmLabel):
         name = imm.name
         if name not in addresses:
-            raise ValueError(f"Undefined label: {name}")
+            raise EncodeError(f"Undefined label: {name}")
         # relative offset in words from next instruction
         return (addresses[name] - (current_segment_addr + cursor)) // 4
     # fallback: assume raw int
@@ -67,7 +68,7 @@ def encode_ir(
             continue
 
         if current_segment_data is None:
-            raise AssertionError("No current segment while encoding")
+            raise EncodeError("No current segment while encoding")
 
         if isinstance(node, LabelDecl):
             # labels do not consume bytes
@@ -84,7 +85,7 @@ def encode_ir(
             elif isinstance(data_value, ImmLabel):
                 name = data_value.name
                 if name not in addresses:
-                    raise ValueError(f"Undefined label in data directive: {name}")
+                    raise EncodeError(f"Undefined label in data directive: {name}; directive={fmt_node(node)}")
                 addr = int(addresses[name])
                 length = node.length or 4
                 data_bytes = addr.to_bytes(length, byteorder="little", signed=False)
@@ -93,8 +94,8 @@ def encode_ir(
                 length = node.length or ((v.bit_length() // 8) + 1)
                 data_bytes = v.to_bytes(length, byteorder="little", signed=False)
             if cursor + len(data_bytes) > len(current_segment_data):
-                raise ValueError(
-                    f"Data write would overflow segment {hex(current_segment)} at cursor {cursor}"
+                raise EncodeError(
+                    f"Data write would overflow segment {hex(current_segment)} at cursor {cursor}; node={fmt_node(node)}"
                 )
             current_segment_data[cursor : cursor + len(data_bytes)] = data_bytes
             # record node
@@ -179,15 +180,15 @@ def encode_ir(
                 elif type_id == 5:  # S-type
                     op_byte = op_byte << 24
             except AssertionError:
-                raise ValueError(
-                    f"Encoding assertion failed at segment {current_segment} cursor {cursor} for node: {node}"
+                raise EncodeError(
+                    f"Encoding assertion failed at segment {hex(current_segment)} cursor {cursor} for node: {fmt_node(node)}"
                 )
             # Write the 4-byte instruction to the segment buffer
             bytes_out = (op_byte & 0xFFFFFFFF).to_bytes(4, byteorder="big")
             
             if cursor + 4 > len(current_segment_data):
-                raise ValueError(
-                    f"Instruction write would overflow segment {hex(current_segment)} at cursor {cursor}"
+                raise EncodeError(
+                    f"Instruction write would overflow segment {hex(current_segment)} at cursor {cursor}; node={fmt_node(node)}"
                 )
                 
             # record node before writing for accurate diagnostics

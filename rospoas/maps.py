@@ -87,10 +87,10 @@ def validate_immediate_for_type(type_id: int, imm: int) -> None:
     """Validate imm range for I/L/B/J types where 16-bit immediates are expected.
     Raises AssertionError on invalid values.
     """
+    from errors import EncodeError
+
     if type_id in [1, 2, 3, 4]:
-        assert isinstance(
-            imm, int
-        ), f"IMM must be an integer for type_id {type_id}, is {imm}"
-        assert (
-            -32768 <= imm <= 65535
-        ), f"IMM out of range for type_id {type_id}, is {imm}"
+        if not isinstance(imm, int):
+            raise EncodeError(f"IMM must be an integer for type_id {type_id}; got {imm}")
+        if not (-32768 <= imm <= 65535):
+            raise EncodeError(f"IMM out of range for type_id {type_id}; got {imm}")

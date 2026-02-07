@@ -48,6 +48,8 @@ class Instruction:
     imm: Optional[Immediate] = None
     # keep the original legacy dict for easy debugging/gradual migration
     legacy: Optional[dict] = None
+    # source origin info: dict with keys 'file' and 'line' (and optional 'pp_line')
+    src: Optional[dict] = None
 
     def copy_with(self, **kwargs) -> "Instruction":
         data = dict(
@@ -66,6 +68,7 @@ class Instruction:
 @dataclass
 class LabelDecl:
     name: str
+    src: Optional[dict] = None
 
 
 @dataclass
@@ -73,6 +76,7 @@ class Directive:
     name: str
     imm: Optional[Immediate] = None
     length: Optional[int] = None
+    src: Optional[dict] = None
 
 
 @dataclass
@@ -109,10 +113,10 @@ def _imm_from_legacy(imm):
 def instr_from_legacy(d: dict) -> Union[Instruction, LabelDecl, Directive]:
     t = d.get("type")
     if t == "a":
-        return LabelDecl(name=d.get("name"))
+        return LabelDecl(name=d.get("name"), src=d.get("src"))
     if t == "d":
         imm = _imm_from_legacy(d.get("imm"))
-        return Directive(name=d.get("name"), imm=imm, length=d.get("len"))
+        return Directive(name=d.get("name"), imm=imm, length=d.get("len"), src=d.get("src"))
     # instruction
     imm = _imm_from_legacy(d.get("imm"))
     # Some legacy nodes (e.g. `lli` pseudos) use the key 'reg' for the
@@ -126,6 +130,7 @@ def instr_from_legacy(d: dict) -> Union[Instruction, LabelDecl, Directive]:
         rs2=d.get("rs2"),
         imm=imm,
         legacy=d,
+        src=d.get("src"),
     )
 
 
