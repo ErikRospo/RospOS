@@ -1,0 +1,119 @@
+start
+  program
+    codeline
+      directives
+        include
+          name	stdio
+    codeline
+      directives
+        include
+          name	stdlib
+    codeline
+      functiondef
+        type
+          int
+        name	add
+        type
+          int
+        name	a
+        type
+          int
+        name	b
+        return
+          add
+            var
+              name	a
+            var
+              name	b
+    codeline
+      functiondef
+        type
+          int
+        name	main
+        None
+        None
+        decl
+          type
+            int
+          name	x
+          num
+            number	5
+        decl
+          type
+            int
+          name	y
+          num
+            number	10
+        decl
+          type
+            int
+          name	result
+          functioncall
+            name	add
+            var
+              name	x
+            var
+              name	y
+        statement
+          functioncall
+            name	print_string
+            str
+              str	"The result of 10 + 5 is: "
+        statement
+          functioncall
+            name	printi
+            var
+              name	result
+        statement
+          functioncall
+            name	__break
+            None
+        decl
+          type
+            ptr
+              type
+                int
+          name	ptr
+          cast
+            type
+              ptr
+                type
+                  int
+            functioncall
+              name	malloc
+              functioncall
+                name	sizeof
+                var
+                  name	int
+        if
+          var
+            name	ptr
+          block
+            derefassign
+              name	ptr
+              num
+                number	42
+            statement
+              functioncall
+                name	print_string
+                str
+                  str	"Dynamically allocated integer value (42): "
+            statement
+              functioncall
+                name	printi
+                dereference
+                  name	ptr
+            statement
+              functioncall
+                name	free
+                var
+                  name	ptr
+          block
+            statement
+              functioncall
+                name	print_string
+                str
+                  str	"Memory allocation failed"
+        return
+          num
+            number	0

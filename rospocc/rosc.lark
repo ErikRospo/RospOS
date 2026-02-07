@@ -1,0 +1,69 @@
+basetype: "int" -> int 
+       | "char" -> char 
+       | "void" -> void 
+       | "bool" -> bool 
+       
+ptrtype: type "*" -> ptr
+refrence: type "&" -> ref
+
+type: basetype
+    | ptrtype
+    | refrence
+    
+    
+function: type name "(" [type name ("," type name)*] ")" "{" statement* "}" -> functiondef
+
+name: /[a-zA-Z_][a-zA-Z0-9_]*/
+expression: expression "+" expression -> add
+          | expression "-" expression -> sub
+          | expression "*" expression -> mul
+          | expression "/" expression -> div
+          | expression "%" expression -> mod
+          | expression "&&" expression -> and
+          | expression "||" expression -> or
+          | expression "==" expression -> eq
+          | name "(" [expression ("," expression)*] ")" -> functioncall
+          | name -> var
+          | number -> num
+          | string -> str
+          | "(" expression ")"
+          | "(" type ")" expression -> cast   
+          | "&" name -> address
+          | "*" name -> dereference
+
+HEXIMM: /0x[0-9a-fA-F_]+/
+DECIMM: /-?[\d_]+/
+BINIMM: /0b[01_]+/
+number: HEXIMM | DECIMM | BINIMM
+statement: "return" expression ";" -> return
+         | type name "=" expression ";" -> decl
+         | name "=" expression ";" -> assign
+         | "*" name "=" expression ";" -> derefassign
+         | "&" name "=" expression ";" -> addressassign
+         | "{" statement* "}" -> block
+         | "for" "(" [type name "=" expression] ";" expression ";" [name "=" expression] ")" statement -> for
+         | "if" "(" expression ")" statement ["else" statement] -> if
+         | "while" "(" expression ")" statement -> while
+         | functioncall ";"
+functioncall: name "(" [expression ("," expression)*] ")" -> functioncall
+include_directive: "#include" "<" name ".rosc>" -> include
+directives: include_directive
+
+specialop: "__" name -> specialop
+
+string: STRING -> str
+
+codeline: directives
+    | function
+    | statement
+    | specialop
+    
+program: codeline*
+start: program
+%import common.WS
+%ignore WS
+%import common.C_COMMENT
+%ignore C_COMMENT
+%import common.CPP_COMMENT
+%ignore CPP_COMMENT
+%import common.ESCAPED_STRING -> STRING
