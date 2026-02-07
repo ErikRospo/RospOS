@@ -1,9 +1,9 @@
 import random
 
-from lark import Transformer, Token, Tree
+from lark import Transformer
 
-from ir import instr_list_from_legacy
 from errors import TransformError, fmt_node
+from ir import instr_list_from_legacy
 from maps import register_map
 
 
@@ -66,7 +66,10 @@ class RospoasTransformer(Transformer):
             if not (-32768 <= value_v <= 65535):
                 const_name = f"LCONST_{len(self.lifted_constants)}"
                 self.lifted_constants[const_name] = value_v
-                return self._attach_src({"type": "li", "name": const_name, "value": value_v, "og": value_t}, items)
+                return self._attach_src(
+                    {"type": "li", "name": const_name, "value": value_v, "og": value_t},
+                    items,
+                )
         return value_v
 
     def instruction(self, items):
@@ -80,7 +83,9 @@ class RospoasTransformer(Transformer):
         rs1_v = rs1_t
         rs2_v = rs2_t
 
-        return self._attach_src({"type": "r", "name": name_v, "rd": rd_v, "rs1": rs1_v, "rs2": rs2_v}, items)
+        return self._attach_src(
+            {"type": "r", "name": name_v, "rd": rd_v, "rs1": rs1_v, "rs2": rs2_v}, items
+        )
 
     def iinstructuse(self, items):
         name_t, rd_t, rs_t, imm_t = items
@@ -96,7 +101,9 @@ class RospoasTransformer(Transformer):
             imm_v["rd"] = (
                 rd_v  # Pass the destination register to the `li` pseudo-instruction
             )
-        return self._attach_src({"type": "i", "name": name_v, "rd": rd_v, "rs1": rs_v, "imm": imm_v}, items)
+        return self._attach_src(
+            {"type": "i", "name": name_v, "rd": rd_v, "rs1": rs_v, "imm": imm_v}, items
+        )
 
     def lsinstructuse(self, items):
         name_t, rd_t, rs_t, imm_t = items
@@ -112,7 +119,9 @@ class RospoasTransformer(Transformer):
             imm_v["rd"] = (
                 rd_v  # Pass the destination register to the `li` pseudo-instruction
             )
-        return self._attach_src({"type": "l", "name": name_v, "rd": rd_v, "rs1": rs_v, "imm": imm_v}, items)
+        return self._attach_src(
+            {"type": "l", "name": name_v, "rd": rd_v, "rs1": rs_v, "imm": imm_v}, items
+        )
 
     def binstructuse(self, items):
         name_t, rd_t, rs_t, imm_t = items
@@ -128,7 +137,9 @@ class RospoasTransformer(Transformer):
             imm_v["rd"] = (
                 rd_v  # Pass the destination register to the `li` pseudo-instruction
             )
-        return self._attach_src({"type": "b", "name": name_v, "rd": rd_v, "rs1": rs_v, "imm": imm_v}, items)
+        return self._attach_src(
+            {"type": "b", "name": name_v, "rd": rd_v, "rs1": rs_v, "imm": imm_v}, items
+        )
 
     def jinstructuser(self, items):
         name_t, rd_t, rs_t, imm_t = items
@@ -145,7 +156,9 @@ class RospoasTransformer(Transformer):
                 rd_v  # Pass the destination register to the `li` pseudo-instruction
             )
 
-        return self._attach_src({"type": "j", "name": name_v, "rd": rd_v, "rs1": rs_v, "imm": imm_v}, items)
+        return self._attach_src(
+            {"type": "j", "name": name_v, "rd": rd_v, "rs1": rs_v, "imm": imm_v}, items
+        )
 
     def jinstructusei(self, items):
         name_t, rd_t, imm_t = items
@@ -161,7 +174,9 @@ class RospoasTransformer(Transformer):
                 rd_v  # Pass the destination register to the `li` pseudo-instruction
             )
 
-        return self._attach_src({"type": "j", "name": name_v, "rd": rd_v, "rs1": 0, "imm": imm_v}, items)
+        return self._attach_src(
+            {"type": "j", "name": name_v, "rd": rd_v, "rs1": 0, "imm": imm_v}, items
+        )
 
     def jmpseudo(self, items):
         imm_t = items[0]
@@ -182,25 +197,38 @@ class RospoasTransformer(Transformer):
         reg_t = items[0]
         reg_v = reg_t
         return self._attach_src({"type": "p", "name": "pop", "imm": reg_v}, items)
+
     def movpseudo(self, items):
         rd_t, rs_t = items
         rd_v = rd_t
         rs_v = rs_t
-        return self._attach_src({"type": "r", "name": "add", "rd": rd_v, "rs1": rs_v, "rs2": 0}, items)
+        return self._attach_src(
+            {"type": "r", "name": "add", "rd": rd_v, "rs1": rs_v, "rs2": 0}, items
+        )
+
     def zeropseudo(self, items):
         rd_t = items[0]
         rd_v = rd_t
-        return self._attach_src({"type": "r", "name": "add", "rd": rd_v, "rs1": 0, "rs2": 0}, items)
+        return self._attach_src(
+            {"type": "r", "name": "add", "rd": rd_v, "rs1": 0, "rs2": 0}, items
+        )
+
     def notpseudo(self, items):
         rd_t, rs_t = items
         rd_v = rd_t
         rs_v = rs_t
-        return self._attach_src({"type": "r", "name": "xor", "rd": rd_v, "rs1": rs_v, "rs2": -1}, items)
+        return self._attach_src(
+            {"type": "r", "name": "xor", "rd": rd_v, "rs1": rs_v, "rs2": -1}, items
+        )
+
     def negpseudo(self, items):
         rd_t, rs_t = items
         rd_v = rd_t
         rs_v = rs_t
-        return self._attach_src({"type": "r", "name": "sub", "rd": rd_v, "rs1": 0, "rs2": rs_v}, items)
+        return self._attach_src(
+            {"type": "r", "name": "sub", "rd": rd_v, "rs1": 0, "rs2": rs_v}, items
+        )
+
     def lli(self, items):
         reg_t = items[0]
         imm_t = items[1]
@@ -214,7 +242,9 @@ class RospoasTransformer(Transformer):
             imm_v["rd"] = (
                 reg_v  # Pass the destination register to the `li` pseudo-instruction
             )
-        return self._attach_src({"type": "p", "name": "lli", "reg": reg_v, "imm": imm_v}, items)
+        return self._attach_src(
+            {"type": "p", "name": "lli", "reg": reg_v, "imm": imm_v}, items
+        )
 
     def callpseudo(self, items):
         imm_t = items[0]
@@ -226,10 +256,14 @@ class RospoasTransformer(Transformer):
 
         # Emit as a pseudo jump so the assembler can expand to an absolute-call
         # sequence that properly sets the link register (rd=14).
-        return self._attach_src({"type": "p", "name": "jmp", "imm": imm_v, "rd": 14}, items)
+        return self._attach_src(
+            {"type": "p", "name": "jmp", "imm": imm_v, "rd": 14}, items
+        )
 
     def retpseudo(self, items):
-        return self._attach_src({"type": "j", "rd": 0, "rs1": 14, "name": "jalr", "imm": 0}, items)
+        return self._attach_src(
+            {"type": "j", "rd": 0, "rs1": 14, "name": "jalr", "imm": 0}, items
+        )
 
     def subipseudo(self, items):
         rd_t, rs1_t, imm_t = items
@@ -244,7 +278,9 @@ class RospoasTransformer(Transformer):
             imm_v["rd"] = (
                 rd_v  # Pass the destination register to the `li` pseudo-instruction
             )
-        return self._attach_src({"type": "p", "name": "subi", "rd": rd_v, "rs1": rs1_v, "imm": imm_v}, items)
+        return self._attach_src(
+            {"type": "p", "name": "subi", "rd": rd_v, "rs1": rs1_v, "imm": imm_v}, items
+        )
 
     def muliipseudo(self, items):
         rd_t, rs1_t, imm_t = items
@@ -259,7 +295,9 @@ class RospoasTransformer(Transformer):
             imm_v["rd"] = (
                 rd_v  # Pass the destination register to the `li` pseudo-instruction
             )
-        return self._attach_src({"type": "p", "name": "muli", "rd": rd_v, "rs1": rs1_v, "imm": imm_v}, items)
+        return self._attach_src(
+            {"type": "p", "name": "muli", "rd": rd_v, "rs1": rs1_v, "imm": imm_v}, items
+        )
 
     def divipseudo(self, items):
         rd_t, rs1_t, imm_t = items
@@ -274,7 +312,9 @@ class RospoasTransformer(Transformer):
             imm_v["rd"] = (
                 rd_v  # Pass the destination register to the `li` pseudo-instruction
             )
-        return self._attach_src({"type": "p", "name": "divi", "rd": rd_v, "rs1": rs1_v, "imm": imm_v}, items)
+        return self._attach_src(
+            {"type": "p", "name": "divi", "rd": rd_v, "rs1": rs1_v, "imm": imm_v}, items
+        )
 
     def remipseudo(self, items):
         rd_t, rs1_t, imm_t = items
@@ -289,7 +329,9 @@ class RospoasTransformer(Transformer):
             imm_v["rd"] = (
                 rd_v  # Pass the destination register to the `li` pseudo-instruction
             )
-        return self._attach_src({"type": "p", "name": "remi", "rd": rd_v, "rs1": rs1_v, "imm": imm_v}, items)
+        return self._attach_src(
+            {"type": "p", "name": "remi", "rd": rd_v, "rs1": rs1_v, "imm": imm_v}, items
+        )
 
     def systeminstructuse(self, items):
         name_t = items[0]
@@ -360,23 +402,31 @@ class RospoasTransformer(Transformer):
                 pass
 
             if not isinstance(imm_v, int):
-                raise TransformError(f"Data directive requires an integer immediate value or a label/bytes; got {fmt_node(imm_v)}")
+                raise TransformError(
+                    f"Data directive requires an integer immediate value or a label/bytes; got {fmt_node(imm_v)}"
+                )
 
-            return self._attach_src({
-                "type": "d",
-                "name": "data",
-                "imm": imm_v,
-                "d": "data",
-                "len": length,
-            }, items)
+            return self._attach_src(
+                {
+                    "type": "d",
+                    "name": "data",
+                    "imm": imm_v,
+                    "d": "data",
+                    "len": length,
+                },
+                items,
+            )
         else:
-            return self._attach_src({
-                "type": "d",
-                "name": "data",
-                "imm": 0,
-                "d": "data",
-                "len": 4,
-            }, items)  # allocate 4 bytes by default
+            return self._attach_src(
+                {
+                    "type": "d",
+                    "name": "data",
+                    "imm": 0,
+                    "d": "data",
+                    "len": 4,
+                },
+                items,
+            )  # allocate 4 bytes by default
 
     def space(self, items):
         imm_t = items[0]
@@ -386,27 +436,35 @@ class RospoasTransformer(Transformer):
         except:
             pass
         if not isinstance(imm_v, int):
-            raise TransformError(f"SPACE directive requires an integer immediate value; got {fmt_node(imm_v)}")
-        return self._attach_src({
-            "type": "d",
-            "name": "data",
-            "imm": bytes(imm_v),
-            "d": "space",
-            "len": imm_v,
-        }, items)
+            raise TransformError(
+                f"SPACE directive requires an integer immediate value; got {fmt_node(imm_v)}"
+            )
+        return self._attach_src(
+            {
+                "type": "d",
+                "name": "data",
+                "imm": bytes(imm_v),
+                "d": "space",
+                "len": imm_v,
+            },
+            items,
+        )
 
     def strv(self, items):
         str_t = items[0]
         str_v = str_t[1:-1]  # Remove the surrounding quotes
         value = str_v.encode().decode("unicode_escape")  # Handle escape sequences
         value_bytes = value.encode("utf-8") + b"\x00"  # Null-terminated
-        return self._attach_src({
-            "type": "d",
-            "name": "data",
-            "imm": value_bytes,
-            "d": "str",
-            "len": len(value_bytes),
-        }, items)
+        return self._attach_src(
+            {
+                "type": "d",
+                "name": "data",
+                "imm": value_bytes,
+                "d": "str",
+                "len": len(value_bytes),
+            },
+            items,
+        )
 
     def func(self, items):
         label_t = items[0]
@@ -426,13 +484,16 @@ class RospoasTransformer(Transformer):
         # Whether we interpret it as signed or unsigned is the user's responsibility
         # But the assembler assumes signed values for data directives
         imm_v = random.getrandbits(imm_l * 8)
-        return self._attach_src({
-            "type": "d",
-            "name": "data",
-            "imm": imm_v.to_bytes(imm_l, byteorder="little"),
-            "d": "rand",
-            "len": imm_l,
-        }, items)
+        return self._attach_src(
+            {
+                "type": "d",
+                "name": "data",
+                "imm": imm_v.to_bytes(imm_l, byteorder="little"),
+                "d": "rand",
+                "len": imm_l,
+            },
+            items,
+        )
 
     def label(self, items):
         name_t = items[0]

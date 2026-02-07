@@ -3,6 +3,7 @@
 Provide structured exception types for different failure modes and
 helpers to format node/context information for clearer messages.
 """
+
 from typing import Any
 
 

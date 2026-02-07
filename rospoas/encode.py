@@ -3,10 +3,10 @@
 import sys
 from typing import Dict, List, Tuple
 
+from errors import EncodeError, fmt_node
 from ir import (Directive, ImmLabel, ImmLabelPart, ImmLifted, ImmValue,
                 Instruction, LabelDecl)
 from maps import instr_type_maps, opcode_type_map, validate_immediate_for_type
-from errors import EncodeError, fmt_node
 
 
 def _resolve_imm(imm, addresses, current_segment_addr, cursor):
@@ -19,7 +19,7 @@ def _resolve_imm(imm, addresses, current_segment_addr, cursor):
     if isinstance(imm, ImmLabelPart):
         lbl = imm.label
         if lbl not in addresses:
-                raise EncodeError(f"Undefined label for label-part: {lbl}")
+            raise EncodeError(f"Undefined label for label-part: {lbl}")
         addr = addresses[lbl]
         if imm.part == "high":
             return (addr >> 16) & 0xFFFF
@@ -85,7 +85,9 @@ def encode_ir(
             elif isinstance(data_value, ImmLabel):
                 name = data_value.name
                 if name not in addresses:
-                    raise EncodeError(f"Undefined label in data directive: {name}; directive={fmt_node(node)}")
+                    raise EncodeError(
+                        f"Undefined label in data directive: {name}; directive={fmt_node(node)}"
+                    )
                 addr = int(addresses[name])
                 length = node.length or 4
                 data_bytes = addr.to_bytes(length, byteorder="little", signed=False)
@@ -185,12 +187,12 @@ def encode_ir(
                 )
             # Write the 4-byte instruction to the segment buffer
             bytes_out = (op_byte & 0xFFFFFFFF).to_bytes(4, byteorder="big")
-            
+
             if cursor + 4 > len(current_segment_data):
                 raise EncodeError(
                     f"Instruction write would overflow segment {hex(current_segment)} at cursor {cursor}; node={fmt_node(node)}"
                 )
-                
+
             # record node before writing for accurate diagnostics
             current_segment_data[cursor : cursor + 4] = bytes_out
             segment_node_map.setdefault(current_segment, []).append(

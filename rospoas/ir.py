@@ -116,7 +116,9 @@ def instr_from_legacy(d: dict) -> Union[Instruction, LabelDecl, Directive]:
         return LabelDecl(name=d.get("name"), src=d.get("src"))
     if t == "d":
         imm = _imm_from_legacy(d.get("imm"))
-        return Directive(name=d.get("name"), imm=imm, length=d.get("len"), src=d.get("src"))
+        return Directive(
+            name=d.get("name"), imm=imm, length=d.get("len"), src=d.get("src")
+        )
     # instruction
     imm = _imm_from_legacy(d.get("imm"))
     # Some legacy nodes (e.g. `lli` pseudos) use the key 'reg' for the

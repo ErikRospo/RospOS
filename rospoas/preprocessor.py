@@ -1,5 +1,5 @@
-from maps import i_to_r_map, register_map
 from errors import PreprocessError, fmt_node
+from maps import i_to_r_map, register_map
 
 TEMP_REG = register_map["r13"]  # Temporary register for constant loading
 SP_REG = register_map["sp"]
@@ -85,7 +85,9 @@ def preprocess_ast(ast, lifted_constants):
                     elif "name" in imm:
                         out.extend(_emit_immediate_loading_for_label(imm["name"], rd))
                     else:
-                        raise PreprocessError(f"Unhandled immediate dict in lli: {fmt_node(imm)}; instr={fmt_node(instr)}")
+                        raise PreprocessError(
+                            f"Unhandled immediate dict in lli: {fmt_node(imm)}; instr={fmt_node(instr)}"
+                        )
                 else:
                     out.extend(_emit_immediate_loading_for_value(int(imm), rd))
                 continue
@@ -106,7 +108,9 @@ def preprocess_ast(ast, lifted_constants):
                             _emit_immediate_loading_for_label(imm["name"], TEMP_REG)
                         )
                     else:
-                        raise PreprocessError(f"Unhandled immediate dict in jmp: {fmt_node(imm)}; instr={fmt_node(instr)}")
+                        raise PreprocessError(
+                            f"Unhandled immediate dict in jmp: {fmt_node(imm)}; instr={fmt_node(instr)}"
+                        )
                 else:
                     out.extend(_emit_immediate_loading_for_value(int(imm), TEMP_REG))
                 # JALR rd, TEMP_REG, 0

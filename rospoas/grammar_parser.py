@@ -1,6 +1,7 @@
 from pathlib import Path
 
 from lark import Lark
+
 from errors import ParseError
 
 grammar_file = Path(__file__).parent / "rospoas.lark"

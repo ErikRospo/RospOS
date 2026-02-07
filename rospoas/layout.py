@@ -8,8 +8,8 @@ addresses and sizes to be used by the encoder stage.
 
 from typing import Dict, List, Tuple
 
-from ir import Directive, ImmValue, Instruction, LabelDecl, Segment
 from errors import LayoutError, fmt_node
+from ir import Directive, ImmValue, Instruction, LabelDecl, Segment
 
 
 def _instr_size(node) -> int:

@@ -9,29 +9,35 @@ defined in `rospoas.ir`.
 
 from typing import List
 
+from errors import TransformError, fmt_node
 from ir import (Directive, ImmLabel, ImmLabelPart, ImmLifted, ImmValue,
                 Instruction, LabelDecl)
 from maps import i_to_r_map, register_map
-from errors import TransformError, fmt_node
 
 TEMP_REG = register_map["r13"]
 SP_REG = register_map["sp"]
 
 
-def _emit_immediate_loading_for_value(value: int, rd: int, src: dict = None) -> List[Instruction]:
+def _emit_immediate_loading_for_value(
+    value: int, rd: int, src: dict = None
+) -> List[Instruction]:
     instrs: List[Instruction] = []
     high = (value >> 16) & 0xFFFF
     low = value & 0xFFFF
     if high != 0:
         instrs.append(
-            Instruction(type="i", name="addi", rd=rd, rs1=0, imm=ImmValue(high), src=src)
+            Instruction(
+                type="i", name="addi", rd=rd, rs1=0, imm=ImmValue(high), src=src
+            )
         )
         instrs.append(
             Instruction(type="i", name="shli", rd=rd, rs1=rd, imm=ImmValue(16), src=src)
         )
         if low != 0:
             instrs.append(
-                Instruction(type="i", name="ori", rd=rd, rs1=rd, imm=ImmValue(low), src=src)
+                Instruction(
+                    type="i", name="ori", rd=rd, rs1=rd, imm=ImmValue(low), src=src
+                )
             )
     else:
         instrs.append(
@@ -40,7 +46,9 @@ def _emit_immediate_loading_for_value(value: int, rd: int, src: dict = None) -> 
     return instrs
 
 
-def _emit_immediate_loading_for_label(label_name: str, rd: int, src: dict = None) -> List[Instruction]:
+def _emit_immediate_loading_for_label(
+    label_name: str, rd: int, src: dict = None
+) -> List[Instruction]:
     return [
         Instruction(
             type="i",
@@ -64,7 +72,9 @@ def _emit_immediate_loading_for_label(label_name: str, rd: int, src: dict = None
 
 def _emit_stack_push(reg: int, src: dict = None) -> List[Instruction]:
     return [
-        Instruction(type="i", name="addi", rd=SP_REG, rs1=SP_REG, imm=ImmValue(-4), src=src),
+        Instruction(
+            type="i", name="addi", rd=SP_REG, rs1=SP_REG, imm=ImmValue(-4), src=src
+        ),
         Instruction(type="l", name="sw", rd=reg, rs1=SP_REG, imm=ImmValue(0), src=src),
     ]
 
@@ -72,7 +82,9 @@ def _emit_stack_push(reg: int, src: dict = None) -> List[Instruction]:
 def _emit_stack_pop(reg: int, src: dict = None) -> List[Instruction]:
     return [
         Instruction(type="l", name="lw", rd=reg, rs1=SP_REG, imm=ImmValue(0), src=src),
-        Instruction(type="i", name="addi", rd=SP_REG, rs1=SP_REG, imm=ImmValue(4), src=src),
+        Instruction(
+            type="i", name="addi", rd=SP_REG, rs1=SP_REG, imm=ImmValue(4), src=src
+        ),
     ]
 
 
@@ -106,11 +118,21 @@ def lower_ir(ir_list: List) -> List:
                 rd = node.rd
                 imm = node.imm
                 if isinstance(imm, ImmLifted):
-                    out.extend(_emit_immediate_loading_for_value(int(imm.value), rd, src=node.src))
+                    out.extend(
+                        _emit_immediate_loading_for_value(
+                            int(imm.value), rd, src=node.src
+                        )
+                    )
                 elif isinstance(imm, ImmLabel):
-                    out.extend(_emit_immediate_loading_for_label(imm.name, rd, src=node.src))
+                    out.extend(
+                        _emit_immediate_loading_for_label(imm.name, rd, src=node.src)
+                    )
                 elif isinstance(imm, ImmValue):
-                    out.extend(_emit_immediate_loading_for_value(int(imm.value), rd, src=node.src))
+                    out.extend(
+                        _emit_immediate_loading_for_value(
+                            int(imm.value), rd, src=node.src
+                        )
+                    )
                 else:
                     # unknown immediate form; keep as-is
                     out.append(node)
@@ -120,19 +142,34 @@ def lower_ir(ir_list: List) -> List:
                 imm = node.imm
                 if isinstance(imm, ImmLifted):
                     out.extend(
-                        _emit_immediate_loading_for_value(int(imm.value), TEMP_REG, src=node.src)
+                        _emit_immediate_loading_for_value(
+                            int(imm.value), TEMP_REG, src=node.src
+                        )
                     )
                 elif isinstance(imm, ImmLabel):
-                    out.extend(_emit_immediate_loading_for_label(imm.name, TEMP_REG, src=node.src))
+                    out.extend(
+                        _emit_immediate_loading_for_label(
+                            imm.name, TEMP_REG, src=node.src
+                        )
+                    )
                 elif isinstance(imm, ImmValue):
                     out.extend(
-                        _emit_immediate_loading_for_value(int(imm.value), TEMP_REG, src=node.src)
+                        _emit_immediate_loading_for_value(
+                            int(imm.value), TEMP_REG, src=node.src
+                        )
                     )
                 else:
-                    raise TransformError(f"Unhandled immediate in jmp pseudo: {fmt_node(imm)}; node={fmt_node(node)}")
+                    raise TransformError(
+                        f"Unhandled immediate in jmp pseudo: {fmt_node(imm)}; node={fmt_node(node)}"
+                    )
                 out.append(
                     Instruction(
-                        type="j", name="jalr", rd=rd, rs1=TEMP_REG, imm=ImmValue(0), src=node.src
+                        type="j",
+                        name="jalr",
+                        rd=rd,
+                        rs1=TEMP_REG,
+                        imm=ImmValue(0),
+                        src=node.src,
                     )
                 )
                 continue
@@ -148,13 +185,21 @@ def lower_ir(ir_list: List) -> List:
                 # Load immediate into TEMP_REG
                 if isinstance(imm, ImmLifted):
                     out.extend(
-                        _emit_immediate_loading_for_value(int(imm.value), TEMP_REG, src=node.src)
+                        _emit_immediate_loading_for_value(
+                            int(imm.value), TEMP_REG, src=node.src
+                        )
                     )
                 elif isinstance(imm, ImmLabel):
-                    out.extend(_emit_immediate_loading_for_label(imm.name, TEMP_REG, src=node.src))
+                    out.extend(
+                        _emit_immediate_loading_for_label(
+                            imm.name, TEMP_REG, src=node.src
+                        )
+                    )
                 elif isinstance(imm, ImmValue):
                     out.extend(
-                        _emit_immediate_loading_for_value(int(imm.value), TEMP_REG, src=node.src)
+                        _emit_immediate_loading_for_value(
+                            int(imm.value), TEMP_REG, src=node.src
+                        )
                     )
                 else:
                     # unknown immediate form; keep as-is
@@ -179,7 +224,11 @@ def lower_ir(ir_list: List) -> List:
             const_val = li.value
             # Use TEMP_REG to hold the constant.
             out.extend(_emit_stack_push(TEMP_REG, src=node.src))
-            out.extend(_emit_immediate_loading_for_value(int(const_val), TEMP_REG, src=node.src))
+            out.extend(
+                _emit_immediate_loading_for_value(
+                    int(const_val), TEMP_REG, src=node.src
+                )
+            )
 
             if node.type == "i":
                 # Convert I-type to R-type using i_to_r_map

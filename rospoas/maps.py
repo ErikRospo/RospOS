@@ -91,6 +91,8 @@ def validate_immediate_for_type(type_id: int, imm: int) -> None:
 
     if type_id in [1, 2, 3, 4]:
         if not isinstance(imm, int):
-            raise EncodeError(f"IMM must be an integer for type_id {type_id}; got {imm}")
+            raise EncodeError(
+                f"IMM must be an integer for type_id {type_id}; got {imm}"
+            )
         if not (-32768 <= imm <= 65535):
             raise EncodeError(f"IMM out of range for type_id {type_id}; got {imm}")

@@ -126,7 +126,11 @@ with open(mapping_filename, "w") as mf:
         if isinstance(node, LabelDecl):
             addr = addresses.get(node.name, cur_seg + cur_cursor)
             src = getattr(node, "src", None)
-            src_str = f"{src.get('file')}:{src.get('line')}" if isinstance(src, dict) and src.get("file") else "<unknown>"
+            src_str = (
+                f"{src.get('file')}:{src.get('line')}"
+                if isinstance(src, dict) and src.get("file")
+                else "<unknown>"
+            )
             mf.write(f"LABEL {node.name} -> {hex(addr)} src={src_str}\n")
             try:
                 cur_cursor = addr - cur_seg
@@ -145,8 +149,14 @@ with open(mapping_filename, "w") as mf:
                     size = 4
             size = max(4, size)
             src = getattr(node, "src", None)
-            src_str = f"{src.get('file')}:{src.get('line')}" if isinstance(src, dict) and src.get("file") else "<unknown>"
-            mf.write(f"DATA @ {hex(cur_seg + cur_cursor)} size {size}: {node.imm} src={src_str}\n")
+            src_str = (
+                f"{src.get('file')}:{src.get('line')}"
+                if isinstance(src, dict) and src.get("file")
+                else "<unknown>"
+            )
+            mf.write(
+                f"DATA @ {hex(cur_seg + cur_cursor)} size {size}: {node.imm} src={src_str}\n"
+            )
             cur_cursor += size
             continue
 
