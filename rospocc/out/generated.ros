@@ -46,10 +46,6 @@ WHILE_END4:
   ; prologue (minimal)
   LLI r2, 268435456    ; init tty_addr
   LB r1, r2, 0    ; intrinsic __lb -> return
-  ADD r1, r1, r0
-  RET
-  ; epilogue and return
-  ADDI r1, r0, 0  ; ensure r1=0
   RET
 
 .FUNC align4:
@@ -73,9 +69,6 @@ WHILE_END6:
   LLI r6, 0    ; zero init payload_addr
   LLI r7, 0    ; zero init new_block
   ADD r1, r6, r0
-  RET
-  ; epilogue and return
-  ADDI r1, r0, 0  ; ensure r1=0
   RET
 
 .FUNC free:
@@ -117,10 +110,6 @@ WHILE_END10:
 
 .FUNC add:
   ; prologue (minimal)
-  ADD r1, r1, r0
-  RET
-  ; epilogue and return
-  ADDI r1, r0, 0  ; ensure r1=0
   RET
 
 .FUNC main:
@@ -135,8 +124,5 @@ WHILE_END10:
   LLI r5, 0    ; zero init ptr
   LLI r6, 0    ; load immediate 0
   ADD r1, r6, r0
-  RET
-  ; epilogue and return
-  ADDI r1, r0, 0  ; ensure r1=0
   RET
 

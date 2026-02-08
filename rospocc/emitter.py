@@ -85,14 +85,21 @@ class Emitter:
         for i, p in enumerate(params[: len(abi.ARG_REGS)]):
             self.var_regs[p] = abi.ARG_REGS[i]
 
+        # per-function flag: whether a return was emitted inside body
+        self.had_return = False
+
         # Emit body
         for stmt in fn.get('body', []):
             self.emit_statement(stmt, out)
 
-        # Ensure function returns; if no return emitted, return 0
-        out.write(f"  ; epilogue and return\n")
-        out.write(f"  ADDI {abi.RETURN_REG}, {abi.SPECIAL_REGS['zero']}, 0  ; ensure r1=0\n")
-        out.write(f"  RET\n\n")
+        # If no return was emitted in the body, emit epilogue and return 0
+        if not getattr(self, 'had_return', False):
+            out.write(f"  ; epilogue and return\n")
+            out.write(f"  ADDI {abi.RETURN_REG}, {abi.SPECIAL_REGS['zero']}, 0  ; ensure r1=0\n")
+            out.write(f"  RET\n\n")
+        else:
+            # already emitted return(s); do not append another epilogue/RET
+            out.write("\n")
 
     def emit_statement(self, stmt: Dict[str, Any], out):
         t = stmt.get('type')
@@ -100,11 +107,14 @@ class Emitter:
             val = stmt.get('value')
             reg = self.emit_expr(val, out)
             if reg:
-                out.write(f"  ADD {abi.RETURN_REG}, {reg}, {abi.SPECIAL_REGS['zero']}\n")
-                # don't free if it's a parameter register
+                # if the value is already in RETURN_REG, avoid redundant move
+                if reg != abi.RETURN_REG:
+                    out.write(f"  ADD {abi.RETURN_REG}, {reg}, {abi.SPECIAL_REGS['zero']}\n")
                 if reg in abi.TEMP_REGS:
                     self.free_reg(reg)
             out.write("  RET\n")
+            # mark that this function emitted a return so we don't append another
+            self.had_return = True
         elif t == 'decl':
             name = stmt.get('name')
             init = stmt.get('init')
