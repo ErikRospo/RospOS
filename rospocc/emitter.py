@@ -51,7 +51,25 @@ class Emitter:
         with out_file.open('w') as f:
             f.write("// Generated .ros by rospocc.emitter (starter)\n")
             f.write("// Functions\n")
-            f.write(".SEG 0x00000000\n\n")
+            f.write('.SEG 0xFFFF_FFFC\n')
+            funcs = ast.get('functions', [])
+            main_label = None
+            if funcs:
+                for fn in funcs:
+                    if fn.get('name') == 'main':
+                        main_label = 'main'
+                        break
+                if main_label is None and funcs:
+                    # pick first function as entry
+                    main_label = funcs[0].get('name') or 'main'
+            f.write(".DATA 0x00000000\n\n")
+            if main_label:
+                f.write('.SEG 0x00000000\n\n')
+                # Place a small bootstrap that jumps to main as the first code
+                f.write(f'  JMP {main_label}\n\n')
+            else:
+                # No functions found; emit a generic segment header
+                f.write('.SEG 0x00000000\n\n')
             # Functions
             for fn in ast.get('functions', []):
                 self.emit_function_def(fn, f)
