@@ -1,101 +1,95 @@
-basetype: "int" -> int 
-       | "char" -> char 
-       | "void" -> void 
-       | "bool" -> bool 
-       | /[A-Z][a-zA-Z0-9_]*/ -> customtype
-       | "struct" name -> structtype
-ptrtype: type "*" -> ptr
-refrence: type "&" -> ref
-
-type: basetype
-    | ptrtype
-    | refrence
-    
-    
-function: type name "(" [type name ("," type name)*] ")" "{" statement* "}" -> functiondef
-
-name: /[a-zA-Z_][a-zA-Z0-9_]*/
-    | name "." name -> membername
-    | name "->" name -> ptrmembername
-expression: expression "+" expression -> add
-          | expression "-" expression -> sub
-          | expression "*" expression -> mul
-          | expression "/" expression -> div
-          | expression "%" expression -> mod
-          | expression "&&" expression -> logand
-          | expression "||" expression -> logor
-          | expression "^" expression -> bitxor
-          | expression "&" expression -> bitand
-          | expression "|" expression -> bitor
-          | expression "==" expression -> eq
-          | expression "!=" expression -> neq
-          | expression "<" expression -> lt
-          | expression ">" expression -> gt
-          | expression "<=" expression -> le
-          | expression ">=" expression -> ge
-          | "!" expression -> lognot
-          | "~" expression -> bitnot
-          | "-" expression -> neg
-          | "++" name -> preinc
-          | "--" name -> predec
-          | name "++" -> postinc
-          | name "--" -> postdec
-          | "__" name "(" [expression ("," expression)*] ")" -> specialopcall
-          | name "(" [expression ("," expression)*] ")" -> functioncall
-          | name -> var
-          | number -> num
-          | string -> str
-          | "(" expression ")"
-          | "(" type ")" expression -> cast   
-          | "&" name -> address
-          | "*" name -> dereference
-          | name "[" expression "]" -> arrayaccess
-          | name "=" expression -> assignexpr
-          | name "[" expression "]" "=" expression -> arrayassignexpr
-          | "*" name "=" expression -> derefassignexpr
-          | "&" name "=" expression -> addressassignexpr
-          | "nullptr" -> nullptr
-          | "true" -> true
-          | "false" -> false
-          
-HEXIMM: /0x[0-9a-fA-F_]+/
-DECIMM: /-?[\d_]+/
-BINIMM: /0b[01_]+/
-number: HEXIMM | DECIMM | BINIMM
-statement: "return" expression? ";" -> return
-         | type name "=" expression ";" -> decl
-         | type name ";" -> declnodef
-         | type name "[" number "]" ";" -> declarray
-         | name "=" expression ";" -> assign
-         | name "[" expression "]=" expression ";" -> arrayassign
-         | "*" name "=" expression ";" -> derefassign
-         | "&" name "=" expression ";" -> addressassign
-         | "{" statement* "}" -> block
-         | "for" "(" [type name "=" expression] ";" expression ";" expression? ")" statement -> for
-         | "if" "(" expression ")" statement ["else" statement] -> if
-         | "while" "(" expression ")" statement -> while
-         | expression ";" // expression statement (e.g. i++;), or function call (e.g. printi(result) without assignment)
-
-
-structdef: "typedef" "struct" name "{" structfield* "}" name ";" -> structdef
-structfield: type name ";" -> structfield
-            | type name "[" number "]" ";" -> structarrayfield
-
-include_directive: "#include" "<" name ".rosc>" -> include
-directives: include_directive
-
-string: STRING -> str
-
-codeline: directives
-    | function
-    | statement
-    | structdef
-program: codeline*
-start: program
-%import common.WS
+%import common.WS 
 %ignore WS
-%import common.C_COMMENT
-%ignore C_COMMENT
 %import common.CPP_COMMENT
 %ignore CPP_COMMENT
-%import common.ESCAPED_STRING -> STRING
+%import common.C_COMMENT
+%ignore C_COMMENT
+%import common.CNAME -> NAME
+
+STRING: /"([^"\\]|\\.)*"/
+NUMBER: /0x[0-9a-fA-F]+|\d+/
+TRUE: "true"
+FALSE: "false"
+NULLPTR: "nullptr"
+
+// Bitwise and related operators
+LSHIFT: "<<"
+RSHIFT: ">>"
+AMPERSAND: "&"
+TILDE: "~"
+BITOR: "|"
+CARET: "^"
+
+// Start
+?start: translation_unit
+
+translation_unit: (external_decl)*
+
+external_decl: function_def | declaration | struct_decl
+
+struct_decl: "typedef"? "struct" NAME? "{" struct_member* "}" NAME? ";"
+struct_member: type_specifier init_declarator_list? ";"
+
+function_def: type_specifier declarator "(" param_list? ")" compound_stmt
+
+param_list: param ("," param)*
+param: type_specifier declarator?
+
+declaration: ("typedef" )? type_specifier init_declarator_list? ";"
+init_declarator_list: init_declarator ("," init_declarator)*
+init_declarator: declarator ("=" expr)?
+
+declarator: pointer* NAME array?
+array: "[" expr? "]"
+pointer: "*"
+
+type_specifier: ("void" | "int" | "char" | "bool" | NAME | ("struct" NAME)) pointer*
+
+compound_stmt: "{" statement* "}"
+
+?statement: compound_stmt
+    	| declaration
+    	| expr_stmt
+    	| if_stmt
+    	| while_stmt
+    	| for_stmt
+    	| return_stmt
+
+expr_stmt: expr? ";"
+
+if_stmt: "if" "(" expr ")" statement ("else" statement)?
+while_stmt: "while" "(" expr ")" statement
+for_stmt: "for" "(" (declaration | expr_stmt)? expr? ";" expr? ")" statement
+return_stmt: "return" expr? ";"
+
+?expr: assignment
+?assignment: conditional ( ("=" | "+=" | "-=" | "*=" | "/=") assignment)?
+?conditional: logic_or ("?" expr ":" conditional)?
+?logic_or: logic_and ("||" logic_and)*
+?logic_and: bit_or ("&&" bit_or)*
+?bit_or: bit_xor ("|" bit_xor)*
+?bit_xor: bit_and ("^" bit_and)*
+?bit_and: equality ("&" equality)*
+?equality: relational (("==" | "!=") relational)*
+?relational: shift (("<" | ">" | "<=" | ">=") shift)*
+?shift: additive (("<<" | ">>") additive)*
+?additive: multiplicative (("+" | "-") multiplicative)*
+?multiplicative: unary (("*" | "/" | "%") unary)*
+?unary: ("+" | "-" | "!" | "*" | "&" | "~") unary
+	| postfix
+
+?postfix: primary ( ("[" expr "]") | ("(" arg_list? ")") | "++" | "--" | ("." NAME) | ("->" NAME) )*
+
+arg_list: expr ("," expr)*
+
+?primary: NAME
+	  | NUMBER
+	  | STRING
+	  | TRUE
+	  | FALSE
+	  | NULLPTR
+	  | "(" expr ")"
+	  | "sizeof" "(" type_specifier ")"
+	  | "(" type_specifier pointer* ")" expr   -> cast
+
+// Operators and punctuation are handled inline as strings above

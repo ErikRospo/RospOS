@@ -1,111 +1,765 @@
-start
-  program
-    codeline
-      functiondef
-        type
-          int
-        name	add
-        type
-          int
-        name	a
-        type
-          int
-        name	b
-        return
-          add
-            var
-              name	a
-            var
-              name	b
-    codeline
-      functiondef
-        type
-          int
-        name	main
-        None
-        None
-        decl
-          type
-            int
-          name	x
-          num
-            number	5
-        decl
-          type
-            int
-          name	y
-          num
-            number	10
-        decl
-          type
-            int
-          name	result
-          functioncall
-            name	add
-            var
-              name	x
-            var
-              name	y
-        statement
-          functioncall
-            name	print_string
-            str
-              str	"The result of 10 + 5 is: "
-        statement
-          functioncall
-            name	printi
-            var
-              name	result
-        statement
-          functioncall
-            name	__break
-            None
-        decl
-          type
-            ptr
-              type
-                int
-          name	ptr
+translation_unit
+  external_decl
+    function_def
+      type_specifier
+      declarator	print_string
+      param_list
+        param
+          type_specifier
+            pointer
+          declarator	str
+      compound_stmt
+        declaration
+          type_specifier
+          init_declarator_list
+            init_declarator
+              declarator	tty_addr
+              0x10000000
+        while_stmt
+          str
+          compound_stmt
+            expr_stmt
+              postfix
+                __sb
+                arg_list
+                  tty_addr
+                  str
+            expr_stmt	str
+  external_decl
+    function_def
+      type_specifier
+      declarator	printi
+      param_list
+        param
+          type_specifier
+          declarator	num
+      compound_stmt
+        declaration
+          type_specifier
+          init_declarator_list
+            init_declarator
+              declarator
+                buffer
+                array	12
+        declaration
+          type_specifier
+          init_declarator_list
+            init_declarator
+              declarator	i
+              0
+        if_stmt
+          equality
+            num
+            0
+          compound_stmt
+            expr_stmt
+              postfix
+                print_string
+                arg_list	"0"
+            declaration
+              type_specifier	return
+        if_stmt
+          relational
+            num
+            0
+          compound_stmt
+            expr_stmt
+              postfix
+                print_string
+                arg_list	"-"
+            expr_stmt
+              assignment
+                num
+                num
+        while_stmt
+          relational
+            num
+            0
+          compound_stmt
+            expr_stmt
+              assignment
+                postfix
+                  buffer
+                  i
+                additive
+                  "0"
+                  multiplicative
+                    num
+                    10
+            expr_stmt
+              assignment
+                num
+                multiplicative
+                  num
+                  10
+        expr_stmt
+          assignment
+            postfix
+              buffer
+              i
+            "\0"
+        for_stmt
+          declaration
+            type_specifier
+            init_declarator_list
+              init_declarator
+                declarator	j
+                0
+          relational
+            j
+            multiplicative
+              i
+              2
+          j
+          compound_stmt
+            declaration
+              type_specifier
+              init_declarator_list
+                init_declarator
+                  declarator	temp
+                  postfix
+                    buffer
+                    j
+            expr_stmt
+              assignment
+                postfix
+                  buffer
+                  j
+                postfix
+                  buffer
+                  additive
+                    i
+                    j
+                    1
+            expr_stmt
+              assignment
+                postfix
+                  buffer
+                  additive
+                    i
+                    j
+                    1
+                temp
+        expr_stmt
+          postfix
+            print_string
+            arg_list	buffer
+  external_decl
+    function_def
+      type_specifier
+      declarator	read_char
+      compound_stmt
+        declaration
+          type_specifier
+          init_declarator_list
+            init_declarator
+              declarator	tty_addr
+              0x10000000
+        return_stmt
+          postfix
+            __lb
+            arg_list	tty_addr
+  external_decl
+    declaration
+      type_specifier
+      init_declarator_list
+        init_declarator
+          declarator	heap_top
+          0x01000000
+  external_decl
+    declaration
+      type_specifier
+      init_declarator_list
+        init_declarator
+          declarator	HEAP_HEADER_SIZE
+          16
+  external_decl
+    declaration
+      type_specifier
+      init_declarator_list
+        init_declarator
+          declarator	STACK_LIMIT
+          0x0FFF0000
+  external_decl
+    struct_decl
+      HeapInfo
+      struct_member
+        type_specifier
+        init_declarator_list
+          init_declarator
+            declarator	size
+      struct_member
+        type_specifier
+        init_declarator_list
+          init_declarator
+            declarator	addr
+      struct_member
+        type_specifier
+        init_declarator_list
+          init_declarator
+            declarator	free
+      struct_member
+        type_specifier
+          HeapInfo
+          pointer
+        init_declarator_list
+          init_declarator
+            declarator	next
+      HeapInfo
+  external_decl
+    declaration
+      type_specifier	HeapInfo
+      init_declarator_list
+        init_declarator
+          declarator
+            pointer
+            heap_info_head
+          nullptr
+  external_decl
+    function_def
+      type_specifier
+      declarator	align4
+      param_list
+        param
+          type_specifier
+          declarator	size
+      compound_stmt
+        expr_stmt
+          bit_and
+            postfix
+              return
+              arg_list
+                additive
+                  size
+                  3
+            3
+  external_decl
+    function_def
+      type_specifier
+        pointer
+      declarator	malloc
+      param_list
+        param
+          type_specifier
+          declarator	size
+      compound_stmt
+        if_stmt
+          relational
+            size
+            0
+          declaration
+            type_specifier	return
+            init_declarator_list
+              init_declarator
+                declarator	nullptr
+        declaration
+          type_specifier
+          init_declarator_list
+            init_declarator
+              declarator	asize
+              postfix
+                align4
+                arg_list	size
+        declaration
+          type_specifier	HeapInfo
+          init_declarator_list
+            init_declarator
+              declarator
+                pointer
+                current
+              heap_info_head
+        declaration
+          type_specifier	HeapInfo
+          init_declarator_list
+            init_declarator
+              declarator
+                pointer
+                prev
+              nullptr
+        while_stmt
+          current
+          compound_stmt
+            if_stmt
+              logic_and
+                postfix
+                  current
+                  free
+                relational
+                  postfix
+                    current
+                    size
+                  asize
+              compound_stmt
+                declaration
+                  type_specifier
+                  init_declarator_list
+                    init_declarator
+                      declarator	remaining
+                      additive
+                        postfix
+                          current
+                          size
+                        asize
+                if_stmt
+                  relational
+                    remaining
+                    additive
+                      HEAP_HEADER_SIZE
+                      4
+                  compound_stmt
+                    declaration
+                      type_specifier
+                      init_declarator_list
+                        init_declarator
+                          declarator	new_hdr_addr
+                          additive
+                            postfix
+                              current
+                              addr
+                            asize
+                    declaration
+                      type_specifier	HeapInfo
+                      init_declarator_list
+                        init_declarator
+                          declarator
+                            pointer
+                            new_block
+                          cast
+                            type_specifier	HeapInfo
+                            pointer
+                            new_hdr_addr
+                    expr_stmt
+                      assignment
+                        postfix
+                          new_block
+                          size
+                        additive
+                          remaining
+                          HEAP_HEADER_SIZE
+                    expr_stmt
+                      assignment
+                        postfix
+                          new_block
+                          addr
+                        additive
+                          new_hdr_addr
+                          HEAP_HEADER_SIZE
+                    expr_stmt
+                      assignment
+                        postfix
+                          new_block
+                          free
+                        true
+                    expr_stmt
+                      assignment
+                        postfix
+                          new_block
+                          next
+                        postfix
+                          current
+                          next
+                    expr_stmt
+                      assignment
+                        postfix
+                          current
+                          size
+                        asize
+                    expr_stmt
+                      assignment
+                        postfix
+                          current
+                          next
+                        new_block
+                expr_stmt
+                  assignment
+                    postfix
+                      current
+                      free
+                    false
+                return_stmt
+                  cast
+                    type_specifier
+                    pointer
+                    postfix
+                      current
+                      addr
+            expr_stmt
+              assignment
+                prev
+                current
+            expr_stmt
+              assignment
+                current
+                postfix
+                  current
+                  next
+        declaration
+          type_specifier
+          init_declarator_list
+            init_declarator
+              declarator	hdr_addr
+              heap_top
+        declaration
+          type_specifier
+          init_declarator_list
+            init_declarator
+              declarator	payload_addr
+              additive
+                hdr_addr
+                HEAP_HEADER_SIZE
+        if_stmt
+          relational
+            payload_addr
+            0
+          declaration
+            type_specifier	return
+            init_declarator_list
+              init_declarator
+                declarator	nullptr
+        if_stmt
+          relational
+            additive
+              payload_addr
+              asize
+            STACK_LIMIT
+          declaration
+            type_specifier	return
+            init_declarator_list
+              init_declarator
+                declarator	nullptr
+        declaration
+          type_specifier	HeapInfo
+          init_declarator_list
+            init_declarator
+              declarator
+                pointer
+                new_block
+              cast
+                type_specifier	HeapInfo
+                pointer
+                hdr_addr
+        expr_stmt
+          assignment
+            postfix
+              new_block
+              size
+            asize
+        expr_stmt
+          assignment
+            postfix
+              new_block
+              addr
+            payload_addr
+        expr_stmt
+          assignment
+            postfix
+              new_block
+              free
+            false
+        expr_stmt
+          assignment
+            postfix
+              new_block
+              next
+            nullptr
+        if_stmt
+          prev
+          expr_stmt
+            assignment
+              postfix
+                prev
+                next
+              new_block
+          expr_stmt
+            assignment
+              heap_info_head
+              new_block
+        expr_stmt
+          assignment
+            heap_top
+            additive
+              payload_addr
+              asize
+        expr_stmt
+          assignment
+            heap_top
+            postfix
+              align4
+              arg_list	heap_top
+        return_stmt
           cast
-            type
-              ptr
-                type
-                  int
-            functioncall
-              name	malloc
-              functioncall
-                name	sizeof
-                var
-                  name	int
-        if
-          var
-            name	ptr
-          block
-            derefassign
-              name	ptr
-              num
-                number	42
-            statement
-              functioncall
-                name	print_string
-                str
-                  str	"Dynamically allocated integer value (42): "
-            statement
-              functioncall
-                name	printi
-                dereference
-                  name	ptr
-            statement
-              functioncall
-                name	free
-                var
-                  name	ptr
-          block
-            statement
-              functioncall
-                name	print_string
-                str
-                  str	"Memory allocation failed"
-        return
-          num
-            number	0
+            type_specifier
+            pointer
+            payload_addr
+  external_decl
+    function_def
+      type_specifier
+      declarator	free
+      param_list
+        param
+          type_specifier
+            pointer
+          declarator	ptr
+      compound_stmt
+        if_stmt
+          ptr
+          declaration
+            type_specifier	return
+        declaration
+          type_specifier	HeapInfo
+          init_declarator_list
+            init_declarator
+              declarator
+                pointer
+                current
+              heap_info_head
+        declaration
+          type_specifier	HeapInfo
+          init_declarator_list
+            init_declarator
+              declarator
+                pointer
+                prev
+              nullptr
+        while_stmt
+          current
+          compound_stmt
+            if_stmt
+              equality
+                postfix
+                  current
+                  addr
+                cast
+                  type_specifier
+                  ptr
+              compound_stmt
+                expr_stmt
+                  assignment
+                    postfix
+                      current
+                      free
+                    true
+                if_stmt
+                  logic_and
+                    postfix
+                      current
+                      next
+                    postfix
+                      current
+                      next
+                      free
+                  compound_stmt
+                    expr_stmt
+                      assignment
+                        postfix
+                          current
+                          size
+                        additive
+                          size
+                          HEAP_HEADER_SIZE
+                          postfix
+                            current
+                            next
+                            size
+                    expr_stmt
+                      assignment
+                        postfix
+                          current
+                          next
+                        postfix
+                          current
+                          next
+                          next
+                if_stmt
+                  logic_and
+                    prev
+                    postfix
+                      prev
+                      free
+                  compound_stmt
+                    expr_stmt
+                      assignment
+                        postfix
+                          prev
+                          size
+                        additive
+                          size
+                          HEAP_HEADER_SIZE
+                          postfix
+                            current
+                            size
+                    expr_stmt
+                      assignment
+                        postfix
+                          prev
+                          next
+                        postfix
+                          current
+                          next
+                declaration
+                  type_specifier	return
+            expr_stmt
+              assignment
+                prev
+                current
+            expr_stmt
+              assignment
+                current
+                postfix
+                  current
+                  next
+  external_decl
+    function_def
+      type_specifier
+      declarator	_dump_heap_info
+      compound_stmt
+        declaration
+          type_specifier	HeapInfo
+          init_declarator_list
+            init_declarator
+              declarator
+                pointer
+                current
+              heap_info_head
+        while_stmt
+          current
+          compound_stmt
+            expr_stmt
+              postfix
+                print_string
+                arg_list	"Block at "
+            expr_stmt
+              postfix
+                printi
+                arg_list
+                  postfix
+                    current
+                    addr
+            expr_stmt
+              postfix
+                print_string
+                arg_list	" - Size: "
+            expr_stmt
+              postfix
+                printi
+                arg_list
+                  postfix
+                    current
+                    size
+            expr_stmt
+              postfix
+                print_string
+                arg_list	" - Free: "
+            expr_stmt
+              postfix
+                printi
+                arg_list
+                  conditional
+                    postfix
+                      current
+                      free
+                    1
+                    0
+            expr_stmt
+              postfix
+                print_string
+                arg_list	"\n"
+            expr_stmt
+              assignment
+                current
+                postfix
+                  current
+                  next
+  external_decl
+    function_def
+      type_specifier
+      declarator	add
+      param_list
+        param
+          type_specifier
+          declarator	a
+        param
+          type_specifier
+          declarator	b
+      compound_stmt
+        return_stmt
+          additive
+            a
+            b
+  external_decl
+    function_def
+      type_specifier
+      declarator	main
+      compound_stmt
+        declaration
+          type_specifier
+          init_declarator_list
+            init_declarator
+              declarator	x
+              5
+        declaration
+          type_specifier
+          init_declarator_list
+            init_declarator
+              declarator	y
+              10
+        declaration
+          type_specifier
+          init_declarator_list
+            init_declarator
+              declarator	result
+              postfix
+                add
+                arg_list
+                  x
+                  y
+        expr_stmt
+          postfix
+            print_string
+            arg_list	"The result of 10 + 5 is: "
+        expr_stmt
+          postfix
+            printi
+            arg_list	result
+        expr_stmt	__break
+        declaration
+          type_specifier
+          init_declarator_list
+            init_declarator
+              declarator
+                pointer
+                ptr
+              postfix
+                cast
+                  type_specifier
+                  pointer
+                  malloc
+                arg_list
+                  postfix
+                    sizeof
+                    arg_list	int
+        if_stmt
+          ptr
+          compound_stmt
+            expr_stmt
+              assignment
+                ptr
+                42
+            expr_stmt
+              postfix
+                print_string
+                arg_list	"Dynamically allocated integer value (42): "
+            expr_stmt
+              postfix
+                printi
+                arg_list	ptr
+            expr_stmt
+              postfix
+                free
+                arg_list	ptr
+          compound_stmt
+            expr_stmt
+              postfix
+                print_string
+                arg_list	"Memory allocation failed"
+        return_stmt	0

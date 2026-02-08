@@ -13,13 +13,11 @@ code = preprocess(code)
 preprocessed = copy(code)
 with open("./out/preprocessed_code.rosc", 'w') as f:
     f.write(code)
-def error(msg):
-    print(f"{type(msg).__name__}: {msg}")
-    print(msg.get_context(preprocessed, 40))
-    exit(1)
+
 def parse_code(code):
-    parser = Lark(grammar, parser='lalr', transformer=ASTTransformer(), debug=True)
-    return parser.parse(code, on_error=error)
+    # Use Earley parser to avoid LALR reduce/reduce conflicts
+    parser = Lark(grammar, parser='earley', debug=True)
+    return parser.parse(code)
 ast = parse_code(code)
 with open("./out/ast.txt", 'w') as f:
     f.write(ast.pretty())
