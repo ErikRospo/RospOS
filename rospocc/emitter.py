@@ -150,6 +150,22 @@ class Emitter:
             args = stmt.get('args', [])
             call_expr = {'type': 'call', 'name': name, 'args': args}
             self._emit_call(call_expr, out)
+        elif t == 'while':
+            # emit simple while loop: evaluate cond, branch to end if zero
+            lbl_start = self.gen_label('WHILE_START')
+            lbl_end = self.gen_label('WHILE_END')
+            out.write(f"{lbl_start}:\n")
+            cond = stmt.get('cond')
+            rcond = self.emit_expr(cond, out)
+            # if cond == 0 jump to end
+            out.write(f"  BEQ {rcond}, {abi.SPECIAL_REGS['zero']}, {lbl_end}\n")
+            # emit body
+            for s in stmt.get('body', []):
+                self.emit_statement(s, out)
+            out.write(f"  JMP {lbl_start}\n")
+            out.write(f"{lbl_end}:\n")
+            if rcond in abi.TEMP_REGS:
+                self.free_reg(rcond)
         else:
             out.write(f"  ; unsupported-stmt {stmt!r}\n")
 
@@ -164,6 +180,30 @@ class Emitter:
             # Use LLI pseudo for generic immediates (assembler can lower it)
             out.write(f"  LLI {r}, {v}    ; load immediate {v}\n")
             return r
+        if t == 'var':
+            name = expr.get('name')
+            r = self.var_regs.get(name)
+            if r:
+                return r
+            # unknown var — allocate and zero-initialize
+            r = self.alloc_reg()
+            self.var_regs[name] = r
+            out.write(f"  LLI {r}, 0    ; implicit init {name}\n")
+            return r
+        if t == 'deref':
+            # load byte from address expr
+            inner = expr.get('expr')
+            raddr = self.emit_expr(inner, out)
+            rd = self.alloc_reg()
+            out.write(f"  LB {rd}, {raddr}, 0    ; deref\n")
+            if raddr in abi.TEMP_REGS:
+                self.free_reg(raddr)
+            return rd
+        if t == 'call':
+            # emit call (may be intrinsic)
+            self._emit_call(expr, out)
+            # return value is in RETURN_REG
+            return abi.RETURN_REG
         if t == 'var':
             name = expr.get('name')
             r = self.var_regs.get(name)
@@ -202,8 +242,80 @@ class Emitter:
             return ''
 
     def _emit_call(self, call_expr: Dict[str, Any], out):
-        # place up to 4 args into ARG_REGS
+        name = call_expr.get('name')
         args = call_expr.get('args', [])
+
+        # Intrinsic handling for names starting with __
+        if isinstance(name, str) and name.startswith('__'):
+            # support __lb(addr) -> LB RETURN_REG, addr_reg, 0
+            if name == '__lb':
+                # single arg: address
+                a = args[0] if args else None
+                if a is None:
+                    out.write("  ; __lb missing arg\n")
+                    return
+                # ensure address in a register
+                if a.get('type') == 'const':
+                    raddr = self.alloc_reg()
+                    out.write(f"  LLI {raddr}, {int(a.get('value'))}    ; addr const for __lb\n")
+                elif a.get('type') == 'var':
+                    raddr = self.var_regs.get(a.get('name'))
+                    if not raddr:
+                        raddr = self.alloc_reg()
+                        self.var_regs[a.get('name')] = raddr
+                        out.write(f"  LLI {raddr}, 0    ; implicit init {a.get('name')}\n")
+                else:
+                    # expression
+                    raddr = self.emit_expr(a, out)
+
+                out.write(f"  LB {abi.RETURN_REG}, {raddr}, 0    ; intrinsic __lb -> return\n")
+                if raddr in abi.TEMP_REGS:
+                    self.free_reg(raddr)
+                return
+
+            if name == '__sb':
+                # args: addr, value  OR value, addr? In source uses __sb(tty_addr, *str)
+                # We'll support (addr, value)
+                if len(args) < 2:
+                    out.write("  ; __sb missing args\n")
+                    return
+                a_addr = args[0]
+                a_val = args[1]
+                # prepare regs
+                if a_addr.get('type') == 'const':
+                    raddr = self.alloc_reg()
+                    out.write(f"  LLI {raddr}, {int(a_addr.get('value'))}    ; addr const for __sb\n")
+                elif a_addr.get('type') == 'var':
+                    raddr = self.var_regs.get(a_addr.get('name'))
+                    if not raddr:
+                        raddr = self.alloc_reg()
+                        self.var_regs[a_addr.get('name')] = raddr
+                        out.write(f"  LLI {raddr}, 0    ; implicit init {a_addr.get('name')}\n")
+                else:
+                    raddr = self.emit_expr(a_addr, out)
+
+                if a_val.get('type') == 'const':
+                    rval = self.alloc_reg()
+                    out.write(f"  LLI {rval}, {int(a_val.get('value'))}    ; val const for __sb\n")
+                elif a_val.get('type') == 'var':
+                    rval = self.var_regs.get(a_val.get('name'))
+                    if not rval:
+                        rval = self.alloc_reg()
+                        self.var_regs[a_val.get('name')] = rval
+                        out.write(f"  LLI {rval}, 0    ; implicit init {a_val.get('name')}\n")
+                else:
+                    rval = self.emit_expr(a_val, out)
+
+                out.write(f"  SB {rval}, {raddr}, 0    ; intrinsic __sb\n")
+                if raddr in abi.TEMP_REGS:
+                    self.free_reg(raddr)
+                if rval in abi.TEMP_REGS:
+                    self.free_reg(rval)
+                return
+
+            # other intrinsics can be lowered similarly
+
+        # Default: regular function call -> place up to 4 args into ARG_REGS then CALL
         for i, a in enumerate(args[: len(abi.ARG_REGS)]):
             dest = abi.ARG_REGS[i]
             if a.get('type') == 'const':

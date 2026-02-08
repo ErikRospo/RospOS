@@ -18,7 +18,8 @@ HeapInfo* heap_info_head = nullptr;
 
 // Align size up to 4 bytes (word alignment)
 int align4(int size) {
-    return (size + 3) & ~3;
+    int v= (size + 3) & ~3;
+    return v;
 }
 
 // Basic first-fit allocator with splitting and coalescing

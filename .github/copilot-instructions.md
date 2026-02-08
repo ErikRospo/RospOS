@@ -57,5 +57,5 @@ RospOS is a multi-component system with the following major parts:
 
 - Follow the existing modular structure when adding new components.
 - Ensure all changes are tested in both the Python and C++ parts of the project.
-
+The venv is in ./rospoas/venv/bin/activate, source that then cd into rospocc and run the file. Keep imports as they are, e.g. from abi import foo, rather than from rospocc.abi or from rospocc import abi, etc. 
 For further questions, refer to the source files or ask for clarification.

@@ -36,24 +36,19 @@ def parse_code(code):
     return parser.parse(code)
 
 
-ast_dict = None
 try:
     tree = parse_code(code)
-    ast_dict = tree_to_dict(tree)
-    # write a textual representation for debugging
-    try:
-        with open("./out/ast.json", "w") as f:
-            json.dump(ast_dict, f, indent=2)
-    except Exception:
-        pass
-except Exception:
-    ast_dict = None
+except Exception as e:
+    print("Error: parsing failed:", e)
+    raise
 
-# Convert preprocessed code or AST into the simple translation-unit for emitter
-if ast_dict:
-    tu = frontend.code_to_translation_unit(ast_dict)
-else:
-    tu = frontend.code_to_translation_unit(preprocessed)
+ast_dict = tree_to_dict(tree)
+# write a textual representation for debugging
+with open("./out/ast.json", "w") as f:
+    json.dump(ast_dict, f, indent=2)
+
+# Convert parsed AST into the translation-unit for emitter (no regex fallback)
+tu = frontend.code_to_translation_unit(ast_dict)
 
 out = './out/generated.ros'
 emitter.emit_translation_unit(tu, out)

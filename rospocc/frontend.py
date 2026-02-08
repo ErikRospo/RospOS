@@ -20,171 +20,340 @@ def code_to_translation_unit(input_data) -> Dict[str, Any]:
     """
     tu = {'globals': [], 'functions': []}
 
-    # If input is a dict-like AST, try to extract strings and main/return
+    # If input is a dict-like AST produced by parser.tree_to_dict, walk it
     if isinstance(input_data, dict) and 'node' in input_data:
         ast = input_data
 
-        def find_string_literals(n):
-            results = []
-            if isinstance(n, dict):
-                # leaves with tokens are dicts with key 'token'
-                if 'token' in n:
-                    tok = n['token']
-                    if isinstance(tok, str) and tok.startswith('"') and tok.endswith('"'):
-                        results.append(tok[1:-1])
-                for c in n.get('children', []):
-                    results.extend(find_string_literals(c))
-            return results
+        # pool for string literals encountered while walking AST
+        str_pool = {}
+        str_count = 0
 
-        def find_identifier_before_string(n):
-            # Heuristic: look for pattern [identifier, string_token] in children
+        def walk(node):
+            res = []
+            if not isinstance(node, dict):
+                return res
+            if node.get('node') == 'translation_unit' or node.get('node') == 'start':
+                for c in node.get('children', []):
+                    res.extend(walk(c))
+                return res
+
+            # function_def nodes
+            if node.get('node') == 'function_def':
+                # children: type_specifier, declarator, '(', param_list?, ')', compound_stmt
+                children = node.get('children', [])
+                name = None
+                params = []
+                body_node = None
+                for c in children:
+                    if isinstance(c, dict) and c.get('node') == 'declarator':
+                        # find NAME token inside declarator
+                        for d in c.get('children', []):
+                            if isinstance(d, dict) and 'token' in d and d['token'].isidentifier():
+                                name = d['token']
+                                break
+                    if isinstance(c, dict) and c.get('node') == 'param_list':
+                        # param_list -> param (',' param)*
+                        for p in c.get('children', []):
+                            if isinstance(p, dict) and p.get('node') == 'param':
+                                # look for declarator child
+                                for pp in p.get('children', []):
+                                    if isinstance(pp, dict) and pp.get('node') == 'declarator':
+                                        for n in pp.get('children', []):
+                                            if isinstance(n, dict) and 'token' in n and n['token'].isidentifier():
+                                                params.append(n['token'])
+                    if isinstance(c, dict) and c.get('node') == 'compound_stmt':
+                        body_node = c
+
+                body = []
+                if body_node:
+                    body = compound_to_stmts(body_node)
+
+                tu['functions'].append({'name': name or 'fn', 'params': params, 'body': body})
+                return [None]
+
+            # global declarations
+            if node.get('node') == 'declaration':
+                # check for char NAME [] = STRING
+                children = node.get('children', [])
+                t_spec = None
+                init_list = None
+                for c in children:
+                    if isinstance(c, dict) and c.get('node') == 'type_specifier':
+                        # find token inside
+                        for d in c.get('children', []):
+                            if isinstance(d, dict) and 'token' in d:
+                                t_spec = d['token']
+                    if isinstance(c, dict) and c.get('node') == 'init_declarator_list':
+                        init_list = c
+                if t_spec == 'char' and init_list:
+                    # init_declarator_list contains init_declarator nodes
+                    for init in init_list.get('children', []):
+                        if isinstance(init, dict) and init.get('node') == 'init_declarator':
+                            decl_children = init.get('children', [])
+                            name = None
+                            val = None
+                            for dc in decl_children:
+                                if isinstance(dc, dict) and dc.get('node') == 'declarator':
+                                    for dd in dc.get('children', []):
+                                        if isinstance(dd, dict) and 'token' in dd and dd['token'].isidentifier():
+                                            name = dd['token']
+                                if isinstance(dc, dict) and 'token' in dc and dc['token'].startswith('"'):
+                                    val = dc['token'][1:-1]
+                            if name and val is not None:
+                                tu['globals'].append({'kind': 'string', 'name': name, 'value': val})
+                return []
+
+            # recurse into children by default
+            for c in node.get('children', []):
+                res.extend(walk(c) or [])
+            return res
+
+        def compound_to_stmts(comp_node):
+            nonlocal str_count
+            stmts = []
+            for c in comp_node.get('children', []):
+                if not isinstance(c, dict):
+                    continue
+                nd = c.get('node')
+                if nd == 'while_stmt':
+                    # children: 'while', '(', expr, ')', statement
+                    children = c.get('children', [])
+                    cond = None
+                    body_node = None
+                    for ch in children:
+                        if isinstance(ch, dict) and ch.get('node') and ch.get('node') != '(' and ch.get('node') != ')':
+                            # heuristics: first expr-like node is cond, next statement node is body
+                            if cond is None and ch.get('node') not in ('statement', 'compound_stmt', 'expr_stmt', 'declaration', 'return_stmt'):
+                                # try to find expr inside
+                                cond = expr_from_node(ch)
+                            elif cond is None and ch.get('node') in ('expr', 'assignment', 'conditional', 'logic_or', 'additive', 'multiplicative', 'postfix', 'primary', 'unary'):
+                                cond = expr_from_node(ch)
+                            elif body_node is None and ch.get('node') in ('compound_stmt', 'expr_stmt', 'declaration', 'return_stmt'):
+                                body_node = ch
+                    if cond is None:
+                        # fallback: try children[2]
+                        if len(children) >= 3 and isinstance(children[2], dict):
+                            cond = expr_from_node(children[2])
+                    if body_node is None:
+                        # try last child
+                        if children:
+                            body_node = children[-1]
+                    # convert body_node to stmts
+                    body_stmts = []
+                    if body_node and isinstance(body_node, dict):
+                        if body_node.get('node') == 'compound_stmt':
+                            body_stmts = compound_to_stmts(body_node)
+                        else:
+                            # single statement
+                            if body_node.get('node') == 'expr_stmt':
+                                ev = None
+                                for cc in body_node.get('children', []):
+                                    if isinstance(cc, dict):
+                                        ev = expr_from_node(cc)
+                                        break
+                                if ev:
+                                    if ev.get('type') == 'call':
+                                        body_stmts.append({'type': 'call_stmt', 'name': ev.get('name'), 'args': ev.get('args', [])})
+                                    elif ev.get('type') == 'assign':
+                                        body_stmts.append({'type': 'assign', 'target': ev.get('target'), 'value': ev.get('value')})
+                            else:
+                                # unsupported single stmt
+                                pass
+                    stmts.append({'type': 'while', 'cond': cond, 'body': body_stmts})
+                    continue
+                if nd == 'return_stmt':
+                    # find expr child
+                    expr = None
+                    for cc in c.get('children', []):
+                        if isinstance(cc, dict):
+                            expr = expr_from_node(cc)
+                            break
+                    stmts.append({'type': 'return', 'value': expr})
+                elif nd == 'declaration':
+                    # local decl
+                    # look for init_declarator_list
+                    name = None
+                    init = None
+                    for cc in c.get('children', []):
+                        if isinstance(cc, dict) and cc.get('node') == 'init_declarator_list':
+                            for idc in cc.get('children', []):
+                                if isinstance(idc, dict) and idc.get('node') == 'init_declarator':
+                                    for part in idc.get('children', []):
+                                        if isinstance(part, dict) and part.get('node') == 'declarator':
+                                            for t in part.get('children', []):
+                                                if isinstance(t, dict) and 'token' in t and t['token'].isidentifier():
+                                                    name = t['token']
+                                        if isinstance(part, dict) and part.get('node') is None and 'token' in part:
+                                            # token could be a NUMBER or STRING
+                                            tok = part.get('token')
+                                            if isinstance(tok, str) and re.fullmatch(r"-?\d+|0x[0-9a-fA-F]+", tok):
+                                                try:
+                                                    init = {'type': 'const', 'value': int(tok, 0)}
+                                                except Exception:
+                                                    init = {'type': 'const', 'value': int(tok)}
+                                            # otherwise ignore here
+                                        if isinstance(part, dict) and 'token' in part and part['token'].startswith('"'):
+                                            val = part['token'][1:-1]
+                                            # reuse or create label
+                                            lab = None
+                                            for k, v in str_pool.items():
+                                                if v == val:
+                                                    lab = k
+                                                    break
+                                            if lab is None:
+                                                lab = f"str_{str_count}"
+                                                str_count += 1
+                                                str_pool[lab] = val
+                                                tu['globals'].append({'kind': 'string', 'name': lab, 'value': val})
+                                            init = {'type': 'string_addr', 'label': lab}
+                                        if isinstance(part, dict) and part.get('node'):
+                                            # equal expr might be represented as a child node
+                                            # fallback: try to find a NUMBER token inside
+                                            val = find_number_in_node(part)
+                                            if val is not None:
+                                                init = {'type': 'const', 'value': val}
+                    if name:
+                        stmts.append({'type': 'decl', 'name': name, 'init': init})
+                elif nd == 'expr_stmt':
+                    # expression statement — could be call or assignment
+                    expr = None
+                    for cc in c.get('children', []):
+                        if isinstance(cc, dict):
+                            expr = expr_from_node(cc)
+                            break
+                    if expr:
+                        if expr.get('type') == 'call':
+                            stmts.append({'type': 'call_stmt', 'name': expr.get('name'), 'args': expr.get('args', [])})
+                        elif expr.get('type') == 'assign':
+                            stmts.append({'type': 'assign', 'target': expr.get('target'), 'value': expr.get('value')})
+                        else:
+                            # ignore other expr_stmt forms
+                            pass
+                else:
+                    # ignore other statements for now
+                    pass
+            return stmts
+
+        def find_number_in_node(n):
+            if isinstance(n, dict):
+                if 'token' in n and re.fullmatch(r"-?\d+|0x[0-9a-fA-F]+", n['token']):
+                    try:
+                        return int(n['token'], 0)
+                    except Exception:
+                        return None
+                for c in n.get('children', []):
+                    v = find_number_in_node(c)
+                    if v is not None:
+                        return v
+            return None
+
+        def expr_from_node(n):
+            # return expression dict: const, var, binop, call, string_addr
+            nonlocal str_count
             if not isinstance(n, dict):
                 return None
-            ch = n.get('children', [])
-            for i in range(len(ch) - 1):
-                a, b = ch[i], ch[i + 1]
-                if isinstance(a, dict) and 'token' in a and isinstance(b, dict) and 'token' in b:
-                    if isinstance(a['token'], str) and a['token'].isidentifier() and isinstance(b['token'], str) and b['token'].startswith('"'):
-                        return (a['token'], b['token'][1:-1])
-            for c in ch:
-                res = find_identifier_before_string(c)
-                if res:
-                    return res
+            if 'token' in n:
+                tok = n['token']
+                if re.fullmatch(r"-?\d+|0x[0-9a-fA-F]+", tok):
+                    try:
+                        return {'type': 'const', 'value': int(tok, 0)}
+                    except Exception:
+                        return {'type': 'const', 'value': int(tok)}
+                if tok.startswith('"') and tok.endswith('"'):
+                    # literal string -> create or reuse a global label
+                    val = tok[1:-1]
+                    for lab, v in str_pool.items():
+                        if v == val:
+                            return {'type': 'string_addr', 'label': lab}
+                    lab = f"str_{str_count}"
+                    str_count += 1
+                    str_pool[lab] = val
+                    tu['globals'].append({'kind': 'string', 'name': lab, 'value': val})
+                    return {'type': 'string_addr', 'label': lab}
+                if tok.isidentifier():
+                    return {'type': 'var', 'name': tok}
+                return None
+
+            node_name = n.get('node')
+            if node_name in ('additive', 'multiplicative', 'relational', 'equality', 'shift'):
+                # children may be [left, {'token':op}, right, ...]
+                children = n.get('children', [])
+                if not children:
+                    return None
+                # reduce binary left-associative
+                left = expr_from_node(children[0])
+                i = 1
+                # ensure we have pairs (op, right)
+                while i + 1 < len(children):
+                    opn = children[i]
+                    rightn = children[i + 1]
+                    op = None
+                    if isinstance(opn, dict) and 'token' in opn:
+                        op = opn['token']
+                    right = expr_from_node(rightn)
+                    if op and left and right:
+                        left = {'type': 'binop', 'op': op, 'left': left, 'right': right}
+                    i += 2
+                return left
+
+            if node_name == 'assignment':
+                # child pattern: left, '=' token, right
+                children = n.get('children', [])
+                if len(children) >= 3 and isinstance(children[1], dict) and 'token' in children[1] and children[1]['token'] == '=':
+                    left = expr_from_node(children[0])
+                    right = expr_from_node(children[2])
+                    if left and left.get('type') == 'var':
+                        return {'type': 'assign', 'target': left.get('name'), 'value': right}
+                return None
+
+            if node_name == 'unary':
+                # unary may have token '*' for deref etc
+                children = n.get('children', [])
+                if not children:
+                    return None
+                first = children[0]
+                if isinstance(first, dict) and 'token' in first and first['token'] == '*':
+                    # dereference
+                    if len(children) > 1:
+                        inner = expr_from_node(children[1])
+                        if inner:
+                            return {'type': 'deref', 'expr': inner}
+                # other unary ops ignored for now
+                return expr_from_node(children[-1])
+
+            if node_name == 'postfix':
+                # look for call pattern: primary then arg_list
+                children = n.get('children', [])
+                if not children:
+                    return None
+                primary = children[0]
+                # if any child is arg_list -> call
+                for c in children[1:]:
+                    if isinstance(c, dict) and c.get('node') == 'arg_list':
+                        # primary should be NAME token
+                        if isinstance(primary, dict) and 'token' in primary and primary['token'].isidentifier():
+                            args = []
+                            for a in c.get('children', []):
+                                if isinstance(a, dict):
+                                    ev = expr_from_node(a)
+                                    if ev:
+                                        args.append(ev)
+                            return {'type': 'call', 'name': primary['token'], 'args': args}
+                # otherwise fallback to primary
+                return expr_from_node(primary)
+
+            # descend into children and try to convert
+            for c in n.get('children', []):
+                r = expr_from_node(c)
+                if r is not None:
+                    return r
             return None
 
-        # Collect string globals (very heuristic)
-        s = find_identifier_before_string(ast)
-        if s:
-            name, val = s
-            tu['globals'].append({'kind': 'string', 'name': name, 'value': val})
+        # fix: ensure bounds when combining binary children
+        # (handled in expr_from_node below)
 
-        # Find a numeric return inside the AST
-        def find_return_number(n):
-            if isinstance(n, dict):
-                if n.get('node') and 'return' in n.get('node'):
-                    # search children for numeric token
-                    for c in n.get('children', []):
-                        if isinstance(c, dict) and 'token' in c:
-                            tok = c['token']
-                            if isinstance(tok, str) and re.fullmatch(r"-?\d+", tok):
-                                return int(tok)
-                for c in n.get('children', []):
-                    res = find_return_number(c)
-                    if res is not None:
-                        return res
-            return None
-
-        ret = find_return_number(ast)
-        if ret is None:
-            ret = 0
-        tu['functions'].append({'name': 'main', 'body': [{'type': 'return', 'value': {'type': 'const', 'value': ret}}]})
-
+        walk(ast)
         return tu
-
-    # Fallback: treat input_data as raw code string and use regex heuristics
-    code = input_data
-
-    # Pool for string literals encountered while parsing functions
-    str_pool = {}
-    str_count = 0
-
-    # Find simple string globals: char foo[] = "...";
-    for m in re.finditer(r"char\s+(?P<name>\w+)\s*\[\s*\]\s*=\s*\"(?P<val>.*?)\"\s*;",
-                         code, flags=re.DOTALL):
-        tu['globals'].append({'kind': 'string', 'name': m.group('name'), 'value': m.group('val')})
-
-    # Find function definitions (very simple regex-based parser)
-    for m in re.finditer(r"(?P<ret>\w+)\s+(?P<name>\w+)\s*\((?P<params>[^)]*)\)\s*\{(?P<body>.*?)\}", code, flags=re.DOTALL):
-        name = m.group('name')
-        params = m.group('params').strip()
-        body = m.group('body')
-        param_list = []
-        if params:
-            for p in params.split(','):
-                p = p.strip()
-                if not p:
-                    continue
-                parts = p.split()
-                param_list.append(parts[-1])
-
-        stmts = []
-        # Process body line-by-line for simple constructs
-        for line in body.split(';'):
-            line = line.strip()
-            if not line:
-                continue
-            # Remove comments
-            line = re.sub(r"//.*$", "", line).strip()
-
-            # int x = 5
-            m_decl = re.match(r"int\s+(?P<name>\w+)\s*=\s*(?P<val>-?\d+)$", line)
-            if m_decl:
-                stmts.append({'type': 'decl', 'name': m_decl.group('name'), 'init': {'type': 'const', 'value': int(m_decl.group('val'))}})
-                continue
-
-            # int result = add(x, y)
-            m_call_assign = re.match(r"int\s+(?P<name>\w+)\s*=\s*(?P<call>\w+)\((?P<args>.*)\)$", line)
-            if m_call_assign:
-                args = [a.strip() for a in m_call_assign.group('args').split(',') if a.strip()]
-                stmts.append({'type': 'decl', 'name': m_call_assign.group('name'), 'init': {'type': 'call', 'name': m_call_assign.group('call'), 'args': [{'type': 'var', 'name': a} for a in args]}})
-                continue
-
-            # assignment from call: result = add(x, y)
-            m_call_assign2 = re.match(r"(?P<name>\w+)\s*=\s*(?P<call>\w+)\((?P<args>.*)\)$", line)
-            if m_call_assign2:
-                args = [a.strip() for a in m_call_assign2.group('args').split(',') if a.strip()]
-                stmts.append({'type': 'assign', 'target': m_call_assign2.group('name'), 'value': {'type': 'call', 'name': m_call_assign2.group('call'), 'args': [{'type': 'var', 'name': a} for a in args]}})
-                continue
-
-            # function calls like print_string("...")
-            m_call = re.match(r"(?P<name>\w+)\((?P<args>.*)\)$", line)
-            if m_call:
-                fname = m_call.group('name')
-                args_raw = m_call.group('args')
-                args = []
-                if args_raw:
-                    # split by commas (naive)
-                    for a in [s.strip() for s in args_raw.split(',')]:
-                        if a.startswith('"') and a.endswith('"'):
-                            # string literal — add to pool
-                            l = a[1:-1]
-                            lab = f"str_{str_count}"
-                            str_count += 1
-                            str_pool[lab] = l
-                            args.append({'type': 'string_addr', 'label': lab})
-                        elif re.fullmatch(r"-?\d+", a):
-                            args.append({'type': 'const', 'value': int(a)})
-                        else:
-                            args.append({'type': 'var', 'name': a})
-                stmts.append({'type': 'call_stmt', 'name': fname, 'args': args})
-                continue
-
-            # return statements
-            m_ret = re.match(r"return\s+(?P<expr>.+)$", line)
-            if m_ret:
-                expr = m_ret.group('expr').strip()
-                # binary add
-                m_bin = re.match(r"(?P<a>\w+)\s*\+\s*(?P<b>\w+)$", expr)
-                if m_bin:
-                    stmts.append({'type': 'return', 'value': {'type': 'binop', 'op': '+', 'left': {'type': 'var', 'name': m_bin.group('a')}, 'right': {'type': 'var', 'name': m_bin.group('b')}}})
-                elif re.fullmatch(r"-?\d+", expr):
-                    stmts.append({'type': 'return', 'value': {'type': 'const', 'value': int(expr)}})
-                else:
-                    # return variable
-                    stmts.append({'type': 'return', 'value': {'type': 'var', 'name': expr}})
-                continue
-
-            # fallback: ignore
-            # print unknown lines for inspection
-            # stmts.append({'type': 'unknown', 'text': line})
-
-        tu['functions'].append({'name': name, 'params': param_list, 'body': stmts})
-
-    # add pooled strings to globals
-    for lab, val in str_pool.items():
-        tu['globals'].append({'kind': 'string', 'name': lab, 'value': val})
-
-    return tu
 
 
 __all__ = ['code_to_translation_unit']
