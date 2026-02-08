@@ -16,3 +16,5 @@ Optimization?
 
 
 VSCode extension for rospoas? Syntax highlighting, error checking, etc. 
+
+LLI followed by arith/logical op with the same register should be pseudo-op'd to a single instruction (e.g. LLI r1, 5 followed by ADD r1, r1, r2 should be converted to ADDI r1, r2, 5), if possible.

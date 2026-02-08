@@ -1,0 +1,592 @@
+program
+  codeline
+    directiveuse
+      seg
+        imm	0x00000000
+  codeline
+    directiveuse
+      func
+        label	print_string:
+  codeline
+    instruction
+      lli
+        register	r2
+        imm	268435456
+  codeline
+    label	WHILE_START1:
+  codeline
+    instruction
+      binstructuse
+        beq
+        register	r0
+        register	r0
+        imm
+          labeluse	WHILE_END2
+  codeline
+    instruction
+      lsinstructuse
+        sb
+        register	r1
+        register	r2
+        imm	0
+  codeline
+    instruction
+      jmpseudo
+        imm
+          labeluse	WHILE_START1
+  codeline
+    label	WHILE_END2:
+  codeline
+    instruction
+      iinstructuse
+        addi
+        register	r1
+        register	r0
+        imm	0
+  codeline
+    instruction
+      retpseudo
+  codeline
+    directiveuse
+      func
+        label	printi:
+  codeline
+    instruction
+      lli
+        register	r2
+        imm	12
+  codeline
+    instruction
+      lli
+        register	r3
+        imm	0
+  codeline
+    label	WHILE_START3:
+  codeline
+    instruction
+      binstructuse
+        beq
+        register	r1
+        register	r0
+        imm
+          labeluse	WHILE_END4
+  codeline
+    instruction
+      jmpseudo
+        imm
+          labeluse	WHILE_START3
+  codeline
+    label	WHILE_END4:
+  codeline
+    instruction
+      iinstructuse
+        addi
+        register	r1
+        register	r2
+        imm	0
+  codeline
+    instruction
+      callpseudo
+        imm
+          labeluse	print_string
+  codeline
+    instruction
+      iinstructuse
+        addi
+        register	r1
+        register	r0
+        imm	0
+  codeline
+    instruction
+      retpseudo
+  codeline
+    directiveuse
+      func
+        label	read_char:
+  codeline
+    instruction
+      lli
+        register	r2
+        imm	268435456
+  codeline
+    instruction
+      lsinstructuse
+        lb
+        register	r1
+        register	r2
+        imm	0
+  codeline
+    instruction
+      retpseudo
+  codeline
+    directiveuse
+      func
+        label	align4:
+  codeline
+    instruction
+      lli
+        register	r2
+        imm	3
+  codeline
+    instruction
+      lli
+        register	r3
+        imm	0
+  codeline
+    instruction
+      iinstructuse
+        addi
+        register	r1
+        register	r0
+        imm	0
+  codeline
+    instruction
+      retpseudo
+  codeline
+    directiveuse
+      func
+        label	malloc:
+  codeline
+    instruction
+      lli
+        register	r2
+        imm	0
+  codeline
+    instruction
+      lli
+        register	r3
+        imm	0
+  codeline
+    instruction
+      lli
+        register	r4
+        imm	0
+  codeline
+    label	WHILE_START5:
+  codeline
+    instruction
+      binstructuse
+        beq
+        register	r0
+        register	r0
+        imm
+          labeluse	WHILE_END6
+  codeline
+    instruction
+      jmpseudo
+        imm
+          labeluse	WHILE_START5
+  codeline
+    label	WHILE_END6:
+  codeline
+    instruction
+      lli
+        register	r5
+        imm	0
+  codeline
+    instruction
+      lli
+        register	r6
+        imm	0
+  codeline
+    instruction
+      lli
+        register	r7
+        imm	0
+  codeline
+    instruction
+      rinstructuse
+        add
+        register	r1
+        register	r6
+        register	r0
+  codeline
+    instruction
+      retpseudo
+  codeline
+    directiveuse
+      func
+        label	free:
+  codeline
+    instruction
+      lli
+        register	r2
+        imm	0
+  codeline
+    instruction
+      lli
+        register	r3
+        imm	0
+  codeline
+    label	WHILE_START7:
+  codeline
+    instruction
+      binstructuse
+        beq
+        register	r0
+        register	r0
+        imm
+          labeluse	WHILE_END8
+  codeline
+    instruction
+      jmpseudo
+        imm
+          labeluse	WHILE_START7
+  codeline
+    label	WHILE_END8:
+  codeline
+    instruction
+      iinstructuse
+        addi
+        register	r1
+        register	r0
+        imm	0
+  codeline
+    instruction
+      retpseudo
+  codeline
+    directiveuse
+      func
+        label	_dump_heap_info:
+  codeline
+    instruction
+      lli
+        register	r2
+        imm	0
+  codeline
+    label	WHILE_START9:
+  codeline
+    instruction
+      binstructuse
+        beq
+        register	r0
+        register	r0
+        imm
+          labeluse	WHILE_END10
+  codeline
+    instruction
+      lli
+        register	r1
+        imm
+          labeluse	str_0
+  codeline
+    instruction
+      callpseudo
+        imm
+          labeluse	print_string
+  codeline
+    instruction
+      iinstructuse
+        addi
+        register	r1
+        register	r2
+        imm	0
+  codeline
+    instruction
+      callpseudo
+        imm
+          labeluse	printi
+  codeline
+    instruction
+      lli
+        register	r1
+        imm
+          labeluse	str_1
+  codeline
+    instruction
+      callpseudo
+        imm
+          labeluse	print_string
+  codeline
+    instruction
+      iinstructuse
+        addi
+        register	r1
+        register	r2
+        imm	0
+  codeline
+    instruction
+      callpseudo
+        imm
+          labeluse	printi
+  codeline
+    instruction
+      lli
+        register	r1
+        imm
+          labeluse	str_2
+  codeline
+    instruction
+      callpseudo
+        imm
+          labeluse	print_string
+  codeline
+    instruction
+      iinstructuse
+        addi
+        register	r1
+        register	r2
+        imm	0
+  codeline
+    instruction
+      callpseudo
+        imm
+          labeluse	printi
+  codeline
+    instruction
+      lli
+        register	r1
+        imm
+          labeluse	str_3
+  codeline
+    instruction
+      callpseudo
+        imm
+          labeluse	print_string
+  codeline
+    instruction
+      jmpseudo
+        imm
+          labeluse	WHILE_START9
+  codeline
+    label	WHILE_END10:
+  codeline
+    instruction
+      iinstructuse
+        addi
+        register	r1
+        register	r0
+        imm	0
+  codeline
+    instruction
+      retpseudo
+  codeline
+    directiveuse
+      func
+        label	add:
+  codeline
+    instruction
+      retpseudo
+  codeline
+    directiveuse
+      func
+        label	main:
+  codeline
+    instruction
+      lli
+        register	r2
+        imm	5
+  codeline
+    instruction
+      lli
+        register	r3
+        imm	10
+  codeline
+    instruction
+      lli
+        register	r4
+        imm	0
+  codeline
+    instruction
+      lli
+        register	r1
+        imm
+          labeluse	str_4
+  codeline
+    instruction
+      callpseudo
+        imm
+          labeluse	print_string
+  codeline
+    instruction
+      iinstructuse
+        addi
+        register	r1
+        register	r4
+        imm	0
+  codeline
+    instruction
+      callpseudo
+        imm
+          labeluse	printi
+  codeline
+    instruction
+      lli
+        register	r5
+        imm	0
+  codeline
+    instruction
+      lli
+        register	r6
+        imm	0
+  codeline
+    instruction
+      rinstructuse
+        add
+        register	r1
+        register	r6
+        register	r0
+  codeline
+    instruction
+      retpseudo
+  codeline
+    label	str_0:
+  codeline
+    directiveuse
+      strv	"Block at "
+  codeline
+    label	str_1:
+  codeline
+    directiveuse
+      strv	" - Size: "
+  codeline
+    label	str_2:
+  codeline
+    directiveuse
+      strv	" - Free: "
+  codeline
+    label	str_3:
+  codeline
+    directiveuse
+      strv	"\n"
+  codeline
+    label	str_4:
+  codeline
+    directiveuse
+      strv	"The result of 10 + 5 is: "
+
+
+[Directive(name='seg', imm=ImmValue(value=0), length=None, src={'file': None, 'line': None}), LabelDecl(name='print_string', src={'file': 'out/generated.ros', 'line': 5, 'pp_line': 5}), Instruction(type='i', name='addi', rd=2, rs1=0, rs2=None, imm=ImmValue(value=4096), legacy=None, src={'file': None, 'line': None}), Instruction(type='i', name='shli', rd=2, rs1=2, rs2=None, imm=ImmValue(value=16), legacy=None, src={'file': None, 'line': None}), LabelDecl(name='WHILE_START1', src={'file': 'out/generated.ros', 'line': 8, 'pp_line': 8}), Instruction(type='b', name='beq', rd=0, rs1=0, rs2=None, imm=ImmLabel(name='WHILE_END2'), legacy={'type': 'b', 'name': 'beq', 'rd': 0, 'rs1': 0, 'imm': {'type': 'u', 'name': 'WHILE_END2', 'src': {'file': 'out/generated.ros', 'line': 9, 'pp_line': 9}}, 'src': {'file': None, 'line': None}}, src={'file': None, 'line': None}), Instruction(type='l', name='sb', rd=1, rs1=2, rs2=None, imm=ImmValue(value=0), legacy={'type': 'l', 'name': 'sb', 'rd': 1, 'rs1': 2, 'imm': 0, 'src': {'file': None, 'line': None}}, src={'file': None, 'line': None}), Instruction(type='i', name='addi', rd=13, rs1=0, rs2=None, imm=ImmLabelPart(label='WHILE_START1', part='high'), legacy=None, src={'file': None, 'line': None}), Instruction(type='i', name='shli', rd=13, rs1=13, rs2=None, imm=ImmValue(value=16), legacy=None, src={'file': None, 'line': None}), Instruction(type='i', name='ori', rd=13, rs1=13, rs2=None, imm=ImmLabelPart(label='WHILE_START1', part='low'), legacy=None, src={'file': None, 'line': None}), Instruction(type='j', name='jalr', rd=0, rs1=13, rs2=None, imm=ImmValue(value=0), legacy=None, src={'file': None, 'line': None}), LabelDecl(name='WHILE_END2', src={'file': 'out/generated.ros', 'line': 12, 'pp_line': 12}), Instruction(type='i', name='addi', rd=1, rs1=0, rs2=None, imm=ImmValue(value=0), legacy={'type': 'i', 'name': 'addi', 'rd': 1, 'rs1': 0, 'imm': 0, 'src': {'file': None, 'line': None}}, src={'file': None, 'line': None}), Instruction(type='j', name='jalr', rd=0, rs1=14, rs2=None, imm=ImmValue(value=0), legacy={'type': 'j', 'rd': 0, 'rs1': 14, 'name': 'jalr', 'imm': 0, 'src': {'file': None, 'line': None}}, src={'file': None, 'line': None}), LabelDecl(name='printi', src={'file': 'out/generated.ros', 'line': 17, 'pp_line': 17}), Instruction(type='i', name='addi', rd=2, rs1=0, rs2=None, imm=ImmValue(value=12), legacy=None, src={'file': None, 'line': None}), Instruction(type='i', name='addi', rd=3, rs1=0, rs2=None, imm=ImmValue(value=0), legacy=None, src={'file': None, 'line': None}), LabelDecl(name='WHILE_START3', src={'file': 'out/generated.ros', 'line': 21, 'pp_line': 21}), Instruction(type='b', name='beq', rd=1, rs1=0, rs2=None, imm=ImmLabel(name='WHILE_END4'), legacy={'type': 'b', 'name': 'beq', 'rd': 1, 'rs1': 0, 'imm': {'type': 'u', 'name': 'WHILE_END4', 'src': {'file': 'out/generated.ros', 'line': 22, 'pp_line': 22}}, 'src': {'file': None, 'line': None}}, src={'file': None, 'line': None}), Instruction(type='i', name='addi', rd=13, rs1=0, rs2=None, imm=ImmLabelPart(label='WHILE_START3', part='high'), legacy=None, src={'file': None, 'line': None}), Instruction(type='i', name='shli', rd=13, rs1=13, rs2=None, imm=ImmValue(value=16), legacy=None, src={'file': None, 'line': None}), Instruction(type='i', name='ori', rd=13, rs1=13, rs2=None, imm=ImmLabelPart(label='WHILE_START3', part='low'), legacy=None, src={'file': None, 'line': None}), Instruction(type='j', name='jalr', rd=0, rs1=13, rs2=None, imm=ImmValue(value=0), legacy=None, src={'file': None, 'line': None}), LabelDecl(name='WHILE_END4', src={'file': 'out/generated.ros', 'line': 24, 'pp_line': 24}), Instruction(type='i', name='addi', rd=1, rs1=2, rs2=None, imm=ImmValue(value=0), legacy={'type': 'i', 'name': 'addi', 'rd': 1, 'rs1': 2, 'imm': 0, 'src': {'file': None, 'line': None}}, src={'file': None, 'line': None}), Instruction(type='i', name='addi', rd=13, rs1=0, rs2=None, imm=ImmLabelPart(label='print_string', part='high'), legacy=None, src={'file': None, 'line': None}), Instruction(type='i', name='shli', rd=13, rs1=13, rs2=None, imm=ImmValue(value=16), legacy=None, src={'file': None, 'line': None}), Instruction(type='i', name='ori', rd=13, rs1=13, rs2=None, imm=ImmLabelPart(label='print_string', part='low'), legacy=None, src={'file': None, 'line': None}), Instruction(type='j', name='jalr', rd=14, rs1=13, rs2=None, imm=ImmValue(value=0), legacy=None, src={'file': None, 'line': None}), Instruction(type='i', name='addi', rd=1, rs1=0, rs2=None, imm=ImmValue(value=0), legacy={'type': 'i', 'name': 'addi', 'rd': 1, 'rs1': 0, 'imm': 0, 'src': {'file': None, 'line': None}}, src={'file': None, 'line': None}), Instruction(type='j', name='jalr', rd=0, rs1=14, rs2=None, imm=ImmValue(value=0), legacy={'type': 'j', 'rd': 0, 'rs1': 14, 'name': 'jalr', 'imm': 0, 'src': {'file': None, 'line': None}}, src={'file': None, 'line': None}), LabelDecl(name='read_char', src={'file': 'out/generated.ros', 'line': 31, 'pp_line': 31}), Instruction(type='i', name='addi', rd=2, rs1=0, rs2=None, imm=ImmValue(value=4096), legacy=None, src={'file': None, 'line': None}), Instruction(type='i', name='shli', rd=2, rs1=2, rs2=None, imm=ImmValue(value=16), legacy=None, src={'file': None, 'line': None}), Instruction(type='l', name='lb', rd=1, rs1=2, rs2=None, imm=ImmValue(value=0), legacy={'type': 'l', 'name': 'lb', 'rd': 1, 'rs1': 2, 'imm': 0, 'src': {'file': None, 'line': None}}, src={'file': None, 'line': None}), Instruction(type='j', name='jalr', rd=0, rs1=14, rs2=None, imm=ImmValue(value=0), legacy={'type': 'j', 'rd': 0, 'rs1': 14, 'name': 'jalr', 'imm': 0, 'src': {'file': None, 'line': None}}, src={'file': None, 'line': None}), LabelDecl(name='align4', src={'file': 'out/generated.ros', 'line': 37, 'pp_line': 37}), Instruction(type='i', name='addi', rd=2, rs1=0, rs2=None, imm=ImmValue(value=3), legacy=None, src={'file': None, 'line': None}), Instruction(type='i', name='addi', rd=3, rs1=0, rs2=None, imm=ImmValue(value=0), legacy=None, src={'file': None, 'line': None}), Instruction(type='i', name='addi', rd=1, rs1=0, rs2=None, imm=ImmValue(value=0), legacy={'type': 'i', 'name': 'addi', 'rd': 1, 'rs1': 0, 'imm': 0, 'src': {'file': None, 'line': None}}, src={'file': None, 'line': None}), Instruction(type='j', name='jalr', rd=0, rs1=14, rs2=None, imm=ImmValue(value=0), legacy={'type': 'j', 'rd': 0, 'rs1': 14, 'name': 'jalr', 'imm': 0, 'src': {'file': None, 'line': None}}, src={'file': None, 'line': None}), LabelDecl(name='malloc', src={'file': 'out/generated.ros', 'line': 45, 'pp_line': 45}), Instruction(type='i', name='addi', rd=2, rs1=0, rs2=None, imm=ImmValue(value=0), legacy=None, src={'file': None, 'line': None}), Instruction(type='i', name='addi', rd=3, rs1=0, rs2=None, imm=ImmValue(value=0), legacy=None, src={'file': None, 'line': None}), Instruction(type='i', name='addi', rd=4, rs1=0, rs2=None, imm=ImmValue(value=0), legacy=None, src={'file': None, 'line': None}), LabelDecl(name='WHILE_START5', src={'file': 'out/generated.ros', 'line': 50, 'pp_line': 50}), Instruction(type='b', name='beq', rd=0, rs1=0, rs2=None, imm=ImmLabel(name='WHILE_END6'), legacy={'type': 'b', 'name': 'beq', 'rd': 0, 'rs1': 0, 'imm': {'type': 'u', 'name': 'WHILE_END6', 'src': {'file': 'out/generated.ros', 'line': 51, 'pp_line': 51}}, 'src': {'file': None, 'line': None}}, src={'file': None, 'line': None}), Instruction(type='i', name='addi', rd=13, rs1=0, rs2=None, imm=ImmLabelPart(label='WHILE_START5', part='high'), legacy=None, src={'file': None, 'line': None}), Instruction(type='i', name='shli', rd=13, rs1=13, rs2=None, imm=ImmValue(value=16), legacy=None, src={'file': None, 'line': None}), Instruction(type='i', name='ori', rd=13, rs1=13, rs2=None, imm=ImmLabelPart(label='WHILE_START5', part='low'), legacy=None, src={'file': None, 'line': None}), Instruction(type='j', name='jalr', rd=0, rs1=13, rs2=None, imm=ImmValue(value=0), legacy=None, src={'file': None, 'line': None}), LabelDecl(name='WHILE_END6', src={'file': 'out/generated.ros', 'line': 53, 'pp_line': 53}), Instruction(type='i', name='addi', rd=5, rs1=0, rs2=None, imm=ImmValue(value=0), legacy=None, src={'file': None, 'line': None}), Instruction(type='i', name='addi', rd=6, rs1=0, rs2=None, imm=ImmValue(value=0), legacy=None, src={'file': None, 'line': None}), Instruction(type='i', name='addi', rd=7, rs1=0, rs2=None, imm=ImmValue(value=0), legacy=None, src={'file': None, 'line': None}), Instruction(type='r', name='add', rd=1, rs1=6, rs2=0, imm=None, legacy={'type': 'r', 'name': 'add', 'rd': 1, 'rs1': 6, 'rs2': 0, 'src': {'file': None, 'line': None}}, src={'file': None, 'line': None}), Instruction(type='j', name='jalr', rd=0, rs1=14, rs2=None, imm=ImmValue(value=0), legacy={'type': 'j', 'rd': 0, 'rs1': 14, 'name': 'jalr', 'imm': 0, 'src': {'file': None, 'line': None}}, src={'file': None, 'line': None}), LabelDecl(name='free', src={'file': 'out/generated.ros', 'line': 60, 'pp_line': 60}), Instruction(type='i', name='addi', rd=2, rs1=0, rs2=None, imm=ImmValue(value=0), legacy=None, src={'file': None, 'line': None}), Instruction(type='i', name='addi', rd=3, rs1=0, rs2=None, imm=ImmValue(value=0), legacy=None, src={'file': None, 'line': None}), LabelDecl(name='WHILE_START7', src={'file': 'out/generated.ros', 'line': 64, 'pp_line': 64}), Instruction(type='b', name='beq', rd=0, rs1=0, rs2=None, imm=ImmLabel(name='WHILE_END8'), legacy={'type': 'b', 'name': 'beq', 'rd': 0, 'rs1': 0, 'imm': {'type': 'u', 'name': 'WHILE_END8', 'src': {'file': 'out/generated.ros', 'line': 65, 'pp_line': 65}}, 'src': {'file': None, 'line': None}}, src={'file': None, 'line': None}), Instruction(type='i', name='addi', rd=13, rs1=0, rs2=None, imm=ImmLabelPart(label='WHILE_START7', part='high'), legacy=None, src={'file': None, 'line': None}), Instruction(type='i', name='shli', rd=13, rs1=13, rs2=None, imm=ImmValue(value=16), legacy=None, src={'file': None, 'line': None}), Instruction(type='i', name='ori', rd=13, rs1=13, rs2=None, imm=ImmLabelPart(label='WHILE_START7', part='low'), legacy=None, src={'file': None, 'line': None}), Instruction(type='j', name='jalr', rd=0, rs1=13, rs2=None, imm=ImmValue(value=0), legacy=None, src={'file': None, 'line': None}), LabelDecl(name='WHILE_END8', src={'file': 'out/generated.ros', 'line': 67, 'pp_line': 67}), Instruction(type='i', name='addi', rd=1, rs1=0, rs2=None, imm=ImmValue(value=0), legacy={'type': 'i', 'name': 'addi', 'rd': 1, 'rs1': 0, 'imm': 0, 'src': {'file': None, 'line': None}}, src={'file': None, 'line': None}), Instruction(type='j', name='jalr', rd=0, rs1=14, rs2=None, imm=ImmValue(value=0), legacy={'type': 'j', 'rd': 0, 'rs1': 14, 'name': 'jalr', 'imm': 0, 'src': {'file': None, 'line': None}}, src={'file': None, 'line': None}), LabelDecl(name='_dump_heap_info', src={'file': 'out/generated.ros', 'line': 72, 'pp_line': 72}), Instruction(type='i', name='addi', rd=2, rs1=0, rs2=None, imm=ImmValue(value=0), legacy=None, src={'file': None, 'line': None}), LabelDecl(name='WHILE_START9', src={'file': 'out/generated.ros', 'line': 75, 'pp_line': 75}), Instruction(type='b', name='beq', rd=0, rs1=0, rs2=None, imm=ImmLabel(name='WHILE_END10'), legacy={'type': 'b', 'name': 'beq', 'rd': 0, 'rs1': 0, 'imm': {'type': 'u', 'name': 'WHILE_END10', 'src': {'file': 'out/generated.ros', 'line': 76, 'pp_line': 76}}, 'src': {'file': None, 'line': None}}, src={'file': None, 'line': None}), Instruction(type='i', name='addi', rd=1, rs1=0, rs2=None, imm=ImmLabelPart(label='str_0', part='high'), legacy=None, src={'file': None, 'line': None}), Instruction(type='i', name='shli', rd=1, rs1=1, rs2=None, imm=ImmValue(value=16), legacy=None, src={'file': None, 'line': None}), Instruction(type='i', name='ori', rd=1, rs1=1, rs2=None, imm=ImmLabelPart(label='str_0', part='low'), legacy=None, src={'file': None, 'line': None}), Instruction(type='i', name='addi', rd=13, rs1=0, rs2=None, imm=ImmLabelPart(label='print_string', part='high'), legacy=None, src={'file': None, 'line': None}), Instruction(type='i', name='shli', rd=13, rs1=13, rs2=None, imm=ImmValue(value=16), legacy=None, src={'file': None, 'line': None}), Instruction(type='i', name='ori', rd=13, rs1=13, rs2=None, imm=ImmLabelPart(label='print_string', part='low'), legacy=None, src={'file': None, 'line': None}), Instruction(type='j', name='jalr', rd=14, rs1=13, rs2=None, imm=ImmValue(value=0), legacy=None, src={'file': None, 'line': None}), Instruction(type='i', name='addi', rd=1, rs1=2, rs2=None, imm=ImmValue(value=0), legacy={'type': 'i', 'name': 'addi', 'rd': 1, 'rs1': 2, 'imm': 0, 'src': {'file': None, 'line': None}}, src={'file': None, 'line': None}), Instruction(type='i', name='addi', rd=13, rs1=0, rs2=None, imm=ImmLabelPart(label='printi', part='high'), legacy=None, src={'file': None, 'line': None}), Instruction(type='i', name='shli', rd=13, rs1=13, rs2=None, imm=ImmValue(value=16), legacy=None, src={'file': None, 'line': None}), Instruction(type='i', name='ori', rd=13, rs1=13, rs2=None, imm=ImmLabelPart(label='printi', part='low'), legacy=None, src={'file': None, 'line': None}), Instruction(type='j', name='jalr', rd=14, rs1=13, rs2=None, imm=ImmValue(value=0), legacy=None, src={'file': None, 'line': None}), Instruction(type='i', name='addi', rd=1, rs1=0, rs2=None, imm=ImmLabelPart(label='str_1', part='high'), legacy=None, src={'file': None, 'line': None}), Instruction(type='i', name='shli', rd=1, rs1=1, rs2=None, imm=ImmValue(value=16), legacy=None, src={'file': None, 'line': None}), Instruction(type='i', name='ori', rd=1, rs1=1, rs2=None, imm=ImmLabelPart(label='str_1', part='low'), legacy=None, src={'file': None, 'line': None}), Instruction(type='i', name='addi', rd=13, rs1=0, rs2=None, imm=ImmLabelPart(label='print_string', part='high'), legacy=None, src={'file': None, 'line': None}), Instruction(type='i', name='shli', rd=13, rs1=13, rs2=None, imm=ImmValue(value=16), legacy=None, src={'file': None, 'line': None}), Instruction(type='i', name='ori', rd=13, rs1=13, rs2=None, imm=ImmLabelPart(label='print_string', part='low'), legacy=None, src={'file': None, 'line': None}), Instruction(type='j', name='jalr', rd=14, rs1=13, rs2=None, imm=ImmValue(value=0), legacy=None, src={'file': None, 'line': None}), Instruction(type='i', name='addi', rd=1, rs1=2, rs2=None, imm=ImmValue(value=0), legacy={'type': 'i', 'name': 'addi', 'rd': 1, 'rs1': 2, 'imm': 0, 'src': {'file': None, 'line': None}}, src={'file': None, 'line': None}), Instruction(type='i', name='addi', rd=13, rs1=0, rs2=None, imm=ImmLabelPart(label='printi', part='high'), legacy=None, src={'file': None, 'line': None}), Instruction(type='i', name='shli', rd=13, rs1=13, rs2=None, imm=ImmValue(value=16), legacy=None, src={'file': None, 'line': None}), Instruction(type='i', name='ori', rd=13, rs1=13, rs2=None, imm=ImmLabelPart(label='printi', part='low'), legacy=None, src={'file': None, 'line': None}), Instruction(type='j', name='jalr', rd=14, rs1=13, rs2=None, imm=ImmValue(value=0), legacy=None, src={'file': None, 'line': None}), Instruction(type='i', name='addi', rd=1, rs1=0, rs2=None, imm=ImmLabelPart(label='str_2', part='high'), legacy=None, src={'file': None, 'line': None}), Instruction(type='i', name='shli', rd=1, rs1=1, rs2=None, imm=ImmValue(value=16), legacy=None, src={'file': None, 'line': None}), Instruction(type='i', name='ori', rd=1, rs1=1, rs2=None, imm=ImmLabelPart(label='str_2', part='low'), legacy=None, src={'file': None, 'line': None}), Instruction(type='i', name='addi', rd=13, rs1=0, rs2=None, imm=ImmLabelPart(label='print_string', part='high'), legacy=None, src={'file': None, 'line': None}), Instruction(type='i', name='shli', rd=13, rs1=13, rs2=None, imm=ImmValue(value=16), legacy=None, src={'file': None, 'line': None}), Instruction(type='i', name='ori', rd=13, rs1=13, rs2=None, imm=ImmLabelPart(label='print_string', part='low'), legacy=None, src={'file': None, 'line': None}), Instruction(type='j', name='jalr', rd=14, rs1=13, rs2=None, imm=ImmValue(value=0), legacy=None, src={'file': None, 'line': None}), Instruction(type='i', name='addi', rd=1, rs1=2, rs2=None, imm=ImmValue(value=0), legacy={'type': 'i', 'name': 'addi', 'rd': 1, 'rs1': 2, 'imm': 0, 'src': {'file': None, 'line': None}}, src={'file': None, 'line': None}), Instruction(type='i', name='addi', rd=13, rs1=0, rs2=None, imm=ImmLabelPart(label='printi', part='high'), legacy=None, src={'file': None, 'line': None}), Instruction(type='i', name='shli', rd=13, rs1=13, rs2=None, imm=ImmValue(value=16), legacy=None, src={'file': None, 'line': None}), Instruction(type='i', name='ori', rd=13, rs1=13, rs2=None, imm=ImmLabelPart(label='printi', part='low'), legacy=None, src={'file': None, 'line': None}), Instruction(type='j', name='jalr', rd=14, rs1=13, rs2=None, imm=ImmValue(value=0), legacy=None, src={'file': None, 'line': None}), Instruction(type='i', name='addi', rd=1, rs1=0, rs2=None, imm=ImmLabelPart(label='str_3', part='high'), legacy=None, src={'file': None, 'line': None}), Instruction(type='i', name='shli', rd=1, rs1=1, rs2=None, imm=ImmValue(value=16), legacy=None, src={'file': None, 'line': None}), Instruction(type='i', name='ori', rd=1, rs1=1, rs2=None, imm=ImmLabelPart(label='str_3', part='low'), legacy=None, src={'file': None, 'line': None}), Instruction(type='i', name='addi', rd=13, rs1=0, rs2=None, imm=ImmLabelPart(label='print_string', part='high'), legacy=None, src={'file': None, 'line': None}), Instruction(type='i', name='shli', rd=13, rs1=13, rs2=None, imm=ImmValue(value=16), legacy=None, src={'file': None, 'line': None}), Instruction(type='i', name='ori', rd=13, rs1=13, rs2=None, imm=ImmLabelPart(label='print_string', part='low'), legacy=None, src={'file': None, 'line': None}), Instruction(type='j', name='jalr', rd=14, rs1=13, rs2=None, imm=ImmValue(value=0), legacy=None, src={'file': None, 'line': None}), Instruction(type='i', name='addi', rd=13, rs1=0, rs2=None, imm=ImmLabelPart(label='WHILE_START9', part='high'), legacy=None, src={'file': None, 'line': None}), Instruction(type='i', name='shli', rd=13, rs1=13, rs2=None, imm=ImmValue(value=16), legacy=None, src={'file': None, 'line': None}), Instruction(type='i', name='ori', rd=13, rs1=13, rs2=None, imm=ImmLabelPart(label='WHILE_START9', part='low'), legacy=None, src={'file': None, 'line': None}), Instruction(type='j', name='jalr', rd=0, rs1=13, rs2=None, imm=ImmValue(value=0), legacy=None, src={'file': None, 'line': None}), LabelDecl(name='WHILE_END10', src={'file': 'out/generated.ros', 'line': 92, 'pp_line': 92}), Instruction(type='i', name='addi', rd=1, rs1=0, rs2=None, imm=ImmValue(value=0), legacy={'type': 'i', 'name': 'addi', 'rd': 1, 'rs1': 0, 'imm': 0, 'src': {'file': None, 'line': None}}, src={'file': None, 'line': None}), Instruction(type='j', name='jalr', rd=0, rs1=14, rs2=None, imm=ImmValue(value=0), legacy={'type': 'j', 'rd': 0, 'rs1': 14, 'name': 'jalr', 'imm': 0, 'src': {'file': None, 'line': None}}, src={'file': None, 'line': None}), LabelDecl(name='add', src={'file': 'out/generated.ros', 'line': 97, 'pp_line': 97}), Instruction(type='j', name='jalr', rd=0, rs1=14, rs2=None, imm=ImmValue(value=0), legacy={'type': 'j', 'rd': 0, 'rs1': 14, 'name': 'jalr', 'imm': 0, 'src': {'file': None, 'line': None}}, src={'file': None, 'line': None}), LabelDecl(name='main', src={'file': 'out/generated.ros', 'line': 101, 'pp_line': 101}), Instruction(type='i', name='addi', rd=2, rs1=0, rs2=None, imm=ImmValue(value=5), legacy=None, src={'file': None, 'line': None}), Instruction(type='i', name='addi', rd=3, rs1=0, rs2=None, imm=ImmValue(value=10), legacy=None, src={'file': None, 'line': None}), Instruction(type='i', name='addi', rd=4, rs1=0, rs2=None, imm=ImmValue(value=0), legacy=None, src={'file': None, 'line': None}), Instruction(type='i', name='addi', rd=1, rs1=0, rs2=None, imm=ImmLabelPart(label='str_4', part='high'), legacy=None, src={'file': None, 'line': None}), Instruction(type='i', name='shli', rd=1, rs1=1, rs2=None, imm=ImmValue(value=16), legacy=None, src={'file': None, 'line': None}), Instruction(type='i', name='ori', rd=1, rs1=1, rs2=None, imm=ImmLabelPart(label='str_4', part='low'), legacy=None, src={'file': None, 'line': None}), Instruction(type='i', name='addi', rd=13, rs1=0, rs2=None, imm=ImmLabelPart(label='print_string', part='high'), legacy=None, src={'file': None, 'line': None}), Instruction(type='i', name='shli', rd=13, rs1=13, rs2=None, imm=ImmValue(value=16), legacy=None, src={'file': None, 'line': None}), Instruction(type='i', name='ori', rd=13, rs1=13, rs2=None, imm=ImmLabelPart(label='print_string', part='low'), legacy=None, src={'file': None, 'line': None}), Instruction(type='j', name='jalr', rd=14, rs1=13, rs2=None, imm=ImmValue(value=0), legacy=None, src={'file': None, 'line': None}), Instruction(type='i', name='addi', rd=1, rs1=4, rs2=None, imm=ImmValue(value=0), legacy={'type': 'i', 'name': 'addi', 'rd': 1, 'rs1': 4, 'imm': 0, 'src': {'file': None, 'line': None}}, src={'file': None, 'line': None}), Instruction(type='i', name='addi', rd=13, rs1=0, rs2=None, imm=ImmLabelPart(label='printi', part='high'), legacy=None, src={'file': None, 'line': None}), Instruction(type='i', name='shli', rd=13, rs1=13, rs2=None, imm=ImmValue(value=16), legacy=None, src={'file': None, 'line': None}), Instruction(type='i', name='ori', rd=13, rs1=13, rs2=None, imm=ImmLabelPart(label='printi', part='low'), legacy=None, src={'file': None, 'line': None}), Instruction(type='j', name='jalr', rd=14, rs1=13, rs2=None, imm=ImmValue(value=0), legacy=None, src={'file': None, 'line': None}), Instruction(type='i', name='addi', rd=5, rs1=0, rs2=None, imm=ImmValue(value=0), legacy=None, src={'file': None, 'line': None}), Instruction(type='i', name='addi', rd=6, rs1=0, rs2=None, imm=ImmValue(value=0), legacy=None, src={'file': None, 'line': None}), Instruction(type='r', name='add', rd=1, rs1=6, rs2=0, imm=None, legacy={'type': 'r', 'name': 'add', 'rd': 1, 'rs1': 6, 'rs2': 0, 'src': {'file': None, 'line': None}}, src={'file': None, 'line': None}), Instruction(type='j', name='jalr', rd=0, rs1=14, rs2=None, imm=ImmValue(value=0), legacy={'type': 'j', 'rd': 0, 'rs1': 14, 'name': 'jalr', 'imm': 0, 'src': {'file': None, 'line': None}}, src={'file': None, 'line': None}), LabelDecl(name='str_0', src={'file': 'out/generated.ros', 'line': 118, 'pp_line': 118}), Directive(name='data', imm=b'Block at \x00', length=10, src={'file': 'out/generated.ros', 'line': 119, 'pp_line': 119}), LabelDecl(name='str_1', src={'file': 'out/generated.ros', 'line': 121, 'pp_line': 121}), Directive(name='data', imm=b' - Size: \x00', length=10, src={'file': 'out/generated.ros', 'line': 122, 'pp_line': 122}), LabelDecl(name='str_2', src={'file': 'out/generated.ros', 'line': 124, 'pp_line': 124}), Directive(name='data', imm=b' - Free: \x00', length=10, src={'file': 'out/generated.ros', 'line': 125, 'pp_line': 125}), LabelDecl(name='str_3', src={'file': 'out/generated.ros', 'line': 127, 'pp_line': 127}), Directive(name='data', imm=b'\n\x00', length=2, src={'file': 'out/generated.ros', 'line': 128, 'pp_line': 128}), LabelDecl(name='str_4', src={'file': 'out/generated.ros', 'line': 130, 'pp_line': 130}), Directive(name='data', imm=b'The result of 10 + 5 is: \x00', length=26, src={'file': 'out/generated.ros', 'line': 131, 'pp_line': 131})]
+
+// Generated .ros by rospocc.emitter (starter)
+// Functions
+.SEG 0x00000000
+
+.FUNC print_string:
+  // prologue (minimal)
+  LLI r2, 268435456    // init tty_addr
+WHILE_START1:
+  BEQ r0, r0, WHILE_END2
+  SB r1, r2, 0    // intrinsic __sb
+  JMP WHILE_START1
+WHILE_END2:
+  // epilogue and return
+  ADDI r1, r0, 0  // ensure r1=0
+  RET
+
+.FUNC printi:
+  // prologue (minimal)
+  LLI r2, 12    // init buffer
+  LLI r3, 0    // init i
+WHILE_START3:
+  BEQ r1, r0, WHILE_END4
+  JMP WHILE_START3
+WHILE_END4:
+  ADDI r1, r2, 0    // move arg 0
+  CALL print_string
+  // epilogue and return
+  ADDI r1, r0, 0  // ensure r1=0
+  RET
+
+.FUNC read_char:
+  // prologue (minimal)
+  LLI r2, 268435456    // init tty_addr
+  LB r1, r2, 0    // intrinsic __lb -> return
+  RET
+
+.FUNC align4:
+  // prologue (minimal)
+  LLI r2, 3    // init v
+  LLI r3, 0    // zero init v
+  // epilogue and return
+  ADDI r1, r0, 0  // ensure r1=0
+  RET
+
+.FUNC malloc:
+  // prologue (minimal)
+  LLI r2, 0    // zero init asize
+  LLI r3, 0    // zero init current
+  LLI r4, 0    // zero init prev
+WHILE_START5:
+  BEQ r0, r0, WHILE_END6
+  JMP WHILE_START5
+WHILE_END6:
+  LLI r5, 0    // zero init hdr_addr
+  LLI r6, 0    // zero init payload_addr
+  LLI r7, 0    // zero init new_block
+  ADD r1, r6, r0
+  RET
+
+.FUNC free:
+  // prologue (minimal)
+  LLI r2, 0    // zero init current
+  LLI r3, 0    // zero init prev
+WHILE_START7:
+  BEQ r0, r0, WHILE_END8
+  JMP WHILE_START7
+WHILE_END8:
+  // epilogue and return
+  ADDI r1, r0, 0  // ensure r1=0
+  RET
+
+.FUNC _dump_heap_info:
+  // prologue (minimal)
+  LLI r2, 0    // zero init current
+WHILE_START9:
+  BEQ r0, r0, WHILE_END10
+  LLI r1, str_0    // arg 0 string addr
+  CALL print_string
+  ADDI r1, r2, 0    // move arg 0
+  CALL printi
+  LLI r1, str_1    // arg 0 string addr
+  CALL print_string
+  ADDI r1, r2, 0    // move arg 0
+  CALL printi
+  LLI r1, str_2    // arg 0 string addr
+  CALL print_string
+  ADDI r1, r2, 0    // move arg 0
+  CALL printi
+  LLI r1, str_3    // arg 0 string addr
+  CALL print_string
+  JMP WHILE_START9
+WHILE_END10:
+  // epilogue and return
+  ADDI r1, r0, 0  // ensure r1=0
+  RET
+
+.FUNC add:
+  // prologue (minimal)
+  RET
+
+.FUNC main:
+  // prologue (minimal)
+  LLI r2, 5    // init x
+  LLI r3, 10    // init y
+  LLI r4, 0    // zero init result
+  LLI r1, str_4    // arg 0 string addr
+  CALL print_string
+  ADDI r1, r4, 0    // move arg 0
+  CALL printi
+  LLI r5, 0    // zero init ptr
+  LLI r6, 0    // load immediate 0
+  ADD r1, r6, r0
+  RET
+
+
+// Globals
+
+str_0:
+  .STR "Block at "
+
+str_1:
+  .STR " - Size: "
+
+str_2:
+  .STR " - Free: "
+
+str_3:
+  .STR "\n"
+
+str_4:
+  .STR "The result of 10 + 5 is: "
+
