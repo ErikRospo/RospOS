@@ -445,8 +445,6 @@ class Emitter:
                 return
 
             if name == '__sb':
-                # args: addr, value  OR value, addr? In source uses __sb(tty_addr, *str)
-                # We'll support (addr, value)
                 if len(args) < 2:
                     out.write("  // __sb missing args\n")
                     return

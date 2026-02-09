@@ -7,6 +7,7 @@ pipeline. It recognizes:
 - simple string globals like: `char name[] = "...";`
 """
 import re
+import sys
 from typing import Dict, Any
 
 
@@ -59,17 +60,25 @@ def code_to_translation_unit(input_data) -> Dict[str, Any]:
                                 # look for declarator child
                                 for pp in p.get('children', []):
                                     if isinstance(pp, dict) and pp.get('node') == 'declarator':
-                                                    for n in pp.get('children', []):
-                                                        if isinstance(n, dict) and 'token' in n and n['token'].isidentifier():
-                                                            params.append(n['token'])
-                                                            # detect pointer in the param's type_specifier (char* etc.)
-                                                            # search parent p for a type_specifier child containing a pointer node
-                                                            for tchild in p.get('children', []):
-                                                                if isinstance(tchild, dict) and tchild.get('node') == 'type_specifier':
-                                                                    for pc in tchild.get('children', []):
-                                                                        if isinstance(pc, dict) and pc.get('node') == 'pointer':
-                                                                            param_types[n['token']] = 'char_ptr'
-                                                                            break
+                                        for n in pp.get('children', []):
+                                            if isinstance(n, dict) and 'token' in n and n['token'].isidentifier():
+                                                params.append(n['token'])
+                                                # detect pointer in the param's type_specifier (char* etc.)
+                                                # search parent p for a type_specifier child containing a pointer node
+                                                found_ptr = False
+                                                for tchild in p.get('children', []):
+                                                    if isinstance(tchild, dict) and tchild.get('node') == 'type_specifier':
+                                                        for pc in tchild.get('children', []):
+                                                            if isinstance(pc, dict) and pc.get('node') == 'pointer':
+                                                                param_types[n['token']] = 'char_ptr'
+                                                                found_ptr = True
+                                                                break
+                                                # also check declarator itself for pointer nodes (pointer may be attached there)
+                                                if not found_ptr:
+                                                    for dc in pp.get('children', []):
+                                                        if isinstance(dc, dict) and dc.get('node') == 'pointer':
+                                                            param_types[n['token']] = 'char_ptr'
+                                                            break
                     if isinstance(c, dict) and c.get('node') == 'compound_stmt':
                         body_node = c
 
@@ -133,6 +142,14 @@ def code_to_translation_unit(input_data) -> Dict[str, Any]:
                     cond = None
                     body_node = None
                     for ch in children:
+                        # Support token-only children (e.g., NAME or NUMBER tokens) as expressions
+                        if isinstance(ch, dict) and 'token' in ch:
+                            # treat token as expr candidate
+                            if cond is None:
+                                cand = expr_from_node(ch)
+                                if cand is not None:
+                                    cond = cand
+                                    continue
                         if isinstance(ch, dict) and ch.get('node') and ch.get('node') != '(' and ch.get('node') != ')':
                             # heuristics: first expr-like node is cond, next statement node is body
                             if cond is None and ch.get('node') not in ('statement', 'compound_stmt', 'expr_stmt', 'declaration', 'return_stmt'):
@@ -363,10 +380,16 @@ def code_to_translation_unit(input_data) -> Dict[str, Any]:
                             return {'type': 'call', 'name': primary['token'], 'args': args}
 
                 # convert postfix ++/-- into an assignment expression: x = x + 1 or x = x - 1
-                if (has_inc or has_dec) and isinstance(primary, dict) and 'token' in primary and primary['token'].isidentifier():
-                    pname = primary['token']
+                # primary may be a nested node (e.g., primary -> NAME token). Resolve it via expr_from_node
+                print(f"[frontend] postfix detected primary={primary!r} has_inc={has_inc} has_dec={has_dec}", file=sys.stderr)
+                primary_expr = expr_from_node(primary)
+                print(f"[frontend] resolved primary_expr={primary_expr!r}", file=sys.stderr)
+                if (has_inc or has_dec) and primary_expr and primary_expr.get('type') == 'var':
+                    pname = primary_expr.get('name')
                     op = '+' if has_inc else '-'
-                    return {'type': 'assign', 'target': pname, 'value': {'type': 'binop', 'op': op, 'left': {'type': 'var', 'name': pname}, 'right': {'type': 'const', 'value': 1}}}
+                    assign_expr = {'type': 'assign', 'target': pname, 'value': {'type': 'binop', 'op': op, 'left': {'type': 'var', 'name': pname}, 'right': {'type': 'const', 'value': 1}}}
+                    print(f"[frontend] postfix -> assign {assign_expr!r}", file=sys.stderr)
+                    return assign_expr
 
                 # otherwise fallback to primary
                 return expr_from_node(primary)
