@@ -2,19 +2,24 @@ void print_string(char* str){
     int tty_addr=0x10000000;
     while(*str){
         __sb(tty_addr, *str);
-        str++;
+        str = str + 1;
     }
 }
+void print_char(char c){
+    int tty_addr=0x10000000;
+    __sb(tty_addr, c);
+}
+
 
 void printi(int num){
     char buffer[12]; // Enough for 32-bit int
     int i = 0;
     if (num == 0) {
-        print_string("0");
+        print_char("0");
         return;
     }
     if (num < 0) {
-        print_string("-");
+        print_char("-");
         num = -num;
     }
     while (num > 0) {
@@ -36,6 +41,17 @@ char read_char(){
     return __lb(tty_addr);
 }
 
+char* read_string(char* buffer, int max_len){
+    int tty_addr=0x10000000;
+    int i = 0;
+    while (i < max_len - 1) {
+        char c = __lb(tty_addr);
+        if (c == "\n" || c == "\r") break;
+        buffer[i++] = c;
+    }
+    buffer[i] = "\0";
+    return buffer;
+}
 // Need: Malloc, free as absolute minimum for dynamic memory management
 // Heap starts at 0x0100_0000 and grows upwards, stack starts at 0x0FFF_FFFF and grows downwards
 int heap_top = 0x01000000;

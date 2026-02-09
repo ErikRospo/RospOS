@@ -96,8 +96,7 @@ def aug_replacer(match):
 def pp_replacer(match):
     var_name = match.group(1)
     operator = match.group(2)
-    return f"{var_name} = {var_name} {operator} 1;"
-
+    return f"{var_name} = {var_name} {operator[0]} 1;"
 
 def preprocess(code):
     include_pattern = re.compile(r"#include\s+<([^>]+)>")
@@ -111,5 +110,7 @@ def preprocess(code):
     code = replace_quotes(code)
     aug_expr_pattern = re.compile(r"(\w+)\s*([\+\-\*/])=\s*([^;]+);")
     code = aug_expr_pattern.sub(aug_replacer, code)
+    pp_pattern = re.compile(r"(\w+)\s*(\+\+|--);")
+    code = pp_pattern.sub(pp_replacer, code)
 
     return code
