@@ -1,7 +1,6 @@
 #ifndef TTY_H
 #define TTY_H
 
-
 #include "Memory.h"
 
 #include <cstdint>

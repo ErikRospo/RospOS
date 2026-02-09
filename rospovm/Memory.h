@@ -34,7 +34,7 @@ private:
 
 public:
     Memory(size_t size);
-    void addSpecialRange(char name[4], uint32_t start, uint32_t end, SpecialMemoryRange::Type type,  bool readable, bool writable,
+    void addSpecialRange(char name[4], uint32_t start, uint32_t end, SpecialMemoryRange::Type type, bool readable, bool writable,
                          ReadHandler readHandler = nullptr,
                          WriteHandler writeHandler = nullptr);
     uint8_t readByte(uint32_t address) const;
@@ -43,8 +43,7 @@ public:
     void writeHalf(uint32_t address, uint16_t value);
     uint32_t readWord(uint32_t address) const;
     void writeWord(uint32_t address, uint32_t value);
-    void loadBinary(const std::vector<char>& binary, uint32_t address);
-    
+    void loadBinary(const std::vector<char> &binary, uint32_t address);
 };
 
 #endif // MEMORY_H

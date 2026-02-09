@@ -1,13 +1,12 @@
-from copy import copy
-
-from lark import Lark, Tree, Token
-
-from preprocess import preprocess
 import json
+from copy import copy
 from pathlib import Path
+
+from lark import Lark, Token, Tree
 
 import emitter
 import frontend
+from preprocess import preprocess
 
 # Resolve all filesystem paths relative to this file
 HERE = Path(__file__).resolve().parent
@@ -21,9 +20,9 @@ def tree_to_dict(node):
     with 'node' and 'children' keys for easy inspection by the frontend.
     """
     if isinstance(node, Tree):
-        return {'node': node.data, 'children': [tree_to_dict(c) for c in node.children]}
+        return {"node": node.data, "children": [tree_to_dict(c) for c in node.children]}
     if isinstance(node, Token):
-        return {'token': str(node)}
+        return {"token": str(node)}
     return node
 
 
@@ -61,6 +60,6 @@ with open(out_dir / "ast.json", "w") as f:
 # Convert parsed AST into the translation-unit for emitter (no regex fallback)
 tu = frontend.code_to_translation_unit(ast_dict)
 
-out = out_dir / 'generated.ros'
+out = out_dir / "generated.ros"
 emitter.emit_translation_unit(tu, str(out))
-print('Emitted', out)
+print("Emitted", out)

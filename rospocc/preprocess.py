@@ -73,7 +73,11 @@ def include_replacer(match):
     try:
         # Get the directory of the current file
         current_dir = os.path.dirname(os.path.abspath(__file__))
-        files = [current_dir, os.path.join(current_dir, "include"), os.path.join(current_dir, "lib")]
+        files = [
+            current_dir,
+            os.path.join(current_dir, "include"),
+            os.path.join(current_dir, "lib"),
+        ]
         for path in files:
             filepath = os.path.join(path, filename)
             if os.path.isfile(filepath):
@@ -97,6 +101,7 @@ def pp_replacer(match):
     var_name = match.group(1)
     operator = match.group(2)
     return f"{var_name} = {var_name} {operator[0]} 1;"
+
 
 def preprocess(code):
     include_pattern = re.compile(r"#include\s+<([^>]+)>")

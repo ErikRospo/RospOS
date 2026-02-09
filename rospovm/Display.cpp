@@ -12,8 +12,7 @@
 #include "TTY.h"
 #include "Shutdown.h"
 // Add a static instance for the Display class
-static Display* displayInstance = nullptr;
-
+static Display *displayInstance = nullptr;
 
 // Static MMIO handlers
 uint8_t Display::displayReadHandler(uint32_t address)
@@ -62,7 +61,8 @@ void Display::write(uint32_t address, uint8_t value)
     {
         throw std::runtime_error("DisplayWriteHandler: Address out of range");
     }
-    if (framebuffer[offset] == value) return; // No change, skip update
+    if (framebuffer[offset] == value)
+        return; // No change, skip update
     framebuffer[offset] = value;
 
     // Update pixel buffer under lock and mark dirty; rendering happens in the display thread
@@ -100,7 +100,8 @@ Display::Display()
     // Start display thread which will initialize SDL, create window/renderer/texture,
     // poll events and render at ~60Hz. All SDL calls happen on this thread.
     displayThreadRunning.store(true);
-    displayThread = std::thread([this]() {
+    displayThread = std::thread([this]()
+                                {
         using clk = std::chrono::steady_clock;
         const std::chrono::microseconds period(16667); // ~60Hz
 
@@ -221,10 +222,7 @@ Display::Display()
         if (texture) SDL_DestroyTexture(texture);
         if (renderer) SDL_DestroyRenderer(renderer);
         if (window) SDL_DestroyWindow(window);
-        SDL_Quit();
-    });
-
-    
+        SDL_Quit(); });
 }
 
 // Update destructor to reset the static instance

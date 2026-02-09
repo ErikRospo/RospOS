@@ -8,7 +8,8 @@
 #include <cstdint>
 #include <string>
 
-class RospOSVM {
+class RospOSVM
+{
 private:
     RegisterFile regFile;
     uint32_t pc; // Program Counter
@@ -25,7 +26,7 @@ private:
 public:
     bool debugMode;
     RospOSVM(bool debugMode);
-    void loadBinaryAtAddress(const std::vector<char>& binary, uint32_t address);
+    void loadBinaryAtAddress(const std::vector<char> &binary, uint32_t address);
     void step();
     std::string getRegisterState() const;
 };

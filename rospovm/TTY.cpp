@@ -29,7 +29,7 @@ void BackgroundReader()
     struct termios oldt, newt;
     tcgetattr(STDIN_FILENO, &oldt); // Get current terminal settings
     newt = oldt;
-    newt.c_lflag &= ~(ECHO | ICANON); // Disable echo and canonical mode
+    newt.c_lflag &= ~(ECHO | ICANON);        // Disable echo and canonical mode
     tcsetattr(STDIN_FILENO, TCSANOW, &newt); // Apply new settings
     // set non-blocking mode so we can exit promptly
     int flags = fcntl(STDIN_FILENO, F_GETFL, 0);
@@ -105,7 +105,8 @@ void TTYPush(uint8_t value)
 
 void TTYStart()
 {
-    if (backgroundReaderRunning.load()) return;
+    if (backgroundReaderRunning.load())
+        return;
     backgroundReaderRunning.store(true);
     backgroundReaderThread = std::thread(BackgroundReader);
 }

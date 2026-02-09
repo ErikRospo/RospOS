@@ -13,9 +13,11 @@
 #include "Shutdown.h"
 #include "TTY.h"
 
-int main(int argc, char* argv[]) {
+int main(int argc, char *argv[])
+{
     std::cerr << "RospOS Virtual Machine starting..." << std::endl;
-    if (argc < 2) {
+    if (argc < 2)
+    {
         std::cerr << "Usage: " << argv[0] << " <file.rosp> [--verbose] [--step]" << std::endl;
         return 1;
     }
@@ -31,11 +33,14 @@ int main(int argc, char* argv[]) {
     installSigintHandler();
     // Start TTY background reader
     TTYStart();
-    for (const auto& segment : binary.segments) {
-        if (verboseMode) {
-            std::cout << "Loading segment at address 0x" << std::hex << segment.address 
+    for (const auto &segment : binary.segments)
+    {
+        if (verboseMode)
+        {
+            std::cout << "Loading segment at address 0x" << std::hex << segment.address
                       << " with size " << std::dec << segment.data.size() << " bytes." << std::endl;
-            for (uint8_t byte : segment.data) {
+            for (uint8_t byte : segment.data)
+            {
                 std::cout << std::hex << static_cast<int>(byte) << " ";
             }
             std::cout << std::dec << std::endl;
@@ -45,14 +50,18 @@ int main(int argc, char* argv[]) {
     std::cout << "Loaded. Starting execution..." << std::endl;
 
     char ch;
-    if (stepMode) {
+    if (stepMode)
+    {
         std::cout << "Press Enter to step, 'q' to quit." << std::endl;
     }
-    while (!shouldShutdown()) {
+    while (!shouldShutdown())
+    {
         // SDL events are handled in the display thread; main loop just steps the VM
-        if (stepMode) {
+        if (stepMode)
+        {
             std::cin.get(ch);
-            if (ch == 'q') break;
+            if (ch == 'q')
+                break;
         }
         vm.step();
     }

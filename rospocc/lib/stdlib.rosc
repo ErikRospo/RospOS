@@ -6,37 +6,44 @@ int HEAP_HEADER_SIZE = 16;
 // Conservative stack collision limit (adjust to VM specifics)
 int STACK_LIMIT = 0x0FFF0000;
 
-typedef struct HeapInfo {
+typedef struct HeapInfo
+{
     int size; // payload size in bytes
     int addr; // payload address
     bool free;
-    struct HeapInfo* next;
+    struct HeapInfo *next;
 } HeapInfo;
 
 // Simple linked list for heap management
-HeapInfo* heap_info_head = nullptr;
+HeapInfo *heap_info_head = nullptr;
 
 // Align size up to 4 bytes (word alignment)
-int align4(int size) {
-    int v= (size + 3) & ~3;
+int align4(int size)
+{
+    int v = (size + 3) & ~3;
     return v;
 }
 
 // Basic first-fit allocator with splitting and coalescing
-void* malloc(int size) {
-    if (size <= 0) return nullptr;
+void *malloc(int size)
+{
+    if (size <= 0)
+        return nullptr;
     int asize = align4(size);
 
     // Search free list for first-fit
-    HeapInfo* current = heap_info_head;
-    HeapInfo* prev = nullptr;
-    while (current) {
-        if (current->free && current->size >= asize) {
+    HeapInfo *current = heap_info_head;
+    HeapInfo *prev = nullptr;
+    while (current)
+    {
+        if (current->free && current->size >= asize)
+        {
             int remaining = current->size - asize;
             // Split if the remaining space can hold a header + small payload
-            if (remaining >= HEAP_HEADER_SIZE + 4) {
+            if (remaining >= HEAP_HEADER_SIZE + 4)
+            {
                 int new_hdr_addr = current->addr + asize;
-                HeapInfo* new_block = (HeapInfo*)new_hdr_addr;
+                HeapInfo *new_block = (HeapInfo *)new_hdr_addr;
                 new_block->size = remaining - HEAP_HEADER_SIZE;
                 new_block->addr = new_hdr_addr + HEAP_HEADER_SIZE;
                 new_block->free = true;
@@ -45,7 +52,7 @@ void* malloc(int size) {
                 current->next = new_block;
             }
             current->free = false;
-            return (void*)(current->addr);
+            return (void *)(current->addr);
         }
         prev = current;
         current = current->next;
@@ -55,38 +62,49 @@ void* malloc(int size) {
     int hdr_addr = heap_top;
     int payload_addr = hdr_addr + HEAP_HEADER_SIZE;
     // Basic bounds checks to avoid stack collision
-    if (payload_addr <= 0) return nullptr;
-    if (payload_addr + asize > STACK_LIMIT) return nullptr;
+    if (payload_addr <= 0)
+        return nullptr;
+    if (payload_addr + asize > STACK_LIMIT)
+        return nullptr;
 
-    HeapInfo* new_block = (HeapInfo*)hdr_addr;
+    HeapInfo *new_block = (HeapInfo *)hdr_addr;
     new_block->size = asize;
     new_block->addr = payload_addr;
     new_block->free = false;
     new_block->next = nullptr;
 
-    if (prev) prev->next = new_block; else heap_info_head = new_block;
+    if (prev)
+        prev->next = new_block;
+    else
+        heap_info_head = new_block;
 
     heap_top = payload_addr + asize;
     heap_top = align4(heap_top);
 
-    return (void*)(payload_addr);
+    return (void *)(payload_addr);
 }
 
-void free(void* ptr) {
-    if (!ptr) return;
+void free(void *ptr)
+{
+    if (!ptr)
+        return;
 
-    HeapInfo* current = heap_info_head;
-    HeapInfo* prev = nullptr;
-    while (current) {
-        if (current->addr == (int)ptr) {
+    HeapInfo *current = heap_info_head;
+    HeapInfo *prev = nullptr;
+    while (current)
+    {
+        if (current->addr == (int)ptr)
+        {
             current->free = true;
             // Coalesce with next if free
-            if (current->next && current->next->free) {
+            if (current->next && current->next->free)
+            {
                 current->size += HEAP_HEADER_SIZE + current->next->size;
                 current->next = current->next->next;
             }
             // Coalesce with previous if free
-            if (prev && prev->free) {
+            if (prev && prev->free)
+            {
                 prev->size += HEAP_HEADER_SIZE + current->size;
                 prev->next = current->next;
             }
@@ -97,9 +115,11 @@ void free(void* ptr) {
     }
 }
 
-void _dump_heap_info() {
-    HeapInfo* current = heap_info_head;
-    while (current) {
+void _dump_heap_info()
+{
+    HeapInfo *current = heap_info_head;
+    while (current)
+    {
         print_string("Block at ");
         printi(current->addr);
         print_string(" - Size: ");

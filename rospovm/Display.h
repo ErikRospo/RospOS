@@ -23,7 +23,7 @@ private:
     static const int WIDTH = 256;
     static const int HEIGHT = 256;
     static const int FB_SIZE = WIDTH * HEIGHT; // 1 byte per pixel
-    static const int SCALE = 4; // Scaling factor for rendering;
+    static const int SCALE = 4;                // Scaling factor for rendering;
     static const int SCALED_WIDTH = WIDTH * SCALE;
     static const int SCALED_HEIGHT = HEIGHT * SCALE;
 

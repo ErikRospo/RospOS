@@ -4,11 +4,10 @@
 #include <vector>
 #include <stdexcept>
 
-
-Memory::Memory(size_t size) {
+Memory::Memory(size_t size)
+{
     mem.resize(size, 0);
     specialRanges.clear();
-        
 }
 
 void Memory::addSpecialRange(char name[4], uint32_t start, uint32_t end, SpecialMemoryRange::Type type, bool readable, bool writable,
@@ -36,7 +35,6 @@ uint8_t Memory::readByte(uint32_t address) const
     }
     return mem[address];
 }
-
 
 void Memory::writeByte(uint32_t address, uint8_t value)
 {
@@ -83,7 +81,7 @@ void Memory::writeWord(uint32_t address, uint32_t value)
     writeByte(address + 3, static_cast<uint8_t>(value & 0xFF));
 }
 
-void Memory::loadBinary(const std::vector<char>& binary, uint32_t address)
+void Memory::loadBinary(const std::vector<char> &binary, uint32_t address)
 {
     if (address + binary.size() > mem.size())
     {
