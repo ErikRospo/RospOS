@@ -71,16 +71,19 @@ def replace_quotes(code):
 def include_replacer(match):
     filename = match.group(1)
     try:
-        files = ["./", "./include/", "./lib/"]
-        for f in files:
-            if os.path.isfile(f + filename):
-                with open(f + filename, "r") as f:
+        # Get the directory of the current file
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+        files = [current_dir, os.path.join(current_dir, "include"), os.path.join(current_dir, "lib")]
+        for path in files:
+            filepath = os.path.join(path, filename)
+            if os.path.isfile(filepath):
+                with open(filepath, "r") as f:
                     return f.read()
     except FileNotFoundError:
         print(f"Warning: Included file '{filename}' not found.")
         return ""
     print(f"Warning: Included file '{filename}' not found in any of the search paths.")
-    return ""  # Return empty string if file not found
+    return ""
 
 
 def aug_replacer(match):

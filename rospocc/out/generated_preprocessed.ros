@@ -9,18 +9,22 @@
 
 .FUNC print_string:
   // prologue (minimal)
+  PUSH r14
   LLI r2, 268435456    // init tty_addr
 WHILE_START1:
   BEQ r0, r0, WHILE_END2
-  SB r1, r2, 0    // intrinsic __sb
+  LB r3, r1, 0    // load *str for __sb
+  SB r3, r2, 0    // intrinsic __sb
   JMP WHILE_START1
 WHILE_END2:
   // epilogue and return
   ADDI r1, r0, 0  // ensure r1=0
+  POP r14
   RET
 
 .FUNC printi:
   // prologue (minimal)
+  PUSH r14
   LLI r2, 12    // init buffer
   LLI r3, 0    // init i
 WHILE_START3:
@@ -31,24 +35,30 @@ WHILE_END4:
   CALL print_string
   // epilogue and return
   ADDI r1, r0, 0  // ensure r1=0
+  POP r14
   RET
 
 .FUNC read_char:
   // prologue (minimal)
+  PUSH r14
   LLI r2, 268435456    // init tty_addr
   LB r1, r2, 0    // intrinsic __lb -> return
+  POP r14
   RET
 
 .FUNC align4:
   // prologue (minimal)
+  PUSH r14
   LLI r2, 3    // init v
   LLI r3, 0    // zero init v
   // epilogue and return
   ADDI r1, r0, 0  // ensure r1=0
+  POP r14
   RET
 
 .FUNC malloc:
   // prologue (minimal)
+  PUSH r14
   LLI r2, 0    // zero init asize
   LLI r3, 0    // zero init current
   LLI r4, 0    // zero init prev
@@ -60,10 +70,12 @@ WHILE_END6:
   LLI r6, 0    // zero init payload_addr
   LLI r7, 0    // zero init new_block
   ADD r1, r6, r0
+  POP r14
   RET
 
 .FUNC free:
   // prologue (minimal)
+  PUSH r14
   LLI r2, 0    // zero init current
   LLI r3, 0    // zero init prev
 WHILE_START7:
@@ -72,10 +84,12 @@ WHILE_START7:
 WHILE_END8:
   // epilogue and return
   ADDI r1, r0, 0  // ensure r1=0
+  POP r14
   RET
 
 .FUNC _dump_heap_info:
   // prologue (minimal)
+  PUSH r14
   LLI r2, 0    // zero init current
 WHILE_START9:
   BEQ r0, r0, WHILE_END10
@@ -97,14 +111,18 @@ WHILE_START9:
 WHILE_END10:
   // epilogue and return
   ADDI r1, r0, 0  // ensure r1=0
+  POP r14
   RET
 
 .FUNC add:
   // prologue (minimal)
+  PUSH r14
+  POP r14
   RET
 
 .FUNC main:
   // prologue (minimal)
+  PUSH r14
   LLI r2, 5    // init x
   LLI r3, 10    // init y
   LLI r4, 0    // zero init result
@@ -115,6 +133,7 @@ WHILE_END10:
   LLI r5, 0    // zero init ptr
   LLI r6, 0    // load immediate 0
   ADD r1, r6, r0
+  POP r14
   RET
 
 

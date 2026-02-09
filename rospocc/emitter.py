@@ -30,6 +30,10 @@ class Emitter:
         self.label_counter = 0
         self.reg_free = list(abi.TEMP_REGS)
         self.var_regs = {}
+        # track simple type hints: var name -> 'char_ptr' | 'int_ptr' | 'int' | 'char'
+        self.var_types = {}
+        # globals type hints collected from translation unit
+        self.global_types = {}
 
     def gen_label(self, prefix="L") -> str:
         self.label_counter += 1
@@ -53,6 +57,11 @@ class Emitter:
             f.write("// Functions\n")
             f.write('.SEG 0xFFFF_FFFC\n')
             funcs = ast.get('functions', [])
+            # collect globals types (strings etc.)
+            for g in ast.get('globals', []):
+                if g.get('kind') == 'string':
+                    # mark global label as char pointer
+                    self.global_types[g.get('name')] = 'char_ptr'
             main_label = None
             if funcs:
                 for fn in funcs:
@@ -95,14 +104,21 @@ class Emitter:
         out.write(f".FUNC {name}:\n")
         # Minimal prologue comment
         out.write(f"  // prologue (minimal)\n")
+        # Save link register so nested calls won't clobber return address
+        out.write(f"  PUSH {abi.LINK_REG}\n")
         # Reset allocator state per function
         self.reg_free = list(abi.TEMP_REGS)
         self.var_regs = {}
+        # start var_types with globals available
+        self.var_types = dict(self.global_types)
 
         # Handle parameters: map param names to argument registers (r1..r4)
         params = fn.get('params', []) or []
         for i, p in enumerate(params[: len(abi.ARG_REGS)]):
             self.var_regs[p] = abi.ARG_REGS[i]
+        # import any parameter type hints (e.g., pointer params)
+        for pname, ptype in (fn.get('param_types', {}) or {}).items():
+            self.var_types[pname] = ptype
 
         # per-function flag: whether a return was emitted inside body
         self.had_return = False
@@ -115,6 +131,7 @@ class Emitter:
         if not getattr(self, 'had_return', False):
             out.write(f"  // epilogue and return\n")
             out.write(f"  ADDI {abi.RETURN_REG}, {abi.SPECIAL_REGS['zero']}, 0  // ensure r1=0\n")
+            out.write(f"  POP {abi.LINK_REG}\n")
             out.write(f"  RET\n\n")
         else:
             # already emitted return(s); do not append another epilogue/RET
@@ -131,6 +148,8 @@ class Emitter:
                     out.write(f"  ADD {abi.RETURN_REG}, {reg}, {abi.SPECIAL_REGS['zero']}\n")
                 if reg in abi.TEMP_REGS:
                     self.free_reg(reg)
+            # restore link register before returning
+            out.write(f"  POP {abi.LINK_REG}\n")
             out.write("  RET\n")
             # mark that this function emitted a return so we don't append another
             self.had_return = True
@@ -141,38 +160,86 @@ class Emitter:
                 if init.get('type') == 'const':
                     r = self.alloc_reg()
                     self.var_regs[name] = r
+                    # simple hint: integer local
+                    self.var_types[name] = 'int'
                     out.write(f"  LLI {r}, {int(init.get('value'))}    // init {name}\n")
                 elif init.get('type') == 'call':
                     # emit call and move return value to var
                     self._emit_call(init, out)
                     r = self.alloc_reg()
                     self.var_regs[name] = r
+                    # if calling malloc, assume pointer to int returned
+                    if isinstance(init.get('name'), str) and init.get('name') == 'malloc':
+                        self.var_types[name] = 'int_ptr'
+                    else:
+                        # default guess: integer value
+                        self.var_types[name] = 'int'
                     out.write(f"  ADDI {r}, {abi.RETURN_REG}, 0\n")
+                elif init.get('type') == 'string_addr':
+                    r = self.alloc_reg()
+                    self.var_regs[name] = r
+                    self.var_types[name] = 'char_ptr'
+                    out.write(f"  LLI {r}, {init.get('label')}    // init {name} (string addr)\n")
                 else:
                     out.write(f"  // decl {name} with unsupported init {init!r}\n")
             else:
                 # default initialize to 0
                 r = self.alloc_reg()
                 self.var_regs[name] = r
+                self.var_types[name] = 'int'
                 out.write(f"  LLI {r}, 0    // zero init {name}\n")
         elif t == 'assign':
             target = stmt.get('target')
             val = stmt.get('value')
-            if val.get('type') == 'call':
-                self._emit_call(val, out)
-                # ensure target has a register
-                if target not in self.var_regs:
-                    self.var_regs[target] = self.alloc_reg()
-                r = self.var_regs[target]
-                out.write(f"  ADDI {r}, {abi.RETURN_REG}, 0\n")
+            # assignment to a deref target: store to memory
+            if isinstance(target, dict) and target.get('type') == 'deref':
+                addr_expr = target.get('expr')
+                # compute target address
+                raddr = self.emit_expr(addr_expr, out)
+                # compute value to store
+                if val.get('type') == 'call':
+                    self._emit_call(val, out)
+                    rval = abi.RETURN_REG
+                else:
+                    rval = self.emit_expr(val, out)
+
+                # heuristic: if address expr refers to a known char pointer, store byte
+                store_instr = 'SW'
+                if isinstance(addr_expr, dict) and addr_expr.get('type') == 'var':
+                    vname = addr_expr.get('name')
+                    if self.var_types.get(vname) == 'char_ptr':
+                        store_instr = 'SB'
+                # default: if value looks like a char const, prefer SB
+                if val.get('type') == 'const':
+                    try:
+                        vv = int(val.get('value'), 0)
+                        if 0 <= vv <= 0xFF:
+                            store_instr = 'SB'
+                    except Exception:
+                        pass
+
+                out.write(f"  {store_instr} {rval}, {raddr}, 0\n")
+                if raddr in abi.TEMP_REGS:
+                    self.free_reg(raddr)
+                if rval in abi.TEMP_REGS:
+                    self.free_reg(rval)
             else:
-                rsrc = self.emit_expr(val, out)
-                if target not in self.var_regs:
-                    self.var_regs[target] = self.alloc_reg()
-                rdst = self.var_regs[target]
-                out.write(f"  ADDI {rdst}, {rsrc}, 0\n")
-                if rsrc in abi.TEMP_REGS:
-                    self.free_reg(rsrc)
+                # regular var-to-var assignment
+                if val.get('type') == 'call':
+                    self._emit_call(val, out)
+                    # ensure target has a register
+                    if target not in self.var_regs:
+                        self.var_regs[target] = self.alloc_reg()
+                    r = self.var_regs[target]
+                    out.write(f"  ADDI {r}, {abi.RETURN_REG}, 0\n")
+                else:
+                    rsrc = self.emit_expr(val, out)
+                    if target not in self.var_regs:
+                        self.var_regs[target] = self.alloc_reg()
+                    rdst = self.var_regs[target]
+                    out.write(f"  ADDI {rdst}, {rsrc}, 0\n")
+                    if rsrc in abi.TEMP_REGS:
+                        self.free_reg(rsrc)
         elif t == 'call_stmt':
             # call with no use of return
             name = stmt.get('name')
@@ -185,7 +252,12 @@ class Emitter:
             lbl_end = self.gen_label('WHILE_END')
             out.write(f"{lbl_start}:\n")
             cond = stmt.get('cond')
-            rcond = self.emit_expr(cond, out)
+            # if condition is a pointer variable (e.g., str) treat while(ptr) as while(*ptr)
+            if isinstance(cond, dict) and cond.get('type') == 'var' and self.var_types.get(cond.get('name')) == 'char_ptr':
+                cond_expr = {'type': 'deref', 'expr': {'type': 'var', 'name': cond.get('name')}}
+                rcond = self.emit_expr(cond_expr, out)
+            else:
+                rcond = self.emit_expr(cond, out)
             # pick a register to test (use r0 if no cond produced)
             rcond_reg = rcond if rcond else abi.SPECIAL_REGS['zero']
             # if cond == 0 jump to end
@@ -203,7 +275,12 @@ class Emitter:
             else_stmts = stmt.get('else', [])
             lbl_else = self.gen_label('IF_ELSE')
             lbl_end = self.gen_label('IF_END')
-            rcond = self.emit_expr(cond, out)
+            # support pointer-as-condition heuristics
+            if isinstance(cond, dict) and cond.get('type') == 'var' and self.var_types.get(cond.get('name')) == 'char_ptr':
+                cond_expr = {'type': 'deref', 'expr': {'type': 'var', 'name': cond.get('name')}}
+                rcond = self.emit_expr(cond_expr, out)
+            else:
+                rcond = self.emit_expr(cond, out)
             rcond_reg = rcond if rcond else abi.SPECIAL_REGS['zero']
             out.write(f"  BEQ {rcond_reg}, {abi.SPECIAL_REGS['zero']}, {lbl_else}\n")
             if rcond and rcond in abi.TEMP_REGS:
@@ -250,7 +327,13 @@ class Emitter:
             inner = expr.get('expr')
             raddr = self.emit_expr(inner, out)
             rd = self.alloc_reg()
-            out.write(f"  LB {rd}, {raddr}, 0    // deref\n")
+            # choose load width heuristically: if inner is a known char pointer -> LB, else LW
+            load_instr = 'LW'
+            if isinstance(inner, dict) and inner.get('type') == 'var':
+                v = inner.get('name')
+                if self.var_types.get(v) == 'char_ptr':
+                    load_instr = 'LB'
+            out.write(f"  {load_instr} {rd}, {raddr}, 0    // deref\n")
             if raddr in abi.TEMP_REGS:
                 self.free_reg(raddr)
             return rd
@@ -386,11 +469,23 @@ class Emitter:
                     rval = self.alloc_reg()
                     out.write(f"  LLI {rval}, {int(a_val.get('value'))}    // val const for __sb\n")
                 elif a_val.get('type') == 'var':
-                    rval = self.var_regs.get(a_val.get('name'))
-                    if not rval:
+                    vname = a_val.get('name')
+                    # if the var is a char pointer, load the byte it points to
+                    if self.var_types.get(vname) == 'char_ptr':
+                        # ensure we have the pointer register
+                        rptr = self.var_regs.get(vname)
+                        if not rptr:
+                            rptr = self.alloc_reg()
+                            self.var_regs[vname] = rptr
+                            out.write(f"  LLI {rptr}, 0    // implicit init {vname}\n")
                         rval = self.alloc_reg()
-                        self.var_regs[a_val.get('name')] = rval
-                        out.write(f"  LLI {rval}, 0    // implicit init {a_val.get('name')}\n")
+                        out.write(f"  LB {rval}, {rptr}, 0    // load *{vname} for __sb\n")
+                    else:
+                        rval = self.var_regs.get(vname)
+                        if not rval:
+                            rval = self.alloc_reg()
+                            self.var_regs[vname] = rval
+                            out.write(f"  LLI {rval}, 0    // implicit init {vname}\n")
                 else:
                     rval = self.emit_expr(a_val, out)
 

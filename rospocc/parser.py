@@ -4,10 +4,15 @@ from lark import Lark, Tree, Token
 
 from preprocess import preprocess
 import json
+from pathlib import Path
 
 import emitter
 import frontend
-with open("./rosc.lark", "r") as f:
+
+# Resolve all filesystem paths relative to this file
+HERE = Path(__file__).resolve().parent
+
+with open(HERE / "rosc.lark", "r") as f:
     grammar = f.read()
 
 
@@ -22,11 +27,17 @@ def tree_to_dict(node):
     return node
 
 
-with open("./first_test.rosc", "r") as f:
+with open(HERE / "first_test.rosc", "r") as f:
     code = f.read()
+
 code = preprocess(code)
 preprocessed = copy(code)
-with open("./out/preprocessed_code.rosc", "w") as f:
+
+# Ensure output directory exists and write files there
+out_dir = HERE / "out"
+out_dir.mkdir(exist_ok=True)
+
+with open(out_dir / "preprocessed_code.rosc", "w") as f:
     f.write(code)
 
 
@@ -44,12 +55,12 @@ except Exception as e:
 
 ast_dict = tree_to_dict(tree)
 # write a textual representation for debugging
-with open("./out/ast.json", "w") as f:
+with open(out_dir / "ast.json", "w") as f:
     json.dump(ast_dict, f, indent=2)
 
 # Convert parsed AST into the translation-unit for emitter (no regex fallback)
 tu = frontend.code_to_translation_unit(ast_dict)
 
-out = './out/generated.ros'
-emitter.emit_translation_unit(tu, out)
+out = out_dir / 'generated.ros'
+emitter.emit_translation_unit(tu, str(out))
 print('Emitted', out)

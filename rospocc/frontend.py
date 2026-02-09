@@ -43,6 +43,7 @@ def code_to_translation_unit(input_data) -> Dict[str, Any]:
                 children = node.get('children', [])
                 name = None
                 params = []
+                param_types = {}
                 body_node = None
                 for c in children:
                     if isinstance(c, dict) and c.get('node') == 'declarator':
@@ -58,9 +59,17 @@ def code_to_translation_unit(input_data) -> Dict[str, Any]:
                                 # look for declarator child
                                 for pp in p.get('children', []):
                                     if isinstance(pp, dict) and pp.get('node') == 'declarator':
-                                        for n in pp.get('children', []):
-                                            if isinstance(n, dict) and 'token' in n and n['token'].isidentifier():
-                                                params.append(n['token'])
+                                                    for n in pp.get('children', []):
+                                                        if isinstance(n, dict) and 'token' in n and n['token'].isidentifier():
+                                                            params.append(n['token'])
+                                                            # detect pointer in the param's type_specifier (char* etc.)
+                                                            # search parent p for a type_specifier child containing a pointer node
+                                                            for tchild in p.get('children', []):
+                                                                if isinstance(tchild, dict) and tchild.get('node') == 'type_specifier':
+                                                                    for pc in tchild.get('children', []):
+                                                                        if isinstance(pc, dict) and pc.get('node') == 'pointer':
+                                                                            param_types[n['token']] = 'char_ptr'
+                                                                            break
                     if isinstance(c, dict) and c.get('node') == 'compound_stmt':
                         body_node = c
 
@@ -68,7 +77,10 @@ def code_to_translation_unit(input_data) -> Dict[str, Any]:
                 if body_node:
                     body = compound_to_stmts(body_node)
 
-                tu['functions'].append({'name': name or 'fn', 'params': params, 'body': body})
+                fdict = {'name': name or 'fn', 'params': params, 'body': body}
+                if param_types:
+                    fdict['param_types'] = param_types
+                tu['functions'].append(fdict)
                 return [None]
 
             # global declarations
@@ -327,6 +339,16 @@ def code_to_translation_unit(input_data) -> Dict[str, Any]:
                 if not children:
                     return None
                 primary = children[0]
+                # detect post-increment/decrement tokens
+                has_inc = False
+                has_dec = False
+                for c in children[1:]:
+                    if isinstance(c, dict) and 'token' in c:
+                        if c['token'] == '++':
+                            has_inc = True
+                        if c['token'] == '--':
+                            has_dec = True
+
                 # if any child is arg_list -> call
                 for c in children[1:]:
                     if isinstance(c, dict) and c.get('node') == 'arg_list':
@@ -339,6 +361,13 @@ def code_to_translation_unit(input_data) -> Dict[str, Any]:
                                     if ev:
                                         args.append(ev)
                             return {'type': 'call', 'name': primary['token'], 'args': args}
+
+                # convert postfix ++/-- into an assignment expression: x = x + 1 or x = x - 1
+                if (has_inc or has_dec) and isinstance(primary, dict) and 'token' in primary and primary['token'].isidentifier():
+                    pname = primary['token']
+                    op = '+' if has_inc else '-'
+                    return {'type': 'assign', 'target': pname, 'value': {'type': 'binop', 'op': op, 'left': {'type': 'var', 'name': pname}, 'right': {'type': 'const', 'value': 1}}}
+
                 # otherwise fallback to primary
                 return expr_from_node(primary)
 
