@@ -274,6 +274,175 @@ def code_to_translation_unit(input_data) -> Dict[str, Any]:
                                 pass
                     stmts.append({"type": "while", "cond": cond, "body": body_stmts})
                     continue
+                if nd == "if_stmt":
+                    # children: 'if', '(', expr, ')', statement, ('else', statement)?
+                    children = c.get("children", [])
+                    cond = None
+                    then_node = None
+                    else_node = None
+                    for ch in children:
+                        # capture first expr-like child as condition
+                        if isinstance(ch, dict) and "token" in ch:
+                            if cond is None:
+                                cand = expr_from_node(ch)
+                                if cand is not None:
+                                    cond = cand
+                                    continue
+                        if (
+                            isinstance(ch, dict)
+                            and ch.get("node")
+                            and ch.get("node") not in ("(", ")")
+                        ):
+                            if cond is None and ch.get("node") in (
+                                "expr",
+                                "assignment",
+                                "conditional",
+                                "logic_or",
+                                "additive",
+                                "multiplicative",
+                                "postfix",
+                                "primary",
+                                "unary",
+                            ):
+                                cond = expr_from_node(ch)
+                            elif then_node is None and ch.get("node") in (
+                                "compound_stmt",
+                                "expr_stmt",
+                                "declaration",
+                                "return_stmt",
+                            ):
+                                then_node = ch
+                            elif (
+                                ch.get("node") in ("compound_stmt", "expr_stmt", "declaration", "return_stmt")
+                                and then_node is not None
+                                and else_node is None
+                            ):
+                                # this may be the else branch
+                                else_node = ch
+                    # fallback heuristics
+                    if cond is None and len(children) >= 3 and isinstance(children[2], dict):
+                        cond = expr_from_node(children[2])
+                    if then_node is None:
+                        # try to find the statement after the ')' or last child
+                        for ch in children:
+                            if isinstance(ch, dict) and ch.get("node") in ("compound_stmt", "expr_stmt", "declaration", "return_stmt"):
+                                then_node = ch
+                                break
+                    if else_node is None:
+                        # attempt to find an 'else' token followed by a stmt node
+                        for i, ch in enumerate(children):
+                            if isinstance(ch, dict) and "token" in ch and ch["token"] == "else":
+                                if i + 1 < len(children) and isinstance(children[i + 1], dict):
+                                    else_node = children[i + 1]
+                                    break
+
+                    # convert then/else nodes to stmt lists
+                    then_stmts = []
+                    else_stmts = []
+                    if then_node:
+                        if then_node.get("node") == "compound_stmt":
+                            then_stmts = compound_to_stmts(then_node)
+                        else:
+                            # single statement
+                            if then_node.get("node") == "expr_stmt":
+                                ev = None
+                                for cc in then_node.get("children", []):
+                                    if isinstance(cc, dict):
+                                        ev = expr_from_node(cc)
+                                        break
+                                if ev:
+                                    if ev.get("type") == "call":
+                                        then_stmts.append({"type": "call_stmt", "name": ev.get("name"), "args": ev.get("args", [])})
+                                    elif ev.get("type") == "assign":
+                                        then_stmts.append({"type": "assign", "target": ev.get("target"), "value": ev.get("value")})
+                            elif then_node.get("node") == "declaration":
+                                # reuse declaration handling: find name/init
+                                name = None
+                                init = None
+                                for cc in then_node.get("children", []):
+                                    if isinstance(cc, dict) and cc.get("node") == "init_declarator_list":
+                                        for idc in cc.get("children", []):
+                                            if isinstance(idc, dict) and idc.get("node") == "init_declarator":
+                                                for part in idc.get("children", []):
+                                                    if isinstance(part, dict) and part.get("node") == "declarator":
+                                                        for t in part.get("children", []):
+                                                            if isinstance(t, dict) and "token" in t and t["token"].isidentifier():
+                                                                name = t["token"]
+                                                    if isinstance(part, dict) and "token" in part and part["token"].startswith('"'):
+                                                        val = part["token"][1:-1]
+                                                        lab = None
+                                                        for k, v in str_pool.items():
+                                                            if v == val:
+                                                                lab = k
+                                                                break
+                                                        if lab is None:
+                                                            lab = f"str_{str_count}"
+                                                            str_count += 1
+                                                            str_pool[lab] = val
+                                                            tu["globals"].append({"kind": "string", "name": lab, "value": val})
+                                                        init = {"type": "string_addr", "label": lab}
+                                if name:
+                                    then_stmts.append({"type": "decl", "name": name, "init": init})
+                            elif then_node.get("node") == "return_stmt":
+                                rv = None
+                                for cc in then_node.get("children", []):
+                                    if isinstance(cc, dict):
+                                        rv = expr_from_node(cc)
+                                        break
+                                then_stmts.append({"type": "return", "value": rv})
+
+                    if else_node:
+                        if else_node.get("node") == "compound_stmt":
+                            else_stmts = compound_to_stmts(else_node)
+                        else:
+                            if else_node.get("node") == "expr_stmt":
+                                ev = None
+                                for cc in else_node.get("children", []):
+                                    if isinstance(cc, dict):
+                                        ev = expr_from_node(cc)
+                                        break
+                                if ev:
+                                    if ev.get("type") == "call":
+                                        else_stmts.append({"type": "call_stmt", "name": ev.get("name"), "args": ev.get("args", [])})
+                                    elif ev.get("type") == "assign":
+                                        else_stmts.append({"type": "assign", "target": ev.get("target"), "value": ev.get("value")})
+                            elif else_node.get("node") == "declaration":
+                                name = None
+                                init = None
+                                for cc in else_node.get("children", []):
+                                    if isinstance(cc, dict) and cc.get("node") == "init_declarator_list":
+                                        for idc in cc.get("children", []):
+                                            if isinstance(idc, dict) and idc.get("node") == "init_declarator":
+                                                for part in idc.get("children", []):
+                                                    if isinstance(part, dict) and part.get("node") == "declarator":
+                                                        for t in part.get("children", []):
+                                                            if isinstance(t, dict) and "token" in t and t["token"].isidentifier():
+                                                                name = t["token"]
+                                                    if isinstance(part, dict) and "token" in part and part["token"].startswith('"'):
+                                                        val = part["token"][1:-1]
+                                                        lab = None
+                                                        for k, v in str_pool.items():
+                                                            if v == val:
+                                                                lab = k
+                                                                break
+                                                        if lab is None:
+                                                            lab = f"str_{str_count}"
+                                                            str_count += 1
+                                                            str_pool[lab] = val
+                                                            tu["globals"].append({"kind": "string", "name": lab, "value": val})
+                                                        init = {"type": "string_addr", "label": lab}
+                                if name:
+                                    else_stmts.append({"type": "decl", "name": name, "init": init})
+                            elif else_node.get("node") == "return_stmt":
+                                rv = None
+                                for cc in else_node.get("children", []):
+                                    if isinstance(cc, dict):
+                                        rv = expr_from_node(cc)
+                                        break
+                                else_stmts.append({"type": "return", "value": rv})
+
+                    stmts.append({"type": "if", "cond": cond, "then": then_stmts, "else": else_stmts})
+                    continue
                 if nd == "return_stmt":
                     # find expr child
                     expr = None

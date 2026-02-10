@@ -38,10 +38,22 @@ WHILE_END2:
   PUSH r14
   LLI r2, 12    // init buffer
   LLI r3, 0    // init i
-WHILE_START3:
-  BEQ r1, r0, WHILE_END4
-  JMP WHILE_START3
-WHILE_END4:
+  BEQ r0, r0, IF_ELSE3
+  LLI r1, str_0    // arg 0 string addr
+  CALL print_char
+  JMP IF_END4
+IF_ELSE3:
+IF_END4:
+  BEQ r0, r0, IF_ELSE5
+  LLI r1, str_1    // arg 0 string addr
+  CALL print_char
+  JMP IF_END6
+IF_ELSE5:
+IF_END6:
+WHILE_START7:
+  BEQ r1, r0, WHILE_END8
+  JMP WHILE_START7
+WHILE_END8:
   ADDI r1, r2, 0    // move arg 0
   CALL print_string
   // epilogue and return
@@ -62,11 +74,15 @@ WHILE_END4:
   PUSH r14
   LLI r2, 268435456    // init tty_addr
   LLI r3, 0    // init i
-WHILE_START5:
-  BEQ r3, r0, WHILE_END6
+WHILE_START9:
+  BEQ r3, r0, WHILE_END10
   LLI r4, 0    // zero init c
-  JMP WHILE_START5
-WHILE_END6:
+  BEQ r4, r0, IF_ELSE11
+  JMP IF_END12
+IF_ELSE11:
+IF_END12:
+  JMP WHILE_START9
+WHILE_END10:
   LLI r3, 0    // zero init buffer
   // epilogue and return
   ADDI r1, r0, 0  // ensure r1=0
@@ -86,29 +102,79 @@ WHILE_END6:
 .FUNC malloc:
   // prologue (minimal)
   PUSH r14
-  LLI r2, 0    // zero init asize
-  LLI r3, 0    // zero init current
-  LLI r4, 0    // zero init prev
-WHILE_START7:
-  BEQ r3, r0, WHILE_END8
-  JMP WHILE_START7
-WHILE_END8:
-  LLI r3, 0    // zero init hdr_addr
-  LLI r5, 0    // zero init payload_addr
-  LLI r6, 0    // zero init new_block
-  ADD r1, r5, r0
+  BEQ r0, r0, IF_ELSE13
+  LLI r2, 0    // zero init nullptr
+  JMP IF_END14
+IF_ELSE13:
+IF_END14:
+  LLI r3, 0    // zero init asize
+  LLI r4, 0    // zero init current
+  LLI r5, 0    // zero init prev
+WHILE_START15:
+  BEQ r4, r0, WHILE_END16
+  BEQ r0, r0, IF_ELSE17
+  LLI r6, 0    // zero init remaining
+  BEQ r0, r0, IF_ELSE19
+  LLI r7, 0    // zero init new_hdr_addr
+  LLI r8, 0    // zero init new_block
+  JMP IF_END20
+IF_ELSE19:
+IF_END20:
+  ADD r1, r4, r0
+  POP r14
+  RET
+  JMP IF_END18
+IF_ELSE17:
+IF_END18:
+  JMP WHILE_START15
+WHILE_END16:
+  LLI r4, 0    // zero init hdr_addr
+  LLI r9, 0    // zero init payload_addr
+  BEQ r0, r0, IF_ELSE21
+  LLI r10, 0    // zero init nullptr
+  JMP IF_END22
+IF_ELSE21:
+IF_END22:
+  BEQ r0, r0, IF_ELSE23
+  LLI r11, 0    // zero init nullptr
+  JMP IF_END24
+IF_ELSE23:
+IF_END24:
+  LLI r12, 0    // zero init new_block
+  BEQ r5, r0, IF_ELSE25
+  JMP IF_END26
+IF_ELSE25:
+IF_END26:
+  ADD r1, r9, r0
   POP r14
   RET
 
 .FUNC free:
   // prologue (minimal)
   PUSH r14
+  LB r2, r1, 0    // deref
+  BEQ r2, r0, IF_ELSE27
+  JMP IF_END28
+IF_ELSE27:
+IF_END28:
   LLI r2, 0    // zero init current
   LLI r3, 0    // zero init prev
-WHILE_START9:
-  BEQ r2, r0, WHILE_END10
-  JMP WHILE_START9
-WHILE_END10:
+WHILE_START29:
+  BEQ r2, r0, WHILE_END30
+  BEQ r0, r0, IF_ELSE31
+  BEQ r0, r0, IF_ELSE33
+  JMP IF_END34
+IF_ELSE33:
+IF_END34:
+  BEQ r0, r0, IF_ELSE35
+  JMP IF_END36
+IF_ELSE35:
+IF_END36:
+  JMP IF_END32
+IF_ELSE31:
+IF_END32:
+  JMP WHILE_START29
+WHILE_END30:
   // epilogue and return
   ADDI r1, r0, 0  // ensure r1=0
   POP r14
@@ -118,24 +184,24 @@ WHILE_END10:
   // prologue (minimal)
   PUSH r14
   LLI r2, 0    // zero init current
-WHILE_START11:
-  BEQ r2, r0, WHILE_END12
-  LLI r1, str_0    // arg 0 string addr
-  CALL print_string
-  ADDI r1, r2, 0    // move arg 0
-  CALL printi
-  LLI r1, str_1    // arg 0 string addr
-  CALL print_string
-  ADDI r1, r2, 0    // move arg 0
-  CALL printi
+WHILE_START37:
+  BEQ r2, r0, WHILE_END38
   LLI r1, str_2    // arg 0 string addr
   CALL print_string
   ADDI r1, r2, 0    // move arg 0
   CALL printi
   LLI r1, str_3    // arg 0 string addr
   CALL print_string
-  JMP WHILE_START11
-WHILE_END12:
+  ADDI r1, r2, 0    // move arg 0
+  CALL printi
+  LLI r1, str_4    // arg 0 string addr
+  CALL print_string
+  ADDI r1, r2, 0    // move arg 0
+  CALL printi
+  LLI r1, str_5    // arg 0 string addr
+  CALL print_string
+  JMP WHILE_START37
+WHILE_END38:
   // epilogue and return
   ADDI r1, r0, 0  // ensure r1=0
   POP r14
@@ -153,13 +219,25 @@ WHILE_END12:
   LLI r2, 5    // init x
   LLI r3, 10    // init y
   LLI r4, 0    // zero init result
-  LLI r1, str_4    // arg 0 string addr
+  LLI r1, str_6    // arg 0 string addr
   CALL print_string
   ADDI r1, r4, 0    // move arg 0
   CALL printi
   LLI r5, 0    // zero init ptr
-  LLI r6, 0    // load immediate 0
-  ADD r1, r6, r0
+  BEQ r5, r0, IF_ELSE39
+  LLI r1, str_7    // arg 0 string addr
+  CALL print_string
+  ADDI r1, r5, 0    // move arg 0
+  CALL printi
+  ADDI r1, r5, 0    // move arg 0
+  CALL free
+  JMP IF_END40
+IF_ELSE39:
+  LLI r1, str_8    // arg 0 string addr
+  CALL print_string
+IF_END40:
+  LLI r5, 0    // load immediate 0
+  ADD r1, r5, r0
   POP r14
   RET
 
@@ -167,17 +245,29 @@ WHILE_END12:
 // Globals
 
 str_0:
-  .STR "Block at "
+  .STR "0"
 
 str_1:
-  .STR " - Size: "
+  .STR "-"
 
 str_2:
-  .STR " - Free: "
+  .STR "Block at "
 
 str_3:
-  .STR "\n"
+  .STR " - Size: "
 
 str_4:
+  .STR " - Free: "
+
+str_5:
+  .STR "\n"
+
+str_6:
   .STR "The result of 10 + 5 is: "
+
+str_7:
+  .STR "Dynamically allocated integer value (42): "
+
+str_8:
+  .STR "Memory allocation failed"
 
