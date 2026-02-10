@@ -12,6 +12,32 @@ import sys
 from typing import Any, Dict
 
 
+# Utility to centralize string literal label creation and reuse
+def _get_or_create_string_label(val: str, str_pool: dict, str_count: int, tu: dict):
+    for lab, v in str_pool.items():
+        if v == val:
+            return lab, str_count
+    lab = f"str_{str_count}"
+    str_count += 1
+    str_pool[lab] = val
+    tu["globals"].append({"kind": "string", "name": lab, "value": val})
+    return lab, str_count
+
+
+def _find_number_in_node(n):
+    if isinstance(n, dict):
+        if "token" in n and re.fullmatch(r"-?\d+|0x[0-9a-fA-F]+", n["token"]):
+            try:
+                return int(n["token"], 0)
+            except Exception:
+                return None
+        for c in n.get("children", []):
+            v = _find_number_in_node(c)
+            if v is not None:
+                return v
+    return None
+
+
 def code_to_translation_unit(input_data) -> Dict[str, Any]:
     """Convert either raw preprocessed code (str) or a parsed AST dict
     (as produced by `parser.tree_to_dict`) into the simple
@@ -609,13 +635,8 @@ def code_to_translation_unit(input_data) -> Dict[str, Any]:
                 if tok.startswith('"') and tok.endswith('"'):
                     # literal string -> create or reuse a global label
                     val = tok[1:-1]
-                    for lab, v in str_pool.items():
-                        if v == val:
-                            return {"type": "string_addr", "label": lab}
-                    lab = f"str_{str_count}"
-                    str_count += 1
-                    str_pool[lab] = val
-                    tu["globals"].append({"kind": "string", "name": lab, "value": val})
+                    lab, new_count = _get_or_create_string_label(val, str_pool, str_count, tu)
+                    str_count = new_count
                     return {"type": "string_addr", "label": lab}
                 if tok.isidentifier():
                     return {"type": "var", "name": tok}

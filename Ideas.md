@@ -13,7 +13,25 @@ Evaluate simple constant expressions at compile time, esp for LLI. (e.g. 256-8 s
 Branches that have a register and a constant should be pseudo-op'd to be a LLI, then a branch. 
 
 Optimization?
-
+```
+.FUNC print_string:
+  // prologue (minimal)
+  PUSH r14
+  LLI r2, 268435456    // init tty_addr
+WHILE1:
+  LB r3, r1, 0    // deref
+  BEQ r3, r0, WHILE_END2  
+  // This next instruction can be removed, as r3 already holds the value of *str.
+  // WE CAN OPTIMIZE THIS!
+  LB r3, r1, 0    // load *str for __sb 
+  SB r3, r2, 0    // intrinsic __sb
+  JMP WHILE1
+WHILE_END2:
+  // epilogue and return
+  ADDI r1, r0, 0  // ensure r1=0
+  POP r14
+  RET
+```
 
 VSCode extension for rospoas? Syntax highlighting, error checking, etc. 
 
