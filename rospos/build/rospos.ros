@@ -12,11 +12,22 @@
   PUSH r14
   LLI r2, 268435456    // init tty_addr
 WHILE_START1:
-  BEQ r0, r0, WHILE_END2
-  LB r3, r1, 0    // load *str for __sb
-  SB r3, r2, 0    // intrinsic __sb
+  LB r3, r1, 0    // deref
+  BEQ r3, r0, WHILE_END2
+  LB r4, r1, 0    // load *str for __sb
+  SB r4, r2, 0    // intrinsic __sb
   JMP WHILE_START1
 WHILE_END2:
+  // epilogue and return
+  ADDI r1, r0, 0  // ensure r1=0
+  POP r14
+  RET
+
+.FUNC print_char:
+  // prologue (minimal)
+  PUSH r14
+  LLI r2, 268435456    // init tty_addr
+  SB r1, r2, 0    // intrinsic __sb
   // epilogue and return
   ADDI r1, r0, 0  // ensure r1=0
   POP r14
@@ -46,6 +57,22 @@ WHILE_END4:
   POP r14
   RET
 
+.FUNC read_string:
+  // prologue (minimal)
+  PUSH r14
+  LLI r2, 268435456    // init tty_addr
+  LLI r3, 0    // init i
+WHILE_START5:
+  BEQ r3, r0, WHILE_END6
+  LLI r4, 0    // zero init c
+  JMP WHILE_START5
+WHILE_END6:
+  LLI r3, 0    // zero init buffer
+  // epilogue and return
+  ADDI r1, r0, 0  // ensure r1=0
+  POP r14
+  RET
+
 .FUNC align4:
   // prologue (minimal)
   PUSH r14
@@ -62,14 +89,14 @@ WHILE_END4:
   LLI r2, 0    // zero init asize
   LLI r3, 0    // zero init current
   LLI r4, 0    // zero init prev
-WHILE_START5:
-  BEQ r0, r0, WHILE_END6
-  JMP WHILE_START5
-WHILE_END6:
-  LLI r5, 0    // zero init hdr_addr
-  LLI r6, 0    // zero init payload_addr
-  LLI r7, 0    // zero init new_block
-  ADD r1, r6, r0
+WHILE_START7:
+  BEQ r3, r0, WHILE_END8
+  JMP WHILE_START7
+WHILE_END8:
+  LLI r3, 0    // zero init hdr_addr
+  LLI r5, 0    // zero init payload_addr
+  LLI r6, 0    // zero init new_block
+  ADD r1, r5, r0
   POP r14
   RET
 
@@ -78,10 +105,10 @@ WHILE_END6:
   PUSH r14
   LLI r2, 0    // zero init current
   LLI r3, 0    // zero init prev
-WHILE_START7:
-  BEQ r0, r0, WHILE_END8
-  JMP WHILE_START7
-WHILE_END8:
+WHILE_START9:
+  BEQ r2, r0, WHILE_END10
+  JMP WHILE_START9
+WHILE_END10:
   // epilogue and return
   ADDI r1, r0, 0  // ensure r1=0
   POP r14
@@ -91,8 +118,8 @@ WHILE_END8:
   // prologue (minimal)
   PUSH r14
   LLI r2, 0    // zero init current
-WHILE_START9:
-  BEQ r0, r0, WHILE_END10
+WHILE_START11:
+  BEQ r2, r0, WHILE_END12
   LLI r1, str_0    // arg 0 string addr
   CALL print_string
   ADDI r1, r2, 0    // move arg 0
@@ -107,8 +134,8 @@ WHILE_START9:
   CALL printi
   LLI r1, str_3    // arg 0 string addr
   CALL print_string
-  JMP WHILE_START9
-WHILE_END10:
+  JMP WHILE_START11
+WHILE_END12:
   // epilogue and return
   ADDI r1, r0, 0  // ensure r1=0
   POP r14
