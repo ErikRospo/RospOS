@@ -38,13 +38,13 @@ WHILE_END2:
   PUSH r14
   LLI r2, 12    // init buffer
   LLI r3, 0    // init i
-  BEQ r0, r0, IF_ELSE3
+  BEQ r1, r0, IF_ELSE3
   LLI r1, str_0    // arg 0 string addr
   CALL print_char
   JMP IF_END4
 IF_ELSE3:
 IF_END4:
-  BEQ r0, r0, IF_ELSE5
+  BEQ r1, r0, IF_ELSE5
   LLI r1, str_1    // arg 0 string addr
   CALL print_char
   JMP IF_END6
@@ -102,7 +102,7 @@ WHILE_END10:
 .FUNC malloc:
   // prologue (minimal)
   PUSH r14
-  BEQ r0, r0, IF_ELSE13
+  BEQ r1, r0, IF_ELSE13
   LLI r2, 0    // zero init nullptr
   JMP IF_END14
 IF_ELSE13:
@@ -112,11 +112,11 @@ IF_END14:
   LLI r5, 0    // zero init prev
 WHILE_START15:
   BEQ r4, r0, WHILE_END16
-  BEQ r0, r0, IF_ELSE17
-  LLI r6, 0    // zero init remaining
-  BEQ r0, r0, IF_ELSE19
-  LLI r7, 0    // zero init new_hdr_addr
-  LLI r8, 0    // zero init new_block
+  BEQ r4, r0, IF_ELSE17
+  LLI r4, 0    // zero init remaining
+  BEQ r4, r0, IF_ELSE19
+  LLI r4, 0    // zero init new_hdr_addr
+  LLI r6, 0    // zero init new_block
   JMP IF_END20
 IF_ELSE19:
 IF_END20:
@@ -129,23 +129,23 @@ IF_END18:
   JMP WHILE_START15
 WHILE_END16:
   LLI r4, 0    // zero init hdr_addr
-  LLI r9, 0    // zero init payload_addr
-  BEQ r0, r0, IF_ELSE21
-  LLI r10, 0    // zero init nullptr
+  LLI r7, 0    // zero init payload_addr
+  BEQ r7, r0, IF_ELSE21
+  LLI r7, 0    // zero init nullptr
   JMP IF_END22
 IF_ELSE21:
 IF_END22:
-  BEQ r0, r0, IF_ELSE23
-  LLI r11, 0    // zero init nullptr
+  BEQ r7, r0, IF_ELSE23
+  LLI r7, 0    // zero init nullptr
   JMP IF_END24
 IF_ELSE23:
 IF_END24:
-  LLI r12, 0    // zero init new_block
+  LLI r8, 0    // zero init new_block
   BEQ r5, r0, IF_ELSE25
   JMP IF_END26
 IF_ELSE25:
 IF_END26:
-  ADD r1, r9, r0
+  ADD r1, r7, r0
   POP r14
   RET
 
@@ -161,12 +161,12 @@ IF_END28:
   LLI r3, 0    // zero init prev
 WHILE_START29:
   BEQ r2, r0, WHILE_END30
-  BEQ r0, r0, IF_ELSE31
-  BEQ r0, r0, IF_ELSE33
+  BEQ r2, r0, IF_ELSE31
+  BEQ r2, r0, IF_ELSE33
   JMP IF_END34
 IF_ELSE33:
 IF_END34:
-  BEQ r0, r0, IF_ELSE35
+  BEQ r3, r0, IF_ELSE35
   JMP IF_END36
 IF_ELSE35:
 IF_END36:

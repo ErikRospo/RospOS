@@ -319,9 +319,27 @@ def code_to_translation_unit(input_data) -> Dict[str, Any]:
                             ):
                                 # this may be the else branch
                                 else_node = ch
-                    # fallback heuristics
+                    # fallback heuristics: try positional child
                     if cond is None and len(children) >= 3 and isinstance(children[2], dict):
                         cond = expr_from_node(children[2])
+                    # try to find a NAME token anywhere in the if node as a last-ditch cond
+                    if cond is None:
+                        def find_name_in_node(n):
+                            if isinstance(n, dict):
+                                if "token" in n and isinstance(n["token"], str) and n["token"].isidentifier():
+                                    return n["token"]
+                                for cc in n.get("children", []):
+                                    r = find_name_in_node(cc)
+                                    if r is not None:
+                                        return r
+                            return None
+
+                        name_found = find_name_in_node(c)
+                        if name_found is not None:
+                            cond = {"type": "var", "name": name_found}
+                        else:
+                            # final fallback: assume true so we don't emit BEQ r0,r0 nonsense
+                            cond = {"type": "const", "value": 1}
                     if then_node is None:
                         # try to find the statement after the ')' or last child
                         for ch in children:
