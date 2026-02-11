@@ -34,6 +34,7 @@ WHILE_END2:
   POP r14
   RET
 ```
+
 ### Other optimizations
 - Remove redundant loads/stores (e.g. if a value is already in a register, don't load it again from memory)
 - Remove redundant moves (e.g. if a value is already in a register, don't move it to another register unnecessarily)

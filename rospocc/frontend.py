@@ -26,6 +26,9 @@ def _get_or_create_string_label(val: str, str_pool: dict, str_count: int, tu: di
 
 def _find_number_in_node(n):
     if isinstance(n, dict):
+        # Prefer transformer-provided integer annotation when available
+        if "int" in n:
+            return n["int"]
         if "token" in n and re.fullmatch(r"-?\d+|0x[0-9a-fA-F]+", n["token"]):
             try:
                 return int(n["token"], 0)
@@ -339,20 +342,35 @@ def code_to_translation_unit(input_data) -> Dict[str, Any]:
                             ):
                                 then_node = ch
                             elif (
-                                ch.get("node") in ("compound_stmt", "expr_stmt", "declaration", "return_stmt")
+                                ch.get("node")
+                                in (
+                                    "compound_stmt",
+                                    "expr_stmt",
+                                    "declaration",
+                                    "return_stmt",
+                                )
                                 and then_node is not None
                                 and else_node is None
                             ):
                                 # this may be the else branch
                                 else_node = ch
                     # fallback heuristics: try positional child
-                    if cond is None and len(children) >= 3 and isinstance(children[2], dict):
+                    if (
+                        cond is None
+                        and len(children) >= 3
+                        and isinstance(children[2], dict)
+                    ):
                         cond = expr_from_node(children[2])
                     # try to find a NAME token anywhere in the if node as a last-ditch cond
                     if cond is None:
+
                         def find_name_in_node(n):
                             if isinstance(n, dict):
-                                if "token" in n and isinstance(n["token"], str) and n["token"].isidentifier():
+                                if (
+                                    "token" in n
+                                    and isinstance(n["token"], str)
+                                    and n["token"].isidentifier()
+                                ):
                                     return n["token"]
                                 for cc in n.get("children", []):
                                     r = find_name_in_node(cc)
@@ -369,14 +387,25 @@ def code_to_translation_unit(input_data) -> Dict[str, Any]:
                     if then_node is None:
                         # try to find the statement after the ')' or last child
                         for ch in children:
-                            if isinstance(ch, dict) and ch.get("node") in ("compound_stmt", "expr_stmt", "declaration", "return_stmt"):
+                            if isinstance(ch, dict) and ch.get("node") in (
+                                "compound_stmt",
+                                "expr_stmt",
+                                "declaration",
+                                "return_stmt",
+                            ):
                                 then_node = ch
                                 break
                     if else_node is None:
                         # attempt to find an 'else' token followed by a stmt node
                         for i, ch in enumerate(children):
-                            if isinstance(ch, dict) and "token" in ch and ch["token"] == "else":
-                                if i + 1 < len(children) and isinstance(children[i + 1], dict):
+                            if (
+                                isinstance(ch, dict)
+                                and "token" in ch
+                                and ch["token"] == "else"
+                            ):
+                                if i + 1 < len(children) and isinstance(
+                                    children[i + 1], dict
+                                ):
                                     else_node = children[i + 1]
                                     break
 
@@ -396,23 +425,59 @@ def code_to_translation_unit(input_data) -> Dict[str, Any]:
                                         break
                                 if ev:
                                     if ev.get("type") == "call":
-                                        then_stmts.append({"type": "call_stmt", "name": ev.get("name"), "args": ev.get("args", [])})
+                                        then_stmts.append(
+                                            {
+                                                "type": "call_stmt",
+                                                "name": ev.get("name"),
+                                                "args": ev.get("args", []),
+                                            }
+                                        )
                                     elif ev.get("type") == "assign":
-                                        then_stmts.append({"type": "assign", "target": ev.get("target"), "value": ev.get("value")})
+                                        then_stmts.append(
+                                            {
+                                                "type": "assign",
+                                                "target": ev.get("target"),
+                                                "value": ev.get("value"),
+                                            }
+                                        )
                             elif then_node.get("node") == "declaration":
                                 # reuse declaration handling: find name/init
                                 name = None
                                 init = None
                                 for cc in then_node.get("children", []):
-                                    if isinstance(cc, dict) and cc.get("node") == "init_declarator_list":
+                                    if (
+                                        isinstance(cc, dict)
+                                        and cc.get("node") == "init_declarator_list"
+                                    ):
                                         for idc in cc.get("children", []):
-                                            if isinstance(idc, dict) and idc.get("node") == "init_declarator":
+                                            if (
+                                                isinstance(idc, dict)
+                                                and idc.get("node") == "init_declarator"
+                                            ):
                                                 for part in idc.get("children", []):
-                                                    if isinstance(part, dict) and part.get("node") == "declarator":
-                                                        for t in part.get("children", []):
-                                                            if isinstance(t, dict) and "token" in t and t["token"].isidentifier():
+                                                    if (
+                                                        isinstance(part, dict)
+                                                        and part.get("node")
+                                                        == "declarator"
+                                                    ):
+                                                        for t in part.get(
+                                                            "children", []
+                                                        ):
+                                                            if (
+                                                                isinstance(t, dict)
+                                                                and "token" in t
+                                                                and t[
+                                                                    "token"
+                                                                ].isidentifier()
+                                                            ):
                                                                 name = t["token"]
-                                                    if isinstance(part, dict) and "token" in part and part["token"].startswith('"'):
+                                                    if (
+                                                        isinstance(part, dict)
+                                                        and "token" in part
+                                                        and part["token"].startswith(
+                                                            '"'
+                                                        )
+                                                    ):
                                                         val = part["token"][1:-1]
                                                         lab = None
                                                         for k, v in str_pool.items():
@@ -423,10 +488,21 @@ def code_to_translation_unit(input_data) -> Dict[str, Any]:
                                                             lab = f"str_{str_count}"
                                                             str_count += 1
                                                             str_pool[lab] = val
-                                                            tu["globals"].append({"kind": "string", "name": lab, "value": val})
-                                                        init = {"type": "string_addr", "label": lab}
+                                                            tu["globals"].append(
+                                                                {
+                                                                    "kind": "string",
+                                                                    "name": lab,
+                                                                    "value": val,
+                                                                }
+                                                            )
+                                                        init = {
+                                                            "type": "string_addr",
+                                                            "label": lab,
+                                                        }
                                 if name:
-                                    then_stmts.append({"type": "decl", "name": name, "init": init})
+                                    then_stmts.append(
+                                        {"type": "decl", "name": name, "init": init}
+                                    )
                             elif then_node.get("node") == "return_stmt":
                                 rv = None
                                 for cc in then_node.get("children", []):
@@ -447,22 +523,58 @@ def code_to_translation_unit(input_data) -> Dict[str, Any]:
                                         break
                                 if ev:
                                     if ev.get("type") == "call":
-                                        else_stmts.append({"type": "call_stmt", "name": ev.get("name"), "args": ev.get("args", [])})
+                                        else_stmts.append(
+                                            {
+                                                "type": "call_stmt",
+                                                "name": ev.get("name"),
+                                                "args": ev.get("args", []),
+                                            }
+                                        )
                                     elif ev.get("type") == "assign":
-                                        else_stmts.append({"type": "assign", "target": ev.get("target"), "value": ev.get("value")})
+                                        else_stmts.append(
+                                            {
+                                                "type": "assign",
+                                                "target": ev.get("target"),
+                                                "value": ev.get("value"),
+                                            }
+                                        )
                             elif else_node.get("node") == "declaration":
                                 name = None
                                 init = None
                                 for cc in else_node.get("children", []):
-                                    if isinstance(cc, dict) and cc.get("node") == "init_declarator_list":
+                                    if (
+                                        isinstance(cc, dict)
+                                        and cc.get("node") == "init_declarator_list"
+                                    ):
                                         for idc in cc.get("children", []):
-                                            if isinstance(idc, dict) and idc.get("node") == "init_declarator":
+                                            if (
+                                                isinstance(idc, dict)
+                                                and idc.get("node") == "init_declarator"
+                                            ):
                                                 for part in idc.get("children", []):
-                                                    if isinstance(part, dict) and part.get("node") == "declarator":
-                                                        for t in part.get("children", []):
-                                                            if isinstance(t, dict) and "token" in t and t["token"].isidentifier():
+                                                    if (
+                                                        isinstance(part, dict)
+                                                        and part.get("node")
+                                                        == "declarator"
+                                                    ):
+                                                        for t in part.get(
+                                                            "children", []
+                                                        ):
+                                                            if (
+                                                                isinstance(t, dict)
+                                                                and "token" in t
+                                                                and t[
+                                                                    "token"
+                                                                ].isidentifier()
+                                                            ):
                                                                 name = t["token"]
-                                                    if isinstance(part, dict) and "token" in part and part["token"].startswith('"'):
+                                                    if (
+                                                        isinstance(part, dict)
+                                                        and "token" in part
+                                                        and part["token"].startswith(
+                                                            '"'
+                                                        )
+                                                    ):
                                                         val = part["token"][1:-1]
                                                         lab = None
                                                         for k, v in str_pool.items():
@@ -473,10 +585,21 @@ def code_to_translation_unit(input_data) -> Dict[str, Any]:
                                                             lab = f"str_{str_count}"
                                                             str_count += 1
                                                             str_pool[lab] = val
-                                                            tu["globals"].append({"kind": "string", "name": lab, "value": val})
-                                                        init = {"type": "string_addr", "label": lab}
+                                                            tu["globals"].append(
+                                                                {
+                                                                    "kind": "string",
+                                                                    "name": lab,
+                                                                    "value": val,
+                                                                }
+                                                            )
+                                                        init = {
+                                                            "type": "string_addr",
+                                                            "label": lab,
+                                                        }
                                 if name:
-                                    else_stmts.append({"type": "decl", "name": name, "init": init})
+                                    else_stmts.append(
+                                        {"type": "decl", "name": name, "init": init}
+                                    )
                             elif else_node.get("node") == "return_stmt":
                                 rv = None
                                 for cc in else_node.get("children", []):
@@ -485,7 +608,14 @@ def code_to_translation_unit(input_data) -> Dict[str, Any]:
                                         break
                                 else_stmts.append({"type": "return", "value": rv})
 
-                    stmts.append({"type": "if", "cond": cond, "then": then_stmts, "else": else_stmts})
+                    stmts.append(
+                        {
+                            "type": "if",
+                            "cond": cond,
+                            "then": then_stmts,
+                            "else": else_stmts,
+                        }
+                    )
                     continue
                 if nd == "return_stmt":
                     # find expr child
@@ -510,39 +640,61 @@ def code_to_translation_unit(input_data) -> Dict[str, Any]:
                                     isinstance(idc, dict)
                                     and idc.get("node") == "init_declarator"
                                 ):
+                                    # each init_declarator can contain a declarator and/or an initializer
+                                    # detect array declarator like NAME '[' NUMBER ']'
                                     for part in idc.get("children", []):
                                         if (
                                             isinstance(part, dict)
                                             and part.get("node") == "declarator"
                                         ):
-                                            for t in part.get("children", []):
+                                            # scan declarator children for NAME and optional [ NUMBER ]
+                                            decl_children = part.get("children", [])
+                                            for i, t in enumerate(decl_children):
                                                 if (
                                                     isinstance(t, dict)
                                                     and "token" in t
                                                     and t["token"].isidentifier()
                                                 ):
                                                     name = t["token"]
-                                        if (
-                                            isinstance(part, dict)
-                                            and part.get("node") is None
-                                            and "token" in part
-                                        ):
-                                            # token could be a NUMBER or STRING
-                                            tok = part.get("token")
-                                            if isinstance(tok, str) and re.fullmatch(
-                                                r"-?\d+|0x[0-9a-fA-F]+", tok
-                                            ):
-                                                try:
-                                                    init = {
-                                                        "type": "const",
-                                                        "value": int(tok, 0),
-                                                    }
-                                                except Exception:
-                                                    init = {
-                                                        "type": "const",
-                                                        "value": int(tok),
-                                                    }
-                                            # otherwise ignore here
+                                            # detect array size in declarator: '[' NUMBER ']'
+                                            for i, t in enumerate(decl_children):
+                                                if (
+                                                    isinstance(t, dict)
+                                                    and "token" in t
+                                                    and t["token"] == "["
+                                                ):
+                                                    # next token may be a number (prefer annotated int)
+                                                    if i + 1 < len(decl_children) and isinstance(
+                                                        decl_children[i + 1], dict
+                                                    ):
+                                                        next_child = decl_children[i + 1]
+                                                        if "int" in next_child:
+                                                            array_len = int(next_child["int"])
+                                                            init = {"type": "array", "size": array_len}
+                                                        elif "token" in next_child:
+                                                            tok = next_child["token"]
+                                                            if isinstance(tok, str) and re.fullmatch(
+                                                                r"-?\d+|0x[0-9a-fA-F]+", tok
+                                                            ):
+                                                                try:
+                                                                    array_len = int(tok, 0)
+                                                                except Exception:
+                                                                    array_len = int(tok)
+                                                                init = {"type": "array", "size": array_len}
+                                                    break
+                                        # initializer tokens that are outside declarator
+                                        if isinstance(part, dict) and part.get("node") is None:
+                                            # token could be a NUMBER or STRING; prefer annotated int
+                                            if "int" in part:
+                                                init = {"type": "const", "value": int(part["int"])}
+                                            elif "token" in part:
+                                                tok = part.get("token")
+                                                if isinstance(tok, str) and re.fullmatch(r"-?\d+|0x[0-9a-fA-F]+", tok):
+                                                    try:
+                                                        init = {"type": "const", "value": int(tok, 0)}
+                                                    except Exception:
+                                                        init = {"type": "const", "value": int(tok)}
+                                            # string literal initializer
                                         if (
                                             isinstance(part, dict)
                                             and "token" in part
@@ -609,6 +761,8 @@ def code_to_translation_unit(input_data) -> Dict[str, Any]:
 
         def find_number_in_node(n):
             if isinstance(n, dict):
+                if "int" in n:
+                    return n["int"]
                 if "token" in n and re.fullmatch(r"-?\d+|0x[0-9a-fA-F]+", n["token"]):
                     try:
                         return int(n["token"], 0)
@@ -627,6 +781,9 @@ def code_to_translation_unit(input_data) -> Dict[str, Any]:
                 return None
             if "token" in n:
                 tok = n["token"]
+                # prefer annotated integer value
+                if isinstance(n, dict) and "int" in n:
+                    return {"type": "const", "value": int(n["int"])}
                 if re.fullmatch(r"-?\d+|0x[0-9a-fA-F]+", tok):
                     try:
                         return {"type": "const", "value": int(tok, 0)}
@@ -635,7 +792,9 @@ def code_to_translation_unit(input_data) -> Dict[str, Any]:
                 if tok.startswith('"') and tok.endswith('"'):
                     # literal string -> create or reuse a global label
                     val = tok[1:-1]
-                    lab, new_count = _get_or_create_string_label(val, str_pool, str_count, tu)
+                    lab, new_count = _get_or_create_string_label(
+                        val, str_pool, str_count, tu
+                    )
                     str_count = new_count
                     return {"type": "string_addr", "label": lab}
                 if tok.isidentifier():

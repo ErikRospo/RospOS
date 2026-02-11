@@ -7,6 +7,7 @@ from lark import Lark, Token, Tree
 import emitter
 import frontend
 from preprocess import preprocess
+from transformer import transform_tree
 
 # Resolve all filesystem paths relative to this file
 HERE = Path(__file__).resolve().parent
@@ -15,15 +16,8 @@ with open(HERE / "rosc.lark", "r") as f:
     grammar = f.read()
 
 
-def tree_to_dict(node):
-    """Recursively convert a Lark Tree/Token into a plain dict structure
-    with 'node' and 'children' keys for easy inspection by the frontend.
-    """
-    if isinstance(node, Tree):
-        return {"node": node.data, "children": [tree_to_dict(c) for c in node.children]}
-    if isinstance(node, Token):
-        return {"token": str(node)}
-    return node
+# Use the transformer to convert Lark parse trees into a condensed dict
+# structure consumed by the frontend/emitter.
 
 
 with open(HERE / "first_test.rosc", "r") as f:
@@ -51,8 +45,10 @@ try:
 except Exception as e:
     print("Error: parsing failed:", e)
     raise
-
-ast_dict = tree_to_dict(tree)
+ast_str = tree.pretty()
+with open(out_dir / "ast.txt", "w") as f:
+    f.write(ast_str)
+ast_dict = transform_tree(tree)
 # write a textual representation for debugging
 with open(out_dir / "ast.json", "w") as f:
     json.dump(ast_dict, f, indent=2)

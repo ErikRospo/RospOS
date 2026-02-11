@@ -37,6 +37,8 @@ class Emitter:
         self.var_types = {}
         # globals type hints collected from translation unit
         self.global_types = {}
+        # collected global space directives for lifted large buffers
+        self.global_spaces = []
 
     def gen_label(self, prefix="L") -> str:
         self.label_counter += 1
@@ -89,20 +91,37 @@ class Emitter:
         out.write(f"{lend}:\n")
 
     def _emit_intrinsic_lb(self, a, out):
+        raddr=None
         if a is None:
             out.write("  // __lb missing arg\n")
             return
-        if a.get("type") == "const":
-            raddr = self.alloc_reg()
-            out.write(
-                f"  LLI {raddr}, {int(a.get('value'))}    // addr const for __lb\n"
-            )
+        # explicit array declarators are represented by frontend as type 'array'
+        if a.get("type") == "array":
+            size = int(a.get("size", 0))
+            name= a.get("name", f"arr{self.label_counter}")
+            lbl = self.gen_label(f"{name}_buf")
+            self.global_spaces.append({"name": lbl, "size": size})
+            r = self.alloc_reg()
+            self.var_regs[name] = r
+            self.var_types[name] = "char_ptr"
+            out.write(f"  LLI {r}, {lbl}    // init {name} (buffer addr)\n")
+            raddr = r
+        elif a.get("type") == "const":
+            val = int(a.get("value"))
+            name = a.get("name", f"const{self.label_counter}")
+            # scalar constant initializer -> treat as int value
+            r = self.alloc_reg()
+            self.var_regs[name] = r
+            self.var_types[name] = "int"
+            out.write(f"  LLI {r}, {val}    // init {name}\n")
         elif a.get("type") == "var":
             raddr = self.var_regs.get(a.get("name"))
             if not raddr:
                 raddr = self._ensure_var_reg(a.get("name"), out)
         else:
             raddr = self.emit_expr(a, out)
+        
+        assert raddr is not None, "Failed to prepare address for __lb"
         out.write(f"  LB {abi.RETURN_REG}, {raddr}, 0    // intrinsic __lb -> return\n")
         if raddr in abi.TEMP_REGS:
             self.free_reg(raddr)
@@ -183,6 +202,12 @@ class Emitter:
             # Globals (very small handling)
             for g in ast.get("globals", []):
                 self.emit_global_declaration(g, f)
+            # Emit any lifted large buffers (as .SPACE labels)
+            for sp in self.global_spaces:
+                lbl = sp.get("name")
+                size = int(sp.get("size", 0))
+                f.write(f"{lbl}:\n")
+                f.write(f"  .SPACE {size} // lifted buffer\n\n")
             f.write("\n")
 
     def emit_global_declaration(self, g: Dict[str, Any], out):
@@ -256,11 +281,25 @@ class Emitter:
             init = stmt.get("init")
             if init:
                 if init.get("type") == "const":
-                    r = self.alloc_reg()
-                    self.var_regs[name] = r
-                    self.var_types[name] = "int"
-                    out.write(
-                        f"  LLI {r}, {int(init.get('value'))}    // init {name}\n"
+                    val = int(init.get("value"))
+                    # If the const looks like an array buffer size larger than an int,
+                    # lift it to a global .SPACE label and initialize the var with its address.
+                    
+                    if val > 4:
+                        lbl = self.gen_label(f"{name}_buf")
+                        self.global_spaces.append({"name": lbl, "size": val})
+                        r = self.alloc_reg()
+                        self.var_regs[name] = r
+                        self.var_types[name] = "char_ptr"
+                        out.write(
+                            f"  LLI {r}, {lbl}    // init {name} (buffer addr)\n"
+                        )
+                    else:
+                        r = self.alloc_reg()
+                        self.var_regs[name] = r
+                        self.var_types[name] = "int"
+                        out.write(
+                            f"  LLI {r}, {val}    // init {name}\n"
                     )
                 elif init.get("type") == "call":
                     self._emit_call(init, out)
