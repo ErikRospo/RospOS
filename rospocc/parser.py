@@ -5,9 +5,8 @@ from pathlib import Path
 from lark import Lark, Token, Tree
 
 import emitter
-import frontend
 from preprocess import preprocess
-from transformer import transform_tree
+from transformer import  transform_to_translation_unit
 
 # Resolve all filesystem paths relative to this file
 HERE = Path(__file__).resolve().parent
@@ -48,13 +47,8 @@ except Exception as e:
 ast_str = tree.pretty()
 with open(out_dir / "ast.txt", "w") as f:
     f.write(ast_str)
-ast_dict = transform_tree(tree)
-# write a textual representation for debugging
-with open(out_dir / "ast.json", "w") as f:
-    json.dump(ast_dict, f, indent=2)
-
-# Convert parsed AST into the translation-unit for emitter (no regex fallback)
-tu = frontend.code_to_translation_unit(ast_dict)
+# Convert parsed AST into the translation-unit for emitter (centralized)
+tu = transform_to_translation_unit(tree)
 
 out = out_dir / "generated.ros"
 emitter.emit_translation_unit(tu, str(out))

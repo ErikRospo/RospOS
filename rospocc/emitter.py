@@ -26,6 +26,8 @@ from pathlib import Path
 from typing import Any, Dict
 
 import abi
+from typing import Any
+from transformer import transform_to_translation_unit
 
 
 class Emitter:
@@ -39,6 +41,50 @@ class Emitter:
         self.global_types = {}
         # collected global space directives for lifted large buffers
         self.global_spaces = []
+
+    # helper: write an immediate into a register
+    def _load_imm(self, reg: str, value, out):
+        out.write(f"  LLI {reg}, {value}    // load immediate {value}\n")
+
+    # helper: allocate a register for a variable and optionally initialize it
+    def _alloc_var_reg(self, name: str, out, init_value=None, typ="int", is_label=False, comment=None):
+        r = self.alloc_reg()
+        self.var_regs[name] = r
+        self.var_types[name] = typ
+        if init_value is None:
+            out.write(f"  LLI {r}, 0    // zero init {name}\n")
+        else:
+            if is_label:
+                out.write(f"  LLI {r}, {init_value}    // init {name} ({comment or 'addr'})\n")
+            else:
+                out.write(f"  LLI {r}, {int(init_value)}    // init {name}\n")
+        return r
+
+    def _collect_global_types(self, ast: Dict[str, Any]):
+        for g in ast.get("globals", []):
+            if g.get("kind") == "string":
+                self.global_types[g.get("name")] = "char_ptr"
+
+    def _choose_entry_label(self, funcs):
+        if not funcs:
+            return None
+        for fn in funcs:
+            if fn.get("name") == "main":
+                return "main"
+        # fallback to first function
+        return funcs[0].get("name") or "main"
+
+    def _write_file_header(self, out):
+        out.write("// Generated .ros by rospocc.emitter (starter)\n")
+        out.write("// Functions\n")
+        out.write(".SEG 0xFFFF_FFFC\n")
+
+    def _write_lifted_spaces(self, out):
+        for sp in self.global_spaces:
+            lbl = sp.get("name")
+            size = int(sp.get("size", 0))
+            out.write(f"{lbl}:\n")
+            out.write(f"  .SPACE {size} // lifted buffer\n\n")
 
     def gen_label(self, prefix="L") -> str:
         self.label_counter += 1
@@ -169,32 +215,16 @@ class Emitter:
         out_file = Path(out_path)
         out_file.parent.mkdir(parents=True, exist_ok=True)
         with out_file.open("w") as f:
-            f.write("// Generated .ros by rospocc.emitter (starter)\n")
-            f.write("// Functions\n")
-            f.write(".SEG 0xFFFF_FFFC\n")
+            # Header and globals collection
+            self._write_file_header(f)
             funcs = ast.get("functions", [])
-            # collect globals types (strings etc.)
-            for g in ast.get("globals", []):
-                if g.get("kind") == "string":
-                    # mark global label as char pointer
-                    self.global_types[g.get("name")] = "char_ptr"
-            main_label = None
-            if funcs:
-                for fn in funcs:
-                    if fn.get("name") == "main":
-                        main_label = "main"
-                        break
-                if main_label is None and funcs:
-                    # pick first function as entry
-                    main_label = funcs[0].get("name") or "main"
+            self._collect_global_types(ast)
+            main_label = self._choose_entry_label(funcs)
             f.write(".DATA 0x00000000\n\n")
+            f.write(".SEG 0x00000000\n\n")
             if main_label:
-                f.write(".SEG 0x00000000\n\n")
                 # Place a small bootstrap that jumps to main as the first code
                 f.write(f"  JMP {main_label}\n\n")
-            else:
-                # No functions found; emit a generic segment header
-                f.write(".SEG 0x00000000\n\n")
             # Functions
             for fn in ast.get("functions", []):
                 self.emit_function_def(fn, f)
@@ -282,25 +312,16 @@ class Emitter:
             if init:
                 if init.get("type") == "const":
                     val = int(init.get("value"))
+                    assert isinstance(val, int), "Expected integer constant initializer"
+                    assert isinstance(name, str), "Expected variable name as string"
                     # If the const looks like an array buffer size larger than an int,
                     # lift it to a global .SPACE label and initialize the var with its address.
-                    
                     if val > 4:
                         lbl = self.gen_label(f"{name}_buf")
                         self.global_spaces.append({"name": lbl, "size": val})
-                        r = self.alloc_reg()
-                        self.var_regs[name] = r
-                        self.var_types[name] = "char_ptr"
-                        out.write(
-                            f"  LLI {r}, {lbl}    // init {name} (buffer addr)\n"
-                        )
+                        r = self._alloc_var_reg(name, out, init_value=lbl, typ="char_ptr", is_label=True, comment="buffer addr")
                     else:
-                        r = self.alloc_reg()
-                        self.var_regs[name] = r
-                        self.var_types[name] = "int"
-                        out.write(
-                            f"  LLI {r}, {val}    // init {name}\n"
-                    )
+                        r = self._alloc_var_reg(name, out, init_value=val, typ="int")
                 elif init.get("type") == "call":
                     self._emit_call(init, out)
                     r = self.alloc_reg()
@@ -314,19 +335,11 @@ class Emitter:
                         self.var_types[name] = "int"
                     out.write(f"  ADDI {r}, {abi.RETURN_REG}, 0\n")
                 elif init.get("type") == "string_addr":
-                    r = self.alloc_reg()
-                    self.var_regs[name] = r
-                    self.var_types[name] = "char_ptr"
-                    out.write(
-                        f"  LLI {r}, {init.get('label')}    // init {name} (string addr)\n"
-                    )
+                    r = self._alloc_var_reg(name, out, init_value=init.get("label"), typ="char_ptr", is_label=True, comment="string addr")
                 else:
                     out.write(f"  // decl {name} with unsupported init {init!r}\n")
             else:
-                r = self.alloc_reg()
-                self.var_regs[name] = r
-                self.var_types[name] = "int"
-                out.write(f"  LLI {r}, 0    // zero init {name}\n")
+                r = self._alloc_var_reg(name, out, init_value=None, typ="int")
         elif t == "assign":
             target = stmt.get("target")
             val = stmt.get("value")
@@ -433,8 +446,8 @@ class Emitter:
             v = int(expr.get("value", 0))
             # Try to use an immediate add into a register
             r = self.alloc_reg()
-            # Use LLI pseudo for generic immediates (assembler can lower it)
-            out.write(f"  LLI {r}, {v}    // load immediate {v}\n")
+            # Use helper to load immediate
+            self._load_imm(r, v, out)
             return r
         if t == "var":
             name = expr.get("name")
@@ -442,9 +455,7 @@ class Emitter:
             if r:
                 return r
             # unknown var — allocate and zero-initialize
-            r = self.alloc_reg()
-            self.var_regs[name] = r
-            out.write(f"  LLI {r}, 0    // implicit init {name}\n")
+            r = self._alloc_var_reg(name, out, init_value=None, typ="int")
             return r
         if t == "deref":
             # load byte from address expr
@@ -511,7 +522,7 @@ class Emitter:
         elif t == "string_addr":
             lbl = expr.get("label")
             r = self.alloc_reg()
-            out.write(f"  LLI {r}, {lbl}    // load address of string {lbl}\n")
+            self._load_imm(r, lbl, out)
             return r
         else:
             out.write(f"  // unsupported-expr {expr!r}\n")
@@ -533,17 +544,11 @@ class Emitter:
                 # ensure address in a register
                 if a.get("type") == "const":
                     raddr = self.alloc_reg()
-                    out.write(
-                        f"  LLI {raddr}, {int(a.get('value'))}    // addr const for __lb\n"
-                    )
+                    self._load_imm(raddr, int(a.get("value")), out)
                 elif a.get("type") == "var":
                     raddr = self.var_regs.get(a.get("name"))
                     if not raddr:
-                        raddr = self.alloc_reg()
-                        self.var_regs[a.get("name")] = raddr
-                        out.write(
-                            f"  LLI {raddr}, 0    // implicit init {a.get('name')}\n"
-                        )
+                        raddr = self._alloc_var_reg(a.get("name"), out, init_value=None, typ="int")
                 else:
                     # expression
                     raddr = self.emit_expr(a, out)
@@ -564,25 +569,17 @@ class Emitter:
                 # prepare regs
                 if a_addr.get("type") == "const":
                     raddr = self.alloc_reg()
-                    out.write(
-                        f"  LLI {raddr}, {int(a_addr.get('value'))}    // addr const for __sb\n"
-                    )
+                    self._load_imm(raddr, int(a_addr.get("value")), out)
                 elif a_addr.get("type") == "var":
                     raddr = self.var_regs.get(a_addr.get("name"))
                     if not raddr:
-                        raddr = self.alloc_reg()
-                        self.var_regs[a_addr.get("name")] = raddr
-                        out.write(
-                            f"  LLI {raddr}, 0    // implicit init {a_addr.get('name')}\n"
-                        )
+                        raddr = self._alloc_var_reg(a_addr.get("name"), out, init_value=None, typ="int")
                 else:
                     raddr = self.emit_expr(a_addr, out)
 
                 if a_val.get("type") == "const":
                     rval = self.alloc_reg()
-                    out.write(
-                        f"  LLI {rval}, {int(a_val.get('value'))}    // val const for __sb\n"
-                    )
+                    self._load_imm(rval, int(a_val.get("value")), out)
                 elif a_val.get("type") == "var":
                     vname = a_val.get("name")
                     # if the var is a char pointer, load the byte it points to
@@ -590,9 +587,7 @@ class Emitter:
                         # ensure we have the pointer register
                         rptr = self.var_regs.get(vname)
                         if not rptr:
-                            rptr = self.alloc_reg()
-                            self.var_regs[vname] = rptr
-                            out.write(f"  LLI {rptr}, 0    // implicit init {vname}\n")
+                            rptr = self._alloc_var_reg(vname, out, init_value=None, typ="char_ptr")
                         rval = self.alloc_reg()
                         out.write(
                             f"  LB {rval}, {rptr}, 0    // load *{vname} for __sb\n"
@@ -600,9 +595,7 @@ class Emitter:
                     else:
                         rval = self.var_regs.get(vname)
                         if not rval:
-                            rval = self.alloc_reg()
-                            self.var_regs[vname] = rval
-                            out.write(f"  LLI {rval}, 0    // implicit init {vname}\n")
+                            rval = self._alloc_var_reg(vname, out, init_value=None, typ="int")
                 else:
                     rval = self.emit_expr(a_val, out)
 
@@ -619,21 +612,34 @@ class Emitter:
         for i, a in enumerate(args[: len(abi.ARG_REGS)]):
             dest = abi.ARG_REGS[i]
             if a.get("type") == "const":
-                out.write(f"  LLI {dest}, {int(a.get('value'))}    // arg {i}\n")
+                self._load_imm(dest, int(a.get("value")), out)
             elif a.get("type") == "string_addr":
-                out.write(f"  LLI {dest}, {a.get('label')}    // arg {i} string addr\n")
+                self._load_imm(dest, a.get("label"), out)
             elif a.get("type") == "var":
                 r = self.var_regs.get(a.get("name"))
                 if r:
                     out.write(f"  ADDI {dest}, {r}, 0    // move arg {i}\n")
                 else:
-                    out.write(f"  LLI {dest}, 0    // arg {i} unknown var -> 0\n")
+                    self._load_imm(dest, 0, out)
             else:
                 out.write(f"  // unsupported arg type {a!r}\n")
 
         out.write(f"  CALL {call_expr.get('name')}\n")
 
 
-def emit_translation_unit(ast: Dict[str, Any], out_path: str):
+def emit_translation_unit(ast: Any, out_path: str):
+    """Accept either a `translation_unit` dict or a raw/AST input and emit .ros.
+
+    If `ast` is not already a translation_unit dict, attempt to convert it
+    using `transform_to_translation_unit` (if available) or fall back to
+    calling `frontend.code_to_translation_unit`.
+    """
+    tu = ast
+    # if not isinstance(ast, dict) or (
+    #     isinstance(ast, dict) and "functions" not in ast and "globals" not in ast
+    # ):
+    #     if transform_to_translation_unit is not None:
+    #         tu = transform_to_translation_unit(ast)
+
     e = Emitter()
-    e.emit_translation_unit(ast, out_path)
+    e.emit_translation_unit(tu, out_path)

@@ -24,7 +24,33 @@ translation_unit
                 arg_list
                   tty_addr
                   str
-            expr_stmt	str
+            expr_stmt
+              assignment
+                str
+                additive
+                  str
+                  1
+  external_decl
+    function_def
+      type_specifier
+      declarator	print_char
+      param_list
+        param
+          type_specifier
+          declarator	c
+      compound_stmt
+        declaration
+          type_specifier
+          init_declarator_list
+            init_declarator
+              declarator	tty_addr
+              0x10000000
+        expr_stmt
+          postfix
+            __sb
+            arg_list
+              tty_addr
+              c
   external_decl
     function_def
       type_specifier
@@ -54,7 +80,7 @@ translation_unit
           compound_stmt
             expr_stmt
               postfix
-                print_string
+                print_char
                 arg_list	"0"
             declaration
               type_specifier	return
@@ -65,7 +91,7 @@ translation_unit
           compound_stmt
             expr_stmt
               postfix
-                print_string
+                print_char
                 arg_list	"-"
             expr_stmt
               assignment
@@ -160,6 +186,74 @@ translation_unit
             __lb
             arg_list	tty_addr
   external_decl
+    function_def
+      type_specifier
+        pointer
+      declarator	read_string
+      param_list
+        param
+          type_specifier
+            pointer
+          declarator	buffer
+        param
+          type_specifier
+          declarator	max_len
+      compound_stmt
+        declaration
+          type_specifier
+          init_declarator_list
+            init_declarator
+              declarator	tty_addr
+              0x10000000
+        declaration
+          type_specifier
+          init_declarator_list
+            init_declarator
+              declarator	i
+              0
+        while_stmt
+          relational
+            i
+            additive
+              max_len
+              1
+          compound_stmt
+            declaration
+              type_specifier
+              init_declarator_list
+                init_declarator
+                  declarator	c
+                  postfix
+                    __lb
+                    arg_list	tty_addr
+            if_stmt
+              logic_or
+                equality
+                  c
+                  "\n"
+                equality
+                  c
+                  "\r"
+              declaration
+                type_specifier	break
+            expr_stmt
+              assignment
+                postfix
+                  buffer
+                  i
+                c
+        expr_stmt
+          assignment
+            postfix
+              buffer
+              i
+            "\0"
+        declaration
+          type_specifier	return
+          init_declarator_list
+            init_declarator
+              declarator	buffer
+  external_decl
     declaration
       type_specifier
       init_declarator_list
@@ -224,15 +318,21 @@ translation_unit
           type_specifier
           declarator	size
       compound_stmt
-        expr_stmt
-          bit_and
-            postfix
-              return
-              arg_list
+        declaration
+          type_specifier
+          init_declarator_list
+            init_declarator
+              declarator	v
+              bit_and
                 additive
                   size
                   3
-            3
+                3
+        declaration
+          type_specifier	return
+          init_declarator_list
+            init_declarator
+              declarator	v
   external_decl
     function_def
       type_specifier
