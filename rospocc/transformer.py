@@ -116,6 +116,20 @@ def transform_to_translation_unit(input_data) -> dict:
                     return v
         return None
 
+    def _find_identifier(n):
+        """Recursively find the first identifier token in node `n`.
+
+        Returns the identifier string or `None` if not found.
+        """
+        if isinstance(n, dict):
+            if "token" in n and isinstance(n["token"], str) and n["token"].isidentifier():
+                return n["token"]
+            for c in n.get("children", []):
+                r = _find_identifier(c)
+                if r is not None:
+                    return r
+        return None
+
     # Main conversion functions (walk AST and produce translation unit)
     str_pool = {}
     str_count = 0
@@ -138,54 +152,38 @@ def transform_to_translation_unit(input_data) -> dict:
             body_node = None
             for c in children:
                 if isinstance(c, dict) and c.get("node") == "declarator":
-                    for d in c.get("children", []):
-                        if (
-                            isinstance(d, dict)
-                            and "token" in d
-                            and d["token"].isidentifier()
-                        ):
-                            name = d["token"]
-                            break
+                    ident = _find_identifier(c)
+                    if ident:
+                        name = ident
                 if isinstance(c, dict) and c.get("node") == "param_list":
                     for p in c.get("children", []):
                         if isinstance(p, dict) and p.get("node") == "param":
                             for pp in p.get("children", []):
-                                if (
-                                    isinstance(pp, dict)
-                                    and pp.get("node") == "declarator"
-                                ):
+                                if isinstance(pp, dict) and pp.get("node") == "declarator":
+                                    # find the parameter name (try direct child first, then helper)
+                                    pname = None
                                     for n in pp.get("children", []):
-                                        if (
-                                            isinstance(n, dict)
-                                            and "token" in n
-                                            and n["token"].isidentifier()
-                                        ):
-                                            params.append(n["token"])
-                                            found_ptr = False
-                                            for tchild in p.get("children", []):
-                                                if (
-                                                    isinstance(tchild, dict)
-                                                    and tchild.get("node")
-                                                    == "type_specifier"
-                                                ):
-                                                    for pc in tchild.get("children", []):
-                                                        if (
-                                                            isinstance(pc, dict)
-                                                            and pc.get("node")
-                                                            == "pointer"
-                                                        ):
-                                                            param_types[n["token"]] = "char_ptr"
-                                                            found_ptr = True
-                                                            break
-                                            if not found_ptr:
-                                                for dc in pp.get("children", []):
-                                                    if (
-                                                        isinstance(dc, dict)
-                                                        and dc.get("node")
-                                                        == "pointer"
-                                                    ):
-                                                        param_types[n["token"]] = "char_ptr"
+                                        if isinstance(n, dict) and "token" in n and n["token"].isidentifier():
+                                            pname = n["token"]
+                                            break
+                                    if pname is None:
+                                        pname = _find_identifier(pp)
+                                    if pname:
+                                        params.append(pname)
+                                        # detect pointer in surrounding type_specifier or declarator
+                                        found_ptr = False
+                                        for tchild in p.get("children", []):
+                                            if isinstance(tchild, dict) and tchild.get("node") == "type_specifier":
+                                                for pc in tchild.get("children", []):
+                                                    if isinstance(pc, dict) and pc.get("node") == "pointer":
+                                                        param_types[pname] = "char_ptr"
+                                                        found_ptr = True
                                                         break
+                                        if not found_ptr:
+                                            for dc in pp.get("children", []):
+                                                if isinstance(dc, dict) and dc.get("node") == "pointer":
+                                                    param_types[pname] = "char_ptr"
+                                                    break
                 if isinstance(c, dict) and c.get("node") == "compound_stmt":
                     body_node = c
 
@@ -219,13 +217,9 @@ def transform_to_translation_unit(input_data) -> dict:
                         val = None
                         for dc in decl_children:
                             if isinstance(dc, dict) and dc.get("node") == "declarator":
-                                for dd in dc.get("children", []):
-                                    if (
-                                        isinstance(dd, dict)
-                                        and "token" in dd
-                                        and dd["token"].isidentifier()
-                                    ):
-                                        name = dd["token"]
+                                ident = _find_identifier(dc)
+                                if ident:
+                                    name = ident
                             if isinstance(dc, dict) and "token" in dc and dc["token"].startswith('"'):
                                 val = dc["token"][1:-1]
                         if name and val is not None:
@@ -397,9 +391,9 @@ def transform_to_translation_unit(input_data) -> dict:
                                         if isinstance(idc, dict) and idc.get("node") == "init_declarator":
                                             for part in idc.get("children", []):
                                                 if isinstance(part, dict) and part.get("node") == "declarator":
-                                                    for t in part.get("children", []):
-                                                        if isinstance(t, dict) and "token" in t and t["token"].isidentifier():
-                                                            name = t["token"]
+                                                    ident = _find_identifier(part)
+                                                    if ident:
+                                                        name = ident
                                                 if isinstance(part, dict) and "token" in part and part["token"].startswith('"'):
                                                     val = part["token"][1:-1]
                                                     lab, str_count = _get_or_create_string_label(val, str_pool, str_count, tu)
@@ -438,9 +432,9 @@ def transform_to_translation_unit(input_data) -> dict:
                                         if isinstance(idc, dict) and idc.get("node") == "init_declarator":
                                             for part in idc.get("children", []):
                                                 if isinstance(part, dict) and part.get("node") == "declarator":
-                                                    for t in part.get("children", []):
-                                                        if isinstance(t, dict) and "token" in t and t["token"].isidentifier():
-                                                            name = t["token"]
+                                                        ident = _find_identifier(part)
+                                                        if ident:
+                                                            name = ident
                                                 if isinstance(part, dict) and "token" in part and part["token"].startswith('"'):
                                                     val = part["token"][1:-1]
                                                     lab, str_count = _get_or_create_string_label(val, str_pool, str_count, tu)
@@ -474,9 +468,9 @@ def transform_to_translation_unit(input_data) -> dict:
                                 for part in idc.get("children", []):
                                     if isinstance(part, dict) and part.get("node") == "declarator":
                                         decl_children = part.get("children", [])
-                                        for i, t in enumerate(decl_children):
-                                            if isinstance(t, dict) and "token" in t and t["token"].isidentifier():
-                                                name = t["token"]
+                                        ident = _find_identifier(part)
+                                        if ident:
+                                            name = ident
                                         for i, t in enumerate(decl_children):
                                             if isinstance(t, dict) and "token" in t and t["token"] == "[":
                                                 if i + 1 < len(decl_children) and isinstance(decl_children[i + 1], dict):
@@ -527,9 +521,6 @@ def transform_to_translation_unit(input_data) -> dict:
             else:
                 pass
         return stmts
-
-    def find_number_in_node(n):
-        return _find_number_in_node(n)
 
     def expr_from_node(n):
         nonlocal str_count
