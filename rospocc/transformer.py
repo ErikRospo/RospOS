@@ -33,10 +33,7 @@ class ASTTransformer(Transformer):
             try:
                 out["int"] = int(tok, 0)
             except Exception:
-                try:
-                    out["int"] = int(tok)
-                except Exception:
-                    pass
+                pass
         # annotate string literal unescaped form
         if tok.startswith('"') and tok.endswith('"') and len(tok) >= 2:
             # remove surrounding quotes, keep escape sequences as-is
@@ -73,12 +70,10 @@ def transform_tree(tree: Tree):
     """
     if isinstance(tree, Tree):
         return ASTTransformer().transform(tree)
-    if isinstance(tree, Token):
-        return ASTTransformer().__default_token__(tree)
     return tree
 
 
-def transform_to_translation_unit(input_data) -> dict:
+def transform_to_translation_unit(input_data: Tree) -> dict:
     """Convert parsed AST (Lark Tree or transformed dict) into a
     `translation_unit` dict consumed by the emitter.
 
