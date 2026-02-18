@@ -467,21 +467,25 @@ def transform_to_translation_unit(input_data: Tree) -> dict:
                                         if ident:
                                             name = ident
                                         for i, t in enumerate(decl_children):
-                                            if isinstance(t, dict) and "token" in t and t["token"] == "[":
-                                                if i + 1 < len(decl_children) and isinstance(decl_children[i + 1], dict):
-                                                    next_child = decl_children[i + 1]
-                                                    if "int" in next_child:
-                                                        array_len = int(next_child["int"])
+                                            if isinstance(t, dict) and "node" in t and t["node"] == "array":
+                                                child = decl_children[i]
+                                                assert child["node"]=="array"
+                                                c_child=child.get("children", [])
+                                                assert len(c_child)>0
+                                                if "int" in c_child[0]:
+                                                    array_len = int(c_child[0]["int"])
+                                                    init = {"type": "array", "size": array_len}
+                                                elif "token" in c_child[0]:
+                                                    tok = c_child[0]["token"]
+                                                    if isinstance(tok, str) and re.fullmatch(r"-?\d+|0x[0-9a-fA-F]+", tok):
+                                                        try:
+                                                            array_len = int(tok, 0)
+                                                        except Exception:
+                                                            array_len = int(tok)
                                                         init = {"type": "array", "size": array_len}
-                                                    elif "token" in next_child:
-                                                        tok = next_child["token"]
-                                                        if isinstance(tok, str) and re.fullmatch(r"-?\d+|0x[0-9a-fA-F]+", tok):
-                                                            try:
-                                                                array_len = int(tok, 0)
-                                                            except Exception:
-                                                                array_len = int(tok)
-                                                            init = {"type": "array", "size": array_len}
                                                 break
+                                        if init is not None:
+                                            break
                                     if isinstance(part, dict) and part.get("node") is None:
                                         if "int" in part:
                                             init = {"type": "const", "value": int(part["int"])}
