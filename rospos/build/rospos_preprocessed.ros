@@ -36,24 +36,24 @@ WHILE_END2:
 .FUNC printi:
   // prologue (minimal)
   PUSH r14
-  LLI r2, 12    // init buffer
+  LLI r2, buffer_buf3    // init buffer (buffer addr)
   LLI r3, 0    // init i
-  BEQ r1, r0, ELSE3
+  BEQ r1, r0, ELSE4
   LLI r1, str_0    // load immediate str_0
   CALL print_char
-  JMP IF_END4
-ELSE3:
-IF_END4:
-  BEQ r1, r0, ELSE5
+  JMP IF_END5
+ELSE4:
+IF_END5:
+  BEQ r1, r0, ELSE6
   LLI r1, str_1    // load immediate str_1
   CALL print_char
-  JMP IF_END6
-ELSE5:
-IF_END6:
-WHILE7:
-  BEQ r1, r0, WHILE_END8
-  JMP WHILE7
-WHILE_END8:
+  JMP IF_END7
+ELSE6:
+IF_END7:
+WHILE8:
+  BEQ r1, r0, WHILE_END9
+  JMP WHILE8
+WHILE_END9:
   ADDI r1, r2, 0    // move arg 0
   CALL print_string
   // epilogue and return
@@ -74,15 +74,15 @@ WHILE_END8:
   PUSH r14
   LLI r2, 268435456    // init tty_addr
   LLI r3, 0    // init i
-WHILE9:
-  BEQ r3, r0, WHILE_END10
+WHILE10:
+  BEQ r3, r0, WHILE_END11
   LLI r3, 0    // zero init c
-  BEQ r3, r0, ELSE11
-  JMP IF_END12
-ELSE11:
-IF_END12:
-  JMP WHILE9
-WHILE_END10:
+  BEQ r3, r0, ELSE12
+  JMP IF_END13
+ELSE12:
+IF_END13:
+  JMP WHILE10
+WHILE_END11:
   LLI r3, 0    // zero init buffer
   // epilogue and return
   ADDI r1, r0, 0  // ensure r1=0
@@ -102,49 +102,49 @@ WHILE_END10:
 .FUNC malloc:
   // prologue (minimal)
   PUSH r14
-  BEQ r1, r0, ELSE13
+  BEQ r1, r0, ELSE14
   LLI r2, 0    // zero init nullptr
-  JMP IF_END14
-ELSE13:
-IF_END14:
+  JMP IF_END15
+ELSE14:
+IF_END15:
   LLI r3, 0    // zero init asize
   LLI r4, 0    // zero init current
   LLI r5, 0    // zero init prev
-WHILE15:
-  BEQ r4, r0, WHILE_END16
-  BEQ r4, r0, ELSE17
+WHILE16:
+  BEQ r4, r0, WHILE_END17
+  BEQ r4, r0, ELSE18
   LLI r4, 0    // zero init remaining
-  BEQ r4, r0, ELSE19
+  BEQ r4, r0, ELSE20
   LLI r4, 0    // zero init new_hdr_addr
   LLI r6, 0    // zero init new_block
-  JMP IF_END20
-ELSE19:
-IF_END20:
+  JMP IF_END21
+ELSE20:
+IF_END21:
   ADD r1, r4, r0
   POP r14
   RET
-  JMP IF_END18
-ELSE17:
-IF_END18:
-  JMP WHILE15
-WHILE_END16:
+  JMP IF_END19
+ELSE18:
+IF_END19:
+  JMP WHILE16
+WHILE_END17:
   LLI r4, 0    // zero init hdr_addr
   LLI r7, 0    // zero init payload_addr
-  BEQ r7, r0, ELSE21
+  BEQ r7, r0, ELSE22
   LLI r7, 0    // zero init nullptr
-  JMP IF_END22
-ELSE21:
-IF_END22:
-  BEQ r7, r0, ELSE23
+  JMP IF_END23
+ELSE22:
+IF_END23:
+  BEQ r7, r0, ELSE24
   LLI r7, 0    // zero init nullptr
-  JMP IF_END24
-ELSE23:
-IF_END24:
+  JMP IF_END25
+ELSE24:
+IF_END25:
   LLI r8, 0    // zero init new_block
-  BEQ r5, r0, ELSE25
-  JMP IF_END26
-ELSE25:
-IF_END26:
+  BEQ r5, r0, ELSE26
+  JMP IF_END27
+ELSE26:
+IF_END27:
   ADD r1, r7, r0
   POP r14
   RET
@@ -153,28 +153,28 @@ IF_END26:
   // prologue (minimal)
   PUSH r14
   LB r2, r1, 0    // deref
-  BEQ r2, r0, ELSE27
-  JMP IF_END28
-ELSE27:
-IF_END28:
+  BEQ r2, r0, ELSE28
+  JMP IF_END29
+ELSE28:
+IF_END29:
   LLI r2, 0    // zero init current
   LLI r3, 0    // zero init prev
-WHILE29:
-  BEQ r2, r0, WHILE_END30
-  BEQ r2, r0, ELSE31
-  BEQ r2, r0, ELSE33
-  JMP IF_END34
-ELSE33:
-IF_END34:
-  BEQ r3, r0, ELSE35
-  JMP IF_END36
-ELSE35:
-IF_END36:
-  JMP IF_END32
-ELSE31:
-IF_END32:
-  JMP WHILE29
-WHILE_END30:
+WHILE30:
+  BEQ r2, r0, WHILE_END31
+  BEQ r2, r0, ELSE32
+  BEQ r2, r0, ELSE34
+  JMP IF_END35
+ELSE34:
+IF_END35:
+  BEQ r3, r0, ELSE36
+  JMP IF_END37
+ELSE36:
+IF_END37:
+  JMP IF_END33
+ELSE32:
+IF_END33:
+  JMP WHILE30
+WHILE_END31:
   // epilogue and return
   ADDI r1, r0, 0  // ensure r1=0
   POP r14
@@ -184,8 +184,8 @@ WHILE_END30:
   // prologue (minimal)
   PUSH r14
   LLI r2, 0    // zero init current
-WHILE37:
-  BEQ r2, r0, WHILE_END38
+WHILE38:
+  BEQ r2, r0, WHILE_END39
   LLI r1, str_2    // load immediate str_2
   CALL print_string
   ADDI r1, r2, 0    // move arg 0
@@ -200,8 +200,8 @@ WHILE37:
   CALL printi
   LLI r1, str_5    // load immediate str_5
   CALL print_string
-  JMP WHILE37
-WHILE_END38:
+  JMP WHILE38
+WHILE_END39:
   // epilogue and return
   ADDI r1, r0, 0  // ensure r1=0
   POP r14
@@ -224,18 +224,18 @@ WHILE_END38:
   ADDI r1, r4, 0    // move arg 0
   CALL printi
   LLI r5, 0    // zero init ptr
-  BEQ r5, r0, ELSE39
+  BEQ r5, r0, ELSE40
   LLI r1, str_7    // load immediate str_7
   CALL print_string
   ADDI r1, r5, 0    // move arg 0
   CALL printi
   ADDI r1, r5, 0    // move arg 0
   CALL free
-  JMP IF_END40
-ELSE39:
+  JMP IF_END41
+ELSE40:
   LLI r1, str_8    // load immediate str_8
   CALL print_string
-IF_END40:
+IF_END41:
   LLI r5, 0    // load immediate 0
   ADD r1, r5, r0
   POP r14
@@ -270,4 +270,7 @@ str_7:
 
 str_8:
   .STR "Memory allocation failed"
+
+buffer_buf3:
+  .SPACE 12 // lifted buffer
 
