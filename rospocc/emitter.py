@@ -40,6 +40,11 @@ class Emitter:
         self.global_types = {}
         # collected global space directives for lifted large buffers
         self.global_spaces = []
+        # intrinsic handlers: name -> callable(args, out)
+        self.intrinsics = {
+            "__lb": self._intrinsic_lb,
+            "__sb": self._intrinsic_sb,
+        }
 
     # helper: write an immediate into a register
     def _load_imm(self, reg: str, value, out):
@@ -135,15 +140,16 @@ class Emitter:
         out.write(f"  LLI {rd}, 1\n")
         out.write(f"{lend}:\n")
 
-    def _emit_intrinsic_lb(self, a, out):
-        raddr=None
+    def _intrinsic_lb(self, args, out):
+        a = args[0] if args else None
+        raddr = None
         if a is None:
             out.write("  // __lb missing arg\n")
             return
         # explicit array declarators are represented by frontend as type 'array'
         if a.get("type") == "array":
             size = int(a.get("size", 0))
-            name= a.get("name", f"arr{self.label_counter}")
+            name = a.get("name", f"arr{self.label_counter}")
             lbl = self.gen_label(f"{name}_buf")
             self.global_spaces.append({"name": lbl, "size": size})
             r = self.alloc_reg()
@@ -159,19 +165,26 @@ class Emitter:
             self.var_regs[name] = r
             self.var_types[name] = "int"
             out.write(f"  LLI {r}, {val}    // init {name}\n")
+            raddr = r
         elif a.get("type") == "var":
             raddr = self.var_regs.get(a.get("name"))
             if not raddr:
                 raddr = self._ensure_var_reg(a.get("name"), out)
         else:
             raddr = self.emit_expr(a, out)
-        
+
         assert raddr is not None, "Failed to prepare address for __lb"
         out.write(f"  LB {abi.RETURN_REG}, {raddr}, 0    // intrinsic __lb -> return\n")
         if raddr in abi.TEMP_REGS:
             self.free_reg(raddr)
 
-    def _emit_intrinsic_sb(self, a_addr, a_val, out):
+    def _intrinsic_sb(self, args, out):
+        if len(args) < 2:
+            out.write("  // __sb missing args\n")
+            return
+        a_addr = args[0]
+        a_val = args[1]
+
         if a_addr.get("type") == "const":
             raddr = self.alloc_reg()
             out.write(
@@ -531,82 +544,14 @@ class Emitter:
         name = call_expr.get("name")
         args = call_expr.get("args", [])
 
-        # Intrinsic handling for names starting with __
+        # Intrinsic handling for names starting with __ -> dispatch via registry
         if isinstance(name, str) and name.startswith("__"):
-            # support __lb(addr) -> LB RETURN_REG, addr_reg, 0
-            if name == "__lb":
-                # single arg: address
-                a = args[0] if args else None
-                if a is None:
-                    out.write("  // __lb missing arg\n")
-                    return
-                # ensure address in a register
-                if a.get("type") == "const":
-                    raddr = self.alloc_reg()
-                    self._load_imm(raddr, int(a.get("value")), out)
-                elif a.get("type") == "var":
-                    raddr = self.var_regs.get(a.get("name"))
-                    if not raddr:
-                        raddr = self._alloc_var_reg(a.get("name"), out, init_value=None, typ="int")
-                else:
-                    # expression
-                    raddr = self.emit_expr(a, out)
-
-                out.write(
-                    f"  LB {abi.RETURN_REG}, {raddr}, 0    // intrinsic __lb -> return\n"
-                )
-                if raddr in abi.TEMP_REGS:
-                    self.free_reg(raddr)
+            handler = self.intrinsics.get(name)
+            if handler:
+                handler(args, out)
                 return
-
-            if name == "__sb":
-                if len(args) < 2:
-                    out.write("  // __sb missing args\n")
-                    return
-                a_addr = args[0]
-                a_val = args[1]
-                # prepare regs
-                if a_addr.get("type") == "const":
-                    raddr = self.alloc_reg()
-                    self._load_imm(raddr, int(a_addr.get("value")), out)
-                elif a_addr.get("type") == "var":
-                    raddr = self.var_regs.get(a_addr.get("name"))
-                    if not raddr:
-                        raddr = self._alloc_var_reg(a_addr.get("name"), out, init_value=None, typ="int")
-                else:
-                    raddr = self.emit_expr(a_addr, out)
-
-                if a_val.get("type") == "const":
-                    rval = self.alloc_reg()
-                    self._load_imm(rval, int(a_val.get("value")), out)
-                elif a_val.get("type") == "var":
-                    vname = a_val.get("name")
-                    # if the var is a char pointer, load the byte it points to
-                    if self.var_types.get(vname) == "char_ptr":
-                        # ensure we have the pointer register
-                        rptr = self.var_regs.get(vname)
-                        if not rptr:
-                            rptr = self._alloc_var_reg(vname, out, init_value=None, typ="char_ptr")
-                        rval = self.alloc_reg()
-                        out.write(
-                            f"  LB {rval}, {rptr}, 0    // load *{vname} for __sb\n"
-                        )
-                    else:
-                        rval = self.var_regs.get(vname)
-                        if not rval:
-                            rval = self._alloc_var_reg(vname, out, init_value=None, typ="int")
-                else:
-                    rval = self.emit_expr(a_val, out)
-
-                out.write(f"  SB {rval}, {raddr}, 0    // intrinsic __sb\n")
-                if raddr in abi.TEMP_REGS:
-                    self.free_reg(raddr)
-                if rval in abi.TEMP_REGS:
-                    self.free_reg(rval)
-                return
-
-            # other intrinsics can be lowered similarly
-
+            print(f"Warning: no handler for intrinsic {name!r}")
+            # fall back to emitting as a regular call (which may fail if it's truly unsupported)
         # Default: regular function call -> place up to 4 args into ARG_REGS then CALL
         for i, a in enumerate(args[: len(abi.ARG_REGS)]):
             dest = abi.ARG_REGS[i]
