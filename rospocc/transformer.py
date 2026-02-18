@@ -91,7 +91,6 @@ def transform_to_translation_unit(input_data) -> dict:
 
     tu = {"globals": [], "functions": []}
 
-    # helpers (copied/adapted from old frontend)
     def _get_or_create_string_label(val: str, str_pool: dict, str_count: int, tu: dict):
         for lab, v in str_pool.items():
             if v == val:
@@ -403,16 +402,7 @@ def transform_to_translation_unit(input_data) -> dict:
                                                             name = t["token"]
                                                 if isinstance(part, dict) and "token" in part and part["token"].startswith('"'):
                                                     val = part["token"][1:-1]
-                                                    lab = None
-                                                    for k, v in str_pool.items():
-                                                        if v == val:
-                                                            lab = k
-                                                            break
-                                                    if lab is None:
-                                                        lab = f"str_{str_count}"
-                                                        str_count += 1
-                                                        str_pool[lab] = val
-                                                        tu["globals"].append({"kind": "string", "name": lab, "value": val})
+                                                    lab, str_count = _get_or_create_string_label(val, str_pool, str_count, tu)
                                                     init = {"type": "string_addr", "label": lab}
                             if name:
                                 then_stmts.append({"type": "decl", "name": name, "init": init})
@@ -453,16 +443,7 @@ def transform_to_translation_unit(input_data) -> dict:
                                                             name = t["token"]
                                                 if isinstance(part, dict) and "token" in part and part["token"].startswith('"'):
                                                     val = part["token"][1:-1]
-                                                    lab = None
-                                                    for k, v in str_pool.items():
-                                                        if v == val:
-                                                            lab = k
-                                                            break
-                                                    if lab is None:
-                                                        lab = f"str_{str_count}"
-                                                        str_count += 1
-                                                        str_pool[lab] = val
-                                                        tu["globals"].append({"kind": "string", "name": lab, "value": val})
+                                                    lab, str_count = _get_or_create_string_label(val, str_pool, str_count, tu)
                                                     init = {"type": "string_addr", "label": lab}
                             if name:
                                 else_stmts.append({"type": "decl", "name": name, "init": init})
@@ -524,16 +505,7 @@ def transform_to_translation_unit(input_data) -> dict:
                                                     init = {"type": "const", "value": int(tok)}
                                     if isinstance(part, dict) and "token" in part and part["token"].startswith('"'):
                                         val = part["token"][1:-1]
-                                        lab = None
-                                        for k, v in str_pool.items():
-                                            if v == val:
-                                                lab = k
-                                                break
-                                        if lab is None:
-                                            lab = f"str_{str_count}"
-                                            str_count += 1
-                                            str_pool[lab] = val
-                                            tu["globals"].append({"kind": "string", "name": lab, "value": val})
+                                        lab, str_count = _get_or_create_string_label(val, str_pool, str_count, tu)
                                         init = {"type": "string_addr", "label": lab}
                                     if isinstance(part, dict) and part.get("node"):
                                         val = _find_number_in_node(part)

@@ -27,7 +27,6 @@ from typing import Any, Dict
 
 import abi
 from typing import Any
-from transformer import transform_to_translation_unit
 
 
 class Emitter:
@@ -92,7 +91,7 @@ class Emitter:
 
     def alloc_reg(self) -> str:
         if not self.reg_free:
-            # Very simple fallback: use r13 (caller-saved stack pointer temp)
+            # Very simple fallback: use r13 (caller-saved temp)
             return "r13"
         return self.reg_free.pop(0)
 
@@ -280,7 +279,8 @@ class Emitter:
             self.emit_statement(stmt, out)
 
         # If no return was emitted in the body, emit epilogue and return 0
-        if not getattr(self, "had_return", False):
+        assert self.had_return != None, "had_return flag should be set by body statements, or at least not be unset from initial False"
+        if not self.had_return:
             out.write(f"  // epilogue and return\n")
             out.write(
                 f"  ADDI {abi.RETURN_REG}, {abi.SPECIAL_REGS['zero']}, 0  // ensure r1=0\n"
