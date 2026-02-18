@@ -314,14 +314,13 @@ class Emitter:
                     val = int(init.get("value"))
                     assert isinstance(val, int), "Expected integer constant initializer"
                     assert isinstance(name, str), "Expected variable name as string"
-                    # If the const looks like an array buffer size larger than an int,
-                    # lift it to a global .SPACE label and initialize the var with its address.
-                    if val > 4:
-                        lbl = self.gen_label(f"{name}_buf")
-                        self.global_spaces.append({"name": lbl, "size": val})
-                        r = self._alloc_var_reg(name, out, init_value=lbl, typ="char_ptr", is_label=True, comment="buffer addr")
-                    else:
-                        r = self._alloc_var_reg(name, out, init_value=val, typ="int")
+                    r = self._alloc_var_reg(name, out, init_value=val, typ="int")
+                elif init.get("type") == "array":
+                    # Local array declaration (e.g. char buf[12]) -> lift to .SPACE
+                    size = int(init.get("size", 0))
+                    lbl = self.gen_label(f"{name}_buf")
+                    self.global_spaces.append({"name": lbl, "size": size})
+                    r = self._alloc_var_reg(name, out, init_value=lbl, typ="char_ptr", is_label=True, comment="buffer addr")
                 elif init.get("type") == "call":
                     self._emit_call(init, out)
                     r = self.alloc_reg()

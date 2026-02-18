@@ -1068,13 +1068,13 @@ WHILE_END2:
   LLI r2, 12    // init buffer
   LLI r3, 0    // init i
   BEQ r1, r0, ELSE3
-  LLI r1, str_0    // arg 0 string addr
+  LLI r1, str_0    // load immediate str_0
   CALL print_char
   JMP IF_END4
 ELSE3:
 IF_END4:
   BEQ r1, r0, ELSE5
-  LLI r1, str_1    // arg 0 string addr
+  LLI r1, str_1    // load immediate str_1
   CALL print_char
   JMP IF_END6
 ELSE5:
@@ -1215,19 +1215,19 @@ WHILE_END30:
   LLI r2, 0    // zero init current
 WHILE37:
   BEQ r2, r0, WHILE_END38
-  LLI r1, str_2    // arg 0 string addr
+  LLI r1, str_2    // load immediate str_2
   CALL print_string
   ADDI r1, r2, 0    // move arg 0
   CALL printi
-  LLI r1, str_3    // arg 0 string addr
+  LLI r1, str_3    // load immediate str_3
   CALL print_string
   ADDI r1, r2, 0    // move arg 0
   CALL printi
-  LLI r1, str_4    // arg 0 string addr
+  LLI r1, str_4    // load immediate str_4
   CALL print_string
   ADDI r1, r2, 0    // move arg 0
   CALL printi
-  LLI r1, str_5    // arg 0 string addr
+  LLI r1, str_5    // load immediate str_5
   CALL print_string
   JMP WHILE37
 WHILE_END38:
@@ -1248,13 +1248,13 @@ WHILE_END38:
   LLI r2, 5    // init x
   LLI r3, 10    // init y
   LLI r4, 0    // zero init result
-  LLI r1, str_6    // arg 0 string addr
+  LLI r1, str_6    // load immediate str_6
   CALL print_string
   ADDI r1, r4, 0    // move arg 0
   CALL printi
   LLI r5, 0    // zero init ptr
   BEQ r5, r0, ELSE39
-  LLI r1, str_7    // arg 0 string addr
+  LLI r1, str_7    // load immediate str_7
   CALL print_string
   ADDI r1, r5, 0    // move arg 0
   CALL printi
@@ -1262,7 +1262,7 @@ WHILE_END38:
   CALL free
   JMP IF_END40
 ELSE39:
-  LLI r1, str_8    // arg 0 string addr
+  LLI r1, str_8    // load immediate str_8
   CALL print_string
 IF_END40:
   LLI r5, 0    // load immediate 0

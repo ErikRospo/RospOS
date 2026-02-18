@@ -10,14 +10,14 @@
 .FUNC print_string:
   // prologue (minimal)
   PUSH r14
-  LLI r2, tty_addr_buf1    // init tty_addr (buffer addr)
-WHILE2:
+  LLI r2, 268435456    // init tty_addr
+WHILE1:
   LB r3, r1, 0    // deref
-  BEQ r3, r0, WHILE_END3
+  BEQ r3, r0, WHILE_END2
   LB r3, r1, 0    // load *str for __sb
   SB r3, r2, 0    // intrinsic __sb
-  JMP WHILE2
-WHILE_END3:
+  JMP WHILE1
+WHILE_END2:
   // epilogue and return
   ADDI r1, r0, 0  // ensure r1=0
   POP r14
@@ -26,7 +26,7 @@ WHILE_END3:
 .FUNC print_char:
   // prologue (minimal)
   PUSH r14
-  LLI r2, tty_addr_buf4    // init tty_addr (buffer addr)
+  LLI r2, 268435456    // init tty_addr
   SB r1, r2, 0    // intrinsic __sb
   // epilogue and return
   ADDI r1, r0, 0  // ensure r1=0
@@ -36,24 +36,24 @@ WHILE_END3:
 .FUNC printi:
   // prologue (minimal)
   PUSH r14
-  LLI r2, buffer_buf5    // init buffer (buffer addr)
+  LLI r2, 12    // init buffer
   LLI r3, 0    // init i
-  BEQ r1, r0, ELSE6
+  BEQ r1, r0, ELSE3
   LLI r1, str_0    // load immediate str_0
   CALL print_char
-  JMP IF_END7
-ELSE6:
-IF_END7:
-  BEQ r1, r0, ELSE8
+  JMP IF_END4
+ELSE3:
+IF_END4:
+  BEQ r1, r0, ELSE5
   LLI r1, str_1    // load immediate str_1
   CALL print_char
-  JMP IF_END9
-ELSE8:
-IF_END9:
-WHILE10:
-  BEQ r1, r0, WHILE_END11
-  JMP WHILE10
-WHILE_END11:
+  JMP IF_END6
+ELSE5:
+IF_END6:
+WHILE7:
+  BEQ r1, r0, WHILE_END8
+  JMP WHILE7
+WHILE_END8:
   ADDI r1, r2, 0    // move arg 0
   CALL print_string
   // epilogue and return
@@ -64,7 +64,7 @@ WHILE_END11:
 .FUNC read_char:
   // prologue (minimal)
   PUSH r14
-  LLI r2, tty_addr_buf12    // init tty_addr (buffer addr)
+  LLI r2, 268435456    // init tty_addr
   LB r1, r2, 0    // intrinsic __lb -> return
   POP r14
   RET
@@ -72,17 +72,17 @@ WHILE_END11:
 .FUNC read_string:
   // prologue (minimal)
   PUSH r14
-  LLI r2, tty_addr_buf13    // init tty_addr (buffer addr)
+  LLI r2, 268435456    // init tty_addr
   LLI r3, 0    // init i
-WHILE14:
-  BEQ r3, r0, WHILE_END15
+WHILE9:
+  BEQ r3, r0, WHILE_END10
   LLI r3, 0    // zero init c
-  BEQ r3, r0, ELSE16
-  JMP IF_END17
-ELSE16:
-IF_END17:
-  JMP WHILE14
-WHILE_END15:
+  BEQ r3, r0, ELSE11
+  JMP IF_END12
+ELSE11:
+IF_END12:
+  JMP WHILE9
+WHILE_END10:
   LLI r3, 0    // zero init buffer
   // epilogue and return
   ADDI r1, r0, 0  // ensure r1=0
@@ -102,49 +102,49 @@ WHILE_END15:
 .FUNC malloc:
   // prologue (minimal)
   PUSH r14
-  BEQ r1, r0, ELSE18
+  BEQ r1, r0, ELSE13
   LLI r2, 0    // zero init nullptr
-  JMP IF_END19
-ELSE18:
-IF_END19:
+  JMP IF_END14
+ELSE13:
+IF_END14:
   LLI r3, 0    // zero init asize
   LLI r4, 0    // zero init current
   LLI r5, 0    // zero init prev
-WHILE20:
-  BEQ r4, r0, WHILE_END21
-  BEQ r4, r0, ELSE22
+WHILE15:
+  BEQ r4, r0, WHILE_END16
+  BEQ r4, r0, ELSE17
   LLI r4, 0    // zero init remaining
-  BEQ r4, r0, ELSE24
+  BEQ r4, r0, ELSE19
   LLI r4, 0    // zero init new_hdr_addr
   LLI r6, 0    // zero init new_block
-  JMP IF_END25
-ELSE24:
-IF_END25:
+  JMP IF_END20
+ELSE19:
+IF_END20:
   ADD r1, r4, r0
   POP r14
   RET
-  JMP IF_END23
-ELSE22:
-IF_END23:
-  JMP WHILE20
-WHILE_END21:
+  JMP IF_END18
+ELSE17:
+IF_END18:
+  JMP WHILE15
+WHILE_END16:
   LLI r4, 0    // zero init hdr_addr
   LLI r7, 0    // zero init payload_addr
-  BEQ r7, r0, ELSE26
+  BEQ r7, r0, ELSE21
   LLI r7, 0    // zero init nullptr
-  JMP IF_END27
-ELSE26:
-IF_END27:
-  BEQ r7, r0, ELSE28
+  JMP IF_END22
+ELSE21:
+IF_END22:
+  BEQ r7, r0, ELSE23
   LLI r7, 0    // zero init nullptr
-  JMP IF_END29
-ELSE28:
-IF_END29:
+  JMP IF_END24
+ELSE23:
+IF_END24:
   LLI r8, 0    // zero init new_block
-  BEQ r5, r0, ELSE30
-  JMP IF_END31
-ELSE30:
-IF_END31:
+  BEQ r5, r0, ELSE25
+  JMP IF_END26
+ELSE25:
+IF_END26:
   ADD r1, r7, r0
   POP r14
   RET
@@ -153,28 +153,28 @@ IF_END31:
   // prologue (minimal)
   PUSH r14
   LB r2, r1, 0    // deref
-  BEQ r2, r0, ELSE32
-  JMP IF_END33
-ELSE32:
-IF_END33:
+  BEQ r2, r0, ELSE27
+  JMP IF_END28
+ELSE27:
+IF_END28:
   LLI r2, 0    // zero init current
   LLI r3, 0    // zero init prev
-WHILE34:
-  BEQ r2, r0, WHILE_END35
-  BEQ r2, r0, ELSE36
-  BEQ r2, r0, ELSE38
-  JMP IF_END39
-ELSE38:
-IF_END39:
-  BEQ r3, r0, ELSE40
-  JMP IF_END41
-ELSE40:
-IF_END41:
-  JMP IF_END37
-ELSE36:
-IF_END37:
-  JMP WHILE34
-WHILE_END35:
+WHILE29:
+  BEQ r2, r0, WHILE_END30
+  BEQ r2, r0, ELSE31
+  BEQ r2, r0, ELSE33
+  JMP IF_END34
+ELSE33:
+IF_END34:
+  BEQ r3, r0, ELSE35
+  JMP IF_END36
+ELSE35:
+IF_END36:
+  JMP IF_END32
+ELSE31:
+IF_END32:
+  JMP WHILE29
+WHILE_END30:
   // epilogue and return
   ADDI r1, r0, 0  // ensure r1=0
   POP r14
@@ -184,8 +184,8 @@ WHILE_END35:
   // prologue (minimal)
   PUSH r14
   LLI r2, 0    // zero init current
-WHILE42:
-  BEQ r2, r0, WHILE_END43
+WHILE37:
+  BEQ r2, r0, WHILE_END38
   LLI r1, str_2    // load immediate str_2
   CALL print_string
   ADDI r1, r2, 0    // move arg 0
@@ -200,8 +200,8 @@ WHILE42:
   CALL printi
   LLI r1, str_5    // load immediate str_5
   CALL print_string
-  JMP WHILE42
-WHILE_END43:
+  JMP WHILE37
+WHILE_END38:
   // epilogue and return
   ADDI r1, r0, 0  // ensure r1=0
   POP r14
@@ -216,26 +216,26 @@ WHILE_END43:
 .FUNC main:
   // prologue (minimal)
   PUSH r14
-  LLI r2, x_buf44    // init x (buffer addr)
-  LLI r3, y_buf45    // init y (buffer addr)
+  LLI r2, 5    // init x
+  LLI r3, 10    // init y
   LLI r4, 0    // zero init result
   LLI r1, str_6    // load immediate str_6
   CALL print_string
   ADDI r1, r4, 0    // move arg 0
   CALL printi
   LLI r5, 0    // zero init ptr
-  BEQ r5, r0, ELSE46
+  BEQ r5, r0, ELSE39
   LLI r1, str_7    // load immediate str_7
   CALL print_string
   ADDI r1, r5, 0    // move arg 0
   CALL printi
   ADDI r1, r5, 0    // move arg 0
   CALL free
-  JMP IF_END47
-ELSE46:
+  JMP IF_END40
+ELSE39:
   LLI r1, str_8    // load immediate str_8
   CALL print_string
-IF_END47:
+IF_END40:
   LLI r5, 0    // load immediate 0
   ADD r1, r5, r0
   POP r14
@@ -270,25 +270,4 @@ str_7:
 
 str_8:
   .STR "Memory allocation failed"
-
-tty_addr_buf1:
-  .SPACE 268435456 // lifted buffer
-
-tty_addr_buf4:
-  .SPACE 268435456 // lifted buffer
-
-buffer_buf5:
-  .SPACE 12 // lifted buffer
-
-tty_addr_buf12:
-  .SPACE 268435456 // lifted buffer
-
-tty_addr_buf13:
-  .SPACE 268435456 // lifted buffer
-
-x_buf44:
-  .SPACE 5 // lifted buffer
-
-y_buf45:
-  .SPACE 10 // lifted buffer
 
