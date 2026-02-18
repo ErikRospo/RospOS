@@ -35,6 +35,43 @@ WHILE_END2:
   RET
 ```
 
+```
+
+.FUNC printi:
+  // prologue (minimal)
+  PUSH r14
+  LLI r2, buffer_buf3    // init buffer (buffer addr)
+  LLI r3, 0    // init i
+  BEQ r1, r0, ELSE4
+  LLI r1, str_0    // load immediate str_0
+  CALL print_char
+  JMP IF_END5
+ELSE4:
+IF_END5:
+  BEQ r1, r0, ELSE6
+  LLI r1, str_1    // load immediate str_1
+  CALL print_char
+  
+  // THIS CAN BE OPTIMIZED! AS IF_END7 IS NEXT, WE CAN SIMPLY REMOVE THIS UNNEEDED JUMP.
+  // Howerver, this only works if:
+  // 1. There are no instructions between the JMP and the label (e.g. no other function calls or branches)
+  // 2. No other code branches to the label (e.g. no other jumps or branches to IF_END7)
+  // Labels, like the ELSE6 label, are fine, as they don't inject any instructions between the JMP and the IF_END7 label.
+  JMP IF_END7
+ELSE6:
+IF_END7:
+WHILE8:
+  BEQ r1, r0, WHILE_END9
+  JMP WHILE8
+WHILE_END9:
+  ADDI r1, r2, 0    // move arg 0
+  CALL print_string
+  // epilogue and return
+  ADDI r1, r0, 0  // ensure r1=0
+  POP r14
+  RET
+```
+
 ### Other optimizations
 - Remove redundant loads/stores (e.g. if a value is already in a register, don't load it again from memory)
 - Remove redundant moves (e.g. if a value is already in a register, don't move it to another register unnecessarily)
@@ -44,7 +81,6 @@ WHILE_END2:
   -  If a value is computed but never used, remove the computation
   -  If a branch is always taken or never taken based on constant conditions, remove the branch and the unreachable code
   -  This is, again, *very basic* dead code elimination, but it can still catch some simple cases and improve performance.
-
 
 ## Tooling:
 
@@ -57,3 +93,15 @@ rosc is just a subset of C, so VSCode's C features just sort of work by default.
 Better error handling in rospoas/rospocc, with more informative error messages and line numbers.
 
 This includes passing down line number information from the lexer to the parser and then to the code generator, so that errors can be reported with accurate line numbers. Currently, it seems that only directives and labels have line number information, but it would be beneficial to have this for all tokens (even ones generated from pseudo-ops) especially for error reporting in the code generator.
+
+
+## Compiler optimization
+
+How do we optimize the compiler itself? The current implementation barely works, but it's quite slow, even for small programs. Some ideas for improving the performance of the compiler include:
+- Parallelizing certain parts of the compilation process 
+  - Parsing and code generation could potentially be done in parallel for different functions or modules?
+  - Would require careful handling of shared data and register allocation, but could significantly reduce compilation time for larger programs.
+- Caching files
+  - Incremental compilation (only recompile files that have changed since the last compilation)
+  - Caching intermediate results (e.g. the AST or the generated code for a function) so that if the same function is compiled again with the same source code, we can reuse the cached result instead of recompiling it from scratch.
+  - This would require changing how includes are handled, as we would need to track dependencies between files and invalidate the cache when a file changes. But it could significantly speed up compilation for larger projects where only a few files are changed at a time.
