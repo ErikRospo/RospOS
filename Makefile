@@ -3,6 +3,13 @@ HEXDUMP := hexdump -C
 ROSPCC_PARSER := rospocc/parser.py
 DOCS := Design.md Ideas.md Log.md
 
+# Build directories
+DIR_ROSPOS_BUILD := rospos/build
+DIR_DOCS_BUILD := build
+
+# Ensure build directory exists (order-only dependency)
+
+
 HTMLDOCS := $(DOCS:.md=.html)
 PDFDOCS := $(DOCS:.md=.pdf)
 
@@ -10,36 +17,37 @@ PDFDOCS := $(DOCS:.md=.pdf)
 
 all: build
 
+$(DIR_ROSPOS_BUILD):
+	mkdir -p $(DIR_ROSPOS_BUILD)
+$(DIR_DOCS_BUILD):
+	mkdir -p $(DIR_DOCS_BUILD)
+	
 rospos/font_bitmap.ros: generate_fb_map_data.py
 	mkdir -p $(dir $@)
 	$(PY) generate_fb_map_data.py > $@
 
-rospos/build/rospos.ros: rospocc/first_test.rosc rospocc/parser.py
-	mkdir -p $(dir $@)
+rospos/build/rospos.ros: rospocc/first_test.rosc rospocc/parser.py | $(DIR_ROSPOS_BUILD)
 	$(PY) $(ROSPCC_PARSER) --input rospocc/first_test.rosc --output $@ 1>&2
 
-rospos/build/rospos.rosp: rospos/build/rospos.ros rospoas/compile.py
-	mkdir -p $(dir $@)
+rospos/build/rospos.rosp: rospos/build/rospos.ros rospoas/compile.py | $(DIR_ROSPOS_BUILD)
 	$(PY) rospoas/compile.py --input $< --output $@ 1>&2
 	$(HEXDUMP) $@ 1>&2
 	
-build/%.html: doc/%.md
-	mkdir -p $(dir $@)
+build/%.html: doc/%.md | $(DIR_DOCS_BUILD)
 	pandoc $< --filter pandoc-include -s -o $@
 	sed -i 's/max-width: 36em;/max-width: 64em;/g' $@
 	
-build/%.pdf: doc/%.md
-	mkdir -p $(dir $@)
+build/%.pdf: doc/%.md | $(DIR_DOCS_BUILD)
 	pandoc $< --filter pandoc-include -o $@
 
-docs: $(addprefix build/,$(HTMLDOCS)) $(addprefix build/,$(PDFDOCS))
+doc: $(addprefix build/,$(HTMLDOCS)) $(addprefix build/,$(PDFDOCS))
 
 bm: rospos/font_bitmap.ros
 parse: rospos/build/rospos.ros
 compile: rospos/build/rospos.rosp
 
-dump:
-	$(HEXDUMP) rospos/build/rospos.rosp 1>&2
+dump: rospos/build/rospos.rosp
+	$(HEXDUMP) $< 1>&2
 build: bm parse compile dump
 
 run: build
