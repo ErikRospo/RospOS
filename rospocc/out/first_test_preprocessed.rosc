@@ -1,0 +1,225 @@
+void print_string(char *str)
+{
+    int tty_addr = 0x10000000;
+    while (*str)
+    {
+        __sb(tty_addr, *str);
+        str = str + 1;
+    }
+}
+void print_char(char c)
+{
+    int tty_addr = 0x10000000;
+    __sb(tty_addr, c);
+}
+
+void printi(int num)
+{
+    char buffer[12]; // Enough for 32-bit int
+    int i = 0;
+    if (num == 0)
+    {
+        print_char("0");
+        return;
+    }
+    if (num < 0)
+    {
+        print_char("-");
+        num = -num;
+    }
+    while (num > 0)
+    {
+        buffer[i++] = "0" + (num % 10);
+        num = num / 10;
+    }
+    buffer[i] = "\0";
+    // Reverse the string
+    for (int j = 0; j < i / 2; j++)
+    {
+        char temp = buffer[j];
+        buffer[j] = buffer[i - j - 1];
+        buffer[i - j - 1] = temp;
+    }
+    print_string(buffer);
+}
+
+char read_char()
+{
+    int tty_addr = 0x10000000;
+    return __lb(tty_addr);
+}
+
+char *read_string(char *buffer, int max_len)
+{
+    int tty_addr = 0x10000000;
+    int i = 0;
+    while (i < max_len - 1)
+    {
+        char c = __lb(tty_addr);
+        if (c == "\n" || c == "\r")
+            break;
+        buffer[i++] = c;
+    }
+    buffer[i] = "\0";
+    return buffer;
+}
+// Need: Malloc, free as absolute minimum for dynamic memory management
+// Heap starts at 0x0100_0000 and grows upwards, stack starts at 0x0FFF_FFFF and grows downwards
+int heap_top = 0x01000000;
+// Header size reserved for HeapInfo; must be aligned and >= actual header size
+int HEAP_HEADER_SIZE = 16;
+// Conservative stack collision limit (adjust to VM specifics)
+int STACK_LIMIT = 0x0FFF0000;
+
+typedef struct HeapInfo
+{
+    int size; // payload size in bytes
+    int addr; // payload address
+    bool free;
+    struct HeapInfo *next;
+} HeapInfo;
+
+// Simple linked list for heap management
+HeapInfo *heap_info_head = nullptr;
+
+// Align size up to 4 bytes (word alignment)
+int align4(int size)
+{
+    int v = (size + 3) & ~3;
+    return v;
+}
+
+// Basic first-fit allocator with splitting and coalescing
+void *malloc(int size)
+{
+    if (size <= 0)
+        return nullptr;
+    int asize = align4(size);
+
+    // Search free list for first-fit
+    HeapInfo *current = heap_info_head;
+    HeapInfo *prev = nullptr;
+    while (current)
+    {
+        if (current->free && current->size >= asize)
+        {
+            int remaining = current->size - asize;
+            // Split if the remaining space can hold a header + small payload
+            if (remaining >= HEAP_HEADER_SIZE + 4)
+            {
+                int new_hdr_addr = current->addr + asize;
+                HeapInfo *new_block = (HeapInfo *)new_hdr_addr;
+                new_block->size = remaining - HEAP_HEADER_SIZE;
+                new_block->addr = new_hdr_addr + HEAP_HEADER_SIZE;
+                new_block->free = true;
+                new_block->next = current->next;
+                current->size = asize;
+                current->next = new_block;
+            }
+            current->free = false;
+            return (void *)(current->addr);
+        }
+        prev = current;
+        current = current->next;
+    }
+
+    // No suitable free block found — allocate at heap_top
+    int hdr_addr = heap_top;
+    int payload_addr = hdr_addr + HEAP_HEADER_SIZE;
+    // Basic bounds checks to avoid stack collision
+    if (payload_addr <= 0)
+        return nullptr;
+    if (payload_addr + asize > STACK_LIMIT)
+        return nullptr;
+
+    HeapInfo *new_block = (HeapInfo *)hdr_addr;
+    new_block->size = asize;
+    new_block->addr = payload_addr;
+    new_block->free = false;
+    new_block->next = nullptr;
+
+    if (prev)
+        prev->next = new_block;
+    else
+        heap_info_head = new_block;
+
+    heap_top = payload_addr + asize;
+    heap_top = align4(heap_top);
+
+    return (void *)(payload_addr);
+}
+
+void free(void *ptr)
+{
+    if (!ptr)
+        return;
+
+    HeapInfo *current = heap_info_head;
+    HeapInfo *prev = nullptr;
+    while (current)
+    {
+        if (current->addr == (int)ptr)
+        {
+            current->free = true;
+            // Coalesce with next if free
+            if (current->next && current->next->free)
+            {
+                current->size = size + HEAP_HEADER_SIZE + current->next->size;
+                current->next = current->next->next;
+            }
+            // Coalesce with previous if free
+            if (prev && prev->free)
+            {
+                prev->size = size + HEAP_HEADER_SIZE + current->size;
+                prev->next = current->next;
+            }
+            return;
+        }
+        prev = current;
+        current = current->next;
+    }
+}
+
+void _dump_heap_info()
+{
+    HeapInfo *current = heap_info_head;
+    while (current)
+    {
+        print_string("Block at ");
+        printi(current->addr);
+        print_string(" - Size: ");
+        printi(current->size);
+        print_string(" - Free: ");
+        printi(current->free ? 1 : 0);
+        print_string("\n");
+        current = current->next;
+    }
+}
+
+int add(int a, int b)
+{
+    return a + b;
+}
+
+int main()
+{
+    int x = 5;
+    int y = 10;
+    int result = add(x, y);
+    print_string("The result of 10 + 5 is: ");
+    printi(result);
+    __break();
+    int *ptr = (int *)malloc(sizeof(int));
+    if (ptr)
+    {
+        *ptr = 42;
+        print_string("Dynamically allocated integer value (42): ");
+        printi(*ptr);
+        free(ptr);
+    }
+    else
+    {
+        print_string("Memory allocation failed");
+    }
+    return 0;
+}

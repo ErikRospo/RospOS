@@ -1,3 +1,4 @@
+import argparse
 import json
 from copy import copy
 from pathlib import Path
@@ -19,7 +20,23 @@ with open(HERE / "rosc.lark", "r") as f:
 # structure consumed by the frontend/emitter.
 
 
-with open(HERE / "first_test.rosc", "r") as f:
+# Command-line arguments (mirror compile.py behavior)
+argp = argparse.ArgumentParser(description="Parse a .rosc file and emit .ros output")
+argp.add_argument(
+    "--input",
+    type=str,
+    required=True,
+    help="Input source file to parse. Should be a .rosc file",
+)
+argp.add_argument(
+    "--output",
+    type=str,
+    required=False,
+    help="Output .ros file. If not provided, will use the input filename with .ros extension.",
+)
+args = argp.parse_args()
+
+with open(args.input, "r") as f:
     code = f.read()
 
 code = preprocess(code)
@@ -29,8 +46,14 @@ preprocessed = copy(code)
 out_dir = HERE / "out"
 out_dir.mkdir(exist_ok=True)
 
-with open(out_dir / "preprocessed_code.rosc", "w") as f:
+preprocessed_name = f"{Path(args.input).stem}_preprocessed.rosc"
+with open(out_dir / preprocessed_name, "w") as f:
     f.write(code)
+
+if args.output is None:
+    out = Path(args.input).with_suffix(".ros")
+else:
+    out = Path(args.output)
 
 
 def parse_code(code):
