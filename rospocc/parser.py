@@ -43,17 +43,18 @@ code = preprocess(code)
 preprocessed = copy(code)
 
 # Ensure output directory exists and write files there
-out_dir = HERE / "out"
-out_dir.mkdir(exist_ok=True)
-
-preprocessed_name = f"{Path(args.input).stem}_preprocessed.rosc"
-with open(out_dir / preprocessed_name, "w") as f:
-    f.write(code)
 
 if args.output is None:
     out = Path(args.input).with_suffix(".ros")
 else:
     out = Path(args.output)
+    
+out_dir = out.parent
+out_dir.mkdir(exist_ok=True)
+
+preprocessed_name = f"{Path(args.input).stem}_preprocessed.rosc"
+with open(out_dir / preprocessed_name, "w") as f:
+    f.write(code)
 
 
 def parse_code(code):
@@ -72,7 +73,5 @@ with open(out_dir / "ast.txt", "w") as f:
     f.write(ast_str)
 # Convert parsed AST into the translation-unit for emitter (centralized)
 tu = transform_to_translation_unit(tree)
-
-out = out_dir / "generated.ros"
 emitter.emit_translation_unit(tu, str(out))
 print("Emitted", out)

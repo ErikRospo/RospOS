@@ -44,6 +44,7 @@ My first step was just listing out instructions that I thought would be useful f
 My instruction set was fairly simple and standard. It wasn't really inspired by any particular ISA, but it was influenced by what I thought would be useful for writing an OS.
 Initially, I didn't keep a very consistent encoding for the instructions and their operands. For example, some instructions had a variable number of bits in the opcode encoding, which at one point made it impossible to tell the difference between, say, an `ADD` instruction and a `DIV` instruction with a certain combination of operands. This was a mistake, and I eventually settled on a more consistent encoding for the instructions, which made it much easier to decode instructions and implement the CPU.
 
+!include`incrementSection=5` ./doc/instr_encode.md
 
 
 ##### Hardware
@@ -66,15 +67,20 @@ These addresses were chosen somewhat arbitrarily, but they are spaced out enough
 
 In the end, I made a few revisions to the instructions set and the hardware design, but the overall structure remained the same. I split out instructions into different types. Those types are:
 
-* R-Type: Register-Register instructions, which take two source registers and one destination register. These include arithmetic and logic instructions.
-* I-Type: Register-Immediate instructions, which take one source register, one immediate value, and one destination register. 
+* **R-Type**: Register-Register instructions, which take two source registers and one destination register. These include arithmetic and logic instructions.
+* **I-Type**: Register-Immediate instructions, which take one source register, one immediate value, and one destination register. 
   * The immediate value is 16 bits, which allows for a wide range of values to be used without having to load them from memory. This is especially useful for things like loop counters and offsets. However, given that the address space is 32 bits, this means that you can't use an immediate value to directly address memory. You would have to load the address into a register first, and then use that register to access memory. This is an acceptable trade-off, as it keeps the instruction encoding simple and consistent, while still allowing for a wide range of immediate values to be used.
-* L/S-Type: Load/Store instructions, which take one source register, one immediate value, and one destination register. These are used for loading and storing from memory. The immediate value is used as an offset from the source register, which allows for easy access to local variables and array elements.
-* B-Type: Branch instructions, which take two source registers and one destination register. These are used for control flow, such as jumps and calls. 
-* J-Type: Jump instructions take a source and destination register, and an immediate value. These are used for unconditional jumps, as well as calls and returns. The immediate value is used as an offset from the source register, which allows for easy access to local variables and array elements. The destination register stores the current program counter, which allows for easy returns from function calls.
-* Special instructions: These include instructions that don't fit into the above categories, such as `ECALL`, `BREAK` and `NOP`. These are used for special purposes, such as halting the CPU or doing nothing.
+* **L/S-Type**: Load/Store instructions, which take one source register, one immediate value, and one destination register. These are used for loading and storing from memory. The immediate value is used as an offset from the source register, which allows for easy access to local variables and array elements.
+* **B-Type**: Branch instructions, which take two source registers and one destination register. These are used for control flow, such as jumps and calls. 
+* **J-Type**: Jump instructions take a source and destination register, and an immediate value. These are used for unconditional jumps, as well as calls and returns. The immediate value is used as an offset from the source register, which allows for easy access to local variables and array elements. The destination register stores the current program counter, which allows for easy returns from function calls.
+* **S-Type**: Special instructions, which include instructions that don't fit into the above categories, such as `ECALL`, `BREAK` and `NOP`. These are used for special purposes, such as halting the CPU or doing nothing.
+
+
+One note is that the instruction `0x00_00_00_00` encodes the instruction `ADD r0, r0, r0`, or `r0=r0+r0`. `r0` is a constant zero register, so this instruction does nothing. This makes it convienient to initialize memory to all zeros, and it will effectively execute `NOP`s
 
 As for the hardware design, the terminal MMIO was fairly straightforward, as it just needed to support reading input and writing output. As of right now, the audio MMIO is not implemented, as it is the least important and I wanted to focus on getting the CPU and terminal working first. The display MMIO was a bit more complex, as it needed to support a framebuffer for graphics output. In the end, I decided to switch over to a 6-bit 256x256 framebuffer, as it actually ends up being easier to implement and use than a 2-bit 128x128 framebuffer. This is because with a 2-bit framebuffer that gets packed into 8-bit bytes, you have to do a lot of bit manipulation to set individual pixels, which is a pain. With a 6-bit framebuffer, each pixel gets its own byte, which makes it much easier to set individual pixels without having to do any bit manipulation. The trade-off is that it uses more memory, but that's not a significant concern given the amount of RAM available. It also allows for a wider range of colors, which is a nice bonus.
+
+
 
 #### Implementing the VM
 
