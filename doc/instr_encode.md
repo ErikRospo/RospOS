@@ -16,7 +16,6 @@ Major Opcode Legend (bits [31:28]):
 
 ## R-Type Arithmetic / Logical (register)
 
-Bit fields:
 
 | 31-28 | 27-24 | 23-20 | 19-16 | 15-12 | 11-0          |
 |-------|-------|-------|-------|-------|---------------|
@@ -47,7 +46,6 @@ Arithmetic operations (ADD, SUB, MUL, DIV, etc.) use two's complement representa
 
 ## I-Type Arithmetic / Logical (immediate)
 
-Bit fields:
 
 | 31-28 | 27-24 | 23-20 | 19-16 | 15-0                     |
 |-------|-------|-------|-------|--------------------------|
@@ -68,7 +66,6 @@ Shifts (SHLI, SHRI, SARI) use only the lower 5 bits of the immediate for the shi
 
 ## Load / Store (I-Type)
 
-Bit fields:
 
 | 31-28 | 27-24 | 23-20 | 19-16 | 15-0                     |
 |-------|-------|-------|-------|--------------------------|
@@ -87,7 +84,6 @@ Bit fields:
 
 ## Branch (B-Type)
 
-Bit fields:
 
 | 31-28 | 27-24 | 23-20 | 19-16 | 15-0                     |
 |-------|-------|-------|-------|--------------------------|
@@ -109,7 +105,6 @@ target = PC + (sign-ext(imm) << 2)
 
 ## Jump (J-Type)
 
-Bit fields:
 
 | 31-28 | 27-24 | 23-20 | 19-16 | 15-0                     |
 |-------|-------|-------|-------|--------------------------|
@@ -127,7 +122,7 @@ rd = PC + 4
 ```
 
 ## System / Privileged (S-Type)
-Bit fields:
+
 
 | 31-28 | 27-24 | 23-0                             |
 |-------|-------|----------------------------------|
@@ -141,7 +136,6 @@ Bit fields:
 
 ## NOP / Special (S-Type)
 
-Bit fields:
 
 | 31-28 | 27-24 | 23-0                     |
 |-------|-------|--------------------------|

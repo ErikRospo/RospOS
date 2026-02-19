@@ -36,9 +36,13 @@ rospos/build/rospos.rosp: rospos/build/rospos.ros rospoas/compile.py | $(DIR_ROS
 build/%.html: doc/%.md | $(DIR_DOCS_BUILD)
 	pandoc $< --filter pandoc-include -s -o $@
 	sed -i 's/max-width: 36em;/max-width: 64em;/g' $@ 
-# The above sed command is a hack to increase the max width of the content in the generated HTML. Pandoc's default CSS sets a max-width of 36em, which can make the content look narrow on larger screens. By changing it to 64em, we allow the content to take up more horizontal space, improving readability on wider displays.
-build/%.pdf: doc/%.md | $(DIR_DOCS_BUILD)
-	pandoc $< --filter pandoc-include -o $@
+# The above sed command is a hack to increase the max width of the content in the generated HTML.
+# Pandoc's default CSS sets a max-width of 36em, which can make the content look narrow on larger screens.
+# By changing it to 64em, we allow the content to take up more horizontal space, improving readability on wider displays.
+
+
+build/%.pdf: doc/%.md | $(DIR_DOCS_BUILD) 
+	pandoc $< --filter pandoc-include -V links-as-notes=true -o $@
 
 doc: $(addprefix build/,$(HTMLDOCS)) $(addprefix build/,$(PDFDOCS))
 

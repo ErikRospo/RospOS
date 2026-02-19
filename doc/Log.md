@@ -7,7 +7,7 @@ This is a log of the development of RospOS, focusing on design decisions and imp
 
 ### Background: Mini-8
 
-https://github.com/ErikRospo/Mini-8
+[Mini-8](https://github.com/ErikRospo/Mini-8)
 
 When I first started working on RospOS, I was considering expanding my previous project, Mini-8, to 16 bits. Mini-8, as the name implies, was a small 8-bit CPU with a very simple instruction set. An 8-bit ISA is very easy to implement, but it has significant limitations in terms of performance and usability. At most, I was able to write a simple (yet functional) Tic-Tac-Toe game in it. There would be no way to write anything more complex without a lot of workarounds. 
 
@@ -37,14 +37,34 @@ Another thing that I wanted to preserve was the fixed 32-bit instruction encodin
 
 #### Initial Design
 
-My first step was just listing out instructions that I thought would be useful for a very simple OS. I wanted to have basic arithmetic and logic instructions, obviously. I also wanted to have some basic control flow instructions, such as jumps and calls. In contrast to Mini-8, I wanted to have a single unified address space for both code and data, which meant that I needed to have instructions for loading and storing from memory. MMIO could be implemented as a special case of memory access, so I didn't need to have any special instructions for that.
+My first step was just listing out instructions that I thought would be useful for a very simple OS. I wanted to have basic arithmetic and logic instructions, obviously. I also wanted to have some basic control flow instructions, such as jumps and calls. In contrast to Mini-8, I wanted to have a single unified address space for both code and data, which meant that I needed to have instructions for loading and storing from memory. MMIO could be implemented as a special case of memory access, so I didn't need to have any special instructions for that. 
+
+For registers, I initially considered going with a very similar design to Mini-8, where there would be 8 GP registers, with r7 being the PC. But I learned that LLVM doesn't really play well with this, so I decided to expand to 16 GP registers, and have the PC be a separate register that isn't directly accessible. This also made it easier to implement function calls, as I could use one of the registers as a link register to store the return address. In the end, I settled on the following register design:
+
+* `r0`   = hardwired zero
+* `r1-r12` = GP registers
+* `r13` = temp / scratch register 
+* `r14` = link register (return address)
+* `r15` = stack pointer
+  
+A few notes about this: 
+
+* The PC is not directly accessible, which means that you can't directly manipulate the program counter. This is an acceptable trade-off, as it simplifies the instruction encoding and makes it easier to implement the CPU.
+* `r0` is a hardwired zero register, which means that it always reads as zero, and writes to it are ignored. This is a common feature in many ISAs, as it allows for certain instructions to be simplified. For example, if you want to set a register to zero, you can just do `ADD r1, r0, r0`, which will set `r1` to zero without having to use an immediate value. It also allows for certain instructions to be simplified, such as `BEQ r1, r0, label`, which will branch if `r1` is equal to zero. `ADDI r1, r0, imm` will set `r1` to the immediate value, as it adds zero to it.
+* `r13` is a temporary register when using the assembler. The assembler will use `r13` for any temporary values that it needs to generate, such as when loading a 32-bit immediate value into a register. This means that you can't rely on `r13` being preserved across instructions, as the assembler may use it at any time. When using the assembler, it's best to just avoid using `r13` altogether, as it is meant to be a temporary register for the assembler's use. When writing assembly code by hand, you can use `r13` as a temporary register, but you should be aware that the assembler may overwrite it if you use it in a way that requires the assembler to generate extra instructions.
+* `r14` is the link register, which is used to store the return address for function calls. The `CALL` pseudoinstruction encodes the appropriate jump instruction to jump to the function, and also stores the return address in `r14`. The `RET` pseudoinstruction encodes a jump to the address stored in `r14`, which allows for returning from function calls.
+* `r15` is the stack pointer. The `PUSH` and `POP` pseudoinstructions manipulate the stack pointer to push and pop values from the stack. The stack grows downward, so `PUSH` will decrement the stack pointer and then store the value at the new stack pointer address, while `POP` will load the value from the current stack pointer address and then increment the stack pointer.
+* `r1`-`r4` ended up being argument registers, with `r1` also being the return register. As of right now, no function can take more than 4 arguments, but if needed, additional arguments could be passed on the stack.
+  * These registers are caller-saved, so any callee that wants to preserve their values after a call must save them before calling the function and restoring them after the call.
+* `r5`-`r12` are just general-purpose registers that can be used for whatever. They are callee-saved, so if a function uses them, it must save their values at the beginning of the function and restore them before returning.
+  * Again, as mentioned, `r13` is a temporary register that the assembler may use for its own purposes, so it's best to just avoid using it in your code unless you write you code in such a way to avoid the assembler using it. 
 
 ##### Instruction Set
 
 My instruction set was fairly simple and standard. It wasn't really inspired by any particular ISA, but it was influenced by what I thought would be useful for writing an OS.
 Initially, I didn't keep a very consistent encoding for the instructions and their operands. For example, some instructions had a variable number of bits in the opcode encoding, which at one point made it impossible to tell the difference between, say, an `ADD` instruction and a `DIV` instruction with a certain combination of operands. This was a mistake, and I eventually settled on a more consistent encoding for the instructions, which made it much easier to decode instructions and implement the CPU.
 
-!include`incrementSection=5` ./doc/instr_encode.md
+!include`incrementSection=2` ./doc/instr_encode.md
 
 
 ##### Hardware
@@ -116,7 +136,7 @@ Once I started working more on the assembler, the cost of writing 4GB of zeros t
 If you'd believe it, this means to load `kernel.bin` at address `0x00000000`, and `init.bin` at address `0xFFFFFFFC`. The VM would read this file, parse the addresses and filenames, and load the corresponding files into memory at the specified addresses. This was a very simple format, but it was effective for my purposes, as it allowed me to easily manage the code and data that was being loaded into memory without having to worry about writing giant files full of zeros. 
 
 However, it didn't feel very *proper*, and I ended up writing my own custom binary format, `.rosp`, that contained the same information as the mmap.txt file, but that was contained in a single file and was more efficient to read from the VM. 
-The format is very simple, it has magic number of `ROSP`, followed by a version number, then the number of segments. Each segment has an address that it'll be loaded at, then the size of the segment, then the actual data for the segment. This format is very simple to read and write, and could easily be extended in the future if I wanted to add more features, such as support for debug info, metadata about the segments, or similar. For now, it just serves as a more efficient way to load code and data into memory without having to worry about writing giant files full of zeros or juggling multiple files.
+The format is very simple, it has magic number of `ROSP`, followed by a version number, then the number of segments. Each segment has an address that it'll be loaded at, then the size of the segment, then the actual data for the segment. This format is very simple to read and write, and could easily be extended in the future if I wanted to add more features, such as support for debug info, metadata about the segments, compression, or similar. For now, it just serves as a more efficient way to load code and data into memory without having to worry about writing giant files full of zeros or juggling multiple files.
 
 Apart from the address issue mentioned above, the assembler was fairly straightforward to implement, as I had a good understanding of the instruction encoding and how to generate the machine code from the assembly code. The main challenge was just handling labels and addresses, but once I had that figured out, the rest of the implementation was fairly straightforward. 
 
