@@ -1,11 +1,22 @@
-# Log of RospOS
-## Or, why did I make the decisions I did?
+---
+title: Log of RospOS
+subtitle: Or, why did I make the decisions I did?
+author: Erik Rospo
+documentclass: extarticle
+fontsize: 11pt
+papersize: letter
+geometry: margin=1in
+colorlinks: true
+linkcolor: blue
+toc: true
+toc-depth: 4
+---
 
 This is a log of the development of RospOS, focusing on design decisions and implementation details. 
 
-## ISA 
+# RospOS Log
 
-### Background: Mini-8
+## Background: Mini-8
 
 [Mini-8](https://github.com/ErikRospo/Mini-8)
 
@@ -25,7 +36,7 @@ It also had two bits in the opcode that determined whether the register pointers
 
 Overall, Mini-8 was a very fun project, and I learned a lot from it. But it was also a very flawed design, and I knew that if I wanted to create a more usable and performant ISA for a "real" OS, I would need to design a new ISA from scratch.
 
-### RospOS ISA
+## RospOS ISA
 
 Again, I initially considered just expanding Mini-8 to 16 bits, but I quickly realized that it would be easier to just design a new ISA from scratch. I wanted to keep the ISA as simple as possible, while still being powerful enough to write complex programs in it. I also wanted to avoid any of the "cheats" that I had in Mini-8, and instead only implement things that made sense in a CPU.
 
@@ -35,7 +46,7 @@ There were some things that I did really like about Mini-8, such as the orthogon
 
 Another thing that I wanted to preserve was the fixed 32-bit instruction encoding. This makes it much easier to decode instructions, as you can just read 4 bytes and know that you have a complete instruction. It also makes it easier to implement the CPU, as you don't have to worry about variable-length instructions. By contrast, x86 has a very complex variable-length instruction encoding, which makes it much more difficult to decode instructions and implement the CPU.
 
-#### Initial Design
+### Initial Design
 
 My first step was just listing out instructions that I thought would be useful for a very simple OS. I wanted to have basic arithmetic and logic instructions, obviously. I also wanted to have some basic control flow instructions, such as jumps and calls. In contrast to Mini-8, I wanted to have a single unified address space for both code and data, which meant that I needed to have instructions for loading and storing from memory. MMIO could be implemented as a special case of memory access, so I didn't need to have any special instructions for that. 
 
@@ -59,7 +70,7 @@ A few notes about this:
 * `r5`-`r12` are just general-purpose registers that can be used for whatever. They are callee-saved, so if a function uses them, it must save their values at the beginning of the function and restore them before returning.
   * Again, as mentioned, `r13` is a temporary register that the assembler may use for its own purposes, so it's best to just avoid using it in your code unless you write you code in such a way to avoid the assembler using it. 
 
-##### Instruction Set
+### Instruction Set
 
 My instruction set was fairly simple and standard. It wasn't really inspired by any particular ISA, but it was influenced by what I thought would be useful for writing an OS.
 Initially, I didn't keep a very consistent encoding for the instructions and their operands. For example, some instructions had a variable number of bits in the opcode encoding, which at one point made it impossible to tell the difference between, say, an `ADD` instruction and a `DIV` instruction with a certain combination of operands. This was a mistake, and I eventually settled on a more consistent encoding for the instructions, which made it much easier to decode instructions and implement the CPU.
@@ -67,7 +78,7 @@ Initially, I didn't keep a very consistent encoding for the instructions and the
 !include`incrementSection=2` ./doc/instr_encode.md
 
 
-##### Hardware
+### Hardware
 For external "hardware", I decided to just it use memory-mapped I/O (MMIO). This is a common technique used in many real-world ISAs, and it allows for a very simple and consistent way to interact with hardware. Instead of having special instructions for interacting with hardware, you can just read and write to specific memory addresses to interact with the hardware. This also makes it easier to implement the hardware in the VM, as you can just check for reads and writes to specific addresses and handle them accordingly.
 
 The specific MMIO addresses were mostly settled early on, as I had a good idea of what hardware I wanted to implement. I wanted a terminal for input and output, a SID-like sound interface for audio, and a simple 2-bit 128x128 framebuffer for graphics. 
@@ -83,7 +94,7 @@ The specific MMIO addresses were mostly settled early on, as I had a good idea o
 These addresses were chosen somewhat arbitrarily, but they are spaced out enough to allow for future expansion if needed. The RAM is at the beginning of the address space, which makes it easy to load code and data into it. The MMIO addresses are spaced out enough to allow for future expansion if I want to add more hardware in the future. In hindsight, the being at the top of the address space, as any JMPs to the kernel would have to use a large immediate value, which requires 3 instructions to load.
 
 
-#### Revisions
+### Revisions
 
 In the end, I made a few revisions to the instructions set and the hardware design, but the overall structure remained the same. I split out instructions into different types. Those types are:
 
@@ -101,8 +112,7 @@ One note is that the instruction `0x00_00_00_00` encodes the instruction `ADD r0
 As for the hardware design, the terminal MMIO was fairly straightforward, as it just needed to support reading input and writing output. As of right now, the audio MMIO is not implemented, as it is the least important and I wanted to focus on getting the CPU and terminal working first. The display MMIO was a bit more complex, as it needed to support a framebuffer for graphics output. In the end, I decided to switch over to a 6-bit 256x256 framebuffer, as it actually ends up being easier to implement and use than a 2-bit 128x128 framebuffer. This is because with a 2-bit framebuffer that gets packed into 8-bit bytes, you have to do a lot of bit manipulation to set individual pixels, which is a pain. With a 6-bit framebuffer, each pixel gets its own byte, which makes it much easier to set individual pixels without having to do any bit manipulation. The trade-off is that it uses more memory, but that's not a significant concern given the amount of RAM available. It also allows for a wider range of colors, which is a nice bonus.
 
 
-
-#### Implementing the VM
+### Implementing the VM
 
 The first big milestone was implementing the VM to run the RospOS ISA. I thought this would be a difficult task, but it ended up being fairly straightforward. The fixed 32-bit instruction encoding made it easy to decode instructions, and the orthogonality of the instruction set made it easy to implement the instructions. The MMIO was also fairly easy to implement, as I just had to check for reads and writes to specific addresses and handle them accordingly.
 
@@ -113,7 +123,7 @@ Each of the MMIO types were just a struct that contained a function for handling
 The VM was also when I had to really lock down the instruction encoding, as I needed to be able to decode instructions in a way that was consistent and unambiguous. This is when I settled on the final instruction encoding, which has a fixed 32-bit format for all instructions, with specific bits reserved for the opcode and operands. This made it much easier to decode instructions and implement the CPU, as I could just read 4 bytes and know that I had a complete instruction.
 
 
-#### Implementing the Assembler
+### Implementing the Assembler
 
 When I had the VM running, I wrote a very simple program to just write raw bytes into a 4GB file that the VM would load directly as the memory. This was a good way to test the VM, but it was very difficult to write complex programs in this way. I had to manually calculate the byte values for each instruction, which was very error-prone and time-consuming. I also had to manually calculate the addresses for jumps and calls, which was a nightmare. 
 
@@ -144,7 +154,7 @@ The end assembly ended up being fairly simple and easy to read, as I wanted to k
 
 Below is an example of the assembly code for the main program. 
 
-##### Notes
+#### Notes
 
 1. LLI is a pseudo-instruction that loads a 32-bit immediate value into a register, using multiple instructions if necessary. In this case, it will load the address of the MOTD string into r1. 
 2. CALL is a pseudo-instruction that jumps to the specified address and stores the return address in a register. In this case, it will jump to the PRINT_STRING function, which will print the MOTD string to the terminal. After the function is done, it will return to the next instruction.
@@ -152,7 +162,7 @@ Below is an example of the assembly code for the main program.
 4. There are no immediate break instructions, so we have to load the value into a register and then use that register for the comparison. This is a bit more verbose than having an immediate comparison, but it keeps the instruction encoding simple and consistent.
 5. ADDI with an immediate value of 0 is effectively just a MOV instruction, which is useful for moving values between registers without having to worry about the underlying instruction encoding. In this case, we're just moving the X and Y coordinates into r2 and r3, which will be used for drawing the character to the display.
 
-##### Example Assembly Code
+#### Example Assembly Code
 
 ```
 .SEG 0xFFFF_FFFC
@@ -255,7 +265,7 @@ Out of all of these, `.STR` directive was honestly the hardest to implement, as 
 Another issue I had to resolve was the fact that the assembler was taking hex immediates and treating them just like any other integer. That's fine for most cases, but if I'm using a hex value for the binary representation, such as the bitmap values used for the display font. If there were enough leading zeros in the number, it'd get shortened and the following characters would be misaligned. For example, `0x0000_0001` would get shortened to `0x1`, which would then be encoded as a single byte instead of 4 bytes, which would cause all the following data to be misaligned. The solution to this was to implement a special case for hex immediates, where if the immediate value is specified in hex, it will always be treated as the length of the hex value, rather than the actual integer value. This way, `0x0000_0001` would be treated as a 4-byte value, and it would be encoded as 4 bytes in the binary, which would keep everything aligned correctly.
 
 
-#### Implementing the Compiler
+### Implementing the Compiler
 
 The compiler was by far the hardest part of the project. Initially, I tried using LLVM to generate the machine code, but I quickly realized that it was not a good fit for my needs. LLVM is a very powerful and flexible compiler infrastructure, but it is also very complex and difficult to use. I'm sure it is the "correct" tool for this, but it was just too hard to wrap my head around how to generate code.
 
