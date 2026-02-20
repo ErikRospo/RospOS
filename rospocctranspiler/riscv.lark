@@ -1,0 +1,22 @@
+// Minimal RISC-V grammar for Lark
+start: line*
+# Directive must be first so it matches before anything else
+line: directive | label | instruction | COMMENT
+label: LABEL WS_INLINE? COMMENT?
+LABEL: /[A-Za-z_][A-Za-z0-9_.]*:/
+WS_INLINE: /[ \t]+/
+directive: DIRECTIVE_LINE
+# Match any line starting with a dot, up to newline
+DIRECTIVE_LINE: /\.[^\n]*/
+instruction: OPCODE operands
+OPCODE: /[a-zA-Z._]+/
+operands: operand ("," operand)*
+operand: REGISTER | IMM | MEM | LABELREF
+REGISTER: /[a-zA-Z][a-zA-Z0-9]*/
+IMM: /-?\d+|0x[0-9a-fA-F]+/
+MEM: /-?\d+\([a-zA-Z0-9]+\)/
+LABELREF: /[A-Za-z_][A-Za-z0-9_.]*/ | /\.[A-Za-z0-9_.]+/
+COMMENT: /#.*/ | /\/\/[^\n]*/
+%import common.WS
+%ignore WS
+%ignore COMMENT

@@ -13,228 +13,280 @@ mapping from RISC-V ABI names (zero, ra, sp, a0..a7, t0..t6, s0..s11)
 to `rN` registers used in .ros files.
 """
 
+
 from __future__ import annotations
 import argparse
-import re
 import sys
 from pathlib import Path
+from lark import Lark, Transformer, Token
+import re
 
-# Minimal register mapping respecting the target ISA constraints:
-# - r0 is zero
-# - r1..r12 are the general-purpose registers you should use
-# - r13 is a temporary register: avoid mapping into it
-# - r14 is the link/return register (LR)
-# - r15 is the stack pointer (SP)
+# --- Register mapping (RISC-V ABI to .ros) ---
 REG_MAP = {
     'zero': 'r0',
-    # map a small useful subset into r1..r12
-    'gp': 'r1',
-    'tp': 'r2',
+    'gp': 'r1', 'tp': 'r2',
     't0': 'r3', 't1': 'r4', 't2': 'r5',
     's0': 'r6', 's1': 'r7',
     'a0': 'r8', 'a1': 'r9', 'a2': 'r10', 'a3': 'r11', 'a4': 'r12',
-    # special-purpose registers
-    'ra': 'r14',  # return / link register
-    'sp': 'r15',
+    'ra': 'r14', 'sp': 'r15',
 }
-
-# Provide numeric aliases only up to r15 (we avoid mapping into r13)
 for i in range(16):
     REG_MAP[f'x{i}'] = f'r{i}'
     REG_MAP[f'r{i}'] = f'r{i}'
 
 def map_reg(token: str) -> str:
-    t = token.strip()
-    # strip any register punctuation
-    if t in REG_MAP:
-        return REG_MAP[t]
-    # try to strip possible trailing commas
-    t2 = t.rstrip(',')
-    return REG_MAP.get(t2, t2)
+    t = str(token).strip().rstrip(',')
+    return REG_MAP.get(t, t)
+
+
+class RiscvTransformer(Transformer):
+    def __init__(self):
+        super().__init__()
+        self.active_func = None
+        self.used_regs = set()
+        self.stack_ops = []
+
+    def label(self, items):
+        label = str(items[0])
+        if label.endswith(':') and label.startswith('.FUNC'):
+            self.active_func = label
+            self.used_regs.clear()
+            self.stack_ops.clear()
+        return label
+
+    def directive(self, items):
+        d = str(items[0])
+        if d.startswith('.type'):
+            m = re.match(r"\.type\s+([A-Za-z_][A-Za-z0-9_.]*)\s*,\s*@function", d)
+            if m:
+                self.active_func = m.group(1)
+                self.used_regs.clear()
+                self.stack_ops.clear()
+                return f".FUNC {m.group(1)}:"
+        return f"// {d}"
+
+    def instruction(self, items):
+        op = str(items[0])
+        operands = items[1] if len(items) > 1 else []
+        regs = [map_reg(o) for o in operands if re.match(r'^[a-zA-Z][a-zA-Z0-9]*$', o)]
+        # Only push/pop for r13, r14, r15 or unmapped
+        push_lines = []
+        pop_lines = []
+        for r in regs:
+            if r.startswith('r'):
+                idx = int(r[1:])
+                if idx > 12:
+                    if r not in self.used_regs:
+                        push_lines.append(f"PUSH {r}")
+                        self.used_regs.add(r)
+                    self.stack_ops.append(r)
+        ros = translate_riscv_to_ros(op, operands)
+        # If instruction is RET, pop all pushed regs
+        if op.lower() == 'ret' and self.stack_ops:
+            for r in reversed(self.stack_ops):
+                pop_lines.append(f"POP {r}")
+            self.stack_ops.clear()
+            self.used_regs.clear()
+        return '\n'.join(push_lines + [ros] + pop_lines)
+
+    def operands(self, items):
+        return items
+    def operand(self, items):
+        return str(items[0])
+    def COMMENT(self, items):
+        return f"// {str(items[0])}"
+    def IMM(self, items):
+        return str(items[0])
+    def REGISTER(self, items):
+        return str(items[0])
+    def MEM(self, items):
+        return str(items[0])
+    def LABELREF(self, items):
+        return str(items[0])
 
 def parse_mem_operand(op: str):
-    # formats like: 0(a0) or -8(s2)
     m = re.match(r"([\-0-9xXa-fA-F]+)\(([^)]+)\)", op.strip())
     if not m:
         return None
     imm, base = m.groups()
     return imm, map_reg(base)
 
-def translate_instruction(op: str, operands: list[str]) -> str:
+def translate_riscv_to_ros(op: str, operands: list[str]) -> str:
     o = op.lower()
-    # simple RISC-V -> .ros mnemonic mappings
+    # --- Arithmetic ---
     if o == 'addi':
-        rd, rs1, imm = operands
-        return f"ADDI {map_reg(rd)}, {map_reg(rs1)}, {imm}"
+        if len(operands) == 3:
+            rd, rs1, imm = operands
+            return f"ADDI {map_reg(rd)}, {map_reg(rs1)}, {imm}"
+        else:
+            return f"// UNMAPPED: {op} {' '.join(operands)}"
     if o == 'add':
-        rd, rs1, rs2 = operands
-        return f"ADD {map_reg(rd)}, {map_reg(rs1)}, {map_reg(rs2)}"
+        if len(operands) == 3:
+            rd, rs1, rs2 = operands
+            return f"ADD {map_reg(rd)}, {map_reg(rs1)}, {map_reg(rs2)}"
+        else:
+            return f"// UNMAPPED: {op} {' '.join(operands)}"
     if o == 'sub':
-        rd, rs1, rs2 = operands
-        return f"SUB {map_reg(rd)}, {map_reg(rs1)}, {map_reg(rs2)}"
+        if len(operands) == 3:
+            rd, rs1, rs2 = operands
+            return f"SUB {map_reg(rd)}, {map_reg(rs1)}, {map_reg(rs2)}"
+        else:
+            return f"// UNMAPPED: {op} {' '.join(operands)}"
     if o == 'li':
-        rd, imm = operands
-        return f"LLI {map_reg(rd)}, {imm}"
+        if len(operands) == 2:
+            rd, imm = operands
+            return f"LLI {map_reg(rd)}, {imm}"
+        else:
+            return f"// UNMAPPED: {op} {' '.join(operands)}"
     if o == 'lui':
-        rd, imm = operands
-        return f"LLI {map_reg(rd)}, {imm}"
+        if len(operands) == 2:
+            rd, imm = operands
+            return f"LLI {map_reg(rd)}, {imm}"
+        else:
+            return f"// UNMAPPED: {op} {' '.join(operands)}"
     if o == 'mv':
-        rd, rs = operands
-        return f"ADDI {map_reg(rd)}, {map_reg(rs)}, 0"
+        if len(operands) == 2:
+            rd, rs = operands
+            return f"ADDI {map_reg(rd)}, {map_reg(rs)}, 0"
+        else:
+            return f"// UNMAPPED: {op} {' '.join(operands)}"
     if o == 'neg':
-        rd, rs = operands
-        return f"SUB {map_reg(rd)}, r0, {map_reg(rs)}"
+        if len(operands) == 2:
+            rd, rs = operands
+            return f"SUB {map_reg(rd)}, r0, {map_reg(rs)}"
+        else:
+            return f"// UNMAPPED: {op} {' '.join(operands)}"
+    # --- Memory ---
     if o in ('sb', 'sh', 'sw'):
-        # sb rs2, offset(rs1) -> SB rs2, rs1, offset
-        rs2 = operands[0]
-        mem = operands[1]
-        parsed = parse_mem_operand(mem)
-        if parsed:
-            imm, base = parsed
-            instr = {'sb': 'SB', 'sh': 'SH', 'sw': 'SW'}[o]
-            return f"{instr} {map_reg(rs2)}, {base}, {imm}"
+        if len(operands) == 2:
+            rs2 = operands[0]
+            mem = operands[1]
+            parsed = parse_mem_operand(mem)
+            if parsed:
+                imm, base = parsed
+                instr = {'sb': 'SB', 'sh': 'SH', 'sw': 'SW'}[o]
+                return f"{instr} {map_reg(rs2)}, {base}, {imm}"
+        return f"// UNMAPPED: {op} {' '.join(operands)}"
     if o in ('lbu', 'lb', 'lh', 'lhu', 'lw'):
-        rd = operands[0]
-        mem = operands[1]
-        parsed = parse_mem_operand(mem)
-        if parsed:
-            imm, base = parsed
-            instr_map = {'lb': 'LB', 'lbu': 'LBU', 'lh': 'LH', 'lhu': 'LHU', 'lw': 'LW'}
-            instr = instr_map[o]
-            return f"{instr} {map_reg(rd)}, {base}, {imm}"
+        if len(operands) == 2:
+            rd = operands[0]
+            mem = operands[1]
+            parsed = parse_mem_operand(mem)
+            if parsed:
+                imm, base = parsed
+                instr_map = {'lb': 'LB', 'lbu': 'LBU', 'lh': 'LH', 'lhu': 'LHU', 'lw': 'LW'}
+                instr = instr_map[o]
+                return f"{instr} {map_reg(rd)}, {base}, {imm}"
+        return f"// UNMAPPED: {op} {' '.join(operands)}"
+    # --- Branches ---
     if o == 'beq':
-        rs1, rs2, label = operands
-        return f"BEQ {map_reg(rs1)}, {map_reg(rs2)}, {label}"
+        if len(operands) == 3:
+            rs1, rs2, label = operands
+            return f"BEQ {map_reg(rs1)}, {map_reg(rs2)}, {label}"
+        else:
+            return f"// UNMAPPED: {op} {' '.join(operands)}"
     if o == 'bne':
-        rs1, rs2, label = operands
-        return f"BNE {map_reg(rs1)}, {map_reg(rs2)}, {label}"
-    if o == 'beqz':
-        rs, label = operands
-        return f"BEQ {map_reg(rs)}, r0, {label}"
-    if o == 'bnez':
-        rs, label = operands
-        return f"BNE {map_reg(rs)}, r0, {label}"
+        if len(operands) == 3:
+            rs1, rs2, label = operands
+            return f"BNE {map_reg(rs1)}, {map_reg(rs2)}, {label}"
+        else:
+            return f"// UNMAPPED: {op} {' '.join(operands)}"
+    if o == 'blt':
+        if len(operands) == 3:
+            rs1, rs2, label = operands
+            return f"BLT {map_reg(rs1)}, {map_reg(rs2)}, {label}"
+        else:
+            return f"// UNMAPPED: {op} {' '.join(operands)}"
+    if o == 'bge':
+        if len(operands) == 3:
+            rs1, rs2, label = operands
+            return f"BGE {map_reg(rs1)}, {map_reg(rs2)}, {label}"
+        else:
+            return f"// UNMAPPED: {op} {' '.join(operands)}"
+    if o == 'bltu':
+        if len(operands) == 3:
+            rs1, rs2, label = operands
+            return f"BLTU {map_reg(rs1)}, {map_reg(rs2)}, {label}"
+        else:
+            return f"// UNMAPPED: {op} {' '.join(operands)}"
+    if o == 'bgeu':
+        if len(operands) == 3:
+            rs1, rs2, label = operands
+            return f"BGEU {map_reg(rs1)}, {map_reg(rs2)}, {label}"
+        else:
+            return f"// UNMAPPED: {op} {' '.join(operands)}"
+    # --- Jumps/Calls ---
     if o == 'jal':
-        # jal label  OR jal rd, label
         if len(operands) == 1:
             return f"CALL {operands[0]}"
-        else:
+        elif len(operands) == 2:
             rd, label = operands
             if rd.lower() in ('ra', 'x1', 'r1'):
                 return f"CALL {label}"
             return f"CALL {label} // saved into {map_reg(rd)}"
+        else:
+            return f"// UNMAPPED: {op} {' '.join(operands)}"
     if o == 'jalr':
-        # often ret
-        return "JALR " + ', '.join(map_reg(op) for op in operands)
+        if operands and operands[0].lower() in ('ra', 'x1', 'r1'):
+            return "RET"
+        elif operands:
+            return f"JALR {', '.join(map_reg(op) for op in operands)}"
+        else:
+            return f"JALR"
     if o == 'ret':
         return "RET"
-    if o == 'sb':
-        return f"SB {', '.join(operands)}"
-
-    # fallback: unknown instruction -> emit as comment so user can enhance
+    # --- Pseudoinstructions ---
+    if o == 'nop':
+        return "NOP"
+    # --- Fallback ---
     return f"// UNMAPPED: {op} {' '.join(operands)}"
 
-def tokenize_operands(op_str: str) -> list[str]:
-    # split by commas but keep parentheses groups intact
-    parts = []
-    cur = ''
-    depth = 0
-    for ch in op_str:
-        if ch == ',' and depth == 0:
-            parts.append(cur.strip())
-            cur = ''
-            continue
-        cur += ch
-        if ch == '(':
-            depth += 1
-        elif ch == ')':
-            depth -= 1
-    if cur.strip():
-        parts.append(cur.strip())
-    return parts
-
-def process_line(line: str) -> str | None:
-    orig = line.rstrip('\n')
-    # strip leading/trailing whitespace
-    s = orig.strip()
-    if not s:
-        return ''
-    # If the line is a commented dot-label (e.g. "// .LBB0_2:") or
-    # an annotated dot-label (e.g. "// .LBB0_2:  # =>This ..."),
-    # pass the label through as `.LBB0_2:`.
-    m_commented_dot_label = re.match(r'^(?:\/\/|#)\s*(\.[A-Za-z0-9_.]+)\s*:', s)
-    if m_commented_dot_label:
-        return f"{m_commented_dot_label.group(1)}:"
-
-    # preserve labels (including dot-prefixed labels)
-    if s.endswith(':'):
-        return s
-
-    # pass through assembler directives as comments or minimal translation
-    if s.startswith('.'):  # directive
-        # keep major directives as comments to avoid breaking .ros files
-        return f"// {s}"
-    # remove inline comments starting with # or // or /* style
-    s = re.split(r"(#|//)", s)[0].strip()
-    # tokenise instruction
-    m = re.match(r"([a-zA-Z._]+)\s*(.*)", s)
-    if not m:
-        return f"// {orig}"
-    op = m.group(1)
-    rest = m.group(2).strip()
-    operands = []
-    if rest:
-        operands = tokenize_operands(rest)
-    try:
-        translated = translate_instruction(op, operands)
-        return translated
-    except Exception:
-        return f"// ERROR translating: {orig}"
-
 def transpile_text(text: str) -> str:
-    out_lines: list[str] = []
-    lines = text.splitlines()
-    i = 0
-    # look for patterns like:
-    #   .type <name>,@function
-    #   <name>:
-    # and replace them with:
-    #   .FUNC <name>:
-    while i < len(lines):
-        line = lines[i]
+    grammar_path = Path(__file__).parent / 'riscv.lark'
+    grammar = grammar_path.read_text()
+    parser = Lark(grammar, parser='lalr', propagate_positions=False)
+    transformer = RiscvTransformer()
+
+    out_lines = [
+        ".SEG 0xFFFF_FFFC",
+        ".DATA 0x00000000",
+        ".SEG 0x00000000",
+        ""
+    ]
+    for line in text.splitlines():
         s = line.strip()
-        # match .type lines, allowing optional leading comment markers
-        m = re.match(r"(?:\/\/\s*)?\.type\s+([A-Za-z_][A-Za-z0-9_.]*)\s*,\s*@function", s)
-        if m:
-            name = m.group(1)
-            # find next non-empty line
-            j = i + 1
-            while j < len(lines) and lines[j].strip() == '':
-                j += 1
-            if j < len(lines):
-                next_line = lines[j]
-                # if the name followed by a colon appears anywhere in the next line
-                # (covers "print_string:", "UNMAPPED: print_string :", "ERROR translating: print_string :", etc.)
-                if re.search(rf"\b{re.escape(name)}\s*:", next_line):
-                    out_lines.append(f".FUNC {name}:")
-                    i = j + 1
-                    continue
-            # fallback: emit the directive as a comment
-            out_lines.append(f"// {s}")
-            i += 1
+        if not s:
+            out_lines.append('')
             continue
-
-        res = process_line(line)
-        if res is None:
-            i += 1
+        if s.startswith('.'):
+            out_lines.append('// ' + line)
             continue
-        out_lines.append(res)
-        i += 1
-
+        if s.startswith('//'):
+            out_lines.append(line)
+            continue
+        # Replace any line where the first non-whitespace character is '#' with '//' (preserving indentation)
+        if line.lstrip().startswith('#'):
+            # Remove lines where the first non-whitespace character is '#'
+            continue
+        if s.endswith(':') or re.match(r'^[A-Za-z_][A-Za-z0-9_.]*:\s*', s):
+            # Label line (allow trailing comment)
+            label = s.split(':')[0] + ':'
+            out_lines.append(label)
+            continue
+        # Try to parse as instruction
+        try:
+            tree = parser.parse(line + '\n', start='instruction')
+            ros = transformer.transform(tree)
+            if isinstance(ros, list):
+                out_lines.extend(ros)
+            else:
+                out_lines.append(ros)
+        except Exception:
+            out_lines.append('// UNPARSEABLE: ' + line)
     return '\n'.join(out_lines) + '\n'
 
 def main(argv=None):
-    p = argparse.ArgumentParser(description='RISC-V to .ros transpiler (best-effort)')
+    p = argparse.ArgumentParser(description='RISC-V to .ros transpiler (Lark-based)')
     p.add_argument('input', help='Input RISC-V assembly file')
     p.add_argument('-o', '--output', help='Output .ros file (defaults to input.ros)')
     args = p.parse_args(argv)

@@ -7,13 +7,13 @@ DOCS := Design.md Ideas.md Log.md
 DIR_ROSPOS_BUILD := rospos/build
 DIR_DOCS_BUILD := build
 
-# Ensure build directory exists (order-only dependency)
 
+# Ensure build directory exists (order-only dependency)
 
 HTMLDOCS := $(DOCS:.md=.html)
 PDFDOCS := $(DOCS:.md=.pdf)
 
-.PHONY: all bm parse compile dump build run
+.PHONY: all bm parse compile dump build run clean doc transpiler
 
 all: build
 
@@ -44,6 +44,10 @@ build/%.html: doc/%.md | $(DIR_DOCS_BUILD)
 build/%.pdf: doc/%.md | $(DIR_DOCS_BUILD) 
 	pandoc $< --filter pandoc-include -V links-as-notes=true -o $@
 
+transpiler: 
+	$(MAKE) -C rospocctranspiler -j8
+	$(PY) rospoas/compile.py --input rospocctranspiler/riscv_transcompiler.ros --output rospocctranspiler/riscv_transcompiler.rosp 1>&2
+	
 doc: $(addprefix build/,$(HTMLDOCS)) $(addprefix build/,$(PDFDOCS))
 
 bm: rospos/font_bitmap.ros
