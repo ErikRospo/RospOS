@@ -1,0 +1,69 @@
+#ifndef STDIO_H
+#define STDIO_H
+void print_string(char *str)
+{
+    volatile char *tty = (volatile char *)0x10000000;
+    while (*str)
+    {
+        *tty = *str++;
+    }
+}
+void print_char(char c)
+{
+    volatile char *tty_addr = (volatile char *)0x10000000;
+    *tty_addr = c;
+}
+
+void printi(int num)
+{
+    char buffer[12]; // Enough for 32-bit int
+    int i = 0;
+    if (num == 0)
+    {
+        print_char('0');
+        return;
+    }
+    if (num < 0)
+    {
+        print_char('-');
+        num = -num;
+    }
+    while (num > 0)
+    {
+        buffer[i++] = '0' + (num % 10);
+        num /= 10;
+    }
+    buffer[i] = '\0';
+    // Reverse the string
+    for (int j = 0; j < i / 2; j++)
+    {
+        char temp = buffer[j];
+        buffer[j] = buffer[i - j - 1];
+        buffer[i - j - 1] = temp;
+    }
+    print_string(buffer);
+}
+
+char read_char()
+{
+    volatile char *tty_addr = (volatile char *)0x10000000;    
+    int v=*tty_addr;
+    return v;
+}
+
+char *read_string(char *buffer, int max_len)
+{
+    volatile char *tty_addr = (volatile char *)0x10000000;
+
+    int i = 0;
+    while (i < max_len - 1)
+    {
+        char c = *tty_addr;
+        if (c == '\n' || c == '\r')
+            break;
+        buffer[i++] = c;
+    }
+    buffer[i] = '\0';
+    return buffer;
+}
+#endif

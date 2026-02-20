@@ -1,0 +1,970 @@
+// .attribute	4, 16
+// .attribute	5, "rv32i2p1_m2p0_a2p1_c2p0_zmmul1p0_zaamo1p0_zalrsc1p0_zca1p0"
+// .file	"riscv_transcompiler.c"
+// .text
+// .globl	print_string                    # -- Begin function print_string
+// .p2align	1
+// .type	print_string,@function
+// UNMAPPED: print_string :
+# %bb.0:
+LB r9, r8, 0
+BEQ r9, r0, .LBB0_3
+# %bb.1:
+ADDI r8, r8, 1
+LLI r10, 65536
+// .LBB0_2:                                # =>This Inner Loop Header: Depth=1
+SB r9, r10, 0
+LB r9, r8, 0
+ADDI r8, r8, 1
+BNE r9, r0, .LBB0_2
+// .LBB0_3:
+JMP ra
+// .Lfunc_end0:
+// .size	print_string, .Lfunc_end0-print_string
+//                                         # -- End function
+// .globl	print_char                      # -- Begin function print_char
+// .p2align	1
+// .type	print_char,@function
+// UNMAPPED: print_char :
+# %bb.0:
+LLI r9, 65536
+SB r8, r9, 0
+JMP ra
+// .Lfunc_end1:
+// .size	print_char, .Lfunc_end1-print_char
+//                                         # -- End function
+// .globl	printi                          # -- Begin function printi
+// .p2align	1
+// .type	printi,@function
+// UNMAPPED: printi :
+# %bb.0:
+ADDI r15, r15, -16
+BEQ r8, r0, .LBB2_12
+# %bb.1:
+// UNMAPPED: bgez a0 .LBB2_3
+# %bb.2:
+LLI r9, 65536
+LLI r10, 45
+SB r10, r9, 0
+SUB r8, r0, r8
+// .LBB2_3:
+LLI r11, 0
+ADDI r9, r15, 3
+LLI r10, 838861
+ADDI a7, r10, -819
+LLI a6, 9
+// .LBB2_4:                                # =>This Inner Loop Header: Depth=1
+ADDI r3, r11, 0
+ADDI a5, r8, 0
+// UNMAPPED: mulhu a4 a0 a7
+ADDI r11, r11, 1
+// UNMAPPED: srli a0 a4 3
+// UNMAPPED: andi a4 a4 248
+// UNMAPPED: slli a2 a0 1
+SUB r12, a5, r12
+SUB r12, r12, r10
+// UNMAPPED: ori a2 a4 48
+SB r10, r9, 1
+ADDI r9, r9, 1
+// UNMAPPED: bltu a6 a5 .LBB2_4
+# %bb.5:
+SB r0, r9, 1
+BEQ r3, r0, .LBB2_8
+# %bb.6:
+// UNMAPPED: srli a3 a3 1
+// UNMAPPED: seqz a0 a3
+ADD r11, r11, r8
+ADDI r8, r15, 4
+ADD r10, r8, r3
+SUB r10, r10, r11
+// .LBB2_7:                                # =>This Inner Loop Header: Depth=1
+LB r11, r9, 0
+LB r12, r8, 0
+SB r11, r8, 0
+SB r12, r9, 0
+ADDI r9, r9, -1
+ADDI r8, r8, 1
+BNE r9, r10, .LBB2_7
+// .LBB2_8:
+LB r8, r15, 4
+BEQ r8, r0, .LBB2_11
+# %bb.9:
+ADDI r9, r15, 5
+LLI r10, 65536
+// .LBB2_10:                               # =>This Inner Loop Header: Depth=1
+SB r8, r10, 0
+LB r8, r9, 0
+ADDI r9, r9, 1
+BNE r8, r0, .LBB2_10
+// .LBB2_11:
+ADDI r15, r15, 16
+JMP ra
+// .LBB2_12:
+LLI r8, 65536
+LLI r9, 48
+SB r9, r8, 0
+ADDI r15, r15, 16
+JMP ra
+// .Lfunc_end2:
+// .size	printi, .Lfunc_end2-printi
+//                                         # -- End function
+// .globl	read_char                       # -- Begin function read_char
+// .p2align	1
+// .type	read_char,@function
+// UNMAPPED: read_char :
+# %bb.0:
+LLI r8, 65536
+LB r8, r8, 0
+JMP ra
+// .Lfunc_end3:
+// .size	read_char, .Lfunc_end3-read_char
+//                                         # -- End function
+// .globl	read_string                     # -- Begin function read_string
+// .p2align	1
+// .type	read_string,@function
+// UNMAPPED: read_string :
+# %bb.0:
+LLI a5, 0
+LLI r10, 2
+// UNMAPPED: blt a1 a2 .LBB4_6
+# %bb.1:
+ADDI r9, r9, -1
+LLI a6, 65536
+LLI r12, 10
+LLI a7, 13
+// .LBB4_2:                                # =>This Inner Loop Header: Depth=1
+LB r11, a6, 0
+BEQ r11, r12, .LBB4_6
+// # %bb.3:                                #   in Loop: Header=BB4_2 Depth=1
+BEQ r11, a7, .LBB4_6
+// # %bb.4:                                #   in Loop: Header=BB4_2 Depth=1
+ADDI r10, a5, 1
+ADD a5, a5, r8
+SB r11, a5, 0
+ADDI a5, r10, 0
+BNE r9, r10, .LBB4_2
+# %bb.5:
+ADDI a5, r9, 0
+// .LBB4_6:
+ADD a5, a5, r8
+SB r0, a5, 0
+JMP ra
+// .Lfunc_end4:
+// .size	read_string, .Lfunc_end4-read_string
+//                                         # -- End function
+// .globl	align4                          # -- Begin function align4
+// .p2align	1
+// .type	align4,@function
+// UNMAPPED: align 4:
+# %bb.0:
+ADDI r8, r8, 3
+// UNMAPPED: andi a0 a0 -4
+JMP ra
+// .Lfunc_end5:
+// .size	align4, .Lfunc_end5-align4
+//                                         # -- End function
+// .globl	malloc                          # -- Begin function malloc
+// .p2align	1
+// .type	malloc,@function
+// UNMAPPED: malloc :
+# %bb.0:
+// UNMAPPED: blez a0 .LBB6_5
+# %bb.1:
+LLI r9, %hi(heap_info_head)
+// UNMAPPED: lw a4 %lo(heap_info_head)(a1)
+LLI r11, 524288
+ADDI a6, r11, -4
+ADDI r8, r8, 3
+// UNMAPPED: and a2 a0 a6
+BNE r12, r0, .LBB6_7
+# %bb.2:
+LLI r9, 0
+// .LBB6_3:
+LLI r8, %hi(.L_MergedGlobals)
+// UNMAPPED: lw a4 %lo(.L_MergedGlobals)(a0)
+ADDI r8, r8, %lo(.L_MergedGlobals)
+LW r8, r8, 4
+ADD r8, r8, r12
+// UNMAPPED: blez a0 .LBB6_5
+# %bb.4:
+LLI a5, %hi(.L_MergedGlobals+8)
+// UNMAPPED: lw a3 %lo(.L_MergedGlobals+8)(a5)
+ADD a5, r8, r10
+// UNMAPPED: bge a3 a5 .LBB6_12
+// .LBB6_5:
+LLI r8, 0
+JMP ra
+// .LBB6_6:                                #   in Loop: Header=BB6_7 Depth=1
+LW r12, r9, 12
+BEQ r12, r0, .LBB6_3
+// .LBB6_7:                                # =>This Inner Loop Header: Depth=1
+ADDI r9, r12, 0
+LW r8, r12, 8
+BEQ r8, r0, .LBB6_6
+// # %bb.8:                                #   in Loop: Header=BB6_7 Depth=1
+LW r12, r9, 0
+// UNMAPPED: blt a4 a2 .LBB6_6
+# %bb.9:
+LLI r8, %hi(.L_MergedGlobals+4)
+// UNMAPPED: lw a3 %lo(.L_MergedGlobals+4)(a0)
+SUB r12, r12, r10
+ADDI a5, r11, 4
+// UNMAPPED: blt a4 a5 .LBB6_11
+# %bb.10:
+LW a5, r9, 4
+SUB r12, r12, r11
+LLI a6, 1
+LW r11, r9, 12
+ADD a5, a5, r10
+SB r12, a5, 0
+// UNMAPPED: lw a0 %lo(.L_MergedGlobals+4)(a0)
+SB a6, a5, 8
+ADD r8, r8, a5
+SB r8, a5, 4
+SB r11, a5, 12
+SB r10, r9, 0
+SB a5, r9, 12
+// .LBB6_11:
+LW r8, r9, 4
+SB r0, r9, 8
+JMP ra
+// .LBB6_12:
+SB r10, r12, 0
+SB r8, r12, 4
+SB r0, r12, 8
+SB r0, r12, 12
+BEQ r9, r0, .LBB6_14
+# %bb.13:
+SB r12, r9, 12
+// UNMAPPED: j .LBB6_15
+// .LBB6_14:
+LLI r9, %hi(heap_info_head)
+// UNMAPPED: sw a4 %lo(heap_info_head)(a1)
+// .LBB6_15:
+ADDI a5, a5, 3
+// UNMAPPED: and a1 a5 a6
+LLI r10, %hi(.L_MergedGlobals)
+// UNMAPPED: sw a1 %lo(.L_MergedGlobals)(a2)
+JMP ra
+// .Lfunc_end6:
+// .size	malloc, .Lfunc_end6-malloc
+//                                         # -- End function
+// .globl	free                            # -- Begin function free
+// .p2align	1
+// .type	free,@function
+// UNMAPPED: free :
+# %bb.0:
+BEQ r8, r0, .LBB7_13
+# %bb.1:
+LLI r9, %hi(heap_info_head)
+// UNMAPPED: lw a1 %lo(heap_info_head)(a1)
+BEQ r9, r0, .LBB7_13
+# %bb.2:
+LW r10, r9, 4
+BNE r10, r8, .LBB7_4
+# %bb.3:
+LLI r10, 0
+// UNMAPPED: j .LBB7_7
+// .LBB7_4:
+ADDI r11, r9, 0
+// .LBB7_5:                                # =>This Inner Loop Header: Depth=1
+LW r9, r11, 12
+BEQ r9, r0, .LBB7_13
+// # %bb.6:                                #   in Loop: Header=BB7_5 Depth=1
+LW r12, r9, 4
+ADDI r10, r11, 0
+ADDI r11, r9, 0
+BNE r12, r8, .LBB7_5
+// .LBB7_7:
+LW r8, r9, 12
+LLI r11, 1
+SB r11, r9, 8
+BEQ r8, r0, .LBB7_10
+# %bb.8:
+LW r11, r8, 8
+BEQ r11, r0, .LBB7_10
+# %bb.9:
+LLI r11, %hi(.L_MergedGlobals+4)
+LW r12, r9, 0
+// UNMAPPED: lw a3 %lo(.L_MergedGlobals+4)(a3)
+LW a5, r8, 0
+LW r8, r8, 12
+ADD r11, r11, r12
+ADD r11, r11, a5
+SB r11, r9, 0
+SB r8, r9, 12
+// .LBB7_10:
+BEQ r10, r0, .LBB7_13
+# %bb.11:
+LW r11, r10, 8
+BEQ r11, r0, .LBB7_13
+# %bb.12:
+LLI r11, %hi(.L_MergedGlobals+4)
+LW r12, r10, 0
+// UNMAPPED: lw a3 %lo(.L_MergedGlobals+4)(a3)
+LW r9, r9, 0
+ADD r11, r11, r12
+ADD r9, r9, r11
+SB r9, r10, 0
+SB r8, r10, 12
+// .LBB7_13:
+JMP ra
+// .Lfunc_end7:
+// .size	free, .Lfunc_end7-free
+//                                         # -- End function
+// .globl	_dump_heap_info                 # -- Begin function _dump_heap_info
+// .p2align	1
+// .type	_dump_heap_info,@function
+// UNMAPPED: _dump_heap_info :
+# %bb.0:
+LLI r8, %hi(heap_info_head)
+// UNMAPPED: lw t0 %lo(heap_info_head)(a0)
+BEQ r3, r0, .LBB8_32
+# %bb.1:
+ADDI r15, r15, -64
+SB r14, r15, 60
+SB r6, r15, 56
+SB r7, r15, 52
+SB s2, r15, 48
+SB s3, r15, 44
+SB s4, r15, 40
+SB s5, r15, 36
+SB s6, r15, 32
+SB s7, r15, 28
+SB s8, r15, 24
+SB s9, r15, 20
+SB s10, r15, 16
+SB s11, r15, 12
+LLI t3, 65536
+LLI t5, 107
+LLI a7, 32
+LLI t6, 97
+LLI s2, 116
+LLI s9, 48
+LLI s11, 45
+LLI s3, 83
+LLI s4, 105
+LLI s5, 122
+LLI r14, 101
+LLI s10, 58
+LLI s6, 70
+LLI s7, 114
+LLI s8, 10
+LLI r8, 838861
+ADDI r5, r15, 0
+ADDI t4, r8, -819
+LLI r4, 9
+// UNMAPPED: j .LBB8_4
+// .LBB8_2:                                #   in Loop: Header=BB8_4 Depth=1
+SB s9, t3, 0
+// .LBB8_3:                                #   in Loop: Header=BB8_4 Depth=1
+SB s8, t3, 0
+LW r3, r3, 12
+BEQ r3, r0, .LBB8_31
+// .LBB8_4:                                # =>This Loop Header: Depth=1
+//                                         #     Child Loop BB8_8 Depth 2
+//                                         #     Child Loop BB8_11 Depth 2
+//                                         #     Child Loop BB8_14 Depth 2
+//                                         #     Child Loop BB8_20 Depth 2
+//                                         #     Child Loop BB8_23 Depth 2
+//                                         #     Child Loop BB8_26 Depth 2
+//                                         #     Child Loop BB8_30 Depth 2
+LLI r8, 66
+SB r8, t3, 0
+LLI r8, 108
+SB r8, t3, 0
+LLI r8, 111
+SB r8, t3, 0
+LLI r8, 99
+SB r8, t3, 0
+SB t5, t3, 0
+SB a7, t3, 0
+SB t6, t3, 0
+SB s2, t3, 0
+SB a7, t3, 0
+LW r6, r3, 4
+BEQ r6, r0, .LBB8_15
+// # %bb.5:                                #   in Loop: Header=BB8_4 Depth=1
+// UNMAPPED: bgez s0 .LBB8_7
+// # %bb.6:                                #   in Loop: Header=BB8_4 Depth=1
+SB s11, t3, 0
+SUB r6, r0, r6
+// .LBB8_7:                                #   in Loop: Header=BB8_4 Depth=1
+LLI r8, 0
+LLI r7, 1
+ADDI r9, r15, 0
+// .LBB8_8:                                #   Parent Loop BB8_4 Depth=1
+//                                         # =>  This Inner Loop Header: Depth=2
+ADDI a6, r8, 0
+ADDI r12, r6, 0
+ADDI r10, r7, 0
+ADDI r11, r9, 0
+// UNMAPPED: mulhu a1 s0 t4
+ADDI r8, r8, 1
+// UNMAPPED: srli s0 a1 3
+// UNMAPPED: andi a1 a1 248
+// UNMAPPED: slli s1 s0 1
+SUB r9, r12, r9
+SUB r9, r9, r7
+ADD r7, r5, a6
+// UNMAPPED: ori a1 a1 48
+SB r9, r7, 0
+ADDI r7, r10, 1
+ADDI r9, r11, 1
+// UNMAPPED: bltu t1 a4 .LBB8_8
+// # %bb.9:                                #   in Loop: Header=BB8_4 Depth=1
+ADD r8, r8, r5
+SB r0, r8, 0
+BEQ a6, r0, .LBB8_12
+// # %bb.10:                               #   in Loop: Header=BB8_4 Depth=1
+// UNMAPPED: srli a2 a2 1
+// UNMAPPED: seqz a0 a2
+ADD r10, r10, r8
+ADDI r8, r15, 0
+ADD a6, a6, r8
+SUB r10, a6, r10
+// .LBB8_11:                               #   Parent Loop BB8_4 Depth=1
+//                                         # =>  This Inner Loop Header: Depth=2
+LB r9, r11, 0
+LB r12, r8, 0
+SB r9, r8, 0
+SB r12, r11, 0
+ADDI r11, r11, -1
+ADDI r8, r8, 1
+BNE r11, r10, .LBB8_11
+// .LBB8_12:                               #   in Loop: Header=BB8_4 Depth=1
+LB r8, r15, 0
+BEQ r8, r0, .LBB8_16
+// # %bb.13:                               #   in Loop: Header=BB8_4 Depth=1
+ADDI r9, r15, 1
+// .LBB8_14:                               #   Parent Loop BB8_4 Depth=1
+//                                         # =>  This Inner Loop Header: Depth=2
+SB r8, t3, 0
+LB r8, r9, 0
+ADDI r9, r9, 1
+BNE r8, r0, .LBB8_14
+// UNMAPPED: j .LBB8_16
+// .LBB8_15:                               #   in Loop: Header=BB8_4 Depth=1
+SB s9, t3, 0
+// .LBB8_16:                               #   in Loop: Header=BB8_4 Depth=1
+SB a7, t3, 0
+SB s11, t3, 0
+SB a7, t3, 0
+SB s3, t3, 0
+SB s4, t3, 0
+SB s5, t3, 0
+SB r14, t3, 0
+SB s10, t3, 0
+SB a7, t3, 0
+LW a5, r3, 0
+BEQ a5, r0, .LBB8_27
+// # %bb.17:                               #   in Loop: Header=BB8_4 Depth=1
+// UNMAPPED: bgez a5 .LBB8_19
+// # %bb.18:                               #   in Loop: Header=BB8_4 Depth=1
+SB s11, t3, 0
+SUB a5, r0, a5
+// .LBB8_19:                               #   in Loop: Header=BB8_4 Depth=1
+LLI r7, 0
+LLI r8, 1
+ADDI r12, r15, 0
+// .LBB8_20:                               #   Parent Loop BB8_4 Depth=1
+//                                         # =>  This Inner Loop Header: Depth=2
+ADDI r10, r7, 0
+ADDI r6, a5, 0
+ADDI r9, r8, 0
+ADDI r11, r12, 0
+// UNMAPPED: mulhu a0 a5 t4
+ADDI r7, r7, 1
+// UNMAPPED: srli a5 a0 3
+// UNMAPPED: andi a0 a0 248
+// UNMAPPED: slli a4 a5 1
+SUB r8, r6, r8
+SUB r8, r8, r12
+ADD r12, r5, r10
+// UNMAPPED: ori a0 a0 48
+SB r8, r12, 0
+ADDI r8, r9, 1
+ADDI r12, r11, 1
+// UNMAPPED: bltu t1 s0 .LBB8_20
+// # %bb.21:                               #   in Loop: Header=BB8_4 Depth=1
+ADD r7, r7, r5
+SB r0, r7, 0
+BEQ r10, r0, .LBB8_24
+// # %bb.22:                               #   in Loop: Header=BB8_4 Depth=1
+// UNMAPPED: srli a1 a1 1
+// UNMAPPED: seqz a0 a1
+ADD r9, r9, r8
+ADDI r8, r15, 0
+ADD r10, r10, r8
+SUB r10, r10, r9
+// .LBB8_23:                               #   Parent Loop BB8_4 Depth=1
+//                                         # =>  This Inner Loop Header: Depth=2
+LB r9, r11, 0
+LB r12, r8, 0
+SB r9, r8, 0
+SB r12, r11, 0
+ADDI r11, r11, -1
+ADDI r8, r8, 1
+BNE r11, r10, .LBB8_23
+// .LBB8_24:                               #   in Loop: Header=BB8_4 Depth=1
+LB r8, r15, 0
+BEQ r8, r0, .LBB8_28
+// # %bb.25:                               #   in Loop: Header=BB8_4 Depth=1
+ADDI r9, r15, 1
+// .LBB8_26:                               #   Parent Loop BB8_4 Depth=1
+//                                         # =>  This Inner Loop Header: Depth=2
+SB r8, t3, 0
+LB r8, r9, 0
+ADDI r9, r9, 1
+BNE r8, r0, .LBB8_26
+// UNMAPPED: j .LBB8_28
+// .LBB8_27:                               #   in Loop: Header=BB8_4 Depth=1
+SB s9, t3, 0
+// .LBB8_28:                               #   in Loop: Header=BB8_4 Depth=1
+SB a7, t3, 0
+SB s11, t3, 0
+SB a7, t3, 0
+SB s6, t3, 0
+SB s7, t3, 0
+SB r14, t3, 0
+SB r14, t3, 0
+SB s10, t3, 0
+SB a7, t3, 0
+LW r8, r3, 8
+BEQ r8, r0, .LBB8_2
+// # %bb.29:                               #   in Loop: Header=BB8_4 Depth=1
+SB r0, r15, 1
+LLI r9, 49
+ADDI r8, r15, 1
+// .LBB8_30:                               #   Parent Loop BB8_4 Depth=1
+//                                         # =>  This Inner Loop Header: Depth=2
+SB r9, t3, 0
+LB r9, r8, 0
+ADDI r8, r8, 1
+BNE r9, r0, .LBB8_30
+// UNMAPPED: j .LBB8_3
+// .LBB8_31:
+LW r14, r15, 60
+LW r6, r15, 56
+LW r7, r15, 52
+LW s2, r15, 48
+LW s3, r15, 44
+LW s4, r15, 40
+LW s5, r15, 36
+LW s6, r15, 32
+LW s7, r15, 28
+LW s8, r15, 24
+LW s9, r15, 20
+LW s10, r15, 16
+LW s11, r15, 12
+ADDI r15, r15, 64
+// .LBB8_32:
+JMP ra
+// .Lfunc_end8:
+// .size	_dump_heap_info, .Lfunc_end8-_dump_heap_info
+//                                         # -- End function
+// .globl	add                             # -- Begin function add
+// .p2align	1
+// .type	add,@function
+// ERROR translating: add:                                    # @add
+# %bb.0:
+ADD r8, r8, r9
+JMP ra
+// .Lfunc_end9:
+// .size	add, .Lfunc_end9-add
+//                                         # -- End function
+// .globl	main                            # -- Begin function main
+// .p2align	1
+// .type	main,@function
+// UNMAPPED: main :
+# %bb.0:
+ADDI r15, r15, -16
+LLI r8, 65536
+LLI r10, 84
+LLI r11, 104
+LLI r12, 101
+LLI r9, 32
+LLI a5, 114
+SB r10, r8, 0
+LLI a6, 115
+SB r11, r8, 0
+LLI r10, 117
+SB r12, r8, 0
+SB r9, r8, 0
+SB a5, r8, 0
+LLI r11, 108
+SB r12, r8, 0
+LLI r12, 116
+SB a6, r8, 0
+SB r10, r8, 0
+LLI a5, 111
+SB r11, r8, 0
+LLI r11, 102
+SB r12, r8, 0
+LLI r10, 49
+SB r9, r8, 0
+SB a5, r8, 0
+LLI r12, 48
+SB r11, r8, 0
+LLI r11, 43
+SB r9, r8, 0
+SB r10, r8, 0
+SB r12, r8, 0
+LLI r12, 53
+SB r9, r8, 0
+SB r11, r8, 0
+LLI r11, 105
+SB r9, r8, 0
+SB r12, r8, 0
+SB r9, r8, 0
+SB r11, r8, 0
+LLI a5, 58
+SB a6, r8, 0
+ADDI r11, r15, 5
+SB a5, r8, 0
+SB r9, r8, 0
+SB r10, r15, 4
+SB r12, r15, 5
+SB r0, r15, 6
+// .LBB10_1:                               # =>This Inner Loop Header: Depth=1
+SB r10, r8, 0
+LB r10, r11, 0
+ADDI r11, r11, 1
+BNE r10, r0, .LBB10_1
+# %bb.2:
+LLI r8, %hi(heap_info_head)
+// UNMAPPED: lw a2 %lo(heap_info_head)(a0)
+BEQ r10, r0, .LBB10_10
+# %bb.3:
+LLI r8, 4
+// UNMAPPED: j .LBB10_5
+// .LBB10_4:                               #   in Loop: Header=BB10_5 Depth=1
+LW r10, r9, 12
+BEQ r10, r0, .LBB10_11
+// .LBB10_5:                               # =>This Inner Loop Header: Depth=1
+ADDI r9, r10, 0
+LW r10, r10, 8
+BEQ r10, r0, .LBB10_4
+// # %bb.6:                                #   in Loop: Header=BB10_5 Depth=1
+LW r11, r9, 0
+// UNMAPPED: blt a3 a0 .LBB10_4
+# %bb.7:
+LLI r8, %hi(.L_MergedGlobals+4)
+// UNMAPPED: lw a2 %lo(.L_MergedGlobals+4)(a0)
+ADDI r11, r11, -4
+ADDI r12, r10, 4
+// UNMAPPED: blt a3 a4 .LBB10_9
+# %bb.8:
+LW r12, r9, 4
+SUB r11, r11, r10
+LLI r10, 1
+SB r11, r12, 4
+// UNMAPPED: lw a0 %lo(.L_MergedGlobals+4)(a0)
+ADDI r11, r12, 4
+SB r10, r12, 12
+ADD r8, r8, r11
+SB r8, r12, 8
+LW r8, r9, 12
+LLI r10, 4
+SB r8, r12, 16
+SB r10, r9, 0
+SB r11, r9, 12
+// .LBB10_9:
+LW a6, r9, 4
+SB r0, r9, 8
+BNE a6, r0, .LBB10_19
+// UNMAPPED: j .LBB10_13
+// .LBB10_10:
+LLI r9, 0
+// .LBB10_11:
+LLI r10, %hi(.L_MergedGlobals)
+// UNMAPPED: lw a0 %lo(.L_MergedGlobals)(a2)
+ADDI r10, r10, %lo(.L_MergedGlobals)
+LW a6, r10, 4
+ADD a6, a6, r8
+// UNMAPPED: blez a6 .LBB10_13
+# %bb.12:
+LLI r10, %hi(.L_MergedGlobals+8)
+// UNMAPPED: lw a2 %lo(.L_MergedGlobals+8)(a2)
+ADDI r11, a6, 4
+// UNMAPPED: bge a2 a3 .LBB10_15
+// .LBB10_13:
+LLI r8, 65536
+LLI r9, 77
+LLI a6, 101
+LLI r11, 109
+LLI r12, 111
+LLI a5, 114
+LLI r10, 121
+SB r9, r8, 0
+LLI r9, 32
+SB a6, r8, 0
+SB r11, r8, 0
+LLI r11, 97
+SB r12, r8, 0
+SB a5, r8, 0
+LLI a5, 108
+SB r10, r8, 0
+LLI r10, 99
+SB r9, r8, 0
+SB r11, r8, 0
+SB a5, r8, 0
+SB a5, r8, 0
+SB r12, r8, 0
+SB r10, r8, 0
+LLI r10, 116
+SB r11, r8, 0
+SB r10, r8, 0
+LLI r10, 105
+SB r10, r8, 0
+SB r12, r8, 0
+LLI r12, 110
+SB r12, r8, 0
+LLI r12, 102
+SB r9, r8, 0
+LLI r9, 100
+SB r12, r8, 0
+SB r11, r8, 0
+SB r10, r8, 0
+SB a5, r8, 0
+SB a6, r8, 0
+SB r9, r8, 0
+// .LBB10_14:
+LLI r8, 0
+ADDI r15, r15, 16
+JMP ra
+// .LBB10_15:
+LLI r10, 4
+SB r10, r8, 0
+SB a6, r8, 4
+SB r0, r8, 8
+SB r0, r8, 12
+BEQ r9, r0, .LBB10_17
+# %bb.16:
+SB r8, r9, 12
+// UNMAPPED: j .LBB10_18
+// .LBB10_17:
+LLI r9, %hi(heap_info_head)
+// UNMAPPED: sw a0 %lo(heap_info_head)(a1)
+// .LBB10_18:
+ADDI r8, a6, 7
+LLI r9, 524288
+ADDI r9, r9, -4
+// UNMAPPED: and a0 a0 a1
+LLI r9, %hi(.L_MergedGlobals)
+// UNMAPPED: sw a0 %lo(.L_MergedGlobals)(a1)
+// .LBB10_19:
+LLI r12, 42
+LLI r9, 65536
+LLI r11, 68
+LLI a5, 121
+LLI a7, 110
+LLI r10, 97
+LLI r3, 109
+LLI r4, 105
+LLI r5, 99
+SB r12, a6, 0
+LLI r12, 108
+SB r11, r9, 0
+LLI r11, 32
+SB a5, r9, 0
+SB a7, r9, 0
+SB r10, r9, 0
+SB r3, r9, 0
+LLI r8, 111
+SB r4, r9, 0
+SB r5, r9, 0
+SB r10, r9, 0
+SB r12, r9, 0
+SB r12, r9, 0
+SB a5, r9, 0
+LLI r3, 116
+SB r11, r9, 0
+SB r10, r9, 0
+SB r12, r9, 0
+SB r12, r9, 0
+SB r8, r9, 0
+LLI r8, 101
+SB r5, r9, 0
+LLI a5, 100
+SB r10, r9, 0
+SB r3, r9, 0
+SB r8, r9, 0
+SB a5, r9, 0
+LLI a5, 103
+SB r11, r9, 0
+SB r4, r9, 0
+LLI r4, 114
+SB a7, r9, 0
+LLI a7, 118
+SB r3, r9, 0
+LLI r3, 117
+SB r8, r9, 0
+SB a5, r9, 0
+LLI r5, 40
+SB r8, r9, 0
+SB r4, r9, 0
+LLI r4, 52
+SB r11, r9, 0
+SB a7, r9, 0
+LLI a5, 50
+SB r10, r9, 0
+LLI r10, 41
+SB r12, r9, 0
+LLI r12, 58
+SB r3, r9, 0
+SB r8, r9, 0
+SB r11, r9, 0
+SB r5, r9, 0
+SB r4, r9, 0
+SB a5, r9, 0
+SB r10, r9, 0
+SB r12, r9, 0
+SB r11, r9, 0
+LW r11, a6, 0
+BEQ r11, r0, .LBB10_30
+# %bb.20:
+// UNMAPPED: bgez a3 .LBB10_22
+# %bb.21:
+LLI r8, 65536
+LLI r9, 45
+SB r9, r8, 0
+SUB r11, r0, r11
+// .LBB10_22:
+LLI r12, 0
+ADDI r9, r15, 3
+LLI r8, 838861
+ADDI r4, r8, -819
+LLI a7, 9
+// .LBB10_23:                              # =>This Inner Loop Header: Depth=1
+ADDI r3, r12, 0
+ADDI r10, r11, 0
+// UNMAPPED: mulhu a5 a3 t1
+ADDI r12, r12, 1
+// UNMAPPED: srli a3 a5 3
+// UNMAPPED: andi a5 a5 248
+// UNMAPPED: slli a0 a3 1
+SUB a5, r10, a5
+SUB a5, a5, r8
+// UNMAPPED: ori a0 a5 48
+SB r8, r9, 1
+ADDI r9, r9, 1
+// UNMAPPED: bltu a7 a2 .LBB10_23
+# %bb.24:
+SB r0, r9, 1
+BEQ r3, r0, .LBB10_27
+# %bb.25:
+// UNMAPPED: srli a4 a4 1
+// UNMAPPED: seqz a0 a4
+ADD r12, r12, r8
+ADDI r8, r15, 4
+ADD r10, r8, r3
+SUB r10, r10, r12
+// .LBB10_26:                              # =>This Inner Loop Header: Depth=1
+LB r11, r9, 0
+LB r12, r8, 0
+SB r11, r8, 0
+SB r12, r9, 0
+ADDI r9, r9, -1
+ADDI r8, r8, 1
+BNE r9, r10, .LBB10_26
+// .LBB10_27:
+LB r8, r15, 4
+BEQ r8, r0, .LBB10_31
+# %bb.28:
+ADDI r9, r15, 5
+LLI r10, 65536
+// .LBB10_29:                              # =>This Inner Loop Header: Depth=1
+SB r8, r10, 0
+LB r8, r9, 0
+ADDI r9, r9, 1
+BNE r8, r0, .LBB10_29
+// UNMAPPED: j .LBB10_31
+// .LBB10_30:
+LLI r8, 48
+SB r8, r9, 0
+// .LBB10_31:
+LLI r8, %hi(heap_info_head)
+// UNMAPPED: lw a1 %lo(heap_info_head)(a0)
+BEQ r9, r0, .LBB10_14
+# %bb.32:
+LW r8, r9, 4
+BNE r8, a6, .LBB10_34
+# %bb.33:
+LLI r10, 0
+// UNMAPPED: j .LBB10_37
+// .LBB10_34:
+ADDI r8, r9, 0
+// .LBB10_35:                              # =>This Inner Loop Header: Depth=1
+LW r9, r8, 12
+BEQ r9, r0, .LBB10_14
+// # %bb.36:                               #   in Loop: Header=BB10_35 Depth=1
+LW r11, r9, 4
+ADDI r10, r8, 0
+ADDI r8, r9, 0
+BNE r11, a6, .LBB10_35
+// .LBB10_37:
+LW r8, r9, 12
+LLI r11, 1
+SB r11, r9, 8
+BEQ r8, r0, .LBB10_40
+# %bb.38:
+LW r11, r8, 8
+BEQ r11, r0, .LBB10_40
+# %bb.39:
+LLI r11, %hi(.L_MergedGlobals+4)
+// UNMAPPED: lw a3 %lo(.L_MergedGlobals+4)(a3)
+LW r12, r9, 0
+LW a5, r8, 0
+ADD r11, r11, r12
+ADD r11, r11, a5
+SB r11, r9, 0
+LW r8, r8, 12
+SB r8, r9, 12
+// .LBB10_40:
+BEQ r10, r0, .LBB10_14
+# %bb.41:
+LW r11, r10, 8
+BEQ r11, r0, .LBB10_14
+# %bb.42:
+LLI r11, %hi(.L_MergedGlobals+4)
+LW r12, r10, 0
+// UNMAPPED: lw a3 %lo(.L_MergedGlobals+4)(a3)
+LW r9, r9, 0
+ADD r11, r11, r12
+ADD r9, r9, r11
+SB r9, r10, 0
+SB r8, r10, 12
+// UNMAPPED: j .LBB10_14
+// .Lfunc_end10:
+// .size	main, .Lfunc_end10-main
+//                                         # -- End function
+// .type	heap_info_head,@object          # @heap_info_head
+// .bss
+// .globl	heap_info_head
+// .p2align	2, 0x0
+heap_info_head:
+// .word	0
+// .size	heap_info_head, 4
+
+// .type	.L_MergedGlobals,@object        # @_MergedGlobals
+// .data
+// .p2align	2, 0x0
+// .L_MergedGlobals:
+// .word	16777216                        # 0x1000000
+// .word	16                              # 0x10
+// .word	268369920                       # 0xfff0000
+// .size	.L_MergedGlobals, 12
+
+// .globl	heap_top
+// UNMAPPED: heap_top = .L_MergedGlobals
+// .size	heap_top, 4
+// .globl	HEAP_HEADER_SIZE
+// UNMAPPED: HEAP_HEADER_SIZE = .L_MergedGlobals+4
+// .size	HEAP_HEADER_SIZE, 4
+// .globl	STACK_LIMIT
+// UNMAPPED: STACK_LIMIT = .L_MergedGlobals+8
+// .size	STACK_LIMIT, 4
+// .section	".note.GNU-stack","",@progbits
+// .addrsig
+// .addrsig_sym .L_MergedGlobals
