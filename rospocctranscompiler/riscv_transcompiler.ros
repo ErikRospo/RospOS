@@ -4,8 +4,7 @@
 // .text
 // .globl	print_string                    # -- Begin function print_string
 // .p2align	1
-// .type	print_string,@function
-// UNMAPPED: print_string :
+.FUNC print_string:
 # %bb.0:
 LB r9, r8, 0
 BEQ r9, r0, .LBB0_3
@@ -17,26 +16,24 @@ SB r9, r10, 0
 LB r9, r8, 0
 ADDI r8, r8, 1
 BNE r9, r0, .LBB0_2
-// .LBB0_3:
-JMP ra
-// .Lfunc_end0:
+.LBB0_3:
+RET
+.Lfunc_end0:
 // .size	print_string, .Lfunc_end0-print_string
 //                                         # -- End function
 // .globl	print_char                      # -- Begin function print_char
 // .p2align	1
-// .type	print_char,@function
-// UNMAPPED: print_char :
+.FUNC print_char:
 # %bb.0:
 LLI r9, 65536
 SB r8, r9, 0
-JMP ra
-// .Lfunc_end1:
+RET
+.Lfunc_end1:
 // .size	print_char, .Lfunc_end1-print_char
 //                                         # -- End function
 // .globl	printi                          # -- Begin function printi
 // .p2align	1
-// .type	printi,@function
-// UNMAPPED: printi :
+.FUNC printi:
 # %bb.0:
 ADDI r15, r15, -16
 BEQ r8, r0, .LBB2_12
@@ -47,7 +44,7 @@ LLI r9, 65536
 LLI r10, 45
 SB r10, r9, 0
 SUB r8, r0, r8
-// .LBB2_3:
+.LBB2_3:
 LLI r11, 0
 ADDI r9, r15, 3
 LLI r10, 838861
@@ -85,7 +82,7 @@ SB r12, r9, 0
 ADDI r9, r9, -1
 ADDI r8, r8, 1
 BNE r9, r10, .LBB2_7
-// .LBB2_8:
+.LBB2_8:
 LB r8, r15, 4
 BEQ r8, r0, .LBB2_11
 # %bb.9:
@@ -96,33 +93,31 @@ SB r8, r10, 0
 LB r8, r9, 0
 ADDI r9, r9, 1
 BNE r8, r0, .LBB2_10
-// .LBB2_11:
+.LBB2_11:
 ADDI r15, r15, 16
-JMP ra
-// .LBB2_12:
+RET
+.LBB2_12:
 LLI r8, 65536
 LLI r9, 48
 SB r9, r8, 0
 ADDI r15, r15, 16
-JMP ra
-// .Lfunc_end2:
+RET
+.Lfunc_end2:
 // .size	printi, .Lfunc_end2-printi
 //                                         # -- End function
 // .globl	read_char                       # -- Begin function read_char
 // .p2align	1
-// .type	read_char,@function
-// UNMAPPED: read_char :
+.FUNC read_char:
 # %bb.0:
 LLI r8, 65536
 LB r8, r8, 0
-JMP ra
-// .Lfunc_end3:
+RET
+.Lfunc_end3:
 // .size	read_char, .Lfunc_end3-read_char
 //                                         # -- End function
 // .globl	read_string                     # -- Begin function read_string
 // .p2align	1
-// .type	read_string,@function
-// UNMAPPED: read_string :
+.FUNC read_string:
 # %bb.0:
 LLI a5, 0
 LLI r10, 2
@@ -145,28 +140,26 @@ ADDI a5, r10, 0
 BNE r9, r10, .LBB4_2
 # %bb.5:
 ADDI a5, r9, 0
-// .LBB4_6:
+.LBB4_6:
 ADD a5, a5, r8
 SB r0, a5, 0
-JMP ra
-// .Lfunc_end4:
+RET
+.Lfunc_end4:
 // .size	read_string, .Lfunc_end4-read_string
 //                                         # -- End function
 // .globl	align4                          # -- Begin function align4
 // .p2align	1
-// .type	align4,@function
-// UNMAPPED: align 4:
+.FUNC align4:
 # %bb.0:
 ADDI r8, r8, 3
 // UNMAPPED: andi a0 a0 -4
-JMP ra
-// .Lfunc_end5:
+RET
+.Lfunc_end5:
 // .size	align4, .Lfunc_end5-align4
 //                                         # -- End function
 // .globl	malloc                          # -- Begin function malloc
 // .p2align	1
-// .type	malloc,@function
-// UNMAPPED: malloc :
+.FUNC malloc:
 # %bb.0:
 // UNMAPPED: blez a0 .LBB6_5
 # %bb.1:
@@ -179,7 +172,7 @@ ADDI r8, r8, 3
 BNE r12, r0, .LBB6_7
 # %bb.2:
 LLI r9, 0
-// .LBB6_3:
+.LBB6_3:
 LLI r8, %hi(.L_MergedGlobals)
 // UNMAPPED: lw a4 %lo(.L_MergedGlobals)(a0)
 ADDI r8, r8, %lo(.L_MergedGlobals)
@@ -191,9 +184,9 @@ LLI a5, %hi(.L_MergedGlobals+8)
 // UNMAPPED: lw a3 %lo(.L_MergedGlobals+8)(a5)
 ADD a5, r8, r10
 // UNMAPPED: bge a3 a5 .LBB6_12
-// .LBB6_5:
+.LBB6_5:
 LLI r8, 0
-JMP ra
+RET
 // .LBB6_6:                                #   in Loop: Header=BB6_7 Depth=1
 LW r12, r9, 12
 BEQ r12, r0, .LBB6_3
@@ -224,11 +217,11 @@ SB r8, a5, 4
 SB r11, a5, 12
 SB r10, r9, 0
 SB a5, r9, 12
-// .LBB6_11:
+.LBB6_11:
 LW r8, r9, 4
 SB r0, r9, 8
-JMP ra
-// .LBB6_12:
+RET
+.LBB6_12:
 SB r10, r12, 0
 SB r8, r12, 4
 SB r0, r12, 8
@@ -237,22 +230,21 @@ BEQ r9, r0, .LBB6_14
 # %bb.13:
 SB r12, r9, 12
 // UNMAPPED: j .LBB6_15
-// .LBB6_14:
+.LBB6_14:
 LLI r9, %hi(heap_info_head)
 // UNMAPPED: sw a4 %lo(heap_info_head)(a1)
-// .LBB6_15:
+.LBB6_15:
 ADDI a5, a5, 3
 // UNMAPPED: and a1 a5 a6
 LLI r10, %hi(.L_MergedGlobals)
 // UNMAPPED: sw a1 %lo(.L_MergedGlobals)(a2)
-JMP ra
-// .Lfunc_end6:
+RET
+.Lfunc_end6:
 // .size	malloc, .Lfunc_end6-malloc
 //                                         # -- End function
 // .globl	free                            # -- Begin function free
 // .p2align	1
-// .type	free,@function
-// UNMAPPED: free :
+.FUNC free:
 # %bb.0:
 BEQ r8, r0, .LBB7_13
 # %bb.1:
@@ -265,7 +257,7 @@ BNE r10, r8, .LBB7_4
 # %bb.3:
 LLI r10, 0
 // UNMAPPED: j .LBB7_7
-// .LBB7_4:
+.LBB7_4:
 ADDI r11, r9, 0
 // .LBB7_5:                                # =>This Inner Loop Header: Depth=1
 LW r9, r11, 12
@@ -275,7 +267,7 @@ LW r12, r9, 4
 ADDI r10, r11, 0
 ADDI r11, r9, 0
 BNE r12, r8, .LBB7_5
-// .LBB7_7:
+.LBB7_7:
 LW r8, r9, 12
 LLI r11, 1
 SB r11, r9, 8
@@ -293,7 +285,7 @@ ADD r11, r11, r12
 ADD r11, r11, a5
 SB r11, r9, 0
 SB r8, r9, 12
-// .LBB7_10:
+.LBB7_10:
 BEQ r10, r0, .LBB7_13
 # %bb.11:
 LW r11, r10, 8
@@ -307,15 +299,14 @@ ADD r11, r11, r12
 ADD r9, r9, r11
 SB r9, r10, 0
 SB r8, r10, 12
-// .LBB7_13:
-JMP ra
-// .Lfunc_end7:
+.LBB7_13:
+RET
+.Lfunc_end7:
 // .size	free, .Lfunc_end7-free
 //                                         # -- End function
 // .globl	_dump_heap_info                 # -- Begin function _dump_heap_info
 // .p2align	1
-// .type	_dump_heap_info,@function
-// UNMAPPED: _dump_heap_info :
+.FUNC _dump_heap_info:
 # %bb.0:
 LLI r8, %hi(heap_info_head)
 // UNMAPPED: lw t0 %lo(heap_info_head)(a0)
@@ -543,7 +534,7 @@ LB r9, r8, 0
 ADDI r8, r8, 1
 BNE r9, r0, .LBB8_30
 // UNMAPPED: j .LBB8_3
-// .LBB8_31:
+.LBB8_31:
 LW r14, r15, 60
 LW r6, r15, 56
 LW r7, r15, 52
@@ -558,25 +549,23 @@ LW s9, r15, 20
 LW s10, r15, 16
 LW s11, r15, 12
 ADDI r15, r15, 64
-// .LBB8_32:
-JMP ra
-// .Lfunc_end8:
+.LBB8_32:
+RET
+.Lfunc_end8:
 // .size	_dump_heap_info, .Lfunc_end8-_dump_heap_info
 //                                         # -- End function
 // .globl	add                             # -- Begin function add
 // .p2align	1
-// .type	add,@function
-// ERROR translating: add:                                    # @add
+.FUNC add:
 # %bb.0:
 ADD r8, r8, r9
-JMP ra
-// .Lfunc_end9:
+RET
+.Lfunc_end9:
 // .size	add, .Lfunc_end9-add
 //                                         # -- End function
 // .globl	main                            # -- Begin function main
 // .p2align	1
-// .type	main,@function
-// UNMAPPED: main :
+.FUNC main:
 # %bb.0:
 ADDI r15, r15, -16
 LLI r8, 65536
@@ -669,14 +658,14 @@ LLI r10, 4
 SB r8, r12, 16
 SB r10, r9, 0
 SB r11, r9, 12
-// .LBB10_9:
+.LBB10_9:
 LW a6, r9, 4
 SB r0, r9, 8
 BNE a6, r0, .LBB10_19
 // UNMAPPED: j .LBB10_13
-// .LBB10_10:
+.LBB10_10:
 LLI r9, 0
-// .LBB10_11:
+.LBB10_11:
 LLI r10, %hi(.L_MergedGlobals)
 // UNMAPPED: lw a0 %lo(.L_MergedGlobals)(a2)
 ADDI r10, r10, %lo(.L_MergedGlobals)
@@ -688,7 +677,7 @@ LLI r10, %hi(.L_MergedGlobals+8)
 // UNMAPPED: lw a2 %lo(.L_MergedGlobals+8)(a2)
 ADDI r11, a6, 4
 // UNMAPPED: bge a2 a3 .LBB10_15
-// .LBB10_13:
+.LBB10_13:
 LLI r8, 65536
 LLI r9, 77
 LLI a6, 101
@@ -729,11 +718,11 @@ SB r10, r8, 0
 SB a5, r8, 0
 SB a6, r8, 0
 SB r9, r8, 0
-// .LBB10_14:
+.LBB10_14:
 LLI r8, 0
 ADDI r15, r15, 16
-JMP ra
-// .LBB10_15:
+RET
+.LBB10_15:
 LLI r10, 4
 SB r10, r8, 0
 SB a6, r8, 4
@@ -743,17 +732,17 @@ BEQ r9, r0, .LBB10_17
 # %bb.16:
 SB r8, r9, 12
 // UNMAPPED: j .LBB10_18
-// .LBB10_17:
+.LBB10_17:
 LLI r9, %hi(heap_info_head)
 // UNMAPPED: sw a0 %lo(heap_info_head)(a1)
-// .LBB10_18:
+.LBB10_18:
 ADDI r8, a6, 7
 LLI r9, 524288
 ADDI r9, r9, -4
 // UNMAPPED: and a0 a0 a1
 LLI r9, %hi(.L_MergedGlobals)
 // UNMAPPED: sw a0 %lo(.L_MergedGlobals)(a1)
-// .LBB10_19:
+.LBB10_19:
 LLI r12, 42
 LLI r9, 65536
 LLI r11, 68
@@ -830,7 +819,7 @@ LLI r8, 65536
 LLI r9, 45
 SB r9, r8, 0
 SUB r11, r0, r11
-// .LBB10_22:
+.LBB10_22:
 LLI r12, 0
 ADDI r9, r15, 3
 LLI r8, 838861
@@ -868,7 +857,7 @@ SB r12, r9, 0
 ADDI r9, r9, -1
 ADDI r8, r8, 1
 BNE r9, r10, .LBB10_26
-// .LBB10_27:
+.LBB10_27:
 LB r8, r15, 4
 BEQ r8, r0, .LBB10_31
 # %bb.28:
@@ -880,10 +869,10 @@ LB r8, r9, 0
 ADDI r9, r9, 1
 BNE r8, r0, .LBB10_29
 // UNMAPPED: j .LBB10_31
-// .LBB10_30:
+.LBB10_30:
 LLI r8, 48
 SB r8, r9, 0
-// .LBB10_31:
+.LBB10_31:
 LLI r8, %hi(heap_info_head)
 // UNMAPPED: lw a1 %lo(heap_info_head)(a0)
 BEQ r9, r0, .LBB10_14
@@ -893,7 +882,7 @@ BNE r8, a6, .LBB10_34
 # %bb.33:
 LLI r10, 0
 // UNMAPPED: j .LBB10_37
-// .LBB10_34:
+.LBB10_34:
 ADDI r8, r9, 0
 // .LBB10_35:                              # =>This Inner Loop Header: Depth=1
 LW r9, r8, 12
@@ -903,7 +892,7 @@ LW r11, r9, 4
 ADDI r10, r8, 0
 ADDI r8, r9, 0
 BNE r11, a6, .LBB10_35
-// .LBB10_37:
+.LBB10_37:
 LW r8, r9, 12
 LLI r11, 1
 SB r11, r9, 8
@@ -921,7 +910,7 @@ ADD r11, r11, a5
 SB r11, r9, 0
 LW r8, r8, 12
 SB r8, r9, 12
-// .LBB10_40:
+.LBB10_40:
 BEQ r10, r0, .LBB10_14
 # %bb.41:
 LW r11, r10, 8
@@ -936,7 +925,7 @@ ADD r9, r9, r11
 SB r9, r10, 0
 SB r8, r10, 12
 // UNMAPPED: j .LBB10_14
-// .Lfunc_end10:
+.Lfunc_end10:
 // .size	main, .Lfunc_end10-main
 //                                         # -- End function
 // .type	heap_info_head,@object          # @heap_info_head
@@ -950,7 +939,7 @@ heap_info_head:
 // .type	.L_MergedGlobals,@object        # @_MergedGlobals
 // .data
 // .p2align	2, 0x0
-// .L_MergedGlobals:
+.L_MergedGlobals:
 // .word	16777216                        # 0x1000000
 // .word	16                              # 0x10
 // .word	268369920                       # 0xfff0000

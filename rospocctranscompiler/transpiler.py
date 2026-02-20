@@ -124,9 +124,9 @@ def translate_instruction(op: str, operands: list[str]) -> str:
             return f"CALL {label} // saved into {map_reg(rd)}"
     if o == 'jalr':
         # often ret
-        return "JMP ra"
+        return "JALR " + ', '.join(map_reg(op) for op in operands)
     if o == 'ret':
-        return "JMP ra"
+        return "RET"
     if o == 'sb':
         return f"SB {', '.join(operands)}"
 
@@ -158,13 +158,21 @@ def process_line(line: str) -> str | None:
     s = orig.strip()
     if not s:
         return ''
+    # If the line is a commented dot-label (e.g. "// .LBB0_2:") or
+    # an annotated dot-label (e.g. "// .LBB0_2:  # =>This ..."),
+    # pass the label through as `.LBB0_2:`.
+    m_commented_dot_label = re.match(r'^(?:\/\/|#)\s*(\.[A-Za-z0-9_.]+)\s*:', s)
+    if m_commented_dot_label:
+        return f"{m_commented_dot_label.group(1)}:"
+
+    # preserve labels (including dot-prefixed labels)
+    if s.endswith(':'):
+        return s
+
     # pass through assembler directives as comments or minimal translation
     if s.startswith('.'):  # directive
         # keep major directives as comments to avoid breaking .ros files
         return f"// {s}"
-    # preserve labels
-    if s.endswith(':'):
-        return s
     # remove inline comments starting with # or // or /* style
     s = re.split(r"(#|//)", s)[0].strip()
     # tokenise instruction
@@ -184,11 +192,44 @@ def process_line(line: str) -> str | None:
 
 def transpile_text(text: str) -> str:
     out_lines: list[str] = []
-    for line in text.splitlines():
+    lines = text.splitlines()
+    i = 0
+    # look for patterns like:
+    #   .type <name>,@function
+    #   <name>:
+    # and replace them with:
+    #   .FUNC <name>:
+    while i < len(lines):
+        line = lines[i]
+        s = line.strip()
+        # match .type lines, allowing optional leading comment markers
+        m = re.match(r"(?:\/\/\s*)?\.type\s+([A-Za-z_][A-Za-z0-9_.]*)\s*,\s*@function", s)
+        if m:
+            name = m.group(1)
+            # find next non-empty line
+            j = i + 1
+            while j < len(lines) and lines[j].strip() == '':
+                j += 1
+            if j < len(lines):
+                next_line = lines[j]
+                # if the name followed by a colon appears anywhere in the next line
+                # (covers "print_string:", "UNMAPPED: print_string :", "ERROR translating: print_string :", etc.)
+                if re.search(rf"\b{re.escape(name)}\s*:", next_line):
+                    out_lines.append(f".FUNC {name}:")
+                    i = j + 1
+                    continue
+            # fallback: emit the directive as a comment
+            out_lines.append(f"// {s}")
+            i += 1
+            continue
+
         res = process_line(line)
         if res is None:
+            i += 1
             continue
         out_lines.append(res)
+        i += 1
+
     return '\n'.join(out_lines) + '\n'
 
 def main(argv=None):
