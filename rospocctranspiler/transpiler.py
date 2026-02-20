@@ -91,15 +91,16 @@ def translate_instruction(op: str, operands: list[str]) -> str:
         parsed = parse_mem_operand(mem)
         if parsed:
             imm, base = parsed
-            return f"SB {map_reg(rs2)}, {base}, {imm}"
-    if o in ('lbu', 'lb', 'lw'):
+            instr = {'sb': 'SB', 'sh': 'SH', 'sw': 'SW'}[o]
+            return f"{instr} {map_reg(rs2)}, {base}, {imm}"
+    if o in ('lbu', 'lb', 'lh', 'lhu', 'lw'):
         rd = operands[0]
         mem = operands[1]
         parsed = parse_mem_operand(mem)
         if parsed:
             imm, base = parsed
-            # use LB for byte loads, LW for words
-            instr = 'LB' if o in ('lbu', 'lb') else 'LW'
+            instr_map = {'lb': 'LB', 'lbu': 'LBU', 'lh': 'LH', 'lhu': 'LHU', 'lw': 'LW'}
+            instr = instr_map[o]
             return f"{instr} {map_reg(rd)}, {base}, {imm}"
     if o == 'beq':
         rs1, rs2, label = operands
