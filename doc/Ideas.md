@@ -78,6 +78,28 @@ WHILE_END9:
   RET
 ```
 
+```
+
+.FUNC main:
+  PUSH r14
+  LLI r2, 5    // init x
+  LLI r3, 10    // init y
+  LLI r4, 0    // zero init result
+  PUSH r2    // save caller temp
+  PUSH r3    // save caller temp
+  PUSH r4    // save caller temp
+  LLI r1, str_7    // load immediate str_7
+  CALL print_string
+  //These duplicate lines can be optimized out.
+  POP r4    // restore caller temp
+  POP r3    // restore caller temp
+  POP r2    // restore caller temp
+  PUSH r2    // save caller temp
+  PUSH r3    // save caller temp
+  PUSH r4    // save caller temp
+```
+
+
 ### Other optimizations
 - Remove redundant loads/stores (e.g. if a value is already in a register, don't load it again from memory)
 - Remove redundant moves (e.g. if a value is already in a register, don't move it to another register unnecessarily)
