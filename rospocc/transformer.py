@@ -511,7 +511,6 @@ def transform_to_translation_unit(input_data: Tree) -> dict:
                 for cc in c.get("children", []):
                     if isinstance(cc, dict):
                         expr = expr_from_node(cc)
-                    print("EXPR_STMT EXPR:", expr)
                     if expr:
                         if expr.get("type") == "call":
                             stmts.append({"type": "call_stmt", "name": expr.get("name"), "args": expr.get("args", [])})

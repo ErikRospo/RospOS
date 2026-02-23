@@ -14,412 +14,443 @@ INSTR idx=11 @ 0x1c name=shli rd=2 rs1=2 rs2=None imm=ImmValue(value=16) src=<un
 LABEL WHILE1 -> 0x20 src=rospos/build/rospos.ros:14
 INSTR idx=13 @ 0x20 name=lb rd=3 rs1=1 rs2=None imm=ImmValue(value=0) src=<unknown>
 INSTR idx=14 @ 0x24 name=beq rd=3 rs1=0 rs2=None imm=ImmLabel(name='WHILE_END2') src=<unknown>
-INSTR idx=15 @ 0x28 name=lb rd=3 rs1=1 rs2=None imm=ImmValue(value=0) src=<unknown>
-INSTR idx=16 @ 0x2c name=sb rd=3 rs1=2 rs2=None imm=ImmValue(value=0) src=<unknown>
-INSTR idx=17 @ 0x30 name=addi rd=3 rs1=0 rs2=None imm=ImmValue(value=1) src=<unknown>
-INSTR idx=18 @ 0x34 name=add rd=2 rs1=1 rs2=3 imm=None src=<unknown>
-INSTR idx=19 @ 0x38 name=addi rd=13 rs1=0 rs2=None imm=ImmLabelPart(label='WHILE1', part='high') src=<unknown>
-INSTR idx=20 @ 0x3c name=shli rd=13 rs1=13 rs2=None imm=ImmValue(value=16) src=<unknown>
-INSTR idx=21 @ 0x40 name=ori rd=13 rs1=13 rs2=None imm=ImmLabelPart(label='WHILE1', part='low') src=<unknown>
-INSTR idx=22 @ 0x44 name=jalr rd=0 rs1=13 rs2=None imm=ImmValue(value=0) src=<unknown>
-LABEL WHILE_END2 -> 0x48 src=rospos/build/rospos.ros:23
-INSTR idx=24 @ 0x48 name=addi rd=1 rs1=0 rs2=None imm=ImmValue(value=0) src=<unknown>
-INSTR idx=25 @ 0x4c name=lw rd=ImmValue(value=14) rs1=15 rs2=None imm=ImmValue(value=0) src=<unknown>
-INSTR idx=26 @ 0x50 name=addi rd=15 rs1=15 rs2=None imm=ImmValue(value=4) src=<unknown>
-INSTR idx=27 @ 0x54 name=jalr rd=0 rs1=14 rs2=None imm=ImmValue(value=0) src=<unknown>
-LABEL print_char -> 0x58 src=rospos/build/rospos.ros:29
-INSTR idx=29 @ 0x58 name=addi rd=15 rs1=15 rs2=None imm=ImmValue(value=-4) src=<unknown>
-INSTR idx=30 @ 0x5c name=sw rd=ImmValue(value=14) rs1=15 rs2=None imm=ImmValue(value=0) src=<unknown>
-INSTR idx=31 @ 0x60 name=addi rd=2 rs1=0 rs2=None imm=ImmValue(value=4096) src=<unknown>
-INSTR idx=32 @ 0x64 name=shli rd=2 rs1=2 rs2=None imm=ImmValue(value=16) src=<unknown>
-INSTR idx=33 @ 0x68 name=sb rd=1 rs1=2 rs2=None imm=ImmValue(value=0) src=<unknown>
-INSTR idx=34 @ 0x6c name=addi rd=1 rs1=0 rs2=None imm=ImmValue(value=0) src=<unknown>
-INSTR idx=35 @ 0x70 name=lw rd=ImmValue(value=14) rs1=15 rs2=None imm=ImmValue(value=0) src=<unknown>
-INSTR idx=36 @ 0x74 name=addi rd=15 rs1=15 rs2=None imm=ImmValue(value=4) src=<unknown>
-INSTR idx=37 @ 0x78 name=jalr rd=0 rs1=14 rs2=None imm=ImmValue(value=0) src=<unknown>
-LABEL printi -> 0x7c src=rospos/build/rospos.ros:39
-INSTR idx=39 @ 0x7c name=addi rd=15 rs1=15 rs2=None imm=ImmValue(value=-4) src=<unknown>
-INSTR idx=40 @ 0x80 name=sw rd=ImmValue(value=14) rs1=15 rs2=None imm=ImmValue(value=0) src=<unknown>
-INSTR idx=41 @ 0x84 name=addi rd=2 rs1=0 rs2=None imm=ImmLabelPart(label='buffer_buf3', part='high') src=<unknown>
-INSTR idx=42 @ 0x88 name=shli rd=2 rs1=2 rs2=None imm=ImmValue(value=16) src=<unknown>
-INSTR idx=43 @ 0x8c name=ori rd=2 rs1=2 rs2=None imm=ImmLabelPart(label='buffer_buf3', part='low') src=<unknown>
-INSTR idx=44 @ 0x90 name=addi rd=3 rs1=0 rs2=None imm=ImmValue(value=0) src=<unknown>
-INSTR idx=45 @ 0x94 name=beq rd=1 rs1=0 rs2=None imm=ImmLabel(name='ELSE4') src=<unknown>
-INSTR idx=46 @ 0x98 name=addi rd=1 rs1=0 rs2=None imm=ImmLabelPart(label='str_0', part='high') src=<unknown>
-INSTR idx=47 @ 0x9c name=shli rd=1 rs1=1 rs2=None imm=ImmValue(value=16) src=<unknown>
-INSTR idx=48 @ 0xa0 name=ori rd=1 rs1=1 rs2=None imm=ImmLabelPart(label='str_0', part='low') src=<unknown>
-INSTR idx=49 @ 0xa4 name=addi rd=13 rs1=0 rs2=None imm=ImmLabelPart(label='print_char', part='high') src=<unknown>
-INSTR idx=50 @ 0xa8 name=shli rd=13 rs1=13 rs2=None imm=ImmValue(value=16) src=<unknown>
-INSTR idx=51 @ 0xac name=ori rd=13 rs1=13 rs2=None imm=ImmLabelPart(label='print_char', part='low') src=<unknown>
-INSTR idx=52 @ 0xb0 name=jalr rd=14 rs1=13 rs2=None imm=ImmValue(value=0) src=<unknown>
-INSTR idx=53 @ 0xb4 name=addi rd=13 rs1=0 rs2=None imm=ImmLabelPart(label='IF_END5', part='high') src=<unknown>
-INSTR idx=54 @ 0xb8 name=shli rd=13 rs1=13 rs2=None imm=ImmValue(value=16) src=<unknown>
-INSTR idx=55 @ 0xbc name=ori rd=13 rs1=13 rs2=None imm=ImmLabelPart(label='IF_END5', part='low') src=<unknown>
-INSTR idx=56 @ 0xc0 name=jalr rd=0 rs1=13 rs2=None imm=ImmValue(value=0) src=<unknown>
-LABEL ELSE4 -> 0xc4 src=rospos/build/rospos.ros:48
-LABEL IF_END5 -> 0xc4 src=rospos/build/rospos.ros:49
-INSTR idx=59 @ 0xc4 name=beq rd=1 rs1=0 rs2=None imm=ImmLabel(name='ELSE6') src=<unknown>
-INSTR idx=60 @ 0xc8 name=addi rd=1 rs1=0 rs2=None imm=ImmLabelPart(label='str_1', part='high') src=<unknown>
-INSTR idx=61 @ 0xcc name=shli rd=1 rs1=1 rs2=None imm=ImmValue(value=16) src=<unknown>
-INSTR idx=62 @ 0xd0 name=ori rd=1 rs1=1 rs2=None imm=ImmLabelPart(label='str_1', part='low') src=<unknown>
-INSTR idx=63 @ 0xd4 name=addi rd=13 rs1=0 rs2=None imm=ImmLabelPart(label='print_char', part='high') src=<unknown>
-INSTR idx=64 @ 0xd8 name=shli rd=13 rs1=13 rs2=None imm=ImmValue(value=16) src=<unknown>
-INSTR idx=65 @ 0xdc name=ori rd=13 rs1=13 rs2=None imm=ImmLabelPart(label='print_char', part='low') src=<unknown>
-INSTR idx=66 @ 0xe0 name=jalr rd=14 rs1=13 rs2=None imm=ImmValue(value=0) src=<unknown>
-INSTR idx=67 @ 0xe4 name=addi rd=13 rs1=0 rs2=None imm=ImmLabelPart(label='IF_END7', part='high') src=<unknown>
-INSTR idx=68 @ 0xe8 name=shli rd=13 rs1=13 rs2=None imm=ImmValue(value=16) src=<unknown>
-INSTR idx=69 @ 0xec name=ori rd=13 rs1=13 rs2=None imm=ImmLabelPart(label='IF_END7', part='low') src=<unknown>
-INSTR idx=70 @ 0xf0 name=jalr rd=0 rs1=13 rs2=None imm=ImmValue(value=0) src=<unknown>
-LABEL ELSE6 -> 0xf4 src=rospos/build/rospos.ros:55
-LABEL IF_END7 -> 0xf4 src=rospos/build/rospos.ros:56
-LABEL WHILE8 -> 0xf4 src=rospos/build/rospos.ros:57
-INSTR idx=74 @ 0xf4 name=beq rd=1 rs1=0 rs2=None imm=ImmLabel(name='WHILE_END9') src=<unknown>
-INSTR idx=75 @ 0xf8 name=addi rd=4 rs1=0 rs2=None imm=ImmLabelPart(label='str_0', part='high') src=<unknown>
-INSTR idx=76 @ 0xfc name=shli rd=4 rs1=4 rs2=None imm=ImmValue(value=16) src=<unknown>
-INSTR idx=77 @ 0x100 name=ori rd=4 rs1=4 rs2=None imm=ImmLabelPart(label='str_0', part='low') src=<unknown>
-INSTR idx=78 @ 0x104 name=addi rd=5 rs1=0 rs2=None imm=ImmValue(value=10) src=<unknown>
-INSTR idx=79 @ 0x108 name=mul rd=6 rs1=1 rs2=5 imm=None src=<unknown>
-INSTR idx=80 @ 0x10c name=add rd=5 rs1=4 rs2=6 imm=None src=<unknown>
-INSTR idx=81 @ 0x110 name=addi rd=5 rs1=0 rs2=None imm=ImmValue(value=10) src=<unknown>
-INSTR idx=82 @ 0x114 name=mul rd=6 rs1=1 rs2=5 imm=None src=<unknown>
-INSTR idx=83 @ 0x118 name=addi rd=13 rs1=0 rs2=None imm=ImmLabelPart(label='WHILE8', part='high') src=<unknown>
-INSTR idx=84 @ 0x11c name=shli rd=13 rs1=13 rs2=None imm=ImmValue(value=16) src=<unknown>
-INSTR idx=85 @ 0x120 name=ori rd=13 rs1=13 rs2=None imm=ImmLabelPart(label='WHILE8', part='low') src=<unknown>
-INSTR idx=86 @ 0x124 name=jalr rd=0 rs1=13 rs2=None imm=ImmValue(value=0) src=<unknown>
-LABEL WHILE_END9 -> 0x128 src=rospos/build/rospos.ros:68
-INSTR idx=88 @ 0x128 name=addi rd=6 rs1=0 rs2=None imm=ImmLabelPart(label='str_2', part='high') src=<unknown>
-INSTR idx=89 @ 0x12c name=shli rd=6 rs1=6 rs2=None imm=ImmValue(value=16) src=<unknown>
-INSTR idx=90 @ 0x130 name=ori rd=6 rs1=6 rs2=None imm=ImmLabelPart(label='str_2', part='low') src=<unknown>
-INSTR idx=91 @ 0x134 name=addi rd=1 rs1=2 rs2=None imm=ImmValue(value=0) src=<unknown>
-INSTR idx=92 @ 0x138 name=addi rd=13 rs1=0 rs2=None imm=ImmLabelPart(label='print_string', part='high') src=<unknown>
-INSTR idx=93 @ 0x13c name=shli rd=13 rs1=13 rs2=None imm=ImmValue(value=16) src=<unknown>
-INSTR idx=94 @ 0x140 name=ori rd=13 rs1=13 rs2=None imm=ImmLabelPart(label='print_string', part='low') src=<unknown>
-INSTR idx=95 @ 0x144 name=jalr rd=14 rs1=13 rs2=None imm=ImmValue(value=0) src=<unknown>
-INSTR idx=96 @ 0x148 name=addi rd=1 rs1=0 rs2=None imm=ImmValue(value=0) src=<unknown>
-INSTR idx=97 @ 0x14c name=lw rd=ImmValue(value=14) rs1=15 rs2=None imm=ImmValue(value=0) src=<unknown>
-INSTR idx=98 @ 0x150 name=addi rd=15 rs1=15 rs2=None imm=ImmValue(value=4) src=<unknown>
-INSTR idx=99 @ 0x154 name=jalr rd=0 rs1=14 rs2=None imm=ImmValue(value=0) src=<unknown>
-LABEL read_char -> 0x158 src=rospos/build/rospos.ros:78
-INSTR idx=101 @ 0x158 name=addi rd=15 rs1=15 rs2=None imm=ImmValue(value=-4) src=<unknown>
-INSTR idx=102 @ 0x15c name=sw rd=ImmValue(value=14) rs1=15 rs2=None imm=ImmValue(value=0) src=<unknown>
-INSTR idx=103 @ 0x160 name=addi rd=2 rs1=0 rs2=None imm=ImmValue(value=4096) src=<unknown>
-INSTR idx=104 @ 0x164 name=shli rd=2 rs1=2 rs2=None imm=ImmValue(value=16) src=<unknown>
-INSTR idx=105 @ 0x168 name=lb rd=1 rs1=2 rs2=None imm=ImmValue(value=0) src=<unknown>
-INSTR idx=106 @ 0x16c name=lw rd=ImmValue(value=14) rs1=15 rs2=None imm=ImmValue(value=0) src=<unknown>
-INSTR idx=107 @ 0x170 name=addi rd=15 rs1=15 rs2=None imm=ImmValue(value=4) src=<unknown>
-INSTR idx=108 @ 0x174 name=jalr rd=0 rs1=14 rs2=None imm=ImmValue(value=0) src=<unknown>
-LABEL read_string -> 0x178 src=rospos/build/rospos.ros:86
-INSTR idx=110 @ 0x178 name=addi rd=15 rs1=15 rs2=None imm=ImmValue(value=-4) src=<unknown>
-INSTR idx=111 @ 0x17c name=sw rd=ImmValue(value=14) rs1=15 rs2=None imm=ImmValue(value=0) src=<unknown>
-INSTR idx=112 @ 0x180 name=addi rd=2 rs1=0 rs2=None imm=ImmValue(value=4096) src=<unknown>
-INSTR idx=113 @ 0x184 name=shli rd=2 rs1=2 rs2=None imm=ImmValue(value=16) src=<unknown>
-INSTR idx=114 @ 0x188 name=addi rd=3 rs1=0 rs2=None imm=ImmValue(value=0) src=<unknown>
-LABEL WHILE10 -> 0x18c src=rospos/build/rospos.ros:91
-INSTR idx=116 @ 0x18c name=beq rd=3 rs1=0 rs2=None imm=ImmLabel(name='WHILE_END11') src=<unknown>
-INSTR idx=117 @ 0x190 name=addi rd=3 rs1=0 rs2=None imm=ImmValue(value=0) src=<unknown>
-INSTR idx=118 @ 0x194 name=beq rd=3 rs1=0 rs2=None imm=ImmLabel(name='ELSE12') src=<unknown>
-INSTR idx=119 @ 0x198 name=addi rd=13 rs1=0 rs2=None imm=ImmLabelPart(label='IF_END13', part='high') src=<unknown>
-INSTR idx=120 @ 0x19c name=shli rd=13 rs1=13 rs2=None imm=ImmValue(value=16) src=<unknown>
-INSTR idx=121 @ 0x1a0 name=ori rd=13 rs1=13 rs2=None imm=ImmLabelPart(label='IF_END13', part='low') src=<unknown>
-INSTR idx=122 @ 0x1a4 name=jalr rd=0 rs1=13 rs2=None imm=ImmValue(value=0) src=<unknown>
-LABEL ELSE12 -> 0x1a8 src=rospos/build/rospos.ros:96
-LABEL IF_END13 -> 0x1a8 src=rospos/build/rospos.ros:97
-INSTR idx=125 @ 0x1a8 name=addi rd=13 rs1=0 rs2=None imm=ImmLabelPart(label='WHILE10', part='high') src=<unknown>
-INSTR idx=126 @ 0x1ac name=shli rd=13 rs1=13 rs2=None imm=ImmValue(value=16) src=<unknown>
-INSTR idx=127 @ 0x1b0 name=ori rd=13 rs1=13 rs2=None imm=ImmLabelPart(label='WHILE10', part='low') src=<unknown>
-INSTR idx=128 @ 0x1b4 name=jalr rd=0 rs1=13 rs2=None imm=ImmValue(value=0) src=<unknown>
-LABEL WHILE_END11 -> 0x1b8 src=rospos/build/rospos.ros:100
-INSTR idx=130 @ 0x1b8 name=addi rd=3 rs1=0 rs2=None imm=ImmLabelPart(label='str_2', part='high') src=<unknown>
-INSTR idx=131 @ 0x1bc name=shli rd=3 rs1=3 rs2=None imm=ImmValue(value=16) src=<unknown>
-INSTR idx=132 @ 0x1c0 name=ori rd=3 rs1=3 rs2=None imm=ImmLabelPart(label='str_2', part='low') src=<unknown>
-INSTR idx=133 @ 0x1c4 name=addi rd=3 rs1=0 rs2=None imm=ImmValue(value=0) src=<unknown>
-INSTR idx=134 @ 0x1c8 name=addi rd=1 rs1=0 rs2=None imm=ImmValue(value=0) src=<unknown>
-INSTR idx=135 @ 0x1cc name=lw rd=ImmValue(value=14) rs1=15 rs2=None imm=ImmValue(value=0) src=<unknown>
-INSTR idx=136 @ 0x1d0 name=addi rd=15 rs1=15 rs2=None imm=ImmValue(value=4) src=<unknown>
-INSTR idx=137 @ 0x1d4 name=jalr rd=0 rs1=14 rs2=None imm=ImmValue(value=0) src=<unknown>
-LABEL align4 -> 0x1d8 src=rospos/build/rospos.ros:109
-INSTR idx=139 @ 0x1d8 name=addi rd=15 rs1=15 rs2=None imm=ImmValue(value=-4) src=<unknown>
-INSTR idx=140 @ 0x1dc name=sw rd=ImmValue(value=14) rs1=15 rs2=None imm=ImmValue(value=0) src=<unknown>
-INSTR idx=141 @ 0x1e0 name=addi rd=2 rs1=0 rs2=None imm=ImmValue(value=3) src=<unknown>
-INSTR idx=142 @ 0x1e4 name=addi rd=3 rs1=0 rs2=None imm=ImmValue(value=0) src=<unknown>
-INSTR idx=143 @ 0x1e8 name=addi rd=1 rs1=0 rs2=None imm=ImmValue(value=0) src=<unknown>
-INSTR idx=144 @ 0x1ec name=lw rd=ImmValue(value=14) rs1=15 rs2=None imm=ImmValue(value=0) src=<unknown>
-INSTR idx=145 @ 0x1f0 name=addi rd=15 rs1=15 rs2=None imm=ImmValue(value=4) src=<unknown>
-INSTR idx=146 @ 0x1f4 name=jalr rd=0 rs1=14 rs2=None imm=ImmValue(value=0) src=<unknown>
-LABEL malloc -> 0x1f8 src=rospos/build/rospos.ros:119
-INSTR idx=148 @ 0x1f8 name=addi rd=15 rs1=15 rs2=None imm=ImmValue(value=-4) src=<unknown>
-INSTR idx=149 @ 0x1fc name=sw rd=ImmValue(value=14) rs1=15 rs2=None imm=ImmValue(value=0) src=<unknown>
-INSTR idx=150 @ 0x200 name=beq rd=1 rs1=0 rs2=None imm=ImmLabel(name='ELSE14') src=<unknown>
-INSTR idx=151 @ 0x204 name=addi rd=2 rs1=0 rs2=None imm=ImmValue(value=0) src=<unknown>
-INSTR idx=152 @ 0x208 name=addi rd=13 rs1=0 rs2=None imm=ImmLabelPart(label='IF_END15', part='high') src=<unknown>
-INSTR idx=153 @ 0x20c name=shli rd=13 rs1=13 rs2=None imm=ImmValue(value=16) src=<unknown>
-INSTR idx=154 @ 0x210 name=ori rd=13 rs1=13 rs2=None imm=ImmLabelPart(label='IF_END15', part='low') src=<unknown>
-INSTR idx=155 @ 0x214 name=jalr rd=0 rs1=13 rs2=None imm=ImmValue(value=0) src=<unknown>
-LABEL ELSE14 -> 0x218 src=rospos/build/rospos.ros:125
-LABEL IF_END15 -> 0x218 src=rospos/build/rospos.ros:126
-INSTR idx=158 @ 0x218 name=addi rd=3 rs1=0 rs2=None imm=ImmValue(value=0) src=<unknown>
-INSTR idx=159 @ 0x21c name=addi rd=4 rs1=0 rs2=None imm=ImmValue(value=0) src=<unknown>
-INSTR idx=160 @ 0x220 name=addi rd=5 rs1=0 rs2=None imm=ImmValue(value=0) src=<unknown>
-LABEL WHILE16 -> 0x224 src=rospos/build/rospos.ros:130
-INSTR idx=162 @ 0x224 name=beq rd=4 rs1=0 rs2=None imm=ImmLabel(name='WHILE_END17') src=<unknown>
-INSTR idx=163 @ 0x228 name=beq rd=4 rs1=0 rs2=None imm=ImmLabel(name='ELSE18') src=<unknown>
-INSTR idx=164 @ 0x22c name=addi rd=4 rs1=0 rs2=None imm=ImmValue(value=0) src=<unknown>
-INSTR idx=165 @ 0x230 name=beq rd=4 rs1=0 rs2=None imm=ImmLabel(name='ELSE20') src=<unknown>
-INSTR idx=166 @ 0x234 name=addi rd=4 rs1=0 rs2=None imm=ImmValue(value=0) src=<unknown>
-INSTR idx=167 @ 0x238 name=addi rd=6 rs1=0 rs2=None imm=ImmValue(value=0) src=<unknown>
-INSTR idx=168 @ 0x23c name=addi rd=7 rs1=0 rs2=None imm=ImmValue(value=0) src=<unknown>
-INSTR idx=169 @ 0x240 name=add rd=8 rs1=4 rs2=7 imm=None src=<unknown>
-INSTR idx=170 @ 0x244 name=add rd=8 rs1=4 rs2=7 imm=None src=<unknown>
-INSTR idx=171 @ 0x248 name=addi rd=8 rs1=0 rs2=None imm=ImmValue(value=0) src=<unknown>
-INSTR idx=172 @ 0x24c name=addi rd=13 rs1=0 rs2=None imm=ImmLabelPart(label='IF_END21', part='high') src=<unknown>
-INSTR idx=173 @ 0x250 name=shli rd=13 rs1=13 rs2=None imm=ImmValue(value=16) src=<unknown>
-INSTR idx=174 @ 0x254 name=ori rd=13 rs1=13 rs2=None imm=ImmLabelPart(label='IF_END21', part='low') src=<unknown>
-INSTR idx=175 @ 0x258 name=jalr rd=0 rs1=13 rs2=None imm=ImmValue(value=0) src=<unknown>
-LABEL ELSE20 -> 0x25c src=rospos/build/rospos.ros:148
-LABEL IF_END21 -> 0x25c src=rospos/build/rospos.ros:149
-INSTR idx=178 @ 0x25c name=addi rd=6 rs1=0 rs2=None imm=ImmValue(value=0) src=<unknown>
-INSTR idx=179 @ 0x260 name=add rd=1 rs1=4 rs2=0 imm=None src=<unknown>
-INSTR idx=180 @ 0x264 name=lw rd=ImmValue(value=14) rs1=15 rs2=None imm=ImmValue(value=0) src=<unknown>
-INSTR idx=181 @ 0x268 name=addi rd=15 rs1=15 rs2=None imm=ImmValue(value=4) src=<unknown>
-INSTR idx=182 @ 0x26c name=jalr rd=0 rs1=14 rs2=None imm=ImmValue(value=0) src=<unknown>
-INSTR idx=183 @ 0x270 name=addi rd=13 rs1=0 rs2=None imm=ImmLabelPart(label='IF_END19', part='high') src=<unknown>
-INSTR idx=184 @ 0x274 name=shli rd=13 rs1=13 rs2=None imm=ImmValue(value=16) src=<unknown>
-INSTR idx=185 @ 0x278 name=ori rd=13 rs1=13 rs2=None imm=ImmLabelPart(label='IF_END19', part='low') src=<unknown>
-INSTR idx=186 @ 0x27c name=jalr rd=0 rs1=13 rs2=None imm=ImmValue(value=0) src=<unknown>
-LABEL ELSE18 -> 0x280 src=rospos/build/rospos.ros:156
-LABEL IF_END19 -> 0x280 src=rospos/build/rospos.ros:157
-INSTR idx=189 @ 0x280 name=addi rd=13 rs1=0 rs2=None imm=ImmLabelPart(label='WHILE16', part='high') src=<unknown>
-INSTR idx=190 @ 0x284 name=shli rd=13 rs1=13 rs2=None imm=ImmValue(value=16) src=<unknown>
-INSTR idx=191 @ 0x288 name=ori rd=13 rs1=13 rs2=None imm=ImmLabelPart(label='WHILE16', part='low') src=<unknown>
-INSTR idx=192 @ 0x28c name=jalr rd=0 rs1=13 rs2=None imm=ImmValue(value=0) src=<unknown>
-LABEL WHILE_END17 -> 0x290 src=rospos/build/rospos.ros:161
-INSTR idx=194 @ 0x290 name=addi rd=6 rs1=0 rs2=None imm=ImmValue(value=0) src=<unknown>
-INSTR idx=195 @ 0x294 name=addi rd=3 rs1=0 rs2=None imm=ImmValue(value=0) src=<unknown>
-INSTR idx=196 @ 0x298 name=beq rd=3 rs1=0 rs2=None imm=ImmLabel(name='ELSE22') src=<unknown>
-INSTR idx=197 @ 0x29c name=addi rd=3 rs1=0 rs2=None imm=ImmValue(value=0) src=<unknown>
-INSTR idx=198 @ 0x2a0 name=addi rd=13 rs1=0 rs2=None imm=ImmLabelPart(label='IF_END23', part='high') src=<unknown>
-INSTR idx=199 @ 0x2a4 name=shli rd=13 rs1=13 rs2=None imm=ImmValue(value=16) src=<unknown>
-INSTR idx=200 @ 0x2a8 name=ori rd=13 rs1=13 rs2=None imm=ImmLabelPart(label='IF_END23', part='low') src=<unknown>
-INSTR idx=201 @ 0x2ac name=jalr rd=0 rs1=13 rs2=None imm=ImmValue(value=0) src=<unknown>
-LABEL ELSE22 -> 0x2b0 src=rospos/build/rospos.ros:167
-LABEL IF_END23 -> 0x2b0 src=rospos/build/rospos.ros:168
-INSTR idx=204 @ 0x2b0 name=beq rd=3 rs1=0 rs2=None imm=ImmLabel(name='ELSE24') src=<unknown>
-INSTR idx=205 @ 0x2b4 name=addi rd=3 rs1=0 rs2=None imm=ImmValue(value=0) src=<unknown>
-INSTR idx=206 @ 0x2b8 name=addi rd=13 rs1=0 rs2=None imm=ImmLabelPart(label='IF_END25', part='high') src=<unknown>
-INSTR idx=207 @ 0x2bc name=shli rd=13 rs1=13 rs2=None imm=ImmValue(value=16) src=<unknown>
-INSTR idx=208 @ 0x2c0 name=ori rd=13 rs1=13 rs2=None imm=ImmLabelPart(label='IF_END25', part='low') src=<unknown>
-INSTR idx=209 @ 0x2c4 name=jalr rd=0 rs1=13 rs2=None imm=ImmValue(value=0) src=<unknown>
-LABEL ELSE24 -> 0x2c8 src=rospos/build/rospos.ros:172
-LABEL IF_END25 -> 0x2c8 src=rospos/build/rospos.ros:173
-INSTR idx=212 @ 0x2c8 name=addi rd=8 rs1=0 rs2=None imm=ImmValue(value=0) src=<unknown>
-INSTR idx=213 @ 0x2cc name=beq rd=5 rs1=0 rs2=None imm=ImmLabel(name='ELSE26') src=<unknown>
-INSTR idx=214 @ 0x2d0 name=addi rd=13 rs1=0 rs2=None imm=ImmLabelPart(label='IF_END27', part='high') src=<unknown>
-INSTR idx=215 @ 0x2d4 name=shli rd=13 rs1=13 rs2=None imm=ImmValue(value=16) src=<unknown>
-INSTR idx=216 @ 0x2d8 name=ori rd=13 rs1=13 rs2=None imm=ImmLabelPart(label='IF_END27', part='low') src=<unknown>
-INSTR idx=217 @ 0x2dc name=jalr rd=0 rs1=13 rs2=None imm=ImmValue(value=0) src=<unknown>
-LABEL ELSE26 -> 0x2e0 src=rospos/build/rospos.ros:182
-LABEL IF_END27 -> 0x2e0 src=rospos/build/rospos.ros:184
-INSTR idx=220 @ 0x2e0 name=add rd=8 rs1=3 rs2=3 imm=None src=<unknown>
-INSTR idx=221 @ 0x2e4 name=addi rd=1 rs1=0 rs2=None imm=ImmValue(value=0) src=<unknown>
-INSTR idx=222 @ 0x2e8 name=addi rd=13 rs1=0 rs2=None imm=ImmLabelPart(label='align4', part='high') src=<unknown>
-INSTR idx=223 @ 0x2ec name=shli rd=13 rs1=13 rs2=None imm=ImmValue(value=16) src=<unknown>
-INSTR idx=224 @ 0x2f0 name=ori rd=13 rs1=13 rs2=None imm=ImmLabelPart(label='align4', part='low') src=<unknown>
-INSTR idx=225 @ 0x2f4 name=jalr rd=14 rs1=13 rs2=None imm=ImmValue(value=0) src=<unknown>
-INSTR idx=226 @ 0x2f8 name=add rd=1 rs1=3 rs2=0 imm=None src=<unknown>
-INSTR idx=227 @ 0x2fc name=lw rd=ImmValue(value=14) rs1=15 rs2=None imm=ImmValue(value=0) src=<unknown>
-INSTR idx=228 @ 0x300 name=addi rd=15 rs1=15 rs2=None imm=ImmValue(value=4) src=<unknown>
-INSTR idx=229 @ 0x304 name=jalr rd=0 rs1=14 rs2=None imm=ImmValue(value=0) src=<unknown>
-LABEL free -> 0x308 src=rospos/build/rospos.ros:194
-INSTR idx=231 @ 0x308 name=addi rd=15 rs1=15 rs2=None imm=ImmValue(value=-4) src=<unknown>
-INSTR idx=232 @ 0x30c name=sw rd=ImmValue(value=14) rs1=15 rs2=None imm=ImmValue(value=0) src=<unknown>
-INSTR idx=233 @ 0x310 name=lb rd=2 rs1=1 rs2=None imm=ImmValue(value=0) src=<unknown>
-INSTR idx=234 @ 0x314 name=beq rd=2 rs1=0 rs2=None imm=ImmLabel(name='ELSE28') src=<unknown>
-INSTR idx=235 @ 0x318 name=addi rd=13 rs1=0 rs2=None imm=ImmLabelPart(label='IF_END29', part='high') src=<unknown>
-INSTR idx=236 @ 0x31c name=shli rd=13 rs1=13 rs2=None imm=ImmValue(value=16) src=<unknown>
-INSTR idx=237 @ 0x320 name=ori rd=13 rs1=13 rs2=None imm=ImmLabelPart(label='IF_END29', part='low') src=<unknown>
-INSTR idx=238 @ 0x324 name=jalr rd=0 rs1=13 rs2=None imm=ImmValue(value=0) src=<unknown>
-LABEL ELSE28 -> 0x328 src=rospos/build/rospos.ros:200
-LABEL IF_END29 -> 0x328 src=rospos/build/rospos.ros:201
-INSTR idx=241 @ 0x328 name=addi rd=2 rs1=0 rs2=None imm=ImmValue(value=0) src=<unknown>
-INSTR idx=242 @ 0x32c name=addi rd=3 rs1=0 rs2=None imm=ImmValue(value=0) src=<unknown>
-LABEL WHILE30 -> 0x330 src=rospos/build/rospos.ros:204
-INSTR idx=244 @ 0x330 name=beq rd=2 rs1=0 rs2=None imm=ImmLabel(name='WHILE_END31') src=<unknown>
-INSTR idx=245 @ 0x334 name=beq rd=2 rs1=0 rs2=None imm=ImmLabel(name='ELSE32') src=<unknown>
-INSTR idx=246 @ 0x338 name=addi rd=2 rs1=0 rs2=None imm=ImmValue(value=0) src=<unknown>
-INSTR idx=247 @ 0x33c name=beq rd=2 rs1=0 rs2=None imm=ImmLabel(name='ELSE34') src=<unknown>
-INSTR idx=248 @ 0x340 name=addi rd=2 rs1=0 rs2=None imm=ImmValue(value=0) src=<unknown>
-INSTR idx=249 @ 0x344 name=addi rd=4 rs1=0 rs2=None imm=ImmValue(value=0) src=<unknown>
-INSTR idx=250 @ 0x348 name=add rd=5 rs1=2 rs2=4 imm=None src=<unknown>
-INSTR idx=251 @ 0x34c name=addi rd=13 rs1=0 rs2=None imm=ImmLabelPart(label='IF_END35', part='high') src=<unknown>
-INSTR idx=252 @ 0x350 name=shli rd=13 rs1=13 rs2=None imm=ImmValue(value=16) src=<unknown>
-INSTR idx=253 @ 0x354 name=ori rd=13 rs1=13 rs2=None imm=ImmLabelPart(label='IF_END35', part='low') src=<unknown>
-INSTR idx=254 @ 0x358 name=jalr rd=0 rs1=13 rs2=None imm=ImmValue(value=0) src=<unknown>
-LABEL ELSE34 -> 0x35c src=rospos/build/rospos.ros:216
-LABEL IF_END35 -> 0x35c src=rospos/build/rospos.ros:217
-INSTR idx=257 @ 0x35c name=beq rd=3 rs1=0 rs2=None imm=ImmLabel(name='ELSE36') src=<unknown>
-INSTR idx=258 @ 0x360 name=add rd=3 rs1=2 rs2=4 imm=None src=<unknown>
-INSTR idx=259 @ 0x364 name=addi rd=13 rs1=0 rs2=None imm=ImmLabelPart(label='IF_END37', part='high') src=<unknown>
-INSTR idx=260 @ 0x368 name=shli rd=13 rs1=13 rs2=None imm=ImmValue(value=16) src=<unknown>
-INSTR idx=261 @ 0x36c name=ori rd=13 rs1=13 rs2=None imm=ImmLabelPart(label='IF_END37', part='low') src=<unknown>
-INSTR idx=262 @ 0x370 name=jalr rd=0 rs1=13 rs2=None imm=ImmValue(value=0) src=<unknown>
-LABEL ELSE36 -> 0x374 src=rospos/build/rospos.ros:223
-LABEL IF_END37 -> 0x374 src=rospos/build/rospos.ros:224
-INSTR idx=265 @ 0x374 name=addi rd=13 rs1=0 rs2=None imm=ImmLabelPart(label='IF_END33', part='high') src=<unknown>
-INSTR idx=266 @ 0x378 name=shli rd=13 rs1=13 rs2=None imm=ImmValue(value=16) src=<unknown>
-INSTR idx=267 @ 0x37c name=ori rd=13 rs1=13 rs2=None imm=ImmLabelPart(label='IF_END33', part='low') src=<unknown>
-INSTR idx=268 @ 0x380 name=jalr rd=0 rs1=13 rs2=None imm=ImmValue(value=0) src=<unknown>
-LABEL ELSE32 -> 0x384 src=rospos/build/rospos.ros:226
-LABEL IF_END33 -> 0x384 src=rospos/build/rospos.ros:227
-INSTR idx=271 @ 0x384 name=addi rd=13 rs1=0 rs2=None imm=ImmLabelPart(label='WHILE30', part='high') src=<unknown>
-INSTR idx=272 @ 0x388 name=shli rd=13 rs1=13 rs2=None imm=ImmValue(value=16) src=<unknown>
-INSTR idx=273 @ 0x38c name=ori rd=13 rs1=13 rs2=None imm=ImmLabelPart(label='WHILE30', part='low') src=<unknown>
-INSTR idx=274 @ 0x390 name=jalr rd=0 rs1=13 rs2=None imm=ImmValue(value=0) src=<unknown>
-LABEL WHILE_END31 -> 0x394 src=rospos/build/rospos.ros:231
-INSTR idx=276 @ 0x394 name=addi rd=1 rs1=0 rs2=None imm=ImmValue(value=0) src=<unknown>
-INSTR idx=277 @ 0x398 name=lw rd=ImmValue(value=14) rs1=15 rs2=None imm=ImmValue(value=0) src=<unknown>
-INSTR idx=278 @ 0x39c name=addi rd=15 rs1=15 rs2=None imm=ImmValue(value=4) src=<unknown>
-INSTR idx=279 @ 0x3a0 name=jalr rd=0 rs1=14 rs2=None imm=ImmValue(value=0) src=<unknown>
-LABEL _dump_heap_info -> 0x3a4 src=rospos/build/rospos.ros:237
-INSTR idx=281 @ 0x3a4 name=addi rd=15 rs1=15 rs2=None imm=ImmValue(value=-4) src=<unknown>
-INSTR idx=282 @ 0x3a8 name=sw rd=ImmValue(value=14) rs1=15 rs2=None imm=ImmValue(value=0) src=<unknown>
-INSTR idx=283 @ 0x3ac name=addi rd=2 rs1=0 rs2=None imm=ImmValue(value=0) src=<unknown>
-LABEL WHILE38 -> 0x3b0 src=rospos/build/rospos.ros:241
-INSTR idx=285 @ 0x3b0 name=beq rd=2 rs1=0 rs2=None imm=ImmLabel(name='WHILE_END39') src=<unknown>
-INSTR idx=286 @ 0x3b4 name=addi rd=1 rs1=0 rs2=None imm=ImmLabelPart(label='str_4', part='high') src=<unknown>
-INSTR idx=287 @ 0x3b8 name=shli rd=1 rs1=1 rs2=None imm=ImmValue(value=16) src=<unknown>
-INSTR idx=288 @ 0x3bc name=ori rd=1 rs1=1 rs2=None imm=ImmLabelPart(label='str_4', part='low') src=<unknown>
-INSTR idx=289 @ 0x3c0 name=addi rd=13 rs1=0 rs2=None imm=ImmLabelPart(label='print_string', part='high') src=<unknown>
-INSTR idx=290 @ 0x3c4 name=shli rd=13 rs1=13 rs2=None imm=ImmValue(value=16) src=<unknown>
-INSTR idx=291 @ 0x3c8 name=ori rd=13 rs1=13 rs2=None imm=ImmLabelPart(label='print_string', part='low') src=<unknown>
-INSTR idx=292 @ 0x3cc name=jalr rd=14 rs1=13 rs2=None imm=ImmValue(value=0) src=<unknown>
-INSTR idx=293 @ 0x3d0 name=addi rd=1 rs1=2 rs2=None imm=ImmValue(value=0) src=<unknown>
-INSTR idx=294 @ 0x3d4 name=addi rd=13 rs1=0 rs2=None imm=ImmLabelPart(label='printi', part='high') src=<unknown>
-INSTR idx=295 @ 0x3d8 name=shli rd=13 rs1=13 rs2=None imm=ImmValue(value=16) src=<unknown>
-INSTR idx=296 @ 0x3dc name=ori rd=13 rs1=13 rs2=None imm=ImmLabelPart(label='printi', part='low') src=<unknown>
-INSTR idx=297 @ 0x3e0 name=jalr rd=14 rs1=13 rs2=None imm=ImmValue(value=0) src=<unknown>
-INSTR idx=298 @ 0x3e4 name=addi rd=1 rs1=0 rs2=None imm=ImmLabelPart(label='str_5', part='high') src=<unknown>
-INSTR idx=299 @ 0x3e8 name=shli rd=1 rs1=1 rs2=None imm=ImmValue(value=16) src=<unknown>
-INSTR idx=300 @ 0x3ec name=ori rd=1 rs1=1 rs2=None imm=ImmLabelPart(label='str_5', part='low') src=<unknown>
-INSTR idx=301 @ 0x3f0 name=addi rd=13 rs1=0 rs2=None imm=ImmLabelPart(label='print_string', part='high') src=<unknown>
-INSTR idx=302 @ 0x3f4 name=shli rd=13 rs1=13 rs2=None imm=ImmValue(value=16) src=<unknown>
-INSTR idx=303 @ 0x3f8 name=ori rd=13 rs1=13 rs2=None imm=ImmLabelPart(label='print_string', part='low') src=<unknown>
-INSTR idx=304 @ 0x3fc name=jalr rd=14 rs1=13 rs2=None imm=ImmValue(value=0) src=<unknown>
-INSTR idx=305 @ 0x400 name=addi rd=1 rs1=2 rs2=None imm=ImmValue(value=0) src=<unknown>
-INSTR idx=306 @ 0x404 name=addi rd=13 rs1=0 rs2=None imm=ImmLabelPart(label='printi', part='high') src=<unknown>
-INSTR idx=307 @ 0x408 name=shli rd=13 rs1=13 rs2=None imm=ImmValue(value=16) src=<unknown>
-INSTR idx=308 @ 0x40c name=ori rd=13 rs1=13 rs2=None imm=ImmLabelPart(label='printi', part='low') src=<unknown>
-INSTR idx=309 @ 0x410 name=jalr rd=14 rs1=13 rs2=None imm=ImmValue(value=0) src=<unknown>
-INSTR idx=310 @ 0x414 name=addi rd=1 rs1=0 rs2=None imm=ImmLabelPart(label='str_6', part='high') src=<unknown>
-INSTR idx=311 @ 0x418 name=shli rd=1 rs1=1 rs2=None imm=ImmValue(value=16) src=<unknown>
-INSTR idx=312 @ 0x41c name=ori rd=1 rs1=1 rs2=None imm=ImmLabelPart(label='str_6', part='low') src=<unknown>
-INSTR idx=313 @ 0x420 name=addi rd=13 rs1=0 rs2=None imm=ImmLabelPart(label='print_string', part='high') src=<unknown>
-INSTR idx=314 @ 0x424 name=shli rd=13 rs1=13 rs2=None imm=ImmValue(value=16) src=<unknown>
-INSTR idx=315 @ 0x428 name=ori rd=13 rs1=13 rs2=None imm=ImmLabelPart(label='print_string', part='low') src=<unknown>
-INSTR idx=316 @ 0x42c name=jalr rd=14 rs1=13 rs2=None imm=ImmValue(value=0) src=<unknown>
-INSTR idx=317 @ 0x430 name=addi rd=1 rs1=2 rs2=None imm=ImmValue(value=0) src=<unknown>
-INSTR idx=318 @ 0x434 name=addi rd=13 rs1=0 rs2=None imm=ImmLabelPart(label='printi', part='high') src=<unknown>
+INSTR idx=15 @ 0x28 name=lb rd=4 rs1=1 rs2=None imm=ImmValue(value=0) src=<unknown>
+INSTR idx=16 @ 0x2c name=sb rd=4 rs1=2 rs2=None imm=ImmValue(value=0) src=<unknown>
+INSTR idx=17 @ 0x30 name=addi rd=5 rs1=0 rs2=None imm=ImmValue(value=1) src=<unknown>
+INSTR idx=18 @ 0x34 name=add rd=6 rs1=1 rs2=5 imm=None src=<unknown>
+INSTR idx=19 @ 0x38 name=addi rd=1 rs1=6 rs2=None imm=ImmValue(value=0) src=<unknown>
+INSTR idx=20 @ 0x3c name=addi rd=13 rs1=0 rs2=None imm=ImmLabelPart(label='WHILE1', part='high') src=<unknown>
+INSTR idx=21 @ 0x40 name=shli rd=13 rs1=13 rs2=None imm=ImmValue(value=16) src=<unknown>
+INSTR idx=22 @ 0x44 name=ori rd=13 rs1=13 rs2=None imm=ImmLabelPart(label='WHILE1', part='low') src=<unknown>
+INSTR idx=23 @ 0x48 name=jalr rd=0 rs1=13 rs2=None imm=ImmValue(value=0) src=<unknown>
+LABEL WHILE_END2 -> 0x4c src=rospos/build/rospos.ros:23
+INSTR idx=25 @ 0x4c name=addi rd=1 rs1=0 rs2=None imm=ImmValue(value=0) src=<unknown>
+INSTR idx=26 @ 0x50 name=lw rd=ImmValue(value=14) rs1=15 rs2=None imm=ImmValue(value=0) src=<unknown>
+INSTR idx=27 @ 0x54 name=addi rd=15 rs1=15 rs2=None imm=ImmValue(value=4) src=<unknown>
+INSTR idx=28 @ 0x58 name=jalr rd=0 rs1=14 rs2=None imm=ImmValue(value=0) src=<unknown>
+LABEL print_char -> 0x5c src=rospos/build/rospos.ros:29
+INSTR idx=30 @ 0x5c name=addi rd=15 rs1=15 rs2=None imm=ImmValue(value=-4) src=<unknown>
+INSTR idx=31 @ 0x60 name=sw rd=ImmValue(value=14) rs1=15 rs2=None imm=ImmValue(value=0) src=<unknown>
+INSTR idx=32 @ 0x64 name=addi rd=2 rs1=0 rs2=None imm=ImmValue(value=4096) src=<unknown>
+INSTR idx=33 @ 0x68 name=shli rd=2 rs1=2 rs2=None imm=ImmValue(value=16) src=<unknown>
+INSTR idx=34 @ 0x6c name=sb rd=1 rs1=2 rs2=None imm=ImmValue(value=0) src=<unknown>
+INSTR idx=35 @ 0x70 name=addi rd=1 rs1=0 rs2=None imm=ImmValue(value=0) src=<unknown>
+INSTR idx=36 @ 0x74 name=lw rd=ImmValue(value=14) rs1=15 rs2=None imm=ImmValue(value=0) src=<unknown>
+INSTR idx=37 @ 0x78 name=addi rd=15 rs1=15 rs2=None imm=ImmValue(value=4) src=<unknown>
+INSTR idx=38 @ 0x7c name=jalr rd=0 rs1=14 rs2=None imm=ImmValue(value=0) src=<unknown>
+LABEL printi -> 0x80 src=rospos/build/rospos.ros:39
+INSTR idx=40 @ 0x80 name=addi rd=15 rs1=15 rs2=None imm=ImmValue(value=-4) src=<unknown>
+INSTR idx=41 @ 0x84 name=sw rd=ImmValue(value=14) rs1=15 rs2=None imm=ImmValue(value=0) src=<unknown>
+INSTR idx=42 @ 0x88 name=addi rd=2 rs1=0 rs2=None imm=ImmLabelPart(label='buffer_buf3', part='high') src=<unknown>
+INSTR idx=43 @ 0x8c name=shli rd=2 rs1=2 rs2=None imm=ImmValue(value=16) src=<unknown>
+INSTR idx=44 @ 0x90 name=ori rd=2 rs1=2 rs2=None imm=ImmLabelPart(label='buffer_buf3', part='low') src=<unknown>
+INSTR idx=45 @ 0x94 name=addi rd=3 rs1=0 rs2=None imm=ImmValue(value=0) src=<unknown>
+INSTR idx=46 @ 0x98 name=beq rd=1 rs1=0 rs2=None imm=ImmLabel(name='ELSE4') src=<unknown>
+INSTR idx=47 @ 0x9c name=addi rd=1 rs1=0 rs2=None imm=ImmLabelPart(label='str_0', part='high') src=<unknown>
+INSTR idx=48 @ 0xa0 name=shli rd=1 rs1=1 rs2=None imm=ImmValue(value=16) src=<unknown>
+INSTR idx=49 @ 0xa4 name=ori rd=1 rs1=1 rs2=None imm=ImmLabelPart(label='str_0', part='low') src=<unknown>
+INSTR idx=50 @ 0xa8 name=addi rd=13 rs1=0 rs2=None imm=ImmLabelPart(label='print_char', part='high') src=<unknown>
+INSTR idx=51 @ 0xac name=shli rd=13 rs1=13 rs2=None imm=ImmValue(value=16) src=<unknown>
+INSTR idx=52 @ 0xb0 name=ori rd=13 rs1=13 rs2=None imm=ImmLabelPart(label='print_char', part='low') src=<unknown>
+INSTR idx=53 @ 0xb4 name=jalr rd=14 rs1=13 rs2=None imm=ImmValue(value=0) src=<unknown>
+INSTR idx=54 @ 0xb8 name=addi rd=13 rs1=0 rs2=None imm=ImmLabelPart(label='IF_END5', part='high') src=<unknown>
+INSTR idx=55 @ 0xbc name=shli rd=13 rs1=13 rs2=None imm=ImmValue(value=16) src=<unknown>
+INSTR idx=56 @ 0xc0 name=ori rd=13 rs1=13 rs2=None imm=ImmLabelPart(label='IF_END5', part='low') src=<unknown>
+INSTR idx=57 @ 0xc4 name=jalr rd=0 rs1=13 rs2=None imm=ImmValue(value=0) src=<unknown>
+LABEL ELSE4 -> 0xc8 src=rospos/build/rospos.ros:48
+LABEL IF_END5 -> 0xc8 src=rospos/build/rospos.ros:49
+INSTR idx=60 @ 0xc8 name=beq rd=1 rs1=0 rs2=None imm=ImmLabel(name='ELSE6') src=<unknown>
+INSTR idx=61 @ 0xcc name=addi rd=1 rs1=0 rs2=None imm=ImmLabelPart(label='str_1', part='high') src=<unknown>
+INSTR idx=62 @ 0xd0 name=shli rd=1 rs1=1 rs2=None imm=ImmValue(value=16) src=<unknown>
+INSTR idx=63 @ 0xd4 name=ori rd=1 rs1=1 rs2=None imm=ImmLabelPart(label='str_1', part='low') src=<unknown>
+INSTR idx=64 @ 0xd8 name=addi rd=13 rs1=0 rs2=None imm=ImmLabelPart(label='print_char', part='high') src=<unknown>
+INSTR idx=65 @ 0xdc name=shli rd=13 rs1=13 rs2=None imm=ImmValue(value=16) src=<unknown>
+INSTR idx=66 @ 0xe0 name=ori rd=13 rs1=13 rs2=None imm=ImmLabelPart(label='print_char', part='low') src=<unknown>
+INSTR idx=67 @ 0xe4 name=jalr rd=14 rs1=13 rs2=None imm=ImmValue(value=0) src=<unknown>
+INSTR idx=68 @ 0xe8 name=addi rd=1 rs1=1 rs2=None imm=ImmValue(value=0) src=<unknown>
+INSTR idx=69 @ 0xec name=addi rd=13 rs1=0 rs2=None imm=ImmLabelPart(label='IF_END7', part='high') src=<unknown>
+INSTR idx=70 @ 0xf0 name=shli rd=13 rs1=13 rs2=None imm=ImmValue(value=16) src=<unknown>
+INSTR idx=71 @ 0xf4 name=ori rd=13 rs1=13 rs2=None imm=ImmLabelPart(label='IF_END7', part='low') src=<unknown>
+INSTR idx=72 @ 0xf8 name=jalr rd=0 rs1=13 rs2=None imm=ImmValue(value=0) src=<unknown>
+LABEL ELSE6 -> 0xfc src=rospos/build/rospos.ros:55
+LABEL IF_END7 -> 0xfc src=rospos/build/rospos.ros:56
+LABEL WHILE8 -> 0xfc src=rospos/build/rospos.ros:57
+INSTR idx=76 @ 0xfc name=beq rd=1 rs1=0 rs2=None imm=ImmLabel(name='WHILE_END9') src=<unknown>
+INSTR idx=77 @ 0x100 name=addi rd=4 rs1=0 rs2=None imm=ImmLabelPart(label='str_0', part='high') src=<unknown>
+INSTR idx=78 @ 0x104 name=shli rd=4 rs1=4 rs2=None imm=ImmValue(value=16) src=<unknown>
+INSTR idx=79 @ 0x108 name=ori rd=4 rs1=4 rs2=None imm=ImmLabelPart(label='str_0', part='low') src=<unknown>
+INSTR idx=80 @ 0x10c name=addi rd=5 rs1=0 rs2=None imm=ImmValue(value=10) src=<unknown>
+INSTR idx=81 @ 0x110 name=mul rd=6 rs1=1 rs2=5 imm=None src=<unknown>
+INSTR idx=82 @ 0x114 name=add rd=7 rs1=4 rs2=6 imm=None src=<unknown>
+INSTR idx=83 @ 0x118 name=addi rd=2 rs1=7 rs2=None imm=ImmValue(value=0) src=<unknown>
+INSTR idx=84 @ 0x11c name=addi rd=8 rs1=0 rs2=None imm=ImmValue(value=10) src=<unknown>
+INSTR idx=85 @ 0x120 name=mul rd=9 rs1=1 rs2=8 imm=None src=<unknown>
+INSTR idx=86 @ 0x124 name=addi rd=1 rs1=9 rs2=None imm=ImmValue(value=0) src=<unknown>
+INSTR idx=87 @ 0x128 name=addi rd=13 rs1=0 rs2=None imm=ImmLabelPart(label='WHILE8', part='high') src=<unknown>
+INSTR idx=88 @ 0x12c name=shli rd=13 rs1=13 rs2=None imm=ImmValue(value=16) src=<unknown>
+INSTR idx=89 @ 0x130 name=ori rd=13 rs1=13 rs2=None imm=ImmLabelPart(label='WHILE8', part='low') src=<unknown>
+INSTR idx=90 @ 0x134 name=jalr rd=0 rs1=13 rs2=None imm=ImmValue(value=0) src=<unknown>
+LABEL WHILE_END9 -> 0x138 src=rospos/build/rospos.ros:68
+INSTR idx=92 @ 0x138 name=addi rd=10 rs1=0 rs2=None imm=ImmLabelPart(label='str_2', part='high') src=<unknown>
+INSTR idx=93 @ 0x13c name=shli rd=10 rs1=10 rs2=None imm=ImmValue(value=16) src=<unknown>
+INSTR idx=94 @ 0x140 name=ori rd=10 rs1=10 rs2=None imm=ImmLabelPart(label='str_2', part='low') src=<unknown>
+INSTR idx=95 @ 0x144 name=addi rd=2 rs1=10 rs2=None imm=ImmValue(value=0) src=<unknown>
+INSTR idx=96 @ 0x148 name=addi rd=1 rs1=2 rs2=None imm=ImmValue(value=0) src=<unknown>
+INSTR idx=97 @ 0x14c name=addi rd=13 rs1=0 rs2=None imm=ImmLabelPart(label='print_string', part='high') src=<unknown>
+INSTR idx=98 @ 0x150 name=shli rd=13 rs1=13 rs2=None imm=ImmValue(value=16) src=<unknown>
+INSTR idx=99 @ 0x154 name=ori rd=13 rs1=13 rs2=None imm=ImmLabelPart(label='print_string', part='low') src=<unknown>
+INSTR idx=100 @ 0x158 name=jalr rd=14 rs1=13 rs2=None imm=ImmValue(value=0) src=<unknown>
+INSTR idx=101 @ 0x15c name=addi rd=1 rs1=0 rs2=None imm=ImmValue(value=0) src=<unknown>
+INSTR idx=102 @ 0x160 name=lw rd=ImmValue(value=14) rs1=15 rs2=None imm=ImmValue(value=0) src=<unknown>
+INSTR idx=103 @ 0x164 name=addi rd=15 rs1=15 rs2=None imm=ImmValue(value=4) src=<unknown>
+INSTR idx=104 @ 0x168 name=jalr rd=0 rs1=14 rs2=None imm=ImmValue(value=0) src=<unknown>
+LABEL read_char -> 0x16c src=rospos/build/rospos.ros:78
+INSTR idx=106 @ 0x16c name=addi rd=15 rs1=15 rs2=None imm=ImmValue(value=-4) src=<unknown>
+INSTR idx=107 @ 0x170 name=sw rd=ImmValue(value=14) rs1=15 rs2=None imm=ImmValue(value=0) src=<unknown>
+INSTR idx=108 @ 0x174 name=addi rd=2 rs1=0 rs2=None imm=ImmValue(value=4096) src=<unknown>
+INSTR idx=109 @ 0x178 name=shli rd=2 rs1=2 rs2=None imm=ImmValue(value=16) src=<unknown>
+INSTR idx=110 @ 0x17c name=lb rd=1 rs1=2 rs2=None imm=ImmValue(value=0) src=<unknown>
+INSTR idx=111 @ 0x180 name=lw rd=ImmValue(value=14) rs1=15 rs2=None imm=ImmValue(value=0) src=<unknown>
+INSTR idx=112 @ 0x184 name=addi rd=15 rs1=15 rs2=None imm=ImmValue(value=4) src=<unknown>
+INSTR idx=113 @ 0x188 name=jalr rd=0 rs1=14 rs2=None imm=ImmValue(value=0) src=<unknown>
+LABEL read_string -> 0x18c src=rospos/build/rospos.ros:86
+INSTR idx=115 @ 0x18c name=addi rd=15 rs1=15 rs2=None imm=ImmValue(value=-4) src=<unknown>
+INSTR idx=116 @ 0x190 name=sw rd=ImmValue(value=14) rs1=15 rs2=None imm=ImmValue(value=0) src=<unknown>
+INSTR idx=117 @ 0x194 name=addi rd=2 rs1=0 rs2=None imm=ImmValue(value=4096) src=<unknown>
+INSTR idx=118 @ 0x198 name=shli rd=2 rs1=2 rs2=None imm=ImmValue(value=16) src=<unknown>
+INSTR idx=119 @ 0x19c name=addi rd=3 rs1=0 rs2=None imm=ImmValue(value=0) src=<unknown>
+LABEL WHILE10 -> 0x1a0 src=rospos/build/rospos.ros:91
+INSTR idx=121 @ 0x1a0 name=beq rd=3 rs1=0 rs2=None imm=ImmLabel(name='WHILE_END11') src=<unknown>
+INSTR idx=122 @ 0x1a4 name=addi rd=4 rs1=0 rs2=None imm=ImmValue(value=0) src=<unknown>
+INSTR idx=123 @ 0x1a8 name=beq rd=4 rs1=0 rs2=None imm=ImmLabel(name='ELSE12') src=<unknown>
+INSTR idx=124 @ 0x1ac name=addi rd=13 rs1=0 rs2=None imm=ImmLabelPart(label='IF_END13', part='high') src=<unknown>
+INSTR idx=125 @ 0x1b0 name=shli rd=13 rs1=13 rs2=None imm=ImmValue(value=16) src=<unknown>
+INSTR idx=126 @ 0x1b4 name=ori rd=13 rs1=13 rs2=None imm=ImmLabelPart(label='IF_END13', part='low') src=<unknown>
+INSTR idx=127 @ 0x1b8 name=jalr rd=0 rs1=13 rs2=None imm=ImmValue(value=0) src=<unknown>
+LABEL ELSE12 -> 0x1bc src=rospos/build/rospos.ros:96
+LABEL IF_END13 -> 0x1bc src=rospos/build/rospos.ros:97
+INSTR idx=130 @ 0x1bc name=addi rd=1 rs1=4 rs2=None imm=ImmValue(value=0) src=<unknown>
+INSTR idx=131 @ 0x1c0 name=addi rd=13 rs1=0 rs2=None imm=ImmLabelPart(label='WHILE10', part='high') src=<unknown>
+INSTR idx=132 @ 0x1c4 name=shli rd=13 rs1=13 rs2=None imm=ImmValue(value=16) src=<unknown>
+INSTR idx=133 @ 0x1c8 name=ori rd=13 rs1=13 rs2=None imm=ImmLabelPart(label='WHILE10', part='low') src=<unknown>
+INSTR idx=134 @ 0x1cc name=jalr rd=0 rs1=13 rs2=None imm=ImmValue(value=0) src=<unknown>
+LABEL WHILE_END11 -> 0x1d0 src=rospos/build/rospos.ros:100
+INSTR idx=136 @ 0x1d0 name=addi rd=5 rs1=0 rs2=None imm=ImmLabelPart(label='str_2', part='high') src=<unknown>
+INSTR idx=137 @ 0x1d4 name=shli rd=5 rs1=5 rs2=None imm=ImmValue(value=16) src=<unknown>
+INSTR idx=138 @ 0x1d8 name=ori rd=5 rs1=5 rs2=None imm=ImmLabelPart(label='str_2', part='low') src=<unknown>
+INSTR idx=139 @ 0x1dc name=addi rd=1 rs1=5 rs2=None imm=ImmValue(value=0) src=<unknown>
+INSTR idx=140 @ 0x1e0 name=addi rd=6 rs1=0 rs2=None imm=ImmValue(value=0) src=<unknown>
+INSTR idx=141 @ 0x1e4 name=addi rd=1 rs1=0 rs2=None imm=ImmValue(value=0) src=<unknown>
+INSTR idx=142 @ 0x1e8 name=lw rd=ImmValue(value=14) rs1=15 rs2=None imm=ImmValue(value=0) src=<unknown>
+INSTR idx=143 @ 0x1ec name=addi rd=15 rs1=15 rs2=None imm=ImmValue(value=4) src=<unknown>
+INSTR idx=144 @ 0x1f0 name=jalr rd=0 rs1=14 rs2=None imm=ImmValue(value=0) src=<unknown>
+LABEL align4 -> 0x1f4 src=rospos/build/rospos.ros:109
+INSTR idx=146 @ 0x1f4 name=addi rd=15 rs1=15 rs2=None imm=ImmValue(value=-4) src=<unknown>
+INSTR idx=147 @ 0x1f8 name=sw rd=ImmValue(value=14) rs1=15 rs2=None imm=ImmValue(value=0) src=<unknown>
+INSTR idx=148 @ 0x1fc name=addi rd=2 rs1=0 rs2=None imm=ImmValue(value=3) src=<unknown>
+INSTR idx=149 @ 0x200 name=addi rd=3 rs1=0 rs2=None imm=ImmValue(value=0) src=<unknown>
+INSTR idx=150 @ 0x204 name=addi rd=1 rs1=0 rs2=None imm=ImmValue(value=0) src=<unknown>
+INSTR idx=151 @ 0x208 name=lw rd=ImmValue(value=14) rs1=15 rs2=None imm=ImmValue(value=0) src=<unknown>
+INSTR idx=152 @ 0x20c name=addi rd=15 rs1=15 rs2=None imm=ImmValue(value=4) src=<unknown>
+INSTR idx=153 @ 0x210 name=jalr rd=0 rs1=14 rs2=None imm=ImmValue(value=0) src=<unknown>
+LABEL malloc -> 0x214 src=rospos/build/rospos.ros:119
+INSTR idx=155 @ 0x214 name=addi rd=15 rs1=15 rs2=None imm=ImmValue(value=-4) src=<unknown>
+INSTR idx=156 @ 0x218 name=sw rd=ImmValue(value=14) rs1=15 rs2=None imm=ImmValue(value=0) src=<unknown>
+INSTR idx=157 @ 0x21c name=beq rd=1 rs1=0 rs2=None imm=ImmLabel(name='ELSE14') src=<unknown>
+INSTR idx=158 @ 0x220 name=addi rd=2 rs1=0 rs2=None imm=ImmValue(value=0) src=<unknown>
+INSTR idx=159 @ 0x224 name=addi rd=13 rs1=0 rs2=None imm=ImmLabelPart(label='IF_END15', part='high') src=<unknown>
+INSTR idx=160 @ 0x228 name=shli rd=13 rs1=13 rs2=None imm=ImmValue(value=16) src=<unknown>
+INSTR idx=161 @ 0x22c name=ori rd=13 rs1=13 rs2=None imm=ImmLabelPart(label='IF_END15', part='low') src=<unknown>
+INSTR idx=162 @ 0x230 name=jalr rd=0 rs1=13 rs2=None imm=ImmValue(value=0) src=<unknown>
+LABEL ELSE14 -> 0x234 src=rospos/build/rospos.ros:125
+LABEL IF_END15 -> 0x234 src=rospos/build/rospos.ros:126
+INSTR idx=165 @ 0x234 name=addi rd=3 rs1=0 rs2=None imm=ImmValue(value=0) src=<unknown>
+INSTR idx=166 @ 0x238 name=addi rd=4 rs1=0 rs2=None imm=ImmValue(value=0) src=<unknown>
+INSTR idx=167 @ 0x23c name=addi rd=5 rs1=0 rs2=None imm=ImmValue(value=0) src=<unknown>
+LABEL WHILE16 -> 0x240 src=rospos/build/rospos.ros:130
+INSTR idx=169 @ 0x240 name=beq rd=4 rs1=0 rs2=None imm=ImmLabel(name='WHILE_END17') src=<unknown>
+INSTR idx=170 @ 0x244 name=beq rd=4 rs1=0 rs2=None imm=ImmLabel(name='ELSE18') src=<unknown>
+INSTR idx=171 @ 0x248 name=addi rd=6 rs1=0 rs2=None imm=ImmValue(value=0) src=<unknown>
+INSTR idx=172 @ 0x24c name=beq rd=6 rs1=0 rs2=None imm=ImmLabel(name='ELSE20') src=<unknown>
+INSTR idx=173 @ 0x250 name=addi rd=7 rs1=0 rs2=None imm=ImmValue(value=0) src=<unknown>
+INSTR idx=174 @ 0x254 name=addi rd=8 rs1=0 rs2=None imm=ImmValue(value=0) src=<unknown>
+INSTR idx=175 @ 0x258 name=addi rd=9 rs1=0 rs2=None imm=ImmValue(value=0) src=<unknown>
+INSTR idx=176 @ 0x25c name=add rd=10 rs1=6 rs2=9 imm=None src=<unknown>
+INSTR idx=177 @ 0x260 name=addi rd=8 rs1=10 rs2=None imm=ImmValue(value=0) src=<unknown>
+INSTR idx=178 @ 0x264 name=add rd=11 rs1=7 rs2=9 imm=None src=<unknown>
+INSTR idx=179 @ 0x268 name=addi rd=8 rs1=11 rs2=None imm=ImmValue(value=0) src=<unknown>
+INSTR idx=180 @ 0x26c name=addi rd=12 rs1=0 rs2=None imm=ImmValue(value=0) src=<unknown>
+INSTR idx=181 @ 0x270 name=addi rd=8 rs1=12 rs2=None imm=ImmValue(value=0) src=<unknown>
+INSTR idx=182 @ 0x274 name=addi rd=8 rs1=4 rs2=None imm=ImmValue(value=0) src=<unknown>
+INSTR idx=183 @ 0x278 name=addi rd=4 rs1=3 rs2=None imm=ImmValue(value=0) src=<unknown>
+INSTR idx=184 @ 0x27c name=addi rd=4 rs1=8 rs2=None imm=ImmValue(value=0) src=<unknown>
+INSTR idx=185 @ 0x280 name=addi rd=13 rs1=0 rs2=None imm=ImmLabelPart(label='IF_END21', part='high') src=<unknown>
+INSTR idx=186 @ 0x284 name=shli rd=13 rs1=13 rs2=None imm=ImmValue(value=16) src=<unknown>
+INSTR idx=187 @ 0x288 name=ori rd=13 rs1=13 rs2=None imm=ImmLabelPart(label='IF_END21', part='low') src=<unknown>
+INSTR idx=188 @ 0x28c name=jalr rd=0 rs1=13 rs2=None imm=ImmValue(value=0) src=<unknown>
+LABEL ELSE20 -> 0x290 src=rospos/build/rospos.ros:148
+LABEL IF_END21 -> 0x290 src=rospos/build/rospos.ros:149
+INSTR idx=191 @ 0x290 name=addi rd=4 rs1=0 rs2=None imm=ImmValue(value=0) src=<unknown>
+INSTR idx=192 @ 0x294 name=addi rd=4 rs1=4 rs2=None imm=ImmValue(value=0) src=<unknown>
+INSTR idx=193 @ 0x298 name=add rd=1 rs1=4 rs2=0 imm=None src=<unknown>
+INSTR idx=194 @ 0x29c name=lw rd=ImmValue(value=14) rs1=15 rs2=None imm=ImmValue(value=0) src=<unknown>
+INSTR idx=195 @ 0x2a0 name=addi rd=15 rs1=15 rs2=None imm=ImmValue(value=4) src=<unknown>
+INSTR idx=196 @ 0x2a4 name=jalr rd=0 rs1=14 rs2=None imm=ImmValue(value=0) src=<unknown>
+INSTR idx=197 @ 0x2a8 name=addi rd=13 rs1=0 rs2=None imm=ImmLabelPart(label='IF_END19', part='high') src=<unknown>
+INSTR idx=198 @ 0x2ac name=shli rd=13 rs1=13 rs2=None imm=ImmValue(value=16) src=<unknown>
+INSTR idx=199 @ 0x2b0 name=ori rd=13 rs1=13 rs2=None imm=ImmLabelPart(label='IF_END19', part='low') src=<unknown>
+INSTR idx=200 @ 0x2b4 name=jalr rd=0 rs1=13 rs2=None imm=ImmValue(value=0) src=<unknown>
+LABEL ELSE18 -> 0x2b8 src=rospos/build/rospos.ros:156
+LABEL IF_END19 -> 0x2b8 src=rospos/build/rospos.ros:157
+INSTR idx=203 @ 0x2b8 name=addi rd=5 rs1=4 rs2=None imm=ImmValue(value=0) src=<unknown>
+INSTR idx=204 @ 0x2bc name=addi rd=4 rs1=4 rs2=None imm=ImmValue(value=0) src=<unknown>
+INSTR idx=205 @ 0x2c0 name=addi rd=13 rs1=0 rs2=None imm=ImmLabelPart(label='WHILE16', part='high') src=<unknown>
+INSTR idx=206 @ 0x2c4 name=shli rd=13 rs1=13 rs2=None imm=ImmValue(value=16) src=<unknown>
+INSTR idx=207 @ 0x2c8 name=ori rd=13 rs1=13 rs2=None imm=ImmLabelPart(label='WHILE16', part='low') src=<unknown>
+INSTR idx=208 @ 0x2cc name=jalr rd=0 rs1=13 rs2=None imm=ImmValue(value=0) src=<unknown>
+LABEL WHILE_END17 -> 0x2d0 src=rospos/build/rospos.ros:161
+INSTR idx=210 @ 0x2d0 name=addi rd=6 rs1=0 rs2=None imm=ImmValue(value=0) src=<unknown>
+INSTR idx=211 @ 0x2d4 name=addi rd=9 rs1=0 rs2=None imm=ImmValue(value=0) src=<unknown>
+INSTR idx=212 @ 0x2d8 name=beq rd=9 rs1=0 rs2=None imm=ImmLabel(name='ELSE22') src=<unknown>
+INSTR idx=213 @ 0x2dc name=addi rd=10 rs1=0 rs2=None imm=ImmValue(value=0) src=<unknown>
+INSTR idx=214 @ 0x2e0 name=addi rd=13 rs1=0 rs2=None imm=ImmLabelPart(label='IF_END23', part='high') src=<unknown>
+INSTR idx=215 @ 0x2e4 name=shli rd=13 rs1=13 rs2=None imm=ImmValue(value=16) src=<unknown>
+INSTR idx=216 @ 0x2e8 name=ori rd=13 rs1=13 rs2=None imm=ImmLabelPart(label='IF_END23', part='low') src=<unknown>
+INSTR idx=217 @ 0x2ec name=jalr rd=0 rs1=13 rs2=None imm=ImmValue(value=0) src=<unknown>
+LABEL ELSE22 -> 0x2f0 src=rospos/build/rospos.ros:167
+LABEL IF_END23 -> 0x2f0 src=rospos/build/rospos.ros:168
+INSTR idx=220 @ 0x2f0 name=beq rd=9 rs1=0 rs2=None imm=ImmLabel(name='ELSE24') src=<unknown>
+INSTR idx=221 @ 0x2f4 name=addi rd=7 rs1=0 rs2=None imm=ImmValue(value=0) src=<unknown>
+INSTR idx=222 @ 0x2f8 name=addi rd=13 rs1=0 rs2=None imm=ImmLabelPart(label='IF_END25', part='high') src=<unknown>
+INSTR idx=223 @ 0x2fc name=shli rd=13 rs1=13 rs2=None imm=ImmValue(value=16) src=<unknown>
+INSTR idx=224 @ 0x300 name=ori rd=13 rs1=13 rs2=None imm=ImmLabelPart(label='IF_END25', part='low') src=<unknown>
+INSTR idx=225 @ 0x304 name=jalr rd=0 rs1=13 rs2=None imm=ImmValue(value=0) src=<unknown>
+LABEL ELSE24 -> 0x308 src=rospos/build/rospos.ros:172
+LABEL IF_END25 -> 0x308 src=rospos/build/rospos.ros:173
+INSTR idx=228 @ 0x308 name=addi rd=11 rs1=0 rs2=None imm=ImmValue(value=0) src=<unknown>
+INSTR idx=229 @ 0x30c name=addi rd=11 rs1=3 rs2=None imm=ImmValue(value=0) src=<unknown>
+INSTR idx=230 @ 0x310 name=addi rd=11 rs1=9 rs2=None imm=ImmValue(value=0) src=<unknown>
+INSTR idx=231 @ 0x314 name=addi rd=11 rs1=4 rs2=None imm=ImmValue(value=0) src=<unknown>
+INSTR idx=232 @ 0x318 name=addi rd=11 rs1=7 rs2=None imm=ImmValue(value=0) src=<unknown>
+INSTR idx=233 @ 0x31c name=beq rd=5 rs1=0 rs2=None imm=ImmLabel(name='ELSE26') src=<unknown>
+INSTR idx=234 @ 0x320 name=addi rd=5 rs1=11 rs2=None imm=ImmValue(value=0) src=<unknown>
+INSTR idx=235 @ 0x324 name=addi rd=13 rs1=0 rs2=None imm=ImmLabelPart(label='IF_END27', part='high') src=<unknown>
+INSTR idx=236 @ 0x328 name=shli rd=13 rs1=13 rs2=None imm=ImmValue(value=16) src=<unknown>
+INSTR idx=237 @ 0x32c name=ori rd=13 rs1=13 rs2=None imm=ImmLabelPart(label='IF_END27', part='low') src=<unknown>
+INSTR idx=238 @ 0x330 name=jalr rd=0 rs1=13 rs2=None imm=ImmValue(value=0) src=<unknown>
+LABEL ELSE26 -> 0x334 src=rospos/build/rospos.ros:182
+LABEL IF_END27 -> 0x334 src=rospos/build/rospos.ros:183
+INSTR idx=241 @ 0x334 name=add rd=12 rs1=9 rs2=3 imm=None src=<unknown>
+INSTR idx=242 @ 0x338 name=addi rd=1 rs1=12 rs2=None imm=ImmValue(value=0) src=<unknown>
+INSTR idx=243 @ 0x33c name=addi rd=13 rs1=0 rs2=None imm=ImmLabelPart(label='align4', part='high') src=<unknown>
+INSTR idx=244 @ 0x340 name=shli rd=13 rs1=13 rs2=None imm=ImmValue(value=16) src=<unknown>
+INSTR idx=245 @ 0x344 name=ori rd=13 rs1=13 rs2=None imm=ImmLabelPart(label='align4', part='low') src=<unknown>
+INSTR idx=246 @ 0x348 name=jalr rd=14 rs1=13 rs2=None imm=ImmValue(value=0) src=<unknown>
+INSTR idx=247 @ 0x34c name=addi rd=12 rs1=1 rs2=None imm=ImmValue(value=0) src=<unknown>
+INSTR idx=248 @ 0x350 name=add rd=1 rs1=9 rs2=0 imm=None src=<unknown>
+INSTR idx=249 @ 0x354 name=lw rd=ImmValue(value=14) rs1=15 rs2=None imm=ImmValue(value=0) src=<unknown>
+INSTR idx=250 @ 0x358 name=addi rd=15 rs1=15 rs2=None imm=ImmValue(value=4) src=<unknown>
+INSTR idx=251 @ 0x35c name=jalr rd=0 rs1=14 rs2=None imm=ImmValue(value=0) src=<unknown>
+LABEL free -> 0x360 src=rospos/build/rospos.ros:192
+INSTR idx=253 @ 0x360 name=addi rd=15 rs1=15 rs2=None imm=ImmValue(value=-4) src=<unknown>
+INSTR idx=254 @ 0x364 name=sw rd=ImmValue(value=14) rs1=15 rs2=None imm=ImmValue(value=0) src=<unknown>
+INSTR idx=255 @ 0x368 name=lb rd=2 rs1=1 rs2=None imm=ImmValue(value=0) src=<unknown>
+INSTR idx=256 @ 0x36c name=beq rd=2 rs1=0 rs2=None imm=ImmLabel(name='ELSE28') src=<unknown>
+INSTR idx=257 @ 0x370 name=addi rd=13 rs1=0 rs2=None imm=ImmLabelPart(label='IF_END29', part='high') src=<unknown>
+INSTR idx=258 @ 0x374 name=shli rd=13 rs1=13 rs2=None imm=ImmValue(value=16) src=<unknown>
+INSTR idx=259 @ 0x378 name=ori rd=13 rs1=13 rs2=None imm=ImmLabelPart(label='IF_END29', part='low') src=<unknown>
+INSTR idx=260 @ 0x37c name=jalr rd=0 rs1=13 rs2=None imm=ImmValue(value=0) src=<unknown>
+LABEL ELSE28 -> 0x380 src=rospos/build/rospos.ros:198
+LABEL IF_END29 -> 0x380 src=rospos/build/rospos.ros:199
+INSTR idx=263 @ 0x380 name=addi rd=3 rs1=0 rs2=None imm=ImmValue(value=0) src=<unknown>
+INSTR idx=264 @ 0x384 name=addi rd=4 rs1=0 rs2=None imm=ImmValue(value=0) src=<unknown>
+LABEL WHILE30 -> 0x388 src=rospos/build/rospos.ros:202
+INSTR idx=266 @ 0x388 name=beq rd=3 rs1=0 rs2=None imm=ImmLabel(name='WHILE_END31') src=<unknown>
+INSTR idx=267 @ 0x38c name=beq rd=3 rs1=0 rs2=None imm=ImmLabel(name='ELSE32') src=<unknown>
+INSTR idx=268 @ 0x390 name=addi rd=5 rs1=0 rs2=None imm=ImmValue(value=0) src=<unknown>
+INSTR idx=269 @ 0x394 name=addi rd=3 rs1=5 rs2=None imm=ImmValue(value=0) src=<unknown>
+INSTR idx=270 @ 0x398 name=beq rd=3 rs1=0 rs2=None imm=ImmLabel(name='ELSE34') src=<unknown>
+INSTR idx=271 @ 0x39c name=addi rd=6 rs1=0 rs2=None imm=ImmValue(value=0) src=<unknown>
+INSTR idx=272 @ 0x3a0 name=addi rd=7 rs1=0 rs2=None imm=ImmValue(value=0) src=<unknown>
+INSTR idx=273 @ 0x3a4 name=add rd=8 rs1=6 rs2=7 imm=None src=<unknown>
+INSTR idx=274 @ 0x3a8 name=addi rd=3 rs1=8 rs2=None imm=ImmValue(value=0) src=<unknown>
+INSTR idx=275 @ 0x3ac name=addi rd=3 rs1=3 rs2=None imm=ImmValue(value=0) src=<unknown>
+INSTR idx=276 @ 0x3b0 name=addi rd=13 rs1=0 rs2=None imm=ImmLabelPart(label='IF_END35', part='high') src=<unknown>
+INSTR idx=277 @ 0x3b4 name=shli rd=13 rs1=13 rs2=None imm=ImmValue(value=16) src=<unknown>
+INSTR idx=278 @ 0x3b8 name=ori rd=13 rs1=13 rs2=None imm=ImmLabelPart(label='IF_END35', part='low') src=<unknown>
+INSTR idx=279 @ 0x3bc name=jalr rd=0 rs1=13 rs2=None imm=ImmValue(value=0) src=<unknown>
+LABEL ELSE34 -> 0x3c0 src=rospos/build/rospos.ros:214
+LABEL IF_END35 -> 0x3c0 src=rospos/build/rospos.ros:215
+INSTR idx=282 @ 0x3c0 name=beq rd=4 rs1=0 rs2=None imm=ImmLabel(name='ELSE36') src=<unknown>
+INSTR idx=283 @ 0x3c4 name=add rd=9 rs1=6 rs2=7 imm=None src=<unknown>
+INSTR idx=284 @ 0x3c8 name=addi rd=4 rs1=9 rs2=None imm=ImmValue(value=0) src=<unknown>
+INSTR idx=285 @ 0x3cc name=addi rd=4 rs1=3 rs2=None imm=ImmValue(value=0) src=<unknown>
+INSTR idx=286 @ 0x3d0 name=addi rd=13 rs1=0 rs2=None imm=ImmLabelPart(label='IF_END37', part='high') src=<unknown>
+INSTR idx=287 @ 0x3d4 name=shli rd=13 rs1=13 rs2=None imm=ImmValue(value=16) src=<unknown>
+INSTR idx=288 @ 0x3d8 name=ori rd=13 rs1=13 rs2=None imm=ImmLabelPart(label='IF_END37', part='low') src=<unknown>
+INSTR idx=289 @ 0x3dc name=jalr rd=0 rs1=13 rs2=None imm=ImmValue(value=0) src=<unknown>
+LABEL ELSE36 -> 0x3e0 src=rospos/build/rospos.ros:221
+LABEL IF_END37 -> 0x3e0 src=rospos/build/rospos.ros:222
+INSTR idx=292 @ 0x3e0 name=addi rd=13 rs1=0 rs2=None imm=ImmLabelPart(label='IF_END33', part='high') src=<unknown>
+INSTR idx=293 @ 0x3e4 name=shli rd=13 rs1=13 rs2=None imm=ImmValue(value=16) src=<unknown>
+INSTR idx=294 @ 0x3e8 name=ori rd=13 rs1=13 rs2=None imm=ImmLabelPart(label='IF_END33', part='low') src=<unknown>
+INSTR idx=295 @ 0x3ec name=jalr rd=0 rs1=13 rs2=None imm=ImmValue(value=0) src=<unknown>
+LABEL ELSE32 -> 0x3f0 src=rospos/build/rospos.ros:224
+LABEL IF_END33 -> 0x3f0 src=rospos/build/rospos.ros:225
+INSTR idx=298 @ 0x3f0 name=addi rd=4 rs1=3 rs2=None imm=ImmValue(value=0) src=<unknown>
+INSTR idx=299 @ 0x3f4 name=addi rd=3 rs1=3 rs2=None imm=ImmValue(value=0) src=<unknown>
+INSTR idx=300 @ 0x3f8 name=addi rd=13 rs1=0 rs2=None imm=ImmLabelPart(label='WHILE30', part='high') src=<unknown>
+INSTR idx=301 @ 0x3fc name=shli rd=13 rs1=13 rs2=None imm=ImmValue(value=16) src=<unknown>
+INSTR idx=302 @ 0x400 name=ori rd=13 rs1=13 rs2=None imm=ImmLabelPart(label='WHILE30', part='low') src=<unknown>
+INSTR idx=303 @ 0x404 name=jalr rd=0 rs1=13 rs2=None imm=ImmValue(value=0) src=<unknown>
+LABEL WHILE_END31 -> 0x408 src=rospos/build/rospos.ros:229
+INSTR idx=305 @ 0x408 name=addi rd=1 rs1=0 rs2=None imm=ImmValue(value=0) src=<unknown>
+INSTR idx=306 @ 0x40c name=lw rd=ImmValue(value=14) rs1=15 rs2=None imm=ImmValue(value=0) src=<unknown>
+INSTR idx=307 @ 0x410 name=addi rd=15 rs1=15 rs2=None imm=ImmValue(value=4) src=<unknown>
+INSTR idx=308 @ 0x414 name=jalr rd=0 rs1=14 rs2=None imm=ImmValue(value=0) src=<unknown>
+LABEL _dump_heap_info -> 0x418 src=rospos/build/rospos.ros:235
+INSTR idx=310 @ 0x418 name=addi rd=15 rs1=15 rs2=None imm=ImmValue(value=-4) src=<unknown>
+INSTR idx=311 @ 0x41c name=sw rd=ImmValue(value=14) rs1=15 rs2=None imm=ImmValue(value=0) src=<unknown>
+INSTR idx=312 @ 0x420 name=addi rd=2 rs1=0 rs2=None imm=ImmValue(value=0) src=<unknown>
+LABEL WHILE38 -> 0x424 src=rospos/build/rospos.ros:239
+INSTR idx=314 @ 0x424 name=beq rd=2 rs1=0 rs2=None imm=ImmLabel(name='WHILE_END39') src=<unknown>
+INSTR idx=315 @ 0x428 name=addi rd=1 rs1=0 rs2=None imm=ImmLabelPart(label='str_4', part='high') src=<unknown>
+INSTR idx=316 @ 0x42c name=shli rd=1 rs1=1 rs2=None imm=ImmValue(value=16) src=<unknown>
+INSTR idx=317 @ 0x430 name=ori rd=1 rs1=1 rs2=None imm=ImmLabelPart(label='str_4', part='low') src=<unknown>
+INSTR idx=318 @ 0x434 name=addi rd=13 rs1=0 rs2=None imm=ImmLabelPart(label='print_string', part='high') src=<unknown>
 INSTR idx=319 @ 0x438 name=shli rd=13 rs1=13 rs2=None imm=ImmValue(value=16) src=<unknown>
-INSTR idx=320 @ 0x43c name=ori rd=13 rs1=13 rs2=None imm=ImmLabelPart(label='printi', part='low') src=<unknown>
+INSTR idx=320 @ 0x43c name=ori rd=13 rs1=13 rs2=None imm=ImmLabelPart(label='print_string', part='low') src=<unknown>
 INSTR idx=321 @ 0x440 name=jalr rd=14 rs1=13 rs2=None imm=ImmValue(value=0) src=<unknown>
-INSTR idx=322 @ 0x444 name=addi rd=1 rs1=0 rs2=None imm=ImmLabelPart(label='str_3', part='high') src=<unknown>
-INSTR idx=323 @ 0x448 name=shli rd=1 rs1=1 rs2=None imm=ImmValue(value=16) src=<unknown>
-INSTR idx=324 @ 0x44c name=ori rd=1 rs1=1 rs2=None imm=ImmLabelPart(label='str_3', part='low') src=<unknown>
-INSTR idx=325 @ 0x450 name=addi rd=13 rs1=0 rs2=None imm=ImmLabelPart(label='print_string', part='high') src=<unknown>
-INSTR idx=326 @ 0x454 name=shli rd=13 rs1=13 rs2=None imm=ImmValue(value=16) src=<unknown>
-INSTR idx=327 @ 0x458 name=ori rd=13 rs1=13 rs2=None imm=ImmLabelPart(label='print_string', part='low') src=<unknown>
-INSTR idx=328 @ 0x45c name=jalr rd=14 rs1=13 rs2=None imm=ImmValue(value=0) src=<unknown>
-INSTR idx=329 @ 0x460 name=addi rd=13 rs1=0 rs2=None imm=ImmLabelPart(label='WHILE38', part='high') src=<unknown>
-INSTR idx=330 @ 0x464 name=shli rd=13 rs1=13 rs2=None imm=ImmValue(value=16) src=<unknown>
-INSTR idx=331 @ 0x468 name=ori rd=13 rs1=13 rs2=None imm=ImmLabelPart(label='WHILE38', part='low') src=<unknown>
-INSTR idx=332 @ 0x46c name=jalr rd=0 rs1=13 rs2=None imm=ImmValue(value=0) src=<unknown>
-LABEL WHILE_END39 -> 0x470 src=rospos/build/rospos.ros:259
-INSTR idx=334 @ 0x470 name=addi rd=1 rs1=0 rs2=None imm=ImmValue(value=0) src=<unknown>
-INSTR idx=335 @ 0x474 name=lw rd=ImmValue(value=14) rs1=15 rs2=None imm=ImmValue(value=0) src=<unknown>
-INSTR idx=336 @ 0x478 name=addi rd=15 rs1=15 rs2=None imm=ImmValue(value=4) src=<unknown>
-INSTR idx=337 @ 0x47c name=jalr rd=0 rs1=14 rs2=None imm=ImmValue(value=0) src=<unknown>
-LABEL add -> 0x480 src=rospos/build/rospos.ros:265
-INSTR idx=339 @ 0x480 name=addi rd=15 rs1=15 rs2=None imm=ImmValue(value=-4) src=<unknown>
-INSTR idx=340 @ 0x484 name=sw rd=ImmValue(value=14) rs1=15 rs2=None imm=ImmValue(value=0) src=<unknown>
-INSTR idx=341 @ 0x488 name=add rd=2 rs1=1 rs2=2 imm=None src=<unknown>
-INSTR idx=342 @ 0x48c name=add rd=1 rs1=2 rs2=0 imm=None src=<unknown>
-INSTR idx=343 @ 0x490 name=lw rd=ImmValue(value=14) rs1=15 rs2=None imm=ImmValue(value=0) src=<unknown>
-INSTR idx=344 @ 0x494 name=addi rd=15 rs1=15 rs2=None imm=ImmValue(value=4) src=<unknown>
-INSTR idx=345 @ 0x498 name=jalr rd=0 rs1=14 rs2=None imm=ImmValue(value=0) src=<unknown>
-LABEL main -> 0x49c src=rospos/build/rospos.ros:273
-INSTR idx=347 @ 0x49c name=addi rd=15 rs1=15 rs2=None imm=ImmValue(value=-4) src=<unknown>
-INSTR idx=348 @ 0x4a0 name=sw rd=ImmValue(value=14) rs1=15 rs2=None imm=ImmValue(value=0) src=<unknown>
-INSTR idx=349 @ 0x4a4 name=addi rd=2 rs1=0 rs2=None imm=ImmValue(value=5) src=<unknown>
-INSTR idx=350 @ 0x4a8 name=addi rd=3 rs1=0 rs2=None imm=ImmValue(value=10) src=<unknown>
-INSTR idx=351 @ 0x4ac name=addi rd=4 rs1=0 rs2=None imm=ImmValue(value=0) src=<unknown>
-INSTR idx=352 @ 0x4b0 name=addi rd=1 rs1=0 rs2=None imm=ImmLabelPart(label='str_7', part='high') src=<unknown>
-INSTR idx=353 @ 0x4b4 name=shli rd=1 rs1=1 rs2=None imm=ImmValue(value=16) src=<unknown>
-INSTR idx=354 @ 0x4b8 name=ori rd=1 rs1=1 rs2=None imm=ImmLabelPart(label='str_7', part='low') src=<unknown>
-INSTR idx=355 @ 0x4bc name=addi rd=13 rs1=0 rs2=None imm=ImmLabelPart(label='print_string', part='high') src=<unknown>
-INSTR idx=356 @ 0x4c0 name=shli rd=13 rs1=13 rs2=None imm=ImmValue(value=16) src=<unknown>
-INSTR idx=357 @ 0x4c4 name=ori rd=13 rs1=13 rs2=None imm=ImmLabelPart(label='print_string', part='low') src=<unknown>
-INSTR idx=358 @ 0x4c8 name=jalr rd=14 rs1=13 rs2=None imm=ImmValue(value=0) src=<unknown>
-INSTR idx=359 @ 0x4cc name=addi rd=1 rs1=4 rs2=None imm=ImmValue(value=0) src=<unknown>
-INSTR idx=360 @ 0x4d0 name=addi rd=13 rs1=0 rs2=None imm=ImmLabelPart(label='printi', part='high') src=<unknown>
-INSTR idx=361 @ 0x4d4 name=shli rd=13 rs1=13 rs2=None imm=ImmValue(value=16) src=<unknown>
-INSTR idx=362 @ 0x4d8 name=ori rd=13 rs1=13 rs2=None imm=ImmLabelPart(label='printi', part='low') src=<unknown>
-INSTR idx=363 @ 0x4dc name=jalr rd=14 rs1=13 rs2=None imm=ImmValue(value=0) src=<unknown>
-INSTR idx=364 @ 0x4e0 name=addi rd=5 rs1=0 rs2=None imm=ImmValue(value=0) src=<unknown>
-INSTR idx=365 @ 0x4e4 name=beq rd=5 rs1=0 rs2=None imm=ImmLabel(name='ELSE40') src=<unknown>
-INSTR idx=366 @ 0x4e8 name=addi rd=5 rs1=0 rs2=None imm=ImmValue(value=42) src=<unknown>
-INSTR idx=367 @ 0x4ec name=addi rd=1 rs1=0 rs2=None imm=ImmLabelPart(label='str_8', part='high') src=<unknown>
-INSTR idx=368 @ 0x4f0 name=shli rd=1 rs1=1 rs2=None imm=ImmValue(value=16) src=<unknown>
-INSTR idx=369 @ 0x4f4 name=ori rd=1 rs1=1 rs2=None imm=ImmLabelPart(label='str_8', part='low') src=<unknown>
-INSTR idx=370 @ 0x4f8 name=addi rd=13 rs1=0 rs2=None imm=ImmLabelPart(label='print_string', part='high') src=<unknown>
-INSTR idx=371 @ 0x4fc name=shli rd=13 rs1=13 rs2=None imm=ImmValue(value=16) src=<unknown>
-INSTR idx=372 @ 0x500 name=ori rd=13 rs1=13 rs2=None imm=ImmLabelPart(label='print_string', part='low') src=<unknown>
-INSTR idx=373 @ 0x504 name=jalr rd=14 rs1=13 rs2=None imm=ImmValue(value=0) src=<unknown>
-INSTR idx=374 @ 0x508 name=addi rd=1 rs1=5 rs2=None imm=ImmValue(value=0) src=<unknown>
-INSTR idx=375 @ 0x50c name=addi rd=13 rs1=0 rs2=None imm=ImmLabelPart(label='printi', part='high') src=<unknown>
-INSTR idx=376 @ 0x510 name=shli rd=13 rs1=13 rs2=None imm=ImmValue(value=16) src=<unknown>
-INSTR idx=377 @ 0x514 name=ori rd=13 rs1=13 rs2=None imm=ImmLabelPart(label='printi', part='low') src=<unknown>
-INSTR idx=378 @ 0x518 name=jalr rd=14 rs1=13 rs2=None imm=ImmValue(value=0) src=<unknown>
-INSTR idx=379 @ 0x51c name=addi rd=1 rs1=5 rs2=None imm=ImmValue(value=0) src=<unknown>
-INSTR idx=380 @ 0x520 name=addi rd=13 rs1=0 rs2=None imm=ImmLabelPart(label='free', part='high') src=<unknown>
-INSTR idx=381 @ 0x524 name=shli rd=13 rs1=13 rs2=None imm=ImmValue(value=16) src=<unknown>
-INSTR idx=382 @ 0x528 name=ori rd=13 rs1=13 rs2=None imm=ImmLabelPart(label='free', part='low') src=<unknown>
-INSTR idx=383 @ 0x52c name=jalr rd=14 rs1=13 rs2=None imm=ImmValue(value=0) src=<unknown>
-INSTR idx=384 @ 0x530 name=addi rd=13 rs1=0 rs2=None imm=ImmLabelPart(label='IF_END41', part='high') src=<unknown>
-INSTR idx=385 @ 0x534 name=shli rd=13 rs1=13 rs2=None imm=ImmValue(value=16) src=<unknown>
-INSTR idx=386 @ 0x538 name=ori rd=13 rs1=13 rs2=None imm=ImmLabelPart(label='IF_END41', part='low') src=<unknown>
-INSTR idx=387 @ 0x53c name=jalr rd=0 rs1=13 rs2=None imm=ImmValue(value=0) src=<unknown>
-LABEL ELSE40 -> 0x540 src=rospos/build/rospos.ros:294
-INSTR idx=389 @ 0x540 name=addi rd=1 rs1=0 rs2=None imm=ImmLabelPart(label='str_9', part='high') src=<unknown>
-INSTR idx=390 @ 0x544 name=shli rd=1 rs1=1 rs2=None imm=ImmValue(value=16) src=<unknown>
-INSTR idx=391 @ 0x548 name=ori rd=1 rs1=1 rs2=None imm=ImmLabelPart(label='str_9', part='low') src=<unknown>
-INSTR idx=392 @ 0x54c name=addi rd=13 rs1=0 rs2=None imm=ImmLabelPart(label='print_string', part='high') src=<unknown>
-INSTR idx=393 @ 0x550 name=shli rd=13 rs1=13 rs2=None imm=ImmValue(value=16) src=<unknown>
-INSTR idx=394 @ 0x554 name=ori rd=13 rs1=13 rs2=None imm=ImmLabelPart(label='print_string', part='low') src=<unknown>
-INSTR idx=395 @ 0x558 name=jalr rd=14 rs1=13 rs2=None imm=ImmValue(value=0) src=<unknown>
-LABEL IF_END41 -> 0x55c src=rospos/build/rospos.ros:297
-INSTR idx=397 @ 0x55c name=addi rd=5 rs1=0 rs2=None imm=ImmValue(value=0) src=<unknown>
-INSTR idx=398 @ 0x560 name=add rd=1 rs1=5 rs2=0 imm=None src=<unknown>
-INSTR idx=399 @ 0x564 name=lw rd=ImmValue(value=14) rs1=15 rs2=None imm=ImmValue(value=0) src=<unknown>
-INSTR idx=400 @ 0x568 name=addi rd=15 rs1=15 rs2=None imm=ImmValue(value=4) src=<unknown>
-INSTR idx=401 @ 0x56c name=jalr rd=0 rs1=14 rs2=None imm=ImmValue(value=0) src=<unknown>
-LABEL str_0 -> 0x570 src=rospos/build/rospos.ros:306
-DATA @ 0x570 size 4: b'0\x00' src=rospos/build/rospos.ros:307
-LABEL str_1 -> 0x574 src=rospos/build/rospos.ros:309
-DATA @ 0x574 size 4: b'-\x00' src=rospos/build/rospos.ros:310
-LABEL str_2 -> 0x578 src=rospos/build/rospos.ros:312
-DATA @ 0x578 size 4: b'\x00\x00' src=rospos/build/rospos.ros:313
-LABEL str_3 -> 0x57c src=rospos/build/rospos.ros:315
-DATA @ 0x57c size 4: b'\n\x00' src=rospos/build/rospos.ros:316
-LABEL str_4 -> 0x580 src=rospos/build/rospos.ros:318
-DATA @ 0x580 size 10: b'Block at \x00' src=rospos/build/rospos.ros:319
-LABEL str_5 -> 0x58a src=rospos/build/rospos.ros:321
-DATA @ 0x58a size 10: b' - Size: \x00' src=rospos/build/rospos.ros:322
-LABEL str_6 -> 0x594 src=rospos/build/rospos.ros:324
-DATA @ 0x594 size 10: b' - Free: \x00' src=rospos/build/rospos.ros:325
-LABEL str_7 -> 0x59e src=rospos/build/rospos.ros:327
-DATA @ 0x59e size 26: b'The result of 10 + 5 is: \x00' src=rospos/build/rospos.ros:328
-LABEL str_8 -> 0x5b8 src=rospos/build/rospos.ros:330
-DATA @ 0x5b8 size 43: b'Dynamically allocated integer value (42): \x00' src=rospos/build/rospos.ros:331
-LABEL str_9 -> 0x5e3 src=rospos/build/rospos.ros:333
-DATA @ 0x5e3 size 25: b'Memory allocation failed\x00' src=rospos/build/rospos.ros:334
-LABEL buffer_buf3 -> 0x5fc src=rospos/build/rospos.ros:336
-DATA @ 0x5fc size 12: b'\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00' src=<unknown>
+INSTR idx=322 @ 0x444 name=addi rd=1 rs1=2 rs2=None imm=ImmValue(value=0) src=<unknown>
+INSTR idx=323 @ 0x448 name=addi rd=13 rs1=0 rs2=None imm=ImmLabelPart(label='printi', part='high') src=<unknown>
+INSTR idx=324 @ 0x44c name=shli rd=13 rs1=13 rs2=None imm=ImmValue(value=16) src=<unknown>
+INSTR idx=325 @ 0x450 name=ori rd=13 rs1=13 rs2=None imm=ImmLabelPart(label='printi', part='low') src=<unknown>
+INSTR idx=326 @ 0x454 name=jalr rd=14 rs1=13 rs2=None imm=ImmValue(value=0) src=<unknown>
+INSTR idx=327 @ 0x458 name=addi rd=1 rs1=0 rs2=None imm=ImmLabelPart(label='str_5', part='high') src=<unknown>
+INSTR idx=328 @ 0x45c name=shli rd=1 rs1=1 rs2=None imm=ImmValue(value=16) src=<unknown>
+INSTR idx=329 @ 0x460 name=ori rd=1 rs1=1 rs2=None imm=ImmLabelPart(label='str_5', part='low') src=<unknown>
+INSTR idx=330 @ 0x464 name=addi rd=13 rs1=0 rs2=None imm=ImmLabelPart(label='print_string', part='high') src=<unknown>
+INSTR idx=331 @ 0x468 name=shli rd=13 rs1=13 rs2=None imm=ImmValue(value=16) src=<unknown>
+INSTR idx=332 @ 0x46c name=ori rd=13 rs1=13 rs2=None imm=ImmLabelPart(label='print_string', part='low') src=<unknown>
+INSTR idx=333 @ 0x470 name=jalr rd=14 rs1=13 rs2=None imm=ImmValue(value=0) src=<unknown>
+INSTR idx=334 @ 0x474 name=addi rd=1 rs1=2 rs2=None imm=ImmValue(value=0) src=<unknown>
+INSTR idx=335 @ 0x478 name=addi rd=13 rs1=0 rs2=None imm=ImmLabelPart(label='printi', part='high') src=<unknown>
+INSTR idx=336 @ 0x47c name=shli rd=13 rs1=13 rs2=None imm=ImmValue(value=16) src=<unknown>
+INSTR idx=337 @ 0x480 name=ori rd=13 rs1=13 rs2=None imm=ImmLabelPart(label='printi', part='low') src=<unknown>
+INSTR idx=338 @ 0x484 name=jalr rd=14 rs1=13 rs2=None imm=ImmValue(value=0) src=<unknown>
+INSTR idx=339 @ 0x488 name=addi rd=1 rs1=0 rs2=None imm=ImmLabelPart(label='str_6', part='high') src=<unknown>
+INSTR idx=340 @ 0x48c name=shli rd=1 rs1=1 rs2=None imm=ImmValue(value=16) src=<unknown>
+INSTR idx=341 @ 0x490 name=ori rd=1 rs1=1 rs2=None imm=ImmLabelPart(label='str_6', part='low') src=<unknown>
+INSTR idx=342 @ 0x494 name=addi rd=13 rs1=0 rs2=None imm=ImmLabelPart(label='print_string', part='high') src=<unknown>
+INSTR idx=343 @ 0x498 name=shli rd=13 rs1=13 rs2=None imm=ImmValue(value=16) src=<unknown>
+INSTR idx=344 @ 0x49c name=ori rd=13 rs1=13 rs2=None imm=ImmLabelPart(label='print_string', part='low') src=<unknown>
+INSTR idx=345 @ 0x4a0 name=jalr rd=14 rs1=13 rs2=None imm=ImmValue(value=0) src=<unknown>
+INSTR idx=346 @ 0x4a4 name=addi rd=1 rs1=2 rs2=None imm=ImmValue(value=0) src=<unknown>
+INSTR idx=347 @ 0x4a8 name=addi rd=13 rs1=0 rs2=None imm=ImmLabelPart(label='printi', part='high') src=<unknown>
+INSTR idx=348 @ 0x4ac name=shli rd=13 rs1=13 rs2=None imm=ImmValue(value=16) src=<unknown>
+INSTR idx=349 @ 0x4b0 name=ori rd=13 rs1=13 rs2=None imm=ImmLabelPart(label='printi', part='low') src=<unknown>
+INSTR idx=350 @ 0x4b4 name=jalr rd=14 rs1=13 rs2=None imm=ImmValue(value=0) src=<unknown>
+INSTR idx=351 @ 0x4b8 name=addi rd=1 rs1=0 rs2=None imm=ImmLabelPart(label='str_3', part='high') src=<unknown>
+INSTR idx=352 @ 0x4bc name=shli rd=1 rs1=1 rs2=None imm=ImmValue(value=16) src=<unknown>
+INSTR idx=353 @ 0x4c0 name=ori rd=1 rs1=1 rs2=None imm=ImmLabelPart(label='str_3', part='low') src=<unknown>
+INSTR idx=354 @ 0x4c4 name=addi rd=13 rs1=0 rs2=None imm=ImmLabelPart(label='print_string', part='high') src=<unknown>
+INSTR idx=355 @ 0x4c8 name=shli rd=13 rs1=13 rs2=None imm=ImmValue(value=16) src=<unknown>
+INSTR idx=356 @ 0x4cc name=ori rd=13 rs1=13 rs2=None imm=ImmLabelPart(label='print_string', part='low') src=<unknown>
+INSTR idx=357 @ 0x4d0 name=jalr rd=14 rs1=13 rs2=None imm=ImmValue(value=0) src=<unknown>
+INSTR idx=358 @ 0x4d4 name=addi rd=2 rs1=2 rs2=None imm=ImmValue(value=0) src=<unknown>
+INSTR idx=359 @ 0x4d8 name=addi rd=13 rs1=0 rs2=None imm=ImmLabelPart(label='WHILE38', part='high') src=<unknown>
+INSTR idx=360 @ 0x4dc name=shli rd=13 rs1=13 rs2=None imm=ImmValue(value=16) src=<unknown>
+INSTR idx=361 @ 0x4e0 name=ori rd=13 rs1=13 rs2=None imm=ImmLabelPart(label='WHILE38', part='low') src=<unknown>
+INSTR idx=362 @ 0x4e4 name=jalr rd=0 rs1=13 rs2=None imm=ImmValue(value=0) src=<unknown>
+LABEL WHILE_END39 -> 0x4e8 src=rospos/build/rospos.ros:257
+INSTR idx=364 @ 0x4e8 name=addi rd=1 rs1=0 rs2=None imm=ImmValue(value=0) src=<unknown>
+INSTR idx=365 @ 0x4ec name=lw rd=ImmValue(value=14) rs1=15 rs2=None imm=ImmValue(value=0) src=<unknown>
+INSTR idx=366 @ 0x4f0 name=addi rd=15 rs1=15 rs2=None imm=ImmValue(value=4) src=<unknown>
+INSTR idx=367 @ 0x4f4 name=jalr rd=0 rs1=14 rs2=None imm=ImmValue(value=0) src=<unknown>
+LABEL add -> 0x4f8 src=rospos/build/rospos.ros:263
+INSTR idx=369 @ 0x4f8 name=addi rd=15 rs1=15 rs2=None imm=ImmValue(value=-4) src=<unknown>
+INSTR idx=370 @ 0x4fc name=sw rd=ImmValue(value=14) rs1=15 rs2=None imm=ImmValue(value=0) src=<unknown>
+INSTR idx=371 @ 0x500 name=add rd=2 rs1=1 rs2=2 imm=None src=<unknown>
+INSTR idx=372 @ 0x504 name=add rd=1 rs1=2 rs2=0 imm=None src=<unknown>
+INSTR idx=373 @ 0x508 name=lw rd=ImmValue(value=14) rs1=15 rs2=None imm=ImmValue(value=0) src=<unknown>
+INSTR idx=374 @ 0x50c name=addi rd=15 rs1=15 rs2=None imm=ImmValue(value=4) src=<unknown>
+INSTR idx=375 @ 0x510 name=jalr rd=0 rs1=14 rs2=None imm=ImmValue(value=0) src=<unknown>
+LABEL main -> 0x514 src=rospos/build/rospos.ros:271
+INSTR idx=377 @ 0x514 name=addi rd=15 rs1=15 rs2=None imm=ImmValue(value=-4) src=<unknown>
+INSTR idx=378 @ 0x518 name=sw rd=ImmValue(value=14) rs1=15 rs2=None imm=ImmValue(value=0) src=<unknown>
+INSTR idx=379 @ 0x51c name=addi rd=2 rs1=0 rs2=None imm=ImmValue(value=5) src=<unknown>
+INSTR idx=380 @ 0x520 name=addi rd=3 rs1=0 rs2=None imm=ImmValue(value=10) src=<unknown>
+INSTR idx=381 @ 0x524 name=addi rd=4 rs1=0 rs2=None imm=ImmValue(value=0) src=<unknown>
+INSTR idx=382 @ 0x528 name=addi rd=1 rs1=0 rs2=None imm=ImmLabelPart(label='str_7', part='high') src=<unknown>
+INSTR idx=383 @ 0x52c name=shli rd=1 rs1=1 rs2=None imm=ImmValue(value=16) src=<unknown>
+INSTR idx=384 @ 0x530 name=ori rd=1 rs1=1 rs2=None imm=ImmLabelPart(label='str_7', part='low') src=<unknown>
+INSTR idx=385 @ 0x534 name=addi rd=13 rs1=0 rs2=None imm=ImmLabelPart(label='print_string', part='high') src=<unknown>
+INSTR idx=386 @ 0x538 name=shli rd=13 rs1=13 rs2=None imm=ImmValue(value=16) src=<unknown>
+INSTR idx=387 @ 0x53c name=ori rd=13 rs1=13 rs2=None imm=ImmLabelPart(label='print_string', part='low') src=<unknown>
+INSTR idx=388 @ 0x540 name=jalr rd=14 rs1=13 rs2=None imm=ImmValue(value=0) src=<unknown>
+INSTR idx=389 @ 0x544 name=addi rd=1 rs1=4 rs2=None imm=ImmValue(value=0) src=<unknown>
+INSTR idx=390 @ 0x548 name=addi rd=13 rs1=0 rs2=None imm=ImmLabelPart(label='printi', part='high') src=<unknown>
+INSTR idx=391 @ 0x54c name=shli rd=13 rs1=13 rs2=None imm=ImmValue(value=16) src=<unknown>
+INSTR idx=392 @ 0x550 name=ori rd=13 rs1=13 rs2=None imm=ImmLabelPart(label='printi', part='low') src=<unknown>
+INSTR idx=393 @ 0x554 name=jalr rd=14 rs1=13 rs2=None imm=ImmValue(value=0) src=<unknown>
+INSTR idx=394 @ 0x558 name=addi rd=5 rs1=0 rs2=None imm=ImmValue(value=0) src=<unknown>
+INSTR idx=395 @ 0x55c name=beq rd=5 rs1=0 rs2=None imm=ImmLabel(name='ELSE40') src=<unknown>
+INSTR idx=396 @ 0x560 name=addi rd=6 rs1=0 rs2=None imm=ImmValue(value=42) src=<unknown>
+INSTR idx=397 @ 0x564 name=addi rd=5 rs1=6 rs2=None imm=ImmValue(value=0) src=<unknown>
+INSTR idx=398 @ 0x568 name=addi rd=1 rs1=0 rs2=None imm=ImmLabelPart(label='str_8', part='high') src=<unknown>
+INSTR idx=399 @ 0x56c name=shli rd=1 rs1=1 rs2=None imm=ImmValue(value=16) src=<unknown>
+INSTR idx=400 @ 0x570 name=ori rd=1 rs1=1 rs2=None imm=ImmLabelPart(label='str_8', part='low') src=<unknown>
+INSTR idx=401 @ 0x574 name=addi rd=13 rs1=0 rs2=None imm=ImmLabelPart(label='print_string', part='high') src=<unknown>
+INSTR idx=402 @ 0x578 name=shli rd=13 rs1=13 rs2=None imm=ImmValue(value=16) src=<unknown>
+INSTR idx=403 @ 0x57c name=ori rd=13 rs1=13 rs2=None imm=ImmLabelPart(label='print_string', part='low') src=<unknown>
+INSTR idx=404 @ 0x580 name=jalr rd=14 rs1=13 rs2=None imm=ImmValue(value=0) src=<unknown>
+INSTR idx=405 @ 0x584 name=addi rd=1 rs1=5 rs2=None imm=ImmValue(value=0) src=<unknown>
+INSTR idx=406 @ 0x588 name=addi rd=13 rs1=0 rs2=None imm=ImmLabelPart(label='printi', part='high') src=<unknown>
+INSTR idx=407 @ 0x58c name=shli rd=13 rs1=13 rs2=None imm=ImmValue(value=16) src=<unknown>
+INSTR idx=408 @ 0x590 name=ori rd=13 rs1=13 rs2=None imm=ImmLabelPart(label='printi', part='low') src=<unknown>
+INSTR idx=409 @ 0x594 name=jalr rd=14 rs1=13 rs2=None imm=ImmValue(value=0) src=<unknown>
+INSTR idx=410 @ 0x598 name=addi rd=1 rs1=5 rs2=None imm=ImmValue(value=0) src=<unknown>
+INSTR idx=411 @ 0x59c name=addi rd=13 rs1=0 rs2=None imm=ImmLabelPart(label='free', part='high') src=<unknown>
+INSTR idx=412 @ 0x5a0 name=shli rd=13 rs1=13 rs2=None imm=ImmValue(value=16) src=<unknown>
+INSTR idx=413 @ 0x5a4 name=ori rd=13 rs1=13 rs2=None imm=ImmLabelPart(label='free', part='low') src=<unknown>
+INSTR idx=414 @ 0x5a8 name=jalr rd=14 rs1=13 rs2=None imm=ImmValue(value=0) src=<unknown>
+INSTR idx=415 @ 0x5ac name=addi rd=13 rs1=0 rs2=None imm=ImmLabelPart(label='IF_END41', part='high') src=<unknown>
+INSTR idx=416 @ 0x5b0 name=shli rd=13 rs1=13 rs2=None imm=ImmValue(value=16) src=<unknown>
+INSTR idx=417 @ 0x5b4 name=ori rd=13 rs1=13 rs2=None imm=ImmLabelPart(label='IF_END41', part='low') src=<unknown>
+INSTR idx=418 @ 0x5b8 name=jalr rd=0 rs1=13 rs2=None imm=ImmValue(value=0) src=<unknown>
+LABEL ELSE40 -> 0x5bc src=rospos/build/rospos.ros:292
+INSTR idx=420 @ 0x5bc name=addi rd=1 rs1=0 rs2=None imm=ImmLabelPart(label='str_9', part='high') src=<unknown>
+INSTR idx=421 @ 0x5c0 name=shli rd=1 rs1=1 rs2=None imm=ImmValue(value=16) src=<unknown>
+INSTR idx=422 @ 0x5c4 name=ori rd=1 rs1=1 rs2=None imm=ImmLabelPart(label='str_9', part='low') src=<unknown>
+INSTR idx=423 @ 0x5c8 name=addi rd=13 rs1=0 rs2=None imm=ImmLabelPart(label='print_string', part='high') src=<unknown>
+INSTR idx=424 @ 0x5cc name=shli rd=13 rs1=13 rs2=None imm=ImmValue(value=16) src=<unknown>
+INSTR idx=425 @ 0x5d0 name=ori rd=13 rs1=13 rs2=None imm=ImmLabelPart(label='print_string', part='low') src=<unknown>
+INSTR idx=426 @ 0x5d4 name=jalr rd=14 rs1=13 rs2=None imm=ImmValue(value=0) src=<unknown>
+LABEL IF_END41 -> 0x5d8 src=rospos/build/rospos.ros:295
+INSTR idx=428 @ 0x5d8 name=addi rd=7 rs1=0 rs2=None imm=ImmValue(value=0) src=<unknown>
+INSTR idx=429 @ 0x5dc name=add rd=1 rs1=7 rs2=0 imm=None src=<unknown>
+INSTR idx=430 @ 0x5e0 name=lw rd=ImmValue(value=14) rs1=15 rs2=None imm=ImmValue(value=0) src=<unknown>
+INSTR idx=431 @ 0x5e4 name=addi rd=15 rs1=15 rs2=None imm=ImmValue(value=4) src=<unknown>
+INSTR idx=432 @ 0x5e8 name=jalr rd=0 rs1=14 rs2=None imm=ImmValue(value=0) src=<unknown>
+LABEL str_0 -> 0x5ec src=rospos/build/rospos.ros:304
+DATA @ 0x5ec size 4: b'0\x00' src=rospos/build/rospos.ros:305
+LABEL str_1 -> 0x5f0 src=rospos/build/rospos.ros:307
+DATA @ 0x5f0 size 4: b'-\x00' src=rospos/build/rospos.ros:308
+LABEL str_2 -> 0x5f4 src=rospos/build/rospos.ros:310
+DATA @ 0x5f4 size 4: b'\x00\x00' src=rospos/build/rospos.ros:311
+LABEL str_3 -> 0x5f8 src=rospos/build/rospos.ros:313
+DATA @ 0x5f8 size 4: b'\n\x00' src=rospos/build/rospos.ros:314
+LABEL str_4 -> 0x5fc src=rospos/build/rospos.ros:316
+DATA @ 0x5fc size 10: b'Block at \x00' src=rospos/build/rospos.ros:317
+LABEL str_5 -> 0x606 src=rospos/build/rospos.ros:319
+DATA @ 0x606 size 10: b' - Size: \x00' src=rospos/build/rospos.ros:320
+LABEL str_6 -> 0x610 src=rospos/build/rospos.ros:322
+DATA @ 0x610 size 10: b' - Free: \x00' src=rospos/build/rospos.ros:323
+LABEL str_7 -> 0x61a src=rospos/build/rospos.ros:325
+DATA @ 0x61a size 26: b'The result of 10 + 5 is: \x00' src=rospos/build/rospos.ros:326
+LABEL str_8 -> 0x634 src=rospos/build/rospos.ros:328
+DATA @ 0x634 size 43: b'Dynamically allocated integer value (42): \x00' src=rospos/build/rospos.ros:329
+LABEL str_9 -> 0x65f src=rospos/build/rospos.ros:331
+DATA @ 0x65f size 25: b'Memory allocation failed\x00' src=rospos/build/rospos.ros:332
+LABEL buffer_buf3 -> 0x678 src=rospos/build/rospos.ros:334
+DATA @ 0x678 size 12: b'\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00' src=<unknown>
