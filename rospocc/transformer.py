@@ -622,33 +622,33 @@ def transform_to_translation_unit(input_data: Tree) -> dict:
 
         if node_name == "unary":
             children = n.get("children", [])
+            print("unary children:", children)
             if not children:
                 return None
             first = children[0]
-            if isinstance(first, dict) and "token" in first:
+            if isinstance(first, dict) and "node" in first:
                 if len(children) > 1:
-                    if first["token"] == "*":
+                    if first["node"] == "deref":
                         inner = expr_from_node(children[1])
                         if inner:
                             return {"type": "deref", "expr": inner}
-                    elif first["token"] == "&":
+                    elif first["node"] == "addr_of":
                         inner = expr_from_node(children[1])
                         if inner:
                             return {"type": "addr_of", "expr": inner}
-                    elif first["token"] == "-":
+                    elif first["node"] == "uminus":
                         inner = expr_from_node(children[1])
                         if inner:
                             return {"type": "binop", "op": "-", "left": {"type": "const", "value": 0}, "right": inner}
-                    elif first["token"] == "+":
+                    elif first["node"] == "uplus":
                         inner = expr_from_node(children[1])
                         if inner:
                             return {"type": "binop", "op": "+", "left": {"type": "const", "value": 0}, "right": inner}
-                    elif first["token"] == "!":
+                    elif first["node"] == "not":
                         inner = expr_from_node(children[1])
                         if inner:
-                            print("UNARY NOT operand:", inner)
                             return {"type": "unop", "op": "!", "operand": inner}
-                    elif first["token"] == "~":
+                    elif first["node"] == "bitnot":
                         inner = expr_from_node(children[1])
                         if inner:
                             return {"type": "binop", "op": "^", "left": {"type": "const", "value": 0xFFFF_FFFF}, "right": inner}

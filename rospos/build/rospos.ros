@@ -8,13 +8,12 @@
   JMP main
 
 .FUNC print_string:
-  // prologue (minimal)
   PUSH r14
   LLI r2, 268435456    // init tty_addr
 WHILE1:
   LB r3, r1, 0    // deref
   BEQ r3, r0, WHILE_END2
-  LB r4, r1, 0    // load *str for __sb
+  LB r4, r1, 0    // deref
   SB r4, r2, 0    // intrinsic __sb
   LLI r5, 1    // load immediate 1
   ADD r6, r1, r5    // binop +
@@ -27,7 +26,6 @@ WHILE_END2:
   RET
 
 .FUNC print_char:
-  // prologue (minimal)
   PUSH r14
   LLI r2, 268435456    // init tty_addr
   SB r1, r2, 0    // intrinsic __sb
@@ -37,47 +35,55 @@ WHILE_END2:
   RET
 
 .FUNC printi:
-  // prologue (minimal)
   PUSH r14
   LLI r2, buffer_buf3    // init buffer (buffer addr)
   LLI r3, 0    // init i
   BEQ r1, r0, ELSE4
+  PUSH r2    // save caller temp
+  PUSH r3    // save caller temp
   LLI r1, str_0    // load immediate str_0
   CALL print_char
-  ADDI r1, r1, 0    // assign num
+  POP r3    // restore caller temp
+  POP r2    // restore caller temp
+  LLI r4, 0    // load immediate 0
+  SUB r5, r4, r1    // binop -
+  ADDI r1, r5, 0    // assign num
   JMP IF_END5
 ELSE4:
 IF_END5:
 WHILE6:
-  LLI r4, 0    // load immediate 0
-  LLI r5, 0    // compare init 0
-  BLT r4, r1, CMP_TRUE8
+  LLI r6, 0    // load immediate 0
+  LLI r7, 0    // compare init 0
+  BLT r6, r1, CMP_TRUE8
   JMP CMP_END9
 CMP_TRUE8:
-  LLI r5, 1
+  LLI r7, 1
 CMP_END9:
-  BEQ r5, r0, WHILE_END7
-  LLI r6, str_1    // load immediate str_1
-  LLI r7, 10    // load immediate 10
-  REM r8, r1, r7    // binop %
-  ADD r9, r6, r8    // binop +
-  ADDI r2, r9, 0    // assign buffer
-  LLI r10, 10    // load immediate 10
-  DIV r11, r1, r10    // binop /
-  ADDI r1, r11, 0    // assign num
+  BEQ r7, r0, WHILE_END7
+  LLI r8, str_1    // load immediate str_1
+  LLI r9, 10    // load immediate 10
+  REM r10, r1, r9    // binop %
+  ADD r11, r8, r10    // binop +
+  ADDI r2, r11, 0    // assign buffer
+  LLI r12, 10    // load immediate 10
+  DIV r4, r1, r12    // binop /
+  ADDI r1, r4, 0    // assign num
   JMP WHILE6
 WHILE_END7:
-  LLI r12, str_2    // load immediate str_2
-  ADDI r2, r12, 0    // assign buffer
+  LLI r5, str_2    // load immediate str_2
+  ADDI r2, r5, 0    // assign buffer
+  PUSH r2    // save caller temp
+  PUSH r3    // save caller temp
   ADDI r1, r2, 0    // move arg 0
   CALL print_string
+  POP r3    // restore caller temp
+  POP r2    // restore caller temp
   // epilogue and return
   ADDI r1, r0, 0  // ensure r1=0
   POP r14
   RET
 
 .FUNC read_char:
-  // prologue (minimal)
   PUSH r14
   LLI r2, 268435456    // init tty_addr
   LB r1, r2, 0    // intrinsic __lb -> return
@@ -85,45 +91,43 @@ WHILE_END7:
   RET
 
 .FUNC read_string:
-  // prologue (minimal)
   PUSH r14
-  LLI r2, 268435456    // init tty_addr
-  LLI r3, 0    // init i
+  LLI r3, 268435456    // init tty_addr
+  LLI r4, 0    // init i
 WHILE10:
-  LLI r4, 1    // load immediate 1
-  SUB r5, r2, r4    // binop -
-  LLI r6, 0    // compare init 0
-  BLT r3, r5, CMP_TRUE12
+  LLI r5, 1    // load immediate 1
+  SUB r6, r2, r5    // binop -
+  LLI r7, 0    // compare init 0
+  BLT r4, r6, CMP_TRUE12
   JMP CMP_END13
 CMP_TRUE12:
-  LLI r6, 1
+  LLI r7, 1
 CMP_END13:
-  BEQ r6, r0, WHILE_END11
-  LLI r7, 0    // zero init c
-  LLI r8, str_3    // load immediate str_3
-  LLI r9, 0    // compare init 0
-  BEQ r7, r8, CMP_TRUE16
+  BEQ r7, r0, WHILE_END11
+  LLI r8, 0    // zero init c
+  LLI r9, str_3    // load immediate str_3
+  LLI r10, 0    // compare init 0
+  BEQ r8, r9, CMP_TRUE16
   JMP CMP_END17
 CMP_TRUE16:
-  LLI r9, 1
+  LLI r10, 1
 CMP_END17:
-  BEQ r9, r0, ELSE14
+  BEQ r10, r0, ELSE14
   JMP IF_END15
 ELSE14:
 IF_END15:
-  ADDI r1, r7, 0    // assign buffer
+  ADDI r1, r8, 0    // assign buffer
   JMP WHILE10
 WHILE_END11:
-  LLI r10, str_2    // load immediate str_2
-  ADDI r1, r10, 0    // assign buffer
-  LLI r11, 0    // zero init buffer
+  LLI r11, str_2    // load immediate str_2
+  ADDI r1, r11, 0    // assign buffer
+  LLI r12, 0    // zero init buffer
   // epilogue and return
   ADDI r1, r0, 0  // ensure r1=0
   POP r14
   RET
 
 .FUNC align4:
-  // prologue (minimal)
   PUSH r14
   LLI r2, 3    // init v
   LLI r3, 0    // zero init v
@@ -133,7 +137,6 @@ WHILE_END11:
   RET
 
 .FUNC malloc:
-  // prologue (minimal)
   PUSH r14
   BEQ r1, r0, ELSE18
   LLI r2, 0    // zero init nullptr
@@ -198,62 +201,73 @@ IF_END29:
 ELSE30:
 IF_END31:
   ADD r12, r9, r3    // binop +
+  PUSH r2    // save caller temp
+  PUSH r6    // save caller temp
+  PUSH r10    // save caller temp
+  PUSH r12    // save caller temp
   ADDI r1, r12, 0    // move arg 0
   CALL align4
+  POP r12    // restore caller temp
+  POP r10    // restore caller temp
+  POP r6    // restore caller temp
+  POP r2    // restore caller temp
   ADDI r12, r1, 0    // assign heap_top
   ADD r1, r9, r0
   POP r14
   RET
 
 .FUNC free:
-  // prologue (minimal)
   PUSH r14
-  LB r2, r1, 0    // deref
-  BEQ r2, r0, ELSE32
+  BEQ r1, r0, UNOP_NOT_TRUE34
+  LLI r2, 0    // operand is nonzero -> false
+  JMP UNOP_NOT_END35
+UNOP_NOT_TRUE34:
+  LLI r2, 1    // operand is zero -> true
+UNOP_NOT_END35:
+  BEQ r0, r0, ELSE32
   JMP IF_END33
 ELSE32:
 IF_END33:
   LLI r3, 0    // zero init current
   LLI r4, 0    // zero init prev
-WHILE34:
-  BEQ r3, r0, WHILE_END35
-  BEQ r3, r0, ELSE36
+WHILE36:
+  BEQ r3, r0, WHILE_END37
+  BEQ r3, r0, ELSE38
   LLI r5, 0    // zero init true
   ADDI r3, r5, 0    // assign current
-  BEQ r3, r0, ELSE38
+  BEQ r3, r0, ELSE40
   LLI r6, 0    // zero init size
   LLI r7, 0    // zero init HEAP_HEADER_SIZE
   ADD r8, r6, r7    // binop +
   ADDI r3, r8, 0    // assign current
   ADDI r3, r3, 0    // assign current
-  JMP IF_END39
-ELSE38:
-IF_END39:
-  BEQ r4, r0, ELSE40
-  ADD r9, r6, r7    // binop +
-  ADDI r4, r9, 0    // assign prev
-  ADDI r4, r3, 0    // assign prev
   JMP IF_END41
 ELSE40:
 IF_END41:
-  JMP IF_END37
-ELSE36:
-IF_END37:
+  BEQ r4, r0, ELSE42
+  ADD r9, r6, r7    // binop +
+  ADDI r4, r9, 0    // assign prev
+  ADDI r4, r3, 0    // assign prev
+  JMP IF_END43
+ELSE42:
+IF_END43:
+  JMP IF_END39
+ELSE38:
+IF_END39:
   ADDI r4, r3, 0    // assign prev
   ADDI r3, r3, 0    // assign current
-  JMP WHILE34
-WHILE_END35:
+  JMP WHILE36
+WHILE_END37:
   // epilogue and return
   ADDI r1, r0, 0  // ensure r1=0
   POP r14
   RET
 
 .FUNC _dump_heap_info:
-  // prologue (minimal)
   PUSH r14
   LLI r2, 0    // zero init current
-WHILE42:
-  BEQ r2, r0, WHILE_END43
+WHILE44:
+  BEQ r2, r0, WHILE_END45
   LLI r1, str_4    // load immediate str_4
   CALL print_string
   ADDI r1, r2, 0    // move arg 0
@@ -269,48 +283,80 @@ WHILE42:
   LLI r1, str_3    // load immediate str_3
   CALL print_string
   ADDI r2, r2, 0    // assign current
-  JMP WHILE42
-WHILE_END43:
+  JMP WHILE44
+WHILE_END45:
   // epilogue and return
   ADDI r1, r0, 0  // ensure r1=0
   POP r14
   RET
 
 .FUNC add:
-  // prologue (minimal)
   PUSH r14
-  ADD r2, r1, r2    // binop +
-  ADD r1, r2, r0
+  ADD r3, r1, r2    // binop +
+  ADD r1, r3, r0
   POP r14
   RET
 
 .FUNC main:
-  // prologue (minimal)
   PUSH r14
   LLI r2, 5    // init x
   LLI r3, 10    // init y
   LLI r4, 0    // zero init result
+  PUSH r2    // save caller temp
+  PUSH r3    // save caller temp
+  PUSH r4    // save caller temp
   LLI r1, str_7    // load immediate str_7
   CALL print_string
+  POP r4    // restore caller temp
+  POP r3    // restore caller temp
+  POP r2    // restore caller temp
+  PUSH r2    // save caller temp
+  PUSH r3    // save caller temp
+  PUSH r4    // save caller temp
   ADDI r1, r4, 0    // move arg 0
   CALL printi
+  POP r4    // restore caller temp
+  POP r3    // restore caller temp
+  POP r2    // restore caller temp
   LLI r5, 0    // zero init ptr
-  BEQ r5, r0, ELSE44
-  LLI r6, 42    // load immediate 42
-  ADDI r5, r6, 0    // assign ptr
+  BEQ r5, r0, ELSE46
+  PUSH r2    // save caller temp
+  PUSH r3    // save caller temp
+  PUSH r4    // save caller temp
   LLI r1, str_8    // load immediate str_8
   CALL print_string
-  ADDI r1, r5, 0    // move arg 0
+  POP r4    // restore caller temp
+  POP r3    // restore caller temp
+  POP r2    // restore caller temp
+  PUSH r2    // save caller temp
+  PUSH r3    // save caller temp
+  PUSH r4    // save caller temp
+  // unsupported arg type {'type': 'deref', 'expr': {'type': 'var', 'name': 'ptr'}}
   CALL printi
+  POP r4    // restore caller temp
+  POP r3    // restore caller temp
+  POP r2    // restore caller temp
+  PUSH r2    // save caller temp
+  PUSH r3    // save caller temp
+  PUSH r4    // save caller temp
   ADDI r1, r5, 0    // move arg 0
   CALL free
-  JMP IF_END45
-ELSE44:
+  POP r4    // restore caller temp
+  POP r3    // restore caller temp
+  POP r2    // restore caller temp
+  JMP IF_END47
+ELSE46:
+  PUSH r2    // save caller temp
+  PUSH r3    // save caller temp
+  PUSH r4    // save caller temp
   LLI r1, str_9    // load immediate str_9
   CALL print_string
-IF_END45:
-  LLI r7, 0    // load immediate 0
-  ADD r1, r7, r0
+  POP r4    // restore caller temp
+  POP r3    // restore caller temp
+  POP r2    // restore caller temp
+IF_END47:
+  LLI r6, 0    // load immediate 0
+  ADD r1, r6, r0
   POP r14
   RET
 

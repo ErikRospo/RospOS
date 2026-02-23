@@ -247,8 +247,6 @@ class Emitter:
     def emit_function_def(self, fn: Dict[str, Any], out):
         name = fn.get("name", "fn")
         out.write(f".FUNC {name}:\n")
-        # Minimal prologue comment
-        out.write(f"  // prologue (minimal)\n")
         # Save link register so nested calls won't clobber return address
         out.write(f"  PUSH {abi.LINK_REG}\n")
         # Reset allocator state per function
@@ -256,11 +254,15 @@ class Emitter:
         self.var_regs = {}
         # start var_types with globals available
         self.var_types = dict(self.global_types)
-
         # Handle parameters: map param names to argument registers (r1..r4)
         params = fn.get("params", []) or []
         for i, p in enumerate(params[: len(abi.ARG_REGS)]):
             self.var_regs[p] = abi.ARG_REGS[i]
+            try:
+                self.reg_free.remove(abi.ARG_REGS[i]) # mark arg registers as used 
+            except ValueError:
+                print(f"Warning: arg register {abi.ARG_REGS[i]} not in free list")
+   
         # import any parameter type hints (e.g., pointer params)
         for pname, ptype in (fn.get("param_types", {}) or {}).items():
             self.var_types[pname] = ptype
@@ -549,6 +551,7 @@ class Emitter:
                 self.free_reg(rr)
             return rd
         elif t == "unop":
+            print(f"unop expr: {expr!r}")
             op = expr.get("op")
             operand = expr.get("operand")
             r_operand = self.emit_expr(operand, out)
@@ -584,7 +587,11 @@ class Emitter:
                 handler(args, out)
                 return
             print(f"Warning: no handler for intrinsic {name!r}")
-            # fall back to emitting as a regular call (which may fail if it's truly unsupported)
+            # fall back to emitting as a regular call (which will fail in the assembler if it's truly unsupported)
+        live_regs = [r for r in abi.TEMP_REGS if r not in self.reg_free]
+        if live_regs:
+            for r in live_regs:
+                out.write(f"  PUSH {r}    // save caller temp\n")
         # Default: regular function call -> place up to 4 args into ARG_REGS then CALL
         for i, a in enumerate(args[: len(abi.ARG_REGS)]):
             dest = abi.ARG_REGS[i]
@@ -601,7 +608,13 @@ class Emitter:
             else:
                 out.write(f"  // unsupported arg type {a!r}\n")
 
+
+
         out.write(f"  CALL {call_expr.get('name')}\n")
+
+        if live_regs:
+            for r in reversed(live_regs):
+                out.write(f"  POP {r}    // restore caller temp\n")
 
 
 def emit_translation_unit(ast: Any, out_path: str):
