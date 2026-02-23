@@ -1,13 +1,11 @@
 import argparse
-import json
-from copy import copy
 from pathlib import Path
 
-from lark import Lark, Token, Tree
+from lark import Lark
 
 import emitter
 from preprocess import preprocess
-from transformer import  transform_to_translation_unit
+from transformer import transform_to_translation_unit
 
 # Resolve all filesystem paths relative to this file
 HERE = Path(__file__).resolve().parent
@@ -47,7 +45,7 @@ if args.output is None:
     out = Path(args.input).with_suffix(".ros")
 else:
     out = Path(args.output)
-    
+
 out_dir = out.parent
 out_dir.mkdir(exist_ok=True)
 

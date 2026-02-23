@@ -1,32 +1,9 @@
-"""Simple .ros emitter for C AST (starter implementation).
 
-This module provides a minimal emitter scaffold described in
-rospocc/ros_from_CAST.prompt.md. It emits readable .ros text for
-very small AST shapes to allow iterative testing with the existing
-`rospoas` assembler.
 
-The AST expected by this starter is minimal and dictionary-based:
-
-translation_unit = {
-    'globals': [ ... ],
-    'functions': [ {'name': 'main', 'body': [ stmt, ... ] }, ... ]
-}
-
-Supported statement forms in this starter:
-- {'type': 'return', 'value': expr}
-
-Supported expr forms:
-- {'type': 'const', 'value': int}
-
-This is intentionally small; the emitter will be extended later.
-"""
-
-import os
 from pathlib import Path
 from typing import Any, Dict
 
 import abi
-from typing import Any
 
 
 class Emitter:
@@ -51,7 +28,9 @@ class Emitter:
         out.write(f"  LLI {reg}, {value}    // load immediate {value}\n")
 
     # helper: allocate a register for a variable and optionally initialize it
-    def _alloc_var_reg(self, name: str, out, init_value=None, typ="int", is_label=False, comment=None):
+    def _alloc_var_reg(
+        self, name: str, out, init_value=None, typ="int", is_label=False, comment=None
+    ):
         r = self.alloc_reg()
         self.var_regs[name] = r
         self.var_types[name] = typ
@@ -59,7 +38,9 @@ class Emitter:
             out.write(f"  LLI {r}, 0    // zero init {name}\n")
         else:
             if is_label:
-                out.write(f"  LLI {r}, {init_value}    // init {name} ({comment or 'addr'})\n")
+                out.write(
+                    f"  LLI {r}, {init_value}    // init {name} ({comment or 'addr'})\n"
+                )
             else:
                 out.write(f"  LLI {r}, {int(init_value)}    // init {name}\n")
         return r
@@ -292,7 +273,9 @@ class Emitter:
             self.emit_statement(stmt, out)
 
         # If no return was emitted in the body, emit epilogue and return 0
-        assert self.had_return != None, "had_return flag should be set by body statements, or at least not be unset from initial False"
+        assert (
+            self.had_return != None
+        ), "had_return flag should be set by body statements, or at least not be unset from initial False"
         if not self.had_return:
             out.write(f"  // epilogue and return\n")
             out.write(
@@ -333,7 +316,14 @@ class Emitter:
                     size = int(init.get("size", 0))
                     lbl = self.gen_label(f"{name}_buf")
                     self.global_spaces.append({"name": lbl, "size": size})
-                    r = self._alloc_var_reg(name, out, init_value=lbl, typ="char_ptr", is_label=True, comment="buffer addr")
+                    r = self._alloc_var_reg(
+                        name,
+                        out,
+                        init_value=lbl,
+                        typ="char_ptr",
+                        is_label=True,
+                        comment="buffer addr",
+                    )
                 elif init.get("type") == "call":
                     self._emit_call(init, out)
                     r = self.alloc_reg()
@@ -347,7 +337,14 @@ class Emitter:
                         self.var_types[name] = "int"
                     out.write(f"  ADDI {r}, {abi.RETURN_REG}, 0\n")
                 elif init.get("type") == "string_addr":
-                    r = self._alloc_var_reg(name, out, init_value=init.get("label"), typ="char_ptr", is_label=True, comment="string addr")
+                    r = self._alloc_var_reg(
+                        name,
+                        out,
+                        init_value=init.get("label"),
+                        typ="char_ptr",
+                        is_label=True,
+                        comment="string addr",
+                    )
                 else:
                     out.write(f"  // decl {name} with unsupported init {init!r}\n")
             else:
@@ -356,7 +353,7 @@ class Emitter:
             target = stmt.get("target")
             val = stmt.get("value")
             rval = self.emit_expr(val, out)
-            
+
             if isinstance(target, dict) and target.get("type") == "deref":
                 addr_expr = target.get("expr")
                 raddr = self.emit_expr(addr_expr, out)
@@ -416,7 +413,11 @@ class Emitter:
                 self.emit_statement(s, out)
             out.write(f"  JMP {lbl_end}\n")
             out.write(f"{lbl_else}:\n")
-            for s in else_stmts: # If there's an else block, emit it; otherwise this is a no-op
+            for (
+                s
+            ) in (
+                else_stmts
+            ):  # If there's an else block, emit it; otherwise this is a no-op
                 self.emit_statement(s, out)
             out.write(f"{lbl_end}:\n")
 
@@ -429,12 +430,18 @@ class Emitter:
                 "args": stmt.get("args", []) or stmt.get("call", {}).get("args", []),
             }
             # handle intrinsics via existing helper
-            if isinstance(call_expr.get("name"), str) and call_expr.get("name").startswith("__"):
+            if isinstance(call_expr.get("name"), str) and call_expr.get(
+                "name"
+            ).startswith("__"):
                 # reuse _emit_call which already handles intrinsics
-                self._emit_call({"name": call_expr.get("name"), "args": call_expr.get("args")}, out)
+                self._emit_call(
+                    {"name": call_expr.get("name"), "args": call_expr.get("args")}, out
+                )
             else:
                 # prepare arguments and emit call
-                self._emit_call({"name": call_expr.get("name"), "args": call_expr.get("args")}, out)
+                self._emit_call(
+                    {"name": call_expr.get("name"), "args": call_expr.get("args")}, out
+                )
 
         elif t == "while":
             # while loop: evaluate cond, branch to end if zero, loop body, repeat

@@ -1,7 +1,4 @@
-"""ABI constants for rospocc emitter.
-
-Registers are represented as assembler names (e.g. 'r1').
-"""
+# ABI definitions for RospOS
 
 ARG_REGS = ["r1", "r2", "r3", "r4"]
 RETURN_REG = "r1"
