@@ -233,6 +233,156 @@ def transform_to_translation_unit(input_data: Tree) -> dict:
             res.extend(walk(c) or [])
         return res
 
+    def _process_decl_stmt(decl_node):
+        """Process a declaration statement node."""
+        nonlocal str_count
+        name = None
+        init = None
+        for cc in decl_node.get("children", []):
+            if (
+                isinstance(cc, dict)
+                and cc.get("node") == "init_declarator_list"
+            ):
+                for idc in cc.get("children", []):
+                    if (
+                        isinstance(idc, dict)
+                        and idc.get("node") == "init_declarator"
+                    ):
+                        for part in idc.get("children", []):
+                            if (
+                                isinstance(part, dict)
+                                and part.get("node") == "declarator"
+                            ):
+                                decl_children = part.get("children", [])
+                                ident = _find_identifier(part)
+                                if ident:
+                                    name = ident
+                                for i, t in enumerate(decl_children):
+                                    if (
+                                        isinstance(t, dict)
+                                        and "node" in t
+                                        and t["node"] == "array"
+                                    ):
+                                        child = decl_children[i]
+                                        assert child["node"] == "array"
+                                        c_child = child.get("children", [])
+                                        assert len(c_child) > 0
+                                        if "int" in c_child[0]:
+                                            array_len = int(c_child[0]["int"])
+                                            init = {
+                                                "type": "array",
+                                                "size": array_len,
+                                            }
+                                        elif "token" in c_child[0]:
+                                            tok = c_child[0]["token"]
+                                            if isinstance(
+                                                tok, str
+                                            ) and re.fullmatch(
+                                                r"-?\d+|0x[0-9a-fA-F]+", tok
+                                            ):
+                                                try:
+                                                    array_len = int(tok, 0)
+                                                except Exception:
+                                                    array_len = int(tok)
+                                                init = {
+                                                    "type": "array",
+                                                    "size": array_len,
+                                                }
+                                        break
+                                if init is not None:
+                                    break
+                            if (
+                                isinstance(part, dict)
+                                and part.get("node") is None
+                            ):
+                                if "int" in part:
+                                    init = {
+                                        "type": "const",
+                                        "value": int(part["int"]),
+                                    }
+                                elif "token" in part:
+                                    tok = part.get("token")
+                                    if isinstance(tok, str) and re.fullmatch(
+                                        r"-?\d+|0x[0-9a-fA-F]+", tok
+                                    ):
+                                        try:
+                                            init = {
+                                                "type": "const",
+                                                "value": int(tok, 0),
+                                            }
+                                        except Exception:
+                                            init = {
+                                                "type": "const",
+                                                "value": int(tok),
+                                            }
+                            if (
+                                isinstance(part, dict)
+                                and "token" in part
+                                and part["token"].startswith('"')
+                            ):
+                                val = part["token"][1:-1]
+                                lab, str_count = _get_or_create_string_label(
+                                    val, str_pool, str_count, tu
+                                )
+                                init = {"type": "string_addr", "label": lab}
+                            if isinstance(part, dict) and part.get("node"):
+                                val = _find_number_in_node(part)
+                                if val is not None:
+                                    init = {"type": "const", "value": val}
+        return [{"type": "decl", "name": name, "init": init}] if name else []
+
+    def _process_stmt_node(stmt_node):
+        """Process a single statement node (compound or simple).
+        
+        Returns a list of statements. If stmt_node is a compound_stmt,
+        recursively processes all statements within it.
+        """
+        if not isinstance(stmt_node, dict):
+            return []
+        
+        nd = stmt_node.get("node")
+        
+        # Compound statement: recursively process all children
+        if nd == "compound_stmt":
+            return compound_to_stmts(stmt_node)
+        
+        # Expression statement
+        if nd == "expr_stmt":
+            expr = None
+            for cc in stmt_node.get("children", []):
+                if isinstance(cc, dict):
+                    expr = expr_from_node(cc)
+                    break
+            if expr:
+                if expr.get("type") == "call":
+                    return [{
+                        "type": "call_stmt",
+                        "name": expr.get("name"),
+                        "args": expr.get("args", []),
+                    }]
+                elif expr.get("type") == "assign":
+                    return [{
+                        "type": "assign",
+                        "target": expr.get("target"),
+                        "value": expr.get("value"),
+                    }]
+            return []
+        
+        # Declaration statement
+        if nd == "declaration":
+            return _process_decl_stmt(stmt_node)
+        
+        # Return statement
+        if nd == "return_stmt":
+            expr = None
+            for cc in stmt_node.get("children", []):
+                if isinstance(cc, dict):
+                    expr = expr_from_node(cc)
+                    break
+            return [{"type": "return", "value": expr}]
+        
+        return []
+
     def compound_to_stmts(comp_node):
         nonlocal str_count
         stmts = []
@@ -240,6 +390,8 @@ def transform_to_translation_unit(input_data: Tree) -> dict:
             if not isinstance(c, dict):
                 continue
             nd = c.get("node")
+            
+            # Handle while statements
             if nd == "while_stmt":
                 children = c.get("children", [])
                 cond = None
@@ -288,36 +440,12 @@ def transform_to_translation_unit(input_data: Tree) -> dict:
                         cond = expr_from_node(children[2])
                 if body_node is None and children:
                     body_node = children[-1]
-                body_stmts = []
-                if body_node and isinstance(body_node, dict):
-                    if body_node.get("node") == "compound_stmt":
-                        body_stmts = compound_to_stmts(body_node)
-                    else:
-                        if body_node.get("node") == "expr_stmt":
-                            ev = None
-                            for cc in body_node.get("children", []):
-                                if isinstance(cc, dict):
-                                    ev = expr_from_node(cc)
-                                    break
-                            if ev:
-                                if ev.get("type") == "call":
-                                    body_stmts.append(
-                                        {
-                                            "type": "call_stmt",
-                                            "name": ev.get("name"),
-                                            "args": ev.get("args", []),
-                                        }
-                                    )
-                                elif ev.get("type") == "assign":
-                                    body_stmts.append(
-                                        {
-                                            "type": "assign",
-                                            "target": ev.get("target"),
-                                            "value": ev.get("value"),
-                                        }
-                                    )
+                
+                body_stmts = _process_stmt_node(body_node) if body_node else []
                 stmts.append({"type": "while", "cond": cond, "body": body_stmts})
                 continue
+            
+            # Handle if statements
             if nd == "if_stmt":
                 children = c.get("children", [])
                 cond = None
@@ -416,287 +544,16 @@ def transform_to_translation_unit(input_data: Tree) -> dict:
                                 else_node = children[i + 1]
                                 break
 
-                then_stmts = []
-                else_stmts = []
-                if then_node:
-                    if then_node.get("node") == "compound_stmt":
-                        then_stmts = compound_to_stmts(then_node)
-                    else:
-                        if then_node.get("node") == "expr_stmt":
-                            ev = None
-                            for cc in then_node.get("children", []):
-                                if isinstance(cc, dict):
-                                    ev = expr_from_node(cc)
-                                    break
-                            if ev:
-                                if ev.get("type") == "call":
-                                    then_stmts.append(
-                                        {
-                                            "type": "call_stmt",
-                                            "name": ev.get("name"),
-                                            "args": ev.get("args", []),
-                                        }
-                                    )
-                                elif ev.get("type") == "assign":
-                                    then_stmts.append(
-                                        {
-                                            "type": "assign",
-                                            "target": ev.get("target"),
-                                            "value": ev.get("value"),
-                                        }
-                                    )
-                        elif then_node.get("node") == "declaration":
-                            name = None
-                            init = None
-                            for cc in then_node.get("children", []):
-                                if (
-                                    isinstance(cc, dict)
-                                    and cc.get("node") == "init_declarator_list"
-                                ):
-                                    for idc in cc.get("children", []):
-                                        if (
-                                            isinstance(idc, dict)
-                                            and idc.get("node") == "init_declarator"
-                                        ):
-                                            for part in idc.get("children", []):
-                                                if (
-                                                    isinstance(part, dict)
-                                                    and part.get("node") == "declarator"
-                                                ):
-                                                    ident = _find_identifier(part)
-                                                    if ident:
-                                                        name = ident
-                                                if (
-                                                    isinstance(part, dict)
-                                                    and "token" in part
-                                                    and part["token"].startswith('"')
-                                                ):
-                                                    val = part["token"][1:-1]
-                                                    lab, str_count = (
-                                                        _get_or_create_string_label(
-                                                            val, str_pool, str_count, tu
-                                                        )
-                                                    )
-                                                    init = {
-                                                        "type": "string_addr",
-                                                        "label": lab,
-                                                    }
-                            if name:
-                                then_stmts.append(
-                                    {"type": "decl", "name": name, "init": init}
-                                )
-                        elif then_node.get("node") == "return_stmt":
-                            rv = None
-                            for cc in then_node.get("children", []):
-                                if isinstance(cc, dict):
-                                    rv = expr_from_node(cc)
-                                    break
-                            then_stmts.append({"type": "return", "value": rv})
-
-                if else_node:
-                    if else_node.get("node") == "compound_stmt":
-                        else_stmts = compound_to_stmts(else_node)
-                    else:
-                        if else_node.get("node") == "expr_stmt":
-                            ev = None
-                            for cc in else_node.get("children", []):
-                                if isinstance(cc, dict):
-                                    ev = expr_from_node(cc)
-                                    break
-                            if ev:
-                                if ev.get("type") == "call":
-                                    else_stmts.append(
-                                        {
-                                            "type": "call_stmt",
-                                            "name": ev.get("name"),
-                                            "args": ev.get("args", []),
-                                        }
-                                    )
-                                elif ev.get("type") == "assign":
-                                    else_stmts.append(
-                                        {
-                                            "type": "assign",
-                                            "target": ev.get("target"),
-                                            "value": ev.get("value"),
-                                        }
-                                    )
-                        elif else_node.get("node") == "declaration":
-                            name = None
-                            init = None
-                            for cc in else_node.get("children", []):
-                                if (
-                                    isinstance(cc, dict)
-                                    and cc.get("node") == "init_declarator_list"
-                                ):
-                                    for idc in cc.get("children", []):
-                                        if (
-                                            isinstance(idc, dict)
-                                            and idc.get("node") == "init_declarator"
-                                        ):
-                                            for part in idc.get("children", []):
-                                                if (
-                                                    isinstance(part, dict)
-                                                    and part.get("node") == "declarator"
-                                                ):
-                                                    ident = _find_identifier(part)
-                                                    if ident:
-                                                        name = ident
-                                                if (
-                                                    isinstance(part, dict)
-                                                    and "token" in part
-                                                    and part["token"].startswith('"')
-                                                ):
-                                                    val = part["token"][1:-1]
-                                                    lab, str_count = (
-                                                        _get_or_create_string_label(
-                                                            val, str_pool, str_count, tu
-                                                        )
-                                                    )
-                                                    init = {
-                                                        "type": "string_addr",
-                                                        "label": lab,
-                                                    }
-                            if name:
-                                else_stmts.append(
-                                    {"type": "decl", "name": name, "init": init}
-                                )
-                        elif else_node.get("node") == "return_stmt":
-                            rv = None
-                            for cc in else_node.get("children", []):
-                                if isinstance(cc, dict):
-                                    rv = expr_from_node(cc)
-                                    break
-                            else_stmts.append({"type": "return", "value": rv})
+                then_stmts = _process_stmt_node(then_node) if then_node else []
+                else_stmts = _process_stmt_node(else_node) if else_node else []
 
                 stmts.append(
                     {"type": "if", "cond": cond, "then": then_stmts, "else": else_stmts}
                 )
                 continue
-            if nd == "return_stmt":
-                expr = None
-                for cc in c.get("children", []):
-                    if isinstance(cc, dict):
-                        expr = expr_from_node(cc)
-                        break
-                stmts.append({"type": "return", "value": expr})
-            elif nd == "declaration":
-                name = None
-                init = None
-                for cc in c.get("children", []):
-                    if (
-                        isinstance(cc, dict)
-                        and cc.get("node") == "init_declarator_list"
-                    ):
-                        for idc in cc.get("children", []):
-                            if (
-                                isinstance(idc, dict)
-                                and idc.get("node") == "init_declarator"
-                            ):
-                                for part in idc.get("children", []):
-                                    if (
-                                        isinstance(part, dict)
-                                        and part.get("node") == "declarator"
-                                    ):
-                                        decl_children = part.get("children", [])
-                                        ident = _find_identifier(part)
-                                        if ident:
-                                            name = ident
-                                        for i, t in enumerate(decl_children):
-                                            if (
-                                                isinstance(t, dict)
-                                                and "node" in t
-                                                and t["node"] == "array"
-                                            ):
-                                                child = decl_children[i]
-                                                assert child["node"] == "array"
-                                                c_child = child.get("children", [])
-                                                assert len(c_child) > 0
-                                                if "int" in c_child[0]:
-                                                    array_len = int(c_child[0]["int"])
-                                                    init = {
-                                                        "type": "array",
-                                                        "size": array_len,
-                                                    }
-                                                elif "token" in c_child[0]:
-                                                    tok = c_child[0]["token"]
-                                                    if isinstance(
-                                                        tok, str
-                                                    ) and re.fullmatch(
-                                                        r"-?\d+|0x[0-9a-fA-F]+", tok
-                                                    ):
-                                                        try:
-                                                            array_len = int(tok, 0)
-                                                        except Exception:
-                                                            array_len = int(tok)
-                                                        init = {
-                                                            "type": "array",
-                                                            "size": array_len,
-                                                        }
-                                                break
-                                        if init is not None:
-                                            break
-                                    if (
-                                        isinstance(part, dict)
-                                        and part.get("node") is None
-                                    ):
-                                        if "int" in part:
-                                            init = {
-                                                "type": "const",
-                                                "value": int(part["int"]),
-                                            }
-                                        elif "token" in part:
-                                            tok = part.get("token")
-                                            if isinstance(tok, str) and re.fullmatch(
-                                                r"-?\d+|0x[0-9a-fA-F]+", tok
-                                            ):
-                                                try:
-                                                    init = {
-                                                        "type": "const",
-                                                        "value": int(tok, 0),
-                                                    }
-                                                except Exception:
-                                                    init = {
-                                                        "type": "const",
-                                                        "value": int(tok),
-                                                    }
-                                    if (
-                                        isinstance(part, dict)
-                                        and "token" in part
-                                        and part["token"].startswith('"')
-                                    ):
-                                        val = part["token"][1:-1]
-                                        lab, str_count = _get_or_create_string_label(
-                                            val, str_pool, str_count, tu
-                                        )
-                                        init = {"type": "string_addr", "label": lab}
-                                    if isinstance(part, dict) and part.get("node"):
-                                        val = _find_number_in_node(part)
-                                        if val is not None:
-                                            init = {"type": "const", "value": val}
-                if name:
-                    stmts.append({"type": "decl", "name": name, "init": init})
-            elif nd == "expr_stmt":
-                expr = None
-                for cc in c.get("children", []):
-                    if isinstance(cc, dict):
-                        expr = expr_from_node(cc)
-                    if expr:
-                        if expr.get("type") == "call":
-                            stmts.append(
-                                {
-                                    "type": "call_stmt",
-                                    "name": expr.get("name"),
-                                    "args": expr.get("args", []),
-                                }
-                            )
-                        elif expr.get("type") == "assign":
-                            stmts.append(
-                                {
-                                    "type": "assign",
-                                    "target": expr.get("target"),
-                                    "value": expr.get("value"),
-                                }
-                            )
+            
+            # Handle simple statements using the helper
+            stmts.extend(_process_stmt_node(c))
         return stmts
 
     def expr_from_node(n):
