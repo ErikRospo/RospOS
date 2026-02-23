@@ -359,6 +359,46 @@ WHILE_END2:
   RET
 ```
 
-Even at this stage, you can still see how the compiler is able to generate assembly that matches the structure of the original C code. This is both an upside and a downside, as it makes it easier to understand the generated assembly, but it also means that the generated assembly is not very optimized. For example, the compiler generates a second `LB r3, r1, 0` instruction to load the value of `*str` for the `__sb` intrinsic, even though it already loaded that value in the previous instruction for the loop condition. Similarly, `LLI r3, 1` followed by `ADD r2, r1, r3` can be optimized to `ADDI r2, r1, 1`. Both are simple optimizations that I can implement in the future, but for now, I'm just focused on getting the basic functionality working.
+Even at this stage, you can still see how the compiler is able to generate assembly that matches the structure of the original ROSC code. This is both an upside and a downside, as it makes it easier to understand the generated assembly, but it also means that the generated assembly is not very optimized. For example, the compiler generates a second `LB r3, r1, 0` instruction to load the value of `*str` for the `__sb` intrinsic, even though it already loaded that value in the previous instruction for the loop condition. Similarly, `LLI r3, 1` followed by `ADD r2, r1, r3` can be optimized to `ADDI r2, r1, 1`. Both are simple optimizations that I can implement in the future, but for now, I'm just focused on getting the basic functionality working. This version also clobbers r2, which means that it'll attempt to store *str in some random memory address pointed to by r2 after the loop, which is a bug that I need to fix.
 
 One approach I didn't consider until very late in the process was to just hijack, say, a RISC-V compiler and then try to parse and patch that to work with my assembly. In hindsight, that may have been easier. It also would have likely just worked. However, I think it was a good learning experience to implement the compiler from scratch, as it forced me to really understand how compilers work and how to generate assembly code from a high-level language. It also gave me a lot of flexibility in terms of how I wanted to design the language and the features I wanted to support, without having to worry about the constraints of an existing compiler. My attempts to patch an existing compiler ended up being harder than anticipated, and given that I'd already spent a while working on my own compiler, sunk cost bias kept me from just switching to that approach, even though it may have been more efficient in the long run.
+
+
+The first version of the compiler that produced correct assembly for this function was a large milestone, but there is still a lot of work to be done to get it to a point where it can compile more complex programs, as well as to implement optimizations and additional language features. However, I'm happy with the progress I've made so far, and I'm excited to continue working on the compiler and improving it over time.
+
+Assembly:
+
+```
+.FUNC print_string:
+  // prologue (minimal)
+  PUSH r14
+  LLI r2, 268435456    // init tty_addr
+WHILE1:
+  LB r3, r1, 0    // deref
+  BEQ r3, r0, WHILE_END2
+  LB r4, r1, 0    // load *str for __sb
+  SB r4, r2, 0    // intrinsic __sb
+  LLI r5, 1    // load immediate 1
+  ADD r6, r1, r5    // binop +
+  ADDI r1, r6, 0    // assign str
+  JMP WHILE1
+WHILE_END2:
+  // epilogue and return
+  ADDI r1, r0, 0  // ensure r1=0
+  POP r14
+  RET
+```
+
+Similar to the previous version, this version also closely follows the structure of the original ROSC code, but the issue with r2 has been fixed. The compiler now uses r5 and r6 as temporary registers for the immediate value and the result of the addition, which prevents it from clobbering r2. This does fix the issue, but is not efficient, as it uses 3 instructions where one would work. That is, 
+
+```
+  LLI r5, 1    // load immediate 1
+  ADD r6, r1, r5    // binop +
+  ADDI r1, r6, 0    // assign str
+```
+
+can be optimized to 
+
+```
+  ADDI r1, r1, 1    // binop + and assign str
+```
