@@ -548,6 +548,22 @@ class Emitter:
             if rr in abi.TEMP_REGS:
                 self.free_reg(rr)
             return rd
+        elif t == "unop":
+            op = expr.get("op")
+            operand = expr.get("operand")
+            r_operand = self.emit_expr(operand, out)
+            rd = self.alloc_reg()
+            nt_label = self.gen_label("UNOP_NOT_TRUE")
+            ne_label = self.gen_label("UNOP_NOT_END")
+            if op == "!":
+                # logical NOT: rd = (operand == 0) ? 1 : 0
+                out.write(f"  BEQ {r_operand}, {abi.SPECIAL_REGS['zero']}, {nt_label}\n")
+                out.write(f"  LLI {rd}, 0    // operand is nonzero -> false\n")
+                out.write(f"  JMP {ne_label}\n")
+                out.write(f"{nt_label}:\n")
+                out.write(f"  LLI {rd}, 1    // operand is zero -> true\n")
+                out.write(f"{ne_label}:\n")
+                
         elif t == "string_addr":
             lbl = expr.get("label")
             r = self.alloc_reg()

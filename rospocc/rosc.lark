@@ -70,13 +70,37 @@ return_stmt: "return" expr? ";"
 ?bit_or: bit_xor ("|" bit_xor)*
 ?bit_xor: bit_and ("^" bit_and)*
 ?bit_and: equality ("&" equality)*
-?equality: relational (("==" | "!=") relational)*
-?relational: shift (("<" | ">" | "<=" | ">=") shift)*
-?shift: additive (("<<" | ">>") additive)*
-?additive: multiplicative (("+" | "-") multiplicative)*
-?multiplicative: unary (("*" | "/" | "%") unary)*
-?unary: ("+" | "-" | "!" | "*" | "&" | "~") unary
-	| postfix
+equality_op: "=="  -> eq
+			| "!=" -> neq
+			
+?equality: relational (equality_op relational)*
+relational_op: "<" -> lt
+			 | ">" -> gt
+			 | "<=" -> lte
+			 | ">=" -> gte
+?relational: shift (relational_op shift)*
+
+shift_op: "<<" -> lshift
+		| ">>" -> rshift
+?shift: additive (shift_op additive)*
+
+additive_op: "+" -> plus
+		   | "-" -> minus
+?additive: multiplicative (additive_op multiplicative)*
+
+multiplicative_op: "*" -> mult
+				 | "/" -> div
+				 | "%" -> mod
+?multiplicative: unary (multiplicative_op unary)*
+
+unary_op: "+" -> uplus
+		| "-" -> uminus
+		| "!" -> not
+		| "*" -> deref
+		| "&" -> addrof
+		| "~" -> bitnot
+?unary: (unary_op unary)
+	  | postfix
 
 ?postfix: primary ( ("[" expr "]") | ("(" arg_list? ")") | "++" | "--" | ("." NAME) | ("->" NAME) )*
 

@@ -44,30 +44,31 @@ WHILE_END2:
   BEQ r1, r0, ELSE4
   LLI r1, str_0    // load immediate str_0
   CALL print_char
+  ADDI r1, r1, 0    // assign num
   JMP IF_END5
 ELSE4:
 IF_END5:
-  BEQ r1, r0, ELSE6
-  LLI r1, str_1    // load immediate str_1
-  CALL print_char
-  ADDI r1, r1, 0    // assign num
-  JMP IF_END7
-ELSE6:
-IF_END7:
-WHILE8:
-  BEQ r1, r0, WHILE_END9
-  LLI r4, str_0    // load immediate str_0
-  LLI r5, 10    // load immediate 10
-  MUL r6, r1, r5    // binop *
-  ADD r7, r4, r6    // binop +
-  ADDI r2, r7, 0    // assign buffer
-  LLI r8, 10    // load immediate 10
-  MUL r9, r1, r8    // binop *
-  ADDI r1, r9, 0    // assign num
-  JMP WHILE8
-WHILE_END9:
-  LLI r10, str_2    // load immediate str_2
-  ADDI r2, r10, 0    // assign buffer
+WHILE6:
+  LLI r4, 0    // load immediate 0
+  LLI r5, 0    // compare init 0
+  BLT r4, r1, CMP_TRUE8
+  JMP CMP_END9
+CMP_TRUE8:
+  LLI r5, 1
+CMP_END9:
+  BEQ r5, r0, WHILE_END7
+  LLI r6, str_1    // load immediate str_1
+  LLI r7, 10    // load immediate 10
+  REM r8, r1, r7    // binop %
+  ADD r9, r6, r8    // binop +
+  ADDI r2, r9, 0    // assign buffer
+  LLI r10, 10    // load immediate 10
+  DIV r11, r1, r10    // binop /
+  ADDI r1, r11, 0    // assign num
+  JMP WHILE6
+WHILE_END7:
+  LLI r12, str_2    // load immediate str_2
+  ADDI r2, r12, 0    // assign buffer
   ADDI r1, r2, 0    // move arg 0
   CALL print_string
   // epilogue and return
@@ -89,18 +90,33 @@ WHILE_END9:
   LLI r2, 268435456    // init tty_addr
   LLI r3, 0    // init i
 WHILE10:
-  BEQ r3, r0, WHILE_END11
-  LLI r4, 0    // zero init c
-  BEQ r4, r0, ELSE12
-  JMP IF_END13
-ELSE12:
-IF_END13:
-  ADDI r1, r4, 0    // assign buffer
+  LLI r4, 1    // load immediate 1
+  SUB r5, r2, r4    // binop -
+  LLI r6, 0    // compare init 0
+  BLT r3, r5, CMP_TRUE12
+  JMP CMP_END13
+CMP_TRUE12:
+  LLI r6, 1
+CMP_END13:
+  BEQ r6, r0, WHILE_END11
+  LLI r7, 0    // zero init c
+  LLI r8, str_3    // load immediate str_3
+  LLI r9, 0    // compare init 0
+  BEQ r7, r8, CMP_TRUE16
+  JMP CMP_END17
+CMP_TRUE16:
+  LLI r9, 1
+CMP_END17:
+  BEQ r9, r0, ELSE14
+  JMP IF_END15
+ELSE14:
+IF_END15:
+  ADDI r1, r7, 0    // assign buffer
   JMP WHILE10
 WHILE_END11:
-  LLI r5, str_2    // load immediate str_2
-  ADDI r1, r5, 0    // assign buffer
-  LLI r6, 0    // zero init buffer
+  LLI r10, str_2    // load immediate str_2
+  ADDI r1, r10, 0    // assign buffer
+  LLI r11, 0    // zero init buffer
   // epilogue and return
   ADDI r1, r0, 0  // ensure r1=0
   POP r14
@@ -119,23 +135,23 @@ WHILE_END11:
 .FUNC malloc:
   // prologue (minimal)
   PUSH r14
-  BEQ r1, r0, ELSE14
+  BEQ r1, r0, ELSE18
   LLI r2, 0    // zero init nullptr
-  JMP IF_END15
-ELSE14:
-IF_END15:
+  JMP IF_END19
+ELSE18:
+IF_END19:
   LLI r3, 0    // zero init asize
   LLI r4, 0    // zero init current
   LLI r5, 0    // zero init prev
-WHILE16:
-  BEQ r4, r0, WHILE_END17
-  BEQ r4, r0, ELSE18
+WHILE20:
+  BEQ r4, r0, WHILE_END21
+  BEQ r4, r0, ELSE22
   LLI r6, 0    // zero init remaining
-  BEQ r6, r0, ELSE20
+  BEQ r6, r0, ELSE24
   LLI r7, 0    // zero init new_hdr_addr
   LLI r8, 0    // zero init new_block
   LLI r9, 0    // zero init HEAP_HEADER_SIZE
-  ADD r10, r6, r9    // binop +
+  SUB r10, r6, r9    // binop -
   ADDI r8, r10, 0    // assign new_block
   ADD r11, r7, r9    // binop +
   ADDI r8, r11, 0    // assign new_block
@@ -144,43 +160,43 @@ WHILE16:
   ADDI r8, r4, 0    // assign new_block
   ADDI r4, r3, 0    // assign current
   ADDI r4, r8, 0    // assign current
-  JMP IF_END21
-ELSE20:
-IF_END21:
+  JMP IF_END25
+ELSE24:
+IF_END25:
   LLI r4, 0    // zero init false
   ADDI r4, r4, 0    // assign current
   ADD r1, r4, r0
   POP r14
   RET
-  JMP IF_END19
-ELSE18:
-IF_END19:
-  ADDI r5, r4, 0    // assign prev
-  ADDI r4, r4, 0    // assign current
-  JMP WHILE16
-WHILE_END17:
-  LLI r6, 0    // zero init hdr_addr
-  LLI r9, 0    // zero init payload_addr
-  BEQ r9, r0, ELSE22
-  LLI r10, 0    // zero init nullptr
   JMP IF_END23
 ELSE22:
 IF_END23:
-  BEQ r9, r0, ELSE24
+  ADDI r5, r4, 0    // assign prev
+  ADDI r4, r4, 0    // assign current
+  JMP WHILE20
+WHILE_END21:
+  LLI r6, 0    // zero init hdr_addr
+  LLI r9, 0    // zero init payload_addr
+  BEQ r9, r0, ELSE26
+  LLI r10, 0    // zero init nullptr
+  JMP IF_END27
+ELSE26:
+IF_END27:
+  BEQ r9, r0, ELSE28
   LLI r7, 0    // zero init nullptr
-  JMP IF_END25
-ELSE24:
-IF_END25:
+  JMP IF_END29
+ELSE28:
+IF_END29:
   LLI r11, 0    // zero init new_block
   ADDI r11, r3, 0    // assign new_block
   ADDI r11, r9, 0    // assign new_block
   ADDI r11, r4, 0    // assign new_block
   ADDI r11, r7, 0    // assign new_block
-  BEQ r5, r0, ELSE26
+  BEQ r5, r0, ELSE30
   ADDI r5, r11, 0    // assign prev
-  JMP IF_END27
-ELSE26:
-IF_END27:
+  JMP IF_END31
+ELSE30:
+IF_END31:
   ADD r12, r9, r3    // binop +
   ADDI r1, r12, 0    // move arg 0
   CALL align4
@@ -193,40 +209,40 @@ IF_END27:
   // prologue (minimal)
   PUSH r14
   LB r2, r1, 0    // deref
-  BEQ r2, r0, ELSE28
-  JMP IF_END29
-ELSE28:
-IF_END29:
+  BEQ r2, r0, ELSE32
+  JMP IF_END33
+ELSE32:
+IF_END33:
   LLI r3, 0    // zero init current
   LLI r4, 0    // zero init prev
-WHILE30:
-  BEQ r3, r0, WHILE_END31
-  BEQ r3, r0, ELSE32
+WHILE34:
+  BEQ r3, r0, WHILE_END35
+  BEQ r3, r0, ELSE36
   LLI r5, 0    // zero init true
   ADDI r3, r5, 0    // assign current
-  BEQ r3, r0, ELSE34
+  BEQ r3, r0, ELSE38
   LLI r6, 0    // zero init size
   LLI r7, 0    // zero init HEAP_HEADER_SIZE
   ADD r8, r6, r7    // binop +
   ADDI r3, r8, 0    // assign current
   ADDI r3, r3, 0    // assign current
-  JMP IF_END35
-ELSE34:
-IF_END35:
-  BEQ r4, r0, ELSE36
+  JMP IF_END39
+ELSE38:
+IF_END39:
+  BEQ r4, r0, ELSE40
   ADD r9, r6, r7    // binop +
   ADDI r4, r9, 0    // assign prev
   ADDI r4, r3, 0    // assign prev
+  JMP IF_END41
+ELSE40:
+IF_END41:
   JMP IF_END37
 ELSE36:
 IF_END37:
-  JMP IF_END33
-ELSE32:
-IF_END33:
   ADDI r4, r3, 0    // assign prev
   ADDI r3, r3, 0    // assign current
-  JMP WHILE30
-WHILE_END31:
+  JMP WHILE34
+WHILE_END35:
   // epilogue and return
   ADDI r1, r0, 0  // ensure r1=0
   POP r14
@@ -236,8 +252,8 @@ WHILE_END31:
   // prologue (minimal)
   PUSH r14
   LLI r2, 0    // zero init current
-WHILE38:
-  BEQ r2, r0, WHILE_END39
+WHILE42:
+  BEQ r2, r0, WHILE_END43
   LLI r1, str_4    // load immediate str_4
   CALL print_string
   ADDI r1, r2, 0    // move arg 0
@@ -253,8 +269,8 @@ WHILE38:
   LLI r1, str_3    // load immediate str_3
   CALL print_string
   ADDI r2, r2, 0    // assign current
-  JMP WHILE38
-WHILE_END39:
+  JMP WHILE42
+WHILE_END43:
   // epilogue and return
   ADDI r1, r0, 0  // ensure r1=0
   POP r14
@@ -279,7 +295,7 @@ WHILE_END39:
   ADDI r1, r4, 0    // move arg 0
   CALL printi
   LLI r5, 0    // zero init ptr
-  BEQ r5, r0, ELSE40
+  BEQ r5, r0, ELSE44
   LLI r6, 42    // load immediate 42
   ADDI r5, r6, 0    // assign ptr
   LLI r1, str_8    // load immediate str_8
@@ -288,11 +304,11 @@ WHILE_END39:
   CALL printi
   ADDI r1, r5, 0    // move arg 0
   CALL free
-  JMP IF_END41
-ELSE40:
+  JMP IF_END45
+ELSE44:
   LLI r1, str_9    // load immediate str_9
   CALL print_string
-IF_END41:
+IF_END45:
   LLI r7, 0    // load immediate 0
   ADD r1, r7, r0
   POP r14
@@ -302,10 +318,10 @@ IF_END41:
 // Globals
 
 str_0:
-  .STR "0"
+  .STR "-"
 
 str_1:
-  .STR "-"
+  .STR "0"
 
 str_2:
   .STR "\0"

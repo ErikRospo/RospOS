@@ -16,19 +16,24 @@ translation_unit
               declarator	tty_addr
               0x10000000
         while_stmt
-          str
+          unary
+            deref
+            str
           compound_stmt
             expr_stmt
               postfix
                 __sb
                 arg_list
                   tty_addr
-                  str
+                  unary
+                    deref
+                    str
             expr_stmt
               assignment
                 str
                 additive
                   str
+                  plus
                   1
   external_decl
     function_def
@@ -74,19 +79,9 @@ translation_unit
               declarator	i
               0
         if_stmt
-          equality
-            num
-            0
-          compound_stmt
-            expr_stmt
-              postfix
-                print_char
-                arg_list	"0"
-            declaration
-              type_specifier	return
-        if_stmt
           relational
             num
+            lt
             0
           compound_stmt
             expr_stmt
@@ -96,10 +91,13 @@ translation_unit
             expr_stmt
               assignment
                 num
-                num
+                unary
+                  uminus
+                  num
         while_stmt
           relational
             num
+            gt
             0
           compound_stmt
             expr_stmt
@@ -109,14 +107,17 @@ translation_unit
                   i
                 additive
                   "0"
+                  plus
                   multiplicative
                     num
+                    mod
                     10
             expr_stmt
               assignment
                 num
                 multiplicative
                   num
+                  div
                   10
         expr_stmt
           assignment
@@ -133,8 +134,10 @@ translation_unit
                 0
           relational
             j
+            lt
             multiplicative
               i
+              div
               2
           j
           compound_stmt
@@ -155,7 +158,9 @@ translation_unit
                   buffer
                   additive
                     i
+                    minus
                     j
+                    minus
                     1
             expr_stmt
               assignment
@@ -163,7 +168,9 @@ translation_unit
                   buffer
                   additive
                     i
+                    minus
                     j
+                    minus
                     1
                 temp
         expr_stmt
@@ -214,8 +221,10 @@ translation_unit
         while_stmt
           relational
             i
+            lt
             additive
               max_len
+              minus
               1
           compound_stmt
             declaration
@@ -230,9 +239,11 @@ translation_unit
               logic_or
                 equality
                   c
+                  eq
                   "\n"
                 equality
                   c
+                  eq
                   "\r"
               declaration
                 type_specifier	break
@@ -326,8 +337,11 @@ translation_unit
               bit_and
                 additive
                   size
+                  plus
                   3
-                3
+                unary
+                  bitnot
+                  3
         declaration
           type_specifier	return
           init_declarator_list
@@ -346,6 +360,7 @@ translation_unit
         if_stmt
           relational
             size
+            lte
             0
           declaration
             type_specifier	return
@@ -388,6 +403,7 @@ translation_unit
                   postfix
                     current
                     size
+                  gte
                   asize
               compound_stmt
                 declaration
@@ -399,12 +415,15 @@ translation_unit
                         postfix
                           current
                           size
+                        minus
                         asize
                 if_stmt
                   relational
                     remaining
+                    gte
                     additive
                       HEAP_HEADER_SIZE
+                      plus
                       4
                   compound_stmt
                     declaration
@@ -416,6 +435,7 @@ translation_unit
                             postfix
                               current
                               addr
+                            plus
                             asize
                     declaration
                       type_specifier	HeapInfo
@@ -435,6 +455,7 @@ translation_unit
                           size
                         additive
                           remaining
+                          minus
                           HEAP_HEADER_SIZE
                     expr_stmt
                       assignment
@@ -443,6 +464,7 @@ translation_unit
                           addr
                         additive
                           new_hdr_addr
+                          plus
                           HEAP_HEADER_SIZE
                     expr_stmt
                       assignment
@@ -506,10 +528,12 @@ translation_unit
               declarator	payload_addr
               additive
                 hdr_addr
+                plus
                 HEAP_HEADER_SIZE
         if_stmt
           relational
             payload_addr
+            lte
             0
           declaration
             type_specifier	return
@@ -520,7 +544,9 @@ translation_unit
           relational
             additive
               payload_addr
+              plus
               asize
+            gt
             STACK_LIMIT
           declaration
             type_specifier	return
@@ -579,6 +605,7 @@ translation_unit
             heap_top
             additive
               payload_addr
+              plus
               asize
         expr_stmt
           assignment
@@ -602,7 +629,9 @@ translation_unit
           declarator	ptr
       compound_stmt
         if_stmt
-          ptr
+          unary
+            not
+            ptr
           declaration
             type_specifier	return
         declaration
@@ -629,6 +658,7 @@ translation_unit
                 postfix
                   current
                   addr
+                eq
                 cast
                   type_specifier
                   ptr
@@ -656,7 +686,9 @@ translation_unit
                           size
                         additive
                           size
+                          plus
                           HEAP_HEADER_SIZE
+                          plus
                           postfix
                             current
                             next
@@ -684,7 +716,9 @@ translation_unit
                           size
                         additive
                           size
+                          plus
                           HEAP_HEADER_SIZE
+                          plus
                           postfix
                             current
                             size
@@ -785,6 +819,7 @@ translation_unit
         return_stmt
           additive
             a
+            plus
             b
   external_decl
     function_def
@@ -843,7 +878,9 @@ translation_unit
           compound_stmt
             expr_stmt
               assignment
-                ptr
+                unary
+                  deref
+                  ptr
                 42
             expr_stmt
               postfix
@@ -852,7 +889,10 @@ translation_unit
             expr_stmt
               postfix
                 printi
-                arg_list	ptr
+                arg_list
+                  unary
+                    deref
+                    ptr
             expr_stmt
               postfix
                 free

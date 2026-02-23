@@ -735,34 +735,26 @@ def transform_to_translation_unit(input_data: Tree) -> dict:
             if not children:
                 return None
             left = expr_from_node(children[0])
-            right = expr_from_node(children[1])
-            print(node_name, left, right)
-            op_map = {"additive": "+", "multiplicative": "*"}  # for now
-            op = op_map.get(node_name, None)
+            op= children[1].get("node")
+            right = expr_from_node(children[2])
+            op_map = {"plus": "+", "minus": "-",
+                      "mult": "*", "div": "/", "mod": "%",
+                      "lt": "<", "gt": ">", "lte": "<=", "gte": ">=",
+                      "eq": "==", "neq": "!=",
+                      "lshift": "<<", "rshift": ">>"}  # for now
+            op = op_map.get(op, None)
             if op and left and right:
                 return {"type": "binop", "op": op, "left": left, "right": right}
+            
 
         if node_name == "assignment":
             children = n.get("children", [])
+            print("assignment children:", children )
             if len(children) == 2:
                 # handle simple assignment without operator token (e.g. in for loop)
                 left = expr_from_node(children[0])
                 right = expr_from_node(children[1])
                 print(left, right)
-                if left and left.get("type") == "var":
-                    return {
-                        "type": "assign",
-                        "target": left.get("name"),
-                        "value": right,
-                    }
-            if (
-                len(children) >= 3
-                and isinstance(children[1], dict)
-                and "token" in children[1]
-                and children[1]["token"] == "="
-            ):
-                left = expr_from_node(children[0])
-                right = expr_from_node(children[2])
                 if left and left.get("type") == "var":
                     return {
                         "type": "assign",
@@ -776,11 +768,34 @@ def transform_to_translation_unit(input_data: Tree) -> dict:
             if not children:
                 return None
             first = children[0]
-            if isinstance(first, dict) and "token" in first and first["token"] == "*":
+            if isinstance(first, dict) and "token" in first:
                 if len(children) > 1:
-                    inner = expr_from_node(children[1])
-                    if inner:
-                        return {"type": "deref", "expr": inner}
+                    if first["token"] == "*":
+                        inner = expr_from_node(children[1])
+                        if inner:
+                            return {"type": "deref", "expr": inner}
+                    elif first["token"] == "&":
+                        inner = expr_from_node(children[1])
+                        if inner:
+                            return {"type": "addr_of", "expr": inner}
+                    elif first["token"] == "-":
+                        inner = expr_from_node(children[1])
+                        if inner:
+                            return {"type": "binop", "op": "-", "left": {"type": "const", "value": 0}, "right": inner}
+                    elif first["token"] == "+":
+                        inner = expr_from_node(children[1])
+                        if inner:
+                            return {"type": "binop", "op": "+", "left": {"type": "const", "value": 0}, "right": inner}
+                    elif first["token"] == "!":
+                        inner = expr_from_node(children[1])
+                        if inner:
+                            print("UNARY NOT operand:", inner)
+                            return {"type": "unop", "op": "!", "operand": inner}
+                    elif first["token"] == "~":
+                        inner = expr_from_node(children[1])
+                        if inner:
+                            return {"type": "binop", "op": "^", "left": {"type": "const", "value": 0xFFFF_FFFF}, "right": inner}
+                        
             return expr_from_node(children[-1])
 
         if node_name == "postfix":
