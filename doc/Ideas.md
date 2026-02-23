@@ -23,15 +23,16 @@ LLI followed by arith/logical op with the same register should be pseudo-op'd to
   LLI r2, 268435456    // init tty_addr
 WHILE1:
   LB r3, r1, 0    // deref
-  BEQ r3, r0, WHILE_END2  
-  // This next instruction can be removed, as r3 already holds the value of *str.
-  // WE CAN OPTIMIZE THIS!
-  LB r3, r1, 0    // load *str for __sb 
-  SB r3, r2, 0    // intrinsic __sb
-  // LLI r3, 1, followed by the ADD r2, r1, r3 can be optimized to an ADDI. This is a fairly common pattern for pointer arithmetic with a constant offset, so optimizing this can have a fairly large impact. 
-  LLI r3, 1    // load immediate 1
-  ADD r2, r1, r3    // binop +
-  // assign to unsupported target 'str'
+  BEQ r3, r0, WHILE_END2 
+  LB r4, r1, 0    // load *str for __sb
+  SB r4, r2, 0    // intrinsic __sb
+  // This will be hard to guarantee that there will be no side effects, but in cases where we just loaded a value into a register and then need that value again, we can reuse the register instead of loading it again from memory. In this case, we loaded *str into r3, and then we need to use that value again for the __sb intrinsic. Instead of loading it again into r4, we can just reuse r3 for the __sb intrinsic, which would eliminate the redundant load instruction.
+  
+  LLI r5, 1    // load immediate 1
+  ADD r6, r1, r5    // binop +
+  ADDI r1, r6, 0    // assign str
+  // ^ These three lines can be optimized into just one line: ADDI r1, r1, 1 --- we can directly add the immediate to the register without needing to load the immediate into another register and then add it. This is a common optimization for simple arithmetic operations with constants, and it would eliminate the need for the LLI and the additional ADD instruction, resulting in more efficient code.
+  // Because we're the compiler, we know that we just allocated r5 and r6 for this specific purpose and they aren't used anywhere else, so we can safely eliminate them and just do the addition directly on r1 with the immediate value.
   JMP WHILE1
 WHILE_END2:
   // epilogue and return

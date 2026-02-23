@@ -107,7 +107,7 @@ class Emitter:
             and reg not in self.reg_free
             and reg in abi.TEMP_REGS
         ):
-            self.reg_free.insert(0, reg)
+            self.reg_free.append(reg)
 
     # Helper: ensure a var has a register (allocate+zero-init if not)
     def _ensure_var_reg(self, name: str, out) -> str:
@@ -379,7 +379,17 @@ class Emitter:
                         self.var_types[name] = "int"
                     # don't free rval here because it's now the variable's register
                     rval = None
-
+            elif isinstance(target, str):
+                dest = self.var_regs.get(target)
+                if dest:
+                    out.write(f"  ADDI {dest}, {rval}, 0    // assign {target}\n")
+                else:
+                    # take ownership of rval register for the variable
+                    self.var_regs[target] = rval
+                    if target not in self.var_types:
+                        self.var_types[target] = "int"
+                    # don't free rval here because it's now the variable's register
+                    rval = None
             else:
                 out.write(f"  // assign to unsupported target {target!r}\n")
 
