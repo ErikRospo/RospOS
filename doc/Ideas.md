@@ -16,6 +16,7 @@ LLI followed by arith/logical op with the same register should be pseudo-op'd to
 #### Unneeded generated instructions
 
 ```
+
 .FUNC print_string:
   // prologue (minimal)
   PUSH r14
@@ -27,6 +28,10 @@ WHILE1:
   // WE CAN OPTIMIZE THIS!
   LB r3, r1, 0    // load *str for __sb 
   SB r3, r2, 0    // intrinsic __sb
+  // LLI r3, 1, followed by the ADD r2, r1, r3 can be optimized to an ADDI. This is a fairly common pattern for pointer arithmetic with a constant offset, so optimizing this can have a fairly large impact. 
+  LLI r3, 1    // load immediate 1
+  ADD r2, r1, r3    // binop +
+  // assign to unsupported target 'str'
   JMP WHILE1
 WHILE_END2:
   // epilogue and return

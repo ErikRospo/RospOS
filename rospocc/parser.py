@@ -40,7 +40,6 @@ with open(args.input, "r") as f:
     code = f.read()
 
 code = preprocess(code)
-preprocessed = copy(code)
 
 # Ensure output directory exists and write files there
 
@@ -52,7 +51,7 @@ else:
 out_dir = out.parent
 out_dir.mkdir(exist_ok=True)
 
-preprocessed_name = f"{Path(args.input).stem}_preprocessed.rosc"
+preprocessed_name = f"{out.stem}_preprocessed.rosc"
 with open(out_dir / preprocessed_name, "w") as f:
     f.write(code)
 

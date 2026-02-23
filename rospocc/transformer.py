@@ -511,14 +511,12 @@ def transform_to_translation_unit(input_data: Tree) -> dict:
                 for cc in c.get("children", []):
                     if isinstance(cc, dict):
                         expr = expr_from_node(cc)
-                        break
-                if expr:
-                    if expr.get("type") == "call":
-                        stmts.append({"type": "call_stmt", "name": expr.get("name"), "args": expr.get("args", [])})
-                    elif expr.get("type") == "assign":
-                        stmts.append({"type": "assign", "target": expr.get("target"), "value": expr.get("value")})
-            else:
-                pass
+                    print("EXPR_STMT EXPR:", expr)
+                    if expr:
+                        if expr.get("type") == "call":
+                            stmts.append({"type": "call_stmt", "name": expr.get("name"), "args": expr.get("args", [])})
+                        elif expr.get("type") == "assign":
+                            stmts.append({"type": "assign", "target": expr.get("target"), "value": expr.get("value")})
         return stmts
 
     def expr_from_node(n):
@@ -549,21 +547,22 @@ def transform_to_translation_unit(input_data: Tree) -> dict:
             if not children:
                 return None
             left = expr_from_node(children[0])
-            i = 1
-            while i + 1 < len(children):
-                opn = children[i]
-                rightn = children[i + 1]
-                op = None
-                if isinstance(opn, dict) and "token" in opn:
-                    op = opn["token"]
-                right = expr_from_node(rightn)
-                if op and left and right:
-                    left = {"type": "binop", "op": op, "left": left, "right": right}
-                i += 2
-            return left
+            right = expr_from_node(children[1])
+            print(node_name, left, right)
+            op_map= {"additive":"+", "multiplicative":"*"} # for now
+            op=op_map.get(node_name, None)
+            if op and left and right:
+                return {"type": "binop", "op": op, "left": left, "right": right}
 
         if node_name == "assignment":
             children = n.get("children", [])
+            if len(children)==2:
+                # handle simple assignment without operator token (e.g. in for loop)
+                left = expr_from_node(children[0])
+                right = expr_from_node(children[1])
+                print(left, right)
+                if left and left.get("type") == "var":
+                    return {"type": "assign", "target": left.get("name"), "value": right}
             if (
                 len(children) >= 3
                 and isinstance(children[1], dict)

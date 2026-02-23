@@ -349,6 +349,8 @@ WHILE1:
   BEQ r3, r0, WHILE_END2
   LB r3, r1, 0    // load *str for __sb
   SB r3, r2, 0    // intrinsic __sb
+  LLI r3, 1    // load immediate 1
+  ADD r2, r1, r3    // binop +
   JMP WHILE1
 WHILE_END2:
   // epilogue and return
@@ -357,6 +359,6 @@ WHILE_END2:
   RET
 ```
 
-The only missing feature to fix is the increment of `str`, which should be simple to implement, as it's just an `ADDI` instruction. Even at this stage, you can still see how the compiler is able to generate assembly that matches the structure of the original C code. This is both an upside and a downside, as it makes it easier to understand the generated assembly, but it also means that the generated assembly is not very optimized. For example, the compiler generates a second `LB r3, r1, 0` instruction to load the value of `*str` for the `__sb` intrinsic, even though it already loaded that value in the previous instruction for the loop condition. This is a simple optimization that I can implement in the future, but for now, I'm just focused on getting the basic functionality working.
+Even at this stage, you can still see how the compiler is able to generate assembly that matches the structure of the original C code. This is both an upside and a downside, as it makes it easier to understand the generated assembly, but it also means that the generated assembly is not very optimized. For example, the compiler generates a second `LB r3, r1, 0` instruction to load the value of `*str` for the `__sb` intrinsic, even though it already loaded that value in the previous instruction for the loop condition. Similarly, `LLI r3, 1` followed by `ADD r2, r1, r3` can be optimized to `ADDI r2, r1, 1`. Both are simple optimizations that I can implement in the future, but for now, I'm just focused on getting the basic functionality working.
 
-One approach I didn't consider until very late in the process was to just hijack, say, a RISC-V compiler and then try to parse and patch that to work with my assembly. In hindsight, that may have been easier. It also would have likely just worked. However, I think it was a good learning experience to implement the compiler from scratch, as it forced me to really understand how compilers work and how to generate assembly code from a high-level language. It also gave me a lot of flexibility in terms of how I wanted to design the language and the features I wanted to support, without having to worry about the constraints of an existing compiler.
+One approach I didn't consider until very late in the process was to just hijack, say, a RISC-V compiler and then try to parse and patch that to work with my assembly. In hindsight, that may have been easier. It also would have likely just worked. However, I think it was a good learning experience to implement the compiler from scratch, as it forced me to really understand how compilers work and how to generate assembly code from a high-level language. It also gave me a lot of flexibility in terms of how I wanted to design the language and the features I wanted to support, without having to worry about the constraints of an existing compiler. My attempts to patch an existing compiler ended up being harder than anticipated, and given that I'd already spent a while working on my own compiler, sunk cost bias kept me from just switching to that approach, even though it may have been more efficient in the long run.

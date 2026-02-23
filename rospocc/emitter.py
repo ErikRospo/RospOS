@@ -356,7 +356,7 @@ class Emitter:
             target = stmt.get("target")
             val = stmt.get("value")
             rval = self.emit_expr(val, out)
-
+            
             if isinstance(target, dict) and target.get("type") == "deref":
                 addr_expr = target.get("expr")
                 raddr = self.emit_expr(addr_expr, out)

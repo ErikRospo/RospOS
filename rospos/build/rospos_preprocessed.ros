@@ -16,6 +16,9 @@ WHILE1:
   BEQ r3, r0, WHILE_END2
   LB r3, r1, 0    // load *str for __sb
   SB r3, r2, 0    // intrinsic __sb
+  LLI r3, 1    // load immediate 1
+  ADD r2, r1, r3    // binop +
+  // assign to unsupported target 'str'
   JMP WHILE1
 WHILE_END2:
   // epilogue and return
@@ -47,13 +50,24 @@ IF_END5:
   BEQ r1, r0, ELSE6
   LLI r1, str_1    // load immediate str_1
   CALL print_char
+  // assign to unsupported target 'num'
   JMP IF_END7
 ELSE6:
 IF_END7:
 WHILE8:
   BEQ r1, r0, WHILE_END9
+  LLI r4, str_0    // load immediate str_0
+  LLI r5, 10    // load immediate 10
+  MUL r6, r1, r5    // binop *
+  ADD r5, r4, r6    // binop +
+  // assign to unsupported target 'buffer'
+  LLI r5, 10    // load immediate 10
+  MUL r6, r1, r5    // binop *
+  // assign to unsupported target 'num'
   JMP WHILE8
 WHILE_END9:
+  LLI r6, str_2    // load immediate str_2
+  // assign to unsupported target 'buffer'
   ADDI r1, r2, 0    // move arg 0
   CALL print_string
   // epilogue and return
@@ -81,8 +95,11 @@ WHILE10:
   JMP IF_END13
 ELSE12:
 IF_END13:
+  // assign to unsupported target 'buffer'
   JMP WHILE10
 WHILE_END11:
+  LLI r3, str_2    // load immediate str_2
+  // assign to unsupported target 'buffer'
   LLI r3, 0    // zero init buffer
   // epilogue and return
   ADDI r1, r0, 0  // ensure r1=0
@@ -117,35 +134,60 @@ WHILE16:
   BEQ r4, r0, ELSE20
   LLI r4, 0    // zero init new_hdr_addr
   LLI r6, 0    // zero init new_block
+  LLI r7, 0    // zero init HEAP_HEADER_SIZE
+  ADD r8, r4, r7    // binop +
+  // assign to unsupported target 'new_block'
+  ADD r8, r4, r7    // binop +
+  // assign to unsupported target 'new_block'
+  LLI r8, 0    // zero init true
+  // assign to unsupported target 'new_block'
+  // assign to unsupported target 'new_block'
+  // assign to unsupported target 'current'
+  // assign to unsupported target 'current'
   JMP IF_END21
 ELSE20:
 IF_END21:
+  LLI r6, 0    // zero init false
+  // assign to unsupported target 'current'
   ADD r1, r4, r0
   POP r14
   RET
   JMP IF_END19
 ELSE18:
 IF_END19:
+  // assign to unsupported target 'prev'
+  // assign to unsupported target 'current'
   JMP WHILE16
 WHILE_END17:
-  LLI r4, 0    // zero init hdr_addr
-  LLI r7, 0    // zero init payload_addr
-  BEQ r7, r0, ELSE22
-  LLI r7, 0    // zero init nullptr
+  LLI r6, 0    // zero init hdr_addr
+  LLI r3, 0    // zero init payload_addr
+  BEQ r3, r0, ELSE22
+  LLI r3, 0    // zero init nullptr
   JMP IF_END23
 ELSE22:
 IF_END23:
-  BEQ r7, r0, ELSE24
-  LLI r7, 0    // zero init nullptr
+  BEQ r3, r0, ELSE24
+  LLI r3, 0    // zero init nullptr
   JMP IF_END25
 ELSE24:
 IF_END25:
   LLI r8, 0    // zero init new_block
+  // assign to unsupported target 'new_block'
+  // assign to unsupported target 'new_block'
+  // assign to unsupported target 'new_block'
+  // assign to unsupported target 'new_block'
   BEQ r5, r0, ELSE26
+  // assign to unsupported target 'prev'
   JMP IF_END27
 ELSE26:
+  // assign to unsupported target 'heap_info_head'
 IF_END27:
-  ADD r1, r7, r0
+  ADD r8, r3, r3    // binop +
+  // assign to unsupported target 'heap_top'
+  LLI r1, 0    // load immediate 0
+  CALL align4
+  // assign to unsupported target 'heap_top'
+  ADD r1, r3, r0
   POP r14
   RET
 
@@ -162,17 +204,29 @@ IF_END29:
 WHILE30:
   BEQ r2, r0, WHILE_END31
   BEQ r2, r0, ELSE32
+  LLI r2, 0    // zero init true
+  // assign to unsupported target 'current'
   BEQ r2, r0, ELSE34
+  LLI r2, 0    // zero init size
+  LLI r4, 0    // zero init HEAP_HEADER_SIZE
+  ADD r5, r2, r4    // binop +
+  // assign to unsupported target 'current'
+  // assign to unsupported target 'current'
   JMP IF_END35
 ELSE34:
 IF_END35:
   BEQ r3, r0, ELSE36
+  ADD r3, r2, r4    // binop +
+  // assign to unsupported target 'prev'
+  // assign to unsupported target 'prev'
   JMP IF_END37
 ELSE36:
 IF_END37:
   JMP IF_END33
 ELSE32:
 IF_END33:
+  // assign to unsupported target 'prev'
+  // assign to unsupported target 'current'
   JMP WHILE30
 WHILE_END31:
   // epilogue and return
@@ -186,20 +240,21 @@ WHILE_END31:
   LLI r2, 0    // zero init current
 WHILE38:
   BEQ r2, r0, WHILE_END39
-  LLI r1, str_2    // load immediate str_2
-  CALL print_string
-  ADDI r1, r2, 0    // move arg 0
-  CALL printi
-  LLI r1, str_3    // load immediate str_3
-  CALL print_string
-  ADDI r1, r2, 0    // move arg 0
-  CALL printi
   LLI r1, str_4    // load immediate str_4
   CALL print_string
   ADDI r1, r2, 0    // move arg 0
   CALL printi
   LLI r1, str_5    // load immediate str_5
   CALL print_string
+  ADDI r1, r2, 0    // move arg 0
+  CALL printi
+  LLI r1, str_6    // load immediate str_6
+  CALL print_string
+  ADDI r1, r2, 0    // move arg 0
+  CALL printi
+  LLI r1, str_3    // load immediate str_3
+  CALL print_string
+  // assign to unsupported target 'current'
   JMP WHILE38
 WHILE_END39:
   // epilogue and return
@@ -210,6 +265,8 @@ WHILE_END39:
 .FUNC add:
   // prologue (minimal)
   PUSH r14
+  ADD r2, r1, r2    // binop +
+  ADD r1, r2, r0
   POP r14
   RET
 
@@ -219,13 +276,15 @@ WHILE_END39:
   LLI r2, 5    // init x
   LLI r3, 10    // init y
   LLI r4, 0    // zero init result
-  LLI r1, str_6    // load immediate str_6
+  LLI r1, str_7    // load immediate str_7
   CALL print_string
   ADDI r1, r4, 0    // move arg 0
   CALL printi
   LLI r5, 0    // zero init ptr
   BEQ r5, r0, ELSE40
-  LLI r1, str_7    // load immediate str_7
+  LLI r5, 42    // load immediate 42
+  // assign to unsupported target 'ptr'
+  LLI r1, str_8    // load immediate str_8
   CALL print_string
   ADDI r1, r5, 0    // move arg 0
   CALL printi
@@ -233,7 +292,7 @@ WHILE_END39:
   CALL free
   JMP IF_END41
 ELSE40:
-  LLI r1, str_8    // load immediate str_8
+  LLI r1, str_9    // load immediate str_9
   CALL print_string
 IF_END41:
   LLI r5, 0    // load immediate 0
@@ -251,24 +310,27 @@ str_1:
   .STR "-"
 
 str_2:
-  .STR "Block at "
+  .STR "\0"
 
 str_3:
-  .STR " - Size: "
-
-str_4:
-  .STR " - Free: "
-
-str_5:
   .STR "\n"
 
+str_4:
+  .STR "Block at "
+
+str_5:
+  .STR " - Size: "
+
 str_6:
-  .STR "The result of 10 + 5 is: "
+  .STR " - Free: "
 
 str_7:
-  .STR "Dynamically allocated integer value (42): "
+  .STR "The result of 10 + 5 is: "
 
 str_8:
+  .STR "Dynamically allocated integer value (42): "
+
+str_9:
   .STR "Memory allocation failed"
 
 buffer_buf3:
