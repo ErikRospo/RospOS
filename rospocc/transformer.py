@@ -321,10 +321,13 @@ def transform_to_translation_unit(input_data: Tree) -> dict:
                                 and part["token"].startswith('"')
                             ):
                                 val = part["token"][1:-1]
-                                lab, str_count = _get_or_create_string_label(
-                                    val, str_pool, str_count, tu
-                                )
-                                init = {"type": "string_addr", "label": lab}
+                                if len(val) == 1:
+                                    init = {"type": "const", "value": ord(val)}
+                                else:
+                                    lab, str_count = _get_or_create_string_label(
+                                        val, str_pool, str_count, tu
+                                    )
+                                    init = {"type": "string_addr", "label": lab}
                             if isinstance(part, dict) and part.get("node"):
                                 val = _find_number_in_node(part)
                                 if val is not None:
@@ -571,11 +574,14 @@ def transform_to_translation_unit(input_data: Tree) -> dict:
                     return {"type": "const", "value": int(tok)}
             if tok.startswith('"') and tok.endswith('"'):
                 val = tok[1:-1]
-                lab, new_count = _get_or_create_string_label(
-                    val, str_pool, str_count, tu
-                )
-                str_count = new_count
-                return {"type": "string_addr", "label": lab}
+                if len(val) == 1:
+                    return {"type": "const", "value": ord(val)}
+                else:
+                    lab, new_count = _get_or_create_string_label(
+                        val, str_pool, str_count, tu
+                    )
+                    str_count = new_count
+                    return {"type": "string_addr", "label": lab}
             if tok.isidentifier():
                 return {"type": "var", "name": tok}
             return None
@@ -598,7 +604,7 @@ def transform_to_translation_unit(input_data: Tree) -> dict:
                       "mult": "*", "div": "/", "mod": "%",
                       "lt": "<", "gt": ">", "lte": "<=", "gte": ">=",
                       "eq": "==", "neq": "!=",
-                      "lshift": "<<", "rshift": ">>"}  # for now
+                      "lshift": "<<", "rshift": ">>"}
             op = op_map.get(op, None)
             if op and left and right:
                 return {"type": "binop", "op": op, "left": left, "right": right}
