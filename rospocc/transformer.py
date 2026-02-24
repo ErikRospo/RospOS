@@ -597,17 +597,8 @@ def transform_to_translation_unit(input_data: Tree) -> dict:
             children = n.get("children", [])
             if not children:
                 return None
-            left = expr_from_node(children[0])
-            op= children[1].get("node")
-            right = expr_from_node(children[2])
-            op_map = {"plus": "+", "minus": "-",
-                      "mult": "*", "div": "/", "mod": "%",
-                      "lt": "<", "gt": ">", "lte": "<=", "gte": ">=",
-                      "eq": "==", "neq": "!=",
-                      "lshift": "<<", "rshift": ">>"}
-            op = op_map.get(op, None)
-            if op and left and right:
-                return {"type": "binop", "op": op, "left": left, "right": right}
+            
+            return {"type": "binop", "op": children[1].get("node"), "left": expr_from_node(children[0]), "right": expr_from_node(children[2])}
             
 
         if node_name == "assignment":
@@ -645,19 +636,19 @@ def transform_to_translation_unit(input_data: Tree) -> dict:
                     elif first["node"] == "uminus":
                         inner = expr_from_node(children[1])
                         if inner:
-                            return {"type": "binop", "op": "-", "left": {"type": "const", "value": 0}, "right": inner}
+                            return {"type": "binop", "op": "minus", "left": {"type": "const", "value": 0}, "right": inner}
                     elif first["node"] == "uplus":
                         inner = expr_from_node(children[1])
                         if inner:
-                            return {"type": "binop", "op": "+", "left": {"type": "const", "value": 0}, "right": inner}
+                            return {"type": "binop", "op": "plus", "left": {"type": "const", "value": 0}, "right": inner}
                     elif first["node"] == "not":
                         inner = expr_from_node(children[1])
                         if inner:
-                            return {"type": "unop", "op": "!", "operand": inner}
+                            return {"type": "unop", "op": "not", "operand": inner}
                     elif first["node"] == "bitnot":
                         inner = expr_from_node(children[1])
                         if inner:
-                            return {"type": "binop", "op": "^", "left": {"type": "const", "value": 0xFFFF_FFFF}, "right": inner}
+                            return {"type": "binop", "op": "xor", "left": {"type": "const", "value": 0xFFFF_FFFF}, "right": inner}
                         
             return expr_from_node(children[-1])
 

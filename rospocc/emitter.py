@@ -104,17 +104,17 @@ class Emitter:
         out.write(f"  LLI {rd}, 0    // compare init 0\n")
         ltrue = self.gen_label("CMP_TRUE")
         lend = self.gen_label("CMP_END")
-        if op == "==":
+        if op == "eq":
             out.write(f"  BEQ {rl}, {rr}, {ltrue}\n")
-        elif op == "!=":
+        elif op == "neq":
             out.write(f"  BNE {rl}, {rr}, {ltrue}\n")
-        elif op == "<":
+        elif op == "lt":
             out.write(f"  BLT {rl}, {rr}, {ltrue}\n")
-        elif op == "<=":
+        elif op == "lte":
             out.write(f"  BGE {rr}, {rl}, {ltrue}\n")
-        elif op == ">":
+        elif op == "gt":
             out.write(f"  BLT {rr}, {rl}, {ltrue}\n")
-        elif op == ">=":
+        elif op == "gte":
             out.write(f"  BGE {rl}, {rr}, {ltrue}\n")
         out.write(f"  JMP {lend}\n")
         out.write(f"{ltrue}:\n")
@@ -511,29 +511,29 @@ class Emitter:
             rd = self.alloc_reg()
 
             # arithmetic and bitwise ops
-            if op == "+":
+            if op == "plus":
                 out.write(f"  ADD {rd}, {rl}, {rr}    // binop +\n")
-            elif op == "-":
+            elif op == "minus":
                 out.write(f"  SUB {rd}, {rl}, {rr}    // binop -\n")
-            elif op == "*":
+            elif op == "mult":
                 out.write(f"  MUL {rd}, {rl}, {rr}    // binop *\n")
-            elif op == "/":
+            elif op == "div":
                 out.write(f"  DIV {rd}, {rl}, {rr}    // binop /\n")
-            elif op == "%":
+            elif op == "mod":
                 out.write(f"  REM {rd}, {rl}, {rr}    // binop %\n")
-            elif op == "&":
+            elif op == "and":
                 out.write(f"  AND {rd}, {rl}, {rr}    // binop &\n")
-            elif op == "|":
+            elif op == "or":
                 out.write(f"  OR {rd}, {rl}, {rr}    // binop |\n")
-            elif op == "^":
+            elif op == "xor":
                 out.write(f"  XOR {rd}, {rl}, {rr}    // binop ^\n")
-            elif op == "<<":
+            elif op == "lshift":
                 out.write(f"  SHL {rd}, {rl}, {rr}    // binop <<\n")
-            elif op == ">>":
+            elif op == "rshift":
                 out.write(f"  SHR {rd}, {rl}, {rr}    // binop >>\n")
 
             # comparisons: produce 0/1 in rd
-            elif op in ("==", "!=", "<", "<=", ">", ">="):
+            elif op in ("lt", "lte", "gt", "gte", "eq", "neq"):
                 # comparisons: produce 0/1 in rd (delegated to helper)
                 self._emit_compare(rd, op, rl, rr, out)
             else:
@@ -547,12 +547,13 @@ class Emitter:
         elif t == "unop":
             print(f"unop expr: {expr!r}")
             op = expr.get("op")
-            operand = expr.get("operand")
-            r_operand = self.emit_expr(operand, out)
-            rd = self.alloc_reg()
-            nt_label = self.gen_label("UNOP_NOT_TRUE")
-            ne_label = self.gen_label("UNOP_NOT_END")
-            if op == "!":
+            if op == "not":
+                operand = expr.get("operand")
+                assert operand is not None, "unop 'not' missing operand"
+                r_operand = self.emit_expr(operand, out)
+                rd = self.alloc_reg()
+                nt_label = self.gen_label("UNOP_NOT_TRUE")
+                ne_label = self.gen_label("UNOP_NOT_END")
                 # logical NOT: rd = (operand == 0) ? 1 : 0
                 out.write(f"  BEQ {r_operand}, {abi.SPECIAL_REGS['zero']}, {nt_label}\n")
                 out.write(f"  LLI {rd}, 0    // operand is nonzero -> false\n")
