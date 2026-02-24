@@ -338,6 +338,7 @@ class Emitter:
                     else:
                         self.var_types[name] = "int"
                     out.write(f"  ADDI {r}, {abi.RETURN_REG}, 0\n")
+                    out.write(f"  POP r1") # calls emit a push of r1 for caller-saved register; balance that here
                 elif init.get("type") == "string_addr":
                     r = self._alloc_var_reg(
                         name,
@@ -431,19 +432,11 @@ class Emitter:
                 "name": stmt.get("name") or stmt.get("call", {}).get("name"),
                 "args": stmt.get("args", []) or stmt.get("call", {}).get("args", []),
             }
-            # handle intrinsics via existing helper
-            if isinstance(call_expr.get("name"), str) and call_expr.get(
-                "name"
-            ).startswith("__"):
-                # reuse _emit_call which already handles intrinsics
-                self._emit_call(
-                    {"name": call_expr.get("name"), "args": call_expr.get("args")}, out
-                )
-            else:
-                # prepare arguments and emit call
-                self._emit_call(
-                    {"name": call_expr.get("name"), "args": call_expr.get("args")}, out
-                )
+        
+            # prepare arguments and emit call
+            self._emit_call(
+                {"name": call_expr.get("name"), "args": call_expr.get("args")}, out
+            )
 
         elif t == "while":
             # while loop: evaluate cond, branch to end if zero, loop body, repeat
@@ -507,6 +500,7 @@ class Emitter:
             # emit call (may be intrinsic)
             self._emit_call(expr, out)
             # return value is in RETURN_REG
+            out.write(f"  // call expr {expr.get('name')} -> return in {abi.RETURN_REG}\n")
             return abi.RETURN_REG
         if t == "binop":
             op = expr.get("op")
@@ -587,7 +581,11 @@ class Emitter:
                 handler(args, out)
                 return
             print(f"Warning: no handler for intrinsic {name!r}")
-            # fall back to emitting as a regular call (which will fail in the assembler if it's truly unsupported)
+            
+        # fall back to emitting as a regular call (which will fail in the assembler if it's truly unsupported)
+            
+        out.write(f"  // emit call to {name} with args {args}\n")
+        out.write(f"  PUSH r1\n")
         live_regs = [r for r in abi.TEMP_REGS if r not in self.reg_free]
         if live_regs:
             for r in live_regs:
@@ -611,7 +609,7 @@ class Emitter:
 
 
         out.write(f"  CALL {call_expr.get('name')}\n")
-
+        
         if live_regs:
             for r in reversed(live_regs):
                 out.write(f"  POP {r}    // restore caller temp\n")
