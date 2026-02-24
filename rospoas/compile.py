@@ -5,7 +5,7 @@ import sys
 
 from encode import encode_ir
 from grammar_parser import parse_source, preprocess_includes
-from ir import Directive
+from ir import Directive, ImmValue
 from ir import Instruction as IRInstruction
 from ir import LabelDecl
 from layout import layout_ir
@@ -173,8 +173,19 @@ with open(mapping_filename, "w") as mf:
             src_str = "<unknown>"
             if isinstance(src, dict) and src.get("file"):
                 src_str = f"{src.get('file')}:{src.get('line')}"
+            assert hasattr(node, "imm"), "Instruction node should have imm attribute"
+            for attr in ["rd", "rs1", "rs2"]:
+                if getattr(node, attr) is None:
+                    setattr(node, attr, -1)
+                if getattr(node,attr) is not None and  isinstance(getattr(node, attr),  ImmValue):
+                    setattr(node, attr, _imm_to_int(getattr(node, attr)))
+            if node.imm is None:
+                node.imm = None
+            
+            print(f"Processing instruction idx={idx} name={node.name} rd={node.rd} rs1={node.rs1} rs2={node.rs2} imm={node.imm} src={src_str}")
+            assert src_str is not None, "Source string should be determined for instruction"
             mf.write(
-                f"INSTR idx={idx} @ {hex(cur_seg + cur_cursor)} name={node.name} rd={getattr(node, 'rd', None)} rs1={getattr(node, 'rs1', None)} rs2={getattr(node, 'rs2', None)} imm={getattr(node, 'imm', None)} src={src_str}\n"
+                f"INSTR idx={idx:05d} @ {cur_seg + cur_cursor:08x} name={node.name} rd={getattr(node, 'rd', None)} rs1={getattr(node, 'rs1', None)} rs2={getattr(node, 'rs2', None)} imm={getattr(node, 'imm', None)} raw={node} src={src_str}\n"
             )
             cur_cursor += 4
             continue

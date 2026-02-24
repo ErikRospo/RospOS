@@ -8,7 +8,8 @@ grammar_file = Path(__file__).parent / "rospoas.lark"
 with open(grammar_file, "r") as f:
     rospoas_grammar = f.read()
 
-parser = Lark(rospoas_grammar, start="program", parser="lalr")
+# Enable position propagation so instruction nodes carry source line info.
+parser = Lark(rospoas_grammar, start="program", parser="lalr", propagate_positions=True)
 
 
 def parse_source(source_code):

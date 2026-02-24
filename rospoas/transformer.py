@@ -1,6 +1,6 @@
 import random
 
-from lark import Transformer
+from lark import Transformer, v_args
 
 from errors import TransformError, fmt_node
 from ir import instr_list_from_legacy
@@ -44,6 +44,22 @@ class RospoasTransformer(Transformer):
             node["src"] = self._src_from_items(items)
         except Exception:
             node["src"] = {"file": None, "line": None}
+        return node
+
+    def _src_from_meta(self, meta):
+        try:
+            if meta is None or not hasattr(meta, "line"):
+                return {"file": None, "line": None}
+            line_no = meta.line
+            if 1 <= line_no <= len(self.origin_map):
+                file, orig_line = self.origin_map[line_no - 1]
+                return {"file": file, "line": orig_line, "pp_line": line_no}
+            return {"file": "<preprocessed>", "line": line_no, "pp_line": line_no}
+        except Exception:
+            return {"file": None, "line": None}
+
+    def _attach_src_meta(self, node: dict, meta):
+        node["src"] = self._src_from_meta(meta)
         return node
 
     def labeluse(self, items):
@@ -178,7 +194,8 @@ class RospoasTransformer(Transformer):
             {"type": "j", "name": name_v, "rd": rd_v, "rs1": 0, "imm": imm_v}, items
         )
 
-    def jmpseudo(self, items):
+    @v_args(meta=True)
+    def jmpseudo(self, meta, items):
         imm_t = items[0]
         imm_v = imm_t
         try:
@@ -186,50 +203,63 @@ class RospoasTransformer(Transformer):
         except:
             pass
 
-        return self._attach_src({"type": "p", "name": "jmp", "imm": imm_v}, items)
+        return self._attach_src_meta(
+            {"type": "p", "name": "jmp", "imm": imm_v}, meta
+        )
 
-    def push(self, items):
+    @v_args(meta=True)
+    def push(self, meta, items):
         reg_t = items[0]
         reg_v = reg_t
-        return self._attach_src({"type": "p", "name": "push", "imm": reg_v}, items)
+        return self._attach_src_meta(
+            {"type": "p", "name": "push", "imm": reg_v}, meta
+        )
 
-    def pop(self, items):
+    @v_args(meta=True)
+    def pop(self, meta, items):
         reg_t = items[0]
         reg_v = reg_t
-        return self._attach_src({"type": "p", "name": "pop", "imm": reg_v}, items)
+        return self._attach_src_meta(
+            {"type": "p", "name": "pop", "imm": reg_v}, meta
+        )
 
-    def movpseudo(self, items):
+    @v_args(meta=True)
+    def movpseudo(self, meta, items):
         rd_t, rs_t = items
         rd_v = rd_t
         rs_v = rs_t
-        return self._attach_src(
-            {"type": "r", "name": "add", "rd": rd_v, "rs1": rs_v, "rs2": 0}, items
+        return self._attach_src_meta(
+            {"type": "r", "name": "add", "rd": rd_v, "rs1": rs_v, "rs2": 0}, meta
         )
 
-    def zeropseudo(self, items):
+    @v_args(meta=True)
+    def zeropseudo(self, meta, items):
         rd_t = items[0]
         rd_v = rd_t
-        return self._attach_src(
-            {"type": "r", "name": "add", "rd": rd_v, "rs1": 0, "rs2": 0}, items
+        return self._attach_src_meta(
+            {"type": "r", "name": "add", "rd": rd_v, "rs1": 0, "rs2": 0}, meta
         )
 
-    def notpseudo(self, items):
+    @v_args(meta=True)
+    def notpseudo(self, meta, items):
         rd_t, rs_t = items
         rd_v = rd_t
         rs_v = rs_t
-        return self._attach_src(
-            {"type": "r", "name": "xor", "rd": rd_v, "rs1": rs_v, "rs2": -1}, items
+        return self._attach_src_meta(
+            {"type": "r", "name": "xor", "rd": rd_v, "rs1": rs_v, "rs2": -1}, meta
         )
 
-    def negpseudo(self, items):
+    @v_args(meta=True)
+    def negpseudo(self, meta, items):
         rd_t, rs_t = items
         rd_v = rd_t
         rs_v = rs_t
-        return self._attach_src(
-            {"type": "r", "name": "sub", "rd": rd_v, "rs1": 0, "rs2": rs_v}, items
+        return self._attach_src_meta(
+            {"type": "r", "name": "sub", "rd": rd_v, "rs1": 0, "rs2": rs_v}, meta
         )
 
-    def lli(self, items):
+    @v_args(meta=True)
+    def lli(self, meta, items):
         reg_t = items[0]
         imm_t = items[1]
         reg_v = reg_t
@@ -242,11 +272,12 @@ class RospoasTransformer(Transformer):
             imm_v["rd"] = (
                 reg_v  # Pass the destination register to the `li` pseudo-instruction
             )
-        return self._attach_src(
-            {"type": "p", "name": "lli", "reg": reg_v, "imm": imm_v}, items
+        return self._attach_src_meta(
+            {"type": "p", "name": "lli", "reg": reg_v, "imm": imm_v}, meta
         )
 
-    def callpseudo(self, items):
+    @v_args(meta=True)
+    def callpseudo(self, meta, items):
         imm_t = items[0]
         imm_v = imm_t
         try:
@@ -256,16 +287,18 @@ class RospoasTransformer(Transformer):
 
         # Emit as a pseudo jump so the assembler can expand to an absolute-call
         # sequence that properly sets the link register (rd=14).
-        return self._attach_src(
-            {"type": "p", "name": "jmp", "imm": imm_v, "rd": 14}, items
+        return self._attach_src_meta(
+            {"type": "p", "name": "jmp", "imm": imm_v, "rd": 14}, meta
         )
 
-    def retpseudo(self, items):
-        return self._attach_src(
-            {"type": "j", "rd": 0, "rs1": 14, "name": "jalr", "imm": 0}, items
+    @v_args(meta=True)
+    def retpseudo(self, meta, items):
+        return self._attach_src_meta(
+            {"type": "j", "rd": 0, "rs1": 14, "name": "jalr", "imm": 0}, meta
         )
 
-    def subipseudo(self, items):
+    @v_args(meta=True)
+    def subipseudo(self, meta, items):
         rd_t, rs1_t, imm_t = items
         rd_v = rd_t
         rs1_v = rs1_t
@@ -278,11 +311,12 @@ class RospoasTransformer(Transformer):
             imm_v["rd"] = (
                 rd_v  # Pass the destination register to the `li` pseudo-instruction
             )
-        return self._attach_src(
-            {"type": "p", "name": "subi", "rd": rd_v, "rs1": rs1_v, "imm": imm_v}, items
+        return self._attach_src_meta(
+            {"type": "p", "name": "subi", "rd": rd_v, "rs1": rs1_v, "imm": imm_v}, meta
         )
 
-    def muliipseudo(self, items):
+    @v_args(meta=True)
+    def muliipseudo(self, meta, items):
         rd_t, rs1_t, imm_t = items
         rd_v = rd_t
         rs1_v = rs1_t
@@ -295,11 +329,12 @@ class RospoasTransformer(Transformer):
             imm_v["rd"] = (
                 rd_v  # Pass the destination register to the `li` pseudo-instruction
             )
-        return self._attach_src(
-            {"type": "p", "name": "muli", "rd": rd_v, "rs1": rs1_v, "imm": imm_v}, items
+        return self._attach_src_meta(
+            {"type": "p", "name": "muli", "rd": rd_v, "rs1": rs1_v, "imm": imm_v}, meta
         )
 
-    def divipseudo(self, items):
+    @v_args(meta=True)
+    def divipseudo(self, meta, items):
         rd_t, rs1_t, imm_t = items
         rd_v = rd_t
         rs1_v = rs1_t
@@ -312,11 +347,12 @@ class RospoasTransformer(Transformer):
             imm_v["rd"] = (
                 rd_v  # Pass the destination register to the `li` pseudo-instruction
             )
-        return self._attach_src(
-            {"type": "p", "name": "divi", "rd": rd_v, "rs1": rs1_v, "imm": imm_v}, items
+        return self._attach_src_meta(
+            {"type": "p", "name": "divi", "rd": rd_v, "rs1": rs1_v, "imm": imm_v}, meta
         )
 
-    def remipseudo(self, items):
+    @v_args(meta=True)
+    def remipseudo(self, meta, items):
         rd_t, rs1_t, imm_t = items
         rd_v = rd_t
         rs1_v = rs1_t
@@ -329,8 +365,8 @@ class RospoasTransformer(Transformer):
             imm_v["rd"] = (
                 rd_v  # Pass the destination register to the `li` pseudo-instruction
             )
-        return self._attach_src(
-            {"type": "p", "name": "remi", "rd": rd_v, "rs1": rs1_v, "imm": imm_v}, items
+        return self._attach_src_meta(
+            {"type": "p", "name": "remi", "rd": rd_v, "rs1": rs1_v, "imm": imm_v}, meta
         )
 
     def systeminstructuse(self, items):
