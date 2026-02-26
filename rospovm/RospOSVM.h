@@ -31,4 +31,5 @@ public:
     std::string getRegisterState() const;
 };
 
+void dumpMemoryToFile(const Memory &memory);
 #endif // ROSPOS_VM_H

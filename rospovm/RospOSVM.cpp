@@ -5,6 +5,7 @@
 #include "Display.h"
 #include "Shutdown.h"
 
+#include <fstream>
 #include <iostream>
 #include <iomanip>
 #include <stdexcept>
@@ -373,25 +374,36 @@ void RospOSVM::sTypeInstruction(uint32_t instruction)
         break;
     case 0x1: // BREAK
         std::cerr << "BREAK invoked. Halting execution." << std::endl;
-        std::cerr << "Final Register State: " << getRegisterState() << std::endl;
+        // Dump memory and register state for debugging
         std::cerr << "Final PC: " << std::hex << pc << std::dec << std::endl;
-        std::cerr << "Top 256 bytes of Memory Dump:" << std::endl;
-        for (uint32_t addr = 0; addr < 256; ++addr)
-        {
-            if (addr % 16 == 0)
-            {
-                std::cerr << std::hex << (addr) << ": ";
-            }
-            std::cerr << std::hex << static_cast<int>(memory.readByte(addr)) << " ";
-            if (addr % 16 == 15)
-            {
-                std::cerr << std::endl;
-            }
-        }
+        std::cerr << "Final Registers: " << getRegisterState() << std::endl;
+        dumpMemoryToFile(memory);
         requestShutdown();
         break;
     default:
         std::cerr << "Unknown S-type sub-opcode: " << sub_op << std::endl;
         break;
     }
+}
+
+void dumpMemoryToFile(const Memory &memory)
+{
+    std::ofstream file("memory_dump.bin", std::ios::binary);
+    if (!file.is_open())
+    {
+        std::cerr << "Failed to open memory_dump.bin for writing." << std::endl;
+        return;
+    }
+
+    for (uint32_t addr = 0; addr < (1ULL << 16); addr += 4)
+    {
+        uint32_t word = memory.readWord(addr);
+        file.write(reinterpret_cast<const char *>(&word), sizeof(word));
+    } 
+    if (!file.good())
+    {
+        std::cerr << "Error writing to memory_dump.bin." << std::endl;
+    }
+
+    file.close();
 }

@@ -29,10 +29,10 @@ struct SpecialMemoryRange
 class Memory
 {
 private:
-    std::vector<uint8_t> mem;
-    std::vector<SpecialMemoryRange> specialRanges;
+std::vector<SpecialMemoryRange> specialRanges;
 
 public:
+    std::vector<uint8_t> mem;
     Memory(size_t size);
     void addSpecialRange(char name[4], uint32_t start, uint32_t end, SpecialMemoryRange::Type type, bool readable, bool writable,
                          ReadHandler readHandler = nullptr,

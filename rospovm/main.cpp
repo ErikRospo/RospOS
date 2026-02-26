@@ -39,11 +39,6 @@ int main(int argc, char *argv[])
         {
             std::cout << "Loading segment at address 0x" << std::hex << segment.address
                       << " with size " << std::dec << segment.data.size() << " bytes." << std::endl;
-            for (uint8_t byte : segment.data)
-            {
-                std::cout << std::hex << static_cast<int>(byte) << " ";
-            }
-            std::cout << std::dec << std::endl;
         }
         vm.loadBinaryAtAddress(std::vector<char>(segment.data.begin(), segment.data.end()), segment.address);
     }
