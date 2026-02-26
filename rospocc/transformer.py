@@ -62,7 +62,7 @@ def transform_to_translation_unit(input_data: Tree) -> dict:
         else input_data
     )
 
-    tu = {"globals": [], "functions": []}
+    tu = {"globals": [], "functions": [], "types": []}
 
     def _get_or_create_string_label(val: str, str_pool: dict, str_count: int, tu: dict):
         for lab, v in str_pool.items():
@@ -199,6 +199,72 @@ def transform_to_translation_unit(input_data: Tree) -> dict:
             tu["functions"].append(fdict)
             return [None]
 
+        # struct declarations
+        if node.get("node") == "struct_decl":
+            children = node.get("children", [])
+            struct_name = None
+            typedef_name = None
+            members = []
+            is_typedef = False
+            
+            # Parse struct declaration
+            for i, c in enumerate(children):
+                if isinstance(c, dict) and "token" in c:
+                    tok = c["token"]
+                    if tok == "typedef":
+                        is_typedef = True
+                    elif tok.isidentifier():
+                        # Could be struct name or typedef name
+                        if struct_name is None:
+                            struct_name = tok
+                        else:
+                            typedef_name = tok
+                elif isinstance(c, dict) and c.get("node") == "struct_member":
+                    # Extract member info: type and name(s)
+                    member_type = None
+                    member_names = []
+                    for mc in c.get("children", []):
+                        if isinstance(mc, dict) and mc.get("node") == "type_specifier":
+                            # Get type from type_specifier
+                            for tc in mc.get("children", []):
+                                if isinstance(tc, dict):
+                                    if "node" in tc:
+                                        member_type = tc["node"]
+                                    elif "token" in tc and tc["token"].isidentifier():
+                                        member_type = tc["token"]
+                        elif isinstance(mc, dict) and mc.get("node") == "init_declarator_list":
+                            # Get member names
+                            for idc in mc.get("children", []):
+                                if isinstance(idc, dict):
+                                    name = _find_identifier(idc)
+                                    if name:
+                                        member_names.append(name)
+                    
+                    # Add members (each name gets its own entry)
+                    if member_type and member_names:
+                        for name in member_names:
+                            members.append({"name": name, "type": member_type})
+            
+            # Determine final struct name
+            final_name = typedef_name if is_typedef and typedef_name else struct_name
+            
+            if final_name and members:
+                # Calculate member offsets (simple layout: word-aligned)
+                offset = 0
+                for member in members:
+                    member["offset"] = offset
+                    # Simple size calculation (4 bytes for all types in starter)
+                    member["size"] = 4
+                    offset += 4
+                
+                tu["types"].append({
+                    "kind": "struct",
+                    "name": final_name,
+                    "members": members,
+                    "size": offset
+                })
+            return []
+
         # global declarations
         if node.get("node") == "declaration":
             children = node.get("children", [])
@@ -244,6 +310,21 @@ def transform_to_translation_unit(input_data: Tree) -> dict:
         nonlocal str_count
         name = None
         init = None
+        decl_type = None  # Track the declared type (for struct support)
+        
+        # First pass: extract type specifier
+        for cc in decl_node.get("children", []):
+            if isinstance(cc, dict) and cc.get("node") == "type_specifier":
+                # Extract type name from type_specifier
+                for tc in cc.get("children", []):
+                    if isinstance(tc, dict):
+                        if "node" in tc:
+                            decl_type = tc["node"]
+                        elif "token" in tc and tc["token"].isidentifier():
+                            # Could be a struct type name
+                            decl_type = tc["token"]
+        
+        # Second pass: extract variable name and initializer
         for cc in decl_node.get("children", []):
             if isinstance(cc, dict) and cc.get("node") == "init_declarator_list":
                 for idc in cc.get("children", []):
@@ -327,7 +408,14 @@ def transform_to_translation_unit(input_data: Tree) -> dict:
                                 val = _find_number_in_node(part)
                                 if val is not None:
                                     init = {"type": "const", "value": val}
-        return [{"type": "decl", "name": name, "init": init}] if name else []
+        
+        # Build and return the declaration
+        if name:
+            decl = {"type": "decl", "name": name, "init": init}
+            if decl_type:
+                decl["decl_type"] = decl_type
+            return [decl]
+        return []
 
     def _process_stmt_node(stmt_node):
         """Process a single statement node (compound or simple).
@@ -677,12 +765,36 @@ def transform_to_translation_unit(input_data: Tree) -> dict:
             primary = children[0]
             has_inc = False
             has_dec = False
-            for c in children[1:]:
+            member_accesses = []  # Track member access operations
+            
+            # Scan for various postfix operations
+            for i, c in enumerate(children[1:], 1):
                 if isinstance(c, dict) and "token" in c:
-                    if c["token"] == "++":
+                    tok = c["token"]
+                    if tok == "++":
                         has_inc = True
-                    if c["token"] == "--":
+                    elif tok == "--":
                         has_dec = True
+                    elif tok == ".":
+                        # Direct member access: next child should be member name
+                        if i < len(children) - 1:
+                            next_child = children[i + 1]
+                            if isinstance(next_child, dict) and "token" in next_child:
+                                member_accesses.append({
+                                    "op": ".",
+                                    "member": next_child["token"]
+                                })
+                    elif tok == "->":
+                        # Pointer member access: next child should be member name
+                        if i < len(children) - 1:
+                            next_child = children[i + 1]
+                            if isinstance(next_child, dict) and "token" in next_child:
+                                member_accesses.append({
+                                    "op": "->",
+                                    "member": next_child["token"]
+                                })
+                        
+            # Handle function calls
             for c in children[1:]:
                 if isinstance(c, dict) and c.get("node") == "arg_list":
                     if (
@@ -697,6 +809,21 @@ def transform_to_translation_unit(input_data: Tree) -> dict:
                                 if ev:
                                     args.append(ev)
                         return {"type": "call", "name": primary["token"], "args": args}
+            
+            # Handle member access
+            if member_accesses:
+                base_expr = expr_from_node(primary)
+                result = base_expr
+                for access in member_accesses:
+                    result = {
+                        "type": "member_access",
+                        "op": access["op"],
+                        "base": result,
+                        "member": access["member"]
+                    }
+                return result
+            
+            # Handle increment/decrement
             primary_expr = expr_from_node(primary)
             if (
                 (has_inc or has_dec)

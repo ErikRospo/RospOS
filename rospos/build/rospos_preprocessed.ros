@@ -136,199 +136,10 @@ WHILE_END11:
   POP r14
   RET
 
-.FUNC align4:
+.FUNC add_coords:
   PUSH r14
-  LLI r2, 3    // init v
-  LLI r3, 0    // zero init v
-  // epilogue and return
-  ADDI r1, r0, 0  // ensure r1=0
-  POP r14
-  RET
-
-.FUNC malloc:
-  PUSH r14
-  BEQ r1, r0, ELSE18
-  LLI r2, 0    // zero init nullptr
-  JMP IF_END19
-ELSE18:
-IF_END19:
-  LLI r3, 0    // zero init asize
-  LLI r4, 0    // zero init current
-  LLI r5, 0    // zero init prev
-WHILE20:
-  BEQ r4, r0, WHILE_END21
-  BEQ r4, r0, ELSE22
-  LLI r6, 0    // zero init remaining
-  BEQ r6, r0, ELSE24
-  LLI r7, 0    // zero init new_hdr_addr
-  LLI r8, 0    // zero init new_block
-  LLI r9, 0    // zero init HEAP_HEADER_SIZE
-  SUB r10, r6, r9    // binop -
-  ADDI r8, r10, 0    // assign new_block
-  ADD r11, r7, r9    // binop +
-  ADDI r8, r11, 0    // assign new_block
-  LLI r12, 0    // zero init true
-  ADDI r8, r12, 0    // assign new_block
-  ADDI r8, r4, 0    // assign new_block
-  ADDI r4, r3, 0    // assign current
-  ADDI r4, r8, 0    // assign current
-  JMP IF_END25
-ELSE24:
-IF_END25:
-  LLI r4, 0    // zero init false
-  ADDI r4, r4, 0    // assign current
-  ADD r1, r4, r0
-  POP r14
-  RET
-  JMP IF_END23
-ELSE22:
-IF_END23:
-  ADDI r5, r4, 0    // assign prev
-  ADDI r4, r4, 0    // assign current
-  JMP WHILE20
-WHILE_END21:
-  LLI r6, 0    // zero init hdr_addr
-  LLI r9, 0    // zero init payload_addr
-  BEQ r9, r0, ELSE26
-  LLI r10, 0    // zero init nullptr
-  JMP IF_END27
-ELSE26:
-IF_END27:
-  BEQ r9, r0, ELSE28
-  LLI r7, 0    // zero init nullptr
-  JMP IF_END29
-ELSE28:
-IF_END29:
-  LLI r11, 0    // zero init new_block
-  ADDI r11, r3, 0    // assign new_block
-  ADDI r11, r9, 0    // assign new_block
-  ADDI r11, r4, 0    // assign new_block
-  ADDI r11, r7, 0    // assign new_block
-  BEQ r5, r0, ELSE30
-  ADDI r5, r11, 0    // assign prev
-  JMP IF_END31
-ELSE30:
-IF_END31:
-  ADD r12, r9, r3    // binop +
-  // emit call to align4 with args [{'type': 'var', 'name': 'heap_top'}]
-  PUSH r2    // save caller temp
-  PUSH r6    // save caller temp
-  PUSH r10    // save caller temp
-  PUSH r12    // save caller temp
-  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  ADDI r1, r12, 0    // move arg 0
-  CALL align4
-  // call return value in r1
-  POP r1  
-  POP r12    // restore caller temp
-  POP r10    // restore caller temp
-  POP r6    // restore caller temp
-  POP r2    // restore caller temp
-  // call expr align4 -> return in r1
-  ADDI r12, r1, 0    // assign heap_top
-  ADD r1, r9, r0
-  POP r14
-  RET
-
-.FUNC free:
-  PUSH r14
-  BEQ r1, r0, UNOP_NOT_TRUE34
-  LLI r2, 0    // operand is nonzero -> false
-  JMP UNOP_NOT_END35
-UNOP_NOT_TRUE34:
-  LLI r2, 1    // operand is zero -> true
-UNOP_NOT_END35:
-  BEQ r0, r0, ELSE32
-  JMP IF_END33
-ELSE32:
-IF_END33:
-  LLI r3, 0    // zero init current
-  LLI r4, 0    // zero init prev
-WHILE36:
-  BEQ r3, r0, WHILE_END37
-  BEQ r3, r0, ELSE38
-  LLI r5, 0    // zero init true
-  ADDI r3, r5, 0    // assign current
-  BEQ r3, r0, ELSE40
-  LLI r6, 0    // zero init size
-  LLI r7, 0    // zero init HEAP_HEADER_SIZE
-  ADD r8, r6, r7    // binop +
-  ADDI r3, r8, 0    // assign current
-  ADDI r3, r3, 0    // assign current
-  JMP IF_END41
-ELSE40:
-IF_END41:
-  BEQ r4, r0, ELSE42
-  ADD r9, r6, r7    // binop +
-  ADDI r4, r9, 0    // assign prev
-  ADDI r4, r3, 0    // assign prev
-  JMP IF_END43
-ELSE42:
-IF_END43:
-  JMP IF_END39
-ELSE38:
-IF_END39:
-  ADDI r4, r3, 0    // assign prev
-  ADDI r3, r3, 0    // assign current
-  JMP WHILE36
-WHILE_END37:
-  // epilogue and return
-  ADDI r1, r0, 0  // ensure r1=0
-  POP r14
-  RET
-
-.FUNC _dump_heap_info:
-  PUSH r14
-  LLI r2, 0    // zero init current
-WHILE44:
-  BEQ r2, r0, WHILE_END45
-  // emit call to print_string with args [{'type': 'string_addr', 'label': 'str_2'}]
-  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  LLI r1, str_2    // load immediate str_2
-  CALL print_string
-  // call return value in r1
-  POP r1  
-  // emit call to printi with args [{'type': 'var', 'name': 'current'}]
-  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  ADDI r1, r2, 0    // move arg 0
-  CALL printi
-  // call return value in r1
-  POP r1  
-  // emit call to print_string with args [{'type': 'string_addr', 'label': 'str_3'}]
-  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  LLI r1, str_3    // load immediate str_3
-  CALL print_string
-  // call return value in r1
-  POP r1  
-  // emit call to printi with args [{'type': 'var', 'name': 'current'}]
-  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  ADDI r1, r2, 0    // move arg 0
-  CALL printi
-  // call return value in r1
-  POP r1  
-  // emit call to print_string with args [{'type': 'string_addr', 'label': 'str_4'}]
-  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  LLI r1, str_4    // load immediate str_4
-  CALL print_string
-  // call return value in r1
-  POP r1  
-  // emit call to printi with args [{'type': 'var', 'name': 'current'}]
-  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  ADDI r1, r2, 0    // move arg 0
-  CALL printi
-  // call return value in r1
-  POP r1  
-  // emit call to print_string with args [{'type': 'string_addr', 'label': 'str_1'}]
-  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  LLI r1, str_1    // load immediate str_1
-  CALL print_string
-  // call return value in r1
-  POP r1  
-  ADDI r2, r2, 0    // assign current
-  JMP WHILE44
-WHILE_END45:
-  // epilogue and return
-  ADDI r1, r0, 0  // ensure r1=0
+  ADD r2, r1, r1    // binop +
+  ADD r1, r2, r0
   POP r14
   RET
 
@@ -344,12 +155,12 @@ WHILE_END45:
   LLI r2, 5    // init x
   LLI r3, 10    // init y
   LLI r4, 0    // zero init result
-  // emit call to print_string with args [{'type': 'string_addr', 'label': 'str_5'}]
+  // emit call to print_string with args [{'type': 'string_addr', 'label': 'str_2'}]
   PUSH r2    // save caller temp
   PUSH r3    // save caller temp
   PUSH r4    // save caller temp
   PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  LLI r1, str_5    // load immediate str_5
+  LLI r1, str_2    // load immediate str_2
   CALL print_string
   // call return value in r1
   POP r1  
@@ -368,61 +179,100 @@ WHILE_END45:
   POP r4    // restore caller temp
   POP r3    // restore caller temp
   POP r2    // restore caller temp
-  LLI r5, 0    // zero init ptr
-  BEQ r5, r0, ELSE46
-  // emit call to print_string with args [{'type': 'string_addr', 'label': 'str_6'}]
+  LLI r5, p1_struct18    // init p1 (struct Point addr)
+  LLI r6, s_struct19    // init s (struct Size addr)
+  LLI r7, 10    // load immediate 10
+  ADDI r5, r7, 0    // assign p1
+  LLI r8, 20    // load immediate 20
+  ADDI r5, r8, 0    // assign p1
+  LLI r9, 640    // load immediate 640
+  ADDI r6, r9, 0    // assign s
+  LLI r10, 480    // load immediate 480
+  ADDI r6, r10, 0    // assign s
+  LLI r11, 0    // zero init sum
+  LLI r12, 0    // zero init area
+  // emit call to print_string with args [{'type': 'string_addr', 'label': 'str_3'}]
   PUSH r2    // save caller temp
   PUSH r3    // save caller temp
   PUSH r4    // save caller temp
+  PUSH r5    // save caller temp
+  PUSH r6    // save caller temp
+  PUSH r11    // save caller temp
+  PUSH r12    // save caller temp
   PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  LLI r1, str_6    // load immediate str_6
+  LLI r1, str_3    // load immediate str_3
   CALL print_string
   // call return value in r1
   POP r1  
+  POP r12    // restore caller temp
+  POP r11    // restore caller temp
+  POP r6    // restore caller temp
+  POP r5    // restore caller temp
   POP r4    // restore caller temp
   POP r3    // restore caller temp
   POP r2    // restore caller temp
-  // emit call to printi with args [{'type': 'deref', 'expr': {'type': 'var', 'name': 'ptr'}}]
+  // emit call to printi with args [{'type': 'var', 'name': 'sum'}]
   PUSH r2    // save caller temp
   PUSH r3    // save caller temp
   PUSH r4    // save caller temp
+  PUSH r5    // save caller temp
+  PUSH r6    // save caller temp
+  PUSH r11    // save caller temp
+  PUSH r12    // save caller temp
   PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  // unsupported arg type {'type': 'deref', 'expr': {'type': 'var', 'name': 'ptr'}}
+  ADDI r1, r11, 0    // move arg 0
   CALL printi
   // call return value in r1
   POP r1  
+  POP r12    // restore caller temp
+  POP r11    // restore caller temp
+  POP r6    // restore caller temp
+  POP r5    // restore caller temp
   POP r4    // restore caller temp
   POP r3    // restore caller temp
   POP r2    // restore caller temp
-  // emit call to free with args [{'type': 'var', 'name': 'ptr'}]
+  // emit call to print_string with args [{'type': 'string_addr', 'label': 'str_4'}]
   PUSH r2    // save caller temp
   PUSH r3    // save caller temp
   PUSH r4    // save caller temp
+  PUSH r5    // save caller temp
+  PUSH r6    // save caller temp
+  PUSH r11    // save caller temp
+  PUSH r12    // save caller temp
   PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  ADDI r1, r5, 0    // move arg 0
-  CALL free
-  // call return value in r1
-  POP r1  
-  POP r4    // restore caller temp
-  POP r3    // restore caller temp
-  POP r2    // restore caller temp
-  JMP IF_END47
-ELSE46:
-  // emit call to print_string with args [{'type': 'string_addr', 'label': 'str_7'}]
-  PUSH r2    // save caller temp
-  PUSH r3    // save caller temp
-  PUSH r4    // save caller temp
-  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  LLI r1, str_7    // load immediate str_7
+  LLI r1, str_4    // load immediate str_4
   CALL print_string
   // call return value in r1
   POP r1  
+  POP r12    // restore caller temp
+  POP r11    // restore caller temp
+  POP r6    // restore caller temp
+  POP r5    // restore caller temp
   POP r4    // restore caller temp
   POP r3    // restore caller temp
   POP r2    // restore caller temp
-IF_END47:
-  LLI r6, 0    // load immediate 0
-  ADD r1, r6, r0
+  // emit call to printi with args [{'type': 'var', 'name': 'area'}]
+  PUSH r2    // save caller temp
+  PUSH r3    // save caller temp
+  PUSH r4    // save caller temp
+  PUSH r5    // save caller temp
+  PUSH r6    // save caller temp
+  PUSH r11    // save caller temp
+  PUSH r12    // save caller temp
+  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
+  ADDI r1, r12, 0    // move arg 0
+  CALL printi
+  // call return value in r1
+  POP r1  
+  POP r12    // restore caller temp
+  POP r11    // restore caller temp
+  POP r6    // restore caller temp
+  POP r5    // restore caller temp
+  POP r4    // restore caller temp
+  POP r3    // restore caller temp
+  POP r2    // restore caller temp
+  LLI r7, 0    // load immediate 0
+  ADD r1, r7, r0
   POP r14
   RET
 
@@ -436,23 +286,20 @@ str_1:
   .STR "\n"
 
 str_2:
-  .STR "Block at "
-
-str_3:
-  .STR " - Size: "
-
-str_4:
-  .STR " - Free: "
-
-str_5:
   .STR "The result of 10 + 5 is: "
 
-str_6:
-  .STR "Dynamically allocated integer value (42): "
+str_3:
+  .STR "The sum of p1's coordinates is: \n"
 
-str_7:
-  .STR "Memory allocation failed"
+str_4:
+  .STR "The area of the size is: \n"
 
 buffer_buf3:
   .SPACE 12 // lifted buffer
+
+p1_struct18:
+  .SPACE 8 // lifted buffer
+
+s_struct19:
+  .SPACE 8 // lifted buffer
 
