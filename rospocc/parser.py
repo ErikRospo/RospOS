@@ -1,9 +1,8 @@
 import argparse
 from pathlib import Path
 
-from lark import Lark
-
 import emitter
+from lark import Lark
 from preprocess import preprocess
 from transformer import transform_to_translation_unit
 

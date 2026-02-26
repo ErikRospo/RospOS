@@ -4,8 +4,15 @@ import sys
 from typing import Dict, List, Tuple
 
 from errors import EncodeError, fmt_node
-from ir import (Directive, ImmLabel, ImmLabelPart, ImmLifted, ImmValue,
-                Instruction, LabelDecl)
+from ir import (
+    Directive,
+    ImmLabel,
+    ImmLabelPart,
+    ImmLifted,
+    ImmValue,
+    Instruction,
+    LabelDecl,
+)
 from maps import instr_type_maps, opcode_type_map, validate_immediate_for_type
 
 

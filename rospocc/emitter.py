@@ -64,8 +64,9 @@ class Emitter:
                 if struct_name:
                     self.struct_types[struct_name] = {
                         "members": typ.get("members", []),
-                        "size": typ.get("size", 0)
+                        "size": typ.get("size", 0),
                     }
+
     def _choose_entry_label(self, funcs):
         if not funcs:
             return None
@@ -325,17 +326,17 @@ class Emitter:
             assert isinstance(name, str), "Expected variable name as string in decl"
             decl_type = stmt.get("decl_type")  # Get declared type (e.g., struct name)
             init = stmt.get("init")
-            
+
             # Check if this is a struct type declaration
             if decl_type and decl_type in self.struct_types:
                 # Allocate space for struct instance
                 struct_def = self.struct_types[decl_type]
                 struct_size = struct_def.get("size", 0)
-                
+
                 # Lift struct to global space (similar to arrays)
                 lbl = self.gen_label(f"{name}_struct")
                 self.global_spaces.append({"name": lbl, "size": struct_size})
-                
+
                 # Store struct base address in register
                 r = self._alloc_var_reg(
                     name,
@@ -365,7 +366,9 @@ class Emitter:
                         comment="buffer addr",
                     )
                 elif init.get("type") == "call":
-                    r=self._alloc_var_reg(name, out, init_value=None, typ="int")  # allocate reg for var before call
+                    r = self._alloc_var_reg(
+                        name, out, init_value=None, typ="int"
+                    )  # allocate reg for var before call
                     self._emit_call(init, r, out)
                     self.var_regs[name] = r
                     if (
@@ -398,9 +401,11 @@ class Emitter:
                 op = target.get("op")
                 base = target.get("base")
                 member_name = target.get("member")
-                
+
                 if not base or not member_name:
-                    out.write(f"  // ERROR: missing base or member in member_access assignment\n")
+                    out.write(
+                        f"  // ERROR: missing base or member in member_access assignment\n"
+                    )
                 else:
                     # Calculate member address
                     if op == ".":
@@ -409,29 +414,43 @@ class Emitter:
                             base_name = base.get("name")
                             base_type = self.var_types.get(base_name)
                             struct_def = self.struct_types.get(base_type)
-                            member_offset = None  # Initialize before checking struct_def
-                            
+                            member_offset = (
+                                None  # Initialize before checking struct_def
+                            )
+
                             if not struct_def:
-                                out.write(f"  // ERROR: unknown struct type for {base_name}\n")
+                                out.write(
+                                    f"  // ERROR: unknown struct type for {base_name}\n"
+                                )
                             else:
                                 # Find member offset
                                 for m in struct_def.get("members", []):
                                     if m.get("name") == member_name:
                                         member_offset = m.get("offset", 0)
                                         break
-                            
+
                             if member_offset is None:
-                                out.write(f"  // ERROR: member {member_name} not found\n")
+                                out.write(
+                                    f"  // ERROR: member {member_name} not found\n"
+                                )
                             else:
                                 base_reg = self.var_regs.get(base_name)
-                                if member_offset < 2**16: # This should be 100% of the time, but just in case, check if offset fits in immediate field
-                                    out.write(f"  SW {rval}, {base_reg}, {member_offset}    // store {base_name}.{member_name}\n")
-                                else: #otherwise, need to load offset into register and add it. Just in case you have a struct over 64KB in size, which would be wild but let's be safe.
+                                if (
+                                    member_offset < 2**16
+                                ):  # This should be 100% of the time, but just in case, check if offset fits in immediate field
+                                    out.write(
+                                        f"  SW {rval}, {base_reg}, {member_offset}    // store {base_name}.{member_name}\n"
+                                    )
+                                else:  # otherwise, need to load offset into register and add it. Just in case you have a struct over 64KB in size, which would be wild but let's be safe.
                                     offset_reg = self.alloc_reg()
                                     self._load_imm(offset_reg, member_offset, out)
                                     addr_reg = self.alloc_reg()
-                                    out.write(f"  ADD {addr_reg}, {base_reg}, {offset_reg}    // calculate member addr\n")
-                                    out.write(f"  SW {rval}, {addr_reg}, 0    // store {base_name}.{member_name}\n")
+                                    out.write(
+                                        f"  ADD {addr_reg}, {base_reg}, {offset_reg}    // calculate member addr\n"
+                                    )
+                                    out.write(
+                                        f"  SW {rval}, {addr_reg}, 0    // store {base_name}.{member_name}\n"
+                                    )
                                     if offset_reg in abi.TEMP_REGS:
                                         self.free_reg(offset_reg)
                                     if addr_reg in abi.TEMP_REGS:
@@ -439,7 +458,7 @@ class Emitter:
                     elif op == "->":
                         # Pointer member access
                         base_expr = self.emit_expr(base, out)
-                        
+
                         # Determine struct type
                         struct_type_name = None
                         if base.get("type") == "var":
@@ -448,10 +467,12 @@ class Emitter:
                                 struct_type_name = base_type.replace("_ptr", "")
                             else:
                                 struct_type_name = base_type
-                        
+
                         struct_def = self.struct_types.get(struct_type_name)
                         if not struct_def:
-                            out.write(f"  // ERROR: unknown struct type for -> access\n")
+                            out.write(
+                                f"  // ERROR: unknown struct type for -> access\n"
+                            )
                         else:
                             # Find member offset
                             member_offset = None
@@ -459,26 +480,36 @@ class Emitter:
                                 if m.get("name") == member_name:
                                     member_offset = m.get("offset", 0)
                                     break
-                            
+
                             if member_offset is None:
-                                out.write(f"  // ERROR: member {member_name} not found\n")
+                                out.write(
+                                    f"  // ERROR: member {member_name} not found\n"
+                                )
                             else:
-                                if member_offset < 2**16: # If offset fits in immediate field, use it directly
-                                    out.write(f"  SW {rval}, {base_expr}, {member_offset}    // store ptr->{member_name}\n")
-                                else: # Same logic as above for large offsets, just in case
+                                if (
+                                    member_offset < 2**16
+                                ):  # If offset fits in immediate field, use it directly
+                                    out.write(
+                                        f"  SW {rval}, {base_expr}, {member_offset}    // store ptr->{member_name}\n"
+                                    )
+                                else:  # Same logic as above for large offsets, just in case
                                     offset_reg = self.alloc_reg()
                                     self._load_imm(offset_reg, member_offset, out)
                                     addr_reg = self.alloc_reg()
-                                    out.write(f"  ADD {addr_reg}, {base_expr}, {offset_reg}    // calculate member addr\n")
-                                    out.write(f"  SW {rval}, {addr_reg}, 0    // store ptr->{member_name}\n")
+                                    out.write(
+                                        f"  ADD {addr_reg}, {base_expr}, {offset_reg}    // calculate member addr\n"
+                                    )
+                                    out.write(
+                                        f"  SW {rval}, {addr_reg}, 0    // store ptr->{member_name}\n"
+                                    )
                                     if offset_reg in abi.TEMP_REGS:
                                         self.free_reg(offset_reg)
                                     if addr_reg in abi.TEMP_REGS:
                                         self.free_reg(addr_reg)
-                        
+
                         if base_expr in abi.TEMP_REGS:
                             self.free_reg(base_expr)
-                        
+
             elif isinstance(target, dict) and target.get("type") == "deref":
                 addr_expr = target.get("expr")
                 raddr = self.emit_expr(addr_expr, out)
@@ -557,7 +588,9 @@ class Emitter:
 
             # prepare arguments and emit call
             self._emit_call(
-                {"name": call_expr.get("name"), "args": call_expr.get("args")}, None, out
+                {"name": call_expr.get("name"), "args": call_expr.get("args")},
+                None,
+                out,
             )
 
         elif t == "while":
@@ -623,11 +656,11 @@ class Emitter:
             op = expr.get("op")
             base = expr.get("base")
             member_name = expr.get("member")
-            
+
             if not base or not member_name:
                 out.write(f"  // ERROR: missing base or member in member_access\n")
                 return ""
-            
+
             # Get base address/pointer
             if op == ".":
                 # Direct member access: base should be a struct variable
@@ -635,41 +668,53 @@ class Emitter:
                 if base.get("type") == "var":
                     base_name = base.get("name")
                     base_type = self.var_types.get(base_name)
-                    
+
                     # Get struct definition
                     struct_def = self.struct_types.get(base_type)
                     if not struct_def:
-                        out.write(f"  // ERROR: unknown struct type {base_type} for {base_name}\n")
+                        out.write(
+                            f"  // ERROR: unknown struct type {base_type} for {base_name}\n"
+                        )
                         return ""
-                    
+
                     # Find member offset
                     member_offset = None
                     for m in struct_def.get("members", []):
                         if m.get("name") == member_name:
                             member_offset = m.get("offset", 0)
                             break
-                    
+
                     if member_offset is None:
-                        out.write(f"  // ERROR: member {member_name} not found in {base_type}\n")
+                        out.write(
+                            f"  // ERROR: member {member_name} not found in {base_type}\n"
+                        )
                         return ""
-                    
+
                     # Get base register (holds struct base address)
                     base_reg = self.var_regs.get(base_name)
                     if not base_reg:
                         out.write(f"  // ERROR: variable {base_name} not in register\n")
                         return ""
-                    
+
                     # Calculate member address and load
                     rd = self.alloc_reg()
-                    if member_offset < 2**16: # If offset fits in immediate field, use it directly
-                        out.write(f"  LW {rd}, {base_reg}, {member_offset}    // load {base_name}.{member_name}\n")
-                    else: # Yet again, just in case of large structs with offsets that don't fit in immediate field, load offset into register and add it
+                    if (
+                        member_offset < 2**16
+                    ):  # If offset fits in immediate field, use it directly
+                        out.write(
+                            f"  LW {rd}, {base_reg}, {member_offset}    // load {base_name}.{member_name}\n"
+                        )
+                    else:  # Yet again, just in case of large structs with offsets that don't fit in immediate field, load offset into register and add it
                         # Add offset to base address
                         offset_reg = self.alloc_reg()
                         self._load_imm(offset_reg, member_offset, out)
                         addr_reg = self.alloc_reg()
-                        out.write(f"  ADD {addr_reg}, {base_reg}, {offset_reg}    // {base_name} + offset\n")
-                        out.write(f"  LW {rd}, {addr_reg}, 0    // load {base_name}.{member_name}\n")
+                        out.write(
+                            f"  ADD {addr_reg}, {base_reg}, {offset_reg}    // {base_name} + offset\n"
+                        )
+                        out.write(
+                            f"  LW {rd}, {addr_reg}, 0    // load {base_name}.{member_name}\n"
+                        )
                         if offset_reg in abi.TEMP_REGS:
                             self.free_reg(offset_reg)
                         if addr_reg in abi.TEMP_REGS:
@@ -678,14 +723,14 @@ class Emitter:
                 else:
                     out.write(f"  // ERROR: unsupported base for . operator: {base}\n")
                     return ""
-                    
+
             elif op == "->":
                 # Pointer member access: base should be a pointer to struct
                 base_expr = self.emit_expr(base, out)
                 if not base_expr:
                     out.write(f"  // ERROR: failed to emit base expr for ->\n")
                     return ""
-                
+
                 # Determine struct type from base expression
                 struct_type_name = None
                 if base.get("type") == "var":
@@ -695,46 +740,58 @@ class Emitter:
                         struct_type_name = base_type.replace("_ptr", "")
                     else:
                         struct_type_name = base_type
-                
+
                 if not struct_type_name or struct_type_name not in self.struct_types:
-                    out.write(f"  // ERROR: cannot determine struct type for -> access\n")
+                    out.write(
+                        f"  // ERROR: cannot determine struct type for -> access\n"
+                    )
                     return ""
-                
+
                 struct_def = self.struct_types.get(struct_type_name)
-                
+
                 # Find member offset
                 member_offset = None
                 for m in struct_def.get("members", []):
                     if m.get("name") == member_name:
                         member_offset = m.get("offset", 0)
                         break
-                
+
                 if member_offset is None:
-                    out.write(f"  // ERROR: member {member_name} not found in {struct_type_name}\n")
+                    out.write(
+                        f"  // ERROR: member {member_name} not found in {struct_type_name}\n"
+                    )
                     return ""
-                
+
                 # Load from (base_pointer + offset)
                 rd = self.alloc_reg()
-                if member_offset < 2**16: # If offset fits in immediate field, use it directly
-                    out.write(f"  LW {rd}, {base_expr}, {member_offset}    // load ptr->{member_name}\n")
-                else: # ""
+                if (
+                    member_offset < 2**16
+                ):  # If offset fits in immediate field, use it directly
+                    out.write(
+                        f"  LW {rd}, {base_expr}, {member_offset}    // load ptr->{member_name}\n"
+                    )
+                else:  # ""
                     offset_reg = self.alloc_reg()
                     self._load_imm(offset_reg, member_offset, out)
                     addr_reg = self.alloc_reg()
-                    out.write(f"  ADD {addr_reg}, {base_expr}, {offset_reg}    // ptr + offset\n")
-                    out.write(f"  LW {rd}, {addr_reg}, 0    // load ptr->{member_name}\n")
+                    out.write(
+                        f"  ADD {addr_reg}, {base_expr}, {offset_reg}    // ptr + offset\n"
+                    )
+                    out.write(
+                        f"  LW {rd}, {addr_reg}, 0    // load ptr->{member_name}\n"
+                    )
                     if offset_reg in abi.TEMP_REGS:
                         self.free_reg(offset_reg)
                     if addr_reg in abi.TEMP_REGS:
                         self.free_reg(addr_reg)
-                
+
                 if base_expr in abi.TEMP_REGS:
                     self.free_reg(base_expr)
                 return rd
             else:
                 out.write(f"  // ERROR: unsupported member access op {op}\n")
                 return ""
-                
+
         if t == "call":
             # emit call (may be intrinsic)
             self._emit_call(expr, "r1", out)
@@ -831,16 +888,18 @@ class Emitter:
         out.write(f"  // emit call to {name} with args {args}\n")
         return_type = self.func_return_types.get(name)
         is_void = return_type == "void"
-        
+
         live_regs = [r for r in abi.TEMP_REGS if r not in self.reg_free]
         if live_regs:
             for r in live_regs:
                 out.write(f"  PUSH {r}    // save caller temp\n")
-        if return_reg==abi.RETURN_REG or is_void:
+        if return_reg == abi.RETURN_REG or is_void:
             return_reg = None
-            
+
         if return_reg == None:
-            out.write("  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered\n")
+            out.write(
+                "  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered\n"
+            )
             # For other things that may want to use r1.
         # Default: regular function call -> place up to 4 args into ARG_REGS then CALL
         for i, a in enumerate(args[: len(abi.ARG_REGS)]):
@@ -860,7 +919,7 @@ class Emitter:
 
         out.write(f"  CALL {call_expr.get('name')}\n")
         out.write(f"  // call return value in {abi.RETURN_REG}\n")
-        if return_reg ==None:
+        if return_reg == None:
             out.write(f"  POP r1  \n")
         if live_regs:
             for r in reversed(live_regs):

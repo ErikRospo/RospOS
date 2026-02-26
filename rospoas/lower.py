@@ -10,8 +10,15 @@ defined in `rospoas.ir`.
 from typing import List
 
 from errors import TransformError, fmt_node
-from ir import (Directive, ImmLabel, ImmLabelPart, ImmLifted, ImmValue,
-                Instruction, LabelDecl)
+from ir import (
+    Directive,
+    ImmLabel,
+    ImmLabelPart,
+    ImmLifted,
+    ImmValue,
+    Instruction,
+    LabelDecl,
+)
 from maps import i_to_r_map, register_map
 
 TEMP_REG = register_map["r13"]

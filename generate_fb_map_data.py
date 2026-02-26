@@ -94,4 +94,3 @@ for glyph_bytes, desc in zip(font8x8, descriptions):
     print(f"FB_DATA_{desc}:\n.DATA 0x{bm_hex_split}  // Glyph: {desc}")
     print(f"//{formatted_bitmap}")
     print()
-    

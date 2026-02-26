@@ -1,9 +1,8 @@
 import random
 
-from lark import Transformer, v_args
-
 from errors import TransformError, fmt_node
 from ir import instr_list_from_legacy
+from lark import Transformer, v_args
 from maps import register_map
 
 

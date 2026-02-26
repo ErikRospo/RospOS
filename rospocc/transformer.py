@@ -143,7 +143,7 @@ def transform_to_translation_unit(input_data: Tree) -> dict:
                         if isinstance(p, dict) and p.get("node") == "param":
                             pname = None
                             ptype = None
-                            
+
                             # Extract parameter name from declarator
                             for pp in p.get("children", []):
                                 if (
@@ -161,7 +161,7 @@ def transform_to_translation_unit(input_data: Tree) -> dict:
                                             break
                                     if pname is None:
                                         pname = _find_identifier(pp)
-                                    
+
                                     # Check for pointer in declarator
                                     if pname:
                                         for dc in pp.get("children", []):
@@ -171,7 +171,7 @@ def transform_to_translation_unit(input_data: Tree) -> dict:
                                             ):
                                                 ptype = "ptr"  # Mark as pointer for now
                                                 break
-                            
+
                             # Extract parameter type from type_specifier
                             for tchild in p.get("children", []):
                                 if (
@@ -193,7 +193,10 @@ def transform_to_translation_unit(input_data: Tree) -> dict:
                                                         ptype = f"{base_type}_ptr"
                                                 else:
                                                     ptype = base_type
-                                            elif "token" in pc and pc["token"].isidentifier():
+                                            elif (
+                                                "token" in pc
+                                                and pc["token"].isidentifier()
+                                            ):
                                                 # Custom type (e.g., struct name)
                                                 base_type = pc["token"]
                                                 if ptype == "ptr":
@@ -201,15 +204,19 @@ def transform_to_translation_unit(input_data: Tree) -> dict:
                                                 else:
                                                     ptype = base_type
                                         # Also check for pointer in type_specifier
-                                        if isinstance(pc, dict) and pc.get("node") == "pointer" and ptype is None:
+                                        if (
+                                            isinstance(pc, dict)
+                                            and pc.get("node") == "pointer"
+                                            and ptype is None
+                                        ):
                                             ptype = "ptr"
-                            
+
                             # Add parameter with type
                             if pname:
                                 params.append(pname)
                                 if ptype:
                                     param_types[pname] = ptype
-                
+
                 if isinstance(c, dict) and c.get("node") == "compound_stmt":
                     body_node = c
 
@@ -232,7 +239,7 @@ def transform_to_translation_unit(input_data: Tree) -> dict:
             typedef_name = None
             members = []
             is_typedef = False
-            
+
             # Parse struct declaration
             for i, c in enumerate(children):
                 if isinstance(c, dict) and "token" in c:
@@ -258,22 +265,25 @@ def transform_to_translation_unit(input_data: Tree) -> dict:
                                         member_type = tc["node"]
                                     elif "token" in tc and tc["token"].isidentifier():
                                         member_type = tc["token"]
-                        elif isinstance(mc, dict) and mc.get("node") == "init_declarator_list":
+                        elif (
+                            isinstance(mc, dict)
+                            and mc.get("node") == "init_declarator_list"
+                        ):
                             # Get member names
                             for idc in mc.get("children", []):
                                 if isinstance(idc, dict):
                                     name = _find_identifier(idc)
                                     if name:
                                         member_names.append(name)
-                    
+
                     # Add members (each name gets its own entry)
                     if member_type and member_names:
                         for name in member_names:
                             members.append({"name": name, "type": member_type})
-            
+
             # Determine final struct name
             final_name = typedef_name if is_typedef and typedef_name else struct_name
-            
+
             if final_name and members:
                 # Calculate member offsets (simple layout: word-aligned)
                 offset = 0
@@ -282,13 +292,15 @@ def transform_to_translation_unit(input_data: Tree) -> dict:
                     # Simple size calculation (4 bytes for all types in starter)
                     member["size"] = 4
                     offset += 4
-                
-                tu["types"].append({
-                    "kind": "struct",
-                    "name": final_name,
-                    "members": members,
-                    "size": offset
-                })
+
+                tu["types"].append(
+                    {
+                        "kind": "struct",
+                        "name": final_name,
+                        "members": members,
+                        "size": offset,
+                    }
+                )
             return []
 
         # global declarations
@@ -337,7 +349,7 @@ def transform_to_translation_unit(input_data: Tree) -> dict:
         name = None
         init = None
         decl_type = None  # Track the declared type (for struct support)
-        
+
         # First pass: extract type specifier
         for cc in decl_node.get("children", []):
             if isinstance(cc, dict) and cc.get("node") == "type_specifier":
@@ -349,7 +361,7 @@ def transform_to_translation_unit(input_data: Tree) -> dict:
                         elif "token" in tc and tc["token"].isidentifier():
                             # Could be a struct type name
                             decl_type = tc["token"]
-        
+
         # Second pass: extract variable name and initializer
         for cc in decl_node.get("children", []):
             if isinstance(cc, dict) and cc.get("node") == "init_declarator_list":
@@ -434,7 +446,7 @@ def transform_to_translation_unit(input_data: Tree) -> dict:
                                 val = _find_number_in_node(part)
                                 if val is not None:
                                     init = {"type": "const", "value": val}
-        
+
         # Build and return the declaration
         if name:
             decl = {"type": "decl", "name": name, "init": init}
@@ -809,7 +821,7 @@ def transform_to_translation_unit(input_data: Tree) -> dict:
             has_inc = False
             has_dec = False
             member_accesses = []  # Track member access operations
-            
+
             # Scan for various postfix operations
             for c in children[1:]:
                 if isinstance(c, dict) and "token" in c:
@@ -824,21 +836,19 @@ def transform_to_translation_unit(input_data: Tree) -> dict:
                         # Direct member access: extract member name
                         for mc in c.get("children", []):
                             if isinstance(mc, dict) and "token" in mc:
-                                member_accesses.append({
-                                    "op": ".",
-                                    "member": mc["token"]
-                                })
+                                member_accesses.append(
+                                    {"op": ".", "member": mc["token"]}
+                                )
                                 break
                     elif c["node"] == "ptr_member_access":
                         # Pointer member access: extract member name
                         for mc in c.get("children", []):
                             if isinstance(mc, dict) and "token" in mc:
-                                member_accesses.append({
-                                    "op": "->",
-                                    "member": mc["token"]
-                                })
+                                member_accesses.append(
+                                    {"op": "->", "member": mc["token"]}
+                                )
                                 break
-                        
+
             # Handle function calls
             for c in children[1:]:
                 if isinstance(c, dict) and c.get("node") == "arg_list":
@@ -854,7 +864,7 @@ def transform_to_translation_unit(input_data: Tree) -> dict:
                                 if ev:
                                     args.append(ev)
                         return {"type": "call", "name": primary["token"], "args": args}
-            
+
             # Handle member access
             if member_accesses:
                 base_expr = expr_from_node(primary)
@@ -864,10 +874,10 @@ def transform_to_translation_unit(input_data: Tree) -> dict:
                         "type": "member_access",
                         "op": access["op"],
                         "base": result,
-                        "member": access["member"]
+                        "member": access["member"],
                     }
                 return result
-            
+
             # Handle increment/decrement
             primary_expr = expr_from_node(primary)
             if (
