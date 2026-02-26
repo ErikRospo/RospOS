@@ -1,11 +1,9 @@
-
 import re
 
 from lark import Token, Transformer, Tree
 
 
 class ASTTransformer(Transformer):
-
 
     def __default_token__(self, token: Token):
         tok = str(token)
@@ -239,15 +237,9 @@ def transform_to_translation_unit(input_data: Tree) -> dict:
         name = None
         init = None
         for cc in decl_node.get("children", []):
-            if (
-                isinstance(cc, dict)
-                and cc.get("node") == "init_declarator_list"
-            ):
+            if isinstance(cc, dict) and cc.get("node") == "init_declarator_list":
                 for idc in cc.get("children", []):
-                    if (
-                        isinstance(idc, dict)
-                        and idc.get("node") == "init_declarator"
-                    ):
+                    if isinstance(idc, dict) and idc.get("node") == "init_declarator":
                         for part in idc.get("children", []):
                             if (
                                 isinstance(part, dict)
@@ -275,9 +267,7 @@ def transform_to_translation_unit(input_data: Tree) -> dict:
                                             }
                                         elif "token" in c_child[0]:
                                             tok = c_child[0]["token"]
-                                            if isinstance(
-                                                tok, str
-                                            ) and re.fullmatch(
+                                            if isinstance(tok, str) and re.fullmatch(
                                                 r"-?\d+|0x[0-9a-fA-F]+", tok
                                             ):
                                                 try:
@@ -291,10 +281,7 @@ def transform_to_translation_unit(input_data: Tree) -> dict:
                                         break
                                 if init is not None:
                                     break
-                            if (
-                                isinstance(part, dict)
-                                and part.get("node") is None
-                            ):
+                            if isinstance(part, dict) and part.get("node") is None:
                                 if "int" in part:
                                     init = {
                                         "type": "const",
@@ -336,19 +323,19 @@ def transform_to_translation_unit(input_data: Tree) -> dict:
 
     def _process_stmt_node(stmt_node):
         """Process a single statement node (compound or simple).
-        
+
         Returns a list of statements. If stmt_node is a compound_stmt,
         recursively processes all statements within it.
         """
         if not isinstance(stmt_node, dict):
             return []
-        
+
         nd = stmt_node.get("node")
-        
+
         # Compound statement: recursively process all children
         if nd == "compound_stmt":
             return compound_to_stmts(stmt_node)
-        
+
         # Expression statement
         if nd == "expr_stmt":
             expr = None
@@ -358,23 +345,27 @@ def transform_to_translation_unit(input_data: Tree) -> dict:
                     break
             if expr:
                 if expr.get("type") == "call":
-                    return [{
-                        "type": "call_stmt",
-                        "name": expr.get("name"),
-                        "args": expr.get("args", []),
-                    }]
+                    return [
+                        {
+                            "type": "call_stmt",
+                            "name": expr.get("name"),
+                            "args": expr.get("args", []),
+                        }
+                    ]
                 elif expr.get("type") == "assign":
-                    return [{
-                        "type": "assign",
-                        "target": expr.get("target"),
-                        "value": expr.get("value"),
-                    }]
+                    return [
+                        {
+                            "type": "assign",
+                            "target": expr.get("target"),
+                            "value": expr.get("value"),
+                        }
+                    ]
             return []
-        
+
         # Declaration statement
         if nd == "declaration":
             return _process_decl_stmt(stmt_node)
-        
+
         # Return statement
         if nd == "return_stmt":
             expr = None
@@ -383,7 +374,7 @@ def transform_to_translation_unit(input_data: Tree) -> dict:
                     expr = expr_from_node(cc)
                     break
             return [{"type": "return", "value": expr}]
-        
+
         return []
 
     def compound_to_stmts(comp_node):
@@ -393,7 +384,7 @@ def transform_to_translation_unit(input_data: Tree) -> dict:
             if not isinstance(c, dict):
                 continue
             nd = c.get("node")
-            
+
             # Handle while statements
             if nd == "while_stmt":
                 children = c.get("children", [])
@@ -443,11 +434,11 @@ def transform_to_translation_unit(input_data: Tree) -> dict:
                         cond = expr_from_node(children[2])
                 if body_node is None and children:
                     body_node = children[-1]
-                
+
                 body_stmts = _process_stmt_node(body_node) if body_node else []
                 stmts.append({"type": "while", "cond": cond, "body": body_stmts})
                 continue
-            
+
             # Handle if statements
             if nd == "if_stmt":
                 children = c.get("children", [])
@@ -554,7 +545,7 @@ def transform_to_translation_unit(input_data: Tree) -> dict:
                     {"type": "if", "cond": cond, "then": then_stmts, "else": else_stmts}
                 )
                 continue
-            
+
             # Handle simple statements using the helper
             stmts.extend(_process_stmt_node(c))
         return stmts
@@ -597,13 +588,17 @@ def transform_to_translation_unit(input_data: Tree) -> dict:
             children = n.get("children", [])
             if not children:
                 return None
-            
-            return {"type": "binop", "op": children[1].get("node"), "left": expr_from_node(children[0]), "right": expr_from_node(children[2])}
-            
+
+            return {
+                "type": "binop",
+                "op": children[1].get("node"),
+                "left": expr_from_node(children[0]),
+                "right": expr_from_node(children[2]),
+            }
 
         if node_name == "assignment":
             children = n.get("children", [])
-            print("assignment children:", children )
+            print("assignment children:", children)
             if len(children) == 2:
                 # handle simple assignment without operator token (e.g. in for loop)
                 left = expr_from_node(children[0])
@@ -636,11 +631,21 @@ def transform_to_translation_unit(input_data: Tree) -> dict:
                     elif first["node"] == "uminus":
                         inner = expr_from_node(children[1])
                         if inner:
-                            return {"type": "binop", "op": "minus", "left": {"type": "const", "value": 0}, "right": inner}
+                            return {
+                                "type": "binop",
+                                "op": "minus",
+                                "left": {"type": "const", "value": 0},
+                                "right": inner,
+                            }
                     elif first["node"] == "uplus":
                         inner = expr_from_node(children[1])
                         if inner:
-                            return {"type": "binop", "op": "plus", "left": {"type": "const", "value": 0}, "right": inner}
+                            return {
+                                "type": "binop",
+                                "op": "plus",
+                                "left": {"type": "const", "value": 0},
+                                "right": inner,
+                            }
                     elif first["node"] == "not":
                         inner = expr_from_node(children[1])
                         if inner:
@@ -648,8 +653,13 @@ def transform_to_translation_unit(input_data: Tree) -> dict:
                     elif first["node"] == "bitnot":
                         inner = expr_from_node(children[1])
                         if inner:
-                            return {"type": "binop", "op": "xor", "left": {"type": "const", "value": 0xFFFF_FFFF}, "right": inner}
-                        
+                            return {
+                                "type": "binop",
+                                "op": "xor",
+                                "left": {"type": "const", "value": 0xFFFF_FFFF},
+                                "right": inner,
+                            }
+
             return expr_from_node(children[-1])
 
         if node_name == "postfix":

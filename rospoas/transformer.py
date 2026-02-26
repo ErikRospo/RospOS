@@ -203,25 +203,19 @@ class RospoasTransformer(Transformer):
         except:
             pass
 
-        return self._attach_src_meta(
-            {"type": "p", "name": "jmp", "imm": imm_v}, meta
-        )
+        return self._attach_src_meta({"type": "p", "name": "jmp", "imm": imm_v}, meta)
 
     @v_args(meta=True)
     def push(self, meta, items):
         reg_t = items[0]
         reg_v = reg_t
-        return self._attach_src_meta(
-            {"type": "p", "name": "push", "imm": reg_v}, meta
-        )
+        return self._attach_src_meta({"type": "p", "name": "push", "imm": reg_v}, meta)
 
     @v_args(meta=True)
     def pop(self, meta, items):
         reg_t = items[0]
         reg_v = reg_t
-        return self._attach_src_meta(
-            {"type": "p", "name": "pop", "imm": reg_v}, meta
-        )
+        return self._attach_src_meta({"type": "p", "name": "pop", "imm": reg_v}, meta)
 
     @v_args(meta=True)
     def movpseudo(self, meta, items):

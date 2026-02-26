@@ -1,5 +1,3 @@
-
-
 from pathlib import Path
 from typing import Any, Dict
 
@@ -259,10 +257,10 @@ class Emitter:
         for i, p in enumerate(params[: len(abi.ARG_REGS)]):
             self.var_regs[p] = abi.ARG_REGS[i]
             try:
-                self.reg_free.remove(abi.ARG_REGS[i]) # mark arg registers as used 
+                self.reg_free.remove(abi.ARG_REGS[i])  # mark arg registers as used
             except ValueError:
                 print(f"Warning: arg register {abi.ARG_REGS[i]} not in free list")
-   
+
         # import any parameter type hints (e.g., pointer params)
         for pname, ptype in (fn.get("param_types", {}) or {}).items():
             self.var_types[pname] = ptype
@@ -338,7 +336,9 @@ class Emitter:
                     else:
                         self.var_types[name] = "int"
                     out.write(f"  ADDI {r}, {abi.RETURN_REG}, 0\n")
-                    out.write(f"  POP r1") # calls emit a push of r1 for caller-saved register; balance that here
+                    out.write(
+                        f"  POP r1"
+                    )  # calls emit a push of r1 for caller-saved register; balance that here
                 elif init.get("type") == "string_addr":
                     r = self._alloc_var_reg(
                         name,
@@ -432,7 +432,7 @@ class Emitter:
                 "name": stmt.get("name") or stmt.get("call", {}).get("name"),
                 "args": stmt.get("args", []) or stmt.get("call", {}).get("args", []),
             }
-        
+
             # prepare arguments and emit call
             self._emit_call(
                 {"name": call_expr.get("name"), "args": call_expr.get("args")}, out
@@ -500,7 +500,9 @@ class Emitter:
             # emit call (may be intrinsic)
             self._emit_call(expr, out)
             # return value is in RETURN_REG
-            out.write(f"  // call expr {expr.get('name')} -> return in {abi.RETURN_REG}\n")
+            out.write(
+                f"  // call expr {expr.get('name')} -> return in {abi.RETURN_REG}\n"
+            )
             return abi.RETURN_REG
         if t == "binop":
             op = expr.get("op")
@@ -555,13 +557,15 @@ class Emitter:
                 nt_label = self.gen_label("UNOP_NOT_TRUE")
                 ne_label = self.gen_label("UNOP_NOT_END")
                 # logical NOT: rd = (operand == 0) ? 1 : 0
-                out.write(f"  BEQ {r_operand}, {abi.SPECIAL_REGS['zero']}, {nt_label}\n")
+                out.write(
+                    f"  BEQ {r_operand}, {abi.SPECIAL_REGS['zero']}, {nt_label}\n"
+                )
                 out.write(f"  LLI {rd}, 0    // operand is nonzero -> false\n")
                 out.write(f"  JMP {ne_label}\n")
                 out.write(f"{nt_label}:\n")
                 out.write(f"  LLI {rd}, 1    // operand is zero -> true\n")
                 out.write(f"{ne_label}:\n")
-                
+
         elif t == "string_addr":
             lbl = expr.get("label")
             r = self.alloc_reg()
@@ -582,9 +586,9 @@ class Emitter:
                 handler(args, out)
                 return
             print(f"Warning: no handler for intrinsic {name!r}")
-            
+
         # fall back to emitting as a regular call (which will fail in the assembler if it's truly unsupported)
-            
+
         out.write(f"  // emit call to {name} with args {args}\n")
         out.write(f"  PUSH r1\n")
         live_regs = [r for r in abi.TEMP_REGS if r not in self.reg_free]
@@ -607,10 +611,8 @@ class Emitter:
             else:
                 out.write(f"  // unsupported arg type {a!r}\n")
 
-
-
         out.write(f"  CALL {call_expr.get('name')}\n")
-        
+
         if live_regs:
             for r in reversed(live_regs):
                 out.write(f"  POP {r}    // restore caller temp\n")

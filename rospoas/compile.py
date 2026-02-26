@@ -177,13 +177,19 @@ with open(mapping_filename, "w") as mf:
             for attr in ["rd", "rs1", "rs2"]:
                 if getattr(node, attr) is None:
                     setattr(node, attr, -1)
-                if getattr(node,attr) is not None and  isinstance(getattr(node, attr),  ImmValue):
+                if getattr(node, attr) is not None and isinstance(
+                    getattr(node, attr), ImmValue
+                ):
                     setattr(node, attr, _imm_to_int(getattr(node, attr)))
             if node.imm is None:
                 node.imm = None
-            
-            print(f"Processing instruction idx={idx} name={node.name} rd={node.rd} rs1={node.rs1} rs2={node.rs2} imm={node.imm} src={src_str}")
-            assert src_str is not None, "Source string should be determined for instruction"
+
+            print(
+                f"Processing instruction idx={idx} name={node.name} rd={node.rd} rs1={node.rs1} rs2={node.rs2} imm={node.imm} src={src_str}"
+            )
+            assert (
+                src_str is not None
+            ), "Source string should be determined for instruction"
             mf.write(
                 f"INSTR idx={idx:05d} @ {cur_seg + cur_cursor:08x} name={node.name} rd={getattr(node, 'rd', None)} rs1={getattr(node, 'rs1', None)} rs2={getattr(node, 'rs2', None)} imm={getattr(node, 'imm', None)} raw={node} src={src_str}\n"
             )
