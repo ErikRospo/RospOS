@@ -424,9 +424,9 @@ class Emitter:
                                 out.write(f"  // ERROR: member {member_name} not found\n")
                             else:
                                 base_reg = self.var_regs.get(base_name)
-                                if member_offset == 0:
-                                    out.write(f"  SW {rval}, {base_reg}, 0    // store {base_name}.{member_name}\n")
-                                else:
+                                if member_offset < 2**16: # This should be 100% of the time, but just in case, check if offset fits in immediate field
+                                    out.write(f"  SW {rval}, {base_reg}, {member_offset}    // store {base_name}.{member_name}\n")
+                                else: #otherwise, need to load offset into register and add it. Just in case you have a struct over 64KB in size, which would be wild but let's be safe.
                                     offset_reg = self.alloc_reg()
                                     self._load_imm(offset_reg, member_offset, out)
                                     addr_reg = self.alloc_reg()
@@ -463,9 +463,9 @@ class Emitter:
                             if member_offset is None:
                                 out.write(f"  // ERROR: member {member_name} not found\n")
                             else:
-                                if member_offset == 0:
-                                    out.write(f"  SW {rval}, {base_expr}, 0    // store ptr->{member_name}\n")
-                                else:
+                                if member_offset < 2**16: # If offset fits in immediate field, use it directly
+                                    out.write(f"  SW {rval}, {base_expr}, {member_offset}    // store ptr->{member_name}\n")
+                                else: # Same logic as above for large offsets, just in case
                                     offset_reg = self.alloc_reg()
                                     self._load_imm(offset_reg, member_offset, out)
                                     addr_reg = self.alloc_reg()
@@ -661,9 +661,9 @@ class Emitter:
                     
                     # Calculate member address and load
                     rd = self.alloc_reg()
-                    if member_offset == 0:
-                        out.write(f"  LW {rd}, {base_reg}, 0    // load {base_name}.{member_name}\n")
-                    else:
+                    if member_offset < 2**16: # If offset fits in immediate field, use it directly
+                        out.write(f"  LW {rd}, {base_reg}, {member_offset}    // load {base_name}.{member_name}\n")
+                    else: # Yet again, just in case of large structs with offsets that don't fit in immediate field, load offset into register and add it
                         # Add offset to base address
                         offset_reg = self.alloc_reg()
                         self._load_imm(offset_reg, member_offset, out)
@@ -715,9 +715,9 @@ class Emitter:
                 
                 # Load from (base_pointer + offset)
                 rd = self.alloc_reg()
-                if member_offset == 0:
-                    out.write(f"  LW {rd}, {base_expr}, 0    // load ptr->{member_name}\n")
-                else:
+                if member_offset < 2**16: # If offset fits in immediate field, use it directly
+                    out.write(f"  LW {rd}, {base_expr}, {member_offset}    // load ptr->{member_name}\n")
+                else: # ""
                     offset_reg = self.alloc_reg()
                     self._load_imm(offset_reg, member_offset, out)
                     addr_reg = self.alloc_reg()
