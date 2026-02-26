@@ -13,7 +13,7 @@ DIR_DOCS_BUILD := build
 HTMLDOCS := $(DOCS:.md=.html)
 PDFDOCS := $(DOCS:.md=.pdf)
 
-.PHONY: all bm parse compile dump build run clean doc transpiler
+.PHONY: all bm parse compile dump build run clean doc transpiler format
 
 all: build
 
@@ -62,6 +62,9 @@ run: build
 	$(MAKE) -C rospovm -j8
 	./rospovm/rospovm ./rospos/build/rospos.rosp --verbose --step
 
+format:
+	black .
+	isort .
 clean:
 	rm -rf rospos/build
 	rm -rf rospovm/build
