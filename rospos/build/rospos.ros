@@ -40,11 +40,13 @@ WHILE_END2:
   LLI r3, 0    // init i
   BEQ r1, r0, ELSE4
   // emit call to print_char with args [{'type': 'const', 'value': 45}]
-  PUSH r1
   PUSH r2    // save caller temp
   PUSH r3    // save caller temp
+  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
   LLI r1, 45    // load immediate 45
   CALL print_char
+  // call return value in r1
+  POP r1  
   POP r3    // restore caller temp
   POP r2    // restore caller temp
   LLI r4, 0    // load immediate 0
@@ -75,11 +77,13 @@ WHILE_END7:
   LLI r5, str_0    // load immediate str_0
   ADDI r2, r5, 0    // assign buffer
   // emit call to print_string with args [{'type': 'var', 'name': 'buffer'}]
-  PUSH r1
   PUSH r2    // save caller temp
   PUSH r3    // save caller temp
+  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
   ADDI r1, r2, 0    // move arg 0
   CALL print_string
+  // call return value in r1
+  POP r1  
   POP r3    // restore caller temp
   POP r2    // restore caller temp
   // epilogue and return
@@ -207,13 +211,15 @@ ELSE30:
 IF_END31:
   ADD r12, r9, r3    // binop +
   // emit call to align4 with args [{'type': 'var', 'name': 'heap_top'}]
-  PUSH r1
   PUSH r2    // save caller temp
   PUSH r6    // save caller temp
   PUSH r10    // save caller temp
   PUSH r12    // save caller temp
+  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
   ADDI r1, r12, 0    // move arg 0
   CALL align4
+  // call return value in r1
+  POP r1  
   POP r12    // restore caller temp
   POP r10    // restore caller temp
   POP r6    // restore caller temp
@@ -277,33 +283,47 @@ WHILE_END37:
 WHILE44:
   BEQ r2, r0, WHILE_END45
   // emit call to print_string with args [{'type': 'string_addr', 'label': 'str_2'}]
-  PUSH r1
+  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
   LLI r1, str_2    // load immediate str_2
   CALL print_string
+  // call return value in r1
+  POP r1  
   // emit call to printi with args [{'type': 'var', 'name': 'current'}]
-  PUSH r1
+  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
   ADDI r1, r2, 0    // move arg 0
   CALL printi
+  // call return value in r1
+  POP r1  
   // emit call to print_string with args [{'type': 'string_addr', 'label': 'str_3'}]
-  PUSH r1
+  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
   LLI r1, str_3    // load immediate str_3
   CALL print_string
+  // call return value in r1
+  POP r1  
   // emit call to printi with args [{'type': 'var', 'name': 'current'}]
-  PUSH r1
+  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
   ADDI r1, r2, 0    // move arg 0
   CALL printi
+  // call return value in r1
+  POP r1  
   // emit call to print_string with args [{'type': 'string_addr', 'label': 'str_4'}]
-  PUSH r1
+  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
   LLI r1, str_4    // load immediate str_4
   CALL print_string
+  // call return value in r1
+  POP r1  
   // emit call to printi with args [{'type': 'var', 'name': 'current'}]
-  PUSH r1
+  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
   ADDI r1, r2, 0    // move arg 0
   CALL printi
+  // call return value in r1
+  POP r1  
   // emit call to print_string with args [{'type': 'string_addr', 'label': 'str_1'}]
-  PUSH r1
+  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
   LLI r1, str_1    // load immediate str_1
   CALL print_string
+  // call return value in r1
+  POP r1  
   ADDI r2, r2, 0    // assign current
   JMP WHILE44
 WHILE_END45:
@@ -325,66 +345,78 @@ WHILE_END45:
   LLI r3, 10    // init y
   LLI r4, 0    // zero init result
   // emit call to print_string with args [{'type': 'string_addr', 'label': 'str_5'}]
-  PUSH r1
   PUSH r2    // save caller temp
   PUSH r3    // save caller temp
   PUSH r4    // save caller temp
+  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
   LLI r1, str_5    // load immediate str_5
   CALL print_string
+  // call return value in r1
+  POP r1  
   POP r4    // restore caller temp
   POP r3    // restore caller temp
   POP r2    // restore caller temp
   // emit call to printi with args [{'type': 'var', 'name': 'result'}]
-  PUSH r1
   PUSH r2    // save caller temp
   PUSH r3    // save caller temp
   PUSH r4    // save caller temp
+  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
   ADDI r1, r4, 0    // move arg 0
   CALL printi
+  // call return value in r1
+  POP r1  
   POP r4    // restore caller temp
   POP r3    // restore caller temp
   POP r2    // restore caller temp
   LLI r5, 0    // zero init ptr
   BEQ r5, r0, ELSE46
   // emit call to print_string with args [{'type': 'string_addr', 'label': 'str_6'}]
-  PUSH r1
   PUSH r2    // save caller temp
   PUSH r3    // save caller temp
   PUSH r4    // save caller temp
+  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
   LLI r1, str_6    // load immediate str_6
   CALL print_string
+  // call return value in r1
+  POP r1  
   POP r4    // restore caller temp
   POP r3    // restore caller temp
   POP r2    // restore caller temp
   // emit call to printi with args [{'type': 'deref', 'expr': {'type': 'var', 'name': 'ptr'}}]
-  PUSH r1
   PUSH r2    // save caller temp
   PUSH r3    // save caller temp
   PUSH r4    // save caller temp
+  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
   // unsupported arg type {'type': 'deref', 'expr': {'type': 'var', 'name': 'ptr'}}
   CALL printi
+  // call return value in r1
+  POP r1  
   POP r4    // restore caller temp
   POP r3    // restore caller temp
   POP r2    // restore caller temp
   // emit call to free with args [{'type': 'var', 'name': 'ptr'}]
-  PUSH r1
   PUSH r2    // save caller temp
   PUSH r3    // save caller temp
   PUSH r4    // save caller temp
+  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
   ADDI r1, r5, 0    // move arg 0
   CALL free
+  // call return value in r1
+  POP r1  
   POP r4    // restore caller temp
   POP r3    // restore caller temp
   POP r2    // restore caller temp
   JMP IF_END47
 ELSE46:
   // emit call to print_string with args [{'type': 'string_addr', 'label': 'str_7'}]
-  PUSH r1
   PUSH r2    // save caller temp
   PUSH r3    // save caller temp
   PUSH r4    // save caller temp
+  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
   LLI r1, str_7    // load immediate str_7
   CALL print_string
+  // call return value in r1
+  POP r1  
   POP r4    // restore caller temp
   POP r3    // restore caller temp
   POP r2    // restore caller temp

@@ -126,8 +126,14 @@ def transform_to_translation_unit(input_data: Tree) -> dict:
             name = None
             params = []
             param_types = {}
+            return_type = None
             body_node = None
             for c in children:
+                if isinstance(c, dict) and c.get("node") == "type_specifier":
+                    print("type_specifier children:", c.get("children", []))
+                    for d in c.get("children", []):
+                        if isinstance(d, dict) and "node" in d:
+                            return_type = d["node"]
                 if isinstance(c, dict) and c.get("node") == "declarator":
                     ident = _find_identifier(c)
                     if ident:
@@ -188,6 +194,8 @@ def transform_to_translation_unit(input_data: Tree) -> dict:
             fdict = {"name": name or "fn", "params": params, "body": body}
             if param_types:
                 fdict["param_types"] = param_types
+            if return_type:
+                fdict["return_type"] = return_type
             tu["functions"].append(fdict)
             return [None]
 

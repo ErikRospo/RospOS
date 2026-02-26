@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 
 import abi
 
@@ -13,6 +13,8 @@ class Emitter:
         self.var_types = {}
         # globals type hints collected from translation unit
         self.global_types = {}
+        # function return type hints collected from translation unit
+        self.func_return_types = {}
         # collected global space directives for lifted large buffers
         self.global_spaces = []
         # intrinsic handlers: name -> callable(args, out)
@@ -45,9 +47,14 @@ class Emitter:
 
     def _collect_global_types(self, ast: Dict[str, Any]):
         for g in ast.get("globals", []):
+            print("collecting global type for:", g)
             if g.get("kind") == "string":
                 self.global_types[g.get("name")] = "char_ptr"
-
+        for fn in ast.get("functions", []):
+            name = fn.get("name")
+            return_type = fn.get("return_type")
+            if name and return_type:
+                self.func_return_types[name] = return_type
     def _choose_entry_label(self, funcs):
         if not funcs:
             return None
@@ -304,6 +311,7 @@ class Emitter:
             self.had_return = True
         elif t == "decl":
             name = stmt.get("name")
+            assert isinstance(name, str), "Expected variable name as string in decl"
             init = stmt.get("init")
             if init:
                 if init.get("type") == "const":
@@ -325,8 +333,8 @@ class Emitter:
                         comment="buffer addr",
                     )
                 elif init.get("type") == "call":
-                    self._emit_call(init, out)
-                    r = self.alloc_reg()
+                    r=self._alloc_var_reg(name, out, init_value=None, typ="int")  # allocate reg for var before call
+                    self._emit_call(init, r, out)
                     self.var_regs[name] = r
                     if (
                         isinstance(init.get("name"), str)
@@ -335,10 +343,6 @@ class Emitter:
                         self.var_types[name] = "int_ptr"
                     else:
                         self.var_types[name] = "int"
-                    out.write(f"  ADDI {r}, {abi.RETURN_REG}, 0\n")
-                    out.write(
-                        f"  POP r1"
-                    )  # calls emit a push of r1 for caller-saved register; balance that here
                 elif init.get("type") == "string_addr":
                     r = self._alloc_var_reg(
                         name,
@@ -435,7 +439,7 @@ class Emitter:
 
             # prepare arguments and emit call
             self._emit_call(
-                {"name": call_expr.get("name"), "args": call_expr.get("args")}, out
+                {"name": call_expr.get("name"), "args": call_expr.get("args")}, None, out
             )
 
         elif t == "while":
@@ -498,7 +502,7 @@ class Emitter:
             return rd
         if t == "call":
             # emit call (may be intrinsic)
-            self._emit_call(expr, out)
+            self._emit_call(expr, "r1", out)
             # return value is in RETURN_REG
             out.write(
                 f"  // call expr {expr.get('name')} -> return in {abi.RETURN_REG}\n"
@@ -575,7 +579,7 @@ class Emitter:
             out.write(f"  // unsupported-expr {expr!r}\n")
             return ""
 
-    def _emit_call(self, call_expr: Dict[str, Any], out):
+    def _emit_call(self, call_expr: Dict[str, Any], return_reg: Optional[str], out):
         name = call_expr.get("name")
         args = call_expr.get("args", [])
 
@@ -590,11 +594,19 @@ class Emitter:
         # fall back to emitting as a regular call (which will fail in the assembler if it's truly unsupported)
 
         out.write(f"  // emit call to {name} with args {args}\n")
-        out.write(f"  PUSH r1\n")
+        return_type = self.func_return_types.get(name)
+        is_void = return_type == "void"
+        
         live_regs = [r for r in abi.TEMP_REGS if r not in self.reg_free]
         if live_regs:
             for r in live_regs:
                 out.write(f"  PUSH {r}    // save caller temp\n")
+        if return_reg==abi.RETURN_REG or is_void:
+            return_reg = None
+            
+        if return_reg == None:
+            out.write("  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered\n")
+            # For other things that may want to use r1.
         # Default: regular function call -> place up to 4 args into ARG_REGS then CALL
         for i, a in enumerate(args[: len(abi.ARG_REGS)]):
             dest = abi.ARG_REGS[i]
@@ -612,10 +624,16 @@ class Emitter:
                 out.write(f"  // unsupported arg type {a!r}\n")
 
         out.write(f"  CALL {call_expr.get('name')}\n")
-
+        out.write(f"  // call return value in {abi.RETURN_REG}\n")
+        if return_reg ==None:
+            out.write(f"  POP r1  \n")
         if live_regs:
             for r in reversed(live_regs):
                 out.write(f"  POP {r}    // restore caller temp\n")
+        if return_reg and return_reg != abi.RETURN_REG and not is_void:
+            out.write(
+                f"  ADDI {return_reg}, {abi.RETURN_REG}, 0    // move return value\n"
+            )
 
 
 def emit_translation_unit(ast: Any, out_path: str):
