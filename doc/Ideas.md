@@ -41,42 +41,6 @@ WHILE_END2:
   RET
 ```
 
-```
-
-.FUNC printi:
-  // prologue (minimal)
-  PUSH r14
-  LLI r2, buffer_buf3    // init buffer (buffer addr)
-  LLI r3, 0    // init i
-  BEQ r1, r0, ELSE4
-  LLI r1, str_0    // load immediate str_0
-  CALL print_char
-  JMP IF_END5
-ELSE4:
-IF_END5:
-  BEQ r1, r0, ELSE6
-  LLI r1, str_1    // load immediate str_1
-  CALL print_char
-  
-  // THIS CAN BE OPTIMIZED! AS IF_END7 IS NEXT, WE CAN SIMPLY REMOVE THIS UNNEEDED JUMP.
-  // Howerver, this only works if:
-  // 1. There are no instructions between the JMP and the label (e.g. no other function calls or branches)
-  // 2. No other code branches to the label (e.g. no other jumps or branches to IF_END7)
-  // Labels, like the ELSE6 label, are fine, as they don't inject any instructions between the JMP and the IF_END7 label.
-  JMP IF_END7
-ELSE6:
-IF_END7:
-WHILE8:
-  BEQ r1, r0, WHILE_END9
-  JMP WHILE8
-WHILE_END9:
-  ADDI r1, r2, 0    // move arg 0
-  CALL print_string
-  // epilogue and return
-  ADDI r1, r0, 0  // ensure r1=0
-  POP r14
-  RET
-```
 
 ```
 

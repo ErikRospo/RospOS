@@ -2,6 +2,7 @@ import argparse
 import json
 import struct
 import sys
+from pathlib import Path
 
 from encode import encode_ir
 from grammar_parser import parse_source, preprocess_includes
@@ -10,6 +11,7 @@ from ir import Instruction as IRInstruction
 from ir import LabelDecl
 from layout import layout_ir
 from lower import lower_ir
+from optimizer import optimize
 from transformer import transform_parse_tree_ir
 
 # Parse command-line arguments
@@ -45,8 +47,9 @@ parse_tree = parse_source(preprocessed_code)
 # Produce typed IR (from legacy AST) and lifted constants
 ir_list, lifted_constants = transform_parse_tree_ir(parse_tree, origin_map=origin_map)
 
+opt_ir_list = optimize(ir_list, outloc=Path(args.output).parent)
 # Lower pseudo-instructions and lifted constants into concrete IR
-ir_list = lower_ir(ir_list)
+ir_list = lower_ir(opt_ir_list)
 debug_parse_filename = args.output.rsplit(".", 1)[0] + "_debug_parse.txt"
 with open(debug_parse_filename, "w") as f:
     f.write(str(parse_tree.pretty()))
