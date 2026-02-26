@@ -67,14 +67,6 @@ class Emitter:
                         "size": typ.get("size", 0),
                     }
 
-    def _choose_entry_label(self, funcs):
-        if not funcs:
-            return None
-        for fn in funcs:
-            if fn.get("name") == "main":
-                return "main"
-        # fallback to first function
-        return funcs[0].get("name") or "main"
 
     def _write_file_header(self, out):
         out.write("// Generated .ros by rospocc.emitter (starter)\n")
@@ -229,7 +221,8 @@ class Emitter:
             self._write_file_header(f)
             funcs = ast.get("functions", [])
             self._collect_global_types(ast)
-            main_label = self._choose_entry_label(funcs)
+            main_label = "main"
+            assert main_label in [fn.get("name") for fn in funcs], "Expected a main function as entry point"
             f.write(".DATA 0x00000000\n\n")
             f.write(".SEG 0x00000000\n\n")
             if main_label:
@@ -290,18 +283,20 @@ class Emitter:
         # Emit body
         for stmt in fn.get("body", []):
             self.emit_statement(stmt, out)
+            
 
         # If no return was emitted in the body, emit epilogue and return 0
-        assert (
-            self.had_return != None
-        ), "had_return flag should be set by body statements, or at least not be unset from initial False"
         if not self.had_return:
             out.write(f"  // epilogue and return\n")
             out.write(
                 f"  ADDI {abi.RETURN_REG}, {abi.SPECIAL_REGS['zero']}, 0  // ensure r1=0\n"
             )
-            out.write(f"  POP {abi.LINK_REG}\n")
-            out.write(f"  RET\n\n")
+            # Use BREAK for main function, RET for others
+            if name=="main":
+                out.write(f"  BREAK    // exit from main\n\n")
+            else:
+                out.write(f"  POP {abi.LINK_REG}\n")
+                out.write(f"  RET\n\n")
         else:
             # already emitted return(s); do not append another epilogue/RET
             out.write("\n")

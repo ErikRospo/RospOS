@@ -273,10 +273,9 @@ WHILE_END11:
   POP r4    // restore caller temp
   POP r3    // restore caller temp
   POP r2    // restore caller temp
-  LLI r7, 0    // load immediate 0
-  ADD r1, r7, r0
-  POP r14
-  RET
+  // epilogue and return
+  ADDI r1, r0, 0  // ensure r1=0
+  BREAK    // exit from main
 
 
 // Globals
