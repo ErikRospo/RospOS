@@ -107,7 +107,10 @@ unary_op: "+" -> uplus
 ?unary: (unary_op unary)
 	  | postfix
 
-?postfix: primary ( ("[" expr "]") | ("(" arg_list? ")") | "++" | "--" | ("." NAME) | ("->" NAME) )*
+member_access: "." NAME
+ptr_member_access: "->" NAME
+
+?postfix: primary ( ("[" expr "]") | ("(" arg_list? ")") | "++" | "--" | member_access | ptr_member_access )*
 
 arg_list: expr ("," expr)*
 

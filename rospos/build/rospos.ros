@@ -11,9 +11,9 @@
   PUSH r14
   LLI r2, 268435456    // init tty_addr
 WHILE1:
-  LB r3, r1, 0    // deref
+  LW r3, r1, 0    // deref
   BEQ r3, r0, WHILE_END2
-  LB r4, r1, 0    // deref
+  LW r4, r1, 0    // deref
   SB r4, r2, 0    // intrinsic __sb
   LLI r5, 1    // load immediate 1
   ADD r6, r1, r5    // binop +
@@ -138,8 +138,12 @@ WHILE_END11:
 
 .FUNC add_coords:
   PUSH r14
-  ADD r2, r1, r1    // binop +
-  ADD r1, r2, r0
+  LW r2, r1, 0    // load p.x
+  LLI r4, 4    // load immediate 4
+  ADD r5, r1, r4    // p + offset
+  LW r3, r5, 0    // load p.y
+  ADD r6, r2, r3    // binop +
+  ADD r1, r6, r0
   POP r14
   RET
 
@@ -182,30 +186,34 @@ WHILE_END11:
   LLI r5, p1_struct18    // init p1 (struct Point addr)
   LLI r6, s_struct19    // init s (struct Size addr)
   LLI r7, 10    // load immediate 10
-  ADDI r5, r7, 0    // assign p1
+  SW r7, r5, 0    // store p1.x
   LLI r8, 20    // load immediate 20
-  ADDI r5, r8, 0    // assign p1
-  LLI r9, 640    // load immediate 640
-  ADDI r6, r9, 0    // assign s
-  LLI r10, 480    // load immediate 480
-  ADDI r6, r10, 0    // assign s
-  LLI r11, 0    // zero init sum
-  LLI r12, 0    // zero init area
+  LLI r9, 4    // load immediate 4
+  ADD r10, r5, r9    // calculate member addr
+  SW r8, r10, 0    // store p1.y
+  LLI r11, 640    // load immediate 640
+  SW r11, r6, 0    // store s.width
+  LLI r12, 480    // load immediate 480
+  LLI r7, 4    // load immediate 4
+  ADD r9, r6, r7    // calculate member addr
+  SW r12, r9, 0    // store s.height
+  LLI r10, 0    // zero init sum
+  LLI r8, 0    // zero init area
   // emit call to print_string with args [{'type': 'string_addr', 'label': 'str_3'}]
   PUSH r2    // save caller temp
   PUSH r3    // save caller temp
   PUSH r4    // save caller temp
   PUSH r5    // save caller temp
   PUSH r6    // save caller temp
-  PUSH r11    // save caller temp
-  PUSH r12    // save caller temp
+  PUSH r8    // save caller temp
+  PUSH r10    // save caller temp
   PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
   LLI r1, str_3    // load immediate str_3
   CALL print_string
   // call return value in r1
   POP r1  
-  POP r12    // restore caller temp
-  POP r11    // restore caller temp
+  POP r10    // restore caller temp
+  POP r8    // restore caller temp
   POP r6    // restore caller temp
   POP r5    // restore caller temp
   POP r4    // restore caller temp
@@ -217,15 +225,15 @@ WHILE_END11:
   PUSH r4    // save caller temp
   PUSH r5    // save caller temp
   PUSH r6    // save caller temp
-  PUSH r11    // save caller temp
-  PUSH r12    // save caller temp
+  PUSH r8    // save caller temp
+  PUSH r10    // save caller temp
   PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  ADDI r1, r11, 0    // move arg 0
+  ADDI r1, r10, 0    // move arg 0
   CALL printi
   // call return value in r1
   POP r1  
-  POP r12    // restore caller temp
-  POP r11    // restore caller temp
+  POP r10    // restore caller temp
+  POP r8    // restore caller temp
   POP r6    // restore caller temp
   POP r5    // restore caller temp
   POP r4    // restore caller temp
@@ -237,15 +245,15 @@ WHILE_END11:
   PUSH r4    // save caller temp
   PUSH r5    // save caller temp
   PUSH r6    // save caller temp
-  PUSH r11    // save caller temp
-  PUSH r12    // save caller temp
+  PUSH r8    // save caller temp
+  PUSH r10    // save caller temp
   PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
   LLI r1, str_4    // load immediate str_4
   CALL print_string
   // call return value in r1
   POP r1  
-  POP r12    // restore caller temp
-  POP r11    // restore caller temp
+  POP r10    // restore caller temp
+  POP r8    // restore caller temp
   POP r6    // restore caller temp
   POP r5    // restore caller temp
   POP r4    // restore caller temp
@@ -257,22 +265,22 @@ WHILE_END11:
   PUSH r4    // save caller temp
   PUSH r5    // save caller temp
   PUSH r6    // save caller temp
-  PUSH r11    // save caller temp
-  PUSH r12    // save caller temp
+  PUSH r8    // save caller temp
+  PUSH r10    // save caller temp
   PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  ADDI r1, r12, 0    // move arg 0
+  ADDI r1, r8, 0    // move arg 0
   CALL printi
   // call return value in r1
   POP r1  
-  POP r12    // restore caller temp
-  POP r11    // restore caller temp
+  POP r10    // restore caller temp
+  POP r8    // restore caller temp
   POP r6    // restore caller temp
   POP r5    // restore caller temp
   POP r4    // restore caller temp
   POP r3    // restore caller temp
   POP r2    // restore caller temp
-  LLI r7, 0    // load immediate 0
-  ADD r1, r7, r0
+  LLI r11, 0    // load immediate 0
+  ADD r1, r11, r0
   POP r14
   RET
 

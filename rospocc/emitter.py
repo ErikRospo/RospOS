@@ -409,12 +409,12 @@ class Emitter:
                             base_name = base.get("name")
                             base_type = self.var_types.get(base_name)
                             struct_def = self.struct_types.get(base_type)
+                            member_offset = None  # Initialize before checking struct_def
                             
                             if not struct_def:
                                 out.write(f"  // ERROR: unknown struct type for {base_name}\n")
                             else:
                                 # Find member offset
-                                member_offset = None
                                 for m in struct_def.get("members", []):
                                     if m.get("name") == member_name:
                                         member_offset = m.get("offset", 0)

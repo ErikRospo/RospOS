@@ -141,13 +141,16 @@ def transform_to_translation_unit(input_data: Tree) -> dict:
                 if isinstance(c, dict) and c.get("node") == "param_list":
                     for p in c.get("children", []):
                         if isinstance(p, dict) and p.get("node") == "param":
+                            pname = None
+                            ptype = None
+                            
+                            # Extract parameter name from declarator
                             for pp in p.get("children", []):
                                 if (
                                     isinstance(pp, dict)
                                     and pp.get("node") == "declarator"
                                 ):
                                     # find the parameter name (try direct child first, then helper)
-                                    pname = None
                                     for n in pp.get("children", []):
                                         if (
                                             isinstance(n, dict)
@@ -158,32 +161,55 @@ def transform_to_translation_unit(input_data: Tree) -> dict:
                                             break
                                     if pname is None:
                                         pname = _find_identifier(pp)
+                                    
+                                    # Check for pointer in declarator
                                     if pname:
-                                        params.append(pname)
-                                        # detect pointer in surrounding type_specifier or declarator
-                                        found_ptr = False
-                                        for tchild in p.get("children", []):
+                                        for dc in pp.get("children", []):
                                             if (
-                                                isinstance(tchild, dict)
-                                                and tchild.get("node")
-                                                == "type_specifier"
+                                                isinstance(dc, dict)
+                                                and dc.get("node") == "pointer"
                                             ):
-                                                for pc in tchild.get("children", []):
-                                                    if (
-                                                        isinstance(pc, dict)
-                                                        and pc.get("node") == "pointer"
-                                                    ):
-                                                        param_types[pname] = "char_ptr"
-                                                        found_ptr = True
-                                                        break
-                                        if not found_ptr:
-                                            for dc in pp.get("children", []):
-                                                if (
-                                                    isinstance(dc, dict)
-                                                    and dc.get("node") == "pointer"
-                                                ):
-                                                    param_types[pname] = "char_ptr"
-                                                    break
+                                                ptype = "ptr"  # Mark as pointer for now
+                                                break
+                            
+                            # Extract parameter type from type_specifier
+                            for tchild in p.get("children", []):
+                                if (
+                                    isinstance(tchild, dict)
+                                    and tchild.get("node") == "type_specifier"
+                                ):
+                                    # Get the base type
+                                    for pc in tchild.get("children", []):
+                                        if isinstance(pc, dict):
+                                            if "node" in pc:
+                                                base_type = pc["node"]
+                                                # If it's a pointer, combine with base type
+                                                if ptype == "ptr":
+                                                    if base_type == "char":
+                                                        ptype = "char_ptr"
+                                                    elif base_type == "int":
+                                                        ptype = "int_ptr"
+                                                    else:
+                                                        ptype = f"{base_type}_ptr"
+                                                else:
+                                                    ptype = base_type
+                                            elif "token" in pc and pc["token"].isidentifier():
+                                                # Custom type (e.g., struct name)
+                                                base_type = pc["token"]
+                                                if ptype == "ptr":
+                                                    ptype = f"{base_type}_ptr"
+                                                else:
+                                                    ptype = base_type
+                                        # Also check for pointer in type_specifier
+                                        if isinstance(pc, dict) and pc.get("node") == "pointer" and ptype is None:
+                                            ptype = "ptr"
+                            
+                            # Add parameter with type
+                            if pname:
+                                params.append(pname)
+                                if ptype:
+                                    param_types[pname] = ptype
+                
                 if isinstance(c, dict) and c.get("node") == "compound_stmt":
                     body_node = c
 
@@ -700,12 +726,29 @@ def transform_to_translation_unit(input_data: Tree) -> dict:
                 left = expr_from_node(children[0])
                 right = expr_from_node(children[1])
                 print(left, right)
-                if left and left.get("type") == "var":
-                    return {
-                        "type": "assign",
-                        "target": left.get("name"),
-                        "value": right,
-                    }
+                if left:
+                    # Support both simple variable and member access assignments
+                    if left.get("type") == "var":
+                        # Simple variable assignment: target is just the name string
+                        return {
+                            "type": "assign",
+                            "target": left.get("name"),
+                            "value": right,
+                        }
+                    elif left.get("type") == "member_access":
+                        # Member access assignment: target is the full expression
+                        return {
+                            "type": "assign",
+                            "target": left,
+                            "value": right,
+                        }
+                    elif left.get("type") == "deref":
+                        # Dereference assignment: target is the full expression
+                        return {
+                            "type": "assign",
+                            "target": left,
+                            "value": right,
+                        }
             return None
 
         if node_name == "unary":
@@ -768,31 +811,33 @@ def transform_to_translation_unit(input_data: Tree) -> dict:
             member_accesses = []  # Track member access operations
             
             # Scan for various postfix operations
-            for i, c in enumerate(children[1:], 1):
+            for c in children[1:]:
                 if isinstance(c, dict) and "token" in c:
                     tok = c["token"]
                     if tok == "++":
                         has_inc = True
                     elif tok == "--":
                         has_dec = True
-                    elif tok == ".":
-                        # Direct member access: next child should be member name
-                        if i < len(children) - 1:
-                            next_child = children[i + 1]
-                            if isinstance(next_child, dict) and "token" in next_child:
+                elif isinstance(c, dict) and "node" in c:
+                    # Check for member_access or ptr_member_access nodes
+                    if c["node"] == "member_access":
+                        # Direct member access: extract member name
+                        for mc in c.get("children", []):
+                            if isinstance(mc, dict) and "token" in mc:
                                 member_accesses.append({
                                     "op": ".",
-                                    "member": next_child["token"]
+                                    "member": mc["token"]
                                 })
-                    elif tok == "->":
-                        # Pointer member access: next child should be member name
-                        if i < len(children) - 1:
-                            next_child = children[i + 1]
-                            if isinstance(next_child, dict) and "token" in next_child:
+                                break
+                    elif c["node"] == "ptr_member_access":
+                        # Pointer member access: extract member name
+                        for mc in c.get("children", []):
+                            if isinstance(mc, dict) and "token" in mc:
                                 member_accesses.append({
                                     "op": "->",
-                                    "member": next_child["token"]
+                                    "member": mc["token"]
                                 })
+                                break
                         
             # Handle function calls
             for c in children[1:]:

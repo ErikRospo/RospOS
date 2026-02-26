@@ -36,7 +36,7 @@ RospOS is a multi-component system with the following major parts:
 ## Integration Points
 
 - **Python-C++ Boundary**:
-  The Python compiler (`rospoas/`) generates outputs consumed by the C++ VM (`rospovm/`). Ensure compatibility between the generated `.ros` files and the VM's instruction decoder.
+  The Python assembler (`rospoas/`) generates outputs consumed by the C++ VM (`rospovm/`). Ensure compatibility between the generated `.ros` files and the VM's instruction decoder.
 
 - **External Dependencies**:
   - Python: Install dependencies listed in `rospoas/requirements.txt`.
