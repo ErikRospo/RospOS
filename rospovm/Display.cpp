@@ -1,21 +1,18 @@
-#include <cstdint>
 #include "Display.h"
 #include "Memory.h"
-#include <SDL2/SDL.h>
 #include <stdexcept>
 #include <iostream>
 #include <algorithm>
-#include <vector>
-#include <thread>
-#include <atomic>
-#include <chrono>
+#include <QPainter>
+#include <QKeyEvent>
 #include "TTY.h"
 #include "Shutdown.h"
-// Add a static instance for the Display class
-static Display *displayInstance = nullptr;
+
+// Add a static instance for the VMDisplay class
+static VMDisplay *displayInstance = nullptr;
 
 // Static MMIO handlers
-uint8_t Display::displayReadHandler(uint32_t address)
+uint8_t VMDisplay::displayReadHandler(uint32_t address)
 {
     if (!displayInstance)
     {
@@ -24,7 +21,7 @@ uint8_t Display::displayReadHandler(uint32_t address)
     return displayInstance->read(address);
 }
 
-void Display::displayWriteHandler(uint32_t address, uint8_t value)
+void VMDisplay::displayWriteHandler(uint32_t address, uint8_t value)
 {
     if (!displayInstance)
     {
@@ -34,7 +31,7 @@ void Display::displayWriteHandler(uint32_t address, uint8_t value)
 }
 
 // Non-static methods for internal logic
-uint8_t Display::read(uint32_t address)
+uint8_t VMDisplay::read(uint32_t address)
 {
     // Address range: 0x20000000 - 0x2000FFFF (FB_SIZE bytes)
     if (address < 0x20000000)
@@ -49,7 +46,7 @@ uint8_t Display::read(uint32_t address)
     return framebuffer[offset];
 }
 
-void Display::write(uint32_t address, uint8_t value)
+void VMDisplay::write(uint32_t address, uint8_t value)
 {
     // Address range: 0x20000000 - 0x2000FFFF (FB_SIZE bytes)
     if (address < 0x20000000)
@@ -63,9 +60,11 @@ void Display::write(uint32_t address, uint8_t value)
     }
     if (framebuffer[offset] == value)
         return; // No change, skip update
+
     framebuffer[offset] = value;
 
-    // Update pixel buffer under lock and mark dirty; rendering happens in the display thread
+    // Convert 8-bit color to RGB
+    // Format: 00RRGGBB where each component is 2 bits
     uint8_t v = value;
     uint8_t r2 = (v >> 4) & 0x03;
     uint8_t g2 = (v >> 2) & 0x03;
@@ -73,18 +72,22 @@ void Display::write(uint32_t address, uint8_t value)
     uint8_t r = r2 * 85;
     uint8_t g = g2 * 85;
     uint8_t b = b2 * 85;
-    uint32_t pixel = (0xFFu << 24) | (static_cast<uint32_t>(r) << 16) | (static_cast<uint32_t>(g) << 8) | static_cast<uint32_t>(b);
 
     {
         std::lock_guard<std::mutex> lock(fbMutex);
-        pixels[offset] = pixel;
-        framebuffer[offset] = value;
+        // Update the QImage
+        int x = offset % WIDTH;
+        int y = offset / WIDTH;
+        displayImage.setPixelColor(x, y, QColor(r, g, b));
         dirty.store(true);
     }
+
+    // Schedule a paint update on the Qt event loop
+    update();
 }
 
-// Update constructor to initialize the static instance
-Display::Display()
+VMDisplay::VMDisplay(QWidget *parent)
+    : QWidget(parent), displayImage(WIDTH, HEIGHT, QImage::Format_RGB32)
 {
     if (displayInstance)
     {
@@ -92,147 +95,80 @@ Display::Display()
     }
     displayInstance = this;
 
-    // Initialize framebuffer and pixel buffer to black
+    // Initialize framebuffer to black
     std::fill(std::begin(framebuffer), std::end(framebuffer), 0x00);
-    pixels.assign(WIDTH * HEIGHT, 0xFF000000); // ARGB black
+    displayImage.fill(Qt::black);
     dirty.store(false);
 
-    // Start display thread which will initialize SDL, create window/renderer/texture,
-    // poll events and render at ~60Hz. All SDL calls happen on this thread.
-    displayThreadRunning.store(true);
-    displayThread = std::thread([this]()
-                                {
-        using clk = std::chrono::steady_clock;
-        const std::chrono::microseconds period(16667); // ~60Hz
-
-        if (SDL_Init(SDL_INIT_VIDEO) < 0)
-        {
-            std::cerr << "SDL could not initialize: " << SDL_GetError() << std::endl;
-            displayThreadRunning.store(false);
-            return;
-        }
-
-        window = SDL_CreateWindow("RospOS 256x256 8-bit Display", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCALED_WIDTH, SCALED_HEIGHT, SDL_WINDOW_SHOWN);
-        if (!window)
-        {
-            std::cerr << "Window could not be created: " << SDL_GetError() << std::endl;
-            SDL_Quit();
-            displayThreadRunning.store(false);
-            return;
-        }
-
-        renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
-        if (!renderer)
-        {
-            std::cerr << "Renderer could not be created: " << SDL_GetError() << std::endl;
-            SDL_DestroyWindow(window);
-            SDL_Quit();
-            displayThreadRunning.store(false);
-            return;
-        }
-
-        texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, WIDTH, HEIGHT);
-        if (!texture)
-        {
-            std::cerr << "Texture could not be created: " << SDL_GetError() << std::endl;
-            SDL_DestroyRenderer(renderer);
-            SDL_DestroyWindow(window);
-            SDL_Quit();
-            displayThreadRunning.store(false);
-            return;
-        }
-
-        // Upload initial texture
-        SDL_UpdateTexture(texture, NULL, pixels.data(), WIDTH * sizeof(uint32_t));
-
-        while (displayThreadRunning.load())
-        {
-            auto start = clk::now();
-            // Poll SDL events on this thread
-            SDL_Event e;
-            while (SDL_PollEvent(&e))
-            {
-                if (e.type == SDL_QUIT)
-                {
-                    requestShutdown();
-                }
-                else if (e.type == SDL_WINDOWEVENT)
-                {
-                    if (e.window.event == SDL_WINDOWEVENT_CLOSE)
-                    {
-                        requestShutdown();
-                    }
-                }
-                else if (e.type == SDL_KEYDOWN)
-                {
-                    SDL_Keycode k = e.key.keysym.sym;
-                    SDL_Keymod mods = SDL_GetModState();
-                    if ((mods & KMOD_CTRL) && (k == SDLK_c))
-                    {
-                        requestShutdown();
-                    }
-                    uint8_t ch = 0;
-                    if (k >= 32 && k <= 126)
-                    {
-                        ch = static_cast<uint8_t>(k);
-                    }
-                    else if (k == SDLK_RETURN)
-                    {
-                        ch = '\n';
-                    }
-                    else if (k == SDLK_BACKSPACE)
-                    {
-                        ch = '\b';
-                    }
-
-                    if (ch)
-                    {
-                        TTYPush(ch);
-                    }
-                }
-            }
-
-            bool needRender = false;
-            {
-                std::lock_guard<std::mutex> lock(fbMutex);
-                if (dirty.load())
-                {
-                    // Push full texture update
-                    SDL_UpdateTexture(texture, NULL, pixels.data(), WIDTH * sizeof(uint32_t));
-                    dirty.store(false);
-                    needRender = true;
-                }
-            }
-            if (needRender)
-            {
-                SDL_RenderClear(renderer);
-                SDL_Rect destRect = {0, 0, SCALED_WIDTH, SCALED_HEIGHT};
-                SDL_RenderCopy(renderer, texture, NULL, &destRect);
-                SDL_RenderPresent(renderer);
-            }
-
-            auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(clk::now() - start);
-            if (elapsed < period)
-            {
-                std::this_thread::sleep_for(period - elapsed);
-            }
-        }
-
-        // Cleanup SDL objects on this thread
-        if (texture) SDL_DestroyTexture(texture);
-        if (renderer) SDL_DestroyRenderer(renderer);
-        if (window) SDL_DestroyWindow(window);
-        SDL_Quit(); });
+    // Set widget properties
+    setWindowTitle("RospOS Display");
+    setFixedSize(SCALED_WIDTH, SCALED_HEIGHT);
+    setFocusPolicy(Qt::StrongFocus);
 }
 
-// Update destructor to reset the static instance
-Display::~Display()
+VMDisplay::~VMDisplay()
 {
     displayInstance = nullptr;
-    // Stop display thread and let it clean up SDL objects
-    displayThreadRunning.store(false);
-    if (displayThread.joinable())
+}
+
+void VMDisplay::paintEvent(QPaintEvent *event)
+{
+    std::lock_guard<std::mutex> lock(fbMutex);
+
+    QPainter painter(this);
+    painter.setRenderHint(QPainter::SmoothPixmapTransform, false);
+
+    // Scale and draw the image
+    QRect targetRect(0, 0, SCALED_WIDTH, SCALED_HEIGHT);
+    painter.drawImage(targetRect, displayImage);
+
+    dirty.store(false);
+}
+
+void VMDisplay::keyPressEvent(QKeyEvent *event)
+{
+    if (event->isAutoRepeat())
     {
-        displayThread.join();
+        event->ignore();
+        return;
     }
+
+    int key = event->key();
+    QString text = event->text();
+
+    // Handle Ctrl+C
+    if (event->modifiers() & Qt::ControlModifier && key == Qt::Key_C)
+    {
+        requestShutdown();
+        event->accept();
+        return;
+    }
+
+    // Handle printable characters
+    if (!text.isEmpty())
+    {
+        for (QChar ch : text)
+        {
+            uint8_t byte = ch.toLatin1();
+            if (byte != 0)
+            {
+                TTYPush(byte);
+            }
+        }
+    }
+    // Handle special keys
+    else if (key == Qt::Key_Return || key == Qt::Key_Enter)
+    {
+        TTYPush('\n');
+    }
+    else if (key == Qt::Key_Backspace)
+    {
+        TTYPush('\b');
+    }
+    else if (key == Qt::Key_Tab)
+    {
+        TTYPush('\t');
+    }
+
+    event->accept();
 }

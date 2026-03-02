@@ -4,7 +4,6 @@
 #include <string>
 #include <cstdint>
 #include <algorithm> // For std::find
-#include <SDL2/SDL.h>
 
 #include "InstructionDecoder.h"
 #include "Register.h"

@@ -3,6 +3,7 @@
 #include "DisassemblyView.h"
 #include "RegisterView.h"
 #include "MemoryView.h"
+#include "Display.h"
 
 #include <QVBoxLayout>
 #include <QHBoxLayout>
@@ -23,7 +24,8 @@ MainWindow::MainWindow(QWidget *parent)
       vmController(std::make_unique<VMController>(this)),
       disassemblyView(new DisassemblyView(this)),
       registerView(new RegisterView(this)),
-      memoryView(new MemoryView(this))
+      memoryView(new MemoryView(this)),
+      displayWidget(new VMDisplay(this))
 {
     setWindowTitle("RospOS VM Debugger");
     setGeometry(100, 100, 1400, 900);
@@ -130,13 +132,14 @@ void MainWindow::createCentralWidget()
     // Left side: Disassembly view
     mainSplitter->addWidget(disassemblyView);
 
-    // Right side: Register and Memory views (vertical split)
+    // Right side: Register, Memory, and Display views (vertical split)
     QSplitter *rightSplitter = new QSplitter(Qt::Vertical);
     rightSplitter->addWidget(registerView);
     rightSplitter->addWidget(memoryView);
+    rightSplitter->addWidget(displayWidget);
 
     mainSplitter->setSizes({700, 700});
-    rightSplitter->setSizes({400, 400});
+    rightSplitter->setSizes({300, 300, 300});
 
     setCentralWidget(mainSplitter);
 }

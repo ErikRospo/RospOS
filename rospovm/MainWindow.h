@@ -11,6 +11,7 @@ class VMController;
 class DisassemblyView;
 class RegisterView;
 class MemoryView;
+class VMDisplay;
 
 class MainWindow : public QMainWindow
 {
@@ -44,6 +45,7 @@ private:
     DisassemblyView *disassemblyView;
     RegisterView *registerView;
     MemoryView *memoryView;
+    VMDisplay *displayWidget;
 
     // UI Controls
     QAction *loadButton;
