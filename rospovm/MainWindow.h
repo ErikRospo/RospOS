@@ -12,6 +12,7 @@ class DisassemblyView;
 class RegisterView;
 class MemoryView;
 class VMDisplay;
+class LogView;
 
 class MainWindow : public QMainWindow
 {
@@ -46,6 +47,7 @@ private:
     RegisterView *registerView;
     MemoryView *memoryView;
     VMDisplay *displayWidget;
+    LogView *logView;
 
     // UI Controls
     QAction *loadButton;

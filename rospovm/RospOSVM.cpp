@@ -4,11 +4,14 @@
 #include "InstructionDecoder.h"
 #include "Display.h"
 #include "Shutdown.h"
+#include "Logger.h"
 
 #include <fstream>
 #include <iostream>
 #include <iomanip>
+#include <sstream>
 #include <stdexcept>
+#include <QString>
 
 RospOSVM::RospOSVM(bool debugMode) : memory(1ULL << 32) // Initialize 4GB memory
 {
@@ -36,19 +39,22 @@ void RospOSVM::step()
     uint32_t instruction = memory.readWord(pc);
     if (debugMode)
     {
-        std::cerr << "PC: " << std::hex << pc << std::dec << " ";
-        std::cerr << "I: " << decodeInstruction(instruction, regFile) << "\n";
-        std::cerr << "RI: " << std::hex << std::setw(8) << std::setfill('0') << instruction << std::dec << "\n";
-        std::cerr << "Registers: " << getRegisterState() << std::endl;
+        std::ostringstream oss;
+        oss << "PC: " << std::hex << pc << std::dec << " ";
+        oss << "I: " << decodeInstruction(instruction, regFile) << "\n";
+        oss << "RI: " << std::hex << std::setw(8) << std::setfill('0') << instruction << std::dec << "\n";
+        oss << "Registers: " << getRegisterState();
+        Logger::instance().debug(QString::fromStdString(oss.str()));
     }
     executeInstruction(instruction);
     if (debugMode)
     {
-        std::cerr << "After Execution:\n";
-        std::cerr << "PC: " << std::hex << pc << std::dec << "\n";
-        std::cerr << "Registers: " << getRegisterState() << "\n";
-        std::cerr << "----------------------------------------\n"
-                  << std::endl;
+        std::ostringstream oss;
+        oss << "After Execution:\n";
+        oss << "PC: " << std::hex << pc << std::dec << "\n";
+        oss << "Registers: " << getRegisterState() << "\n";
+        oss << "----------------------------------------";
+        Logger::instance().debug(QString::fromStdString(oss.str()));
     }
 }
 
@@ -91,7 +97,7 @@ void RospOSVM::executeInstruction(uint32_t instruction)
         // Do nothing
         break;
     default:
-        std::cerr << "Unknown opcode: " << opcode << std::endl;
+        Logger::instance().error(QString("Unknown opcode: %1").arg(opcode));
         break;
     }
     if (!pcModified)
@@ -153,7 +159,7 @@ void RospOSVM::rTypeInstruction(uint32_t instruction)
     case 0xC: // DIV
         if (regFile[rs2].get() == 0)
         {
-            std::cerr << "Division by zero error in DIV instruction." << std::endl;
+            Logger::instance().error("Division by zero error in DIV instruction.");
             regFile[rd].set(0xFFFFFFFF);
         }
         else
@@ -164,7 +170,7 @@ void RospOSVM::rTypeInstruction(uint32_t instruction)
     case 0xD: // DIVU
         if (regFile[rs2].get() == 0)
         {
-            std::cerr << "Division by zero error in DIVU instruction." << std::endl;
+            Logger::instance().error("Division by zero error in DIVU instruction.");
             regFile[rd].set(0xFFFFFFFF);
         }
         else
@@ -175,7 +181,7 @@ void RospOSVM::rTypeInstruction(uint32_t instruction)
     case 0xE: // REM
         if (regFile[rs2].get() == 0)
         {
-            std::cerr << "Division by zero error in REM instruction." << std::endl;
+            Logger::instance().error("Division by zero error in REM instruction.");
             regFile[rd].set(0xFFFFFFFF);
         }
         else
@@ -186,7 +192,7 @@ void RospOSVM::rTypeInstruction(uint32_t instruction)
     case 0xF: // REMU
         if (regFile[rs2].get() == 0)
         {
-            std::cerr << "Division by zero error in REMU instruction." << std::endl;
+            Logger::instance().error("Division by zero error in REMU instruction.");
             regFile[rd].set(0xFFFFFFFF);
         }
         else
@@ -195,7 +201,7 @@ void RospOSVM::rTypeInstruction(uint32_t instruction)
         }
         break;
     default:
-        std::cerr << "Unknown R-type sub-opcode: " << sub_op << std::endl;
+        Logger::instance().error(QString("Unknown R-type sub-opcode: %1").arg(sub_op));
         break;
     }
 }
@@ -236,7 +242,7 @@ void RospOSVM::iArithTypeInstruction(uint32_t instruction)
         regFile[rd].set(static_cast<int32_t>(regFile[rs1].get()) >> (zero_ext_imm & 0x1F));
         break;
     default:
-        std::cerr << "Unknown I-type sub-opcode: " << sub_op << std::endl;
+        Logger::instance().error(QString("Unknown I-type sub-opcode: %1").arg(sub_op));
         break;
     }
 }
@@ -280,7 +286,7 @@ void RospOSVM::iTypeLSInstruction(uint32_t instruction)
         memory.writeWord(addr, static_cast<uint32_t>(regFile[rd].get()));
         break;
     default:
-        std::cerr << "Unknown Load/Store sub-opcode: " << sub_op << std::endl;
+        Logger::instance().error(QString("Unknown Load/Store sub-opcode: %1").arg(sub_op));
         break;
     }
 }
@@ -321,7 +327,7 @@ bool RospOSVM::bTypeInstruction(uint32_t instruction)
         takeBranch = (regFile[rs1].get() >= regFile[rs2].get());
         break;
     default:
-        std::cerr << "Unknown B-type sub-opcode: " << sub_op << std::endl;
+        Logger::instance().error(QString("Unknown B-type sub-opcode: %1").arg(sub_op));
         break;
     }
     if (takeBranch)
@@ -368,18 +374,17 @@ void RospOSVM::sTypeInstruction(uint32_t instruction)
     switch (sub_op)
     {
     case 0x0: // ECALL
-        std::cerr << "ECALL invoked." << std::endl;
+        Logger::instance().info("ECALL invoked.");
         break;
     case 0x1: // BREAK
-        std::cerr << "BREAK invoked. Halting execution." << std::endl;
-        // Dump memory and register state for debugging
-        std::cerr << "Final PC: " << std::hex << pc << std::dec << std::endl;
-        std::cerr << "Final Registers: " << getRegisterState() << std::endl;
+        Logger::instance().info("BREAK invoked. Halting execution.");
+        Logger::instance().info(QString("Final PC: 0x%1").arg(pc, 8, 16, QChar('0')));
+        Logger::instance().info(QString::fromStdString(std::string("Final Registers: ") + getRegisterState()));
         dumpMemoryToFile(memory);
         requestShutdown();
         break;
     default:
-        std::cerr << "Unknown S-type sub-opcode: " << sub_op << std::endl;
+        Logger::instance().error(QString("Unknown S-type sub-opcode: %1").arg(sub_op));
         break;
     }
 }
@@ -389,7 +394,7 @@ void dumpMemoryToFile(const Memory &memory)
     std::ofstream file("memory_dump.bin", std::ios::binary);
     if (!file.is_open())
     {
-        std::cerr << "Failed to open memory_dump.bin for writing." << std::endl;
+        Logger::instance().error("Failed to open memory_dump.bin for writing.");
         return;
     }
 
@@ -400,7 +405,7 @@ void dumpMemoryToFile(const Memory &memory)
     } 
     if (!file.good())
     {
-        std::cerr << "Error writing to memory_dump.bin." << std::endl;
+        Logger::instance().error("Error writing to memory_dump.bin.");
     }
 
     file.close();

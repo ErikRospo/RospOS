@@ -19,6 +19,7 @@ add_library(rosposvm_lib STATIC
     Binary.cpp
     Display.cpp
     Shutdown.cpp
+    Logger.cpp
 )
 
 target_include_directories(rosposvm_lib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
@@ -37,6 +38,8 @@ add_executable(rospovm_qt
     RegisterView.cpp
     MemoryView.h
     MemoryView.cpp
+    LogView.h
+    LogView.cpp
 )
 
 target_link_libraries(rospovm_qt PRIVATE

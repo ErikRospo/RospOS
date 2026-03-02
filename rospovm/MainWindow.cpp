@@ -4,6 +4,7 @@
 #include "RegisterView.h"
 #include "MemoryView.h"
 #include "Display.h"
+#include "LogView.h"
 
 #include <QVBoxLayout>
 #include <QHBoxLayout>
@@ -25,7 +26,8 @@ MainWindow::MainWindow(QWidget *parent)
       disassemblyView(new DisassemblyView(this)),
       registerView(new RegisterView(this)),
       memoryView(new MemoryView(this)),
-      displayWidget(new VMDisplay(this))
+      displayWidget(new VMDisplay(this)),
+      logView(new LogView(this))
 {
     setWindowTitle("RospOS VM Debugger");
     setGeometry(100, 100, 1400, 900);
@@ -126,11 +128,14 @@ void MainWindow::createToolBar()
 
 void MainWindow::createCentralWidget()
 {
-    // Main splitter for horizontal layout
-    QSplitter *mainSplitter = new QSplitter(Qt::Horizontal);
+    // Create main vertical splitter (top: disassembly+registers+memory+display, bottom: logs)
+    QSplitter *mainSplitter = new QSplitter(Qt::Vertical);
+
+    // Create horizontal splitter for the top half
+    QSplitter *topSplitter = new QSplitter(Qt::Horizontal);
 
     // Left side: Disassembly view
-    mainSplitter->addWidget(disassemblyView);
+    topSplitter->addWidget(disassemblyView);
 
     // Right side: Register, Memory, and Display views (vertical split)
     QSplitter *rightSplitter = new QSplitter(Qt::Vertical);
@@ -138,8 +143,14 @@ void MainWindow::createCentralWidget()
     rightSplitter->addWidget(memoryView);
     rightSplitter->addWidget(displayWidget);
 
-    mainSplitter->setSizes({700, 700});
-    rightSplitter->setSizes({300, 300, 300});
+    topSplitter->setSizes({700, 700});
+    rightSplitter->setSizes({250, 250, 250});
+
+    // Add to main splitter
+    mainSplitter->addWidget(topSplitter);
+    mainSplitter->addWidget(logView);
+
+    mainSplitter->setSizes({700, 200});
 
     setCentralWidget(mainSplitter);
 }
