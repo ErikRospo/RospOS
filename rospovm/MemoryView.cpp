@@ -57,9 +57,11 @@ void MemoryView::createUI()
     }
     memoryTable->setHorizontalHeaderLabels(headers);
 
-    memoryTable->setColumnWidth(0, 100);
+    // Configure header to stretch columns to available width
+    memoryTable->horizontalHeader()->setStretchLastSection(false);
+    memoryTable->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
     for (int i = 1; i < 17; ++i) {
-        memoryTable->setColumnWidth(i, 40);
+        memoryTable->horizontalHeader()->setSectionResizeMode(i, QHeaderView::Stretch);
     }
 
     // Make the table read-only

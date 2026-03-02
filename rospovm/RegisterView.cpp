@@ -32,9 +32,12 @@ void RegisterView::createUI()
     registerTable = new QTableWidget();
     registerTable->setColumnCount(3);
     registerTable->setHorizontalHeaderLabels({"Register", "Hex", "Decimal"});
-    registerTable->setColumnWidth(0, 60);
-    registerTable->setColumnWidth(1, 120);
-    registerTable->setColumnWidth(2, 120);
+    
+    // Configure header to stretch columns to available width
+    registerTable->horizontalHeader()->setStretchLastSection(false);
+    registerTable->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
+    registerTable->horizontalHeader()->setSectionResizeMode(1, QHeaderView::Stretch);
+    registerTable->horizontalHeader()->setSectionResizeMode(2, QHeaderView::Stretch);
 
     // Make the table read-only
     registerTable->setEditTriggers(QAbstractItemView::NoEditTriggers);
