@@ -4,11 +4,11 @@
 #include <QMainWindow>
 #include <QLabel>
 #include <QAction>
-#include <QSlider>
 #include <memory>
 
 class VMController;
-class DisassemblyView;
+class CodeView;
+class DebugControlPanel;
 class RegisterView;
 class MemoryView;
 class VMDisplay;
@@ -43,7 +43,8 @@ private:
 
     // Member variables
     std::unique_ptr<VMController> vmController;
-    DisassemblyView *disassemblyView;
+    CodeView *codeView;
+    DebugControlPanel *debugPanel;
     RegisterView *registerView;
     MemoryView *memoryView;
     VMDisplay *displayWidget;
@@ -51,13 +52,7 @@ private:
 
     // UI Controls
     QAction *loadButton;
-    QAction *stepButton;
-    QAction *runButton;
-    QAction *pauseButton;
-    QAction *resetButton;
-    QSlider *speedSlider;
     QLabel *statusLabel;
-    QLabel *pcLabel;
 };
 
 #endif // MAIN_WINDOW_H

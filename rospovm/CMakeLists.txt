@@ -52,6 +52,10 @@ add_executable(rospovm_qt
     MainWindow.cpp
     VMController.h
     VMController.cpp
+    CodeView.h
+    CodeView.cpp
+    DebugControlPanel.h
+    DebugControlPanel.cpp
     DisassemblyView.h
     DisassemblyView.cpp
     RegisterView.h

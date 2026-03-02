@@ -1,6 +1,7 @@
 #include "MainWindow.h"
 #include "VMController.h"
-#include "DisassemblyView.h"
+#include "CodeView.h"
+#include "DebugControlPanel.h"
 #include "RegisterView.h"
 #include "MemoryView.h"
 #include "Display.h"
@@ -16,21 +17,20 @@
 #include <QStatusBar>
 #include <QGroupBox>
 #include <QLabel>
-#include <QSlider>
-#include <QSpinBox>
 #include <QMessageBox>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent),
       vmController(std::make_unique<VMController>(this)),
-      disassemblyView(new DisassemblyView(this)),
+      codeView(new CodeView(this)),
+      debugPanel(new DebugControlPanel(this)),
       registerView(new RegisterView(this)),
       memoryView(new MemoryView(this)),
       displayWidget(new VMDisplay(this)),
       logView(new LogView(this))
 {
     setWindowTitle("RospOS VM Debugger");
-    setGeometry(100, 100, 1400, 900);
+    setGeometry(100, 100, 1600, 1000);
 
     createMenuBar();
     createToolBar();
@@ -58,11 +58,11 @@ void MainWindow::createMenuBar()
     QMenu *debugMenu = menuBar()->addMenu(tr("&Debug"));
 
     QAction *stepAction = debugMenu->addAction(tr("&Step"));
-    stepAction->setShortcut(Qt::CTRL | Qt::Key_S);
+    stepAction->setShortcut(Qt::Key_F10);
     connect(stepAction, &QAction::triggered, this, &MainWindow::onStep);
 
     QAction *runAction = debugMenu->addAction(tr("&Run"));
-    runAction->setShortcut(Qt::CTRL | Qt::Key_R);
+    runAction->setShortcut(Qt::Key_F5);
     connect(runAction, &QAction::triggered, this, &MainWindow::onRun);
 
     QAction *pauseAction = debugMenu->addAction(tr("&Pause"));
@@ -81,104 +81,98 @@ void MainWindow::createMenuBar()
         QMessageBox::about(this, tr("About RospOS VM Debugger"),
             tr("RospOS Virtual Machine Debugger\n\n"
                "A graphical debugger for the RospOS VM with "
-               "disassembly, register, and memory views."));
+               "code analysis, registers, and memory views."));
     });
 }
 
 void MainWindow::createToolBar()
 {
-    QToolBar *debugToolBar = addToolBar(tr("Debug Controls"));
-    debugToolBar->setObjectName("DebugToolBar");
+    QToolBar *toolBar = addToolBar(tr("File Tools"));
+    toolBar->setObjectName("FileToolBar");
 
-    QAction *loadAction = debugToolBar->addAction(tr("Load Binary"));
+    QAction *loadAction = toolBar->addAction(tr("Load Binary"));
     connect(loadAction, &QAction::triggered, this, &MainWindow::onLoadFile);
     loadButton = loadAction;
-
-    debugToolBar->addSeparator();
-
-    QAction *stepAction = debugToolBar->addAction(tr("Step"));
-    connect(stepAction, &QAction::triggered, this, &MainWindow::onStep);
-    stepButton = stepAction;
-
-    QAction *runAction = debugToolBar->addAction(tr("Run"));
-    connect(runAction, &QAction::triggered, this, &MainWindow::onRun);
-    runButton = runAction;
-
-    QAction *pauseAction = debugToolBar->addAction(tr("Pause"));
-    connect(pauseAction, &QAction::triggered, this, &MainWindow::onPause);
-    pauseButton = pauseAction;
-    pauseButton->setEnabled(false);
-
-    debugToolBar->addSeparator();
-
-    QAction *resetAction = debugToolBar->addAction(tr("Reset"));
-    connect(resetAction, &QAction::triggered, this, &MainWindow::onReset);
-    resetButton = resetAction;
-
-    debugToolBar->addSeparator();
-    debugToolBar->addWidget(new QLabel(tr("Speed:")));
-
-    speedSlider = new QSlider(Qt::Horizontal);
-    speedSlider->setMinimum(1);
-    speedSlider->setMaximum(100);
-    speedSlider->setValue(50);
-    speedSlider->setMaximumWidth(150);
-    debugToolBar->addWidget(speedSlider);
 }
 
 void MainWindow::createCentralWidget()
 {
-    // Create main vertical splitter (top: disassembly+registers+memory+display, bottom: logs)
-    QSplitter *mainSplitter = new QSplitter(Qt::Vertical);
+    // Main layout structure:
+    // Top: File operations toolbar (already in toolbar)
+    // Center: Vertical splitter with:
+    //   - Top: Horizontal splitter with:
+    //     - Left: Debug control panel
+    //     - Center: Code view (primary)
+    //     - Right: Register, Memory, Display views
+    //   - Bottom: Log view
 
-    // Create horizontal splitter for the top half
-    QSplitter *topSplitter = new QSplitter(Qt::Horizontal);
+    QWidget *centralWidget = new QWidget(this);
+    QVBoxLayout *mainLayout = new QVBoxLayout(centralWidget);
+    mainLayout->setContentsMargins(0, 0, 0, 0);
 
-    // Left side: Disassembly view
-    topSplitter->addWidget(disassemblyView);
+    // Main vertical splitter (top content vs logs)
+    QSplitter *verticalSplitter = new QSplitter(Qt::Vertical);
 
-    // Right side: Register, Memory, and Display views (vertical split)
-    QSplitter *rightSplitter = new QSplitter(Qt::Vertical);
-    rightSplitter->addWidget(registerView);
-    rightSplitter->addWidget(memoryView);
-    rightSplitter->addWidget(displayWidget);
+    // Top horizontal splitter (debug panel | code | sidebar)
+    QSplitter *horizontalSplitter = new QSplitter(Qt::Horizontal);
 
-    topSplitter->setSizes({700, 700});
-    rightSplitter->setSizes({250, 250, 250});
+    // Left sidebar: Debug control panel
+    debugPanel->setMaximumWidth(280);
+    debugPanel->setMinimumWidth(250);
+    horizontalSplitter->addWidget(debugPanel);
 
-    // Add to main splitter
-    mainSplitter->addWidget(topSplitter);
-    mainSplitter->addWidget(logView);
+    // Center: Code view (main focus)
+    codeView->setMinimumWidth(400);
+    horizontalSplitter->addWidget(codeView);
 
-    mainSplitter->setSizes({700, 200});
+    // Right sidebar: Register, Memory, Display
+    QSplitter *rightSidebar = new QSplitter(Qt::Vertical);
+    rightSidebar->addWidget(registerView);
+    rightSidebar->addWidget(memoryView);
+    rightSidebar->addWidget(displayWidget);
+    rightSidebar->setMaximumWidth(350);
+    rightSidebar->setMinimumWidth(250);
 
-    setCentralWidget(mainSplitter);
+    horizontalSplitter->addWidget(rightSidebar);
+
+    // Set splitter sizes (left panel, code view, right sidebar)
+    horizontalSplitter->setSizes({250, 800, 300});
+
+    verticalSplitter->addWidget(horizontalSplitter);
+    verticalSplitter->addWidget(logView);
+    verticalSplitter->setSizes({800, 200});
+
+    mainLayout->addWidget(verticalSplitter);
+
+    setCentralWidget(centralWidget);
 }
 
 void MainWindow::createStatusBar()
 {
     statusLabel = new QLabel(tr("Status: Ready"));
-    pcLabel = new QLabel(tr("PC: 0x0000"));
-
     statusBar()->addWidget(statusLabel, 1);
-    statusBar()->addPermanentWidget(pcLabel);
 }
 
 void MainWindow::setupConnections()
 {
-    // Connect VM controller signals
+    // Connect VM controller signals to main window
     connect(vmController.get(), &VMController::stateChanged, this, &MainWindow::onVMStateChanged);
     connect(vmController.get(), &VMController::error, this, &MainWindow::onVMError);
     connect(vmController.get(), &VMController::executionStarted, this, &MainWindow::onExecutionStarted);
     connect(vmController.get(), &VMController::executionStopped, this, &MainWindow::onExecutionStopped);
 
     // Connect views to controller
-    disassemblyView->setVMController(vmController.get());
+    codeView->setVMController(vmController.get());
     registerView->setVMController(vmController.get());
     memoryView->setVMController(vmController.get());
+    debugPanel->setVMController(vmController.get());
 
-    // Connect speed slider
-    connect(speedSlider, QOverload<int>::of(&QSlider::valueChanged), this, &MainWindow::onSpeedChanged);
+    // Connect debug panel signals
+    connect(debugPanel, &DebugControlPanel::stepClicked, this, &MainWindow::onStep);
+    connect(debugPanel, &DebugControlPanel::runClicked, this, &MainWindow::onRun);
+    connect(debugPanel, &DebugControlPanel::pauseClicked, this, &MainWindow::onPause);
+    connect(debugPanel, &DebugControlPanel::resetClicked, this, &MainWindow::onReset);
+    connect(debugPanel, &DebugControlPanel::speedChanged, this, &MainWindow::onSpeedChanged);
 }
 
 void MainWindow::onLoadFile()
@@ -216,35 +210,44 @@ void MainWindow::onReset()
 {
     vmController->reset();
     statusLabel->setText(tr("Status: VM Reset"));
+    onVMStateChanged();
 }
 
 void MainWindow::onVMStateChanged()
 {
     // Update all views
-    disassemblyView->refresh();
+    codeView->refresh();
     registerView->refresh();
     memoryView->refresh();
+    
+    // Update debug panel
+    uint32_t pc = vmController->getProgramCounter();
+    debugPanel->setPCLabel(pc);
 }
 
 void MainWindow::onVMError(const QString &message)
 {
     statusLabel->setText(tr("Status: ") + message);
+    debugPanel->setStatus(message);
 }
 
 void MainWindow::onExecutionStarted()
 {
     statusLabel->setText(tr("Status: Running..."));
-    stepButton->setEnabled(false);
-    runButton->setEnabled(false);
-    pauseButton->setEnabled(true);
+    debugPanel->setStatus("Running");
+    debugPanel->setStepEnabled(false);
+    debugPanel->setRunEnabled(false);
+    debugPanel->setPauseEnabled(true);
 }
 
 void MainWindow::onExecutionStopped()
 {
     statusLabel->setText(tr("Status: Stopped"));
-    stepButton->setEnabled(true);
-    runButton->setEnabled(true);
-    pauseButton->setEnabled(false);
+    debugPanel->setStatus("Stopped");
+    debugPanel->setStepEnabled(true);
+    debugPanel->setRunEnabled(true);
+    debugPanel->setPauseEnabled(false);
+    onVMStateChanged();
 }
 
 void MainWindow::onSpeedChanged(int value)
