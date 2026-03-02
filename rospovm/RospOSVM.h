@@ -29,6 +29,24 @@ public:
     void loadBinaryAtAddress(const std::vector<char> &binary, uint32_t address);
     void step();
     std::string getRegisterState() const;
+
+    // Debugger interface
+    uint32_t getProgramCounter() const { return pc; }
+    void setProgramCounter(uint32_t newPc) { pc = newPc; }
+    
+    RegisterFile &getRegisterFile() { return regFile; }
+    const RegisterFile &getRegisterFile() const { return regFile; }
+    
+    uint32_t getRegister(int index) const { return regFile[index].get(); }
+    void setRegister(int index, uint32_t value) { regFile[index].set(value); }
+    
+    Memory &getMemory() { return memory; }
+    const Memory &getMemory() const { return memory; }
+    
+    uint32_t readMemory(uint32_t address) const { return memory.readWord(address); }
+    void writeMemory(uint32_t address, uint32_t value) { memory.writeWord(address, value); }
+    uint8_t readMemoryByte(uint32_t address) const { return memory.readByte(address); }
+    void writeMemoryByte(uint32_t address, uint8_t value) { memory.writeByte(address, value); }
 };
 
 void dumpMemoryToFile(const Memory &memory);

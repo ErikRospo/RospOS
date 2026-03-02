@@ -1,0 +1,134 @@
+#include "VMController.h"
+#include "InstructionDecoder.h"
+#include <QFile>
+#include <QDebug>
+#include <fstream>
+
+VMController::VMController(QObject *parent)
+    : QObject(parent), vm(std::make_unique<RospOSVM>(true)), running(false)
+{
+}
+
+VMController::~VMController() = default;
+
+bool VMController::loadBinaryFile(const QString &filePath)
+{
+    QFile file(filePath);
+    if (!file.open(QIODevice::ReadOnly)) {
+        emit error(QString("Failed to open file: %1").arg(filePath));
+        return false;
+    }
+
+    QByteArray data = file.readAll();
+    file.close();
+
+    std::vector<char> binary(data.begin(), data.end());
+    try {
+        vm->loadBinaryAtAddress(binary, codeStartAddress);
+        emit stateChanged();
+        emit error(QString("Loaded %1 bytes from %2").arg(binary.size()).arg(filePath));
+        return true;
+    } catch (const std::exception &e) {
+        emit error(QString("Failed to load binary: %1").arg(e.what()));
+        return false;
+    }
+}
+
+void VMController::step()
+{
+    try {
+        vm->step();
+        emit stateChanged();
+    } catch (const std::exception &e) {
+        emit error(QString("Execution error: %1").arg(e.what()));
+        emit executionStopped();
+        running = false;
+    }
+}
+
+void VMController::run()
+{
+    running = true;
+    emit executionStarted();
+    // Note: For a real implementation, you'd run this in a separate thread
+    // to avoid blocking the UI
+}
+
+void VMController::pause()
+{
+    running = false;
+    emit executionStopped();
+}
+
+void VMController::reset()
+{
+    vm = std::make_unique<RospOSVM>(true);
+    running = false;
+    emit stateChanged();
+    emit executionStopped();
+}
+
+uint32_t VMController::getProgramCounter() const
+{
+    return vm->getProgramCounter();
+}
+
+uint32_t VMController::getRegister(int index) const
+{
+    try {
+        return vm->getRegister(index);
+    } catch (...) {
+        return 0;
+    }
+}
+
+QString VMController::getRegisterName(int index) const
+{
+    static const char *names[] = {
+        "R0", "R1", "R2", "R3", "R4", "R5", "R6", "R7",
+        "R8", "R9", "R10", "R11", "R12", "R13", "R14", "R15"
+    };
+
+    if (index >= 0 && index < 16) {
+        return QString(names[index]);
+    }
+    return QString("R%1").arg(index);
+}
+
+uint32_t VMController::readMemory(uint32_t address) const
+{
+    try {
+        return vm->readMemory(address);
+    } catch (...) {
+        return 0;
+    }
+}
+
+void VMController::writeMemory(uint32_t address, uint32_t value)
+{
+    try {
+        vm->writeMemory(address, value);
+    } catch (...) {
+    }
+}
+
+QString VMController::disassembleInstruction(uint32_t instruction)
+{
+    // Call the C function directly
+    RegisterFile regFile;
+    std::string disasm = decodeInstruction(instruction, regFile);
+    return QString::fromStdString(disasm);
+}
+
+std::vector<uint32_t> VMController::getCodeRange(uint32_t start, uint32_t length) const
+{
+    std::vector<uint32_t> instructions;
+    try {
+        for (uint32_t i = 0; i < length; i += 4) {
+            uint32_t instruction = vm->readMemory(start + i);
+            instructions.push_back(instruction);
+        }
+    } catch (...) {
+    }
+    return instructions;
+}
