@@ -1,12 +1,13 @@
 #ifndef ROSPOS_VM_H
 #define ROSPOS_VM_H
 
+#include <cstdint>
+#include <string>
+#include <vector>
+
 #include "Register.h"
 #include "Memory.h"
 #include "Display.h"
-#include <vector>
-#include <cstdint>
-#include <string>
 
 class RospOSVM
 {
@@ -14,7 +15,7 @@ private:
     RegisterFile regFile;
     uint32_t pc; // Program Counter
     Memory memory;
-    // Display display;
+    
     void rTypeInstruction(uint32_t instruction);
     void iArithTypeInstruction(uint32_t instruction);
     void iTypeLSInstruction(uint32_t instruction);
@@ -34,14 +35,14 @@ public:
     uint32_t getProgramCounter() const { return pc; }
     void setProgramCounter(uint32_t newPc) { pc = newPc; }
     
-    RegisterFile &getRegisterFile() { return regFile; }
-    const RegisterFile &getRegisterFile() const { return regFile; }
+    RegisterFile& getRegisterFile() { return regFile; }
+    const RegisterFile& getRegisterFile() const { return regFile; }
     
     uint32_t getRegister(int index) const { return regFile[index].get(); }
     void setRegister(int index, uint32_t value) { regFile[index].set(value); }
     
-    Memory &getMemory() { return memory; }
-    const Memory &getMemory() const { return memory; }
+    Memory& getMemory() { return memory; }
+    const Memory& getMemory() const { return memory; }
     
     uint32_t readMemory(uint32_t address) const { return memory.readWord(address); }
     void writeMemory(uint32_t address, uint32_t value) { memory.writeWord(address, value); }

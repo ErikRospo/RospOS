@@ -1,31 +1,37 @@
 #include "RospOSVM.h"
-#include "Memory.h"
-#include "TTY.h"
-#include "InstructionDecoder.h"
-#include "Display.h"
-#include "Shutdown.h"
-#include "Logger.h"
 
+#include <cstdint>
 #include <fstream>
-#include <iostream>
 #include <iomanip>
+#include <iostream>
 #include <sstream>
 #include <stdexcept>
 #include <QString>
 
-RospOSVM::RospOSVM(bool debugMode) : memory(1ULL << 32) // Initialize 4GB memory
+#include "Display.h"
+#include "InstructionDecoder.h"
+#include "Logger.h"
+#include "Memory.h"
+#include "Shutdown.h"
+#include "TTY.h"
+
+RospOSVM::RospOSVM(bool debugMode) 
+    : debugMode(debugMode), 
+      memory(1ULL << 32)  // Initialize 4GB memory
 {
-    this->debugMode = debugMode;
     pc = memory.readWord(0xFFFFFFFC); // Set PC to reset vector
     regFile.sp().set(0x0FFFFFFF);     // Top of RAM
     regFile[0].setReadOnly(true);     // R0 is always zero
 
     // Setup TTY MMIO range
-    memory.addSpecialRange((char *)"TTY ", 0x10000000, 0x100001FF, SpecialMemoryRange::Type::MMIO, true, true,
+    memory.addSpecialRange("TTY ", 0x10000000, 0x100001FF, 
+                           SpecialMemoryRange::Type::MMIO, true, true,
                            TTYReadHandler, TTYWriteHandler);
+    
     // Setup Display MMIO range
     // Note: VMDisplay instance is created in MainWindow for Qt GUI, or separately for CLI
-    memory.addSpecialRange((char *)"DISP", 0x20000000, 0x2000FFFF, SpecialMemoryRange::Type::MMIO, true, true,
+    memory.addSpecialRange("DISP", 0x20000000, 0x2000FFFF, 
+                           SpecialMemoryRange::Type::MMIO, true, true,
                            VMDisplay::displayReadHandler, VMDisplay::displayWriteHandler);
 }
 
@@ -72,37 +78,36 @@ void RospOSVM::executeInstruction(uint32_t instruction)
 {
     uint32_t opcode = (instruction >> 28) & 0x0F;
     bool pcModified = false;
-    switch (opcode)
-    {
-    case 0x0: // R-type arithmetic
-        rTypeInstruction(instruction);
-        break;
-    case 0x1: // I-type arithmetic/logical (immediate)
-        iArithTypeInstruction(instruction);
-        break;
-    case 0x2: // Load/Store (I-type)
-        iTypeLSInstruction(instruction);
-        break;
-    case 0x3: // Branch (B-type)
-        pcModified = bTypeInstruction(instruction);
-        break;
-    case 0x4: // Jump (J-type)
-        jTypeInstruction(instruction);
-        pcModified = true;
-        break;
-    case 0x5: // Special (S-type)
-        sTypeInstruction(instruction);
-        break;
-    case 0xF: // NOP
-        // Do nothing
-        break;
-    default:
-        Logger::instance().error(QString("Unknown opcode: %1").arg(opcode));
-        break;
+    
+    switch (opcode) {
+        case 0x0:  // R-type arithmetic
+            rTypeInstruction(instruction);
+            break;
+        case 0x1:  // I-type arithmetic/logical (immediate)
+            iArithTypeInstruction(instruction);
+            break;
+        case 0x2:  // Load/Store (I-type)
+            iTypeLSInstruction(instruction);
+            break;
+        case 0x3:  // Branch (B-type)
+            pcModified = bTypeInstruction(instruction);
+            break;
+        case 0x4:  // Jump (J-type)
+            jTypeInstruction(instruction);
+            pcModified = true;
+            break;
+        case 0x5:  // Special (S-type)
+            sTypeInstruction(instruction);
+            break;
+        case 0xF:  // NOP - no operation
+            break;
+        default:
+            Logger::instance().error(QString("Unknown opcode: %1").arg(opcode));
+            break;
     }
-    if (!pcModified)
-    {
-        pc += 4; // Move to next instruction
+    
+    if (!pcModified) {
+        pc += 4;  // Move to next instruction
     }
 }
 void RospOSVM::rTypeInstruction(uint32_t instruction)

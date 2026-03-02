@@ -1,14 +1,10 @@
-#include <iostream>
-#include <fstream>
-#include <vector>
-#include <string>
 #include <cstdint>
-#include <algorithm> // For std::find
+#include <iostream>
+#include <string>
+#include <vector>
 
-#include "InstructionDecoder.h"
-#include "Register.h"
-#include "RospOSVM.h"
 #include "Binary.h"
+#include "RospOSVM.h"
 #include "Shutdown.h"
 #include "TTY.h"
 
@@ -22,10 +18,20 @@ int main(int argc, char *argv[])
     }
 
     std::string rospFile = argv[1];
-    bool verboseMode = (std::find(argv, argv + argc, std::string("--verbose")) != argv + argc);
-    bool stepMode = (std::find(argv, argv + argc, std::string("--step")) != argv + argc);
+    
+    bool verboseMode = false;
+    bool stepMode = false;
+    for (int i = 2; i < argc; ++i) {
+        std::string arg = argv[i];
+        if (arg == "--verbose") {
+            verboseMode = true;
+        } else if (arg == "--step") {
+            stepMode = true;
+        }
+    }
 
-    Binary binary = Binary().load_binary(rospFile);
+    Binary binary;
+    binary = binary.load_binary(rospFile);
 
     RospOSVM vm(verboseMode);
     // Install SIGINT handler to request shutdown on Ctrl+C from the terminal
@@ -43,24 +49,25 @@ int main(int argc, char *argv[])
     }
     std::cout << "Loaded. Starting execution..." << std::endl;
 
-    char ch;
-    if (stepMode)
-    {
+    if (stepMode) {
         std::cout << "Press Enter to step, 'q' to quit." << std::endl;
     }
-    while (!shouldShutdown())
-    {
+    
+    char ch = 0;
+    while (!shouldShutdown()) {
         // SDL events are handled in the display thread; main loop just steps the VM
-        if (stepMode)
-        {
+        if (stepMode) {
             std::cin.get(ch);
-            if (ch == 'q')
+            if (ch == 'q') {
                 break;
+            }
         }
         vm.step();
     }
+    
     // Shutdown helpers
     TTYShutdown();
     std::cout << "Shutdown complete." << std::endl;
+    
     return 0;
 }

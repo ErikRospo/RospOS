@@ -1,8 +1,10 @@
 #include "Memory.h"
 
+#include <algorithm>
 #include <cstdint>
-#include <vector>
 #include <stdexcept>
+#include <string>
+#include <vector>
 
 Memory::Memory(size_t size)
 {
@@ -10,11 +12,18 @@ Memory::Memory(size_t size)
     specialRanges.clear();
 }
 
-void Memory::addSpecialRange(char name[4], uint32_t start, uint32_t end, SpecialMemoryRange::Type type, bool readable, bool writable,
+void Memory::addSpecialRange(const char* name, uint32_t start, uint32_t end, SpecialMemoryRange::Type type, bool readable, bool writable,
                              ReadHandler readHandler,
                              WriteHandler writeHandler)
 {
-    specialRanges.push_back({start, end, type, {name[0], name[1], name[2], name[3]}, readable, writable, readHandler, writeHandler});
+    SpecialMemoryRange range{start, end, type, {}, readable, writable, readHandler, writeHandler};
+    if (name) {
+        range.name[0] = name[0];
+        range.name[1] = name[1];
+        range.name[2] = name[2];
+        range.name[3] = name[3];
+    }
+    specialRanges.push_back(range);
 }
 
 uint8_t Memory::readByte(uint32_t address) const
@@ -81,10 +90,9 @@ void Memory::writeWord(uint32_t address, uint32_t value)
     writeByte(address + 3, static_cast<uint8_t>(value & 0xFF));
 }
 
-void Memory::loadBinary(const std::vector<char> &binary, uint32_t address)
+void Memory::loadBinary(const std::vector<char>& binary, uint32_t address)
 {
-    if (address + binary.size() > mem.size())
-    {
+    if (address + binary.size() > mem.size()) {
         throw std::out_of_range("Memory overflow while loading binary.");
     }
     std::copy(binary.begin(), binary.end(), mem.begin() + address);
