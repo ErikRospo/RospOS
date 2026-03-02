@@ -1,5 +1,6 @@
 #include "VMController.h"
 #include "InstructionDecoder.h"
+#include "Binary.h"
 #include <QFile>
 #include <QDebug>
 #include <fstream>
@@ -13,20 +14,19 @@ VMController::~VMController() = default;
 
 bool VMController::loadBinaryFile(const QString &filePath)
 {
-    QFile file(filePath);
-    if (!file.open(QIODevice::ReadOnly)) {
-        emit error(QString("Failed to open file: %1").arg(filePath));
-        return false;
-    }
-
-    QByteArray data = file.readAll();
-    file.close();
-
-    std::vector<char> binary(data.begin(), data.end());
     try {
-        vm->loadBinaryAtAddress(binary, codeStartAddress);
+        std::string path = filePath.toStdString();
+        Binary binary;
+        binary = binary.load_binary(path);
+        
+        // Load each segment at its specified address
+        for (const auto &segment : binary.segments) {
+            std::vector<char> data(segment.data.begin(), segment.data.end());
+            vm->loadBinaryAtAddress(data, segment.address);
+        }
+        
         emit stateChanged();
-        emit error(QString("Loaded %1 bytes from %2").arg(binary.size()).arg(filePath));
+        emit error(QString("Binary loaded successfully (version %1)").arg(binary.version));
         return true;
     } catch (const std::exception &e) {
         emit error(QString("Failed to load binary: %1").arg(e.what()));

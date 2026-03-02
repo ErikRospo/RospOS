@@ -57,18 +57,21 @@ private:
     void createUI();
     void populateCode();
     void drawJumpVisualization();
+    void centerOnPC();
 
     VMController *vmController;
     QPlainTextEdit *codeDisplay;
     AssemblySyntaxHighlighter *highlighter;
     
-    uint32_t codeStartAddress = 0x10000;
-    uint32_t codeEndAddress = 0x20000;
+    uint32_t codeStartAddress;
+    uint32_t codeEndAddress;
     uint32_t currentPC = 0;
+    uint32_t lastDisplayedPC = 0;  // Track if PC changed significantly
     
     QMap<uint32_t, int> addressToLine;  // Maps code address to line number
 
     const int NUM_INSTRUCTIONS = 128;
+    const int INSTRUCTIONS_BEFORE_PC = 32;  // Show 32 instructions before PC
 };
 
 #endif // CODE_VIEW_H

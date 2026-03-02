@@ -124,6 +124,10 @@ void CodeView::createUI()
 
     layout->addWidget(codeDisplay);
     setLayout(layout);
+    
+    // Initialize code range - will be updated based on PC
+    codeStartAddress = 0x00000000;
+    codeEndAddress = 0xFFFFFFFF;
 }
 
 void CodeView::setVMController(VMController *controller)
@@ -139,8 +143,32 @@ void CodeView::setCodeRange(uint32_t startAddr, uint32_t endAddr)
 
 void CodeView::refresh()
 {
-    populateCode();
-    highlightCurrentInstruction();
+    if (!vmController) {
+        return;
+    }
+
+    uint32_t newPC = vmController->getProgramCounter();
+    
+    // Check if PC has changed significantly - if so, recenter view
+    if (newPC != lastDisplayedPC || addressToLine.isEmpty()) {
+        // Calculate new display window centered on PC
+        uint32_t instructionOffset = INSTRUCTIONS_BEFORE_PC * 4;
+        
+        // Safely subtract (handle underflow)
+        if (newPC >= instructionOffset) {
+            codeStartAddress = newPC - instructionOffset;
+        } else {
+            codeStartAddress = 0;
+        }
+        
+        codeEndAddress = codeStartAddress + (NUM_INSTRUCTIONS * 4);
+        lastDisplayedPC = newPC;
+        
+        populateCode();
+    } else {
+        // Just highlight current instruction, no repopulation needed
+        highlightCurrentInstruction();
+    }
 }
 
 void CodeView::populateCode()
@@ -157,6 +185,11 @@ void CodeView::populateCode()
 
     for (int i = 0; i < NUM_INSTRUCTIONS; ++i) {
         uint32_t addr = codeStartAddress + (static_cast<uint32_t>(i) * 4);
+        
+        // Stop if we exceed reasonable memory bounds
+        if (addr > 0xFFFFFFFF - 4) {
+            break;
+        }
         
         // Get instruction
         auto instructions = vmController->getCodeRange(addr, 4);
@@ -180,6 +213,7 @@ void CodeView::populateCode()
     }
 
     codeDisplay->setPlainText(codeText);
+    highlightCurrentInstruction();
 }
 
 void CodeView::highlightCurrentInstruction()
@@ -206,5 +240,16 @@ void CodeView::highlightCurrentInstruction()
         selection.format.setProperty(QTextFormat::FullWidthSelection, true);
         
         codeDisplay->setExtraSelections({selection});
+        
+        // Scroll view to center on this instruction
+        // Add some margin so it stays roughly in the middle
+        QTextCursor centralCursor = cursor;
+        codeDisplay->setTextCursor(centralCursor);
+        codeDisplay->ensureCursorVisible();
     }
+}
+
+void CodeView::centerOnPC()
+{
+    highlightCurrentInstruction();
 }

@@ -56,8 +56,6 @@ add_executable(rospovm_qt
     CodeView.cpp
     DebugControlPanel.h
     DebugControlPanel.cpp
-    DisassemblyView.h
-    DisassemblyView.cpp
     RegisterView.h
     RegisterView.cpp
     MemoryView.h
@@ -71,13 +69,4 @@ target_link_libraries(rospovm_qt PRIVATE
     Qt6::Core
     Qt6::Gui
     Qt6::Widgets
-)
-
-# CLI Executable (optional, for headless testing)
-add_executable(rospovm_cli
-    main.cpp
-)
-
-target_link_libraries(rospovm_cli PRIVATE
-    rosposvm_lib
 )
