@@ -102,7 +102,9 @@ VMDisplay::VMDisplay(QWidget *parent)
 
     // Set widget properties
     setWindowTitle("RospOS Display");
-    setFixedSize(SCALED_WIDTH, SCALED_HEIGHT);
+    setMinimumSize(SCALED_WIDTH, SCALED_HEIGHT);
+    resize(SCALED_WIDTH, SCALED_HEIGHT);
+    setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     setFocusPolicy(Qt::StrongFocus);
 }
 

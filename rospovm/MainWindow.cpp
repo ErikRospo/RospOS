@@ -18,6 +18,8 @@
 #include <QGroupBox>
 #include <QLabel>
 #include <QMessageBox>
+#include <QTimer>
+#include <QScrollArea>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent),
@@ -109,12 +111,15 @@ void MainWindow::createCentralWidget()
     QWidget *centralWidget = new QWidget(this);
     QVBoxLayout *mainLayout = new QVBoxLayout(centralWidget);
     mainLayout->setContentsMargins(0, 0, 0, 0);
+    mainLayout->setSpacing(0);
 
     // Main vertical splitter (top content vs logs)
     QSplitter *verticalSplitter = new QSplitter(Qt::Vertical);
+    verticalSplitter->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
     // Top horizontal splitter (debug panel | code | sidebar)
     QSplitter *horizontalSplitter = new QSplitter(Qt::Horizontal);
+    horizontalSplitter->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
     // Left sidebar: Debug control panel
     debugPanel->setMaximumWidth(280);
@@ -129,18 +134,47 @@ void MainWindow::createCentralWidget()
     QSplitter *rightSidebar = new QSplitter(Qt::Vertical);
     rightSidebar->addWidget(registerView);
     rightSidebar->addWidget(memoryView);
-    rightSidebar->addWidget(displayWidget);
+
+    QScrollArea *displayScrollArea = new QScrollArea(this);
+    displayScrollArea->setWidget(displayWidget);
+    displayScrollArea->setWidgetResizable(false);
+    displayScrollArea->setAlignment(Qt::AlignTop | Qt::AlignLeft);
+    displayScrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+    displayScrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+    rightSidebar->addWidget(displayScrollArea);
     rightSidebar->setMaximumWidth(350);
     rightSidebar->setMinimumWidth(250);
+    rightSidebar->setCollapsible(0, false);
+    rightSidebar->setCollapsible(1, false);
+    rightSidebar->setCollapsible(2, false);
 
     horizontalSplitter->addWidget(rightSidebar);
 
     // Set splitter sizes (left panel, code view, right sidebar)
     horizontalSplitter->setSizes({250, 800, 300});
+    // Configure horizontal splitter stretch factors for smooth resizing
+    horizontalSplitter->setStretchFactor(0, 0);  // Debug panel: fixed size
+    horizontalSplitter->setStretchFactor(1, 1);  // Code view: flexible
+    horizontalSplitter->setStretchFactor(2, 0);  // Right sidebar: fixed size
+    horizontalSplitter->setCollapsible(0, false);
+    horizontalSplitter->setCollapsible(1, false);
+    horizontalSplitter->setCollapsible(2, false);
 
     verticalSplitter->addWidget(horizontalSplitter);
     verticalSplitter->addWidget(logView);
-    verticalSplitter->setSizes({800, 200});
+    logView->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    // DON'T call setSizes() before widget is shown - let stretch factors handle initial layout
+    // Configure vertical splitter stretch factors for smooth resizing
+    verticalSplitter->setStretchFactor(0, 4);  // Main content: flexible (4x weight)
+    verticalSplitter->setStretchFactor(1, 1);  // Log view: flexible (1x weight)
+    verticalSplitter->setCollapsible(0, false);
+    verticalSplitter->setCollapsible(1, false);
+
+    QTimer::singleShot(0, this, [horizontalSplitter, rightSidebar, verticalSplitter]() {
+        horizontalSplitter->setSizes({250, 800, 300});
+        rightSidebar->setSizes({1, 1, 1});
+        verticalSplitter->setSizes({800, 200});
+    });
 
     mainLayout->addWidget(verticalSplitter);
 

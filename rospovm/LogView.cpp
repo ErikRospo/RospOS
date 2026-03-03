@@ -21,6 +21,8 @@ LogView::~LogView() = default;
 void LogView::createUI()
 {
     QVBoxLayout *layout = new QVBoxLayout(this);
+    layout->setSpacing(0);
+    layout->setContentsMargins(0, 0, 0, 0);
 
     // Title
     titleLabel = new QLabel("VM Execution Log");
@@ -38,6 +40,7 @@ void LogView::createUI()
     QFont monoFont("Courier");
     monoFont.setPointSize(8);
     logList->setFont(monoFont);
+    logList->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
     layout->addWidget(logList);
 

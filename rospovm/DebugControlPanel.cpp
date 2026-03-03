@@ -81,7 +81,10 @@ void DebugControlPanel::createUI()
 
     QHBoxLayout *speedControlLayout = new QHBoxLayout();
     speedControlLayout->addWidget(new QLabel(tr("Speed:")));
-
+    
+    speedValueLabel = new QLabel(tr("50%"));
+    speedControlLayout->addWidget(speedValueLabel);
+    
     speedSlider = new QSlider(Qt::Horizontal);
     speedSlider->setMinimum(1);
     speedSlider->setMaximum(100);
@@ -137,6 +140,11 @@ void DebugControlPanel::setupConnections()
     connect(addressSpinBox, QOverload<int>::of(&QSpinBox::valueChanged),
             this, [this](int value) {
                 emit addressChanged(static_cast<uint32_t>(value));
+                if (currentSpeed==100){
+                    speedValueLabel->setText(tr("Max"));                    
+                }else{
+                    speedValueLabel->setText(QString("%1%").arg(currentSpeed));
+                }
             });
 }
 

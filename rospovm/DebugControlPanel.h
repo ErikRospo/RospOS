@@ -46,6 +46,7 @@ private:
     QLabel *statusLabel;
     QLabel *pcLabel;
     QSlider *speedSlider;
+    QLabel *speedValueLabel;
     QSpinBox *addressSpinBox;
     QLabel *breakpointLabel;
 
