@@ -31,7 +31,6 @@ rospos/build/rospos.ros: rospocc/first_test.rosc rospocc/parser.py | $(DIR_ROSPO
 
 rospos/build/rospos.rosp: rospos/build/rospos.ros rospoas/compile.py | $(DIR_ROSPOS_BUILD)
 	$(PY) rospoas/compile.py --input $< --output $@ 1>&2
-	$(HEXDUMP) $@ 1>&2
 	
 build/%.html: doc/%.md | $(DIR_DOCS_BUILD)
 	pandoc $< --filter pandoc-include -s -o $@
@@ -56,7 +55,7 @@ compile: rospos/build/rospos.rosp
 
 dump: rospos/build/rospos.rosp
 	$(HEXDUMP) $< 1>&2
-build: bm parse compile dump
+build: bm parse compile
 
 run: build
 	$(MAKE) -C rospovm -j8
