@@ -243,13 +243,9 @@ void CodeView::refresh()
         codeEndAddress = codeStartAddress + (NUM_INSTRUCTIONS * 4);
         lastDisplayedPC = newPC;
 
-        populateCode();
-    }
-    else
-    {
-        // Just highlight current instruction, no repopulation needed
-        highlightCurrentInstruction();
-    }
+    };
+    populateCode();
+    highlightCurrentInstruction();
 }
 
 void CodeView::populateCode()

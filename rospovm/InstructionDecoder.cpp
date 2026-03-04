@@ -13,6 +13,9 @@ std::string formatRegisterValues(uint32_t rd, uint32_t rs1, uint32_t rs2, Regist
 }
 
 std::string decodeInstruction(uint32_t instruction, RegisterFile &regFile) {
+    if (instruction == 0) {
+        return "NOP";
+    };
     uint32_t opcode = (instruction >> 28) & 0x0F;
     std::string oss;
     switch (opcode) {
