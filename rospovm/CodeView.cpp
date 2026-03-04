@@ -10,83 +10,159 @@
 #include <QBrush>
 #include <QColor>
 
+namespace
+{
+const QColor kAddressColor(100, 200, 255);
+const QColor kBytesColor(150, 150, 150);
+const QColor kInstructionColor(200, 100, 255);
+const QColor kRegisterColor(100, 255, 100);
+const QColor kImmediateColor(255, 200, 100);
+const QColor kJumpColor(255, 100, 100);
+const QColor kCommentColor(128, 128, 128);
+const QColor kBranchColor(255, 150, 100);
+const QColor kMemoryColor(100, 200, 255);
+const QColor kSystemColor(255, 200, 50);
+const QColor kCurrentInstructionHighlightColor(100, 100, 50);
+
+const QRegularExpression kAddressRegex(QStringLiteral("0x[0-9a-fA-F]+"));
+const QRegularExpression kRawInstructionRegex(QStringLiteral("\\b([0-9a-fA-F]){8}I\\b"));
+const QRegularExpression kRegisterRegex(QStringLiteral("\\br(\\d|1[0-5])\\b"));
+const QRegularExpression kBranchRegex(QStringLiteral("\\b(BEQ|BNE|BLT|BGE|BLTU|BGEU)\\b"));
+const QRegularExpression kJumpRegex(QStringLiteral("\\b(JAL|JALR|JMP)\\b"));
+const QRegularExpression kAluRegex(QStringLiteral("\\b(ADD|SUB|AND|OR|XOR|MUL|MULH|NEG|NOT|SHL|SHR|SAR|DIV|DIVU|REM|REMU|"
+                                                  "ADDI|ANDI|ORI|XORI|SHLI|SHRI|SARI)\\b"));
+const QRegularExpression kMemRegex(QStringLiteral("\\b(LB|LBU|LH|LHU|LW|SB|SH|SW)\\b"));
+const QRegularExpression kSysRegex(QStringLiteral("\\b(ECALL|BREAK|NOP)\\b"));
+const QRegularExpression kCommentRegex(QStringLiteral(";.*"));
+
+const QString kCodeDisplayStylesheet =
+    QStringLiteral("QPlainTextEdit { background-color: #1e1e1e; color: #d4d4d4; }");
+constexpr int kHexFieldWidth = 8;
+constexpr int kHexBase = 16;
+constexpr int kCodeFontSize = 10;
+}
+
 // AssemblySyntaxHighlighter implementation
 AssemblySyntaxHighlighter::AssemblySyntaxHighlighter(QTextDocument *parent)
     : QSyntaxHighlighter(parent)
 {
     // Address format (e.g., 0x00010000:)
-    addressFormat.setForeground(QColor(100, 200, 255));  // Light blue
+    addressFormat.setForeground(kAddressColor); // Light blue
     addressFormat.setFontWeight(QFont::Bold);
 
     // Bytes format (hex)
-    bytesFormat.setForeground(QColor(150, 150, 150));    // Gray
-    
+    bytesFormat.setForeground(kBytesColor); // Gray
+
     // Instruction mnemonics (main instructions)
-    instructionFormat.setForeground(QColor(200, 100, 255)); // Magenta
+    instructionFormat.setForeground(kInstructionColor); // Magenta
     instructionFormat.setFontWeight(QFont::Bold);
-    
+
     // Registers
-    registerFormat.setForeground(QColor(100, 255, 100)); // Light green
-    
+    registerFormat.setForeground(kRegisterColor); // Light green
+
     // Immediate values
-    immediateFormat.setForeground(QColor(255, 200, 100)); // Orange
-    
+    immediateFormat.setForeground(kImmediateColor); // Orange
+
     // Jump/Branch instructions
-    jumpFormat.setForeground(QColor(255, 100, 100));      // Light red
+    jumpFormat.setForeground(kJumpColor); // Light red
     jumpFormat.setFontWeight(QFont::Bold);
-    
+
     // Comments
-    commentFormat.setForeground(QColor(128, 128, 128));   // Dark gray
+    commentFormat.setForeground(kCommentColor); // Dark gray
     commentFormat.setFontItalic(true);
+
+    // Branch instructions (conditional)
+    branchFormat.setForeground(kBranchColor); // Coral
+    branchFormat.setFontWeight(QFont::Bold);
+
+    // Arithmetic/logic instructions
+    aluFormat.setForeground(kInstructionColor); // Magenta
+    aluFormat.setFontWeight(QFont::Bold);
+
+    // Memory instructions
+    memFormat.setForeground(kMemoryColor); // Cyan
+    memFormat.setFontWeight(QFont::Bold);
+
+    // System/special instructions
+    sysFormat.setForeground(kSystemColor); // Yellow
+    sysFormat.setFontWeight(QFont::Bold);
 }
 
 void AssemblySyntaxHighlighter::highlightBlock(const QString &text)
 {
     // Pattern: Address Bytes Instruction Registers/Immediates [Comment]
-    
+
     // Highlight address (starts line, contains 0x)
-    QRegularExpression addressRegex("0x[0-9a-fA-F]+");
-    auto addressMatch = addressRegex.globalMatch(text);
-    while (addressMatch.hasNext()) {
+    auto addressMatch = kAddressRegex.globalMatch(text);
+    while (addressMatch.hasNext())
+    {
         auto match = addressMatch.next();
         // Only highlight if it's at the start (address column)
-        if (match.capturedStart() == 0 || 
-            (match.capturedStart() > 0 && !text[match.capturedStart() - 1].isLetterOrNumber())) {
+        if (match.capturedStart() == 0 ||
+            (match.capturedStart() > 0 && !text[match.capturedStart() - 1].isLetterOrNumber()))
+        {
             setFormat(match.capturedStart(), match.capturedLength(), addressFormat);
         }
     }
 
+    auto rawInstructionMatch = kRawInstructionRegex.globalMatch(text);
+    while (rawInstructionMatch.hasNext())
+    {
+        auto match = rawInstructionMatch.next();
+        setFormat(match.capturedStart(), match.capturedLength(), bytesFormat);
+    }
     // Highlight registers (r0-r15)
-    QRegularExpression registerRegex("\\br(\\d|1[0-5])\\b");
-    auto registerMatch = registerRegex.globalMatch(text);
-    while (registerMatch.hasNext()) {
+    auto registerMatch = kRegisterRegex.globalMatch(text);
+    while (registerMatch.hasNext())
+    {
         auto match = registerMatch.next();
         setFormat(match.capturedStart(), match.capturedLength(), registerFormat);
     }
 
-    // Highlight jump instructions
-    QRegularExpression jumpRegex("\\b(BEQ|BNE|BLT|BGE|BLTU|BGEU|JAL|JALR|JMP)\\b");
-    auto jumpMatch = jumpRegex.globalMatch(text);
-    while (jumpMatch.hasNext()) {
+    // Highlight branch instructions (conditional)
+    auto branchMatch = kBranchRegex.globalMatch(text);
+    while (branchMatch.hasNext())
+    {
+        auto match = branchMatch.next();
+        setFormat(match.capturedStart(), match.capturedLength(), branchFormat);
+    }
+
+    // Highlight jump instructions (unconditional)
+    auto jumpMatch = kJumpRegex.globalMatch(text);
+    while (jumpMatch.hasNext())
+    {
         auto match = jumpMatch.next();
         setFormat(match.capturedStart(), match.capturedLength(), jumpFormat);
     }
 
-    // Highlight other instructions
-    QRegularExpression instrRegex("\\b(ADD|SUB|AND|OR|XOR|MUL|MULH|NEG|NOT|SHL|SHR|SAR|DIV|DIVU|REM|REMU|"
-                                   "ADDI|ANDI|ORI|XORI|SHLI|SHRI|SARI|"
-                                   "LB|LBU|LH|LHU|LW|SB|SH|SW|"
-                                   "ECALL|BREAK|NOP)\\b");
-    auto instrMatch = instrRegex.globalMatch(text);
-    while (instrMatch.hasNext()) {
-        auto match = instrMatch.next();
-        setFormat(match.capturedStart(), match.capturedLength(), instructionFormat);
+    // Highlight arithmetic/logic instructions
+    auto aluMatch = kAluRegex.globalMatch(text);
+    while (aluMatch.hasNext())
+    {
+        auto match = aluMatch.next();
+        setFormat(match.capturedStart(), match.capturedLength(), aluFormat);
+    }
+
+    // Highlight memory instructions
+    auto memMatch = kMemRegex.globalMatch(text);
+    while (memMatch.hasNext())
+    {
+        auto match = memMatch.next();
+        setFormat(match.capturedStart(), match.capturedLength(), memFormat);
+    }
+
+    // Highlight system/special instructions
+    auto sysMatch = kSysRegex.globalMatch(text);
+    while (sysMatch.hasNext())
+    {
+        auto match = sysMatch.next();
+        setFormat(match.capturedStart(), match.capturedLength(), sysFormat);
     }
 
     // Highlight comments
-    QRegularExpression commentRegex(";.*");
-    auto commentMatch = commentRegex.match(text);
-    if (commentMatch.hasMatch()) {
+    auto commentMatch = kCommentRegex.match(text);
+    if (commentMatch.hasMatch())
+    {
         setFormat(commentMatch.capturedStart(), commentMatch.capturedLength(), commentFormat);
     }
 }
@@ -110,7 +186,7 @@ void CodeView::createUI()
 
     // Set monospace font
     QFont monoFont("Courier New");
-    monoFont.setPointSize(10);
+    monoFont.setPointSize(kCodeFontSize);
     monoFont.setStyleStrategy(QFont::PreferAntialias);
     codeDisplay->setFont(monoFont);
 
@@ -118,13 +194,11 @@ void CodeView::createUI()
     highlighter = new AssemblySyntaxHighlighter(codeDisplay->document());
 
     // Dark theme
-    codeDisplay->setStyleSheet(
-        "QPlainTextEdit { background-color: #1e1e1e; color: #d4d4d4; }"
-    );
+    codeDisplay->setStyleSheet(kCodeDisplayStylesheet);
 
     layout->addWidget(codeDisplay);
     setLayout(layout);
-    
+
     // Initialize code range - will be updated based on PC
     codeStartAddress = 0x00000000;
     codeEndAddress = 0xFFFFFFFF;
@@ -143,29 +217,36 @@ void CodeView::setCodeRange(uint32_t startAddr, uint32_t endAddr)
 
 void CodeView::refresh()
 {
-    if (!vmController) {
+    if (!vmController)
+    {
         return;
     }
 
     uint32_t newPC = vmController->getProgramCounter();
-    
+
     // Check if PC has changed significantly - if so, recenter view
-    if (newPC != lastDisplayedPC || addressToLine.isEmpty()) {
+    if (newPC != lastDisplayedPC || addressToLine.isEmpty())
+    {
         // Calculate new display window centered on PC
         uint32_t instructionOffset = INSTRUCTIONS_BEFORE_PC * 4;
-        
+
         // Safely subtract (handle underflow)
-        if (newPC >= instructionOffset) {
+        if (newPC >= instructionOffset)
+        {
             codeStartAddress = newPC - instructionOffset;
-        } else {
+        }
+        else
+        {
             codeStartAddress = 0;
         }
-        
+
         codeEndAddress = codeStartAddress + (NUM_INSTRUCTIONS * 4);
         lastDisplayedPC = newPC;
-        
+
         populateCode();
-    } else {
+    }
+    else
+    {
         // Just highlight current instruction, no repopulation needed
         highlightCurrentInstruction();
     }
@@ -173,7 +254,8 @@ void CodeView::refresh()
 
 void CodeView::populateCode()
 {
-    if (!vmController) {
+    if (!vmController)
+    {
         return;
     }
 
@@ -183,30 +265,33 @@ void CodeView::populateCode()
     QString codeText;
     int lineNum = 0;
 
-    for (int i = 0; i < NUM_INSTRUCTIONS; ++i) {
+    for (int i = 0; i < NUM_INSTRUCTIONS; ++i)
+    {
         uint32_t addr = codeStartAddress + (static_cast<uint32_t>(i) * 4);
-        
+
         // Stop if we exceed reasonable memory bounds
-        if (addr > 0xFFFFFFFF - 4) {
+        if (addr > 0xFFFFFFFF - 4)
+        {
             break;
         }
-        
+
         // Get instruction
         auto instructions = vmController->getCodeRange(addr, 4);
-        if (instructions.empty()) {
+        if (instructions.empty())
+        {
             continue;
         }
 
         uint32_t instruction = instructions[0];
-        
+
         // Store address to line mapping
         addressToLine[addr] = lineNum;
 
         // Format: Address | Bytes | Instruction
-        QString line = QString("0x%1  %2  %3\n")
-            .arg(addr, 8, 16, QChar('0'))
-            .arg(instruction, 8, 16, QChar('0'))
-            .arg(vmController->disassembleInstruction(instruction));
+        QString line = QString("0x%1  %2I  %3\n")
+                           .arg(addr, kHexFieldWidth, kHexBase, QChar('0'))
+                           .arg(instruction, kHexFieldWidth, kHexBase, QChar('0'))
+                           .arg(vmController->disassembleInstruction(instruction));
 
         codeText += line;
         lineNum++;
@@ -218,29 +303,31 @@ void CodeView::populateCode()
 
 void CodeView::highlightCurrentInstruction()
 {
-    if (!vmController) {
+    if (!vmController)
+    {
         return;
     }
 
     uint32_t currentPC = vmController->getProgramCounter();
 
     // Find the line with current PC
-    if (addressToLine.contains(currentPC)) {
+    if (addressToLine.contains(currentPC))
+    {
         int lineNum = addressToLine[currentPC];
-        
+
         QTextDocument *doc = codeDisplay->document();
         QTextBlock block = doc->findBlockByLineNumber(lineNum);
-        
+
         QTextCursor cursor(block);
         cursor.select(QTextCursor::LineUnderCursor);
-        
+
         QTextEdit::ExtraSelection selection;
         selection.cursor = cursor;
-        selection.format.setBackground(QColor(100, 100, 50));  // Dark yellow highlight
+        selection.format.setBackground(kCurrentInstructionHighlightColor); // Dark yellow highlight
         selection.format.setProperty(QTextFormat::FullWidthSelection, true);
-        
+
         codeDisplay->setExtraSelections({selection});
-        
+
         // Scroll view to center on this instruction
         // Add some margin so it stays roughly in the middle
         QTextCursor centralCursor = cursor;

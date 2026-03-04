@@ -77,7 +77,7 @@ std::string decodeInstruction(uint32_t instruction, RegisterFile &regFile) {
                 case 0x7: oss += "SW "; break;
                 default: oss += "UNKNOWN"; break;
             }
-            oss += " " + formatRegister(rd, regFile) + ", " + std::to_string(imm) + "(" + formatRegister(rs, regFile) + ")";
+            oss += " " + formatRegister(rd, regFile) + ", " + std::to_string(imm) + ", " + formatRegister(rs, regFile);
             break;
         }
         case 0x3: { // Branch

@@ -37,6 +37,10 @@ private:
     QTextCharFormat immediateFormat;
     QTextCharFormat jumpFormat;
     QTextCharFormat commentFormat;
+    QTextCharFormat branchFormat;
+    QTextCharFormat aluFormat;
+    QTextCharFormat memFormat;
+    QTextCharFormat sysFormat;
 };
 
 // Code display widget with jump visualization
