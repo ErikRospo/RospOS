@@ -67,7 +67,6 @@ class Emitter:
                         "size": typ.get("size", 0),
                     }
 
-
     def _write_file_header(self, out):
         out.write("// Generated .ros by rospocc.emitter (starter)\n")
         out.write("// Functions\n")
@@ -222,7 +221,9 @@ class Emitter:
             funcs = ast.get("functions", [])
             self._collect_global_types(ast)
             main_label = "main"
-            assert main_label in [fn.get("name") for fn in funcs], "Expected a main function as entry point"
+            assert main_label in [
+                fn.get("name") for fn in funcs
+            ], "Expected a main function as entry point"
             f.write(".DATA 0x00000000\n\n")
             f.write(".SEG 0x00000000\n\n")
             if main_label:
@@ -283,7 +284,6 @@ class Emitter:
         # Emit body
         for stmt in fn.get("body", []):
             self.emit_statement(stmt, out)
-            
 
         # If no return was emitted in the body, emit epilogue and return 0
         if not self.had_return:
@@ -292,7 +292,7 @@ class Emitter:
                 f"  ADDI {abi.RETURN_REG}, {abi.SPECIAL_REGS['zero']}, 0  // ensure r1=0\n"
             )
             # Use BREAK for main function, RET for others
-            if name=="main":
+            if name == "main":
                 out.write(f"  BREAK    // exit from main\n\n")
             else:
                 out.write(f"  POP {abi.LINK_REG}\n")
