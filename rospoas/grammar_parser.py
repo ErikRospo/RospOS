@@ -15,17 +15,24 @@ def parse_source(source_code):
     return parser.parse(source_code)
 
 
-def preprocess_includes(source_code, current_file, included_files=None):
+def preprocess_includes(
+    source_code, current_file, included_files=None, include_chain=None
+):
     """Preprocess `.INC` directives and return (lines, origins).
 
     Returns:
       - processed_lines: list of strings (one per output line)
-      - origins: list of (filename, original_line_number) tuples aligned with processed_lines
+            - origins: list of dict entries aligned with processed_lines
+                Keys: file, line, original_text, include_chain
 
     This preserves origin information so later stages can report file/line locations.
     """
     if included_files is None:
         included_files = set()
+    if include_chain is None:
+        include_chain = []
+
+    current_file = Path(current_file)
 
     lines = source_code.splitlines()
     processed_lines = []
@@ -52,12 +59,22 @@ def preprocess_includes(source_code, current_file, included_files=None):
             with open(include_path, "r") as f:
                 included_code = f.read()
             child_lines, child_origins = preprocess_includes(
-                included_code, include_path, included_files
+                included_code,
+                include_path,
+                included_files,
+                include_chain + [str(current_file)],
             )
             processed_lines.extend(child_lines)
             origins.extend(child_origins)
         else:
             processed_lines.append(raw_line)
-            origins.append((str(current_file), idx))
+            origins.append(
+                {
+                    "file": str(current_file),
+                    "line": idx,
+                    "original_text": raw_line,
+                    "include_chain": list(include_chain),
+                }
+            )
 
     return processed_lines, origins

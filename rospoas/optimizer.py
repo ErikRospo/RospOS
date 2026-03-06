@@ -1,5 +1,7 @@
 from pathlib import Path
 
+from ir import ImmLabel, ImmValue, Instruction, LabelDecl
+
 
 def optimize(ast, outloc: Path):
     # Placeholder for optimization logic. For now, just return the AST as-is.
@@ -9,38 +11,60 @@ def optimize(ast, outloc: Path):
         for instr in ast:
             f.write(str(instr) + "\n")
     opts = [_push_pop_optimization, _remove_unneeded_jumps]
+    logs = []
     for opt in opts:
-        ast = opt(ast)
+        ast = opt(ast, logs)
 
     with open(outloc / "debug_after_opt.txt", "w") as f:
         for instr in ast:
             f.write(str(instr) + "\n")
+
+    with open(outloc / "debug_opt_log.txt", "w") as f:
+        if logs:
+            for line in logs:
+                f.write(line + "\n")
+        else:
+            f.write("No optimization transforms applied.\n")
     return ast
 
 
-def _remove_unneeded_jumps(ast):
+def _mark_optimized(node):
+    if isinstance(node, Instruction):
+        return node.copy_with(is_optimized=True)
+    return node
+
+
+def _remove_unneeded_jumps(ast, logs):
     # Remove jumps that are immediately followed by their target label
     optimized_ast = []
     i = 0
     while i < len(ast):
         instr = ast[i]
-        if instr.name == "jmp":
-            # Check if the next instruction is a label with the same name as the jump target
-            if (
-                i + 1 < len(ast)
-                and ast[i + 1].name == "label"
-                and ast[i + 1].label == instr.label
-            ):
-                # Skip the jump instruction, as it's unneeded
-                # Keep the label, as it may be targeted by other jumps/branches, and it doesn't actually contribute to code size (labels don't take up space in the final binary)
-                i += 1
-                continue
+        if isinstance(instr, Instruction) and instr.type == "p" and instr.name == "jmp":
+            if i + 1 < len(ast) and isinstance(ast[i + 1], LabelDecl):
+                imm = instr.imm
+                target = imm.name if isinstance(imm, ImmLabel) else None
+                if target is not None and ast[i + 1].name == target:
+                    logs.append(
+                        f"Removed unneeded jmp pseudo before label '{target}' at index {i}"
+                    )
+                    i += 1
+                    continue
         optimized_ast.append(instr)
         i += 1
     return optimized_ast
 
 
-def _push_pop_optimization(ast):
+def _reg_from_imm(imm):
+    if isinstance(imm, ImmValue):
+        return int(imm.value)
+    try:
+        return int(imm)
+    except Exception:
+        return None
+
+
+def _push_pop_optimization(ast, logs):
     # find sequences of push and pop instructions that cancel each other out and eliminate them
     # e.g.
     # PUSH r1
@@ -58,30 +82,47 @@ def _push_pop_optimization(ast):
         instr = ast[i]
 
         # Check if current instruction is a pop
-        if instr.name == "pop" and instr.type == "p":
+        if isinstance(instr, Instruction) and instr.name == "pop" and instr.type == "p":
             pop_sequence = [instr]
             j = i + 1
 
             # Collect consecutive pops
-            while j < len(ast) and ast[j].name == "pop" and ast[j].type == "p":
+            while (
+                j < len(ast)
+                and isinstance(ast[j], Instruction)
+                and ast[j].name == "pop"
+                and ast[j].type == "p"
+            ):
                 pop_sequence.append(ast[j])
                 j += 1
 
             # Check if followed by push sequence
             push_sequence = []
-            while j < len(ast) and ast[j].name == "push" and ast[j].type == "p":
+            while (
+                j < len(ast)
+                and isinstance(ast[j], Instruction)
+                and ast[j].name == "push"
+                and ast[j].type == "p"
+            ):
                 push_sequence.append(ast[j])
                 j += 1
 
             # If we have both pops and pushes, try to match them
             if pop_sequence and push_sequence:
                 # Create lists of immediate values
-                pop_values = [p.imm.value for p in pop_sequence]
-                push_values = [p.imm.value for p in push_sequence]
+                pop_values = [_reg_from_imm(p.imm) for p in pop_sequence]
+                push_values = [_reg_from_imm(p.imm) for p in push_sequence]
 
                 # Check if push values are reverse of pop values (stack property)
                 if push_values == list(reversed(pop_values)):
                     # Perfect match - eliminate both sequences
+                    logs.append(
+                        f"Removed POP/PUSH cancellation block at indices {i}-{j-1} (len={len(pop_sequence) + len(push_sequence)})"
+                    )
+                    if j < len(ast):
+                        optimized_ast.append(_mark_optimized(ast[j]))
+                        i = j + 1
+                        continue
                     i = j
                     continue
 

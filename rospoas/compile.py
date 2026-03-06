@@ -4,6 +4,7 @@ import struct
 import sys
 from pathlib import Path
 
+from debug_writer import DebugInfoWriter
 from encode import encode_ir
 from grammar_parser import parse_source, preprocess_includes
 from ir import Directive, ImmValue
@@ -61,6 +62,116 @@ with open(debug_parse_filename, "w") as f:
 # Detailed mapping: for each IR node, show segment and offset where it was laid out/encoded.
 # (mapping will be written after layout/encode where `addresses` and `segments` exist)
 
+
+def _imm_to_int(imm):
+    if imm is None:
+        return None
+    if hasattr(imm, "value"):
+        try:
+            return int(imm.value)
+        except Exception:
+            pass
+    try:
+        return int(imm)
+    except Exception:
+        return None
+
+
+def _debug_flags_from_node(node):
+    flags = 0
+    if getattr(node, "is_pseudo_expanded", False):
+        flags |= 1 << 0
+    if getattr(node, "is_from_rospocc", False):
+        flags |= 1 << 1
+    if getattr(node, "is_optimized", False):
+        flags |= 1 << 2
+
+    depth = int(getattr(node, "expansion_depth", 0) or 0)
+    depth = max(0, min(depth, 31))
+    flags |= depth << 3
+    return flags
+
+
+def _node_original_text(node):
+    src = getattr(node, "src", None)
+    if isinstance(src, dict) and src.get("original_text"):
+        return src.get("original_text")
+    return str(node)
+
+
+def _collect_debug_segments(ir_nodes):
+    writers = {}
+
+    current_segment = 0
+    current_cursor = 0
+    last_was_data = False
+
+    for idx, node in enumerate(ir_nodes):
+        if isinstance(node, Directive) and node.name == "seg":
+            seg_addr = _imm_to_int(node.imm)
+            if seg_addr is None:
+                seg_addr = 0
+            current_segment = seg_addr
+            current_cursor = 0
+            last_was_data = False
+            writers.setdefault(current_segment, DebugInfoWriter())
+            continue
+
+        if isinstance(node, LabelDecl):
+            next_node = ir_nodes[idx + 1] if idx + 1 < len(ir_nodes) else None
+            if isinstance(next_node, IRInstruction):
+                align = (4 - (current_cursor % 4)) % 4
+                if align:
+                    current_cursor += align
+            continue
+
+        if isinstance(node, Directive) and node.name == "data":
+            writer = writers.setdefault(current_segment, DebugInfoWriter())
+            addr = current_segment + current_cursor
+            writer.add_entry(
+                address=addr,
+                flags=_debug_flags_from_node(node),
+                src_info=getattr(node, "src", None),
+                original_text=_node_original_text(node),
+            )
+
+            if node.length is not None:
+                size = int(node.length)
+            else:
+                imm_int = _imm_to_int(node.imm)
+                if imm_int is not None:
+                    size = (imm_int.bit_length() // 8) + 1
+                else:
+                    size = 4
+            size = max(4, size)
+            current_cursor += size
+            last_was_data = True
+            continue
+
+        if isinstance(node, IRInstruction):
+            writer = writers.setdefault(current_segment, DebugInfoWriter())
+
+            if last_was_data:
+                align = (4 - (current_cursor % 4)) % 4
+                if align:
+                    current_cursor += align
+            last_was_data = False
+
+            align = (4 - (current_cursor % 4)) % 4
+            if align:
+                current_cursor += align
+
+            addr = current_segment + current_cursor
+            writer.add_entry(
+                address=addr,
+                flags=_debug_flags_from_node(node),
+                src_info=getattr(node, "src", None),
+                original_text=_node_original_text(node),
+            )
+            current_cursor += 4
+
+    return writers
+
 # Write AST to JSON
 filename_json = args.output.rsplit(".", 1)[0] + "_ast.json"
 with open(filename_json, "w") as f:
@@ -70,6 +181,7 @@ with open(filename_json, "w") as f:
 
 # Layout and encode
 addresses, segments = layout_ir(ir_list)
+debug_writers = _collect_debug_segments(ir_list)
 try:
     segments = encode_ir(ir_list, addresses, segments)
 except Exception as e:
@@ -91,22 +203,24 @@ with open(args.output, "wb") as f:
 
 print(f"Wrote binary to {args.output}")
 
+# Generate sidecar debug segments (Phase 2 collection output).
+debug_segments = []
+for seg_addr, _seg_data in segments:
+    writer = debug_writers.get(seg_addr, DebugInfoWriter())
+    debug_text = writer.write_debug_segment(seg_addr)
+    debug_segments.append((seg_addr, debug_text))
+
+debug_segments_filename = args.output.rsplit(".", 1)[0] + "_debug_segments.txt"
+with open(debug_segments_filename, "w", encoding="utf-8") as f:
+    for seg_addr, debug_text in debug_segments:
+        f.write(f"=== SEGMENT 0x{seg_addr:08X} ===\n")
+        f.write(debug_text)
+        f.write("\n")
+
+print(f"Wrote debug segment sidecar to {debug_segments_filename}")
+
 # Now write a detailed mapping of IR nodes to addresses using resolved `addresses` and `segments`.
 mapping_filename = args.output.rsplit(".", 1)[0] + "_mapping.txt"
-
-
-def _imm_to_int(imm):
-    if imm is None:
-        return None
-    if hasattr(imm, "value"):
-        try:
-            return int(imm.value)
-        except Exception:
-            pass
-    try:
-        return int(imm)
-    except Exception:
-        return None
 
 
 with open(mapping_filename, "w") as mf:

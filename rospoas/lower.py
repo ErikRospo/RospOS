@@ -25,37 +25,59 @@ TEMP_REG = register_map["r13"]
 SP_REG = register_map["sp"]
 
 
-def _emit_immediate_loading_for_value(
-    value: int, rd: int, src: dict = None
-) -> List[Instruction]:
+def _clone_src(src):
+    if not isinstance(src, dict):
+        return src
+    out = dict(src)
+    chain = out.get("include_chain")
+    if isinstance(chain, list):
+        out["include_chain"] = list(chain)
+    return out
+
+
+def _node_flags(node, pseudo_expansion=False):
+    base_depth = int(getattr(node, "expansion_depth", 0) or 0)
+    return {
+        "is_pseudo_expanded": bool(
+            pseudo_expansion or getattr(node, "is_pseudo_expanded", False)
+        ),
+        "is_from_rospocc": bool(getattr(node, "is_from_rospocc", False)),
+        "is_optimized": bool(getattr(node, "is_optimized", False)),
+        "expansion_depth": base_depth + (1 if pseudo_expansion else 0),
+    }
+
+
+def _emit_immediate_loading_for_value(value: int, rd: int, src: dict = None, flags=None) -> List[Instruction]:
     instrs: List[Instruction] = []
+    f = flags or {}
     high = (value >> 16) & 0xFFFF
     low = value & 0xFFFF
     if high != 0:
         instrs.append(
             Instruction(
-                type="i", name="addi", rd=rd, rs1=0, imm=ImmValue(high), src=src
+                type="i", name="addi", rd=rd, rs1=0, imm=ImmValue(high), src=src, **f
             )
         )
         instrs.append(
-            Instruction(type="i", name="shli", rd=rd, rs1=rd, imm=ImmValue(16), src=src)
+            Instruction(
+                type="i", name="shli", rd=rd, rs1=rd, imm=ImmValue(16), src=src, **f
+            )
         )
         if low != 0:
             instrs.append(
                 Instruction(
-                    type="i", name="ori", rd=rd, rs1=rd, imm=ImmValue(low), src=src
+                    type="i", name="ori", rd=rd, rs1=rd, imm=ImmValue(low), src=src, **f
                 )
             )
     else:
         instrs.append(
-            Instruction(type="i", name="addi", rd=rd, rs1=0, imm=ImmValue(low), src=src)
+            Instruction(type="i", name="addi", rd=rd, rs1=0, imm=ImmValue(low), src=src, **f)
         )
     return instrs
 
 
-def _emit_immediate_loading_for_label(
-    label_name: str, rd: int, src: dict = None
-) -> List[Instruction]:
+def _emit_immediate_loading_for_label(label_name: str, rd: int, src: dict = None, flags=None) -> List[Instruction]:
+    f = flags or {}
     return [
         Instruction(
             type="i",
@@ -64,8 +86,9 @@ def _emit_immediate_loading_for_label(
             rs1=0,
             imm=ImmLabelPart(label=label_name, part="high"),
             src=src,
+            **f,
         ),
-        Instruction(type="i", name="shli", rd=rd, rs1=rd, imm=ImmValue(16), src=src),
+        Instruction(type="i", name="shli", rd=rd, rs1=rd, imm=ImmValue(16), src=src, **f),
         Instruction(
             type="i",
             name="ori",
@@ -73,24 +96,27 @@ def _emit_immediate_loading_for_label(
             rs1=rd,
             imm=ImmLabelPart(label=label_name, part="low"),
             src=src,
+            **f,
         ),
     ]
 
 
-def _emit_stack_push(reg: int, src: dict = None) -> List[Instruction]:
+def _emit_stack_push(reg: int, src: dict = None, flags=None) -> List[Instruction]:
+    f = flags or {}
     return [
         Instruction(
-            type="i", name="addi", rd=SP_REG, rs1=SP_REG, imm=ImmValue(-4), src=src
+            type="i", name="addi", rd=SP_REG, rs1=SP_REG, imm=ImmValue(-4), src=src, **f
         ),
-        Instruction(type="l", name="sw", rd=reg, rs1=SP_REG, imm=ImmValue(0), src=src),
+        Instruction(type="l", name="sw", rd=reg, rs1=SP_REG, imm=ImmValue(0), src=src, **f),
     ]
 
 
-def _emit_stack_pop(reg: int, src: dict = None) -> List[Instruction]:
+def _emit_stack_pop(reg: int, src: dict = None, flags=None) -> List[Instruction]:
+    f = flags or {}
     return [
-        Instruction(type="l", name="lw", rd=reg, rs1=SP_REG, imm=ImmValue(0), src=src),
+        Instruction(type="l", name="lw", rd=reg, rs1=SP_REG, imm=ImmValue(0), src=src, **f),
         Instruction(
-            type="i", name="addi", rd=SP_REG, rs1=SP_REG, imm=ImmValue(4), src=src
+            type="i", name="addi", rd=SP_REG, rs1=SP_REG, imm=ImmValue(4), src=src, **f
         ),
     ]
 
@@ -114,12 +140,16 @@ def lower_ir(ir_list: List) -> List:
         # Handle pseudo-instructions (type 'p')
         if node.type == "p":
             name = node.name
+            src = _clone_src(node.src)
+            pseudo_flags = _node_flags(node, pseudo_expansion=True)
             if name == "push":
                 # node.imm contains register number
-                out.extend(_emit_stack_push(node.imm, src=node.src))
+                reg = node.imm.value if isinstance(node.imm, ImmValue) else int(node.imm)
+                out.extend(_emit_stack_push(reg, src=src, flags=pseudo_flags))
                 continue
             if name == "pop":
-                out.extend(_emit_stack_pop(node.imm, src=node.src))
+                reg = node.imm.value if isinstance(node.imm, ImmValue) else int(node.imm)
+                out.extend(_emit_stack_pop(reg, src=src, flags=pseudo_flags))
                 continue
             if name == "lli":
                 rd = node.rd
@@ -127,17 +157,19 @@ def lower_ir(ir_list: List) -> List:
                 if isinstance(imm, ImmLifted):
                     out.extend(
                         _emit_immediate_loading_for_value(
-                            int(imm.value), rd, src=node.src
+                            int(imm.value), rd, src=src, flags=pseudo_flags
                         )
                     )
                 elif isinstance(imm, ImmLabel):
                     out.extend(
-                        _emit_immediate_loading_for_label(imm.name, rd, src=node.src)
+                        _emit_immediate_loading_for_label(
+                            imm.name, rd, src=src, flags=pseudo_flags
+                        )
                     )
                 elif isinstance(imm, ImmValue):
                     out.extend(
                         _emit_immediate_loading_for_value(
-                            int(imm.value), rd, src=node.src
+                            int(imm.value), rd, src=src, flags=pseudo_flags
                         )
                     )
                 else:
@@ -150,19 +182,19 @@ def lower_ir(ir_list: List) -> List:
                 if isinstance(imm, ImmLifted):
                     out.extend(
                         _emit_immediate_loading_for_value(
-                            int(imm.value), TEMP_REG, src=node.src
+                            int(imm.value), TEMP_REG, src=src, flags=pseudo_flags
                         )
                     )
                 elif isinstance(imm, ImmLabel):
                     out.extend(
                         _emit_immediate_loading_for_label(
-                            imm.name, TEMP_REG, src=node.src
+                            imm.name, TEMP_REG, src=src, flags=pseudo_flags
                         )
                     )
                 elif isinstance(imm, ImmValue):
                     out.extend(
                         _emit_immediate_loading_for_value(
-                            int(imm.value), TEMP_REG, src=node.src
+                            int(imm.value), TEMP_REG, src=src, flags=pseudo_flags
                         )
                     )
                 else:
@@ -176,7 +208,8 @@ def lower_ir(ir_list: List) -> List:
                         rd=rd,
                         rs1=TEMP_REG,
                         imm=ImmValue(0),
-                        src=node.src,
+                        src=src,
+                        **pseudo_flags,
                     )
                 )
                 continue
@@ -193,19 +226,19 @@ def lower_ir(ir_list: List) -> List:
                 if isinstance(imm, ImmLifted):
                     out.extend(
                         _emit_immediate_loading_for_value(
-                            int(imm.value), TEMP_REG, src=node.src
+                            int(imm.value), TEMP_REG, src=src, flags=pseudo_flags
                         )
                     )
                 elif isinstance(imm, ImmLabel):
                     out.extend(
                         _emit_immediate_loading_for_label(
-                            imm.name, TEMP_REG, src=node.src
+                            imm.name, TEMP_REG, src=src, flags=pseudo_flags
                         )
                     )
                 elif isinstance(imm, ImmValue):
                     out.extend(
                         _emit_immediate_loading_for_value(
-                            int(imm.value), TEMP_REG, src=node.src
+                            int(imm.value), TEMP_REG, src=src, flags=pseudo_flags
                         )
                     )
                 else:
@@ -220,7 +253,8 @@ def lower_ir(ir_list: List) -> List:
                         rd=rd,
                         rs1=rs1,
                         rs2=TEMP_REG,
-                        src=node.src,
+                        src=src,
+                        **pseudo_flags,
                     )
                 )
                 continue
@@ -229,11 +263,13 @@ def lower_ir(ir_list: List) -> List:
         if node.type in ["i", "l"] and isinstance(node.imm, ImmLifted):
             li = node.imm
             const_val = li.value
+            src = _clone_src(node.src)
+            base_flags = _node_flags(node, pseudo_expansion=False)
             # Use TEMP_REG to hold the constant.
-            out.extend(_emit_stack_push(TEMP_REG, src=node.src))
+            out.extend(_emit_stack_push(TEMP_REG, src=src, flags=base_flags))
             out.extend(
                 _emit_immediate_loading_for_value(
-                    int(const_val), TEMP_REG, src=node.src
+                    int(const_val), TEMP_REG, src=src, flags=base_flags
                 )
             )
 
@@ -251,7 +287,8 @@ def lower_ir(ir_list: List) -> List:
                         rd=node.rd,
                         rs1=node.rs1,
                         rs2=TEMP_REG,
-                        src=node.src,
+                        src=src,
+                        **base_flags,
                     )
                 )
             elif node.type == "l":
@@ -265,7 +302,8 @@ def lower_ir(ir_list: List) -> List:
                             rd=node.rd,
                             rs1=TEMP_REG,
                             imm=ImmValue(0),
-                            src=node.src,
+                            src=src,
+                            **base_flags,
                         )
                     )
                 else:
@@ -276,7 +314,8 @@ def lower_ir(ir_list: List) -> List:
                             rd=TEMP_REG,
                             rs1=TEMP_REG,
                             rs2=node.rs1,
-                            src=node.src,
+                            src=src,
+                            **base_flags,
                         )
                     )
                     out.append(
@@ -286,11 +325,12 @@ def lower_ir(ir_list: List) -> List:
                             rd=node.rd,
                             rs1=TEMP_REG,
                             imm=ImmValue(0),
-                            src=node.src,
+                            src=src,
+                            **base_flags,
                         )
                     )
 
-            out.extend(_emit_stack_pop(TEMP_REG))
+            out.extend(_emit_stack_pop(TEMP_REG, src=src, flags=base_flags))
             continue
 
         # Otherwise, keep instruction unchanged
