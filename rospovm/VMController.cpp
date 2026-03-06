@@ -16,17 +16,12 @@ bool VMController::loadBinaryFile(const QString &filePath)
 {
     try {
         std::string path = filePath.toStdString();
-        Binary binary;
-        binary = binary.load_binary(path);
         
-        // Load each segment at its specified address
-        for (const auto &segment : binary.segments) {
-            std::vector<char> data(segment.data.begin(), segment.data.end());
-            vm->loadBinaryAtAddress(data, segment.address);
-        }
+        // Use the new loadBinaryFromFile method which loads debug info
+        vm->loadBinaryFromFile(path);
         
         emit stateChanged();
-        emit error(QString("Binary loaded successfully (version %1)").arg(binary.version));
+        emit error(QString("Binary loaded successfully"));
         return true;
     } catch (const std::exception &e) {
         emit error(QString("Failed to load binary: %1").arg(e.what()));
@@ -131,4 +126,21 @@ std::vector<uint32_t> VMController::getCodeRange(uint32_t start, uint32_t length
     } catch (...) {
     }
     return instructions;
+}
+
+QString VMController::getCurrentSourceLocation() const
+{
+    return getSourceLocation(vm->getProgramCounter());
+}
+
+QString VMController::getCurrentOriginalInstruction() const
+{
+    std::string text = vm->getOriginalInstruction(vm->getProgramCounter());
+    return QString::fromStdString(text);
+}
+
+QString VMController::getSourceLocation(uint32_t address) const
+{
+    std::string location = vm->formatSourceLocation(address);
+    return QString::fromStdString(location);
 }

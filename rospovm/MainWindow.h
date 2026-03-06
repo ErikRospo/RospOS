@@ -21,6 +21,7 @@ class MainWindow : public QMainWindow
 public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
+    void loadBinaryFile(const QString &filePath);
 
 private slots:
     void onLoadFile();

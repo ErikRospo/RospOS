@@ -34,6 +34,8 @@ add_library(rosposvm_lib STATIC
     TTY.h
     Binary.cpp
     Binary.h
+    DebugParser.cpp
+    DebugParser.h
     Display.cpp
     Display.h
     Shutdown.cpp

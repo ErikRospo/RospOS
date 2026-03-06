@@ -65,6 +65,7 @@ private:
 
     VMController *vmController;
     QPlainTextEdit *codeDisplay;
+    QPlainTextEdit *sourceInfoDisplay;  // Display for source location info
     AssemblySyntaxHighlighter *highlighter;
     
     uint32_t codeStartAddress;

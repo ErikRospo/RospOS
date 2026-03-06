@@ -53,7 +53,14 @@ struct Binary
 {
     uint32_t version;
     std::vector<Segment> segments;
+    std::map<uint32_t, std::shared_ptr<DebugInfo>> debug_map;  // Maps segment address to debug info
     Binary load_binary(const std::string &path);
+    
+    /**
+     * Get debug info for a specific memory address.
+     * Returns the debug entry if found, nullptr otherwise.
+     */
+    const DebugEntry* get_debug_entry(uint32_t address) const;
 };
 
 #endif // BINARY_H

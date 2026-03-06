@@ -35,6 +35,26 @@ public:
     // Disassembly
     QString disassembleInstruction(uint32_t instruction);
     std::vector<uint32_t> getCodeRange(uint32_t start, uint32_t length) const;
+    
+    // Debug information (Phase 6)
+    /**
+     * Get the source location for the current PC
+     * @return String like "main.ros:42" or "unknown"
+     */
+    QString getCurrentSourceLocation() const;
+    
+    /**
+     * Get the original instruction text for the current PC
+     * @return Original source instruction or empty string
+     */
+    QString getCurrentOriginalInstruction() const;
+    
+    /**
+     * Get source location for any address
+     * @param address The memory address
+     * @return String like "main.ros:42" or "unknown"
+     */
+    QString getSourceLocation(uint32_t address) const;
 
     bool isRunning() const { return running; }
 

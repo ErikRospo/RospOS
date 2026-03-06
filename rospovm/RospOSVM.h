@@ -4,10 +4,12 @@
 #include <cstdint>
 #include <string>
 #include <vector>
+#include <memory>
 
 #include "Register.h"
 #include "Memory.h"
 #include "Display.h"
+#include "Binary.h"
 
 class RospOSVM
 {
@@ -15,6 +17,7 @@ private:
     RegisterFile regFile;
     uint32_t pc; // Program Counter
     Memory memory;
+    std::shared_ptr<Binary> loadedBinary;  // Loaded binary with debug info
     
     void rTypeInstruction(uint32_t instruction);
     void iArithTypeInstruction(uint32_t instruction);
@@ -28,6 +31,7 @@ public:
     bool debugMode;
     RospOSVM(bool debugMode);
     void loadBinaryAtAddress(const std::vector<char> &binary, uint32_t address);
+    void loadBinaryFromFile(const std::string& filename);
     void step();
     std::string getRegisterState() const;
 
@@ -48,6 +52,34 @@ public:
     void writeMemory(uint32_t address, uint32_t value) { memory.writeWord(address, value); }
     uint8_t readMemoryByte(uint32_t address) const { return memory.readByte(address); }
     void writeMemoryByte(uint32_t address, uint8_t value) { memory.writeByte(address, value); }
+    
+    // Debug info access (Phase 6)
+    /**
+     * Get debug info for a specific address.
+     * @param address The memory address to look up
+     * @return Pointer to DebugEntry if found, nullptr otherwise
+     */
+    const DebugEntry* getDebugInfo(uint32_t address) const;
+    
+    /**
+     * Format a source location string for display (e.g., in error messages).
+     * @param address The memory address to format
+     * @return String like "main.ros:42" or "unknown" if not found
+     */
+    std::string formatSourceLocation(uint32_t address) const;
+    
+    /**
+     * Get the original source instruction text.
+     * @param address The memory address
+     * @return Original instruction text or empty string if not found
+     */
+    std::string getOriginalInstruction(uint32_t address) const;
+    
+    /**
+     * Get the loaded binary (contains debug info maps).
+     * @return Shared pointer to the loaded Binary, or nullptr if not loaded
+     */
+    std::shared_ptr<Binary> getLoadedBinary() const { return loadedBinary; }
 };
 
 void dumpMemoryToFile(const Memory &memory);

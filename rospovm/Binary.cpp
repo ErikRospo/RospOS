@@ -1,10 +1,12 @@
 #include "Binary.h"
+#include "DebugParser.h"
 
 #include <cstdint>
 #include <fstream>
 #include <iostream>
 #include <stdexcept>
 #include <vector>
+#include <sstream>
 
 // Magic number for RospOS binary format
 const uint32_t ROSP_MAGIC = 0x50534F52;  // "ROSP" in ASCII
@@ -34,25 +36,92 @@ Binary Binary::load_binary(const std::string& path)
     Binary bin;
     bin.version = version;
 
-    for (uint32_t i = 0; i < segment_count; ++i) {
-        uint32_t addr;
-        uint32_t size;
+    // Version detection: V1 vs V2
+    if (version == 1) {
+        // V1 format: no flags, just address and size
+        for (uint32_t i = 0; i < segment_count; ++i) {
+            uint32_t addr;
+            uint32_t size;
 
-        file.read(reinterpret_cast<char*>(&addr), sizeof(addr));
-        file.read(reinterpret_cast<char*>(&size), sizeof(size));
+            file.read(reinterpret_cast<char*>(&addr), sizeof(addr));
+            file.read(reinterpret_cast<char*>(&size), sizeof(size));
 
-        Segment seg;
-        seg.address = addr;
-        seg.data.resize(size);
+            Segment seg;
+            seg.address = addr;
+            seg.data.resize(size);
 
-        file.read(reinterpret_cast<char*>(seg.data.data()), size);
-        
-        if (!file) {
-            throw std::runtime_error("Error reading segment data from binary file");
+            file.read(reinterpret_cast<char*>(seg.data.data()), size);
+            
+            if (!file) {
+                throw std::runtime_error("Error reading segment data from binary file");
+            }
+
+            bin.segments.push_back(std::move(seg));
         }
+    } else if (version == 2) {
+        // V2 format: flags, address, size
+        for (uint32_t i = 0; i < segment_count; ++i) {
+            uint32_t flags;
+            uint32_t addr;
+            uint32_t size;
 
-        bin.segments.push_back(std::move(seg));
+            file.read(reinterpret_cast<char*>(&flags), sizeof(flags));
+            file.read(reinterpret_cast<char*>(&addr), sizeof(addr));
+            file.read(reinterpret_cast<char*>(&size), sizeof(size));
+
+            std::vector<uint8_t> data(size);
+            file.read(reinterpret_cast<char*>(data.data()), size);
+            
+            if (!file) {
+                throw std::runtime_error("Error reading segment data from binary file");
+            }
+
+            // Check if this is a debug segment
+            if (flags & SEGMENT_FLAG_DEBUG) {
+                // Parse debug segment
+                std::string debug_text(data.begin(), data.end());
+                auto debug_info = DebugParser::parse(debug_text);
+                
+                if (debug_info) {
+                    std::cout << "  Debug segment for address 0x" << std::hex << addr 
+                              << std::dec << " (" << debug_info->entries.size() 
+                              << " entries, " << debug_info->file_table.size() 
+                              << " files)" << std::endl;
+                    // Store debug info in the binary's debug map
+                    bin.debug_map[addr] = debug_info;
+                } else {
+                    std::cerr << "Warning: Failed to parse debug segment" << std::endl;
+                }
+            } else if (flags & SEGMENT_FLAG_LOADABLE) {
+                // Loadable segment - add to segments list
+                Segment seg;
+                seg.address = addr;
+                seg.data = std::move(data);
+                bin.segments.push_back(std::move(seg));
+            } else {
+                std::cerr << "Warning: Segment with unknown flags 0x" 
+                          << std::hex << flags << std::dec << std::endl;
+            }
+        }
+    } else {
+        throw std::runtime_error("Unsupported binary version: " + std::to_string(version));
     }
 
     return bin;
+}
+
+const DebugEntry* Binary::get_debug_entry(uint32_t address) const {
+    // Search through all debug info maps
+    for (const auto& pair : debug_map) {
+        const auto& debug_info = pair.second;
+        
+        // Search for an entry matching this address
+        for (const auto& entry : debug_info->entries) {
+            if (entry.address == address) {
+                return &entry;
+            }
+        }
+    }
+    
+    return nullptr;
 }

@@ -40,6 +40,74 @@ void RospOSVM::loadBinaryAtAddress(const std::vector<char> &binary, uint32_t add
     memory.loadBinary(binary, address);
 }
 
+void RospOSVM::loadBinaryFromFile(const std::string& filename)
+{
+    // Load the binary file using Binary::load_binary
+    try {
+        loadedBinary = std::make_shared<Binary>();
+        *loadedBinary = loadedBinary->load_binary(filename);
+        
+        // Load all loadable segments into memory
+        for (const auto& segment : loadedBinary->segments) {
+            memory.loadBinary(
+                std::vector<char>(segment.data.begin(), segment.data.end()),
+                segment.address
+            );
+        }
+        
+        std::cout << "Loaded binary from " << filename << " with " 
+                  << loadedBinary->segments.size() << " loadable segments and "
+                  << loadedBinary->debug_map.size() << " debug segments" << std::endl;
+    } catch (const std::exception& e) {
+        Logger::instance().error(QString("Failed to load binary: %1").arg(e.what()));
+        throw;
+    }
+}
+
+const DebugEntry* RospOSVM::getDebugInfo(uint32_t address) const
+{
+    if (!loadedBinary) {
+        return nullptr;
+    }
+    return loadedBinary->get_debug_entry(address);
+}
+
+std::string RospOSVM::formatSourceLocation(uint32_t address) const
+{
+    const DebugEntry* entry = getDebugInfo(address);
+    if (!entry) {
+        return "unknown";
+    }
+    
+    if (!loadedBinary || loadedBinary->debug_map.empty()) {
+        return "unknown";
+    }
+    
+    // Find the file path from the debug map
+    for (const auto& debug_pair : loadedBinary->debug_map) {
+        const auto& debug_info = debug_pair.second;
+        auto file_it = debug_info->file_table.find(entry->file_id);
+        if (file_it != debug_info->file_table.end()) {
+            std::ostringstream oss;
+            oss << file_it->second << ":" << entry->line;
+            return oss.str();
+        }
+    }
+    
+    std::ostringstream oss;
+    oss << "<unknown>:" << entry->line;
+    return oss.str();
+}
+
+std::string RospOSVM::getOriginalInstruction(uint32_t address) const
+{
+    const DebugEntry* entry = getDebugInfo(address);
+    if (!entry) {
+        return "";
+    }
+    return entry->original_text;
+}
+
 void RospOSVM::step()
 {
     uint32_t instruction = memory.readWord(pc);

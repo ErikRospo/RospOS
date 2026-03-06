@@ -32,6 +32,15 @@ public:
     void warning(const QString &message) { log(WARNING, message); }
     void error(const QString &message) { log(ERROR, message); }
     void fatal(const QString &message) { log(FATAL, message); }
+    
+    /**
+     * Log an error with source location information.
+     * @param source_location String like "main.ros:42"
+     * @param original_text The original source instruction
+     * @param message The error message
+     */
+    void errorWithLocation(const QString &source_location, const QString &original_text, 
+                          const QString &message);
 
     void setLogLevel(LogLevel level) { minLogLevel = level; }
     const std::vector<QString> &getLogs() const { return logs; }

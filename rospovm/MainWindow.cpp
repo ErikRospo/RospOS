@@ -43,6 +43,16 @@ MainWindow::MainWindow(QWidget *parent)
 
 MainWindow::~MainWindow() = default;
 
+void MainWindow::loadBinaryFile(const QString &filePath)
+{
+    if (vmController->loadBinaryFile(filePath)) {
+        statusLabel->setText(tr("Status: Binary loaded"));
+    } else {
+        statusLabel->setText(tr("Status: Failed to load binary"));
+    }
+    onVMStateChanged();
+}
+
 void MainWindow::createMenuBar()
 {
     QMenu *fileMenu = menuBar()->addMenu(tr("&File"));

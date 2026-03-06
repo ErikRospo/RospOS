@@ -180,12 +180,21 @@ void CodeView::createUI()
 {
     QVBoxLayout *layout = new QVBoxLayout(this);
     layout->setContentsMargins(0, 0, 0, 0);
+    
+    // Add source location info display at the top
+    sourceInfoDisplay = new QPlainTextEdit();
+    sourceInfoDisplay->setReadOnly(true);
+    sourceInfoDisplay->setMaximumHeight(40);
+    QFont monoFont("Courier New");
+    monoFont.setPointSize(9);
+    sourceInfoDisplay->setFont(monoFont);
+    sourceInfoDisplay->setStyleSheet(kCodeDisplayStylesheet);
+    layout->addWidget(sourceInfoDisplay);
 
     codeDisplay = new QPlainTextEdit();
     codeDisplay->setReadOnly(true);
 
     // Set monospace font
-    QFont monoFont("Courier New");
     monoFont.setPointSize(kCodeFontSize);
     monoFont.setStyleStrategy(QFont::PreferAntialias);
     codeDisplay->setFont(monoFont);
@@ -246,6 +255,15 @@ void CodeView::refresh()
     };
     populateCode();
     highlightCurrentInstruction();
+    
+    // Update source info display
+    QString sourceLocation = vmController->getCurrentSourceLocation();
+    QString originalInstruction = vmController->getCurrentOriginalInstruction();
+    QString sourceInfo = QString("PC: 0x%1 | Source: %2 | Instruction: %3")
+        .arg(newPC, 8, 16, QChar('0'))
+        .arg(sourceLocation)
+        .arg(originalInstruction.isEmpty() ? "<no debug info>" : originalInstruction);
+    sourceInfoDisplay->setPlainText(sourceInfo);
 }
 
 void CodeView::populateCode()
@@ -283,11 +301,18 @@ void CodeView::populateCode()
         // Store address to line mapping
         addressToLine[addr] = lineNum;
 
-        // Format: Address | Bytes | Instruction
-        QString line = QString("0x%1  %2I  %3\n")
+        // Get source location if available
+        QString sourceLocation = vmController->getSourceLocation(addr);
+        QString sourceComment = (sourceLocation != "unknown") 
+            ? QString(" ; [%1]").arg(sourceLocation)
+            : "";
+
+        // Format: Address | Bytes | Instruction | Source Location
+        QString line = QString("0x%1  %2I  %3%4\n")
                            .arg(addr, kHexFieldWidth, kHexBase, QChar('0'))
                            .arg(instruction, kHexFieldWidth, kHexBase, QChar('0'))
-                           .arg(vmController->disassembleInstruction(instruction));
+                           .arg(vmController->disassembleInstruction(instruction))
+                           .arg(sourceComment);
 
         codeText += line;
         lineNum++;

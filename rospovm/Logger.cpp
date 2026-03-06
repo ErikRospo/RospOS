@@ -37,3 +37,11 @@ void Logger::log(LogLevel level, const QString &message)
         std::cerr << fullMessage.toStdString() << std::endl;
     }
 }
+
+void Logger::errorWithLocation(const QString &source_location, const QString &original_text,
+                               const QString &message)
+{
+    QString fullMessage = QString("Error at %1:\n  %2\n  %3")
+        .arg(source_location, original_text, message);
+    error(fullMessage);
+}
