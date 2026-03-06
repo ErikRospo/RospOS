@@ -1,4 +1,5 @@
 from pathlib import Path
+import json
 
 from errors import ParseError
 from lark import Lark
@@ -13,6 +14,57 @@ parser = Lark(rospoas_grammar, start="program", parser="lalr", propagate_positio
 
 def parse_source(source_code):
     return parser.parse(source_code)
+
+
+def _parse_rospocc_sidecar(sidecar_path):
+    mappings = {}
+    if not sidecar_path.exists():
+        return mappings
+
+    mode = None
+    with open(sidecar_path, "r", encoding="utf-8") as f:
+        for raw in f:
+            line = raw.rstrip("\n")
+            if not line.strip():
+                continue
+            if line.startswith("MAPPINGS:"):
+                mode = "mappings"
+                continue
+            if mode != "mappings":
+                continue
+
+            # Format: [ros_line] [rosc_file] [rosc_line] [quoted original text]
+            parts = line.split(" ", 3)
+            if len(parts) != 4:
+                continue
+            try:
+                ros_line = int(parts[0])
+                rosc_file = parts[1]
+                rosc_line = int(parts[2])
+                original_text = json.loads(parts[3])
+            except Exception:
+                continue
+
+            mappings[ros_line] = {
+                "file": rosc_file,
+                "line": rosc_line,
+                "original_text": original_text,
+                "from_rospocc": True,
+            }
+    return mappings
+
+
+def _load_rospocc_mappings_for_ros_file(current_file):
+    current_file = Path(current_file)
+    candidates = [
+        current_file.with_suffix(".rosc.debug"),
+        current_file.with_suffix(current_file.suffix + ".debug"),
+    ]
+    for candidate in candidates:
+        mappings = _parse_rospocc_sidecar(candidate)
+        if mappings:
+            return mappings
+    return {}
 
 
 def preprocess_includes(
@@ -33,6 +85,7 @@ def preprocess_includes(
         include_chain = []
 
     current_file = Path(current_file)
+    rospocc_mappings = _load_rospocc_mappings_for_ros_file(current_file)
 
     lines = source_code.splitlines()
     processed_lines = []
@@ -68,13 +121,26 @@ def preprocess_includes(
             origins.extend(child_origins)
         else:
             processed_lines.append(raw_line)
-            origins.append(
-                {
-                    "file": str(current_file),
-                    "line": idx,
-                    "original_text": raw_line,
-                    "include_chain": list(include_chain),
-                }
-            )
+            if idx in rospocc_mappings:
+                m = rospocc_mappings[idx]
+                origins.append(
+                    {
+                        "file": m.get("file") or str(current_file),
+                        "line": m.get("line", idx),
+                        "original_text": m.get("original_text", raw_line),
+                        "include_chain": list(include_chain) + [str(current_file)],
+                        "from_rospocc": True,
+                    }
+                )
+            else:
+                origins.append(
+                    {
+                        "file": str(current_file),
+                        "line": idx,
+                        "original_text": raw_line,
+                        "include_chain": list(include_chain),
+                        "from_rospocc": False,
+                    }
+                )
 
     return processed_lines, origins

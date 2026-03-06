@@ -1,6 +1,7 @@
 import argparse
 from pathlib import Path
 
+from debug_emitter import RoscDebugEmitter
 import emitter
 from lark import Lark
 from preprocess import preprocess
@@ -70,4 +71,28 @@ with open(out_dir / "ast.txt", "w") as f:
 # Convert parsed AST into the translation-unit for emitter (centralized)
 tu = transform_to_translation_unit(tree)
 emitter.emit_translation_unit(tu, str(out))
+
+# Emit sidecar debug mapping for RospoAS consumption.
+# This is line-based and captures the source text rospocc had during emission.
+rosc_lines = code.splitlines()
+with open(out, "r", encoding="utf-8") as f:
+    ros_lines = f.read().splitlines()
+
+dbg = RoscDebugEmitter(source_file=args.input)
+for ros_line_no, ros_line in enumerate(ros_lines, start=1):
+    stripped = ros_line.strip()
+    if not stripped or stripped.startswith("//"):
+        continue
+    # Best-effort line map: preserve rospocc-owned source text by index.
+    if ros_line_no <= len(rosc_lines):
+        rosc_line_no = ros_line_no
+        src_text = rosc_lines[rosc_line_no - 1]
+    else:
+        rosc_line_no = 0
+        src_text = ""
+    dbg.add_mapping(ros_line_no, args.input, rosc_line_no, src_text)
+
+sidecar_path = out.with_suffix(".rosc.debug")
+dbg.write(sidecar_path)
 print("Emitted", out)
+print("Emitted", sidecar_path)

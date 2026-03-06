@@ -190,25 +190,34 @@ except Exception as e:
 
 # Write the output file
 MAGIC = 0x50534F52  # 'ROSP' in little-endian
-VERSION = 1
+VERSION = 2
+SEGMENT_FLAG_LOADABLE = 0x00000001
+SEGMENT_FLAG_DEBUG = 0x00000002
 print("final segments:", [(hex(addr), len(data)) for addr, data in segments])
-with open(args.output, "wb") as f:
-    # Header
-    f.write(struct.pack("<III", MAGIC, VERSION, len(segments)))
-
-    # Segments
-    for addr, data in segments:
-        f.write(struct.pack("<II", addr, len(data)))
-        f.write(data)
-
-print(f"Wrote binary to {args.output}")
-
 # Generate sidecar debug segments (Phase 2 collection output).
 debug_segments = []
 for seg_addr, _seg_data in segments:
     writer = debug_writers.get(seg_addr, DebugInfoWriter())
     debug_text = writer.write_debug_segment(seg_addr)
     debug_segments.append((seg_addr, debug_text))
+
+with open(args.output, "wb") as f:
+    total_segment_count = len(segments) + len(debug_segments)
+    # Header
+    f.write(struct.pack("<III", MAGIC, VERSION, total_segment_count))
+
+    # Loadable segments
+    for addr, data in segments:
+        f.write(struct.pack("<III", SEGMENT_FLAG_LOADABLE, addr, len(data)))
+        f.write(data)
+
+    # Debug segments
+    for parent_addr, debug_text in debug_segments:
+        debug_bytes = debug_text.encode("utf-8")
+        f.write(struct.pack("<III", SEGMENT_FLAG_DEBUG, parent_addr, len(debug_bytes)))
+        f.write(debug_bytes)
+
+print(f"Wrote V2 binary to {args.output}")
 
 debug_segments_filename = args.output.rsplit(".", 1)[0] + "_debug_segments.txt"
 with open(debug_segments_filename, "w", encoding="utf-8") as f:

@@ -115,14 +115,22 @@ def instr_from_legacy(d: dict) -> Union[Instruction, LabelDecl, Directive]:
         return LabelDecl(name=d.get("name"), src=d.get("src"))
     if t == "d":
         imm = _imm_from_legacy(d.get("imm"))
+        src = d.get("src")
         return Directive(
-            name=d.get("name"), imm=imm, length=d.get("len"), src=d.get("src")
+            name=d.get("name"),
+            imm=imm,
+            length=d.get("len"),
+            src=src,
+            is_from_rospocc=bool(src.get("from_rospocc", False))
+            if isinstance(src, dict)
+            else False,
         )
     # instruction
     imm = _imm_from_legacy(d.get("imm"))
     # Some legacy nodes (e.g. `lli` pseudos) use the key 'reg' for the
     # destination register. Accept that for compatibility.
     rd_val = d.get("rd") if d.get("rd") is not None else d.get("reg")
+    src = d.get("src")
     return Instruction(
         type=d.get("type"),
         name=d.get("name"),
@@ -131,7 +139,10 @@ def instr_from_legacy(d: dict) -> Union[Instruction, LabelDecl, Directive]:
         rs2=d.get("rs2"),
         imm=imm,
         legacy=d,
-        src=d.get("src"),
+        src=src,
+        is_from_rospocc=bool(src.get("from_rospocc", False))
+        if isinstance(src, dict)
+        else False,
     )
 
 

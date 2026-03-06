@@ -29,6 +29,7 @@ class RospoasTransformer(Transformer):
             "pp_line": pp_line,
             "original_text": original_text,
             "include_chain": [],
+            "from_rospocc": False,
         }
 
     def _extract_original_text_from_items(self, items):
@@ -55,6 +56,7 @@ class RospoasTransformer(Transformer):
                 "pp_line": entry.get("pp_line", pp_line),
                 "original_text": entry.get("original_text"),
                 "include_chain": list(chain) if isinstance(chain, (list, tuple)) else [],
+                "from_rospocc": bool(entry.get("from_rospocc", False)),
             }
 
         if isinstance(entry, (list, tuple)):
@@ -70,6 +72,7 @@ class RospoasTransformer(Transformer):
                 "include_chain": list(chain_v)
                 if isinstance(chain_v, (list, tuple))
                 else [],
+                "from_rospocc": False,
             }
 
         return self._default_src(pp_line=pp_line)
@@ -97,6 +100,7 @@ class RospoasTransformer(Transformer):
             "pp_line": line_no,
             "original_text": fallback_text,
             "include_chain": [],
+            "from_rospocc": False,
         }
 
     def _attach_src(self, node: dict, items):
@@ -119,6 +123,7 @@ class RospoasTransformer(Transformer):
                 "pp_line": line_no,
                 "original_text": None,
                 "include_chain": [],
+                "from_rospocc": False,
             }
         except Exception:
             return self._default_src()
