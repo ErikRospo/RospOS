@@ -30,11 +30,21 @@ class ASTTransformer(Transformer):
     def __default__(self, data, children, meta):
         # children already transformed by Transformer
         node = {"node": data, "children": children}
+        
+        # Preserve source line information from Lark metadata
+        import sys
+        if meta and hasattr(meta, 'line'):
+            node["_line"] = meta.line
+            print(f"DEBUG transformer: {data} -> line {meta.line}", file=sys.stderr)
 
         # Safe flattening: if node is a `primary` wrapper with a single child,
         # return the child directly (removes parentheses / single nesting).
         if data == "primary" and len(children) == 1:
-            return children[0]
+            child = children[0]
+            # Preserve line info when flattening
+            if isinstance(child, dict) and "_line" in node and "_line" not in child:
+                child["_line"] = node["_line"]
+            return child
 
         # Flatten the start wrapper to expose translation_unit directly
         if data == "start" and len(children) == 1:
@@ -63,6 +73,12 @@ def transform_to_translation_unit(input_data: Tree) -> dict:
     )
 
     tu = {"globals": [], "functions": [], "types": []}
+    
+    def _copy_line(from_node, to_dict):
+        """Copy _line metadata from source node to target dict"""
+        if isinstance(from_node, dict) and "_line" in from_node:
+            to_dict["_line"] = from_node["_line"]
+        return to_dict
 
     def _get_or_create_string_label(val: str, str_pool: dict, str_count: int, tu: dict):
         for lab, v in str_pool.items():
@@ -449,7 +465,7 @@ def transform_to_translation_unit(input_data: Tree) -> dict:
 
         # Build and return the declaration
         if name:
-            decl = {"type": "decl", "name": name, "init": init}
+            decl = _copy_line(decl_node, {"type": "decl", "name": name, "init": init})
             if decl_type:
                 decl["decl_type"] = decl_type
             return [decl]
@@ -480,19 +496,19 @@ def transform_to_translation_unit(input_data: Tree) -> dict:
             if expr:
                 if expr.get("type") == "call":
                     return [
-                        {
+                        _copy_line(stmt_node, {
                             "type": "call_stmt",
                             "name": expr.get("name"),
                             "args": expr.get("args", []),
-                        }
+                        })
                     ]
                 elif expr.get("type") == "assign":
                     return [
-                        {
+                        _copy_line(stmt_node, {
                             "type": "assign",
                             "target": expr.get("target"),
                             "value": expr.get("value"),
-                        }
+                        })
                     ]
             return []
 
@@ -507,7 +523,7 @@ def transform_to_translation_unit(input_data: Tree) -> dict:
                 if isinstance(cc, dict):
                     expr = expr_from_node(cc)
                     break
-            return [{"type": "return", "value": expr}]
+            return [_copy_line(stmt_node, {"type": "return", "value": expr})]
 
         return []
 
@@ -570,7 +586,7 @@ def transform_to_translation_unit(input_data: Tree) -> dict:
                     body_node = children[-1]
 
                 body_stmts = _process_stmt_node(body_node) if body_node else []
-                stmts.append({"type": "while", "cond": cond, "body": body_stmts})
+                stmts.append(_copy_line(c, {"type": "while", "cond": cond, "body": body_stmts}))
                 continue
 
             # Handle if statements
@@ -676,7 +692,7 @@ def transform_to_translation_unit(input_data: Tree) -> dict:
                 else_stmts = _process_stmt_node(else_node) if else_node else []
 
                 stmts.append(
-                    {"type": "if", "cond": cond, "then": then_stmts, "else": else_stmts}
+                    _copy_line(c, {"type": "if", "cond": cond, "then": then_stmts, "else": else_stmts})
                 )
                 continue
 

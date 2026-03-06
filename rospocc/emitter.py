@@ -302,6 +302,15 @@ class Emitter:
             out.write("\n")
 
     def emit_statement(self, stmt: Dict[str, Any], out):
+        # Emit source tracking marker if line info is available
+        if "_line" in stmt:
+            out.write(f"  // @SRC_LINE:{stmt['_line']}\n")
+        elif "__debug_check" not in stmt:  # Avoid infinite recursion in debug
+            # Debug: print first statement to see if we're getting line info
+            import sys
+            print(f"DEBUG: Statement keys: {list(stmt.keys())}", file=sys.stderr)
+            stmt["__debug_check"] = True
+        
         t = stmt.get("type")
         if t == "return":
             val = stmt.get("value")
