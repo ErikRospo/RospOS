@@ -2,10 +2,11 @@ from pathlib import Path
 from typing import Any, Dict, Optional
 
 import abi
+from tracked_writer import TrackedWriter
 
 
 class Emitter:
-    def __init__(self):
+    def __init__(self, source_file: Optional[str] = None, source_lines: Optional[list] = None):
         self.label_counter = 0
         self.reg_free = list(abi.TEMP_REGS)
         self.var_regs = {}
@@ -24,6 +25,26 @@ class Emitter:
             "__lb": self._intrinsic_lb,
             "__sb": self._intrinsic_sb,
         }
+        # Source tracking for debug info
+        self.source_file = source_file
+        self.source_lines = source_lines or []
+        self.tracked_writer = None
+
+    def _get_source_text(self, line_num: int) -> str:
+        """Get the source text for a given line number (1-indexed)."""
+        if 1 <= line_num <= len(self.source_lines):
+            return self.source_lines[line_num - 1]
+        return ""
+    
+    def _set_source_context(self, node: Dict[str, Any], out):
+        """Set source context based on node metadata."""
+        if isinstance(node, dict) and "_line" in node:
+            line_num = node["_line"]
+            source_text = self._get_source_text(line_num)
+            if hasattr(out, 'set_source_context'):
+                out.set_source_context(line_num, source_text)
+        elif hasattr(out, 'set_source_context'):
+            out.set_source_context(None, None)
 
     # helper: write an immediate into a register
     def _load_imm(self, reg: str, value, out):
@@ -216,33 +237,40 @@ class Emitter:
         out_file = Path(out_path)
         out_file.parent.mkdir(parents=True, exist_ok=True)
         with out_file.open("w") as f:
+            # Wrap file handle with TrackedWriter for source tracking
+            self.tracked_writer = TrackedWriter(f, self.source_file or str(out_file))
+            out = self.tracked_writer
+            
             # Header and globals collection
-            self._write_file_header(f)
+            out.set_source_context(None)  # No source for header
+            self._write_file_header(out)
             funcs = ast.get("functions", [])
             self._collect_global_types(ast)
             main_label = "main"
             assert main_label in [
                 fn.get("name") for fn in funcs
             ], "Expected a main function as entry point"
-            f.write(".DATA 0x00000000\n\n")
-            f.write(".SEG 0x00000000\n\n")
+            out.write(".DATA 0x00000000\n\n")
+            out.write(".SEG 0x00000000\n\n")
             if main_label:
                 # Place a small bootstrap that jumps to main as the first code
-                f.write(f"  JMP {main_label}\n\n")
+                out.write(f"  JMP {main_label}\n\n")
             # Functions
             for fn in ast.get("functions", []):
-                self.emit_function_def(fn, f)
-            f.write("\n// Globals\n\n")
+                self.emit_function_def(fn, out)
+            out.write("\n// Globals\n\n")
             # Globals (very small handling)
             for g in ast.get("globals", []):
-                self.emit_global_declaration(g, f)
+                self.emit_global_declaration(g, out)
             # Emit any lifted large buffers (as .SPACE labels)
+            out.set_source_context(None)  # No source for lifted buffers
             for sp in self.global_spaces:
                 lbl = sp.get("name")
                 size = int(sp.get("size", 0))
-                f.write(f"{lbl}:\n")
-                f.write(f"  .SPACE {size} // lifted buffer\n\n")
-            f.write("\n")
+                out.write(f"{lbl}:\n")
+                out.write(f"  .SPACE {size} // lifted buffer\n\n")
+            out.write("\n")
+            out.flush()
 
     def emit_global_declaration(self, g: Dict[str, Any], out):
         # Starter supports simple string/global labels
@@ -257,6 +285,10 @@ class Emitter:
 
     def emit_function_def(self, fn: Dict[str, Any], out):
         name = fn.get("name", "fn")
+        
+        # Set source context for function definition
+        self._set_source_context(fn, out)
+        
         out.write(f".FUNC {name}:\n")
         # Save link register so nested calls won't clobber return address
         out.write(f"  PUSH {abi.LINK_REG}\n")
@@ -287,6 +319,9 @@ class Emitter:
 
         # If no return was emitted in the body, emit epilogue and return 0
         if not self.had_return:
+            # Clear source context for epilogue
+            if hasattr(out, 'set_source_context'):
+                out.set_source_context(None)
             out.write(f"  // epilogue and return\n")
             out.write(
                 f"  ADDI {abi.RETURN_REG}, {abi.SPECIAL_REGS['zero']}, 0  // ensure r1=0\n"
@@ -302,14 +337,8 @@ class Emitter:
             out.write("\n")
 
     def emit_statement(self, stmt: Dict[str, Any], out):
-        # Emit source tracking marker if line info is available
-        if "_line" in stmt:
-            out.write(f"  // @SRC_LINE:{stmt['_line']}\n")
-        elif "__debug_check" not in stmt:  # Avoid infinite recursion in debug
-            # Debug: print first statement to see if we're getting line info
-            import sys
-            print(f"DEBUG: Statement keys: {list(stmt.keys())}", file=sys.stderr)
-            stmt["__debug_check"] = True
+        # Set source context for this statement
+        self._set_source_context(stmt, out)
         
         t = stmt.get("type")
         if t == "return":
@@ -934,12 +963,21 @@ class Emitter:
             )
 
 
-def emit_translation_unit(ast: Any, out_path: str):
+def emit_translation_unit(ast: Any, out_path: str, source_file: Optional[str] = None, source_lines: Optional[list] = None):
     """Accept either a `translation_unit` dict or a raw/AST input and emit .ros.
 
     If `ast` is not already a translation_unit dict, attempt to convert it
     using `transform_to_translation_unit` (if available) or fall back to
     calling `frontend.code_to_translation_unit`.
+    
+    Args:
+        ast: The AST or translation unit to emit
+        out_path: Path to write the .ros file
+        source_file: Optional path to source file for debug tracking
+        source_lines: Optional list of source lines for debug tracking
+        
+    Returns:
+        List of source-to-output mappings if tracking is enabled
     """
     tu = ast
     # if not isinstance(ast, dict) or (
@@ -948,5 +986,10 @@ def emit_translation_unit(ast: Any, out_path: str):
     #     if transform_to_translation_unit is not None:
     #         tu = transform_to_translation_unit(ast)
 
-    e = Emitter()
+    e = Emitter(source_file=source_file, source_lines=source_lines)
     e.emit_translation_unit(tu, out_path)
+    
+    # Return mappings if tracking was enabled
+    if e.tracked_writer:
+        return e.tracked_writer.get_mappings()
+    return []
