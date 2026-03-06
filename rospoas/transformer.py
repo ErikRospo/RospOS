@@ -2,7 +2,7 @@ import random
 
 from errors import TransformError, fmt_node
 from ir import instr_list_from_legacy
-from lark import Transformer, v_args
+from lark import Token, Transformer, v_args
 from maps import register_map
 
 
@@ -22,6 +22,58 @@ class RospoasTransformer(Transformer):
             return None
         return None
 
+    def _default_src(self, pp_line=None, original_text=None):
+        return {
+            "file": None,
+            "line": None,
+            "pp_line": pp_line,
+            "original_text": original_text,
+            "include_chain": [],
+        }
+
+    def _extract_original_text_from_items(self, items):
+        token_values = []
+        for itm in items:
+            if isinstance(itm, Token):
+                token_values.append(str(itm))
+        if not token_values:
+            return None
+        return " ".join(token_values)
+
+    def _normalize_origin_entry(self, entry, pp_line):
+        # Backward compatible origin-map parsing.
+        # Supported shapes:
+        # - (file, line)
+        # - (file, line, original_text)
+        # - (file, line, original_text, include_chain)
+        # - dict with any of file/line/pp_line/original_text/include_chain
+        if isinstance(entry, dict):
+            chain = entry.get("include_chain") or []
+            return {
+                "file": entry.get("file"),
+                "line": entry.get("line"),
+                "pp_line": entry.get("pp_line", pp_line),
+                "original_text": entry.get("original_text"),
+                "include_chain": list(chain) if isinstance(chain, (list, tuple)) else [],
+            }
+
+        if isinstance(entry, (list, tuple)):
+            file_v = entry[0] if len(entry) >= 1 else None
+            line_v = entry[1] if len(entry) >= 2 else None
+            text_v = entry[2] if len(entry) >= 3 else None
+            chain_v = entry[3] if len(entry) >= 4 else []
+            return {
+                "file": file_v,
+                "line": line_v,
+                "pp_line": pp_line,
+                "original_text": text_v,
+                "include_chain": list(chain_v)
+                if isinstance(chain_v, (list, tuple))
+                else [],
+            }
+
+        return self._default_src(pp_line=pp_line)
+
     def _src_from_items(self, items):
         # Find the first item with a line number and map it back to original file/line
         line_no = None
@@ -30,32 +82,46 @@ class RospoasTransformer(Transformer):
             if ln:
                 line_no = ln
                 break
+        fallback_text = self._extract_original_text_from_items(items)
         if line_no is None:
-            return {"file": None, "line": None}
+            return self._default_src(original_text=fallback_text)
         # origin_map is a list indexed by preprocessed line (1-based)
         if 1 <= line_no <= len(self.origin_map):
-            file, orig_line = self.origin_map[line_no - 1]
-            return {"file": file, "line": orig_line, "pp_line": line_no}
-        return {"file": "<preprocessed>", "line": line_no, "pp_line": line_no}
+            src = self._normalize_origin_entry(self.origin_map[line_no - 1], line_no)
+            if src.get("original_text") is None:
+                src["original_text"] = fallback_text
+            return src
+        return {
+            "file": "<preprocessed>",
+            "line": line_no,
+            "pp_line": line_no,
+            "original_text": fallback_text,
+            "include_chain": [],
+        }
 
     def _attach_src(self, node: dict, items):
         try:
             node["src"] = self._src_from_items(items)
         except Exception:
-            node["src"] = {"file": None, "line": None}
+            node["src"] = self._default_src()
         return node
 
     def _src_from_meta(self, meta):
         try:
             if meta is None or not hasattr(meta, "line"):
-                return {"file": None, "line": None}
+                return self._default_src()
             line_no = meta.line
             if 1 <= line_no <= len(self.origin_map):
-                file, orig_line = self.origin_map[line_no - 1]
-                return {"file": file, "line": orig_line, "pp_line": line_no}
-            return {"file": "<preprocessed>", "line": line_no, "pp_line": line_no}
+                return self._normalize_origin_entry(self.origin_map[line_no - 1], line_no)
+            return {
+                "file": "<preprocessed>",
+                "line": line_no,
+                "pp_line": line_no,
+                "original_text": None,
+                "include_chain": [],
+            }
         except Exception:
-            return {"file": None, "line": None}
+            return self._default_src()
 
     def _attach_src_meta(self, node: dict, meta):
         node["src"] = self._src_from_meta(meta)

@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from typing import List, Optional, Union
 
 
@@ -48,21 +48,16 @@ class Instruction:
     imm: Optional[Immediate] = None
     # keep the original legacy dict for easy debugging/gradual migration
     legacy: Optional[dict] = None
-    # source origin info: dict with keys 'file' and 'line' (and optional 'pp_line')
+    # source origin info: dict with keys 'file', 'line', 'pp_line',
+    # 'original_text', and 'include_chain'
     src: Optional[dict] = None
+    is_pseudo_expanded: bool = False
+    is_from_rospocc: bool = False
+    is_optimized: bool = False
+    expansion_depth: int = 0
 
     def copy_with(self, **kwargs) -> "Instruction":
-        data = dict(
-            type=self.type,
-            name=self.name,
-            rd=self.rd,
-            rs1=self.rs1,
-            rs2=self.rs2,
-            imm=self.imm,
-            legacy=self.legacy,
-        )
-        data.update(kwargs)
-        return Instruction(**data)
+        return replace(self, **kwargs)
 
 
 @dataclass
@@ -77,6 +72,10 @@ class Directive:
     imm: Optional[Immediate] = None
     length: Optional[int] = None
     src: Optional[dict] = None
+    is_pseudo_expanded: bool = False
+    is_from_rospocc: bool = False
+    is_optimized: bool = False
+    expansion_depth: int = 0
 
 
 @dataclass
