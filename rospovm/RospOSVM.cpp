@@ -16,10 +16,10 @@
 #include "TTY.h"
 
 RospOSVM::RospOSVM(bool debugMode) 
-    : debugMode(debugMode), 
-      memory(1ULL << 32)  // Initialize 4GB memory
+        : memory(1ULL << 32),  // Initialize 4GB memory
+            debugMode(debugMode)
 {
-    pc = memory.readWord(0xFFFFFFFC); // Set PC to reset vector
+        pc = 0;                           // Set after loading binary reset vector
     regFile.sp().set(0x0FFFFFFF);     // Top of RAM
     regFile[0].setReadOnly(true);     // R0 is always zero
 
@@ -54,6 +54,9 @@ void RospOSVM::loadBinaryFromFile(const std::string& filename)
                 segment.address
             );
         }
+
+        // Reset PC from reset-vector after all segments are loaded.
+        pc = memory.readWord(0xFFFFFFFC);
         
         std::cout << "Loaded binary from " << filename << " with " 
                   << loadedBinary->segments.size() << " loadable segments and "
@@ -376,7 +379,8 @@ bool RospOSVM::bTypeInstruction(uint32_t instruction)
     int32_t r_imm = static_cast<int32_t>(instruction & 0xFFFF);
     int32_t sign_ext_imm = (r_imm & 0x8000) ? (r_imm | 0xFFFF0000) : r_imm;
 
-    sign_ext_imm <<= 2; // Branch addresses are word-aligned
+    // Shift as unsigned to avoid UB when immediate is negative.
+    const uint32_t branchOffset = static_cast<uint32_t>(sign_ext_imm) << 2;
 
     bool takeBranch = false;
     switch (sub_op)
@@ -405,7 +409,7 @@ bool RospOSVM::bTypeInstruction(uint32_t instruction)
     }
     if (takeBranch)
     {
-        pc += sign_ext_imm;
+        pc += branchOffset;
     }
     return takeBranch;
 }
@@ -425,12 +429,12 @@ void RospOSVM::jTypeInstruction(uint32_t instruction)
     {
     case 0x0: // JAL
         regFile[rd].set(pc + 4);
-        pc += sign_ext_imm << 2;
+        pc += static_cast<uint32_t>(sign_ext_imm) << 2;
         break;
     case 0x1: // JALR
     {
         uint32_t temp = pc + 4;
-        pc = (regFile[rs].get() + (sign_ext_imm << 2)) & ~1;
+        pc = (regFile[rs].get() + (static_cast<uint32_t>(sign_ext_imm) << 2)) & ~1u;
         regFile[rd].set(temp);
     }
     break;

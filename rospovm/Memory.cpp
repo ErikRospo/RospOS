@@ -42,6 +42,9 @@ uint8_t Memory::readByte(uint32_t address) const
             }
         }
     }
+    if (static_cast<size_t>(address) >= mem.size()) {
+        throw std::out_of_range("Memory read out of bounds.");
+    }
     return mem[address];
 }
 
@@ -61,6 +64,9 @@ void Memory::writeByte(uint32_t address, uint8_t value)
                 throw std::runtime_error("Attempted to write to non-writable special memory range \"" + std::string(range.name) + "\".");
             }
         }
+    }
+    if (static_cast<size_t>(address) >= mem.size()) {
+        throw std::out_of_range("Memory write out of bounds.");
     }
     mem[address] = value;
 }
@@ -92,8 +98,9 @@ void Memory::writeWord(uint32_t address, uint32_t value)
 
 void Memory::loadBinary(const std::vector<char>& binary, uint32_t address)
 {
-    if (address + binary.size() > mem.size()) {
+    const size_t start = static_cast<size_t>(address);
+    if (start > mem.size() || binary.size() > (mem.size() - start)) {
         throw std::out_of_range("Memory overflow while loading binary.");
     }
-    std::copy(binary.begin(), binary.end(), mem.begin() + address);
+    std::copy(binary.begin(), binary.end(), mem.begin() + start);
 }
