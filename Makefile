@@ -30,7 +30,7 @@ rospos/build/rospos.ros: rospocc/first_test.rosc rospocc/parser.py | $(DIR_ROSPO
 	$(PY) $(ROSPCC_PARSER) --input rospocc/first_test.rosc --output $@ 1>&2
 
 rospos/build/rospos.rosp: rospos/build/rospos.ros rospoas/compile.py | $(DIR_ROSPOS_BUILD)
-	$(PY) rospoas/compile.py --input $< --output $@ 1>&2
+	$(PY) rospoas/compile.py --debug-all --optimize --bin-version 2 --rospocc-mapping --segment-debug --input $< --output $@ 1>&2
 	
 build/%.html: doc/%.md | $(DIR_DOCS_BUILD)
 	pandoc $< --filter pandoc-include -s -o $@
