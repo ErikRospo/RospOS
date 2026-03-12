@@ -13,7 +13,7 @@ DIR_DOCS_BUILD := build
 HTMLDOCS := $(DOCS:.md=.html)
 PDFDOCS := $(DOCS:.md=.pdf)
 
-.PHONY: all bm parse compile dump build clean doc transpiler format
+.PHONY: all bm parse compile dump build clean doc format
 
 all: build
 
@@ -43,10 +43,6 @@ build/%.html: doc/%.md | $(DIR_DOCS_BUILD)
 build/%.pdf: doc/%.md | $(DIR_DOCS_BUILD) 
 	pandoc $< --filter pandoc-include -V links-as-notes=true -o $@
 
-transpiler: 
-	$(MAKE) -C rospocctranspiler -j8
-	$(PY) rospoas/compile.py --input rospocctranspiler/riscv_transcompiler.ros --output rospocctranspiler/riscv_transcompiler.rosp 1>&2
-	
 doc: $(addprefix build/,$(HTMLDOCS)) $(addprefix build/,$(PDFDOCS))
 
 bm: rospos/font_bitmap.ros
