@@ -18,7 +18,7 @@ else()
 endif()
 
 find_package(Qt6 COMPONENTS Core Gui Widgets REQUIRED)
-
+find_package(ZLIB REQUIRED)
 # VM Core Library
 # Static library containing the VM implementation (no GUI dependencies)
 add_library(rosposvm_lib STATIC
@@ -45,7 +45,7 @@ add_library(rosposvm_lib STATIC
 )
 
 target_include_directories(rosposvm_lib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-target_link_libraries(rosposvm_lib PUBLIC Qt6::Core Qt6::Gui Qt6::Widgets)
+target_link_libraries(rosposvm_lib PUBLIC Qt6::Core Qt6::Gui Qt6::Widgets ZLIB::ZLIB)
 
 # Qt GUI Application
 add_executable(rospovm_qt
@@ -71,4 +71,5 @@ target_link_libraries(rospovm_qt PRIVATE
     Qt6::Core
     Qt6::Gui
     Qt6::Widgets
+    ZLIB::ZLIB
 )

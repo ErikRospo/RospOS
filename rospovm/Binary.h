@@ -10,6 +10,7 @@
 // Segment flags for Binary format V2.
 constexpr uint32_t SEGMENT_FLAG_LOADABLE = 0x00000001;
 constexpr uint32_t SEGMENT_FLAG_DEBUG = 0x00000002;
+constexpr uint32_t SEGMENT_FLAG_COMPRESSED = 0x00000004;
 
 struct Segment
 {

@@ -8,9 +8,38 @@
 #include <vector>
 #include <filesystem>
 #include <sstream>
+#include <zlib.h>
 
 // Magic number for RospOS binary format
 const uint32_t ROSP_MAGIC = 0x50534F52;  // "ROSP" in ASCII
+
+static std::vector<uint8_t> decompress_gzip(const std::vector<uint8_t>& data) {
+    z_stream stream = {};
+    stream.next_in = const_cast<Bytef*>(data.data());
+    stream.avail_in = static_cast<uInt>(data.size());
+
+    // windowBits = 15 + 16 enables gzip decoding in zlib
+    if (inflateInit2(&stream, 15 + 16) != Z_OK) {
+        throw std::runtime_error("Failed to initialize gzip decompression");
+    }
+
+    std::vector<uint8_t> result;
+    uint8_t buf[65536];
+    int ret;
+    do {
+        stream.next_out = buf;
+        stream.avail_out = sizeof(buf);
+        ret = inflate(&stream, Z_NO_FLUSH);
+        if (ret == Z_STREAM_ERROR || ret == Z_DATA_ERROR || ret == Z_MEM_ERROR) {
+            inflateEnd(&stream);
+            throw std::runtime_error("Gzip decompression failed");
+        }
+        result.insert(result.end(), buf, buf + (sizeof(buf) - stream.avail_out));
+    } while (ret != Z_STREAM_END);
+
+    inflateEnd(&stream);
+    return result;
+}
 
 Binary Binary::load_binary(const std::string& path)
 {
@@ -81,6 +110,10 @@ Binary Binary::load_binary(const std::string& path)
             
             if (!file) {
                 throw std::runtime_error("Error reading segment data from binary file");
+            }
+
+            if (flags & SEGMENT_FLAG_COMPRESSED) {
+                data = decompress_gzip(data);
             }
 
             // Check if this is a debug segment

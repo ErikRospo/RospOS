@@ -99,6 +99,16 @@ def build_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="Include debug information in the output binary as separate debug segments.",
     )
+    parser.add_argument(
+        "--compress-debug",
+        action="store_true",
+        help="Compress debug information in the output binary if --segment-debug is enabled.",
+    )
+    parser.add_argument(
+        "--compress-bin",
+        action="store_true",
+        help="Compress the entire binary output using gzip compression.",
+    )
     return parser
 
 
@@ -125,6 +135,8 @@ def build_options(args) -> CompilationOptions:
         input_path=input_path,
         output_path=output_path,
         optimize=args.optimize,
+        compress_debug=args.compress_debug,
+        compress_bin=args.compress_bin,
         bin_version=args.bin_version,
         rospocc_mapping=args.rospocc_mapping,
         segment_debug=args.segment_debug,
@@ -138,11 +150,16 @@ def main() -> int:
     args = parser.parse_args()
     options = build_options(args)
 
-    if options.rospocc_mapping and options.bin_version < 2:
-        print(
-            "Warning: --rospocc-mapping is only supported for binary version 2. Ignoring this option."
-        )
-
+    if options.bin_version < 2:
+        print("Warning: Outputting V1 binaries is deprecated and may not be supported in future versions of RospoAS. Consider using the default V2 format instead.")
+        if options.compress_bin:
+            print("Warning: --compress-bin is only supported for binary version 2. This will be ignored.")
+        if options.rospocc_mapping:
+            print("Warning: RospoCC mapping is not supported for V1 binaries. This will be ignored.")
+        if options.segment_debug:
+            print("Warning: --segment-debug is only supported for binary version 2. This will be ignored.")
+            if options.compress_debug:
+                print("Warning: --compress-debug is only supported for binary version 2. This will be ignored.")
     frontends = build_frontend_registry()
     pipeline = CompilationPipeline()
     register_debug_handlers(pipeline)

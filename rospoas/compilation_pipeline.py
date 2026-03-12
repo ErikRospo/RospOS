@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import gzip
 import struct
 from collections import defaultdict
 from dataclasses import dataclass, field
@@ -17,6 +18,7 @@ from transformer import transform_parse_tree_ir
 MAGIC = 0x50534F52  # 'ROSP' in little-endian
 SEGMENT_FLAG_LOADABLE = 0x00000001
 SEGMENT_FLAG_DEBUG = 0x00000002
+SEGMENT_FLAG_COMPRESSED = 0x00000004
 
 CompilationStepHandler = Callable[["CompilationState"], None]
 
@@ -35,6 +37,8 @@ class CompilationOptions:
     input_path: Path
     output_path: Path
     optimize: bool
+    compress_debug: bool
+    compress_bin: bool
     bin_version: int
     rospocc_mapping: bool
     segment_debug: bool
@@ -195,14 +199,22 @@ def _write_v2_binary(state: CompilationState) -> None:
         handle.write(struct.pack("<III", MAGIC, 2, total_segment_count))
 
         for address, data in state.segments:
-            handle.write(struct.pack("<III", SEGMENT_FLAG_LOADABLE, address, len(data)))
+            flags= SEGMENT_FLAG_LOADABLE
+            if state.options.compress_bin:
+                data = gzip.compress(data)
+                flags |= SEGMENT_FLAG_COMPRESSED
+            handle.write(struct.pack("<III", flags, address, len(data)))
             handle.write(data)
 
         for parent_address, debug_text in state.debug_segments:
             debug_bytes = debug_text.encode("utf-8")
+            flags = SEGMENT_FLAG_DEBUG
+            if state.options.compress_debug:
+                debug_bytes = gzip.compress(debug_bytes)
+                flags |= SEGMENT_FLAG_COMPRESSED
             handle.write(
                 struct.pack(
-                    "<III", SEGMENT_FLAG_DEBUG, parent_address, len(debug_bytes)
+                    "<III", flags, parent_address, len(debug_bytes)
                 )
             )
             handle.write(debug_bytes)
