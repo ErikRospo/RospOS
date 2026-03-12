@@ -6,7 +6,9 @@ from tracked_writer import TrackedWriter
 
 
 class Emitter:
-    def __init__(self, source_file: Optional[str] = None, source_lines: Optional[list] = None):
+    def __init__(
+        self, source_file: Optional[str] = None, source_lines: Optional[list] = None
+    ):
         self.label_counter = 0
         self.reg_free = list(abi.TEMP_REGS)
         self.var_regs = {}
@@ -35,15 +37,15 @@ class Emitter:
         if 1 <= line_num <= len(self.source_lines):
             return self.source_lines[line_num - 1]
         return ""
-    
+
     def _set_source_context(self, node: Dict[str, Any], out):
         """Set source context based on node metadata."""
         if isinstance(node, dict) and "_line" in node:
             line_num = node["_line"]
             source_text = self._get_source_text(line_num)
-            if hasattr(out, 'set_source_context'):
+            if hasattr(out, "set_source_context"):
                 out.set_source_context(line_num, source_text)
-        elif hasattr(out, 'set_source_context'):
+        elif hasattr(out, "set_source_context"):
             out.set_source_context(None, None)
 
     # helper: write an immediate into a register
@@ -240,7 +242,7 @@ class Emitter:
             # Wrap file handle with TrackedWriter for source tracking
             self.tracked_writer = TrackedWriter(f, self.source_file or str(out_file))
             out = self.tracked_writer
-            
+
             # Header and globals collection
             out.set_source_context(None)  # No source for header
             self._write_file_header(out)
@@ -285,10 +287,10 @@ class Emitter:
 
     def emit_function_def(self, fn: Dict[str, Any], out):
         name = fn.get("name", "fn")
-        
+
         # Set source context for function definition
         self._set_source_context(fn, out)
-        
+
         out.write(f".FUNC {name}:\n")
         # Save link register so nested calls won't clobber return address
         out.write(f"  PUSH {abi.LINK_REG}\n")
@@ -320,7 +322,7 @@ class Emitter:
         # If no return was emitted in the body, emit epilogue and return 0
         if not self.had_return:
             # Clear source context for epilogue
-            if hasattr(out, 'set_source_context'):
+            if hasattr(out, "set_source_context"):
                 out.set_source_context(None)
             out.write(f"  // epilogue and return\n")
             out.write(
@@ -339,7 +341,7 @@ class Emitter:
     def emit_statement(self, stmt: Dict[str, Any], out):
         # Set source context for this statement
         self._set_source_context(stmt, out)
-        
+
         t = stmt.get("type")
         if t == "return":
             val = stmt.get("value")
@@ -963,19 +965,24 @@ class Emitter:
             )
 
 
-def emit_translation_unit(ast: Any, out_path: str, source_file: Optional[str] = None, source_lines: Optional[list] = None):
+def emit_translation_unit(
+    ast: Any,
+    out_path: str,
+    source_file: Optional[str] = None,
+    source_lines: Optional[list] = None,
+):
     """Accept either a `translation_unit` dict or a raw/AST input and emit .ros.
 
     If `ast` is not already a translation_unit dict, attempt to convert it
     using `transform_to_translation_unit` (if available) or fall back to
     calling `frontend.code_to_translation_unit`.
-    
+
     Args:
         ast: The AST or translation unit to emit
         out_path: Path to write the .ros file
         source_file: Optional path to source file for debug tracking
         source_lines: Optional list of source lines for debug tracking
-        
+
     Returns:
         List of source-to-output mappings if tracking is enabled
     """
@@ -988,7 +995,7 @@ def emit_translation_unit(ast: Any, out_path: str, source_file: Optional[str] = 
 
     e = Emitter(source_file=source_file, source_lines=source_lines)
     e.emit_translation_unit(tu, out_path)
-    
+
     # Return mappings if tracking was enabled
     if e.tracked_writer:
         return e.tracked_writer.get_mappings()

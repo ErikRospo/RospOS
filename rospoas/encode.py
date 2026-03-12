@@ -45,7 +45,10 @@ def _resolve_imm(imm, addresses, current_segment_addr, cursor):
 
 
 def encode_ir(
-    ir_list: List, addresses: Dict[str, int], segments: List[Tuple[int, bytearray]], verbose: bool = False
+    ir_list: List,
+    addresses: Dict[str, int],
+    segments: List[Tuple[int, bytearray]],
+    verbose: bool = False,
 ):
     current_segment = None
     current_segment_data = None

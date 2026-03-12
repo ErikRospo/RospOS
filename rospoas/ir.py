@@ -121,9 +121,9 @@ def instr_from_legacy(d: dict) -> Union[Instruction, LabelDecl, Directive]:
             imm=imm,
             length=d.get("len"),
             src=src,
-            is_from_rospocc=bool(src.get("from_rospocc", False))
-            if isinstance(src, dict)
-            else False,
+            is_from_rospocc=(
+                bool(src.get("from_rospocc", False)) if isinstance(src, dict) else False
+            ),
         )
     # instruction
     imm = _imm_from_legacy(d.get("imm"))
@@ -140,9 +140,9 @@ def instr_from_legacy(d: dict) -> Union[Instruction, LabelDecl, Directive]:
         imm=imm,
         legacy=d,
         src=src,
-        is_from_rospocc=bool(src.get("from_rospocc", False))
-        if isinstance(src, dict)
-        else False,
+        is_from_rospocc=(
+            bool(src.get("from_rospocc", False)) if isinstance(src, dict) else False
+        ),
     )
 
 

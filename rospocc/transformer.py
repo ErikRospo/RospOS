@@ -30,10 +30,11 @@ class ASTTransformer(Transformer):
     def __default__(self, data, children, meta):
         # children already transformed by Transformer
         node = {"node": data, "children": children}
-        
+
         # Preserve source line information from Lark metadata
         import sys
-        if meta and hasattr(meta, 'line'):
+
+        if meta and hasattr(meta, "line"):
             node["_line"] = meta.line
             print(f"DEBUG transformer: {data} -> line {meta.line}", file=sys.stderr)
 
@@ -73,7 +74,7 @@ def transform_to_translation_unit(input_data: Tree) -> dict:
     )
 
     tu = {"globals": [], "functions": [], "types": []}
-    
+
     def _copy_line(from_node, to_dict):
         """Copy _line metadata from source node to target dict"""
         if isinstance(from_node, dict) and "_line" in from_node:
@@ -496,19 +497,25 @@ def transform_to_translation_unit(input_data: Tree) -> dict:
             if expr:
                 if expr.get("type") == "call":
                     return [
-                        _copy_line(stmt_node, {
-                            "type": "call_stmt",
-                            "name": expr.get("name"),
-                            "args": expr.get("args", []),
-                        })
+                        _copy_line(
+                            stmt_node,
+                            {
+                                "type": "call_stmt",
+                                "name": expr.get("name"),
+                                "args": expr.get("args", []),
+                            },
+                        )
                     ]
                 elif expr.get("type") == "assign":
                     return [
-                        _copy_line(stmt_node, {
-                            "type": "assign",
-                            "target": expr.get("target"),
-                            "value": expr.get("value"),
-                        })
+                        _copy_line(
+                            stmt_node,
+                            {
+                                "type": "assign",
+                                "target": expr.get("target"),
+                                "value": expr.get("value"),
+                            },
+                        )
                     ]
             return []
 
@@ -586,7 +593,9 @@ def transform_to_translation_unit(input_data: Tree) -> dict:
                     body_node = children[-1]
 
                 body_stmts = _process_stmt_node(body_node) if body_node else []
-                stmts.append(_copy_line(c, {"type": "while", "cond": cond, "body": body_stmts}))
+                stmts.append(
+                    _copy_line(c, {"type": "while", "cond": cond, "body": body_stmts})
+                )
                 continue
 
             # Handle if statements
@@ -692,7 +701,15 @@ def transform_to_translation_unit(input_data: Tree) -> dict:
                 else_stmts = _process_stmt_node(else_node) if else_node else []
 
                 stmts.append(
-                    _copy_line(c, {"type": "if", "cond": cond, "then": then_stmts, "else": else_stmts})
+                    _copy_line(
+                        c,
+                        {
+                            "type": "if",
+                            "cond": cond,
+                            "then": then_stmts,
+                            "else": else_stmts,
+                        },
+                    )
                 )
                 continue
 

@@ -35,9 +35,15 @@ def _write_parse_tree(state: CompilationState) -> None:
 def _write_optimization_artifacts(state: CompilationState) -> None:
     if not state.options.optimize:
         return
-    _write_ir_list(state.output_dir_path("debug_before_opt.txt"), state.pre_optimization_ir)
+    _write_ir_list(
+        state.output_dir_path("debug_before_opt.txt"), state.pre_optimization_ir
+    )
     _write_ir_list(state.output_dir_path("debug_after_opt.txt"), state.ir_list)
-    log_text = "\n".join(state.optimization_logs) if state.optimization_logs else "No optimization transforms applied."
+    log_text = (
+        "\n".join(state.optimization_logs)
+        if state.optimization_logs
+        else "No optimization transforms applied."
+    )
     _write_text(state.output_dir_path("debug_opt_log.txt"), log_text + "\n")
 
 
@@ -91,7 +97,9 @@ def _write_mapping(state: CompilationState) -> None:
                 current_segment = 0
 
             if isinstance(node, LabelDecl):
-                address = state.addresses.get(node.name, current_segment + current_cursor)
+                address = state.addresses.get(
+                    node.name, current_segment + current_cursor
+                )
                 handle.write(
                     f"LABEL {node.name} -> {hex(address)} src={_format_src(node)}\n"
                 )
@@ -132,7 +140,9 @@ def _write_mapping(state: CompilationState) -> None:
 def _write_debug_segments(state: CompilationState) -> None:
     if not state.options.debug_enabled["segments"] or not state.debug_segments:
         return
-    with open(state.artifact_path("debug_segments.txt"), "w", encoding="utf-8") as handle:
+    with open(
+        state.artifact_path("debug_segments.txt"), "w", encoding="utf-8"
+    ) as handle:
         for segment_address, debug_text in state.debug_segments:
             handle.write(f"=== SEGMENT 0x{segment_address:08X} ===\n")
             handle.write(debug_text)

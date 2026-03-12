@@ -151,15 +151,25 @@ def main() -> int:
     options = build_options(args)
 
     if options.bin_version < 2:
-        print("Warning: Outputting V1 binaries is deprecated and may not be supported in future versions of RospoAS. Consider using the default V2 format instead.")
+        print(
+            "Warning: Outputting V1 binaries is deprecated and may not be supported in future versions of RospoAS. Consider using the default V2 format instead."
+        )
         if options.compress_bin:
-            print("Warning: --compress-bin is only supported for binary version 2. This will be ignored.")
+            print(
+                "Warning: --compress-bin is only supported for binary version 2. This will be ignored."
+            )
         if options.rospocc_mapping:
-            print("Warning: RospoCC mapping is not supported for V1 binaries. This will be ignored.")
+            print(
+                "Warning: RospoCC mapping is not supported for V1 binaries. This will be ignored."
+            )
         if options.segment_debug:
-            print("Warning: --segment-debug is only supported for binary version 2. This will be ignored.")
+            print(
+                "Warning: --segment-debug is only supported for binary version 2. This will be ignored."
+            )
             if options.compress_debug:
-                print("Warning: --compress-debug is only supported for binary version 2. This will be ignored.")
+                print(
+                    "Warning: --compress-debug is only supported for binary version 2. This will be ignored."
+                )
     frontends = build_frontend_registry()
     pipeline = CompilationPipeline()
     register_debug_handlers(pipeline)

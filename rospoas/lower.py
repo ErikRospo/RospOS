@@ -47,7 +47,9 @@ def _node_flags(node, pseudo_expansion=False):
     }
 
 
-def _emit_immediate_loading_for_value(value: int, rd: int, src: dict = None, flags=None) -> List[Instruction]:
+def _emit_immediate_loading_for_value(
+    value: int, rd: int, src: dict = None, flags=None
+) -> List[Instruction]:
     instrs: List[Instruction] = []
     f = flags or {}
     high = (value >> 16) & 0xFFFF
@@ -71,12 +73,16 @@ def _emit_immediate_loading_for_value(value: int, rd: int, src: dict = None, fla
             )
     else:
         instrs.append(
-            Instruction(type="i", name="addi", rd=rd, rs1=0, imm=ImmValue(low), src=src, **f)
+            Instruction(
+                type="i", name="addi", rd=rd, rs1=0, imm=ImmValue(low), src=src, **f
+            )
         )
     return instrs
 
 
-def _emit_immediate_loading_for_label(label_name: str, rd: int, src: dict = None, flags=None) -> List[Instruction]:
+def _emit_immediate_loading_for_label(
+    label_name: str, rd: int, src: dict = None, flags=None
+) -> List[Instruction]:
     f = flags or {}
     return [
         Instruction(
@@ -88,7 +94,9 @@ def _emit_immediate_loading_for_label(label_name: str, rd: int, src: dict = None
             src=src,
             **f,
         ),
-        Instruction(type="i", name="shli", rd=rd, rs1=rd, imm=ImmValue(16), src=src, **f),
+        Instruction(
+            type="i", name="shli", rd=rd, rs1=rd, imm=ImmValue(16), src=src, **f
+        ),
         Instruction(
             type="i",
             name="ori",
@@ -107,14 +115,18 @@ def _emit_stack_push(reg: int, src: dict = None, flags=None) -> List[Instruction
         Instruction(
             type="i", name="addi", rd=SP_REG, rs1=SP_REG, imm=ImmValue(-4), src=src, **f
         ),
-        Instruction(type="l", name="sw", rd=reg, rs1=SP_REG, imm=ImmValue(0), src=src, **f),
+        Instruction(
+            type="l", name="sw", rd=reg, rs1=SP_REG, imm=ImmValue(0), src=src, **f
+        ),
     ]
 
 
 def _emit_stack_pop(reg: int, src: dict = None, flags=None) -> List[Instruction]:
     f = flags or {}
     return [
-        Instruction(type="l", name="lw", rd=reg, rs1=SP_REG, imm=ImmValue(0), src=src, **f),
+        Instruction(
+            type="l", name="lw", rd=reg, rs1=SP_REG, imm=ImmValue(0), src=src, **f
+        ),
         Instruction(
             type="i", name="addi", rd=SP_REG, rs1=SP_REG, imm=ImmValue(4), src=src, **f
         ),
@@ -144,11 +156,15 @@ def lower_ir(ir_list: List) -> List:
             pseudo_flags = _node_flags(node, pseudo_expansion=True)
             if name == "push":
                 # node.imm contains register number
-                reg = node.imm.value if isinstance(node.imm, ImmValue) else int(node.imm)
+                reg = (
+                    node.imm.value if isinstance(node.imm, ImmValue) else int(node.imm)
+                )
                 out.extend(_emit_stack_push(reg, src=src, flags=pseudo_flags))
                 continue
             if name == "pop":
-                reg = node.imm.value if isinstance(node.imm, ImmValue) else int(node.imm)
+                reg = (
+                    node.imm.value if isinstance(node.imm, ImmValue) else int(node.imm)
+                )
                 out.extend(_emit_stack_pop(reg, src=src, flags=pseudo_flags))
                 continue
             if name == "lli":

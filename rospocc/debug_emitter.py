@@ -25,9 +25,7 @@ class RoscDebugEmitter:
 
         for m in self.mappings:
             quoted = json.dumps(m["original_text"], ensure_ascii=False)
-            lines.append(
-                f"{m['ros_line']} {m['rosc_file']} {m['rosc_line']} {quoted}"
-            )
+            lines.append(f"{m['ros_line']} {m['rosc_file']} {m['rosc_line']} {quoted}")
 
         with open(output_path, "w", encoding="utf-8") as f:
             f.write("\n".join(lines) + "\n")

@@ -56,7 +56,9 @@ class RospoasTransformer(Transformer):
                 "line": entry.get("line"),
                 "pp_line": entry.get("pp_line", pp_line),
                 "original_text": entry.get("original_text"),
-                "include_chain": list(chain) if isinstance(chain, (list, tuple)) else [],
+                "include_chain": (
+                    list(chain) if isinstance(chain, (list, tuple)) else []
+                ),
                 "from_rospocc": bool(entry.get("from_rospocc", False)),
             }
 
@@ -70,9 +72,9 @@ class RospoasTransformer(Transformer):
                 "line": line_v,
                 "pp_line": pp_line,
                 "original_text": text_v,
-                "include_chain": list(chain_v)
-                if isinstance(chain_v, (list, tuple))
-                else [],
+                "include_chain": (
+                    list(chain_v) if isinstance(chain_v, (list, tuple)) else []
+                ),
                 "from_rospocc": False,
             }
 
@@ -117,7 +119,9 @@ class RospoasTransformer(Transformer):
                 return self._default_src()
             line_no = meta.line
             if 1 <= line_no <= len(self.origin_map):
-                return self._normalize_origin_entry(self.origin_map[line_no - 1], line_no)
+                return self._normalize_origin_entry(
+                    self.origin_map[line_no - 1], line_no
+                )
             return {
                 "file": "<preprocessed>",
                 "line": line_no,
@@ -623,6 +627,8 @@ def transform_parse_tree_ir(parse_tree, origin_map=None, verbose=False):
     into the typed IR defined in `rospoas/ir.py`.
     Returns: (ir_list, lifted_constants)
     """
-    legacy_ast, lifted = transform_parse_tree(parse_tree, origin_map=origin_map, verbose=verbose)
+    legacy_ast, lifted = transform_parse_tree(
+        parse_tree, origin_map=origin_map, verbose=verbose
+    )
     ir_list = instr_list_from_legacy(legacy_ast)
     return ir_list, lifted

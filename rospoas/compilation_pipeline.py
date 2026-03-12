@@ -75,7 +75,9 @@ class CompilationState:
 
 class CompilationPipeline:
     def __init__(self):
-        self._handlers: DefaultDict[str, list[CompilationStepHandler]] = defaultdict(list)
+        self._handlers: DefaultDict[str, list[CompilationStepHandler]] = defaultdict(
+            list
+        )
 
     def register_handler(self, step: str, handler: CompilationStepHandler) -> None:
         self._handlers[step].append(handler)
@@ -122,7 +124,9 @@ class CompilationPipeline:
         self.emit("debug_info_collected", state)
 
         try:
-            state.segments = encode_ir(state.ir_list, state.addresses, state.segments, options.verbose)
+            state.segments = encode_ir(
+                state.ir_list, state.addresses, state.segments, options.verbose
+            )
         except Exception as exc:
             raise RuntimeError(f"Error during encoding: {exc}") from exc
         self.emit("encoded", state)
@@ -157,7 +161,11 @@ def select_frontend(
         if suffix in frontend.extensions:
             return frontend
     supported = ", ".join(
-        sorted(extension for frontend in frontends.values() for extension in frontend.extensions)
+        sorted(
+            extension
+            for frontend in frontends.values()
+            for extension in frontend.extensions
+        )
     )
     raise ValueError(
         f"No compilation frontend registered for '{input_path.suffix}'. Supported extensions: {supported}"
@@ -199,7 +207,7 @@ def _write_v2_binary(state: CompilationState) -> None:
         handle.write(struct.pack("<III", MAGIC, 2, total_segment_count))
 
         for address, data in state.segments:
-            flags= SEGMENT_FLAG_LOADABLE
+            flags = SEGMENT_FLAG_LOADABLE
             if state.options.compress_bin:
                 data = gzip.compress(data)
                 flags |= SEGMENT_FLAG_COMPRESSED
@@ -212,9 +220,5 @@ def _write_v2_binary(state: CompilationState) -> None:
             if state.options.compress_debug:
                 debug_bytes = gzip.compress(debug_bytes)
                 flags |= SEGMENT_FLAG_COMPRESSED
-            handle.write(
-                struct.pack(
-                    "<III", flags, parent_address, len(debug_bytes)
-                )
-            )
+            handle.write(struct.pack("<III", flags, parent_address, len(debug_bytes)))
             handle.write(debug_bytes)

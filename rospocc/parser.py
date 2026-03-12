@@ -2,8 +2,8 @@ import argparse
 import re
 from pathlib import Path
 
-from debug_emitter import RoscDebugEmitter
 import emitter
+from debug_emitter import RoscDebugEmitter
 from lark import Lark
 from preprocess import preprocess
 from transformer import transform_to_translation_unit
@@ -79,20 +79,20 @@ with open(out_dir / preprocessed_name, "r") as f:
 
 # Emit translation unit with source tracking enabled
 mappings = emitter.emit_translation_unit(
-    tu, 
+    tu,
     str(out),
     source_file=str(out_dir / preprocessed_name),
-    source_lines=source_lines
+    source_lines=source_lines,
 )
 
 # Write sidecar debug file with tracked mappings
 dbg = RoscDebugEmitter(source_file=out_dir / preprocessed_name)
 for mapping in mappings:
     dbg.add_mapping(
-        mapping['output_line'],
+        mapping["output_line"],
         out_dir / preprocessed_name,
-        mapping['source_line'],
-        mapping['source_text']
+        mapping["source_line"],
+        mapping["source_text"],
     )
 
 sidecar_path = out.with_suffix(".rosc.debug")

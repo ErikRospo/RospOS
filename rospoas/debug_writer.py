@@ -1,4 +1,5 @@
 import json
+
 from ir import Directive
 from ir import Instruction as IRInstruction
 from ir import LabelDecl
@@ -77,6 +78,7 @@ def collect_debug_segments(ir_nodes):
             current_cursor += 4
 
     return writers
+
 
 class DebugInfoWriter:
     def __init__(self):

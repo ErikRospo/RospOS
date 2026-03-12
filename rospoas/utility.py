@@ -32,4 +32,3 @@ def _node_original_text(node):
     if isinstance(src, dict) and src.get("original_text"):
         return src.get("original_text")
     return str(node)
-
