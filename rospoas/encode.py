@@ -45,7 +45,7 @@ def _resolve_imm(imm, addresses, current_segment_addr, cursor):
 
 
 def encode_ir(
-    ir_list: List, addresses: Dict[str, int], segments: List[Tuple[int, bytearray]]
+    ir_list: List, addresses: Dict[str, int], segments: List[Tuple[int, bytearray]], verbose: bool = False
 ):
     current_segment = None
     current_segment_data = None
@@ -220,10 +220,11 @@ def encode_ir(
                 found_seg = (seg_addr, seg_data)
                 break
         if found_seg is None:
-            print(
-                f"Warning: label {name} at {hex(addr)} is not in any segment",
-                file=sys.stderr,
-            )
+            if verbose:
+                print(
+                    f"Warning: label {name} at {hex(addr)} is not in any segment",
+                    file=sys.stderr,
+                )
             continue
         seg_addr, seg_data = found_seg
         offset = addr - seg_addr
@@ -235,32 +236,34 @@ def encode_ir(
                 break
         if hit is None:
             # label points between nodes: OK but warn
-            print(
-                f"Note: label {name} at {hex(addr)} points between nodes in segment {hex(seg_addr)}",
-                file=sys.stderr,
-            )
+            if verbose:
+                print(
+                    f"Note: label {name} at {hex(addr)} points between nodes in segment {hex(seg_addr)}",
+                    file=sys.stderr,
+                )
         else:
-            if hit[2] == "data":
+            if hit[2] == "data" and verbose:
                 print(
                     f"Warning: label {name} at {hex(addr)} falls inside a data region (segment {hex(seg_addr)} offset {hit[0]})",
                     file=sys.stderr,
                 )
 
     # Print per-segment node map for debugging
-    print("--- Segment node layout ---", file=sys.stderr)
-    for seg_addr, nodes in segment_node_map.items():
-        print(
-            f"Segment {hex(seg_addr)} (size {len(next(d for a,d in segments if a==seg_addr))}):",
-            file=sys.stderr,
-        )
-        for start, size, ntype in nodes:
-            print(f"  {start:04} - {start+size-1:04} : {ntype}", file=sys.stderr)
+    if verbose:
+        print("--- Segment node layout ---", file=sys.stderr)
+        for seg_addr, nodes in segment_node_map.items():
+            print(
+                f"Segment {hex(seg_addr)} (size {len(next(d for a,d in segments if a==seg_addr))}):",
+                file=sys.stderr,
+            )
+            for start, size, ntype in nodes:
+                print(f"  {start:04} - {start+size-1:04} : {ntype}", file=sys.stderr)
 
     # Validate that each segment was fully reserved by layout and encoded writes match sizes
     for seg_addr, data in segments:
         reserved = len(data)
         used = segment_cursor_map.get(seg_addr, 0)
-        if used != reserved:
+        if used != reserved and verbose:
             print(
                 f"Warning: segment {hex(seg_addr)} reserved {reserved} bytes but encoder used {used} bytes",
                 file=sys.stderr,
@@ -279,7 +282,7 @@ def encode_ir(
                     t_map = instr_type_maps[op_nibble]
                     if opcode in t_map.values():
                         valid = True
-                if not valid:
+                if not valid and verbose:
                     print(
                         f"Warning: instruction at segment {hex(seg_addr)} offset {start} decodes as NOP/UNKNOWN (word={word:08x})",
                         file=sys.stderr,

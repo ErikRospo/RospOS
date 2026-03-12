@@ -7,10 +7,11 @@ from maps import register_map
 
 
 class RospoasTransformer(Transformer):
-    def __init__(self, origin_map=None):
+    def __init__(self, origin_map=None, verbose=False):
         super().__init__()
         self.origin_map = origin_map or []
         self.lifted_constants = {}
+        self.verbose = verbose
 
     def _get_line_from_item(self, itm):
         try:
@@ -568,7 +569,8 @@ class RospoasTransformer(Transformer):
 
     def func(self, items):
         label_t = items[0]
-        print(f"Defining function: {label_t}")
+        if self.verbose:
+            print(f"Defining function: {label_t}")
         # label_t is likely a dict from `label` rule
         return label_t
 
@@ -611,16 +613,16 @@ class RospoasTransformer(Transformer):
         return items
 
 
-def transform_parse_tree(parse_tree, origin_map=None):
-    transformer = RospoasTransformer(origin_map=origin_map)
+def transform_parse_tree(parse_tree, origin_map=None, verbose=False):
+    transformer = RospoasTransformer(origin_map=origin_map, verbose=verbose)
     return transformer.transform(parse_tree), transformer.lifted_constants
 
 
-def transform_parse_tree_ir(parse_tree, origin_map=None):
+def transform_parse_tree_ir(parse_tree, origin_map=None, verbose=False):
     """Compatibility helper: transform parse tree and convert legacy dict AST
     into the typed IR defined in `rospoas/ir.py`.
     Returns: (ir_list, lifted_constants)
     """
-    legacy_ast, lifted = transform_parse_tree(parse_tree, origin_map=origin_map)
+    legacy_ast, lifted = transform_parse_tree(parse_tree, origin_map=origin_map, verbose=verbose)
     ir_list = instr_list_from_legacy(legacy_ast)
     return ir_list, lifted

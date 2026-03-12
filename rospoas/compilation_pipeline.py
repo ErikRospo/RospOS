@@ -103,7 +103,7 @@ class CompilationPipeline:
         self.emit("parsed", state)
 
         state.ir_list, state.lifted_constants = frontend.transform(
-            state.parse_tree, state.origin_map
+            state.parse_tree, state.origin_map, options.verbose
         )
         self.emit("transformed", state)
 
@@ -122,7 +122,7 @@ class CompilationPipeline:
         self.emit("debug_info_collected", state)
 
         try:
-            state.segments = encode_ir(state.ir_list, state.addresses, state.segments)
+            state.segments = encode_ir(state.ir_list, state.addresses, state.segments, options.verbose)
         except Exception as exc:
             raise RuntimeError(f"Error during encoding: {exc}") from exc
         self.emit("encoded", state)
