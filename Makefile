@@ -6,7 +6,7 @@ DOCS := Design.md Ideas.md Log.md
 # Build directories
 DIR_ROSPOS_BUILD := rospos/build
 DIR_DOCS_BUILD := build
-
+ROSPOAS_ARGS:= --optimize --bin-version 2 --rospocc-mapping --segment-debug
 
 # Ensure build directory exists (order-only dependency)
 
@@ -30,8 +30,24 @@ rospos/build/rospos.ros: rospocc/first_test.rosc rospocc/parser.py | $(DIR_ROSPO
 	$(PY) $(ROSPCC_PARSER) --input rospocc/first_test.rosc --output $@ 1>&2
 
 rospos/build/rospos.rosp: rospos/build/rospos.ros rospoas/compile.py | $(DIR_ROSPOS_BUILD)
-	$(PY) rospoas/compile.py --debug-all --optimize --bin-version 2 --rospocc-mapping --segment-debug --input $< --output $@ 1>&2
-	
+	$(PY) rospoas/compile.py  $(ROSPOAS_ARGS) --debug-all --verbose --input $< --output $@ 1>&2
+rospos/build/rospos_debc.rosp: rospos/build/rospos.ros rospoas/compile.py | $(DIR_ROSPOS_BUILD)
+	$(PY) rospoas/compile.py $(ROSPOAS_ARGS) --compress-debug --input $< --output $@ 1>&2
+rospos/build/rospos_binc.rosp: rospos/build/rospos.ros rospoas/compile.py | $(DIR_ROSPOS_BUILD)
+	$(PY) rospoas/compile.py $(ROSPOAS_ARGS) --compress-bin --input $< --output $@ 1>&2
+rospos/build/rospos_c.rosp: rospos/build/rospos.ros rospoas/compile.py | $(DIR_ROSPOS_BUILD)
+	$(PY) rospoas/compile.py $(ROSPOAS_ARGS) --compress-bin --compress-debug --input $< --output $@ 1>&2
+
+rospovm/build:
+	mkdir -p rospovm/build
+
+rospovm/build/Makefile: rospovm/CMakeLists.txt | rospovm/build
+	cmake -S rospovm -B rospovm/build/
+rospovm/build/rospovm_qt: $(shell find ./rospovm -maxdepth 1 -type f)
+	mkdir -p $(dir $@)
+	cmake --build rospovm/build/ -j $(nproc)
+
+
 build/%.html: doc/%.md | $(DIR_DOCS_BUILD)
 	pandoc $< --filter pandoc-include -s -o $@
 	sed -i 's/max-width: 36em;/max-width: 64em;/g' $@ 
@@ -47,11 +63,13 @@ doc: $(addprefix build/,$(HTMLDOCS)) $(addprefix build/,$(PDFDOCS))
 
 bm: rospos/font_bitmap.ros
 parse: rospos/build/rospos.ros
-compile: rospos/build/rospos.rosp
+compile: rospos/build/rospos.rosp rospos/build/rospos_debc.rosp rospos/build/rospos_binc.rosp rospos/build/rospos_c.rosp
+frontend_cmake: rospovm/build/Makefile
+frontend: rospovm/build/rospovm_qt
 
 dump: rospos/build/rospos.rosp
 	$(HEXDUMP) $< 1>&2
-build: bm parse compile
+build: bm parse compile frontend_cmake frontend
 
 format:
 	black .
@@ -62,4 +80,3 @@ clean:
 	rm -rf build/*.html
 	rm -rf build/*.pdf
 	rm -rf rospos/font_bitmap.ros
-	$(MAKE) -C rospovm clean
