@@ -7,7 +7,8 @@ DOCS := Design.md Ideas.md Log.md
 DIR_ROSPOS_BUILD := rospos/build
 DIR_DOCS_BUILD := build
 ROSPOAS_ARGS:= --optimize --bin-version 2 --rospocc-mapping --segment-debug
-
+ROSPOAS_DEP:= $(shell find ./rospoas -maxdepth 1 -type f)
+ROSPCC_DEP:= $(shell find ./rospocc -maxdepth 1 -type f)  $(shell find ./rospocc/lib -maxdepth 1 -type f) 
 # Ensure build directory exists (order-only dependency)
 
 HTMLDOCS := $(DOCS:.md=.html)
@@ -26,16 +27,16 @@ rospos/font_bitmap.ros: generate_fb_map_data.py
 	mkdir -p $(dir $@)
 	$(PY) generate_fb_map_data.py > $@
 
-rospos/build/rospos.ros: rospocc/first_test.rosc rospocc/parser.py | $(DIR_ROSPOS_BUILD)
+rospos/build/rospos.ros: rospocc/first_test.rosc $(ROSPCC_DEP) | $(DIR_ROSPOS_BUILD)
 	$(PY) $(ROSPCC_PARSER) --input rospocc/first_test.rosc --output $@ 1>&2
 
-rospos/build/rospos.rosp: rospos/build/rospos.ros rospoas/compile.py | $(DIR_ROSPOS_BUILD)
+rospos/build/rospos.rosp: rospos/build/rospos.ros $(ROSPOAS_DEP) | $(DIR_ROSPOS_BUILD)
 	$(PY) rospoas/compile.py  $(ROSPOAS_ARGS) --debug-all --verbose --input $< --output $@ 1>&2
-rospos/build/rospos_debc.rosp: rospos/build/rospos.ros rospoas/compile.py | $(DIR_ROSPOS_BUILD)
+rospos/build/rospos_debc.rosp: rospos/build/rospos.ros $(ROSPOAS_DEP) | $(DIR_ROSPOS_BUILD)
 	$(PY) rospoas/compile.py $(ROSPOAS_ARGS) --compress-debug --input $< --output $@ 1>&2
-rospos/build/rospos_binc.rosp: rospos/build/rospos.ros rospoas/compile.py | $(DIR_ROSPOS_BUILD)
+rospos/build/rospos_binc.rosp: rospos/build/rospos.ros $(ROSPOAS_DEP) | $(DIR_ROSPOS_BUILD)
 	$(PY) rospoas/compile.py $(ROSPOAS_ARGS) --compress-bin --input $< --output $@ 1>&2
-rospos/build/rospos_c.rosp: rospos/build/rospos.ros rospoas/compile.py | $(DIR_ROSPOS_BUILD)
+rospos/build/rospos_c.rosp: rospos/build/rospos.ros $(ROSPOAS_DEP) | $(DIR_ROSPOS_BUILD)
 	$(PY) rospoas/compile.py $(ROSPOAS_ARGS) --compress-bin --compress-debug --input $< --output $@ 1>&2
 
 rospovm/build:
