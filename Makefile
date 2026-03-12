@@ -46,7 +46,7 @@ rospovm/build/Makefile: rospovm/CMakeLists.txt | rospovm/build
 	cmake -S rospovm -B rospovm/build/
 rospovm/build/rospovm_qt: $(shell find ./rospovm -maxdepth 1 -type f)
 	mkdir -p $(dir $@)
-	cmake --build rospovm/build/ -j $(nproc)
+	cmake --build rospovm/build/ -j $(shell nproc)
 
 
 build/%.html: doc/%.md | $(DIR_DOCS_BUILD)
