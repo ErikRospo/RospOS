@@ -3,28 +3,26 @@ from pathlib import Path
 from ir import ImmLabel, ImmValue, Instruction, LabelDecl
 
 
-def optimize(ast, outloc: Path):
-    # Placeholder for optimization logic. For now, just return the AST as-is.
-    # In a real implementation, this function would perform various optimizations
-    # on the IR, such as constant folding, dead code elimination, peephole optimizations, etc.
-    with open(outloc / "debug_before_opt.txt", "w") as f:
-        for instr in ast:
-            f.write(str(instr) + "\n")
+def optimize(ast, outloc: Path, debug_enabled):
+    if debug_enabled:
+        with open(outloc / "debug_before_opt.txt", "w") as f:
+            for instr in ast:
+                f.write(str(instr) + "\n")
     opts = [_push_pop_optimization, _remove_unneeded_jumps]
     logs = []
     for opt in opts:
         ast = opt(ast, logs)
-
-    with open(outloc / "debug_after_opt.txt", "w") as f:
-        for instr in ast:
-            f.write(str(instr) + "\n")
-
-    with open(outloc / "debug_opt_log.txt", "w") as f:
-        if logs:
-            for line in logs:
-                f.write(line + "\n")
-        else:
-            f.write("No optimization transforms applied.\n")
+    if debug_enabled:
+        with open(outloc / "debug_after_opt.txt", "w") as f:
+            for instr in ast:
+                f.write(str(instr) + "\n")
+    if debug_enabled:
+        with open(outloc / "debug_opt_log.txt", "w") as f:
+            if logs:
+                for line in logs:
+                    f.write(line + "\n")
+            else:
+                f.write("No optimization transforms applied.\n")
     return ast
 
 
