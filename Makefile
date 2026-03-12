@@ -14,7 +14,7 @@ ROSPCC_DEP:= $(shell find ./rospocc -maxdepth 1 -type f)  $(shell find ./rospocc
 HTMLDOCS := $(DOCS:.md=.html)
 PDFDOCS := $(DOCS:.md=.pdf)
 
-.PHONY: all bm parse compile dump build clean doc format
+.PHONY: all bm parse compile dump build clean doc format frontend frontend_cmake
 
 all: build
 
