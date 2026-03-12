@@ -6,6 +6,7 @@
 #include <iostream>
 #include <stdexcept>
 #include <vector>
+#include <filesystem>
 #include <sstream>
 
 // Magic number for RospOS binary format
@@ -15,7 +16,13 @@ Binary Binary::load_binary(const std::string& path)
 {
     std::ifstream file(path, std::ios::binary);
     if (!file) {
-        throw std::runtime_error("Failed to open binary file: " + path);
+        std::filesystem::path cwd=std::filesystem::current_path();
+        std::filesystem::path full_path = cwd / path;
+        full_path=full_path.lexically_normal();
+        std::ostringstream oss;
+        oss << "Failed to open binary file: " << path << ". Does the file exist and is it readable? Does the path ";
+        oss << full_path.string() << " exist?";
+        throw std::runtime_error(oss.str());
     }
 
     uint32_t magic;
