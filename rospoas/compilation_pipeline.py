@@ -209,7 +209,7 @@ def _write_v2_binary(state: CompilationState) -> None:
         for address, data in state.segments:
             flags = SEGMENT_FLAG_LOADABLE
             if state.options.compress_bin:
-                data = gzip.compress(data)
+                data = gzip.compress(data, mtime=0)
                 flags |= SEGMENT_FLAG_COMPRESSED
             handle.write(struct.pack("<III", flags, address, len(data)))
             handle.write(data)
@@ -218,7 +218,7 @@ def _write_v2_binary(state: CompilationState) -> None:
             debug_bytes = debug_text.encode("utf-8")
             flags = SEGMENT_FLAG_DEBUG
             if state.options.compress_debug:
-                debug_bytes = gzip.compress(debug_bytes)
+                debug_bytes = gzip.compress(debug_bytes, mtime=0)
                 flags |= SEGMENT_FLAG_COMPRESSED
             handle.write(struct.pack("<III", flags, parent_address, len(debug_bytes)))
             handle.write(debug_bytes)
