@@ -27,7 +27,7 @@ private:
         std::vector<MemoryByteDelta> memoryDeltas;
     };
 
-    static constexpr size_t kMaxStateHistory = 16;
+    static constexpr size_t kMaxStateHistory = 32;
 
     RegisterFile regFile;
     uint32_t pc; // Program Counter
