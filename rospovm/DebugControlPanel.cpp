@@ -8,6 +8,7 @@
 #include <QFont>
 #include <QStyle>
 #include <QApplication>
+#include <QSignalBlocker>
 
 DebugControlPanel::DebugControlPanel(QWidget *parent)
     : QWidget(parent), vmController(nullptr), currentSpeed(50)
@@ -123,6 +124,45 @@ void DebugControlPanel::createUI()
 
     mainLayout->addWidget(breakpointGroup);
 
+    // ===== Number Converter =====
+    QGroupBox *converterGroup = new QGroupBox(tr("Number Converter"), this);
+    QVBoxLayout *converterLayout = new QVBoxLayout(converterGroup);
+
+    QHBoxLayout *hexLayout = new QHBoxLayout();
+    hexLayout->addWidget(new QLabel(tr("HEX:")));
+    hexInput = new QLineEdit();
+    hexInput->setPlaceholderText(tr("FF"));
+    hexInput->setToolTip(tr("Hexadecimal value"));
+    hexLayout->addWidget(hexInput);
+    converterLayout->addLayout(hexLayout);
+
+    QHBoxLayout *decLayout = new QHBoxLayout();
+    decLayout->addWidget(new QLabel(tr("DEC:")));
+    decInput = new QLineEdit();
+    decInput->setPlaceholderText(tr("255"));
+    decInput->setToolTip(tr("Decimal value"));
+    decLayout->addWidget(decInput);
+    converterLayout->addLayout(decLayout);
+
+    QHBoxLayout *binLayout = new QHBoxLayout();
+    binLayout->addWidget(new QLabel(tr("BIN:")));
+    binInput = new QLineEdit();
+    binInput->setPlaceholderText(tr("11111111"));
+    binInput->setToolTip(tr("Binary value"));
+    binLayout->addWidget(binInput);
+    converterLayout->addLayout(binLayout);
+
+    QHBoxLayout *asciiLayout = new QHBoxLayout();
+    asciiLayout->addWidget(new QLabel(tr("ASCII:")));
+    asciiInput = new QLineEdit();
+    asciiInput->setPlaceholderText(tr("ASCII Text"));
+    asciiInput->setToolTip(tr("Binary value"));
+    asciiLayout->addWidget(asciiInput);
+    converterLayout->addLayout(asciiLayout);
+
+    
+    mainLayout->addWidget(converterGroup);
+
     // Add stretch to push everything to top
     mainLayout->addStretch();
 
@@ -146,6 +186,10 @@ void DebugControlPanel::setupConnections()
                     speedValueLabel->setText(QString("%1%").arg(currentSpeed));
                 }
             });
+
+    connect(hexInput, &QLineEdit::textChanged, this, &DebugControlPanel::updateConverterFromHex);
+    connect(decInput, &QLineEdit::textChanged, this, &DebugControlPanel::updateConverterFromDec);
+    connect(binInput, &QLineEdit::textChanged, this, &DebugControlPanel::updateConverterFromBin);
 }
 
 void DebugControlPanel::setVMController(VMController *controller)
@@ -181,4 +225,83 @@ void DebugControlPanel::setStatus(const QString &status)
 void DebugControlPanel::setPCLabel(uint32_t pc)
 {
     pcLabel->setText(QString(tr("PC: 0x%1")).arg(pc, 8, 16, QChar('0')));
+}
+
+void DebugControlPanel::updateConverterFromHex(const QString &text)
+{
+    if (converterUpdating) {
+        return;
+    }
+
+    bool ok = false;
+    const QString trimmed = text.trimmed();
+    const uint32_t value = trimmed.toUInt(&ok, 16);
+    if (!ok) {
+        return;
+    }
+
+    converterUpdating = true;
+    {
+        QSignalBlocker decBlocker(decInput);
+        QSignalBlocker binBlocker(binInput);
+        decInput->setText(QString::number(value));
+        binInput->setText(QString::number(value, 2));
+    }
+    converterUpdating = false;
+}
+
+void DebugControlPanel::updateConverterFromDec(const QString &text)
+{
+    if (converterUpdating) {
+        return;
+    }
+
+    bool ok = false;
+    const QString trimmed = text.trimmed();
+    const uint32_t value = trimmed.toUInt(&ok, 10);
+    if (!ok) {
+        return;
+    }
+
+    converterUpdating = true;
+    {
+        QSignalBlocker hexBlocker(hexInput);
+        QSignalBlocker binBlocker(binInput);
+        hexInput->setText(QString::number(value, 16).toUpper());
+        binInput->setText(QString::number(value, 2));
+    }
+    converterUpdating = false;
+}
+
+void DebugControlPanel::updateConverterFromBin(const QString &text)
+{
+    if (converterUpdating) {
+        return;
+    }
+
+    QString trimmed = text.trimmed();
+    if (trimmed.isEmpty()) {
+        return;
+    }
+
+    for (const QChar c : trimmed) {
+        if (c != '0' && c != '1') {
+            return;
+        }
+    }
+
+    bool ok = false;
+    const uint32_t value = trimmed.toUInt(&ok, 2);
+    if (!ok) {
+        return;
+    }
+
+    converterUpdating = true;
+    {
+        QSignalBlocker hexBlocker(hexInput);
+        QSignalBlocker decBlocker(decInput);
+        hexInput->setText(QString::number(value, 16).toUpper());
+        decInput->setText(QString::number(value));
+    }
+    converterUpdating = false;
 }

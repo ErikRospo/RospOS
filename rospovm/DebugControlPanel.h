@@ -6,6 +6,7 @@
 #include <QLabel>
 #include <QSlider>
 #include <QSpinBox>
+#include <QLineEdit>
 
 class VMController;
 
@@ -36,6 +37,10 @@ signals:
 private:
     void createUI();
     void setupConnections();
+    void updateConverterFromHex(const QString &text);
+    void updateConverterFromDec(const QString &text);
+    void updateConverterFromBin(const QString &text);
+    void updateConverterFromAscii(const QString &text);
 
     VMController *vmController;
 
@@ -49,6 +54,11 @@ private:
     QLabel *speedValueLabel;
     QSpinBox *addressSpinBox;
     QLabel *breakpointLabel;
+    QLineEdit *hexInput;
+    QLineEdit *decInput;
+    QLineEdit *binInput;
+    QLineEdit *asciiInput;
+    bool converterUpdating = false;
 
     int currentSpeed = 50;
 };
