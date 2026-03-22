@@ -104,3 +104,15 @@ void Memory::loadBinary(const std::vector<char>& binary, uint32_t address)
     }
     std::copy(binary.begin(), binary.end(), mem.begin() + start);
 }
+
+bool Memory::isSpecialAddress(uint32_t address) const
+{
+    for (const auto &range : specialRanges)
+    {
+        if (range.contains(address))
+        {
+            return true;
+        }
+    }
+    return false;
+}

@@ -55,6 +55,9 @@ public:
     
     // Binary loading
     void loadBinary(const std::vector<char>& binary, uint32_t address);
+
+    // Returns true if the address belongs to a special/MMIO range.
+    bool isSpecialAddress(uint32_t address) const;
 };
 
 #endif // MEMORY_H

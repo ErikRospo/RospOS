@@ -71,6 +71,12 @@ void RospOSVM::recordMemoryDeltaForByte(uint32_t address)
         return;
     }
 
+    // MMIO/special ranges may have side effects or block on reads (e.g. TTY).
+    // Do not include them in reversible memory snapshots.
+    if (memory.isSpecialAddress(address)) {
+        return;
+    }
+
     for (const MemoryByteDelta &delta : currentSnapshot->memoryDeltas) {
         if (delta.address == address) {
             return;
