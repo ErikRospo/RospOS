@@ -29,13 +29,11 @@ def generate_immediate_loading(value, rd):
             op_byte = (op_byte << 16) | (low & 0xFFFF)
             file += op_byte.to_bytes(4, byteorder="big")
     else:
-        # Only low part
-        if low != 0:
-            op_byte = opcode_type_map["i"] << 4 | i_type_map["addi"]
-            op_byte = (op_byte << 4) | (rd & 0x0F)
-            op_byte = (op_byte << 4) | (0 & 0x0F)  # rs1 = 0
-            op_byte = (op_byte << 16) | (low & 0xFFFF)
-            file += op_byte.to_bytes(4, byteorder="big")
+        op_byte = opcode_type_map["i"] << 4 | i_type_map["addi"]
+        op_byte = (op_byte << 4) | (rd & 0x0F)
+        op_byte = (op_byte << 4) | (0 & 0x0F)  # rs1 = 0
+        op_byte = (op_byte << 16) | (low & 0xFFFF)
+        file += op_byte.to_bytes(4, byteorder="big")
     return file
 
 
