@@ -13,6 +13,7 @@ class RegisterView;
 class MemoryView;
 class VMDisplay;
 class LogView;
+class TTYWidget;
 
 class MainWindow : public QMainWindow
 {
@@ -50,6 +51,7 @@ private:
     RegisterView *registerView;
     MemoryView *memoryView;
     VMDisplay *displayWidget;
+    TTYWidget *ttyWidget;
     LogView *logView;
 
     // UI Controls

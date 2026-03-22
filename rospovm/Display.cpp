@@ -4,9 +4,6 @@
 #include <iostream>
 #include <algorithm>
 #include <QPainter>
-#include <QKeyEvent>
-#include "TTY.h"
-#include "Shutdown.h"
 
 // Add a static instance for the VMDisplay class
 static VMDisplay *displayInstance = nullptr;
@@ -115,6 +112,7 @@ VMDisplay::~VMDisplay()
 
 void VMDisplay::paintEvent(QPaintEvent *event)
 {
+    Q_UNUSED(event);
     std::lock_guard<std::mutex> lock(fbMutex);
 
     QPainter painter(this);
@@ -125,52 +123,4 @@ void VMDisplay::paintEvent(QPaintEvent *event)
     painter.drawImage(targetRect, displayImage);
 
     dirty.store(false);
-}
-
-void VMDisplay::keyPressEvent(QKeyEvent *event)
-{
-    if (event->isAutoRepeat())
-    {
-        event->ignore();
-        return;
-    }
-
-    int key = event->key();
-    QString text = event->text();
-
-    // Handle Ctrl+C
-    if (event->modifiers() & Qt::ControlModifier && key == Qt::Key_C)
-    {
-        requestShutdown();
-        event->accept();
-        return;
-    }
-
-    // Handle printable characters
-    if (!text.isEmpty())
-    {
-        for (QChar ch : text)
-        {
-            uint8_t byte = ch.toLatin1();
-            if (byte != 0)
-            {
-                TTYPush(byte);
-            }
-        }
-    }
-    // Handle special keys
-    else if (key == Qt::Key_Return || key == Qt::Key_Enter)
-    {
-        TTYPush('\n');
-    }
-    else if (key == Qt::Key_Backspace)
-    {
-        TTYPush('\b');
-    }
-    else if (key == Qt::Key_Tab)
-    {
-        TTYPush('\t');
-    }
-
-    event->accept();
 }

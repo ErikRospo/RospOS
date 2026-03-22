@@ -64,6 +64,8 @@ add_executable(rospovm_qt
     MemoryView.cpp
     LogView.h
     LogView.cpp
+    TTYWidget.h
+    TTYWidget.cpp
 )
 
 target_link_libraries(rospovm_qt PRIVATE

@@ -31,10 +31,13 @@ void Logger::log(LogLevel level, const QString &message)
     // Emit signal
     emit logAdded(fullMessage, level);
 
-    // Only output FATAL errors to stderr immediately
-    if (level == FATAL)
+    if (level >= ERROR)
     {
         std::cerr << fullMessage.toStdString() << std::endl;
+    }
+    else
+    {
+        std::cout << fullMessage.toStdString() << std::endl;
     }
 }
 

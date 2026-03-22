@@ -5,7 +5,8 @@
 #include "RegisterView.h"
 #include "MemoryView.h"
 #include "Display.h"
-#include "LogView.h"
+#include "TTYWidget.h"
+#include "TTY.h"
 
 #include <QVBoxLayout>
 #include <QHBoxLayout>
@@ -18,6 +19,7 @@
 #include <QGroupBox>
 #include <QLabel>
 #include <QMessageBox>
+#include <QMetaObject>
 #include <QTimer>
 #include <QScrollArea>
 
@@ -29,7 +31,7 @@ MainWindow::MainWindow(QWidget *parent)
       registerView(new RegisterView(this)),
       memoryView(new MemoryView(this)),
       displayWidget(new VMDisplay(this)),
-      logView(new LogView(this))
+      ttyWidget(new TTYWidget(this))
 {
     setWindowTitle("RospOS VM Debugger");
     setGeometry(100, 100, 1600, 1000);
@@ -41,7 +43,11 @@ MainWindow::MainWindow(QWidget *parent)
     setupConnections();
 }
 
-MainWindow::~MainWindow() = default;
+MainWindow::~MainWindow()
+{
+    TTYSetWriteCallback(nullptr);
+    TTYSetReadRequestCallback(nullptr);
+}
 
 void MainWindow::loadBinaryFile(const QString &filePath)
 {
@@ -120,14 +126,14 @@ void MainWindow::createCentralWidget()
     //     - Left: Debug control panel
     //     - Center: Code view (primary)
     //     - Right: Register, Memory, Display views
-    //   - Bottom: Log view
+    //   - Bottom: TTY view
 
     QWidget *centralWidget = new QWidget(this);
     QVBoxLayout *mainLayout = new QVBoxLayout(centralWidget);
     mainLayout->setContentsMargins(0, 0, 0, 0);
     mainLayout->setSpacing(0);
 
-    // Main vertical splitter (top content vs logs)
+    // Main vertical splitter (top content vs tty)
     QSplitter *verticalSplitter = new QSplitter(Qt::Vertical);
     verticalSplitter->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
@@ -156,6 +162,7 @@ void MainWindow::createCentralWidget()
     displayScrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
     displayScrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
     rightSidebar->addWidget(displayScrollArea);
+
     rightSidebar->setMaximumWidth(350);
     rightSidebar->setMinimumWidth(250);
     rightSidebar->setCollapsible(0, false);
@@ -175,12 +182,12 @@ void MainWindow::createCentralWidget()
     horizontalSplitter->setCollapsible(2, false);
 
     verticalSplitter->addWidget(horizontalSplitter);
-    verticalSplitter->addWidget(logView);
-    logView->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    verticalSplitter->addWidget(ttyWidget);
+    ttyWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     // DON'T call setSizes() before widget is shown - let stretch factors handle initial layout
     // Configure vertical splitter stretch factors for smooth resizing
     verticalSplitter->setStretchFactor(0, 4);  // Main content: flexible (4x weight)
-    verticalSplitter->setStretchFactor(1, 1);  // Log view: flexible (1x weight)
+    verticalSplitter->setStretchFactor(1, 1);  // tty view: flexible (1x weight)
     verticalSplitter->setCollapsible(0, false);
     verticalSplitter->setCollapsible(1, false);
 
@@ -203,6 +210,18 @@ void MainWindow::createStatusBar()
 
 void MainWindow::setupConnections()
 {
+    TTYSetWriteCallback([this](uint8_t value) {
+        QMetaObject::invokeMethod(ttyWidget, [this, value]() {
+            ttyWidget->appendOutputByte(value);
+        }, Qt::QueuedConnection);
+    });
+
+    TTYSetReadRequestCallback([this]() {
+        QMetaObject::invokeMethod(ttyWidget, [this]() {
+            ttyWidget->requestInputFocusHighlight();
+        }, Qt::QueuedConnection);
+    });
+
     // Connect VM controller signals to main window
     connect(vmController.get(), &VMController::stateChanged, this, &MainWindow::onVMStateChanged);
     connect(vmController.get(), &VMController::error, this, &MainWindow::onVMError);

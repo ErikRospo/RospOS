@@ -1,13 +1,8 @@
 #ifndef TTY_H
 #define TTY_H
 
-#include "Memory.h"
-
 #include <cstdint>
-#include <vector>
-#include <stdexcept>
-#include <iostream>
-#include <stdio.h>
+#include <functional>
 
 uint8_t TTYReadHandler(uint32_t address);
 void TTYWriteHandler(uint32_t address, uint8_t value);
@@ -15,8 +10,11 @@ void TTYWriteHandler(uint32_t address, uint8_t value);
 // Push a byte into the TTY input queue (thread-safe)
 void TTYPush(uint8_t value);
 
-// Start/stop the TTY background reader thread. Call `TTYStart()` before
-// running the VM's main loop and `TTYShutdown()` during shutdown.
+// UI callbacks for VM-driven TTY events.
+void TTYSetWriteCallback(const std::function<void(uint8_t)> &callback);
+void TTYSetReadRequestCallback(const std::function<void()> &callback);
+
+// Lifecycle hooks kept for compatibility with existing callers.
 void TTYStart();
 void TTYShutdown();
 

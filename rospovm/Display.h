@@ -46,7 +46,6 @@ public:
 
 protected:
     void paintEvent(QPaintEvent *event) override;
-    void keyPressEvent(QKeyEvent *event) override;
     QSize sizeHint() const override { return QSize(SCALED_WIDTH, SCALED_HEIGHT); }
     QSize minimumSizeHint() const override { return QSize(SCALED_WIDTH, SCALED_HEIGHT); }
 };

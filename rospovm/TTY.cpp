@@ -1,99 +1,82 @@
-#include "Memory.h"
-
-#include <cstdint>
-#include <vector>
-#include <stdexcept>
-#include <iostream>
-#include <stdio.h>
-#include <termios.h>
-#include <unistd.h>
-
-#include <queue>
-#include <mutex>
-#include <condition_variable>
-#include <thread>
 #include "TTY.h"
+
 #include "Shutdown.h"
-#include <fcntl.h>
-#include <errno.h>
 
-static std::atomic<bool> backgroundReaderRunning{false};
-static std::thread backgroundReaderThread;
+#include <QCoreApplication>
+#include <QEventLoop>
+#include <QThread>
 
+#include <chrono>
+#include <condition_variable>
+#include <mutex>
+#include <queue>
+#include <thread>
+
+namespace {
 std::queue<uint8_t> inputBuffer;
 std::mutex bufferMutex;
 std::condition_variable bufferCondition;
 
-void BackgroundReader()
-{
-    struct termios oldt, newt;
-    tcgetattr(STDIN_FILENO, &oldt); // Get current terminal settings
-    newt = oldt;
-    newt.c_lflag &= ~(ECHO | ICANON);        // Disable echo and canonical mode
-    tcsetattr(STDIN_FILENO, TCSANOW, &newt); // Apply new settings
-    // set non-blocking mode so we can exit promptly
-    int flags = fcntl(STDIN_FILENO, F_GETFL, 0);
-    fcntl(STDIN_FILENO, F_SETFL, flags | O_NONBLOCK);
-
-    while (backgroundReaderRunning.load() && !shouldShutdown())
-    {
-        char ch;
-        ssize_t n = read(STDIN_FILENO, &ch, 1);
-        if (n > 0)
-        {
-            {
-                std::lock_guard<std::mutex> lock(bufferMutex);
-                inputBuffer.push(static_cast<uint8_t>(ch));
-            }
-            bufferCondition.notify_one();
-        }
-        else
-        {
-            if (n == -1 && errno != EAGAIN && errno != EWOULDBLOCK)
-            {
-                // unexpected error, break out
-                break;
-            }
-            // Sleep briefly to avoid busy loop
-            std::this_thread::sleep_for(std::chrono::milliseconds(10));
-        }
-    }
-
-    // Restore terminal settings
-    tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
+std::mutex callbackMutex;
+std::function<void(uint8_t)> writeCallback;
+std::function<void()> readRequestCallback;
 }
 
 uint8_t TTYReadHandler(uint32_t address)
 {
-    (void)address; // Mark the parameter as unused to silence warnings
+    (void)address;
+
+    {
+        std::lock_guard<std::mutex> callbackLock(callbackMutex);
+        if (readRequestCallback)
+        {
+            readRequestCallback();
+        }
+    }
 
     std::unique_lock<std::mutex> lock(bufferMutex);
-    // Wait with timeout so we can periodically check for shutdown.
     while (inputBuffer.empty() && !shouldShutdown())
     {
-        bufferCondition.wait_for(lock, std::chrono::milliseconds(50));
+        if (QCoreApplication::instance() &&
+            QThread::currentThread() == QCoreApplication::instance()->thread())
+        {
+            lock.unlock();
+            QCoreApplication::processEvents(QEventLoop::AllEvents, 10);
+            std::this_thread::sleep_for(std::chrono::milliseconds(10));
+            lock.lock();
+        }
+        else
+        {
+            bufferCondition.wait_for(lock, std::chrono::milliseconds(50));
+        }
     }
 
     if (inputBuffer.empty())
     {
-        // Shutdown requested (or spurious wake) and no data available.
         return 0;
     }
 
-    uint8_t value = inputBuffer.front();
+    const uint8_t value = inputBuffer.front();
     inputBuffer.pop();
     return value;
 }
 
 void TTYWriteHandler(uint32_t address, uint8_t value)
 {
-    (void)address; // Mark the parameter as unused to silence warnings
-    // Write to TTY (console output)
-    std::cout << static_cast<char>(value);
-    std::cout.flush();
+    (void)address;
+
+    std::function<void(uint8_t)> callbackCopy;
+    {
+        std::lock_guard<std::mutex> callbackLock(callbackMutex);
+        callbackCopy = writeCallback;
+    }
+
+    if (callbackCopy)
+    {
+        callbackCopy(value);
+    }
 }
 
-// Start the background reader thread
 void TTYPush(uint8_t value)
 {
     {
@@ -103,21 +86,36 @@ void TTYPush(uint8_t value)
     bufferCondition.notify_one();
 }
 
+void TTYSetWriteCallback(const std::function<void(uint8_t)> &callback)
+{
+    std::lock_guard<std::mutex> callbackLock(callbackMutex);
+    writeCallback = callback;
+}
+
+void TTYSetReadRequestCallback(const std::function<void()> &callback)
+{
+    std::lock_guard<std::mutex> callbackLock(callbackMutex);
+    readRequestCallback = callback;
+}
+
 void TTYStart()
 {
-    if (backgroundReaderRunning.load())
-        return;
-    backgroundReaderRunning.store(true);
-    backgroundReaderThread = std::thread(BackgroundReader);
+    // No-op: input is supplied by the Qt TTY widget.
 }
 
 void TTYShutdown()
 {
-    backgroundReaderRunning.store(false);
-    // wake reader if blocked on condition
-    bufferCondition.notify_all();
-    if (backgroundReaderThread.joinable())
     {
-        backgroundReaderThread.join();
+        std::lock_guard<std::mutex> lock(bufferMutex);
+        std::queue<uint8_t> empty;
+        inputBuffer.swap(empty);
     }
+
+    {
+        std::lock_guard<std::mutex> callbackLock(callbackMutex);
+        writeCallback = nullptr;
+        readRequestCallback = nullptr;
+    }
+
+    bufferCondition.notify_all();
 }
