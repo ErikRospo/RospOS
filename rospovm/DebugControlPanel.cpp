@@ -198,6 +198,7 @@ void DebugControlPanel::setupConnections()
     connect(hexInput, &QLineEdit::textChanged, this, &DebugControlPanel::updateConverterFromHex);
     connect(decInput, &QLineEdit::textChanged, this, &DebugControlPanel::updateConverterFromDec);
     connect(binInput, &QLineEdit::textChanged, this, &DebugControlPanel::updateConverterFromBin);
+    connect(asciiInput, &QLineEdit::textChanged, this, &DebugControlPanel::updateConverterFromAscii);
 }
 
 void DebugControlPanel::setVMController(VMController *controller)
@@ -257,8 +258,10 @@ void DebugControlPanel::updateConverterFromHex(const QString &text)
     {
         QSignalBlocker decBlocker(decInput);
         QSignalBlocker binBlocker(binInput);
+        QSignalBlocker asciiBlocker(asciiInput);
         decInput->setText(QString::number(value));
         binInput->setText(QString::number(value, 2));
+        asciiInput->setText(QString::fromUtf8(reinterpret_cast<const char*>(&value), 4));
     }
     converterUpdating = false;
 }
@@ -280,8 +283,10 @@ void DebugControlPanel::updateConverterFromDec(const QString &text)
     {
         QSignalBlocker hexBlocker(hexInput);
         QSignalBlocker binBlocker(binInput);
+        QSignalBlocker asciiBlocker(asciiInput);
         hexInput->setText(QString::number(value, 16).toUpper());
         binInput->setText(QString::number(value, 2));
+        asciiInput->setText(QString::fromUtf8(reinterpret_cast<const char*>(&value), 4));
     }
     converterUpdating = false;
 }
@@ -313,8 +318,38 @@ void DebugControlPanel::updateConverterFromBin(const QString &text)
     {
         QSignalBlocker hexBlocker(hexInput);
         QSignalBlocker decBlocker(decInput);
+        QSignalBlocker asciiBlocker(asciiInput);
         hexInput->setText(QString::number(value, 16).toUpper());
         decInput->setText(QString::number(value));
+        asciiInput->setText(QString::fromUtf8(reinterpret_cast<const char*>(&value), 4));
+    }
+    converterUpdating = false;
+}
+
+void DebugControlPanel::updateConverterFromAscii(const QString &text)
+{
+    if (converterUpdating) {
+        return;
+    }
+
+    if (text.isEmpty()) {
+        return;
+    }
+
+    const QByteArray asciiBytes = text.toUtf8();
+    uint32_t value = 0;
+    for (int i = 0; i < asciiBytes.size() && i < 4; ++i) {
+        value |= static_cast<uint32_t>(asciiBytes[i]) << ((3 - i) * 8);
+    }
+
+    converterUpdating = true;
+    {
+        QSignalBlocker hexBlocker(hexInput);
+        QSignalBlocker decBlocker(decInput);
+        QSignalBlocker binBlocker(binInput);
+        hexInput->setText(QString::number(value, 16).toUpper());
+        decInput->setText(QString::number(value));
+        binInput->setText(QString::number(value, 2));
     }
     converterUpdating = false;
 }
