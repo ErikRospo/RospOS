@@ -5,6 +5,9 @@ Branches that have a register and a constant should be pseudo-op'd to be a LLI, 
 
 
 ## Ideas:
+
+Maybe replace/integrate editor with https://github.com/KDE/syntax-highlighting for better syntax highlighting. This would also allow us to leverage the existing C syntax highlighting, which would be beneficial since rosc is a subset of C.
+
 Evaluate simple constant expressions at compile time, esp for LLI. (e.g. 256-8 should be evaluated to 248 at compile time)
 
 ## Optimizations

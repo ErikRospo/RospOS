@@ -7,6 +7,7 @@
 #include <QTextDocument>
 #include <QRegularExpression>
 #include <QMap>
+#include <QStringList>
 #include <cstdint>
 
 class VMController;
@@ -62,16 +63,23 @@ private:
     void populateCode();
     void drawJumpVisualization();
     void centerOnPC();
+    void updateSourcePanel(uint32_t address);
+    void loadSourceFile(const QString &sourceFilePath);
+    void highlightSourceLine(uint32_t oneBasedLine);
 
     VMController *vmController;
     QPlainTextEdit *codeDisplay;
     QPlainTextEdit *sourceInfoDisplay;  // Display for source location info
+    QPlainTextEdit *sourceCodeDisplay;
     AssemblySyntaxHighlighter *highlighter;
     
     uint32_t codeStartAddress;
     uint32_t codeEndAddress;
     uint32_t currentPC = 0;
     uint32_t lastDisplayedPC = 0;  // Track if PC changed significantly
+
+    QString currentSourceFilePath;
+    QMap<QString, QStringList> sourceFileCache;
     
     QMap<uint32_t, int> addressToLine;  // Maps code address to line number
 

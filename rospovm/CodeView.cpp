@@ -9,6 +9,10 @@
 #include <QTextBlock>
 #include <QBrush>
 #include <QColor>
+#include <QFile>
+#include <QFileInfo>
+#include <QSplitter>
+#include <QTextStream>
 
 namespace
 {
@@ -37,9 +41,12 @@ const QRegularExpression kCommentRegex(QStringLiteral(";.*"));
 
 const QString kCodeDisplayStylesheet =
     QStringLiteral("QPlainTextEdit { background-color: #1e1e1e; color: #d4d4d4; }");
+const QString kSourceDisplayStylesheet =
+    QStringLiteral("QPlainTextEdit { background-color: #161616; color: #e6e6e6; }");
 constexpr int kHexFieldWidth = 8;
 constexpr int kHexBase = 16;
 constexpr int kCodeFontSize = 10;
+const QColor kCurrentSourceLineHighlightColor(35, 72, 128);
 }
 
 // AssemblySyntaxHighlighter implementation
@@ -191,6 +198,9 @@ void CodeView::createUI()
     sourceInfoDisplay->setStyleSheet(kCodeDisplayStylesheet);
     layout->addWidget(sourceInfoDisplay);
 
+    QSplitter *centerSplitter = new QSplitter(Qt::Horizontal, this);
+    centerSplitter->setChildrenCollapsible(false);
+
     codeDisplay = new QPlainTextEdit();
     codeDisplay->setReadOnly(true);
 
@@ -205,7 +215,19 @@ void CodeView::createUI()
     // Dark theme
     codeDisplay->setStyleSheet(kCodeDisplayStylesheet);
 
-    layout->addWidget(codeDisplay);
+    sourceCodeDisplay = new QPlainTextEdit();
+    sourceCodeDisplay->setReadOnly(true);
+    sourceCodeDisplay->setFont(monoFont);
+    sourceCodeDisplay->setStyleSheet(kSourceDisplayStylesheet);
+    sourceCodeDisplay->setPlaceholderText("Source file for current instruction will appear here");
+
+    centerSplitter->addWidget(codeDisplay);
+    centerSplitter->addWidget(sourceCodeDisplay);
+    centerSplitter->setStretchFactor(0, 1);
+    centerSplitter->setStretchFactor(1, 1);
+    centerSplitter->setSizes({1, 1});
+
+    layout->addWidget(centerSplitter);
     setLayout(layout);
 
     // Initialize code range - will be updated based on PC
@@ -264,6 +286,7 @@ void CodeView::refresh()
         .arg(sourceLocation)
         .arg(originalInstruction.isEmpty() ? "<no debug info>" : originalInstruction);
     sourceInfoDisplay->setPlainText(sourceInfo);
+    updateSourcePanel(newPC);
 }
 
 void CodeView::populateCode()
@@ -308,12 +331,10 @@ void CodeView::populateCode()
             : "";
 
         // Format: Address | Bytes | Instruction | Source Location
-        QString line = QString("0x%1  %2I  %3%4\n")
+        QString line = QString("0x%1  %2I  %3\n")
                            .arg(addr, kHexFieldWidth, kHexBase, QChar('0'))
                            .arg(instruction, kHexFieldWidth, kHexBase, QChar('0'))
-                           .arg(vmController->disassembleInstruction(instruction))
-                           .arg(sourceComment);
-
+                           .arg(vmController->disassembleInstruction(instruction));
         codeText += line;
         lineNum++;
     }
@@ -355,6 +376,85 @@ void CodeView::highlightCurrentInstruction()
         codeDisplay->setTextCursor(centralCursor);
         codeDisplay->ensureCursorVisible();
     }
+    else
+    {
+        codeDisplay->setExtraSelections({});
+    }
+}
+
+void CodeView::updateSourcePanel(uint32_t address)
+{
+    if (!vmController) {
+        return;
+    }
+
+    QString sourceFilePath;
+    uint32_t sourceLine = 0;
+    if (!vmController->getSourceReference(address, sourceFilePath, sourceLine)) {
+        sourceCodeDisplay->setExtraSelections({});
+        if (sourceCodeDisplay->toPlainText().isEmpty() || !currentSourceFilePath.isEmpty()) {
+            currentSourceFilePath.clear();
+            sourceCodeDisplay->setPlainText("No source mapping available for the current instruction.");
+        }
+        return;
+    }
+
+    if (sourceFilePath != currentSourceFilePath) {
+        loadSourceFile(sourceFilePath);
+    }
+
+    highlightSourceLine(sourceLine);
+}
+
+void CodeView::loadSourceFile(const QString &sourceFilePath)
+{
+    if (!sourceFileCache.contains(sourceFilePath)) {
+        QFile sourceFile(sourceFilePath);
+        if (!sourceFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
+            currentSourceFilePath = sourceFilePath;
+            sourceCodeDisplay->setPlainText(
+                QString("Unable to open source file:\n%1").arg(QFileInfo(sourceFilePath).absoluteFilePath()));
+            sourceCodeDisplay->setExtraSelections({});
+            return;
+        }
+
+        QTextStream stream(&sourceFile);
+        QStringList lines;
+        while (!stream.atEnd()) {
+            lines.append(stream.readLine());
+        }
+        sourceFileCache.insert(sourceFilePath, lines);
+    }
+
+    currentSourceFilePath = sourceFilePath;
+    sourceCodeDisplay->setPlainText(sourceFileCache.value(sourceFilePath).join("\n"));
+}
+
+void CodeView::highlightSourceLine(uint32_t oneBasedLine)
+{
+    if (oneBasedLine == 0) {
+        sourceCodeDisplay->setExtraSelections({});
+        return;
+    }
+
+    int zeroBasedLine = static_cast<int>(oneBasedLine - 1);
+    QTextBlock block = sourceCodeDisplay->document()->findBlockByLineNumber(zeroBasedLine);
+    if (!block.isValid()) {
+        sourceCodeDisplay->setExtraSelections({});
+        return;
+    }
+
+    QTextCursor cursor(block);
+    cursor.select(QTextCursor::LineUnderCursor);
+
+    QTextEdit::ExtraSelection selection;
+    selection.cursor = cursor;
+    selection.format.setBackground(kCurrentSourceLineHighlightColor);
+    selection.format.setProperty(QTextFormat::FullWidthSelection, true);
+    sourceCodeDisplay->setExtraSelections({selection});
+
+    sourceCodeDisplay->setTextCursor(cursor);
+    sourceCodeDisplay->ensureCursorVisible();
 }
 
 void CodeView::centerOnPC()

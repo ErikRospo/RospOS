@@ -6,15 +6,15 @@ DOCS := Design.md Ideas.md Log.md
 # Build directories
 DIR_ROSPOS_BUILD := rospos/build
 DIR_DOCS_BUILD := build
-ROSPOAS_ARGS:= --optimize --bin-version 2 --rospocc-mapping --segment-debug
-ROSPOAS_DEP:= $(shell find ./rospoas -maxdepth 1 -type f)
-ROSPCC_DEP:= $(shell find ./rospocc -maxdepth 1 -type f)  $(shell find ./rospocc/lib -maxdepth 1 -type f) 
+ROSPOAS_ARGS := --optimize --bin-version 2 --rospocc-mapping --segment-debug
+ROSPOAS_DEP := $(shell find ./rospoas -maxdepth 1 -type f)
+ROSPCC_DEP := $(shell find ./rospocc -maxdepth 1 -type f)  $(shell find ./rospocc/lib -maxdepth 1 -type f) 
 # Ensure build directory exists (order-only dependency)
 
 HTMLDOCS := $(DOCS:.md=.html)
 PDFDOCS := $(DOCS:.md=.pdf)
 
-.PHONY: all bm parse compile dump build clean doc format frontend frontend_cmake
+.PHONY: all bm parse compile dump build clean doc format frontend frontend_cmake run
 
 all: build
 
@@ -68,6 +68,8 @@ compile: rospos/build/rospos.rosp rospos/build/rospos_debc.rosp rospos/build/ros
 frontend_cmake: rospovm/build/Makefile
 frontend: rospovm/build/rospovm_qt
 
+run: rospos/build/rospos.rosp | rospovm/build/rospovm_qt
+	rospovm/build/rospovm_qt $<
 dump: rospos/build/rospos.rosp
 	$(HEXDUMP) $< 1>&2
 build: bm parse compile frontend_cmake frontend

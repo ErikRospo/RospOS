@@ -56,6 +56,15 @@ public:
      */
     QString getSourceLocation(uint32_t address) const;
 
+    /**
+     * Resolve an address to source file path and 1-based source line.
+     * @param address The memory address
+     * @param filePath Output source path
+     * @param line Output 1-based source line
+     * @return true when source metadata exists
+     */
+    bool getSourceReference(uint32_t address, QString &filePath, uint32_t &line) const;
+
     bool isRunning() const { return running; }
 
 signals:

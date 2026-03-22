@@ -144,3 +144,28 @@ QString VMController::getSourceLocation(uint32_t address) const
     std::string location = vm->formatSourceLocation(address);
     return QString::fromStdString(location);
 }
+
+bool VMController::getSourceReference(uint32_t address, QString &filePath, uint32_t &line) const
+{
+    const DebugEntry *entry = vm->getDebugInfo(address);
+    if (!entry) {
+        return false;
+    }
+
+    std::shared_ptr<Binary> loadedBinary = vm->getLoadedBinary();
+    if (!loadedBinary || loadedBinary->debug_map.empty()) {
+        return false;
+    }
+
+    for (const auto &debugPair : loadedBinary->debug_map) {
+        const auto &debugInfo = debugPair.second;
+        auto fileIt = debugInfo->file_table.find(entry->file_id);
+        if (fileIt != debugInfo->file_table.end()) {
+            filePath = QString::fromStdString(fileIt->second);
+            line = entry->line;
+            return true;
+        }
+    }
+
+    return false;
+}
