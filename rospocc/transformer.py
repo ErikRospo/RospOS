@@ -124,6 +124,12 @@ def transform_to_translation_unit(input_data: Tree) -> dict:
                     return r
         return None
 
+    def _node_name(value):
+        """Normalize AST node names that may arrive as Lark Tokens."""
+        if isinstance(value, Token):
+            return str(value)
+        return value
+
     # Main conversion functions (walk AST and produce translation unit)
     str_pool = {}
     str_count = 0
@@ -150,7 +156,7 @@ def transform_to_translation_unit(input_data: Tree) -> dict:
                     print("type_specifier children:", c.get("children", []))
                     for d in c.get("children", []):
                         if isinstance(d, dict) and "node" in d:
-                            return_type = d["node"]
+                            return_type = _node_name(d["node"])
                 if isinstance(c, dict) and c.get("node") == "declarator":
                     ident = _find_identifier(c)
                     if ident:
@@ -160,6 +166,7 @@ def transform_to_translation_unit(input_data: Tree) -> dict:
                         if isinstance(p, dict) and p.get("node") == "param":
                             pname = None
                             ptype = None
+                            pointer_seen = False
 
                             # Extract parameter name from declarator
                             for pp in p.get("children", []):
@@ -184,9 +191,10 @@ def transform_to_translation_unit(input_data: Tree) -> dict:
                                         for dc in pp.get("children", []):
                                             if (
                                                 isinstance(dc, dict)
-                                                and dc.get("node") == "pointer"
+                                                and _node_name(dc.get("node"))
+                                                == "pointer"
                                             ):
-                                                ptype = "ptr"  # Mark as pointer for now
+                                                pointer_seen = True
                                                 break
 
                             # Extract parameter type from type_specifier
@@ -196,37 +204,34 @@ def transform_to_translation_unit(input_data: Tree) -> dict:
                                     and tchild.get("node") == "type_specifier"
                                 ):
                                     # Get the base type
+                                    base_type = None
                                     for pc in tchild.get("children", []):
                                         if isinstance(pc, dict):
                                             if "node" in pc:
-                                                base_type = pc["node"]
-                                                # If it's a pointer, combine with base type
-                                                if ptype == "ptr":
-                                                    if base_type == "char":
-                                                        ptype = "char_ptr"
-                                                    elif base_type == "int":
-                                                        ptype = "int_ptr"
-                                                    else:
-                                                        ptype = f"{base_type}_ptr"
-                                                else:
-                                                    ptype = base_type
+                                                node_val = _node_name(pc["node"])
+                                                if node_val == "pointer":
+                                                    pointer_seen = True
+                                                elif isinstance(node_val, str):
+                                                    base_type = node_val
                                             elif (
                                                 "token" in pc
                                                 and pc["token"].isidentifier()
                                             ):
                                                 # Custom type (e.g., struct name)
                                                 base_type = pc["token"]
-                                                if ptype == "ptr":
-                                                    ptype = f"{base_type}_ptr"
-                                                else:
-                                                    ptype = base_type
-                                        # Also check for pointer in type_specifier
-                                        if (
-                                            isinstance(pc, dict)
-                                            and pc.get("node") == "pointer"
-                                            and ptype is None
-                                        ):
-                                            ptype = "ptr"
+
+                                    if base_type is not None:
+                                        if pointer_seen:
+                                            if base_type == "char":
+                                                ptype = "char_ptr"
+                                            elif base_type == "int":
+                                                ptype = "int_ptr"
+                                            else:
+                                                ptype = f"{base_type}_ptr"
+                                        else:
+                                            ptype = base_type
+                                    elif pointer_seen:
+                                        ptype = "pointer"
 
                             # Add parameter with type
                             if pname:
