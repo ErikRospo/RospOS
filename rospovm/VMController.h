@@ -21,9 +21,11 @@ public:
 
     // Execution control
     void step();
+    void stepBackward();
     void run();
     void pause();
     void reset();
+    bool canStepBackward() const;
 
     // State queries
     uint32_t getProgramCounter() const;

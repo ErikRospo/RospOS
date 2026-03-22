@@ -41,6 +41,21 @@ void VMController::step()
     }
 }
 
+void VMController::stepBackward()
+{
+    try {
+        if (!vm->stepBackward()) {
+            emit error("No previous VM state available.");
+            return;
+        }
+        emit stateChanged();
+    } catch (const std::exception &e) {
+        emit error(QString("Reverse execution error: %1").arg(e.what()));
+        emit executionStopped();
+        running = false;
+    }
+}
+
 void VMController::run()
 {
     running = true;
@@ -61,6 +76,11 @@ void VMController::reset()
     running = false;
     emit stateChanged();
     emit executionStopped();
+}
+
+bool VMController::canStepBackward() const
+{
+    return vm->canStepBackward();
 }
 
 uint32_t VMController::getProgramCounter() const

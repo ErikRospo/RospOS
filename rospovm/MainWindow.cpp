@@ -73,6 +73,10 @@ void MainWindow::createMenuBar()
     stepAction->setShortcut(Qt::Key_F10);
     connect(stepAction, &QAction::triggered, this, &MainWindow::onStep);
 
+    QAction *stepBackAction = debugMenu->addAction(tr("Step &Back"));
+    stepBackAction->setShortcut(QKeySequence(Qt::SHIFT | Qt::Key_F10));
+    connect(stepBackAction, &QAction::triggered, this, &MainWindow::onStepBack);
+
     QAction *runAction = debugMenu->addAction(tr("&Run"));
     runAction->setShortcut(Qt::Key_F5);
     connect(runAction, &QAction::triggered, this, &MainWindow::onRun);
@@ -213,6 +217,7 @@ void MainWindow::setupConnections()
 
     // Connect debug panel signals
     connect(debugPanel, &DebugControlPanel::stepClicked, this, &MainWindow::onStep);
+    connect(debugPanel, &DebugControlPanel::stepBackClicked, this, &MainWindow::onStepBack);
     connect(debugPanel, &DebugControlPanel::runClicked, this, &MainWindow::onRun);
     connect(debugPanel, &DebugControlPanel::pauseClicked, this, &MainWindow::onPause);
     connect(debugPanel, &DebugControlPanel::resetClicked, this, &MainWindow::onReset);
@@ -238,6 +243,11 @@ void MainWindow::onLoadFile()
 void MainWindow::onStep()
 {
     vmController->step();
+}
+
+void MainWindow::onStepBack()
+{
+    vmController->stepBackward();
 }
 
 void MainWindow::onRun()
@@ -267,6 +277,7 @@ void MainWindow::onVMStateChanged()
     // Update debug panel
     uint32_t pc = vmController->getProgramCounter();
     debugPanel->setPCLabel(pc);
+    debugPanel->setStepBackEnabled(vmController->canStepBackward());
 }
 
 void MainWindow::onVMError(const QString &message)
@@ -280,6 +291,7 @@ void MainWindow::onExecutionStarted()
     statusLabel->setText(tr("Status: Running..."));
     debugPanel->setStatus("Running");
     debugPanel->setStepEnabled(false);
+    debugPanel->setStepBackEnabled(false);
     debugPanel->setRunEnabled(false);
     debugPanel->setPauseEnabled(true);
 }
@@ -289,6 +301,7 @@ void MainWindow::onExecutionStopped()
     statusLabel->setText(tr("Status: Stopped"));
     debugPanel->setStatus("Stopped");
     debugPanel->setStepEnabled(true);
+    debugPanel->setStepBackEnabled(vmController->canStepBackward());
     debugPanel->setRunEnabled(true);
     debugPanel->setPauseEnabled(false);
     onVMStateChanged();

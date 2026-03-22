@@ -331,7 +331,7 @@ void CodeView::populateCode()
             : "";
 
         // Format: Address | Bytes | Instruction | Source Location
-        QString line = QString("0x%1  %2I  %3\n")
+        QString line = QString("0x%1  %2  %3\n")
                            .arg(addr, kHexFieldWidth, kHexBase, QChar('0'))
                            .arg(instruction, kHexFieldWidth, kHexBase, QChar('0'))
                            .arg(vmController->disassembleInstruction(instruction));

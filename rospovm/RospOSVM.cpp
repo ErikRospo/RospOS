@@ -6,6 +6,7 @@
 #include <iostream>
 #include <sstream>
 #include <stdexcept>
+#include <utility>
 #include <QString>
 
 #include "Display.h"
@@ -35,13 +36,98 @@ RospOSVM::RospOSVM(bool debugMode)
                            VMDisplay::displayReadHandler, VMDisplay::displayWriteHandler);
 }
 
+void RospOSVM::beginStateCapture()
+{
+    currentSnapshot = std::make_unique<VMStateSnapshot>();
+    currentSnapshot->pc = pc;
+    for (int i = 0; i < 16; ++i) {
+        currentSnapshot->registers[static_cast<size_t>(i)] = regFile[i].get();
+    }
+}
+
+void RospOSVM::commitStateCapture()
+{
+    if (!currentSnapshot) {
+        return;
+    }
+
+    stateHistory.push_back(std::move(*currentSnapshot));
+    currentSnapshot.reset();
+
+    while (stateHistory.size() > kMaxStateHistory) {
+        stateHistory.pop_front();
+    }
+}
+
+void RospOSVM::clearStateHistory()
+{
+    stateHistory.clear();
+    currentSnapshot.reset();
+}
+
+void RospOSVM::recordMemoryDeltaForByte(uint32_t address)
+{
+    if (!currentSnapshot || applyingHistory) {
+        return;
+    }
+
+    for (const MemoryByteDelta &delta : currentSnapshot->memoryDeltas) {
+        if (delta.address == address) {
+            return;
+        }
+    }
+
+    uint8_t previousValue = 0;
+    try {
+        previousValue = memory.readByte(address);
+    } catch (const std::exception &) {
+        // Non-readable regions cannot be reliably restored.
+        return;
+    }
+
+    currentSnapshot->memoryDeltas.push_back({address, previousValue});
+}
+
+void RospOSVM::writeMemoryTrackedByte(uint32_t address, uint8_t value)
+{
+    recordMemoryDeltaForByte(address);
+    memory.writeByte(address, value);
+}
+
+void RospOSVM::writeMemoryTrackedHalf(uint32_t address, uint16_t value)
+{
+    writeMemoryTrackedByte(address, static_cast<uint8_t>((value >> 8) & 0xFF));
+    writeMemoryTrackedByte(address + 1, static_cast<uint8_t>(value & 0xFF));
+}
+
+void RospOSVM::writeMemoryTrackedWord(uint32_t address, uint32_t value)
+{
+    writeMemoryTrackedByte(address, static_cast<uint8_t>((value >> 24) & 0xFF));
+    writeMemoryTrackedByte(address + 1, static_cast<uint8_t>((value >> 16) & 0xFF));
+    writeMemoryTrackedByte(address + 2, static_cast<uint8_t>((value >> 8) & 0xFF));
+    writeMemoryTrackedByte(address + 3, static_cast<uint8_t>(value & 0xFF));
+}
+
+void RospOSVM::writeMemory(uint32_t address, uint32_t value)
+{
+    writeMemoryTrackedWord(address, value);
+}
+
+void RospOSVM::writeMemoryByte(uint32_t address, uint8_t value)
+{
+    writeMemoryTrackedByte(address, value);
+}
+
 void RospOSVM::loadBinaryAtAddress(const std::vector<char> &binary, uint32_t address)
 {
+    clearStateHistory();
     memory.loadBinary(binary, address);
 }
 
 void RospOSVM::loadBinaryFromFile(const std::string& filename)
 {
+    clearStateHistory();
+
     // Load the binary file using Binary::load_binary
     try {
         loadedBinary = std::make_shared<Binary>();
@@ -113,26 +199,64 @@ std::string RospOSVM::getOriginalInstruction(uint32_t address) const
 
 void RospOSVM::step()
 {
-    uint32_t instruction = memory.readWord(pc);
+    beginStateCapture();
+    try {
+        uint32_t instruction = memory.readWord(pc);
+        if (debugMode)
+        {
+            std::ostringstream oss;
+            oss << "PC: " << std::hex << pc << std::dec << " ";
+            oss << "I: " << decodeInstruction(instruction, regFile) << "\n";
+            oss << "RI: " << std::hex << std::setw(8) << std::setfill('0') << instruction << std::dec << "\n";
+            oss << "Registers: " << getRegisterState();
+            Logger::instance().debug(QString::fromStdString(oss.str()));
+        }
+        executeInstruction(instruction);
+        commitStateCapture();
+        if (debugMode)
+        {
+            std::ostringstream oss;
+            oss << "After Execution:\n";
+            oss << "PC: " << std::hex << pc << std::dec << "\n";
+            oss << "Registers: " << getRegisterState() << "\n";
+            oss << "----------------------------------------";
+            Logger::instance().debug(QString::fromStdString(oss.str()));
+        }
+    } catch (...) {
+        currentSnapshot.reset();
+        throw;
+    }
+}
+
+bool RospOSVM::stepBackward()
+{
+    if (stateHistory.empty()) {
+        return false;
+    }
+
+    const VMStateSnapshot snapshot = std::move(stateHistory.back());
+    stateHistory.pop_back();
+
+    applyingHistory = true;
+    for (auto it = snapshot.memoryDeltas.rbegin(); it != snapshot.memoryDeltas.rend(); ++it) {
+        memory.writeByte(it->address, it->previousValue);
+    }
+    applyingHistory = false;
+
+    pc = snapshot.pc;
+    for (int i = 1; i < 16; ++i) {
+        regFile[i].set(snapshot.registers[static_cast<size_t>(i)]);
+    }
+
     if (debugMode)
     {
         std::ostringstream oss;
-        oss << "PC: " << std::hex << pc << std::dec << " ";
-        oss << "I: " << decodeInstruction(instruction, regFile) << "\n";
-        oss << "RI: " << std::hex << std::setw(8) << std::setfill('0') << instruction << std::dec << "\n";
+        oss << "Step back applied. PC: " << std::hex << pc << std::dec << "\n";
         oss << "Registers: " << getRegisterState();
         Logger::instance().debug(QString::fromStdString(oss.str()));
     }
-    executeInstruction(instruction);
-    if (debugMode)
-    {
-        std::ostringstream oss;
-        oss << "After Execution:\n";
-        oss << "PC: " << std::hex << pc << std::dec << "\n";
-        oss << "Registers: " << getRegisterState() << "\n";
-        oss << "----------------------------------------";
-        Logger::instance().debug(QString::fromStdString(oss.str()));
-    }
+
+    return true;
 }
 
 std::string RospOSVM::getRegisterState() const
@@ -353,13 +477,13 @@ void RospOSVM::iTypeLSInstruction(uint32_t instruction)
         regFile[rd].set(static_cast<uint32_t>(memory.readWord(addr)));
         break;
     case 0x5: // SB
-        memory.writeByte(addr, static_cast<uint8_t>(regFile[rd].get() & 0xFF));
+        writeMemoryTrackedByte(addr, static_cast<uint8_t>(regFile[rd].get() & 0xFF));
         break;
     case 0x6: // SH
-        memory.writeHalf(addr, static_cast<uint16_t>(regFile[rd].get() & 0xFFFF));
+        writeMemoryTrackedHalf(addr, static_cast<uint16_t>(regFile[rd].get() & 0xFFFF));
         break;
     case 0x7: // SW
-        memory.writeWord(addr, static_cast<uint32_t>(regFile[rd].get()));
+        writeMemoryTrackedWord(addr, static_cast<uint32_t>(regFile[rd].get()));
         break;
     default:
         Logger::instance().error(QString("Unknown Load/Store sub-opcode: %1").arg(sub_op));

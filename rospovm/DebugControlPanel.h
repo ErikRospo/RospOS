@@ -20,6 +20,7 @@ public:
 
     void setVMController(VMController *controller);
     void setStepEnabled(bool enabled);
+    void setStepBackEnabled(bool enabled);
     void setRunEnabled(bool enabled);
     void setPauseEnabled(bool enabled);
     void setResetEnabled(bool enabled);
@@ -28,6 +29,7 @@ public:
 
 signals:
     void stepClicked();
+    void stepBackClicked();
     void runClicked();
     void pauseClicked();
     void resetClicked();
@@ -45,6 +47,7 @@ private:
     VMController *vmController;
 
     QPushButton *stepButton;
+    QPushButton *stepBackButton;
     QPushButton *runButton;
     QPushButton *pauseButton;
     QPushButton *resetButton;

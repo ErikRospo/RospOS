@@ -5,6 +5,8 @@
 #include <string>
 #include <vector>
 #include <memory>
+#include <array>
+#include <deque>
 
 #include "Register.h"
 #include "Memory.h"
@@ -14,10 +16,34 @@
 class RospOSVM
 {
 private:
+    struct MemoryByteDelta {
+        uint32_t address;
+        uint8_t previousValue;
+    };
+
+    struct VMStateSnapshot {
+        uint32_t pc;
+        std::array<uint32_t, 16> registers;
+        std::vector<MemoryByteDelta> memoryDeltas;
+    };
+
+    static constexpr size_t kMaxStateHistory = 16;
+
     RegisterFile regFile;
     uint32_t pc; // Program Counter
     Memory memory;
     std::shared_ptr<Binary> loadedBinary;  // Loaded binary with debug info
+    std::deque<VMStateSnapshot> stateHistory;
+    std::unique_ptr<VMStateSnapshot> currentSnapshot;
+    bool applyingHistory = false;
+
+    void beginStateCapture();
+    void commitStateCapture();
+    void clearStateHistory();
+    void recordMemoryDeltaForByte(uint32_t address);
+    void writeMemoryTrackedByte(uint32_t address, uint8_t value);
+    void writeMemoryTrackedHalf(uint32_t address, uint16_t value);
+    void writeMemoryTrackedWord(uint32_t address, uint32_t value);
     
     void rTypeInstruction(uint32_t instruction);
     void iArithTypeInstruction(uint32_t instruction);
@@ -33,6 +59,8 @@ public:
     void loadBinaryAtAddress(const std::vector<char> &binary, uint32_t address);
     void loadBinaryFromFile(const std::string& filename);
     void step();
+    bool stepBackward();
+    bool canStepBackward() const { return !stateHistory.empty(); }
     std::string getRegisterState() const;
 
     // Debugger interface
@@ -49,9 +77,9 @@ public:
     const Memory& getMemory() const { return memory; }
     
     uint32_t readMemory(uint32_t address) const { return memory.readWord(address); }
-    void writeMemory(uint32_t address, uint32_t value) { memory.writeWord(address, value); }
+    void writeMemory(uint32_t address, uint32_t value);
     uint8_t readMemoryByte(uint32_t address) const { return memory.readByte(address); }
-    void writeMemoryByte(uint32_t address, uint8_t value) { memory.writeByte(address, value); }
+    void writeMemoryByte(uint32_t address, uint8_t value);
     
     // Debug info access (Phase 6)
     /**

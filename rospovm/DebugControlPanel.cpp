@@ -35,6 +35,13 @@ void DebugControlPanel::createUI()
     stepButton->setToolTip("Execute next instruction");
     executionLayout->addWidget(stepButton);
 
+    // Step back button
+    stepBackButton = new QPushButton(tr("Step Back (Shift+F10)"));
+    stepBackButton->setMinimumHeight(40);
+    stepBackButton->setToolTip("Restore the VM to the previous instruction state");
+    stepBackButton->setEnabled(false);
+    executionLayout->addWidget(stepBackButton);
+
     // Run button
     runButton = new QPushButton(tr("Run (F5)"));
     runButton->setMinimumHeight(40);
@@ -172,6 +179,7 @@ void DebugControlPanel::createUI()
 void DebugControlPanel::setupConnections()
 {
     connect(stepButton, &QPushButton::clicked, this, &DebugControlPanel::stepClicked);
+    connect(stepBackButton, &QPushButton::clicked, this, &DebugControlPanel::stepBackClicked);
     connect(runButton, &QPushButton::clicked, this, &DebugControlPanel::runClicked);
     connect(pauseButton, &QPushButton::clicked, this, &DebugControlPanel::pauseClicked);
     connect(resetButton, &QPushButton::clicked, this, &DebugControlPanel::resetClicked);
@@ -200,6 +208,11 @@ void DebugControlPanel::setVMController(VMController *controller)
 void DebugControlPanel::setStepEnabled(bool enabled)
 {
     stepButton->setEnabled(enabled);
+}
+
+void DebugControlPanel::setStepBackEnabled(bool enabled)
+{
+    stepBackButton->setEnabled(enabled);
 }
 
 void DebugControlPanel::setRunEnabled(bool enabled)

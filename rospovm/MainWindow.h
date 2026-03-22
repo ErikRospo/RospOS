@@ -26,6 +26,7 @@ public:
 private slots:
     void onLoadFile();
     void onStep();
+    void onStepBack();
     void onRun();
     void onPause();
     void onReset();
