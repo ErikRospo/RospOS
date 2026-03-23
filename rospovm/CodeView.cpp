@@ -21,7 +21,7 @@
 
 namespace
 {
-const QColor kCurrentInstructionHighlightColor(100, 100, 50);
+const QColor kCurrentInstructionHighlightColor(25, 50, 100);
 
 const QString kCodeDisplayStylesheet =
     QStringLiteral("QPlainTextEdit { background-color: #15181d; color: #d8dee9; }");
@@ -97,8 +97,6 @@ void CodeView::createUI()
     monoFont.setStyleStrategy(QFont::PreferAntialias);
     codeDisplay->setFont(monoFont);
 
-    setupSyntaxHighlighting();
-
     // Dark theme
     codeDisplay->setStyleSheet(kCodeDisplayStylesheet);
 
@@ -107,6 +105,8 @@ void CodeView::createUI()
     sourceCodeDisplay->setFont(monoFont);
     sourceCodeDisplay->setStyleSheet(kSourceDisplayStylesheet);
     sourceCodeDisplay->setPlaceholderText("Source file for current instruction will appear here");
+
+    setupSyntaxHighlighting();
 
     centerSplitter->addWidget(codeDisplay);
     centerSplitter->addWidget(sourceCodeDisplay);
@@ -132,19 +132,15 @@ void CodeView::setupSyntaxHighlighting()
         syntaxRepository->addCustomSearchPath(highlightingRoot);
     }
 
-    KSyntaxHighlighting::Theme theme = syntaxRepository->theme(QStringLiteral("RospOS Night"));
-    if (!theme.isValid())
-    {
-        theme = syntaxRepository->defaultTheme(KSyntaxHighlighting::Repository::DarkTheme);
-    }
-
+    KSyntaxHighlighting::Theme theme = syntaxRepository->defaultTheme(KSyntaxHighlighting::Repository::DarkTheme);
+        
     codeHighlighter = new KSyntaxHighlighting::SyntaxHighlighter(codeDisplay->document());
     codeHighlighter->setTheme(theme);
     KSyntaxHighlighting::Definition codeDefinition =
         syntaxRepository->definitionForName(QStringLiteral("RospOS Assembly"));
     if (!codeDefinition.isValid())
     {
-        codeDefinition = syntaxRepository->definitionForName(QStringLiteral("Intel x86 (NASM)"));
+        qWarning() << "RospOS Assembly syntax definition not found. Code will not be highlighted.";
     }
     codeHighlighter->setDefinition(codeDefinition);
 
