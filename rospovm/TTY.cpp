@@ -40,6 +40,9 @@ uint8_t TTYReadHandler(uint32_t address)
         if (QCoreApplication::instance() &&
             QThread::currentThread() == QCoreApplication::instance()->thread())
         {
+            // If we're on the main Qt thread, we can't block for long periods.
+            // Instead, we will periodically process events to keep the UI responsive while waiting for input.
+            // Process events for 10ms, then check the buffer again. Repeat until we have input or a shutdown is requested.
             lock.unlock();
             QCoreApplication::processEvents(QEventLoop::AllEvents, 10);
             std::this_thread::sleep_for(std::chrono::milliseconds(10));
@@ -53,6 +56,7 @@ uint8_t TTYReadHandler(uint32_t address)
 
     if (inputBuffer.empty())
     {
+        // This can happen if a shutdown was requested while we were waiting for input.
         return 0;
     }
 

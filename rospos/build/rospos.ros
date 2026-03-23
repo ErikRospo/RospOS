@@ -11,9 +11,9 @@
   PUSH r14
   LLI r2, 268435456    // init tty_addr
 WHILE1:
-  LW r3, r1, 0    // deref
+  LB r3, r1, 0    // deref
   BEQ r3, r0, WHILE_END2
-  LW r4, r1, 0    // deref
+  LB r4, r1, 0    // deref
   SB r4, r2, 0    // intrinsic __sb
   LLI r5, 1    // load immediate 1
   ADD r6, r1, r5    // binop +
