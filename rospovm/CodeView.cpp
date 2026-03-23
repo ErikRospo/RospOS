@@ -21,12 +21,12 @@
 
 namespace
 {
-const QColor kCurrentInstructionHighlightColor(25, 50, 100);
+const QColor kCurrentInstructionHighlightColor(35, 72, 128);
 
 const QString kCodeDisplayStylesheet =
-    QStringLiteral("QPlainTextEdit { background-color: #15181d; color: #d8dee9; }");
+    QStringLiteral("QPlainTextEdit { background-color: #11151b; color: #d8dee9; }");
 const QString kSourceDisplayStylesheet =
-    QStringLiteral("QPlainTextEdit { background-color: #11151b; color: #e6edf3; }");
+    QStringLiteral("QPlainTextEdit { background-color: #11151b; color: #d8dee9; }");
 constexpr int kHexFieldWidth = 8;
 constexpr int kHexBase = 16;
 constexpr int kCodeFontSize = 10;
