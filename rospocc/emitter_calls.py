@@ -57,6 +57,4 @@ def emit_call(emitter, call_expr: Dict, return_reg: Optional[str], out):
             out.write(f"  POP {r}    // restore caller temp\n")
 
     if return_reg and return_reg != abi.RETURN_REG and not is_void:
-        out.write(
-            f"  ADDI {return_reg}, {abi.RETURN_REG}, 0    // move return value\n"
-        )
+        out.write(f"  ADDI {return_reg}, {abi.RETURN_REG}, 0    // move return value\n")

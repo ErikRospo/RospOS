@@ -61,9 +61,7 @@ def intrinsic_sb(emitter, args, out):
 
     if a_val.get("type") == "const":
         rval = emitter.alloc_reg()
-        out.write(
-            f"  LLI {rval}, {int(a_val.get('value'))}    // val const for __sb\n"
-        )
+        out.write(f"  LLI {rval}, {int(a_val.get('value'))}    // val const for __sb\n")
     elif a_val.get("type") == "var":
         vname = a_val.get("name")
         if emitter.var_types.get(vname) == "char_ptr":

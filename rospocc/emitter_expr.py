@@ -61,7 +61,9 @@ def _emit_member_access(emitter, expr: Dict[str, Any], out) -> str:
                     break
 
             if member_offset is None:
-                out.write(f"  // ERROR: member {member_name} not found in {base_type}\n")
+                out.write(
+                    f"  // ERROR: member {member_name} not found in {base_type}\n"
+                )
                 return ""
 
             base_reg = emitter.var_regs.get(base_name)
