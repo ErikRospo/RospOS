@@ -2,7 +2,6 @@ import re
 from typing import Any
 
 from lark import Token, Transformer, Tree
-
 from transformer_tu import TranslationUnitTransformer
 
 

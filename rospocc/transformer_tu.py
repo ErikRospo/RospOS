@@ -118,7 +118,10 @@ class TranslationUnitTransformer:
                                     pointer_seen = True
                                 elif isinstance(node_val, str):
                                     base_type = node_val
-                            elif "token" in type_child and type_child["token"].isidentifier():
+                            elif (
+                                "token" in type_child
+                                and type_child["token"].isidentifier()
+                            ):
                                 base_type = type_child["token"]
 
                     if base_type is not None:
@@ -162,12 +165,18 @@ class TranslationUnitTransformer:
                 member_type = None
                 member_names = []
                 for member_child in child.get("children", []):
-                    if isinstance(member_child, dict) and member_child.get("node") == "type_specifier":
+                    if (
+                        isinstance(member_child, dict)
+                        and member_child.get("node") == "type_specifier"
+                    ):
                         for type_child in member_child.get("children", []):
                             if isinstance(type_child, dict):
                                 if "node" in type_child:
                                     member_type = type_child["node"]
-                                elif "token" in type_child and type_child["token"].isidentifier():
+                                elif (
+                                    "token" in type_child
+                                    and type_child["token"].isidentifier()
+                                ):
                                     member_type = type_child["token"]
                     elif (
                         isinstance(member_child, dict)
@@ -220,7 +229,10 @@ class TranslationUnitTransformer:
                     name = None
                     val = None
                     for decl_child in decl_children:
-                        if isinstance(decl_child, dict) and decl_child.get("node") == "declarator":
+                        if (
+                            isinstance(decl_child, dict)
+                            and decl_child.get("node") == "declarator"
+                        ):
                             ident = find_identifier(decl_child)
                             if ident:
                                 name = ident

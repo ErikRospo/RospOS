@@ -20,15 +20,23 @@ class StatementTransformer:
                     if isinstance(type_child, dict):
                         if "node" in type_child:
                             decl_type = type_child["node"]
-                        elif "token" in type_child and type_child["token"].isidentifier():
+                        elif (
+                            "token" in type_child and type_child["token"].isidentifier()
+                        ):
                             decl_type = type_child["token"]
 
         for child in decl_node.get("children", []):
             if isinstance(child, dict) and child.get("node") == "init_declarator_list":
                 for init_decl in child.get("children", []):
-                    if isinstance(init_decl, dict) and init_decl.get("node") == "init_declarator":
+                    if (
+                        isinstance(init_decl, dict)
+                        and init_decl.get("node") == "init_declarator"
+                    ):
                         for part in init_decl.get("children", []):
-                            if isinstance(part, dict) and part.get("node") == "declarator":
+                            if (
+                                isinstance(part, dict)
+                                and part.get("node") == "declarator"
+                            ):
                                 decl_children = part.get("children", [])
                                 ident = find_identifier(part)
                                 if ident:
@@ -71,7 +79,10 @@ class StatementTransformer:
                                         r"-?\d+|0x[0-9a-fA-F]+", tok
                                     ):
                                         try:
-                                            init = {"type": "const", "value": int(tok, 0)}
+                                            init = {
+                                                "type": "const",
+                                                "value": int(tok, 0),
+                                            }
                                         except Exception:
                                             init = {"type": "const", "value": int(tok)}
                             if (
@@ -216,13 +227,21 @@ class StatementTransformer:
                             "return_stmt",
                         ):
                             body_node = ch
-                if cond is None and len(children) >= 3 and isinstance(children[2], dict):
+                if (
+                    cond is None
+                    and len(children) >= 3
+                    and isinstance(children[2], dict)
+                ):
                     cond = self.expr.from_node(children[2])
                 if body_node is None and children:
                     body_node = children[-1]
 
                 body_stmts = self.process_stmt_node(body_node) if body_node else []
-                stmts.append(copy_line(child, {"type": "while", "cond": cond, "body": body_stmts}))
+                stmts.append(
+                    copy_line(
+                        child, {"type": "while", "cond": cond, "body": body_stmts}
+                    )
+                )
                 continue
 
             if node_type == "if_stmt":
@@ -273,7 +292,11 @@ class StatementTransformer:
                             and else_node is None
                         ):
                             else_node = ch
-                if cond is None and len(children) >= 3 and isinstance(children[2], dict):
+                if (
+                    cond is None
+                    and len(children) >= 3
+                    and isinstance(children[2], dict)
+                ):
                     cond = self.expr.from_node(children[2])
 
                 if cond is None:
@@ -294,8 +317,14 @@ class StatementTransformer:
                             break
                 if else_node is None:
                     for i, ch in enumerate(children):
-                        if isinstance(ch, dict) and "token" in ch and ch["token"] == "else":
-                            if i + 1 < len(children) and isinstance(children[i + 1], dict):
+                        if (
+                            isinstance(ch, dict)
+                            and "token" in ch
+                            and ch["token"] == "else"
+                        ):
+                            if i + 1 < len(children) and isinstance(
+                                children[i + 1], dict
+                            ):
                                 else_node = children[i + 1]
                                 break
 

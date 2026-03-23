@@ -136,14 +136,20 @@ class ExpressionTransformer:
                 elif isinstance(child, dict) and "node" in child:
                     if child["node"] == "member_access":
                         for member_child in child.get("children", []):
-                            if isinstance(member_child, dict) and "token" in member_child:
+                            if (
+                                isinstance(member_child, dict)
+                                and "token" in member_child
+                            ):
                                 member_accesses.append(
                                     {"op": ".", "member": member_child["token"]}
                                 )
                                 break
                     elif child["node"] == "ptr_member_access":
                         for member_child in child.get("children", []):
-                            if isinstance(member_child, dict) and "token" in member_child:
+                            if (
+                                isinstance(member_child, dict)
+                                and "token" in member_child
+                            ):
                                 member_accesses.append(
                                     {"op": "->", "member": member_child["token"]}
                                 )
