@@ -74,7 +74,7 @@ void MemoryView::createUI()
     monoFont.setPointSize(9);
     memoryTable->setFont(monoFont);
 
-    memoryTable->setRowCount(32); // Display 32 rows of 16 bytes each
+    memoryTable->setRowCount(16); // Display 16 rows of 16 bytes each
 
     mainLayout->addWidget(memoryTable);
     setLayout(mainLayout);
@@ -103,7 +103,7 @@ void MemoryView::populateMemory(uint32_t address)
     memoryTable->setRowCount(0);
 
     // Display 32 rows of 16 bytes each
-    for (int row = 0; row < 32; ++row) {
+    for (int row = 0; row < 16; ++row) {
         memoryTable->insertRow(row);
 
         uint32_t rowAddress = address + (row * 16);
@@ -183,7 +183,7 @@ void MemoryView::refresh()
         }
 
         if (shouldJump) {
-            const uint32_t blockSize = 512;
+            const uint32_t blockSize = 16 * 16; // 16 rows of 16 bytes
             const uint32_t blockStart = (jumpBaseAddress / blockSize) * blockSize;
             if (currentAddress != blockStart) {
                 currentAddress = blockStart;
