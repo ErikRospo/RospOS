@@ -17,12 +17,11 @@ def _instr_size(node) -> int:
         return 4
     if isinstance(node, Directive) and node.name == "data":
         if node.length is not None:
-            # enforce minimum word-sized allocation for data directives
-            return max(4, int(node.length))
+            return int(node.length)
         # fallback: if immediate is ImmValue, estimate minimum bytes
         if isinstance(node.imm, ImmValue):
             v = node.imm.value
-            return max(4, (v.bit_length() // 8) + 1)
+            return max(1, (v.bit_length() // 8) + 1)
         return 4
     return 0
 
