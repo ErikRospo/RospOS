@@ -2,6 +2,9 @@ from pathlib import Path
 from typing import Any, Dict, Optional
 
 import abi
+from emitter_calls import emit_call
+from emitter_intrinsics import intrinsic_lb, intrinsic_sb
+from emitter_registers import alloc_var_reg, ensure_var_reg, load_imm
 from tracked_writer import TrackedWriter
 
 
@@ -50,25 +53,21 @@ class Emitter:
 
     # helper: write an immediate into a register
     def _load_imm(self, reg: str, value, out):
-        out.write(f"  LLI {reg}, {value}    // load immediate {value}\n")
+        load_imm(out, reg, value)
 
     # helper: allocate a register for a variable and optionally initialize it
     def _alloc_var_reg(
         self, name: str, out, init_value=None, typ="int", is_label=False, comment=None
     ):
-        r = self.alloc_reg()
-        self.var_regs[name] = r
-        self.var_types[name] = typ
-        if init_value is None:
-            out.write(f"  LLI {r}, 0    // zero init {name}\n")
-        else:
-            if is_label:
-                out.write(
-                    f"  LLI {r}, {init_value}    // init {name} ({comment or 'addr'})\n"
-                )
-            else:
-                out.write(f"  LLI {r}, {int(init_value)}    // init {name}\n")
-        return r
+        return alloc_var_reg(
+            self,
+            name,
+            out,
+            init_value=init_value,
+            typ=typ,
+            is_label=is_label,
+            comment=comment,
+        )
 
     def _collect_global_types(self, ast: Dict[str, Any]):
         for g in ast.get("globals", []):
@@ -123,13 +122,7 @@ class Emitter:
 
     # Helper: ensure a var has a register (allocate+zero-init if not)
     def _ensure_var_reg(self, name: str, out) -> str:
-        r = self.var_regs.get(name)
-        if r:
-            return r
-        r = self.alloc_reg()
-        self.var_regs[name] = r
-        out.write(f"  LLI {r}, 0    // implicit init {name}\n")
-        return r
+        return ensure_var_reg(self, name, out)
 
     def _emit_compare(self, rd: str, op: str, rl: str, rr: str, out):
         out.write(f"  LLI {rd}, 0    // compare init 0\n")
@@ -153,87 +146,10 @@ class Emitter:
         out.write(f"{lend}:\n")
 
     def _intrinsic_lb(self, args, out):
-        a = args[0] if args else None
-        raddr = None
-        if a is None:
-            out.write("  // __lb missing arg\n")
-            return
-        # explicit array declarators are represented by frontend as type 'array'
-        if a.get("type") == "array":
-            size = int(a.get("size", 0))
-            name = a.get("name", f"arr{self.label_counter}")
-            lbl = self.gen_label(f"{name}_buf")
-            self.global_spaces.append({"name": lbl, "size": size})
-            r = self.alloc_reg()
-            self.var_regs[name] = r
-            self.var_types[name] = "char_ptr"
-            out.write(f"  LLI {r}, {lbl}    // init {name} (buffer addr)\n")
-            raddr = r
-        elif a.get("type") == "const":
-            val = int(a.get("value"))
-            name = a.get("name", f"const{self.label_counter}")
-            # scalar constant initializer -> treat as int value
-            r = self.alloc_reg()
-            self.var_regs[name] = r
-            self.var_types[name] = "int"
-            out.write(f"  LLI {r}, {val}    // init {name}\n")
-            raddr = r
-        elif a.get("type") == "var":
-            raddr = self.var_regs.get(a.get("name"))
-            if not raddr:
-                raddr = self._ensure_var_reg(a.get("name"), out)
-        else:
-            raddr = self.emit_expr(a, out)
-
-        assert raddr is not None, "Failed to prepare address for __lb"
-        out.write(f"  LB {abi.RETURN_REG}, {raddr}, 0    // intrinsic __lb -> return\n")
-        if raddr in abi.TEMP_REGS:
-            self.free_reg(raddr)
+        intrinsic_lb(self, args, out)
 
     def _intrinsic_sb(self, args, out):
-        if len(args) < 2:
-            out.write("  // __sb missing args\n")
-            return
-        a_addr = args[0]
-        a_val = args[1]
-
-        if a_addr.get("type") == "const":
-            raddr = self.alloc_reg()
-            out.write(
-                f"  LLI {raddr}, {int(a_addr.get('value'))}    // addr const for __sb\n"
-            )
-        elif a_addr.get("type") == "var":
-            raddr = self.var_regs.get(a_addr.get("name"))
-            if not raddr:
-                raddr = self._ensure_var_reg(a_addr.get("name"), out)
-        else:
-            raddr = self.emit_expr(a_addr, out)
-
-        if a_val.get("type") == "const":
-            rval = self.alloc_reg()
-            out.write(
-                f"  LLI {rval}, {int(a_val.get('value'))}    // val const for __sb\n"
-            )
-        elif a_val.get("type") == "var":
-            vname = a_val.get("name")
-            if self.var_types.get(vname) == "char_ptr":
-                rptr = self.var_regs.get(vname)
-                if not rptr:
-                    rptr = self._ensure_var_reg(vname, out)
-                rval = self.alloc_reg()
-                out.write(f"  LB {rval}, {rptr}, 0    // load *{vname} for __sb\n")
-            else:
-                rval = self.var_regs.get(vname)
-                if not rval:
-                    rval = self._ensure_var_reg(vname, out)
-        else:
-            rval = self.emit_expr(a_val, out)
-
-        out.write(f"  SB {rval}, {raddr}, 0    // intrinsic __sb\n")
-        if raddr in abi.TEMP_REGS:
-            self.free_reg(raddr)
-        if rval in abi.TEMP_REGS:
-            self.free_reg(rval)
+        intrinsic_sb(self, args, out)
 
     def emit_translation_unit(self, ast: Dict[str, Any], out_path: str):
         out_file = Path(out_path)
@@ -907,62 +823,7 @@ class Emitter:
             return ""
 
     def _emit_call(self, call_expr: Dict[str, Any], return_reg: Optional[str], out):
-        name = call_expr.get("name")
-        args = call_expr.get("args", [])
-
-        # Intrinsic handling for names starting with __ -> dispatch via registry
-        if isinstance(name, str) and name.startswith("__"):
-            handler = self.intrinsics.get(name)
-            if handler:
-                handler(args, out)
-                return
-            print(f"Warning: no handler for intrinsic {name!r}")
-
-        # fall back to emitting as a regular call (which will fail in the assembler if it's truly unsupported)
-
-        out.write(f"  // emit call to {name} with args {args}\n")
-        return_type = self.func_return_types.get(name)
-        is_void = return_type == "void"
-
-        live_regs = [r for r in abi.TEMP_REGS if r not in self.reg_free]
-        if live_regs:
-            for r in live_regs:
-                out.write(f"  PUSH {r}    // save caller temp\n")
-        if return_reg == abi.RETURN_REG or is_void:
-            return_reg = None
-
-        if return_reg == None:
-            out.write(
-                "  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered\n"
-            )
-            # For other things that may want to use r1.
-        # Default: regular function call -> place up to 4 args into ARG_REGS then CALL
-        for i, a in enumerate(args[: len(abi.ARG_REGS)]):
-            dest = abi.ARG_REGS[i]
-            if a.get("type") == "const":
-                self._load_imm(dest, int(a.get("value")), out)
-            elif a.get("type") == "string_addr":
-                self._load_imm(dest, a.get("label"), out)
-            elif a.get("type") == "var":
-                r = self.var_regs.get(a.get("name"))
-                if r:
-                    out.write(f"  ADDI {dest}, {r}, 0    // move arg {i}\n")
-                else:
-                    self._load_imm(dest, 0, out)
-            else:
-                out.write(f"  // unsupported arg type {a!r}\n")
-
-        out.write(f"  CALL {call_expr.get('name')}\n")
-        out.write(f"  // call return value in {abi.RETURN_REG}\n")
-        if return_reg == None:
-            out.write(f"  POP r1  \n")
-        if live_regs:
-            for r in reversed(live_regs):
-                out.write(f"  POP {r}    // restore caller temp\n")
-        if return_reg and return_reg != abi.RETURN_REG and not is_void:
-            out.write(
-                f"  ADDI {return_reg}, {abi.RETURN_REG}, 0    // move return value\n"
-            )
+        emit_call(self, call_expr, return_reg, out)
 
 
 def emit_translation_unit(
