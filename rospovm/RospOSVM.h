@@ -16,6 +16,12 @@
 class RospOSVM
 {
 private:
+    struct MemoryAccess {
+        uint32_t address = 0;
+        uint8_t size = 0;
+        bool isWrite = false;
+    };
+
     struct MemoryByteDelta {
         uint32_t address;
         uint8_t previousValue;
@@ -36,10 +42,14 @@ private:
     std::deque<VMStateSnapshot> stateHistory;
     std::unique_ptr<VMStateSnapshot> currentSnapshot;
     bool applyingHistory = false;
+    MemoryAccess lastMemoryAccess;
+    bool hasLastMemoryAccess = false;
 
     void beginStateCapture();
     void commitStateCapture();
     void clearStateHistory();
+    void clearLastMemoryAccess();
+    void recordMemoryAccess(uint32_t address, uint8_t size, bool isWrite);
     void recordMemoryDeltaForByte(uint32_t address);
     void writeMemoryTrackedByte(uint32_t address, uint8_t value);
     void writeMemoryTrackedHalf(uint32_t address, uint16_t value);
@@ -79,7 +89,9 @@ public:
     uint32_t readMemory(uint32_t address) const { return memory.readWord(address); }
     void writeMemory(uint32_t address, uint32_t value);
     uint8_t readMemoryByte(uint32_t address) const { return memory.readByte(address); }
+    uint8_t readMemoryByteForInspector(uint32_t address) const { return memory.readByteForInspector(address); }
     void writeMemoryByte(uint32_t address, uint8_t value);
+    bool getLastMemoryAccess(uint32_t &address, uint8_t &size, bool &isWrite) const;
     
     // Debug info access (Phase 6)
     /**

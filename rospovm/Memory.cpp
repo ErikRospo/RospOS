@@ -48,6 +48,33 @@ uint8_t Memory::readByte(uint32_t address) const
     return mem[address];
 }
 
+uint8_t Memory::readByteForInspector(uint32_t address) const
+{
+    for (const auto &range : specialRanges)
+    {
+        if (range.contains(address))
+        {
+            if (range.name[0] == 'T' && range.name[1] == 'T' &&
+                range.name[2] == 'Y' && range.name[3] == ' ')
+            {
+                return 0;
+            }
+
+            if (range.readable && range.readHandler)
+            {
+                return range.readHandler(address);
+            }
+
+            throw std::runtime_error("Attempted to read from non-readable special memory range \"" + std::string(range.name, 4) + "\".");
+        }
+    }
+
+    if (static_cast<size_t>(address) >= mem.size()) {
+        throw std::out_of_range("Memory read out of bounds.");
+    }
+    return mem[address];
+}
+
 void Memory::writeByte(uint32_t address, uint8_t value)
 {
     for (const auto &range : specialRanges)

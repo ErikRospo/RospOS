@@ -36,6 +36,24 @@ RospOSVM::RospOSVM(bool debugMode)
                            VMDisplay::displayReadHandler, VMDisplay::displayWriteHandler);
 }
 
+void RospOSVM::clearLastMemoryAccess()
+{
+    hasLastMemoryAccess = false;
+    lastMemoryAccess = MemoryAccess{};
+}
+
+void RospOSVM::recordMemoryAccess(uint32_t address, uint8_t size, bool isWrite)
+{
+    if (size == 0) {
+        return;
+    }
+
+    lastMemoryAccess.address = address;
+    lastMemoryAccess.size = size;
+    lastMemoryAccess.isWrite = isWrite;
+    hasLastMemoryAccess = true;
+}
+
 void RospOSVM::beginStateCapture()
 {
     currentSnapshot = std::make_unique<VMStateSnapshot>();
@@ -116,23 +134,39 @@ void RospOSVM::writeMemoryTrackedWord(uint32_t address, uint32_t value)
 
 void RospOSVM::writeMemory(uint32_t address, uint32_t value)
 {
+    recordMemoryAccess(address, 4, true);
     writeMemoryTrackedWord(address, value);
 }
 
 void RospOSVM::writeMemoryByte(uint32_t address, uint8_t value)
 {
+    recordMemoryAccess(address, 1, true);
     writeMemoryTrackedByte(address, value);
+}
+
+bool RospOSVM::getLastMemoryAccess(uint32_t &address, uint8_t &size, bool &isWrite) const
+{
+    if (!hasLastMemoryAccess) {
+        return false;
+    }
+
+    address = lastMemoryAccess.address;
+    size = lastMemoryAccess.size;
+    isWrite = lastMemoryAccess.isWrite;
+    return true;
 }
 
 void RospOSVM::loadBinaryAtAddress(const std::vector<char> &binary, uint32_t address)
 {
     clearStateHistory();
+    clearLastMemoryAccess();
     memory.loadBinary(binary, address);
 }
 
 void RospOSVM::loadBinaryFromFile(const std::string& filename)
 {
     clearStateHistory();
+    clearLastMemoryAccess();
 
     // Load the binary file using Binary::load_binary
     try {
@@ -206,6 +240,7 @@ std::string RospOSVM::getOriginalInstruction(uint32_t address) const
 void RospOSVM::step()
 {
     beginStateCapture();
+    clearLastMemoryAccess();
     try {
         uint32_t instruction = memory.readWord(pc);
         if (debugMode)
@@ -261,6 +296,8 @@ bool RospOSVM::stepBackward()
         oss << "Registers: " << getRegisterState();
         Logger::instance().debug(QString::fromStdString(oss.str()));
     }
+
+    clearLastMemoryAccess();
 
     return true;
 }
@@ -468,27 +505,35 @@ void RospOSVM::iTypeLSInstruction(uint32_t instruction)
     switch (sub_op)
     {
     case 0x0: // LB
+        recordMemoryAccess(addr, 1, false);
         regFile[rd].set(static_cast<int8_t>(memory.readByte(addr)));
         break;
     case 0x1: // LBU
+        recordMemoryAccess(addr, 1, false);
         regFile[rd].set(static_cast<uint8_t>(memory.readByte(addr)));
         break;
     case 0x2: // LH
+        recordMemoryAccess(addr, 2, false);
         regFile[rd].set(static_cast<int16_t>(memory.readHalf(addr)));
         break;
     case 0x3: // LHU
+        recordMemoryAccess(addr, 2, false);
         regFile[rd].set(static_cast<uint16_t>(memory.readHalf(addr)));
         break;
     case 0x4: // LW
+        recordMemoryAccess(addr, 4, false);
         regFile[rd].set(static_cast<uint32_t>(memory.readWord(addr)));
         break;
     case 0x5: // SB
+        recordMemoryAccess(addr, 1, true);
         writeMemoryTrackedByte(addr, static_cast<uint8_t>(regFile[rd].get() & 0xFF));
         break;
     case 0x6: // SH
+        recordMemoryAccess(addr, 2, true);
         writeMemoryTrackedHalf(addr, static_cast<uint16_t>(regFile[rd].get() & 0xFFFF));
         break;
     case 0x7: // SW
+        recordMemoryAccess(addr, 4, true);
         writeMemoryTrackedWord(addr, static_cast<uint32_t>(regFile[rd].get()));
         break;
     default:

@@ -43,6 +43,7 @@ public:
     
     // Byte access
     uint8_t readByte(uint32_t address) const;
+    uint8_t readByteForInspector(uint32_t address) const;
     void writeByte(uint32_t address, uint8_t value);
     
     // Half-word access

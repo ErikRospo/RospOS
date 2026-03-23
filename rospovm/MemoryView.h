@@ -32,6 +32,14 @@ private:
     QLabel *titleLabel;
     QLineEdit *addressInput;
     uint32_t currentAddress;
+    uint32_t lastAddress = 0;
+    uint8_t lastSize = 0;
+    bool lastIsWrite = false;
+    bool hasLastHighlight = false;
+    uint32_t predictedAddress = 0;
+    uint8_t predictedSize = 0;
+    bool predictedIsWrite = false;
+    bool hasPredictedHighlight = false;
 };
 
 #endif // MEMORY_VIEW_H

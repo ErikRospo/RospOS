@@ -119,11 +119,90 @@ uint32_t VMController::readMemory(uint32_t address) const
     }
 }
 
+uint8_t VMController::readMemoryByte(uint32_t address) const
+{
+    try {
+        return vm->readMemoryByte(address);
+    } catch (...) {
+        return 0;
+    }
+}
+
+uint8_t VMController::readMemoryByteForInspector(uint32_t address) const
+{
+    try {
+        return vm->readMemoryByteForInspector(address);
+    } catch (...) {
+        return 0;
+    }
+}
+
 void VMController::writeMemory(uint32_t address, uint32_t value)
 {
     try {
         vm->writeMemory(address, value);
     } catch (...) {
+    }
+}
+
+bool VMController::getLastMemoryAccess(uint32_t &address, uint8_t &size, bool &isWrite) const
+{
+    try {
+        return vm->getLastMemoryAccess(address, size, isWrite);
+    } catch (...) {
+        return false;
+    }
+}
+
+bool VMController::getPredictedMemoryAccess(uint32_t &address, uint8_t &size, bool &isWrite) const
+{
+    try {
+        const uint32_t pc = vm->getProgramCounter();
+        const uint32_t instruction = vm->readMemory(pc);
+        const uint32_t opcode = (instruction >> 28) & 0x0F;
+        if (opcode != 0x2) {
+            return false;
+        }
+
+        const uint32_t subOp = (instruction >> 24) & 0x0F;
+        const uint32_t rs = (instruction >> 16) & 0x0F;
+        const int32_t offset = static_cast<int16_t>(instruction & 0xFFFF);
+        const uint32_t base = vm->getRegister(static_cast<int>(rs));
+        address = base + offset;
+
+        switch (subOp)
+        {
+        case 0x0: // LB
+        case 0x1: // LBU
+            size = 1;
+            isWrite = false;
+            return true;
+        case 0x2: // LH
+        case 0x3: // LHU
+            size = 2;
+            isWrite = false;
+            return true;
+        case 0x4: // LW
+            size = 4;
+            isWrite = false;
+            return true;
+        case 0x5: // SB
+            size = 1;
+            isWrite = true;
+            return true;
+        case 0x6: // SH
+            size = 2;
+            isWrite = true;
+            return true;
+        case 0x7: // SW
+            size = 4;
+            isWrite = true;
+            return true;
+        default:
+            return false;
+        }
+    } catch (...) {
+        return false;
     }
 }
 

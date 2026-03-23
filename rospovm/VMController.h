@@ -32,7 +32,11 @@ public:
     uint32_t getRegister(int index) const;
     QString getRegisterName(int index) const;
     uint32_t readMemory(uint32_t address) const;
+    uint8_t readMemoryByte(uint32_t address) const;
+    uint8_t readMemoryByteForInspector(uint32_t address) const;
     void writeMemory(uint32_t address, uint32_t value);
+    bool getLastMemoryAccess(uint32_t &address, uint8_t &size, bool &isWrite) const;
+    bool getPredictedMemoryAccess(uint32_t &address, uint8_t &size, bool &isWrite) const;
 
     // Disassembly
     QString disassembleInstruction(uint32_t instruction);

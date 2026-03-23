@@ -6,6 +6,7 @@
 #include <QHeaderView>
 #include <QFont>
 #include <QLabel>
+#include <QColor>
 
 MemoryView::MemoryView(QWidget *parent)
     : QWidget(parent), vmController(nullptr), currentAddress(0x0000)
@@ -115,10 +116,34 @@ void MemoryView::populateMemory(uint32_t address)
         // Memory bytes columns
         for (int col = 0; col < 16; ++col) {
             uint32_t byteAddress = rowAddress + col;
-            uint8_t value = vmController->readMemory(byteAddress) & 0xFF;
+            uint8_t value = vmController->readMemoryByteForInspector(byteAddress);
 
             QTableWidgetItem *byteItem = new QTableWidgetItem(
                 QString("%1").arg(value, 2, 16, QChar('0')));
+
+            const bool inLastRange = hasLastHighlight &&
+                byteAddress >= lastAddress &&
+                byteAddress < (lastAddress + static_cast<uint32_t>(lastSize));
+            const bool inPredictedRange = hasPredictedHighlight &&
+                byteAddress >= predictedAddress &&
+                byteAddress < (predictedAddress + static_cast<uint32_t>(predictedSize));
+
+            if (inLastRange && inPredictedRange) {
+                byteItem->setBackground(QColor(100, 95, 135));
+            } else if (inPredictedRange) {
+                if (predictedIsWrite) {
+                    byteItem->setBackground(QColor(180, 80, 80));
+                } else {
+                    byteItem->setBackground(QColor(80, 130, 180));
+                }
+            } else if (inLastRange) {
+                if (lastIsWrite) {
+                    byteItem->setBackground(QColor(220, 120, 120));
+                } else {
+                    byteItem->setBackground(QColor(120, 170, 220));
+                }
+            }
+
             memoryTable->setItem(row, col + 1, byteItem);
         }
     }
@@ -126,5 +151,46 @@ void MemoryView::populateMemory(uint32_t address)
 
 void MemoryView::refresh()
 {
+    if (vmController) {
+        uint32_t accessAddress = 0;
+        uint8_t accessSize = 0;
+        bool isWrite = false;
+        hasLastHighlight = vmController->getLastMemoryAccess(accessAddress, accessSize, isWrite);
+        if (hasLastHighlight) {
+            lastAddress = accessAddress;
+            lastSize = accessSize;
+            lastIsWrite = isWrite;
+        }
+
+        uint32_t nextAddress = 0;
+        uint8_t nextSize = 0;
+        bool nextIsWrite = false;
+        hasPredictedHighlight = vmController->getPredictedMemoryAccess(nextAddress, nextSize, nextIsWrite);
+        if (hasPredictedHighlight) {
+            predictedAddress = nextAddress;
+            predictedSize = nextSize;
+            predictedIsWrite = nextIsWrite;
+        }
+
+        uint32_t jumpBaseAddress = currentAddress;
+        bool shouldJump = false;
+        if (hasPredictedHighlight) {
+            jumpBaseAddress = predictedAddress;
+            shouldJump = true;
+        } else if (hasLastHighlight) {
+            jumpBaseAddress = lastAddress;
+            shouldJump = true;
+        }
+
+        if (shouldJump) {
+            const uint32_t blockSize = 512;
+            const uint32_t blockStart = (jumpBaseAddress / blockSize) * blockSize;
+            if (currentAddress != blockStart) {
+                currentAddress = blockStart;
+                addressInput->setText(QString("0x%1").arg(currentAddress, 8, 16, QChar('0')));
+            }
+        }
+    }
+
     populateMemory(currentAddress);
 }
