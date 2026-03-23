@@ -10,6 +10,46 @@ Maybe replace/integrate editor with https://github.com/KDE/syntax-highlighting f
 
 Evaluate simple constant expressions at compile time, esp for LLI. (e.g. 256-8 should be evaluated to 248 at compile time)
 
+Function call pushes/moves may not necessarily be safe. In this example, they are safe. 
+```c
+void main()
+{
+    int x = 5;
+    int y = 10;
+    int result = add(x, y);
+...
+```
+
+```
+.FUNC main:
+  PUSH r14
+  LLI r2, 5    // init x
+  LLI r3, 10    // init y
+  LLI r4, 0    // zero init result
+  // emit call to add with args [{'type': 'var', 'name': 'x'}, {'type': 'var', 'name': 'y'}]
+  PUSH r2    // save caller temp
+  PUSH r3    // save caller temp
+  PUSH r4    // save caller temp
+  ADDI r1, r2, 0    // move arg 0
+  ADDI r2, r3, 0    // move arg 1
+  CALL add
+  // call return value in r1
+  POP r4    // restore caller temp
+  POP r3    // restore caller temp
+  POP r2    // restore caller temp
+  ADDI r4, r1, 0    // move return value
+```
+
+However, if `x` and `y` were allocated to different registers, the move could clobber one of the values before the call, which would lead to incorrect behavior. For example, if `x` was allocated to `r2` and `y` was allocated to `r3`, and we did the following:
+
+```
+  LLI r2, 5    // init x
+  LLI r3, 10    // init y
+  ...
+  ADDI r2, r3, 0    // move arg 1 (THIS CLOBBERS r2, which holds x, before the call to add)
+  ADDI r1, r2, 0    // move arg 0 (this now moves the value of y instead of x, which is incorrect)
+  CALL add // this now adds y and y instead of x and y, which is incorrect
+```
 ## Optimizations
 
 ### Inlining

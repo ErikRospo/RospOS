@@ -114,6 +114,7 @@ CMP_TRUE12:
 CMP_END13:
   BEQ r7, r0, WHILE_END11
   LLI r8, 0    // zero init c
+  LB r1, r3, 0    // intrinsic __lb -> return
   LLI r9, str_1    // load immediate str_1
   LLI r10, 0    // compare init 0
   BEQ r8, r9, CMP_TRUE16
@@ -157,6 +158,18 @@ WHILE_END11:
   LLI r2, 5    // init x
   LLI r3, 10    // init y
   LLI r4, 0    // zero init result
+  // emit call to add with args [{'type': 'var', 'name': 'x'}, {'type': 'var', 'name': 'y'}]
+  PUSH r2    // save caller temp
+  PUSH r3    // save caller temp
+  PUSH r4    // save caller temp
+  ADDI r1, r2, 0    // move arg 0
+  ADDI r2, r3, 0    // move arg 1
+  CALL add
+  // call return value in r1
+  POP r4    // restore caller temp
+  POP r3    // restore caller temp
+  POP r2    // restore caller temp
+  ADDI r4, r1, 0    // move return value
   // emit call to print_string with args [{'type': 'string_addr', 'label': 'str_2'}]
   PUSH r2    // save caller temp
   PUSH r3    // save caller temp
@@ -192,7 +205,28 @@ WHILE_END11:
   LLI r10, 480    // load immediate 480
   SW r10, r6, 4    // store s.height
   LLI r11, 0    // zero init sum
+  // emit call to add_coords with args [{'type': 'var', 'name': 'p1'}]
+  PUSH r2    // save caller temp
+  PUSH r3    // save caller temp
+  PUSH r4    // save caller temp
+  PUSH r5    // save caller temp
+  PUSH r6    // save caller temp
+  PUSH r11    // save caller temp
+  ADDI r1, r5, 0    // move arg 0
+  CALL add_coords
+  // call return value in r1
+  POP r11    // restore caller temp
+  POP r6    // restore caller temp
+  POP r5    // restore caller temp
+  POP r4    // restore caller temp
+  POP r3    // restore caller temp
+  POP r2    // restore caller temp
+  ADDI r11, r1, 0    // move return value
   LLI r12, 0    // zero init area
+  LW r7, r6, 0    // load s.width
+  LW r8, r6, 4    // load s.height
+  MUL r9, r7, r8    // binop *
+  ADDI r12, r9, 0    // init area from expr
   // emit call to print_string with args [{'type': 'string_addr', 'label': 'str_3'}]
   PUSH r2    // save caller temp
   PUSH r3    // save caller temp

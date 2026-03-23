@@ -72,7 +72,12 @@ def _emit_decl(emitter, stmt: Dict[str, Any], out):
                 comment="string addr",
             )
         else:
-            out.write(f"  // decl {name} with unsupported init {init!r}\n")
+            dest = emitter._alloc_var_reg(name, out, init_value=None, typ="int")
+            rinit = emitter.emit_expr(init, out)
+            if rinit:
+                out.write(f"  ADDI {dest}, {rinit}, 0    // init {name} from expr\n")
+                if rinit in abi.TEMP_REGS:
+                    emitter.free_reg(rinit)
         return
 
     emitter._alloc_var_reg(name, out, init_value=None, typ="int")

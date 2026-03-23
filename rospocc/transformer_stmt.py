@@ -70,6 +70,7 @@ class StatementTransformer:
                                         break
                                 if init is not None:
                                     break
+                                continue
                             if isinstance(part, dict) and part.get("node") is None:
                                 if "int" in part:
                                     init = {"type": "const", "value": int(part["int"])}
@@ -100,6 +101,10 @@ class StatementTransformer:
                                 val = find_number_in_node(part)
                                 if val is not None:
                                     init = {"type": "const", "value": val}
+                                else:
+                                    expr_init = self.expr.from_node(part)
+                                    if expr_init is not None:
+                                        init = expr_init
 
         if name:
             decl = copy_line(decl_node, {"type": "decl", "name": name, "init": init})
