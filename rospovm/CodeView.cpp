@@ -1,13 +1,18 @@
 #include "CodeView.h"
 #include "VMController.h"
 
+#include <KSyntaxHighlighting/Definition>
+#include <KSyntaxHighlighting/Repository>
+#include <KSyntaxHighlighting/SyntaxHighlighter>
+#include <KSyntaxHighlighting/Theme>
+
+#include <QCoreApplication>
+#include <QDir>
 #include <QVBoxLayout>
 #include <QFont>
 #include <QTextEdit>
-#include <QRegularExpression>
 #include <QTextCursor>
 #include <QTextBlock>
-#include <QBrush>
 #include <QColor>
 #include <QFile>
 #include <QFileInfo>
@@ -16,167 +21,50 @@
 
 namespace
 {
-const QColor kAddressColor(100, 200, 255);
-const QColor kBytesColor(150, 150, 150);
-const QColor kInstructionColor(200, 100, 255);
-const QColor kRegisterColor(100, 255, 100);
-const QColor kImmediateColor(255, 200, 100);
-const QColor kJumpColor(255, 100, 100);
-const QColor kCommentColor(128, 128, 128);
-const QColor kBranchColor(255, 150, 100);
-const QColor kMemoryColor(100, 200, 255);
-const QColor kSystemColor(255, 200, 50);
 const QColor kCurrentInstructionHighlightColor(100, 100, 50);
 
-const QRegularExpression kAddressRegex(QStringLiteral("0x[0-9a-fA-F]+"));
-const QRegularExpression kRawInstructionRegex(QStringLiteral("\\b([0-9a-fA-F]){8}I\\b"));
-const QRegularExpression kRegisterRegex(QStringLiteral("\\br(\\d|1[0-5])\\b"));
-const QRegularExpression kBranchRegex(QStringLiteral("\\b(BEQ|BNE|BLT|BGE|BLTU|BGEU)\\b"));
-const QRegularExpression kJumpRegex(QStringLiteral("\\b(JAL|JALR|JMP)\\b"));
-const QRegularExpression kAluRegex(QStringLiteral("\\b(ADD|SUB|AND|OR|XOR|MUL|MULH|NEG|NOT|SHL|SHR|SAR|DIV|DIVU|REM|REMU|"
-                                                  "ADDI|ANDI|ORI|XORI|SHLI|SHRI|SARI)\\b"));
-const QRegularExpression kMemRegex(QStringLiteral("\\b(LB|LBU|LH|LHU|LW|SB|SH|SW)\\b"));
-const QRegularExpression kSysRegex(QStringLiteral("\\b(ECALL|BREAK|NOP)\\b"));
-const QRegularExpression kCommentRegex(QStringLiteral(";.*"));
-
 const QString kCodeDisplayStylesheet =
-    QStringLiteral("QPlainTextEdit { background-color: #1e1e1e; color: #d4d4d4; }");
+    QStringLiteral("QPlainTextEdit { background-color: #15181d; color: #d8dee9; }");
 const QString kSourceDisplayStylesheet =
-    QStringLiteral("QPlainTextEdit { background-color: #161616; color: #e6e6e6; }");
+    QStringLiteral("QPlainTextEdit { background-color: #11151b; color: #e6edf3; }");
 constexpr int kHexFieldWidth = 8;
 constexpr int kHexBase = 16;
 constexpr int kCodeFontSize = 10;
 const QColor kCurrentSourceLineHighlightColor(35, 72, 128);
-}
 
-// AssemblySyntaxHighlighter implementation
-AssemblySyntaxHighlighter::AssemblySyntaxHighlighter(QTextDocument *parent)
-    : QSyntaxHighlighter(parent)
+QString resolveHighlightingPath()
 {
-    // Address format (e.g., 0x00010000:)
-    addressFormat.setForeground(kAddressColor); // Light blue
-    addressFormat.setFontWeight(QFont::Bold);
+#ifdef ROSPOSVM_HIGHLIGHTING_DIR
+    const QString configuredPath = QStringLiteral(ROSPOSVM_HIGHLIGHTING_DIR);
+    if (QDir(configuredPath).exists())
+    {
+        return configuredPath;
+    }
+#endif
 
-    // Bytes format (hex)
-    bytesFormat.setForeground(kBytesColor); // Gray
+    const QDir appDir(QCoreApplication::applicationDirPath());
+    const QString localPath = appDir.filePath(QStringLiteral("highlighting"));
+    if (QDir(localPath).exists())
+    {
+        return localPath;
+    }
 
-    // Instruction mnemonics (main instructions)
-    instructionFormat.setForeground(kInstructionColor); // Magenta
-    instructionFormat.setFontWeight(QFont::Bold);
+    const QString buildPath = appDir.filePath(QStringLiteral("../highlighting"));
+    if (QDir(buildPath).exists())
+    {
+        return buildPath;
+    }
 
-    // Registers
-    registerFormat.setForeground(kRegisterColor); // Light green
-
-    // Immediate values
-    immediateFormat.setForeground(kImmediateColor); // Orange
-
-    // Jump/Branch instructions
-    jumpFormat.setForeground(kJumpColor); // Light red
-    jumpFormat.setFontWeight(QFont::Bold);
-
-    // Comments
-    commentFormat.setForeground(kCommentColor); // Dark gray
-    commentFormat.setFontItalic(true);
-
-    // Branch instructions (conditional)
-    branchFormat.setForeground(kBranchColor); // Coral
-    branchFormat.setFontWeight(QFont::Bold);
-
-    // Arithmetic/logic instructions
-    aluFormat.setForeground(kInstructionColor); // Magenta
-    aluFormat.setFontWeight(QFont::Bold);
-
-    // Memory instructions
-    memFormat.setForeground(kMemoryColor); // Cyan
-    memFormat.setFontWeight(QFont::Bold);
-
-    // System/special instructions
-    sysFormat.setForeground(kSystemColor); // Yellow
-    sysFormat.setFontWeight(QFont::Bold);
+    return QString();
 }
 
-void AssemblySyntaxHighlighter::highlightBlock(const QString &text)
-{
-    // Pattern: Address Bytes Instruction Registers/Immediates [Comment]
-
-    // Highlight address (starts line, contains 0x)
-    auto addressMatch = kAddressRegex.globalMatch(text);
-    while (addressMatch.hasNext())
-    {
-        auto match = addressMatch.next();
-        // Only highlight if it's at the start (address column)
-        if (match.capturedStart() == 0 ||
-            (match.capturedStart() > 0 && !text[match.capturedStart() - 1].isLetterOrNumber()))
-        {
-            setFormat(match.capturedStart(), match.capturedLength(), addressFormat);
-        }
-    }
-
-    auto rawInstructionMatch = kRawInstructionRegex.globalMatch(text);
-    while (rawInstructionMatch.hasNext())
-    {
-        auto match = rawInstructionMatch.next();
-        setFormat(match.capturedStart(), match.capturedLength(), bytesFormat);
-    }
-    // Highlight registers (r0-r15)
-    auto registerMatch = kRegisterRegex.globalMatch(text);
-    while (registerMatch.hasNext())
-    {
-        auto match = registerMatch.next();
-        setFormat(match.capturedStart(), match.capturedLength(), registerFormat);
-    }
-
-    // Highlight branch instructions (conditional)
-    auto branchMatch = kBranchRegex.globalMatch(text);
-    while (branchMatch.hasNext())
-    {
-        auto match = branchMatch.next();
-        setFormat(match.capturedStart(), match.capturedLength(), branchFormat);
-    }
-
-    // Highlight jump instructions (unconditional)
-    auto jumpMatch = kJumpRegex.globalMatch(text);
-    while (jumpMatch.hasNext())
-    {
-        auto match = jumpMatch.next();
-        setFormat(match.capturedStart(), match.capturedLength(), jumpFormat);
-    }
-
-    // Highlight arithmetic/logic instructions
-    auto aluMatch = kAluRegex.globalMatch(text);
-    while (aluMatch.hasNext())
-    {
-        auto match = aluMatch.next();
-        setFormat(match.capturedStart(), match.capturedLength(), aluFormat);
-    }
-
-    // Highlight memory instructions
-    auto memMatch = kMemRegex.globalMatch(text);
-    while (memMatch.hasNext())
-    {
-        auto match = memMatch.next();
-        setFormat(match.capturedStart(), match.capturedLength(), memFormat);
-    }
-
-    // Highlight system/special instructions
-    auto sysMatch = kSysRegex.globalMatch(text);
-    while (sysMatch.hasNext())
-    {
-        auto match = sysMatch.next();
-        setFormat(match.capturedStart(), match.capturedLength(), sysFormat);
-    }
-
-    // Highlight comments
-    auto commentMatch = kCommentRegex.match(text);
-    if (commentMatch.hasMatch())
-    {
-        setFormat(commentMatch.capturedStart(), commentMatch.capturedLength(), commentFormat);
-    }
-}
+} // namespace
 
 // CodeView implementation
 CodeView::CodeView(QWidget *parent)
-    : QWidget(parent), vmController(nullptr), currentPC(0)
+    : QWidget(parent), vmController(nullptr), codeDisplay(nullptr), sourceInfoDisplay(nullptr),
+      sourceCodeDisplay(nullptr), syntaxRepository(nullptr), codeHighlighter(nullptr),
+      sourceHighlighter(nullptr), currentPC(0)
 {
     createUI();
 }
@@ -209,8 +97,7 @@ void CodeView::createUI()
     monoFont.setStyleStrategy(QFont::PreferAntialias);
     codeDisplay->setFont(monoFont);
 
-    // Set up syntax highlighter
-    highlighter = new AssemblySyntaxHighlighter(codeDisplay->document());
+    setupSyntaxHighlighting();
 
     // Dark theme
     codeDisplay->setStyleSheet(kCodeDisplayStylesheet);
@@ -233,6 +120,37 @@ void CodeView::createUI()
     // Initialize code range - will be updated based on PC
     codeStartAddress = 0x00000000;
     codeEndAddress = 0xFFFFFFFF;
+}
+
+void CodeView::setupSyntaxHighlighting()
+{
+    syntaxRepository = new KSyntaxHighlighting::Repository();
+
+    const QString highlightingRoot = resolveHighlightingPath();
+    if (!highlightingRoot.isEmpty())
+    {
+        syntaxRepository->addCustomSearchPath(highlightingRoot);
+    }
+
+    KSyntaxHighlighting::Theme theme = syntaxRepository->theme(QStringLiteral("RospOS Night"));
+    if (!theme.isValid())
+    {
+        theme = syntaxRepository->defaultTheme(KSyntaxHighlighting::Repository::DarkTheme);
+    }
+
+    codeHighlighter = new KSyntaxHighlighting::SyntaxHighlighter(codeDisplay->document());
+    codeHighlighter->setTheme(theme);
+    KSyntaxHighlighting::Definition codeDefinition =
+        syntaxRepository->definitionForName(QStringLiteral("RospOS Assembly"));
+    if (!codeDefinition.isValid())
+    {
+        codeDefinition = syntaxRepository->definitionForName(QStringLiteral("Intel x86 (NASM)"));
+    }
+    codeHighlighter->setDefinition(codeDefinition);
+
+    sourceHighlighter = new KSyntaxHighlighting::SyntaxHighlighter(sourceCodeDisplay->document());
+    sourceHighlighter->setTheme(theme);
+    sourceHighlighter->setDefinition(syntaxRepository->definitionForName(QStringLiteral("C")));
 }
 
 void CodeView::setVMController(VMController *controller)
@@ -323,12 +241,6 @@ void CodeView::populateCode()
 
         // Store address to line mapping
         addressToLine[addr] = lineNum;
-
-        // Get source location if available
-        QString sourceLocation = vmController->getSourceLocation(addr);
-        QString sourceComment = (sourceLocation != "unknown") 
-            ? QString(" ; [%1]").arg(sourceLocation)
-            : "";
 
         // Format: Address | Bytes | Instruction | Source Location
         QString line = QString("0x%1  %2  %3\n")

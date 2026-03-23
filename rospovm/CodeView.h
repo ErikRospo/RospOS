@@ -3,46 +3,16 @@
 
 #include <QWidget>
 #include <QPlainTextEdit>
-#include <QSyntaxHighlighter>
-#include <QTextDocument>
-#include <QRegularExpression>
 #include <QMap>
 #include <QStringList>
 #include <cstdint>
 
+namespace KSyntaxHighlighting {
+class Repository;
+class SyntaxHighlighter;
+}
+
 class VMController;
-
-// Syntax highlighter for RospOS assembly
-class AssemblySyntaxHighlighter : public QSyntaxHighlighter
-{
-    Q_OBJECT
-
-public:
-    explicit AssemblySyntaxHighlighter(QTextDocument *parent = nullptr);
-
-protected:
-    void highlightBlock(const QString &text) override;
-
-private:
-    struct HighlightRule
-    {
-        QRegularExpression pattern;
-        QTextCharFormat format;
-    };
-
-    QVector<HighlightRule> highlightRules;
-    QTextCharFormat addressFormat;
-    QTextCharFormat bytesFormat;
-    QTextCharFormat instructionFormat;
-    QTextCharFormat registerFormat;
-    QTextCharFormat immediateFormat;
-    QTextCharFormat jumpFormat;
-    QTextCharFormat commentFormat;
-    QTextCharFormat branchFormat;
-    QTextCharFormat aluFormat;
-    QTextCharFormat memFormat;
-    QTextCharFormat sysFormat;
-};
 
 // Code display widget with jump visualization
 class CodeView : public QWidget
@@ -60,6 +30,7 @@ public:
 
 private:
     void createUI();
+    void setupSyntaxHighlighting();
     void populateCode();
     void drawJumpVisualization();
     void centerOnPC();
@@ -71,7 +42,9 @@ private:
     QPlainTextEdit *codeDisplay;
     QPlainTextEdit *sourceInfoDisplay;  // Display for source location info
     QPlainTextEdit *sourceCodeDisplay;
-    AssemblySyntaxHighlighter *highlighter;
+    KSyntaxHighlighting::Repository *syntaxRepository;
+    KSyntaxHighlighting::SyntaxHighlighter *codeHighlighter;
+    KSyntaxHighlighting::SyntaxHighlighter *sourceHighlighter;
     
     uint32_t codeStartAddress;
     uint32_t codeEndAddress;

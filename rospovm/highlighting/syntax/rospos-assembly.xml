@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE language SYSTEM "language.dtd">
+<language
+    name="RospOS Assembly"
+    version="1"
+    kateversion="5.0"
+    section="Assembler"
+    extensions="*.ros;*.rosp"
+    mimetype="text/x-rospos-assembly"
+    author="RospOS"
+    license="MIT">
+    <highlighting>
+        <list name="branch-list">
+            <item>BEQ</item>
+            <item>BNE</item>
+            <item>BLT</item>
+            <item>BGE</item>
+            <item>BLTU</item>
+            <item>BGEU</item>
+        </list>
+
+        <list name="jump-list">
+            <item>JAL</item>
+            <item>JALR</item>
+            <item>JMP</item>
+        </list>
+
+        <list name="alu-list">
+            <item>ADD</item>
+            <item>SUB</item>
+            <item>AND</item>
+            <item>OR</item>
+            <item>XOR</item>
+            <item>MUL</item>
+            <item>MULH</item>
+            <item>NEG</item>
+            <item>NOT</item>
+            <item>SHL</item>
+            <item>SHR</item>
+            <item>SAR</item>
+            <item>DIV</item>
+            <item>DIVU</item>
+            <item>REM</item>
+            <item>REMU</item>
+            <item>ADDI</item>
+            <item>ANDI</item>
+            <item>ORI</item>
+            <item>XORI</item>
+            <item>SHLI</item>
+            <item>SHRI</item>
+            <item>SARI</item>
+        </list>
+
+        <list name="mem-list">
+            <item>LB</item>
+            <item>LBU</item>
+            <item>LH</item>
+            <item>LHU</item>
+            <item>LW</item>
+            <item>SB</item>
+            <item>SH</item>
+            <item>SW</item>
+        </list>
+
+        <list name="sys-list">
+            <item>ECALL</item>
+            <item>BREAK</item>
+            <item>NOP</item>
+        </list>
+
+        <contexts>
+            <context name="normal" attribute="Normal" lineEndContext="#stay">
+                <DetectChar char=";" context="line-comment" attribute="Comment"/>
+                <RegExpr attribute="Address" context="#stay" String="\b0x[0-9A-Fa-f]+\b"/>
+                <RegExpr attribute="RawInstruction" context="#stay" String="\b[0-9A-Fa-f]{8}\b"/>
+                <keyword attribute="Branch" context="#stay" String="branch-list"/>
+                <keyword attribute="Jump" context="#stay" String="jump-list"/>
+                <keyword attribute="Alu" context="#stay" String="alu-list"/>
+                <keyword attribute="Memory" context="#stay" String="mem-list"/>
+                <keyword attribute="System" context="#stay" String="sys-list"/>
+                <RegExpr attribute="Register" context="#stay" String="\br(?:[0-9]|1[0-5])\b"/>
+                <RegExpr attribute="Immediate" context="#stay" String="(?:(?<!\w)-?\d+|\b0x[0-9A-Fa-f]+\b)"/>
+            </context>
+
+            <context name="line-comment" attribute="Comment" lineEndContext="#pop">
+                <IncludeRules context="##Alerts"/>
+            </context>
+        </contexts>
+
+        <itemDatas>
+            <itemData name="Normal" defStyleNum="dsNormal"/>
+            <itemData name="Address" defStyleNum="dsBaseN"/>
+            <itemData name="RawInstruction" defStyleNum="dsDataType"/>
+            <itemData name="Branch" defStyleNum="dsControlFlow" spellChecking="false"/>
+            <itemData name="Jump" defStyleNum="dsControlFlow" spellChecking="false"/>
+            <itemData name="Alu" defStyleNum="dsFunction" spellChecking="false"/>
+            <itemData name="Memory" defStyleNum="dsKeyword" spellChecking="false"/>
+            <itemData name="System" defStyleNum="dsAnnotation" spellChecking="false"/>
+            <itemData name="Register" defStyleNum="dsVariable" spellChecking="false"/>
+            <itemData name="Immediate" defStyleNum="dsDecVal" spellChecking="false"/>
+            <itemData name="Comment" defStyleNum="dsComment"/>
+        </itemDatas>
+    </highlighting>
+
+    <general>
+        <comments>
+            <comment name="singleLine" start=";"/>
+        </comments>
+        <keywords casesensitive="1"/>
+    </general>
+</language>

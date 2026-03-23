@@ -19,6 +19,9 @@ endif()
 
 find_package(Qt6 COMPONENTS Core Gui Widgets REQUIRED)
 find_package(ZLIB REQUIRED)
+find_package(KF6SyntaxHighlighting REQUIRED)
+
+set(ROSPOSVM_HIGHLIGHTING_DIR "${CMAKE_CURRENT_SOURCE_DIR}/highlighting")
 # VM Core Library
 # Static library containing the VM implementation (no GUI dependencies)
 add_library(rosposvm_lib STATIC
@@ -45,8 +48,8 @@ add_library(rosposvm_lib STATIC
 )
 
 target_include_directories(rosposvm_lib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-target_link_libraries(rosposvm_lib PUBLIC Qt6::Core Qt6::Gui Qt6::Widgets ZLIB::ZLIB)
-
+target_link_libraries(rosposvm_lib PUBLIC Qt6::Core Qt6::Gui Qt6::Widgets ZLIB::ZLIB KF6::SyntaxHighlighting)
+    
 # Qt GUI Application
 add_executable(rospovm_qt
     main_qt.cpp
@@ -74,4 +77,15 @@ target_link_libraries(rospovm_qt PRIVATE
     Qt6::Gui
     Qt6::Widgets
     ZLIB::ZLIB
+    KF6::SyntaxHighlighting
+)
+
+target_compile_definitions(rospovm_qt PRIVATE
+    ROSPOSVM_HIGHLIGHTING_DIR="${ROSPOSVM_HIGHLIGHTING_DIR}"
+)
+
+add_custom_command(TARGET rospovm_qt POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+            "${ROSPOSVM_HIGHLIGHTING_DIR}"
+            "$<TARGET_FILE_DIR:rospovm_qt>/highlighting"
 )
