@@ -11,6 +11,11 @@ Maybe replace/integrate editor with https://github.com/KDE/syntax-highlighting f
 Evaluate simple constant expressions at compile time, esp for LLI. (e.g. 256-8 should be evaluated to 248 at compile time)
 
 ## Optimizations
+
+### Inlining
+Inlining small functions (e.g. add) can reduce function call overhead and enable further optimizations, especially given how expensive function calls tend to be on a simple architecture like this. We can set a threshold for function size (e.g. 5 instructions) and inline any functions that are below that threshold, or anything with the `inline` keyword, or a single call site. Function calls generate around 4 instructions per register that is allocated at the time of the call, 2 for the push, 2 for the pop.
+
+
 ### Peephole optimizations
 #### LLI + arith/logical op
 LLI followed by arith/logical op with the same register should be pseudo-op'd to a single instruction (e.g. LLI r1, 5 followed by ADD r1, r1, r2 should be converted to ADDI r1, r2, 5), if possible.
