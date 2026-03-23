@@ -70,6 +70,7 @@ class TranslationUnitTransformer:
             fn["param_types"] = param_types
         if return_type:
             fn["return_type"] = return_type
+        fn["_line"] = node.get("_line")
         self.ctx.tu["functions"].append(fn)
         return [None]
 

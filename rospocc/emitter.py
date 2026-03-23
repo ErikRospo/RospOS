@@ -162,19 +162,17 @@ class Emitter:
             out = self.tracked_writer
 
             # Header and globals collection
-            out.set_source_context(None)  # No source for header
+            # the file header should be labeled as coming from the main function
+            main_fn = next((fn for fn in ast.get("functions", []) if fn.get("name") == "main"), None)
+            assert main_fn, "Translation unit must have a main function for source tracking context"
+            print("mainfn:",main_fn)
+            print()
+            self._set_source_context(main_fn, out)
             self._write_file_header(out)
-            funcs = ast.get("functions", [])
             self._collect_global_types(ast)
-            main_label = "main"
-            assert main_label in [
-                fn.get("name") for fn in funcs
-            ], "Expected a main function as entry point"
             out.write(".DATA 0x00000000\n\n")
             out.write(".SEG 0x00000000\n\n")
-            if main_label:
-                # Place a small bootstrap that jumps to main as the first code
-                out.write(f"  JMP {main_label}\n\n")
+            out.write(f"  JMP main\n\n")
             # Functions
             for fn in ast.get("functions", []):
                 self.emit_function_def(fn, out)
