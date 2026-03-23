@@ -328,8 +328,10 @@ void MainWindow::onVMStateChanged()
     
     // Update debug panel
     uint32_t pc = vmController->getProgramCounter();
+    const bool canStepBack = vmController->canStepBackward();
     debugPanel->setPCLabel(pc);
-    debugPanel->setStepBackEnabled(vmController->canStepBackward());
+    debugPanel->setStepBackEnabled(canStepBack);
+    stepBackAction->setEnabled(canStepBack);
 }
 
 void MainWindow::onVMError(const QString &message)
