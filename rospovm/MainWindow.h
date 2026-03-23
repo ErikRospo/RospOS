@@ -56,6 +56,11 @@ private:
 
     // UI Controls
     QAction *loadButton;
+    QAction *stepAction;
+    QAction *stepBackAction;
+    QAction *runAction;
+    QAction *pauseAction;
+    QAction *resetAction;
     QLabel *statusLabel;
 };
 

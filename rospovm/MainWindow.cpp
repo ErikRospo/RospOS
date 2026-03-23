@@ -16,6 +16,7 @@
 #include <QToolBar>
 #include <QFileDialog>
 #include <QStatusBar>
+#include <QStyle>
 #include <QGroupBox>
 #include <QLabel>
 #include <QMessageBox>
@@ -111,10 +112,47 @@ void MainWindow::createToolBar()
 {
     QToolBar *toolBar = addToolBar(tr("File Tools"));
     toolBar->setObjectName("FileToolBar");
+    toolBar->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
 
     QAction *loadAction = toolBar->addAction(tr("Load Binary"));
+    loadAction->setIcon(style()->standardIcon(QStyle::SP_DirOpenIcon));
     connect(loadAction, &QAction::triggered, this, &MainWindow::onLoadFile);
     loadButton = loadAction;
+
+    toolBar->addSeparator();
+
+    // Add step control buttons to toolbar
+    stepAction = toolBar->addAction(tr("Step"));
+    stepAction->setIcon(style()->standardIcon(QStyle::SP_MediaSkipForward));
+    stepAction->setShortcut(Qt::Key_F10);
+    stepAction->setToolTip(tr("Step the program forward 1 instruction (F10)"));
+    connect(stepAction, &QAction::triggered, this, &MainWindow::onStep);
+
+    stepBackAction = toolBar->addAction(tr("Step Back"));
+    stepBackAction->setIcon(style()->standardIcon(QStyle::SP_MediaSkipBackward));
+    stepBackAction->setShortcut(QKeySequence(Qt::SHIFT | Qt::Key_F10));
+    stepBackAction->setToolTip(tr("Step the program backward 1 instruction (Shift + F10)"));
+    connect(stepBackAction, &QAction::triggered, this, &MainWindow::onStepBack);
+    stepBackAction->setEnabled(false);
+
+    runAction = toolBar->addAction(tr("Run"));
+    runAction->setIcon(style()->standardIcon(QStyle::SP_MediaPlay));
+    runAction->setShortcut(Qt::Key_F5);
+    runAction->setToolTip(tr("Run the program continuously (F5)"));
+    connect(runAction, &QAction::triggered, this, &MainWindow::onRun);
+
+    pauseAction = toolBar->addAction(tr("Pause"));
+    pauseAction->setIcon(style()->standardIcon(QStyle::SP_MediaPause));
+    pauseAction->setShortcut(Qt::CTRL | Qt::Key_P);
+    pauseAction->setToolTip(tr("Pause the program (Ctrl + P)"));
+    connect(pauseAction, &QAction::triggered, this, &MainWindow::onPause);
+    pauseAction->setEnabled(false);
+
+    resetAction = toolBar->addAction(tr("Reset"));
+    resetAction->setIcon(style()->standardIcon(QStyle::SP_BrowserReload));
+    resetAction->setShortcut(Qt::CTRL | Qt::Key_Backspace);
+    resetAction->setToolTip(tr("Reset the VM (Ctrl + Backspace)"));
+    connect(resetAction, &QAction::triggered, this, &MainWindow::onReset);
 }
 
 void MainWindow::createCentralWidget()
@@ -235,11 +273,6 @@ void MainWindow::setupConnections()
     debugPanel->setVMController(vmController.get());
 
     // Connect debug panel signals
-    connect(debugPanel, &DebugControlPanel::stepClicked, this, &MainWindow::onStep);
-    connect(debugPanel, &DebugControlPanel::stepBackClicked, this, &MainWindow::onStepBack);
-    connect(debugPanel, &DebugControlPanel::runClicked, this, &MainWindow::onRun);
-    connect(debugPanel, &DebugControlPanel::pauseClicked, this, &MainWindow::onPause);
-    connect(debugPanel, &DebugControlPanel::resetClicked, this, &MainWindow::onReset);
     connect(debugPanel, &DebugControlPanel::speedChanged, this, &MainWindow::onSpeedChanged);
 }
 
@@ -309,20 +342,20 @@ void MainWindow::onExecutionStarted()
 {
     statusLabel->setText(tr("Status: Running..."));
     debugPanel->setStatus("Running");
-    debugPanel->setStepEnabled(false);
-    debugPanel->setStepBackEnabled(false);
-    debugPanel->setRunEnabled(false);
-    debugPanel->setPauseEnabled(true);
+    stepAction->setEnabled(false);
+    stepBackAction->setEnabled(false);
+    runAction->setEnabled(false);
+    pauseAction->setEnabled(true);
 }
 
 void MainWindow::onExecutionStopped()
 {
     statusLabel->setText(tr("Status: Stopped"));
     debugPanel->setStatus("Stopped");
-    debugPanel->setStepEnabled(true);
-    debugPanel->setStepBackEnabled(vmController->canStepBackward());
-    debugPanel->setRunEnabled(true);
-    debugPanel->setPauseEnabled(false);
+    stepAction->setEnabled(true);
+    stepBackAction->setEnabled(vmController->canStepBackward());
+    runAction->setEnabled(true);
+    pauseAction->setEnabled(false);
     onVMStateChanged();
 }
 

@@ -28,11 +28,6 @@ public:
     void setPCLabel(uint32_t pc);
 
 signals:
-    void stepClicked();
-    void stepBackClicked();
-    void runClicked();
-    void pauseClicked();
-    void resetClicked();
     void speedChanged(int value);
     void addressChanged(uint32_t address);
 
@@ -46,11 +41,6 @@ private:
 
     VMController *vmController;
 
-    QPushButton *stepButton;
-    QPushButton *stepBackButton;
-    QPushButton *runButton;
-    QPushButton *pauseButton;
-    QPushButton *resetButton;
     QLabel *statusLabel;
     QLabel *pcLabel;
     QSlider *speedSlider;

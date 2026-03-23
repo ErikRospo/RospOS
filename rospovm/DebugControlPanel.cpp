@@ -25,44 +25,6 @@ void DebugControlPanel::createUI()
     mainLayout->setSpacing(10);
     mainLayout->setContentsMargins(10, 10, 10, 10);
 
-    // ===== Execution Control =====
-    QGroupBox *executionGroup = new QGroupBox(tr("Execution Control"), this);
-    QHBoxLayout *executionLayout = new QHBoxLayout(executionGroup);
-
-    // Step button
-    stepButton = new QPushButton(tr("Step (F10)"));
-    stepButton->setMinimumHeight(40);
-    stepButton->setToolTip("Execute next instruction");
-    executionLayout->addWidget(stepButton);
-
-    // Step back button
-    stepBackButton = new QPushButton(tr("Step Back (Shift+F10)"));
-    stepBackButton->setMinimumHeight(40);
-    stepBackButton->setToolTip("Restore the VM to the previous instruction state");
-    stepBackButton->setEnabled(false);
-    executionLayout->addWidget(stepBackButton);
-
-    // Run button
-    runButton = new QPushButton(tr("Run (F5)"));
-    runButton->setMinimumHeight(40);
-    runButton->setToolTip("Run until breakpoint or completion");
-    executionLayout->addWidget(runButton);
-
-    // Pause button
-    pauseButton = new QPushButton(tr("Pause"));
-    pauseButton->setMinimumHeight(40);
-    pauseButton->setEnabled(false);
-    pauseButton->setToolTip("Pause execution");
-    executionLayout->addWidget(pauseButton);
-
-    // Reset button
-    resetButton = new QPushButton(tr("Reset"));
-    resetButton->setMinimumHeight(40);
-    resetButton->setToolTip("Reset VM to initial state");
-    executionLayout->addWidget(resetButton);
-
-    mainLayout->addWidget(executionGroup);
-
     // ===== Status =====
     QGroupBox *statusGroup = new QGroupBox(tr("VM Status"), this);
     QVBoxLayout *statusLayout = new QVBoxLayout(statusGroup);
@@ -178,11 +140,6 @@ void DebugControlPanel::createUI()
 
 void DebugControlPanel::setupConnections()
 {
-    connect(stepButton, &QPushButton::clicked, this, &DebugControlPanel::stepClicked);
-    connect(stepBackButton, &QPushButton::clicked, this, &DebugControlPanel::stepBackClicked);
-    connect(runButton, &QPushButton::clicked, this, &DebugControlPanel::runClicked);
-    connect(pauseButton, &QPushButton::clicked, this, &DebugControlPanel::pauseClicked);
-    connect(resetButton, &QPushButton::clicked, this, &DebugControlPanel::resetClicked);
     connect(speedSlider, QOverload<int>::of(&QSlider::valueChanged), this, &DebugControlPanel::speedChanged);
     
     connect(addressSpinBox, QOverload<int>::of(&QSpinBox::valueChanged),
@@ -208,27 +165,27 @@ void DebugControlPanel::setVMController(VMController *controller)
 
 void DebugControlPanel::setStepEnabled(bool enabled)
 {
-    stepButton->setEnabled(enabled);
+    Q_UNUSED(enabled);
 }
 
 void DebugControlPanel::setStepBackEnabled(bool enabled)
 {
-    stepBackButton->setEnabled(enabled);
+    Q_UNUSED(enabled);
 }
 
 void DebugControlPanel::setRunEnabled(bool enabled)
 {
-    runButton->setEnabled(enabled);
+    Q_UNUSED(enabled);
 }
 
 void DebugControlPanel::setPauseEnabled(bool enabled)
 {
-    pauseButton->setEnabled(enabled);
+    Q_UNUSED(enabled);
 }
 
 void DebugControlPanel::setResetEnabled(bool enabled)
 {
-    resetButton->setEnabled(enabled);
+    Q_UNUSED(enabled);
 }
 
 void DebugControlPanel::setStatus(const QString &status)
