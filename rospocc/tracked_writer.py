@@ -99,6 +99,10 @@ class TrackedWriter:
         """
         return self.mappings
 
+    def get_current_output_line(self) -> int:
+        """Get the current output line number."""
+        return self.current_output_line
+
     def close(self):
         """Close the writer and flush any remaining data."""
         self.flush()

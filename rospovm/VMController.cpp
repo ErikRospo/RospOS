@@ -217,6 +217,77 @@ QString VMController::getRegisterName(int index) const
     return QString("R%1").arg(index);
 }
 
+QString VMController::getRegisterAllocationTooltip(int index) const
+{
+    try {
+        const uint32_t pc = vm->getProgramCounter();
+        const RegisterAllocationInfo *alloc = vm->getRegisterAllocation(pc, index);
+        if (!alloc) {
+            return QString();
+        }
+
+        QString kind = QString::fromStdString(alloc->var_kind);
+        if (kind.isEmpty()) {
+            kind = "local";
+        }
+        QString text = QString("%1 (%2)")
+                           .arg(QString::fromStdString(alloc->variable_name), kind);
+
+        const QString type = QString::fromStdString(alloc->variable_type);
+        if (!type.isEmpty()) {
+            text += QString("\nType: %1").arg(type);
+        }
+
+        const QString origin = QString::fromStdString(alloc->origin);
+        if (!origin.isEmpty()) {
+            text += QString("\nOrigin: %1").arg(origin);
+        }
+
+        if (kind == "temp") {
+            text += "\nTemporary calculation";
+        }
+
+        return text;
+    } catch (...) {
+        return QString();
+    }
+}
+
+QString VMController::getRegisterAllocationTooltipAt(uint32_t address, int index) const
+{
+    try {
+        const RegisterAllocationInfo *alloc = vm->getRegisterAllocation(address, index);
+        if (!alloc) {
+            return QString();
+        }
+
+        QString kind = QString::fromStdString(alloc->var_kind);
+        if (kind.isEmpty()) {
+            kind = "local";
+        }
+        QString text = QString("%1 (%2)")
+                           .arg(QString::fromStdString(alloc->variable_name), kind);
+
+        const QString type = QString::fromStdString(alloc->variable_type);
+        if (!type.isEmpty()) {
+            text += QString("\nType: %1").arg(type);
+        }
+
+        const QString origin = QString::fromStdString(alloc->origin);
+        if (!origin.isEmpty()) {
+            text += QString("\nOrigin: %1").arg(origin);
+        }
+
+        if (kind == "temp") {
+            text += "\nTemporary calculation";
+        }
+
+        return text;
+    } catch (...) {
+        return QString();
+    }
+}
+
 uint32_t VMController::readMemory(uint32_t address) const
 {
     try {

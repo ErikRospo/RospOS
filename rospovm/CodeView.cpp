@@ -18,6 +18,9 @@
 #include <QFileInfo>
 #include <QSplitter>
 #include <QTextStream>
+#include <QHelpEvent>
+#include <QToolTip>
+#include <QRegularExpression>
 
 namespace
 {
@@ -91,6 +94,9 @@ void CodeView::createUI()
 
     codeDisplay = new QPlainTextEdit();
     codeDisplay->setReadOnly(true);
+    codeDisplay->setMouseTracking(true);
+    codeDisplay->viewport()->setMouseTracking(true);
+    codeDisplay->viewport()->installEventFilter(this);
 
     // Set monospace font
     monoFont.setPointSize(kCodeFontSize);
@@ -212,6 +218,7 @@ void CodeView::populateCode()
 
     codeDisplay->clear();
     addressToLine.clear();
+    lineToAddress.clear();
 
     QString codeText;
     int lineNum = 0;
@@ -237,6 +244,7 @@ void CodeView::populateCode()
 
         // Store address to line mapping
         addressToLine[addr] = lineNum;
+        lineToAddress[lineNum] = addr;
 
         // Format: Address | Bytes | Instruction | Source Location
         QString line = QString("0x%1  %2  %3\n")
@@ -368,4 +376,76 @@ void CodeView::highlightSourceLine(uint32_t oneBasedLine)
 void CodeView::centerOnPC()
 {
     highlightCurrentInstruction();
+}
+
+bool CodeView::eventFilter(QObject *watched, QEvent *event)
+{
+    if (watched == codeDisplay->viewport() && event->type() == QEvent::ToolTip)
+    {
+        QHelpEvent *helpEvent = static_cast<QHelpEvent *>(event);
+        const QString tooltipText = resolveCodeRegisterTooltip(helpEvent->pos());
+        if (!tooltipText.isEmpty())
+        {
+            QToolTip::showText(helpEvent->globalPos(), tooltipText, codeDisplay);
+            return true;
+        }
+
+        QToolTip::hideText();
+        event->ignore();
+        return true;
+    }
+
+    return QWidget::eventFilter(watched, event);
+}
+
+QString CodeView::resolveCodeRegisterTooltip(const QPoint &viewportPos) const
+{
+    if (!vmController)
+    {
+        return QString();
+    }
+
+    const QTextCursor cursor = codeDisplay->cursorForPosition(viewportPos);
+    const QTextBlock block = cursor.block();
+    if (!block.isValid())
+    {
+        return QString();
+    }
+
+    const int lineNumber = block.blockNumber();
+    if (!lineToAddress.contains(lineNumber))
+    {
+        return QString();
+    }
+
+    const QString lineText = block.text();
+    const int col = cursor.positionInBlock();
+
+    static const QRegularExpression regPattern(
+        QStringLiteral("\\br(1[0-5]|[0-9])\\b"),
+        QRegularExpression::CaseInsensitiveOption);
+
+    QRegularExpressionMatchIterator it = regPattern.globalMatch(lineText);
+    while (it.hasNext())
+    {
+        const QRegularExpressionMatch match = it.next();
+        const int start = match.capturedStart();
+        const int end = start + match.capturedLength();
+        if (col < start || col >= end)
+        {
+            continue;
+        }
+
+        bool ok = false;
+        const int regIndex = match.captured(1).toInt(&ok);
+        if (!ok)
+        {
+            return QString();
+        }
+
+        const uint32_t address = lineToAddress.value(lineNumber);
+        return vmController->getRegisterAllocationTooltipAt(address, regIndex);
+    }
+
+    return QString();
 }

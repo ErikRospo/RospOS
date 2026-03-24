@@ -27,12 +27,22 @@ struct DebugEntry
     std::string original_text;
 };
 
+struct RegisterAllocationInfo
+{
+    std::string reg;
+    std::string variable_name;
+    std::string variable_type;
+    std::string var_kind;
+    std::string origin;
+};
+
 struct DebugInfo
 {
     uint32_t version;
     uint32_t segment_address;
     std::vector<DebugEntry> entries;
     std::map<uint32_t, std::string> file_table;
+    std::map<uint32_t, std::vector<RegisterAllocationInfo>> register_allocations;
 };
 
 struct SegmentV2

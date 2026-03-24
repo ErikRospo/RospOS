@@ -5,6 +5,7 @@
 #include <QPlainTextEdit>
 #include <QMap>
 #include <QStringList>
+#include <QEvent>
 #include <cstdint>
 
 namespace KSyntaxHighlighting {
@@ -28,6 +29,9 @@ public:
     void highlightCurrentInstruction();
     void setCodeRange(uint32_t startAddr, uint32_t endAddr);
 
+protected:
+    bool eventFilter(QObject *watched, QEvent *event) override;
+
 private:
     void createUI();
     void setupSyntaxHighlighting();
@@ -37,6 +41,7 @@ private:
     void updateSourcePanel(uint32_t address);
     void loadSourceFile(const QString &sourceFilePath);
     void highlightSourceLine(uint32_t oneBasedLine);
+    QString resolveCodeRegisterTooltip(const QPoint &viewportPos) const;
 
     VMController *vmController;
     QPlainTextEdit *codeDisplay;
@@ -55,6 +60,7 @@ private:
     QMap<QString, QStringList> sourceFileCache;
     
     QMap<uint32_t, int> addressToLine;  // Maps code address to line number
+    QMap<int, uint32_t> lineToAddress;  // Reverse map for hover lookups
 
     const int NUM_INSTRUCTIONS = 128;
     const int INSTRUCTIONS_BEFORE_PC = 32;  // Show 32 instructions before PC

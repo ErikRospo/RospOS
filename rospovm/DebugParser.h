@@ -47,6 +47,21 @@ private:
      * Returns true if successful, false otherwise.
      */
     static bool parse_file_line(const std::string& line, uint32_t& file_id, std::string& path);
+
+    /**
+     * Parse a register allocation line.
+     * Format: 0xADDR {"register":"r2","variable_name":"x",...}
+     */
+    static bool parse_register_line(
+        const std::string& line,
+        uint32_t& address,
+        RegisterAllocationInfo& info
+    );
+
+    static std::string extract_json_string_field(
+        const std::string& json,
+        const std::string& key
+    );
 };
 
 #endif // DEBUG_PARSER_H

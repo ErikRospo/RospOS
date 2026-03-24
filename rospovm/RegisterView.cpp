@@ -64,18 +64,22 @@ void RegisterView::populateRegisters()
     for (int i = 0; i < 16; ++i) {
         uint32_t value = vmController->getRegister(i);
         QString regName = vmController->getRegisterName(i);
+        QString tooltip = vmController->getRegisterAllocationTooltip(i);
 
         // Register name column
         QTableWidgetItem *nameItem = new QTableWidgetItem(regName);
+        nameItem->setToolTip(tooltip);
         registerTable->setItem(i, 0, nameItem);
 
         // Hex value column
         QTableWidgetItem *hexItem = new QTableWidgetItem(
             QString("0x%1").arg(value, 8, 16, QChar('0')));
+        hexItem->setToolTip(tooltip);
         registerTable->setItem(i, 1, hexItem);
 
         // Decimal value column
         QTableWidgetItem *decItem = new QTableWidgetItem(QString::number(value));
+        decItem->setToolTip(tooltip);
         registerTable->setItem(i, 2, decItem);
     }
 }

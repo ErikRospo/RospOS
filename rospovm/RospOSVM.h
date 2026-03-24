@@ -114,6 +114,16 @@ public:
      * @return Original instruction text or empty string if not found
      */
     std::string getOriginalInstruction(uint32_t address) const;
+
+    /**
+     * Get register allocation info for an address/register pair.
+     */
+    const RegisterAllocationInfo* getRegisterAllocation(uint32_t address, const std::string &regName) const;
+
+    /**
+     * Convenience overload using register index 0..15.
+     */
+    const RegisterAllocationInfo* getRegisterAllocation(uint32_t address, int regIndex) const;
     
     /**
      * Get the loaded binary (contains debug info maps).

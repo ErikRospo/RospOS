@@ -1,9 +1,37 @@
 import json
+from typing import Dict, List, Optional
 
 from ir import Directive
 from ir import Instruction as IRInstruction
 from ir import LabelDecl
 from utility import _debug_flags_from_node, _imm_to_int, _node_original_text
+
+
+class RegisterAllocation:
+    """Register allocation metadata captured for an instruction address."""
+
+    def __init__(
+        self,
+        register: str,
+        variable_name: str,
+        variable_type: str,
+        var_kind: str = "local",
+        origin: Optional[str] = None,
+    ):
+        self.register = register
+        self.variable_name = variable_name
+        self.variable_type = variable_type
+        self.var_kind = var_kind
+        self.origin = origin
+
+    def to_dict(self) -> Dict[str, object]:
+        return {
+            "register": self.register,
+            "variable_name": self.variable_name,
+            "variable_type": self.variable_type,
+            "var_kind": self.var_kind,
+            "origin": self.origin,
+        }
 
 
 def collect_debug_segments(ir_nodes):
@@ -82,9 +110,10 @@ def collect_debug_segments(ir_nodes):
 
 class DebugInfoWriter:
     def __init__(self):
-        self.entries = []
-        self.file_table = {}
+        self.entries: List[Dict[str, object]] = []
+        self.file_table: Dict[str, int] = {}
         self.file_id_counter = 0
+        self.register_allocations: Dict[int, List[RegisterAllocation]] = {}
 
     def get_file_id(self, filepath):
         if filepath is None:
@@ -97,6 +126,7 @@ class DebugInfoWriter:
     def add_entry(self, address, flags, src_info, original_text):
         src = src_info if isinstance(src_info, dict) else {}
         file_id = self.get_file_id(src.get("file"))
+
         line_raw = src.get("line", 0)
         if isinstance(line_raw, int):
             line = line_raw
@@ -105,6 +135,16 @@ class DebugInfoWriter:
                 line = int(str(line_raw))
             except Exception:
                 line = 0
+
+        pp_line_raw = src.get("pp_line", 0)
+        if isinstance(pp_line_raw, int):
+            pp_line = pp_line_raw
+        else:
+            try:
+                pp_line = int(str(pp_line_raw))
+            except Exception:
+                pp_line = 0
+
         text = original_text
         if text is None:
             text = src.get("original_text")
@@ -116,10 +156,14 @@ class DebugInfoWriter:
                 "address": int(address),
                 "flags": int(flags),
                 "file_id": int(file_id),
-                "line": line,
+                "line": int(line),
+                "pp_line": int(pp_line),
                 "original_text": str(text),
             }
         )
+
+    def add_register_allocation(self, address: int, register_alloc: RegisterAllocation):
+        self.register_allocations.setdefault(int(address), []).append(register_alloc)
 
     def write_debug_segment(self, segment_addr):
         lines = [
@@ -139,5 +183,13 @@ class DebugInfoWriter:
         file_items = sorted(self.file_table.items(), key=lambda kv: kv[1])
         for path, fid in file_items:
             lines.append(f"{fid} {path}")
+
+        if self.register_allocations:
+            lines.append("REGISTERS:")
+            for addr in sorted(self.register_allocations.keys()):
+                allocs = self.register_allocations[addr]
+                for alloc in allocs:
+                    alloc_json = json.dumps(alloc.to_dict(), ensure_ascii=False)
+                    lines.append(f"0x{addr:08X} {alloc_json}")
 
         return "\n".join(lines) + "\n"

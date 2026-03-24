@@ -7,13 +7,14 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Callable, DefaultDict
 
-from debug_writer import DebugInfoWriter, collect_debug_segments
+from debug_writer import DebugInfoWriter, RegisterAllocation, collect_debug_segments
 from encode import encode_ir
 from grammar_parser import parse_source, preprocess_includes
 from layout import layout_ir
 from lower import lower_ir
 from optimizer import optimize
 from transformer import transform_parse_tree_ir
+from register_alloc_reader import RegisterAllocInfoReader
 
 MAGIC = 0x50534F52  # 'ROSP' in little-endian
 SEGMENT_FLAG_LOADABLE = 0x00000001
@@ -29,7 +30,7 @@ class CompilationFrontend:
     extensions: tuple[str, ...]
     preprocess: Callable[[str, str], tuple[list[str], Any]]
     parse: Callable[[str], Any]
-    transform: Callable[[Any, Any], tuple[list[Any], list[Any]]]
+    transform: Callable[[Any, Any, bool], tuple[list[Any], Any]]
 
 
 @dataclass(frozen=True)
@@ -63,6 +64,7 @@ class CompilationState:
     segments: list[tuple[int, bytearray]] = field(default_factory=list)
     debug_writers: dict[int, DebugInfoWriter] = field(default_factory=dict)
     debug_segments: list[tuple[int, str]] = field(default_factory=list)
+    register_alloc_reader: RegisterAllocInfoReader = field(default_factory=RegisterAllocInfoReader)
 
     def artifact_path(self, suffix: str) -> Path:
         return self.options.output_path.with_name(
@@ -95,6 +97,12 @@ class CompilationPipeline:
             state.source_code = handle.read()
         self.emit("source_loaded", state)
 
+        # Try to load register allocation info from companion file
+        if options.input_path.suffix == ".ros":
+            regalloc_path = options.input_path.with_suffix(".rosc.regalloc")
+            if regalloc_path.exists():
+                state.register_alloc_reader.load_from_file(str(regalloc_path))
+
         state.pre_lines, state.origin_map = frontend.preprocess(
             state.source_code, str(options.input_path)
         )
@@ -122,6 +130,9 @@ class CompilationPipeline:
 
         state.debug_writers = collect_debug_segments(state.ir_list)
         self.emit("debug_info_collected", state)
+
+        # Enrich debug info with register allocations if available
+        enrich_debug_with_register_allocs(state)
 
         try:
             state.segments = encode_ir(
@@ -181,6 +192,45 @@ def build_debug_segments(
         debug_text = writer.write_debug_segment(segment_address)
         debug_segments.append((segment_address, debug_text))
     return debug_segments
+
+
+def enrich_debug_with_register_allocs(state: CompilationState) -> None:
+    """Attach compiler register-allocation metadata to assembled instruction addresses."""
+    if not state.register_alloc_reader.get_all_allocations():
+        return
+
+    for _segment_addr, writer in state.debug_writers.items():
+        for entry in writer.entries:
+            pp_line_raw: Any = entry.get("pp_line", 0)
+            try:
+                pp_line = int(str(pp_line_raw))
+            except Exception:
+                pp_line = 0
+            if pp_line <= 0:
+                continue
+
+            allocs = state.register_alloc_reader.get_allocations_for_line(pp_line)
+            if not allocs:
+                continue
+
+            addr_raw: Any = entry.get("address", 0)
+            try:
+                addr = int(str(addr_raw))
+            except Exception:
+                addr = 0
+            for alloc in allocs:
+                if alloc.action == "free":
+                    continue
+                writer.add_register_allocation(
+                    addr,
+                    RegisterAllocation(
+                        register=alloc.register,
+                        variable_name=alloc.variable_name,
+                        variable_type=alloc.variable_type,
+                        var_kind=alloc.var_kind,
+                        origin=alloc.origin,
+                    ),
+                )
 
 
 def write_binary(state: CompilationState) -> None:

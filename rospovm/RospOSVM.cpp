@@ -237,6 +237,46 @@ std::string RospOSVM::getOriginalInstruction(uint32_t address) const
     return entry->original_text;
 }
 
+const RegisterAllocationInfo* RospOSVM::getRegisterAllocation(
+    uint32_t address,
+    const std::string &regName
+) const
+{
+    if (!loadedBinary) {
+        return nullptr;
+    }
+
+    for (const auto &debugPair : loadedBinary->debug_map) {
+        const std::shared_ptr<DebugInfo> &debugInfo = debugPair.second;
+        auto addrIt = debugInfo->register_allocations.find(address);
+        if (addrIt == debugInfo->register_allocations.end()) {
+            continue;
+        }
+
+        for (const auto &alloc : addrIt->second) {
+            if (alloc.reg == regName) {
+                return &alloc;
+            }
+        }
+    }
+
+    return nullptr;
+}
+
+const RegisterAllocationInfo* RospOSVM::getRegisterAllocation(
+    uint32_t address,
+    int regIndex
+) const
+{
+    if (regIndex < 0 || regIndex > 15) {
+        return nullptr;
+    }
+
+    std::ostringstream regName;
+    regName << "r" << regIndex;
+    return getRegisterAllocation(address, regName.str());
+}
+
 void RospOSVM::step()
 {
     beginStateCapture();

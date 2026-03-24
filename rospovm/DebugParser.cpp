@@ -3,6 +3,7 @@
 #include <iostream>
 #include <iomanip>
 
+
 std::shared_ptr<DebugInfo> DebugParser::parse(const std::string& data) {
     auto debug_info = std::make_shared<DebugInfo>();
     debug_info->version = 0;
@@ -14,7 +15,8 @@ std::shared_ptr<DebugInfo> DebugParser::parse(const std::string& data) {
     enum class ParseState {
         HEADER,
         ENTRIES,
-        FILES
+        FILES,
+        REGISTERS
     };
     
     ParseState state = ParseState::HEADER;
@@ -28,6 +30,10 @@ std::shared_ptr<DebugInfo> DebugParser::parse(const std::string& data) {
         // Check for state transitions
         if (line == "FILES:") {
             state = ParseState::FILES;
+            continue;
+        }
+        if (line == "REGISTERS:") {
+            state = ParseState::REGISTERS;
             continue;
         }
         
@@ -75,6 +81,17 @@ std::shared_ptr<DebugInfo> DebugParser::parse(const std::string& data) {
                     debug_info->file_table[file_id] = path;
                 } else {
                     std::cerr << "Warning: Failed to parse file table entry: " << line << std::endl;
+                }
+                break;
+            }
+
+            case ParseState::REGISTERS: {
+                uint32_t address = 0;
+                RegisterAllocationInfo info;
+                if (parse_register_line(line, address, info)) {
+                    debug_info->register_allocations[address].push_back(info);
+                } else {
+                    std::cerr << "Warning: Failed to parse register allocation entry: " << line << std::endl;
                 }
                 break;
             }
@@ -131,6 +148,91 @@ bool DebugParser::parse_file_line(const std::string& line, uint32_t& file_id, st
     std::getline(iss, path);
     
     return !path.empty();
+}
+
+bool DebugParser::parse_register_line(
+    const std::string& line,
+    uint32_t& address,
+    RegisterAllocationInfo& info
+) {
+    std::istringstream iss(line);
+    std::string addr_str;
+    iss >> addr_str;
+    if (iss.fail()) {
+        return false;
+    }
+
+    iss >> std::ws;
+    std::string json_blob;
+    std::getline(iss, json_blob);
+    if (json_blob.empty()) {
+        return false;
+    }
+
+    try {
+        address = std::stoul(addr_str, nullptr, 0);
+    } catch (...) {
+        return false;
+    }
+
+    info.reg = extract_json_string_field(json_blob, "register");
+    info.variable_name = extract_json_string_field(json_blob, "variable_name");
+    info.variable_type = extract_json_string_field(json_blob, "variable_type");
+    info.var_kind = extract_json_string_field(json_blob, "var_kind");
+    info.origin = extract_json_string_field(json_blob, "origin");
+
+    return !info.reg.empty() && !info.variable_name.empty();
+}
+
+std::string DebugParser::extract_json_string_field(
+    const std::string& json,
+    const std::string& key
+) {
+    const std::string key_token = "\"" + key + "\"";
+    size_t key_pos = json.find(key_token);
+    if (key_pos == std::string::npos) {
+        return "";
+    }
+
+    size_t colon_pos = json.find(':', key_pos + key_token.size());
+    if (colon_pos == std::string::npos) {
+        return "";
+    }
+
+    size_t value_start = json.find_first_not_of(" \t", colon_pos + 1);
+    if (value_start == std::string::npos) {
+        return "";
+    }
+
+    if (json.compare(value_start, 4, "null") == 0) {
+        return "";
+    }
+
+    if (json[value_start] != '"') {
+        return "";
+    }
+
+    size_t i = value_start + 1;
+    bool escaped = false;
+    for (; i < json.size(); ++i) {
+        const char c = json[i];
+        if (escaped) {
+            escaped = false;
+            continue;
+        }
+        if (c == '\\') {
+            escaped = true;
+            continue;
+        }
+        if (c == '"') {
+            break;
+        }
+    }
+    if (i >= json.size()) {
+        return "";
+    }
+
+    return unquote_string(json.substr(value_start, i - value_start + 1));
 }
 
 std::string DebugParser::unquote_string(const std::string& quoted) {

@@ -33,6 +33,8 @@ public:
     uint32_t getProgramCounter() const;
     uint32_t getRegister(int index) const;
     QString getRegisterName(int index) const;
+    QString getRegisterAllocationTooltip(int index) const;
+    QString getRegisterAllocationTooltipAt(uint32_t address, int index) const;
     uint32_t readMemory(uint32_t address) const;
     uint8_t readMemoryByte(uint32_t address) const;
     uint8_t readMemoryByteForInspector(uint32_t address) const;

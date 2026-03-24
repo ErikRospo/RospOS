@@ -8,6 +8,7 @@ from emitter_intrinsics import intrinsic_lb, intrinsic_sb
 from emitter_registers import alloc_var_reg, ensure_var_reg, load_imm
 from emitter_stmt import emit_statement as emit_statement_impl
 from tracked_writer import TrackedWriter
+from register_allocator import RegisterAllocator
 
 
 def _escape_ros_string(value: str) -> str:
@@ -48,6 +49,10 @@ class Emitter:
         self.source_file = source_file
         self.source_lines = source_lines or []
         self.tracked_writer = None
+        # Register allocation sidecar tracking
+        self.register_allocator = RegisterAllocator()
+        self.current_context_origin: Optional[str] = None
+        self.temp_counter = 0
 
     def _get_source_text(self, line_num: int) -> str:
         """Get the source text for a given line number (1-indexed)."""
@@ -119,11 +124,28 @@ class Emitter:
         self.label_counter += 1
         return f"{prefix}{self.label_counter}"
 
-    def alloc_reg(self) -> str:
+    def alloc_reg(self, track_as_temp: bool = True) -> str:
         if not self.reg_free:
             # Very simple fallback: use r13 (caller-saved temp)
-            return "r13"
-        return self.reg_free.pop(0)
+            reg = "r13"
+        else:
+            reg = self.reg_free.pop(0)
+
+        if track_as_temp:
+            self.temp_counter += 1
+            temp_name = f"$tmp{self.temp_counter}"
+            if self.tracked_writer is not None:
+                self.register_allocator.set_output_line(
+                    self.tracked_writer.get_current_output_line()
+                )
+            self.register_allocator.allocate(
+                register=reg,
+                variable_name=temp_name,
+                variable_type="int",
+                var_kind="temp",
+                origin=self.current_context_origin,
+            )
+        return reg
 
     def free_reg(self, reg: str):
         if (
@@ -132,6 +154,11 @@ class Emitter:
             and reg not in self.reg_free
             and reg in abi.TEMP_REGS
         ):
+            if self.tracked_writer is not None:
+                self.register_allocator.set_output_line(
+                    self.tracked_writer.get_current_output_line()
+                )
+            self.register_allocator.deallocate(reg)
             self.reg_free.append(reg)
 
     # Helper: ensure a var has a register (allocate+zero-init if not)
@@ -201,6 +228,15 @@ class Emitter:
                 out.write(f"  .SPACE {size} // lifted buffer\n\n")
             out.write("\n")
             out.flush()
+            # Export register allocations for debug info
+            self.export_register_allocations(out_path)
+
+    def export_register_allocations(self, out_path: str):
+        """Export register allocations to a sidecar .rosc.regalloc file."""
+        out_file = Path(out_path)
+        regalloc_path = out_file.with_suffix(".rosc.regalloc")
+        self.register_allocator.write_to_file(str(regalloc_path))
+        return str(regalloc_path)
 
     def emit_global_declaration(self, g: Dict[str, Any], out):
         # Starter supports simple string/global labels
@@ -223,6 +259,7 @@ class Emitter:
         # Save link register so nested calls won't clobber return address
         out.write(f"  PUSH {abi.LINK_REG}\n")
         # Reset allocator state per function
+        self.current_context_origin = f"_{name}"
         self.reg_free = list(abi.TEMP_REGS)
         self.var_regs = {}
         # start var_types with globals available
@@ -235,6 +272,17 @@ class Emitter:
                 self.reg_free.remove(abi.ARG_REGS[i])  # mark arg registers as used
             except ValueError:
                 print(f"Warning: arg register {abi.ARG_REGS[i]} not in free list")
+            # Track parameter allocation for debug info
+            param_type = (fn.get("param_types", {}) or {}).get(p, "int")
+            if hasattr(out, "get_current_output_line"):
+                self.register_allocator.set_output_line(out.get_current_output_line())
+                self.register_allocator.allocate(
+                    register=abi.ARG_REGS[i],
+                    variable_name=p,
+                    variable_type=param_type,
+                    var_kind="param",
+                    origin=f"_{name}_entry",
+                )
 
         # import any parameter type hints (e.g., pointer params)
         for pname, ptype in (fn.get("param_types", {}) or {}).items():
@@ -282,6 +330,7 @@ def emit_translation_unit(
     source_file: Optional[str] = None,
     source_lines: Optional[list] = None,
 ):
+
     """Accept either a `translation_unit` dict or a raw/AST input and emit .ros.
 
     If `ast` is not already a translation_unit dict, attempt to convert it
