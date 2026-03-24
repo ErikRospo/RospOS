@@ -25,54 +25,66 @@ set(ROSPOSVM_HIGHLIGHTING_DIR "${CMAKE_CURRENT_SOURCE_DIR}/highlighting")
 # VM Core Library
 # Static library containing the VM implementation (no GUI dependencies)
 add_library(rosposvm_lib STATIC
-    RospOSVM.cpp
-    RospOSVM.h
-    InstructionDecoder.cpp
-    InstructionDecoder.h
-    Register.cpp
-    Register.h
-    Memory.cpp
-    Memory.h
-    TTY.cpp
-    TTY.h
-    Binary.cpp
-    Binary.h
-    DebugParser.cpp
-    DebugParser.h
-    Display.cpp
-    Display.h
-    Shutdown.cpp
-    Shutdown.h
-    Logger.cpp
-    Logger.h
+    backend/RospOSVM.cpp
+    backend/RospOSVM.h
+    backend/InstructionDecoder.cpp
+    backend/InstructionDecoder.h
+    backend/Register.cpp
+    backend/Register.h
+    backend/Memory.cpp
+    backend/Memory.h
+    backend/TTY.cpp
+    backend/TTY.h
+    backend/Binary.cpp
+    backend/Binary.h
+    backend/DebugParser.cpp
+    backend/DebugParser.h
+    backend/Display.cpp
+    backend/Display.h
+    backend/Shutdown.cpp
+    backend/Shutdown.h
+    backend/Logger.cpp
+    backend/Logger.h
 )
 
-target_include_directories(rosposvm_lib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories(rosposvm_lib PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}/backend
+)
 target_link_libraries(rosposvm_lib PUBLIC Qt6::Core Qt6::Gui Qt6::Widgets ZLIB::ZLIB KF6::SyntaxHighlighting)
     
 # Qt GUI Application
 add_executable(rospovm_qt
-    main_qt.cpp
-    MainWindow.h
-    MainWindow.cpp
-    VMController.h
-    VMController.cpp
-    CodeView.h
-    CodeView.cpp
-    DebugControlPanel.h
-    DebugControlPanel.cpp
-    RegisterView.h
-    RegisterView.cpp
-    MemoryView.h
-    MemoryView.cpp
-    LogView.h
-    LogView.cpp
-    TTYWidget.h
-    TTYWidget.cpp
+    frontend/qt/main_qt.cpp
+    frontend/qt/MainWindow.h
+    frontend/qt/MainWindow.cpp
+    frontend/qt/VMController.h
+    frontend/qt/VMController.cpp
+    frontend/qt/CodeView.h
+    frontend/qt/CodeView.cpp
+    frontend/qt/DebugControlPanel.h
+    frontend/qt/DebugControlPanel.cpp
+    frontend/qt/RegisterView.h
+    frontend/qt/RegisterView.cpp
+    frontend/qt/MemoryView.h
+    frontend/qt/MemoryView.cpp
+    frontend/qt/LogView.h
+    frontend/qt/LogView.cpp
+    frontend/qt/TTYWidget.h
+    frontend/qt/TTYWidget.cpp
 )
 
 add_executable(rospovm_headless
-    main_headless.cpp
+    frontend/headless/main_headless.cpp
+)
+
+target_include_directories(rospovm_qt PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/frontend/qt
+    ${CMAKE_CURRENT_SOURCE_DIR}/backend
+)
+
+target_include_directories(rospovm_headless PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/frontend/headless
+    ${CMAKE_CURRENT_SOURCE_DIR}/backend
 )
 
 target_link_libraries(rospovm_headless PRIVATE

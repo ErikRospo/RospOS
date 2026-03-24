@@ -44,11 +44,12 @@ rospovm/build:
 
 rospovm/build/Makefile: rospovm/CMakeLists.txt | rospovm/build
 	cmake -S rospovm -B rospovm/build/
-rospovm/build/rospovm_qt: rospovm/build/Makefile $(shell find ./rospovm -maxdepth 1 -type f)
+	
+rospovm/build/rospovm_qt: rospovm/build/Makefile $(shell find ./rospovm -type f)
 	mkdir -p $(dir $@)
 	cmake --build rospovm/build/ -j $(shell nproc)
 
-rospovm/build/rospovm_headless: rospovm/build/Makefile $(shell find ./rospovm -maxdepth 1 -type f)
+rospovm/build/rospovm_headless: rospovm/build/Makefile $(shell find ./rospovm -type f)
 	cmake --build rospovm/build/ --target rospovm_headless -j $(shell nproc)
 
 
