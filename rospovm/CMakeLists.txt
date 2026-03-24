@@ -71,6 +71,15 @@ add_executable(rospovm_qt
     TTYWidget.cpp
 )
 
+add_executable(rospovm_headless
+    main_headless.cpp
+)
+
+target_link_libraries(rospovm_headless PRIVATE
+    rosposvm_lib
+    Qt6::Core
+)
+
 target_link_libraries(rospovm_qt PRIVATE
     rosposvm_lib
     Qt6::Core

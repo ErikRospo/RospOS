@@ -1,9 +1,18 @@
 #include "Display.h"
 #include "Memory.h"
+#include <array>
 #include <stdexcept>
 #include <iostream>
 #include <algorithm>
 #include <QPainter>
+
+namespace {
+constexpr uint32_t kDisplayBase = 0x20000000;
+constexpr uint32_t kDisplaySize = 256U * 256U;
+
+std::array<uint8_t, kDisplaySize> g_framebuffer{};
+std::mutex g_fbMutex;
+}
 
 // Add a static instance for the VMDisplay class
 static VMDisplay *displayInstance = nullptr;
@@ -11,54 +20,54 @@ static VMDisplay *displayInstance = nullptr;
 // Static MMIO handlers
 uint8_t VMDisplay::displayReadHandler(uint32_t address)
 {
-    if (!displayInstance)
-    {
-        throw std::runtime_error("Display instance not initialized");
-    }
-    return displayInstance->read(address);
+    return read(address);
 }
 
 void VMDisplay::displayWriteHandler(uint32_t address, uint8_t value)
 {
-    if (!displayInstance)
-    {
-        throw std::runtime_error("Display instance not initialized");
-    }
-    displayInstance->write(address, value);
+    write(address, value);
 }
 
 // Non-static methods for internal logic
 uint8_t VMDisplay::read(uint32_t address)
 {
     // Address range: 0x20000000 - 0x2000FFFF (FB_SIZE bytes)
-    if (address < 0x20000000)
+    if (address < kDisplayBase)
     {
         throw std::runtime_error("DisplayReadHandler: Address out of range");
     }
-    uint32_t offset = address - 0x20000000;
-    if (offset >= FB_SIZE)
+    uint32_t offset = address - kDisplayBase;
+    if (offset >= kDisplaySize)
     {
         throw std::runtime_error("DisplayReadHandler: Address out of range");
     }
-    return framebuffer[offset];
+
+    std::lock_guard<std::mutex> lock(g_fbMutex);
+    return g_framebuffer[offset];
 }
 
 void VMDisplay::write(uint32_t address, uint8_t value)
 {
     // Address range: 0x20000000 - 0x2000FFFF (FB_SIZE bytes)
-    if (address < 0x20000000)
+    if (address < kDisplayBase)
     {
         throw std::runtime_error("DisplayWriteHandler: Address out of range");
     }
-    uint32_t offset = address - 0x20000000;
-    if (offset >= FB_SIZE)
+    uint32_t offset = address - kDisplayBase;
+    if (offset >= kDisplaySize)
     {
         throw std::runtime_error("DisplayWriteHandler: Address out of range");
     }
-    if (framebuffer[offset] == value)
-        return; // No change, skip update
 
-    framebuffer[offset] = value;
+    VMDisplay *instanceCopy = nullptr;
+    {
+        std::lock_guard<std::mutex> lock(g_fbMutex);
+        if (g_framebuffer[offset] == value) {
+            return;
+        }
+        g_framebuffer[offset] = value;
+        instanceCopy = displayInstance;
+    }
 
     // Convert 8-bit color to RGB
     // Format: 00RRGGBB where each component is 2 bits
@@ -70,17 +79,15 @@ void VMDisplay::write(uint32_t address, uint8_t value)
     uint8_t g = g2 * 85;
     uint8_t b = b2 * 85;
 
-    {
-        std::lock_guard<std::mutex> lock(fbMutex);
-        // Update the QImage
-        int x = offset % WIDTH;
-        int y = offset / WIDTH;
-        displayImage.setPixelColor(x, y, QColor(r, g, b));
-        dirty.store(true);
-    }
+    if (instanceCopy != nullptr) {
+        // Update the QImage when the UI widget is active.
+        const int x = static_cast<int>(offset % WIDTH);
+        const int y = static_cast<int>(offset / WIDTH);
+        instanceCopy->displayImage.setPixelColor(x, y, QColor(r, g, b));
 
-    // Schedule a paint update on the Qt event loop
-    update();
+        // Schedule a paint update on the Qt event loop.
+        instanceCopy->update();
+    }
 }
 
 VMDisplay::VMDisplay(QWidget *parent)
@@ -92,10 +99,21 @@ VMDisplay::VMDisplay(QWidget *parent)
     }
     displayInstance = this;
 
-    // Initialize framebuffer to black
-    std::fill(std::begin(framebuffer), std::end(framebuffer), 0x00);
     displayImage.fill(Qt::black);
-    dirty.store(false);
+
+    // Mirror the backend framebuffer into the Qt image.
+    {
+        std::lock_guard<std::mutex> lock(g_fbMutex);
+        for (uint32_t offset = 0; offset < kDisplaySize; ++offset) {
+            const uint8_t v = g_framebuffer[offset];
+            const uint8_t r = static_cast<uint8_t>(((v >> 4) & 0x03) * 85);
+            const uint8_t g = static_cast<uint8_t>(((v >> 2) & 0x03) * 85);
+            const uint8_t b = static_cast<uint8_t>((v & 0x03) * 85);
+            const int x = static_cast<int>(offset % WIDTH);
+            const int y = static_cast<int>(offset / WIDTH);
+            displayImage.setPixelColor(x, y, QColor(r, g, b));
+        }
+    }
 
     // Set widget properties
     setWindowTitle("RospOS Display");
@@ -113,14 +131,10 @@ VMDisplay::~VMDisplay()
 void VMDisplay::paintEvent(QPaintEvent *event)
 {
     Q_UNUSED(event);
-    std::lock_guard<std::mutex> lock(fbMutex);
-
     QPainter painter(this);
     painter.setRenderHint(QPainter::SmoothPixmapTransform, false);
 
     // Scale and draw the image
     QRect targetRect(0, 0, SCALED_WIDTH, SCALED_HEIGHT);
     painter.drawImage(targetRect, displayImage);
-
-    dirty.store(false);
 }

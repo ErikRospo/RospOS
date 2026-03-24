@@ -2,9 +2,7 @@
 #define VMDISPLAY_H
 
 #include <cstdint>
-#include <vector>
 #include <mutex>
-#include <atomic>
 #include <QWidget>
 #include <QImage>
 
@@ -25,16 +23,11 @@ private:
     static const int SCALED_WIDTH = WIDTH * SCALE;
     static const int SCALED_HEIGHT = HEIGHT * SCALE;
 
-    uint8_t framebuffer[FB_SIZE];
     QImage displayImage;
 
-    // Synchronization for framebuffer access
-    std::mutex fbMutex;
-    std::atomic<bool> dirty;
-
     // Internal methods for MMIO logic
-    uint8_t read(uint32_t address);
-    void write(uint32_t address, uint8_t value);
+    static uint8_t read(uint32_t address);
+    static void write(uint32_t address, uint8_t value);
 
 public:
     // Static MMIO handlers

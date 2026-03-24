@@ -14,7 +14,7 @@ ROSPCC_DEP := $(shell find ./rospocc -maxdepth 1 -type f)  $(shell find ./rospoc
 HTMLDOCS := $(DOCS:.md=.html)
 PDFDOCS := $(DOCS:.md=.pdf)
 
-.PHONY: all bm parse compile dump build clean doc format frontend frontend_cmake run
+.PHONY: all bm parse compile dump build clean doc format frontend frontend_cmake run vm_headless run_headless test
 
 all: build
 
@@ -44,9 +44,12 @@ rospovm/build:
 
 rospovm/build/Makefile: rospovm/CMakeLists.txt | rospovm/build
 	cmake -S rospovm -B rospovm/build/
-rospovm/build/rospovm_qt: $(shell find ./rospovm -maxdepth 1 -type f)
+rospovm/build/rospovm_qt: rospovm/build/Makefile $(shell find ./rospovm -maxdepth 1 -type f)
 	mkdir -p $(dir $@)
 	cmake --build rospovm/build/ -j $(shell nproc)
+
+rospovm/build/rospovm_headless: rospovm/build/Makefile $(shell find ./rospovm -maxdepth 1 -type f)
+	cmake --build rospovm/build/ --target rospovm_headless -j $(shell nproc)
 
 
 build/%.html: doc/%.md | $(DIR_DOCS_BUILD)
@@ -70,6 +73,14 @@ frontend: rospovm/build/rospovm_qt
 
 run: rospos/build/rospos.rosp | rospovm/build/rospovm_qt
 	rospovm/build/rospovm_qt $<
+
+vm_headless: rospovm/build/rospovm_headless
+
+run_headless: rospos/build/rospos.rosp vm_headless
+	rospovm/build/rospovm_headless $<
+
+test:
+	$(PY) -m unittest discover -s tests -p "test_*.py" -v
 dump: rospos/build/rospos.rosp
 	$(HEXDUMP) $< 1>&2
 build: bm parse compile frontend_cmake frontend
