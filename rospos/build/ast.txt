@@ -26,11 +26,12 @@ translation_unit
             expr_stmt
               postfix
                 __sb
-                arg_list
-                  tty_addr
-                  unary
-                    deref
-                    str
+                call_suffix
+                  arg_list
+                    tty_addr
+                    unary
+                      deref
+                      str
             expr_stmt
               assignment
                 str
@@ -59,9 +60,10 @@ translation_unit
         expr_stmt
           postfix
             __sb
-            arg_list
-              tty_addr
-              c
+            call_suffix
+              arg_list
+                tty_addr
+                c
   external_decl
     function_def
       type_specifier
@@ -97,7 +99,8 @@ translation_unit
             expr_stmt
               postfix
                 print_char
-                arg_list	"-"
+                call_suffix
+                  arg_list	"-"
             expr_stmt
               assignment
                 num
@@ -114,7 +117,10 @@ translation_unit
               assignment
                 postfix
                   buffer
-                  i
+                  array_index
+                    postfix
+                      i
+                      post_inc
                 additive
                   "0"
                   plus
@@ -133,7 +139,7 @@ translation_unit
           assignment
             postfix
               buffer
-              i
+              array_index	i
             "\0"
         for_stmt
           declaration
@@ -150,7 +156,9 @@ translation_unit
               i
               div
               2
-          j
+          postfix
+            j
+            post_inc
           compound_stmt
             declaration
               type_specifier
@@ -160,35 +168,38 @@ translation_unit
                   declarator	temp
                   postfix
                     buffer
-                    j
+                    array_index	j
             expr_stmt
               assignment
                 postfix
                   buffer
-                  j
+                  array_index	j
                 postfix
                   buffer
-                  additive
-                    i
-                    minus
-                    j
-                    minus
-                    1
+                  array_index
+                    additive
+                      i
+                      minus
+                      j
+                      minus
+                      1
             expr_stmt
               assignment
                 postfix
                   buffer
-                  additive
-                    i
-                    minus
-                    j
-                    minus
-                    1
+                  array_index
+                    additive
+                      i
+                      minus
+                      j
+                      minus
+                      1
                 temp
         expr_stmt
           postfix
             print_string
-            arg_list	buffer
+            call_suffix
+              arg_list	buffer
   external_decl
     function_def
       type_specifier
@@ -205,7 +216,8 @@ translation_unit
         return_stmt
           postfix
             __lb
-            arg_list	tty_addr
+            call_suffix
+              arg_list	tty_addr
   external_decl
     function_def
       type_specifier
@@ -254,7 +266,8 @@ translation_unit
                   declarator	c
                   postfix
                     __lb
-                    arg_list	tty_addr
+                    call_suffix
+                      arg_list	tty_addr
             if_stmt
               logic_or
                 equality
@@ -271,13 +284,16 @@ translation_unit
               assignment
                 postfix
                   buffer
-                  i
+                  array_index
+                    postfix
+                      i
+                      post_inc
                 c
         expr_stmt
           assignment
             postfix
               buffer
-              i
+              array_index	i
             "\0"
         declaration
           type_specifier	return
@@ -381,17 +397,20 @@ translation_unit
               declarator	result
               postfix
                 add
-                arg_list
-                  x
-                  y
+                call_suffix
+                  arg_list
+                    x
+                    y
         expr_stmt
           postfix
             print_string
-            arg_list	"The result of 10 + 5 is: "
+            call_suffix
+              arg_list	"The result of 10 + 5 is: "
         expr_stmt
           postfix
             printi
-            arg_list	result
+            call_suffix
+              arg_list	result
         declaration
           type_specifier	Point
           init_declarator_list
@@ -434,7 +453,8 @@ translation_unit
               declarator	sum
               postfix
                 add_coords
-                arg_list	p1
+                call_suffix
+                  arg_list	p1
         declaration
           type_specifier
             int
@@ -452,16 +472,20 @@ translation_unit
         expr_stmt
           postfix
             print_string
-            arg_list	"The sum of p1's coordinates is: \n"
+            call_suffix
+              arg_list	"The sum of p1's coordinates is: \n"
         expr_stmt
           postfix
             printi
-            arg_list	sum
+            call_suffix
+              arg_list	sum
         expr_stmt
           postfix
             print_string
-            arg_list	"The area of the size is: \n"
+            call_suffix
+              arg_list	"The area of the size is: \n"
         expr_stmt
           postfix
             printi
-            arg_list	area
+            call_suffix
+              arg_list	area
