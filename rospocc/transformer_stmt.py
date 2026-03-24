@@ -313,7 +313,11 @@ class StatementTransformer:
                         elif else_node is None:
                             else_node = ch
 
-                if cond is None and len(children) >= 3 and isinstance(children[2], dict):
+                if (
+                    cond is None
+                    and len(children) >= 3
+                    and isinstance(children[2], dict)
+                ):
                     cond = self.expr.from_node(children[2])
 
                 if cond is None:
@@ -340,7 +344,9 @@ class StatementTransformer:
                 continue
 
             if node_type == "for_stmt":
-                children = [ch for ch in child.get("children", []) if isinstance(ch, dict)]
+                children = [
+                    ch for ch in child.get("children", []) if isinstance(ch, dict)
+                ]
                 init_node = None
                 cond_node = None
                 step_node = None

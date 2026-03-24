@@ -13,8 +13,8 @@ from grammar_parser import parse_source, preprocess_includes
 from layout import layout_ir
 from lower import lower_ir
 from optimizer import optimize
-from transformer import transform_parse_tree_ir
 from register_alloc_reader import RegisterAllocInfoReader
+from transformer import transform_parse_tree_ir
 
 MAGIC = 0x50534F52  # 'ROSP' in little-endian
 SEGMENT_FLAG_LOADABLE = 0x00000001
@@ -64,7 +64,9 @@ class CompilationState:
     segments: list[tuple[int, bytearray]] = field(default_factory=list)
     debug_writers: dict[int, DebugInfoWriter] = field(default_factory=dict)
     debug_segments: list[tuple[int, str]] = field(default_factory=list)
-    register_alloc_reader: RegisterAllocInfoReader = field(default_factory=RegisterAllocInfoReader)
+    register_alloc_reader: RegisterAllocInfoReader = field(
+        default_factory=RegisterAllocInfoReader
+    )
 
     def artifact_path(self, suffix: str) -> Path:
         return self.options.output_path.with_name(

@@ -2,7 +2,6 @@ import pathlib
 import subprocess
 import unittest
 
-
 REPO_ROOT = pathlib.Path(__file__).resolve().parents[1]
 
 
@@ -42,7 +41,9 @@ class PipelineE2ETest(unittest.TestCase):
         )
 
         binary_path = REPO_ROOT / "rospos/build/rospos.rosp"
-        self.assertTrue(binary_path.exists(), "Expected compiled binary rospos/build/rospos.rosp")
+        self.assertTrue(
+            binary_path.exists(), "Expected compiled binary rospos/build/rospos.rosp"
+        )
 
         run_proc = subprocess.run(
             [

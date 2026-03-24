@@ -159,7 +159,10 @@ class ExpressionTransformer:
                         args = []
                         arg_list = None
                         for suffix_child in child.get("children", []):
-                            if isinstance(suffix_child, dict) and suffix_child.get("node") == "arg_list":
+                            if (
+                                isinstance(suffix_child, dict)
+                                and suffix_child.get("node") == "arg_list"
+                            ):
                                 arg_list = suffix_child
                                 break
                         if arg_list is not None:

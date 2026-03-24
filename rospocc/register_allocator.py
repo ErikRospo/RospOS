@@ -6,8 +6,8 @@ to which registers at each output line of the generated assembly code. This info
 is exported to a sidecar .rosc.regalloc file for use by the assembler and VM.
 """
 
-from typing import Dict, List, Optional, Tuple
 import json
+from typing import Dict, List, Optional, Tuple
 
 
 class RegAllocation:
@@ -69,9 +69,7 @@ class RegisterAllocator:
         self.allocations: List[RegAllocation] = []
         self.current_output_line = 0
         # Current active allocations: register -> (var_name, var_type, var_kind, origin)
-        self.active_allocations: Dict[
-            str, Tuple[str, str, str, Optional[str]]
-        ] = {}
+        self.active_allocations: Dict[str, Tuple[str, str, str, Optional[str]]] = {}
 
     def set_output_line(self, line_num: int):
         """Update the current output line number."""

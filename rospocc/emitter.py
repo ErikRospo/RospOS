@@ -7,15 +7,15 @@ from emitter_expr import emit_expr as emit_expression
 from emitter_intrinsics import intrinsic_lb, intrinsic_sb
 from emitter_registers import alloc_var_reg, ensure_var_reg, load_imm
 from emitter_stmt import emit_statement as emit_statement_impl
-from tracked_writer import TrackedWriter
 from register_allocator import RegisterAllocator
+from tracked_writer import TrackedWriter
 
 
 def _escape_ros_string(value: str) -> str:
     # Keep .STR payload as a single escaped token for the assembler grammar.
     return (
         value.replace("\\", "\\\\")
-        .replace("\"", "\\\"")
+        .replace('"', '\\"')
         .replace("\n", "\\n")
         .replace("\r", "\\r")
         .replace("\t", "\\t")
@@ -202,9 +202,14 @@ class Emitter:
 
             # Header and globals collection
             # the file header should be labeled as coming from the main function
-            main_fn = next((fn for fn in ast.get("functions", []) if fn.get("name") == "main"), None)
-            assert main_fn, "Translation unit must have a main function for source tracking context"
-            print("mainfn:",main_fn)
+            main_fn = next(
+                (fn for fn in ast.get("functions", []) if fn.get("name") == "main"),
+                None,
+            )
+            assert (
+                main_fn
+            ), "Translation unit must have a main function for source tracking context"
+            print("mainfn:", main_fn)
             print()
             self._set_source_context(main_fn, out)
             self._write_file_header(out)
@@ -330,7 +335,6 @@ def emit_translation_unit(
     source_file: Optional[str] = None,
     source_lines: Optional[list] = None,
 ):
-
     """Accept either a `translation_unit` dict or a raw/AST input and emit .ros.
 
     If `ast` is not already a translation_unit dict, attempt to convert it
