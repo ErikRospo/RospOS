@@ -1,13 +1,17 @@
 #include "VMController.h"
 #include "InstructionDecoder.h"
 #include "Binary.h"
+#include "Shutdown.h"
 #include <QFile>
 #include <QDebug>
+#include <QElapsedTimer>
 #include <fstream>
 
 VMController::VMController(QObject *parent)
     : QObject(parent), vm(std::make_unique<RospOSVM>(true)), running(false)
 {
+    executionTimer.setSingleShot(true);
+    connect(&executionTimer, &QTimer::timeout, this, &VMController::onExecutionTick);
 }
 
 VMController::~VMController() = default;
@@ -58,29 +62,132 @@ void VMController::stepBackward()
 
 void VMController::run()
 {
+    if (running) {
+        return;
+    }
+
     running = true;
     emit executionStarted();
-    // Note: For a real implementation, you'd run this in a separate thread
-    // to avoid blocking the UI
+    scheduleNextExecutionTick();
 }
 
 void VMController::pause()
 {
+    executionTimer.stop();
     running = false;
     emit executionStopped();
 }
 
 void VMController::reset()
 {
+    executionTimer.stop();
     vm = std::make_unique<RospOSVM>(true);
     running = false;
     emit stateChanged();
     emit executionStopped();
 }
 
+void VMController::setExecutionSpeedLevel(int level)
+{
+    if (level < 0) {
+        level = 0;
+    } else if (level > 9) {
+        level = 9;
+    }
+
+    speedLevel = level;
+    if (running) {
+        executionTimer.stop();
+        scheduleNextExecutionTick();
+    }
+}
+
 bool VMController::canStepBackward() const
 {
     return vm->canStepBackward();
+}
+
+int VMController::executionIntervalMs() const
+{
+    switch (speedLevel) {
+    case 0:
+        return 5000;
+    case 1:
+        return 2000;
+    case 2:
+        return 1000;
+    case 3:
+        return 500;
+    case 4:
+        return 200;
+    case 5:
+        return 100;
+    case 6:
+        return 40;
+    case 7:
+        return 20;
+    case 8:
+        return 10;
+    case 9:
+        return 0;
+    default:
+        return 200;
+    }
+}
+
+void VMController::scheduleNextExecutionTick()
+{
+    if (!running) {
+        return;
+    }
+
+    executionTimer.start(executionIntervalMs());
+}
+
+void VMController::onExecutionTick()
+{
+    if (!running) {
+        return;
+    }
+
+    if (shouldShutdown()) {
+        running = false;
+        emit executionStopped();
+        return;
+    }
+
+    try {
+        if (speedLevel == 9) {
+            // Run in short bursts to maximize throughput while keeping UI responsive.
+            QElapsedTimer burstTimer;
+            burstTimer.start();
+            for (int i = 0; i < 2500; ++i) {
+                vm->step();
+                if (shouldShutdown()) {
+                    running = false;
+                    emit stateChanged();
+                    emit executionStopped();
+                    return;
+                }
+                if (burstTimer.elapsed() >= 8) { // Limit bursts to ~8ms to keep UI responsive
+                    break;
+                }
+            }
+            emit stateChanged();
+        } else {
+            vm->step();
+            emit stateChanged();
+        }
+    } catch (const std::exception &e) {
+        running = false;
+        emit error(QString("Execution error: %1").arg(e.what()));
+        emit executionStopped();
+        return;
+    }
+
+    if (running) {
+        scheduleNextExecutionTick();
+    }
 }
 
 uint32_t VMController::getProgramCounter() const

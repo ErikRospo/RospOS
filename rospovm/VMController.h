@@ -6,6 +6,7 @@
 #include <vector>
 #include <memory>
 #include <cstdint>
+#include <QTimer>
 #include "RospOSVM.h"
 
 class VMController : public QObject
@@ -25,6 +26,7 @@ public:
     void run();
     void pause();
     void reset();
+    void setExecutionSpeedLevel(int level);
     bool canStepBackward() const;
 
     // State queries
@@ -80,8 +82,14 @@ signals:
     void error(const QString &message);
 
 private:
+    void onExecutionTick();
+    void scheduleNextExecutionTick();
+    int executionIntervalMs() const;
+
     std::unique_ptr<RospOSVM> vm;
+    QTimer executionTimer;
     bool running;
+    int speedLevel = 4;
     uint32_t codeStartAddress = 0x10000;
     uint32_t codeEndAddress = 0x20000;
 };

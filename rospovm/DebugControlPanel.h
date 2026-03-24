@@ -53,7 +53,7 @@ private:
     QLineEdit *asciiInput;
     bool converterUpdating = false;
 
-    int currentSpeed = 50;
+    int currentSpeed = 2;
 };
 
 #endif // DEBUG_CONTROL_PANEL_H

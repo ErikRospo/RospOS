@@ -10,8 +10,38 @@
 #include <QApplication>
 #include <QSignalBlocker>
 
+namespace {
+QString speedLabelForLevel(int level)
+{
+    switch (level) {
+    case 0:
+        return QObject::tr("1/5 s");
+    case 1:
+        return QObject::tr("1/2 s");
+    case 2:
+        return QObject::tr("1/s");
+    case 3:
+        return QObject::tr("2/s");
+    case 4:
+        return QObject::tr("5/s");
+    case 5:
+        return QObject::tr("10/s");
+    case 6:
+        return QObject::tr("25/s");
+    case 7:
+        return QObject::tr("50/s");
+    case 8:
+        return QObject::tr("100/s");
+    case 9:
+        return QObject::tr("Max");
+    default:
+        return QObject::tr("?");
+    }
+}
+}
+
 DebugControlPanel::DebugControlPanel(QWidget *parent)
-    : QWidget(parent), vmController(nullptr), currentSpeed(50)
+    : QWidget(parent), vmController(nullptr), currentSpeed(2)
 {
     createUI();
     setupConnections();
@@ -52,15 +82,15 @@ void DebugControlPanel::createUI()
     QHBoxLayout *speedControlLayout = new QHBoxLayout();
     speedControlLayout->addWidget(new QLabel(tr("Speed:")));
     
-    speedValueLabel = new QLabel(tr("50%"));
+    speedValueLabel = new QLabel(speedLabelForLevel(currentSpeed));
     speedControlLayout->addWidget(speedValueLabel);
     
     speedSlider = new QSlider(Qt::Horizontal);
-    speedSlider->setMinimum(1);
-    speedSlider->setMaximum(100);
-    speedSlider->setValue(50);
+    speedSlider->setMinimum(0);
+    speedSlider->setMaximum(9);
+    speedSlider->setValue(currentSpeed);
     speedSlider->setTickPosition(QSlider::TicksBelow);
-    speedSlider->setTickInterval(10);
+    speedSlider->setTickInterval(1);
     speedControlLayout->addWidget(speedSlider);
 
     speedLayout->addLayout(speedControlLayout);
@@ -140,16 +170,16 @@ void DebugControlPanel::createUI()
 
 void DebugControlPanel::setupConnections()
 {
-    connect(speedSlider, QOverload<int>::of(&QSlider::valueChanged), this, &DebugControlPanel::speedChanged);
+    connect(speedSlider, QOverload<int>::of(&QSlider::valueChanged),
+            this, [this](int value) {
+                currentSpeed = value;
+                speedValueLabel->setText(speedLabelForLevel(currentSpeed));
+                emit speedChanged(currentSpeed);
+            });
     
     connect(addressSpinBox, QOverload<int>::of(&QSpinBox::valueChanged),
             this, [this](int value) {
                 emit addressChanged(static_cast<uint32_t>(value));
-                if (currentSpeed==100){
-                    speedValueLabel->setText(tr("Max"));                    
-                }else{
-                    speedValueLabel->setText(QString("%1%").arg(currentSpeed));
-                }
             });
 
     connect(hexInput, &QLineEdit::textChanged, this, &DebugControlPanel::updateConverterFromHex);

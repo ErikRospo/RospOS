@@ -363,6 +363,5 @@ void MainWindow::onExecutionStopped()
 
 void MainWindow::onSpeedChanged(int value)
 {
-    // Speed slider for continuous execution (future feature)
-    Q_UNUSED(value);
+    vmController->setExecutionSpeedLevel(value);
 }
