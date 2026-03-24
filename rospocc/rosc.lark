@@ -109,8 +109,12 @@ unary_op: "+" -> uplus
 
 member_access: "." NAME
 ptr_member_access: "->" NAME
+array_index: "[" expr "]"
+call_suffix: "(" arg_list? ")"
+post_inc: "++"
+post_dec: "--"
 
-?postfix: primary ( ("[" expr "]") | ("(" arg_list? ")") | "++" | "--" | member_access | ptr_member_access )*
+?postfix: primary (array_index | call_suffix | post_inc | post_dec | member_access | ptr_member_access)*
 
 arg_list: expr ("," expr)*
 

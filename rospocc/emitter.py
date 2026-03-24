@@ -10,6 +10,18 @@ from emitter_stmt import emit_statement as emit_statement_impl
 from tracked_writer import TrackedWriter
 
 
+def _escape_ros_string(value: str) -> str:
+    # Keep .STR payload as a single escaped token for the assembler grammar.
+    return (
+        value.replace("\\", "\\\\")
+        .replace("\"", "\\\"")
+        .replace("\n", "\\n")
+        .replace("\r", "\\r")
+        .replace("\t", "\\t")
+        .replace("\0", "\\0")
+    )
+
+
 class Emitter:
     def __init__(
         self, source_file: Optional[str] = None, source_lines: Optional[list] = None
@@ -194,7 +206,7 @@ class Emitter:
         # Starter supports simple string/global labels
         if g.get("kind") == "string":
             lbl = g.get("name") or self.gen_label("str")
-            s = g.get("value", "")
+            s = _escape_ros_string(str(g.get("value", "")))
             out.write(f"{lbl}:\n")
             out.write(f'  .STR "{s}"\n\n')
         else:

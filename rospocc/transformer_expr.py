@@ -1,9 +1,38 @@
 import re
 
+from transformer_utils import decode_string_token
+
 
 class ExpressionTransformer:
     def __init__(self, ctx):
         self.ctx = ctx
+
+    def _fold_left_binops(self, children):
+        if not children:
+            return None
+
+        left = self.from_node(children[0])
+        i = 1
+        while i + 1 < len(children):
+            op_node = children[i]
+            right_node = children[i + 1]
+            if not isinstance(op_node, dict):
+                i += 1
+                continue
+            op_name = op_node.get("node")
+            right = self.from_node(right_node)
+            if op_name is None or left is None or right is None:
+                i += 2
+                continue
+            left = {
+                "type": "binop",
+                "op": op_name,
+                "left": left,
+                "right": right,
+            }
+            i += 2
+
+        return left
 
     def from_node(self, node):
         if not isinstance(node, dict):
@@ -18,7 +47,7 @@ class ExpressionTransformer:
                 except Exception:
                     return {"type": "const", "value": int(token)}
             if token.startswith('"') and token.endswith('"'):
-                value = token[1:-1]
+                value = decode_string_token(token)
                 if len(value) == 1:
                     return {"type": "const", "value": ord(value)}
                 label = self.ctx.get_or_create_string_label(value)
@@ -36,15 +65,7 @@ class ExpressionTransformer:
             "shift",
         ):
             children = node.get("children", [])
-            if not children:
-                return None
-
-            return {
-                "type": "binop",
-                "op": children[1].get("node"),
-                "left": self.from_node(children[0]),
-                "right": self.from_node(children[2]),
-            }
+            return self._fold_left_binops(children)
 
         if node_type == "assignment":
             children = node.get("children", [])
@@ -79,7 +100,7 @@ class ExpressionTransformer:
                     inner = self.from_node(children[1])
                     if inner:
                         return {"type": "deref", "expr": inner}
-                elif first["node"] == "addr_of":
+                elif first["node"] in ("addr_of", "addrof"):
                     inner = self.from_node(children[1])
                     if inner:
                         return {"type": "addr_of", "expr": inner}
@@ -122,85 +143,98 @@ class ExpressionTransformer:
             if not children:
                 return None
             primary = children[0]
-            has_inc = False
-            has_dec = False
-            member_accesses = []
+            result = self.from_node(primary)
 
             for child in children[1:]:
-                if isinstance(child, dict) and "token" in child:
-                    tok = child["token"]
-                    if tok == "++":
-                        has_inc = True
-                    elif tok == "--":
-                        has_dec = True
-                elif isinstance(child, dict) and "node" in child:
-                    if child["node"] == "member_access":
-                        for member_child in child.get("children", []):
-                            if (
-                                isinstance(member_child, dict)
-                                and "token" in member_child
-                            ):
-                                member_accesses.append(
-                                    {"op": ".", "member": member_child["token"]}
-                                )
-                                break
-                    elif child["node"] == "ptr_member_access":
-                        for member_child in child.get("children", []):
-                            if (
-                                isinstance(member_child, dict)
-                                and "token" in member_child
-                            ):
-                                member_accesses.append(
-                                    {"op": "->", "member": member_child["token"]}
-                                )
-                                break
+                if not isinstance(child, dict):
+                    continue
 
-            for child in children[1:]:
-                if isinstance(child, dict) and child.get("node") == "arg_list":
+                suffix_type = child.get("node")
+                if suffix_type == "call_suffix":
                     if (
                         isinstance(primary, dict)
                         and "token" in primary
                         and primary["token"].isidentifier()
                     ):
                         args = []
-                        for arg in child.get("children", []):
-                            if isinstance(arg, dict):
-                                expr_value = self.from_node(arg)
-                                if expr_value:
-                                    args.append(expr_value)
+                        arg_list = None
+                        for suffix_child in child.get("children", []):
+                            if isinstance(suffix_child, dict) and suffix_child.get("node") == "arg_list":
+                                arg_list = suffix_child
+                                break
+                        if arg_list is not None:
+                            for arg in arg_list.get("children", []):
+                                if isinstance(arg, dict):
+                                    expr_value = self.from_node(arg)
+                                    if expr_value:
+                                        args.append(expr_value)
                         return {"type": "call", "name": primary["token"], "args": args}
+                    continue
 
-            if member_accesses:
-                base_expr = self.from_node(primary)
-                result = base_expr
-                for access in member_accesses:
-                    result = {
-                        "type": "member_access",
-                        "op": access["op"],
-                        "base": result,
-                        "member": access["member"],
-                    }
-                return result
+                if suffix_type == "member_access":
+                    member_name = None
+                    for member_child in child.get("children", []):
+                        if isinstance(member_child, dict) and "token" in member_child:
+                            member_name = member_child["token"]
+                            break
+                    if member_name and result is not None:
+                        result = {
+                            "type": "member_access",
+                            "op": ".",
+                            "base": result,
+                            "member": member_name,
+                        }
+                    continue
 
-            primary_expr = self.from_node(primary)
-            if (
-                (has_inc or has_dec)
-                and primary_expr
-                and primary_expr.get("type") == "var"
-            ):
-                pname = primary_expr.get("name")
-                op = "+" if has_inc else "-"
-                return {
-                    "type": "assign",
-                    "target": pname,
-                    "value": {
-                        "type": "binop",
-                        "op": op,
-                        "left": {"type": "var", "name": pname},
-                        "right": {"type": "const", "value": 1},
-                    },
-                }
-            return self.from_node(primary)
+                if suffix_type == "ptr_member_access":
+                    member_name = None
+                    for member_child in child.get("children", []):
+                        if isinstance(member_child, dict) and "token" in member_child:
+                            member_name = member_child["token"]
+                            break
+                    if member_name and result is not None:
+                        result = {
+                            "type": "member_access",
+                            "op": "->",
+                            "base": result,
+                            "member": member_name,
+                        }
+                    continue
+
+                if suffix_type == "array_index":
+                    index_expr = None
+                    for idx_child in child.get("children", []):
+                        if isinstance(idx_child, dict):
+                            index_expr = self.from_node(idx_child)
+                            if index_expr is not None:
+                                break
+                    if result is not None and index_expr is not None:
+                        result = {
+                            "type": "deref",
+                            "expr": {
+                                "type": "binop",
+                                "op": "plus",
+                                "left": result,
+                                "right": index_expr,
+                            },
+                        }
+                    continue
+
+                if suffix_type in ("post_inc", "post_dec"):
+                    if result and result.get("type") == "var":
+                        pname = result.get("name")
+                        return {
+                            "type": "assign",
+                            "target": pname,
+                            "value": {
+                                "type": "binop",
+                                "op": "plus" if suffix_type == "post_inc" else "minus",
+                                "left": {"type": "var", "name": pname},
+                                "right": {"type": "const", "value": 1},
+                            },
+                        }
+
+            return result
 
         for child in node.get("children", []):
             result = self.from_node(child)

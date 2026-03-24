@@ -3,6 +3,22 @@ from typing import Any, Dict
 import abi
 
 
+def _is_char_ptr_expr(emitter, expr):
+    if not isinstance(expr, dict):
+        return False
+
+    et = expr.get("type")
+    if et == "var":
+        return emitter.var_types.get(expr.get("name")) == "char_ptr"
+
+    if et == "binop" and expr.get("op") in ("plus", "minus"):
+        left = expr.get("left")
+        right = expr.get("right")
+        return _is_char_ptr_expr(emitter, left) or _is_char_ptr_expr(emitter, right)
+
+    return False
+
+
 def _emit_return(emitter, stmt: Dict[str, Any], out):
     val = stmt.get("value")
     reg = emitter.emit_expr(val, out)
@@ -188,10 +204,7 @@ def _emit_assign(emitter, stmt: Dict[str, Any], out):
     elif isinstance(target, dict) and target.get("type") == "deref":
         addr_expr = target.get("expr")
         raddr = emitter.emit_expr(addr_expr, out)
-        store_instr = "SW"
-        if isinstance(addr_expr, dict) and addr_expr.get("type") == "var":
-            if emitter.var_types.get(addr_expr.get("name")) == "char_ptr":
-                store_instr = "SB"
+        store_instr = "SB" if _is_char_ptr_expr(emitter, addr_expr) else "SW"
         out.write(f"  {store_instr} {rval}, {raddr}, 0    // store \n")
         if raddr in abi.TEMP_REGS:
             emitter.free_reg(raddr)

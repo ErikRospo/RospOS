@@ -3,6 +3,22 @@ from typing import Any, Dict, Optional
 import abi
 
 
+def _is_char_ptr_expr(emitter, expr: Dict[str, Any]) -> bool:
+    if not isinstance(expr, dict):
+        return False
+
+    et = expr.get("type")
+    if et == "var":
+        return emitter.var_types.get(expr.get("name")) == "char_ptr"
+
+    if et == "binop" and expr.get("op") in ("plus", "minus"):
+        left = expr.get("left")
+        right = expr.get("right")
+        return _is_char_ptr_expr(emitter, left) or _is_char_ptr_expr(emitter, right)
+
+    return False
+
+
 def _emit_const(emitter, expr: Dict[str, Any], out) -> str:
     v = int(expr.get("value", 0))
     r = emitter.alloc_reg()
@@ -22,11 +38,7 @@ def _emit_deref(emitter, expr: Dict[str, Any], out) -> str:
     inner = expr.get("expr")
     raddr = emitter.emit_expr(inner, out)
     rd = emitter.alloc_reg()
-    load_instr = "LW"
-    if isinstance(inner, dict) and inner.get("type") == "var":
-        v = inner.get("name")
-        if emitter.var_types.get(v) == "char_ptr":
-            load_instr = "LB"
+    load_instr = "LB" if _is_char_ptr_expr(emitter, inner) else "LW"
     out.write(f"  {load_instr} {rd}, {raddr}, 0    // deref\n")
     if raddr in abi.TEMP_REGS:
         emitter.free_reg(raddr)
@@ -165,6 +177,15 @@ def _emit_binop(emitter, expr: Dict[str, Any], out) -> str:
     right = expr.get("right")
     rl = emitter.emit_expr(left, out)
     rr = emitter.emit_expr(right, out)
+
+    if not rl or not rr:
+        out.write(f"  // ERROR: failed to emit operands for binop {op}\n")
+        if rl and rl in abi.TEMP_REGS:
+            emitter.free_reg(rl)
+        if rr and rr in abi.TEMP_REGS:
+            emitter.free_reg(rr)
+        return ""
+
     rd = emitter.alloc_reg()
 
     if op == "plus":
@@ -215,6 +236,9 @@ def _emit_unop(emitter, expr: Dict[str, Any], out) -> str:
         out.write(f"{nt_label}:\n")
         out.write(f"  LLI {rd}, 1    // operand is zero -> true\n")
         out.write(f"{ne_label}:\n")
+        if r_operand in abi.TEMP_REGS:
+            emitter.free_reg(r_operand)
+        return rd
     return ""
 
 
@@ -223,6 +247,56 @@ def _emit_string_addr(emitter, expr: Dict[str, Any], out) -> str:
     r = emitter.alloc_reg()
     emitter._load_imm(r, lbl, out)
     return r
+
+
+def _emit_assign_expr(emitter, expr: Dict[str, Any], out) -> str:
+    target = expr.get("target")
+    value_expr = expr.get("value")
+    rval = emitter.emit_expr(value_expr, out)
+    if not rval:
+        out.write("  // ERROR: assign-expr has no rhs register\n")
+        return ""
+
+    result = rval
+
+    if isinstance(target, dict) and target.get("type") == "deref":
+        addr_expr = target.get("expr")
+        raddr = emitter.emit_expr(addr_expr, out)
+        if raddr:
+            store_instr = "SB" if _is_char_ptr_expr(emitter, addr_expr) else "SW"
+            out.write(f"  {store_instr} {rval}, {raddr}, 0    // store (assign-expr)\n")
+            if raddr in abi.TEMP_REGS:
+                emitter.free_reg(raddr)
+        else:
+            out.write("  // ERROR: assign-expr deref target has no address register\n")
+    elif isinstance(target, dict) and target.get("type") == "var":
+        name = target.get("name")
+        dest = emitter.var_regs.get(name)
+        if dest:
+            out.write(f"  ADDI {dest}, {rval}, 0    // assign-expr {name}\n")
+            result = dest
+        else:
+            emitter.var_regs[name] = rval
+            if name not in emitter.var_types:
+                emitter.var_types[name] = "int"
+            result = rval
+    elif isinstance(target, str):
+        dest = emitter.var_regs.get(target)
+        if dest:
+            out.write(f"  ADDI {dest}, {rval}, 0    // assign-expr {target}\n")
+            result = dest
+        else:
+            emitter.var_regs[target] = rval
+            if target not in emitter.var_types:
+                emitter.var_types[target] = "int"
+            result = rval
+    else:
+        out.write(f"  // assign-expr to unsupported target {target!r}\n")
+
+    if rval != result and rval in abi.TEMP_REGS:
+        emitter.free_reg(rval)
+
+    return result
 
 
 def _emit_unsupported(emitter, expr: Dict[str, Any], out) -> str:
@@ -237,6 +311,7 @@ EXPR_DISPATCH = {
     "member_access": _emit_member_access,
     "call": _emit_call,
     "binop": _emit_binop,
+    "assign": _emit_assign_expr,
     "unop": _emit_unop,
     "string_addr": _emit_string_addr,
 }

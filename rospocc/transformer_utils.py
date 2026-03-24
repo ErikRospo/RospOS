@@ -47,3 +47,15 @@ def node_name(value):
     if isinstance(value, Token):
         return str(value)
     return value
+
+
+def decode_string_token(token: str) -> str:
+    """Decode a quoted token like "\\n" or "\\0" into its runtime string value."""
+    if not (isinstance(token, str) and len(token) >= 2 and token[0] == '"' and token[-1] == '"'):
+        return token
+
+    inner = token[1:-1]
+    try:
+        return bytes(inner, "utf-8").decode("unicode_escape")
+    except Exception:
+        return inner

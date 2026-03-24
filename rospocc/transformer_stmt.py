@@ -1,6 +1,11 @@
 import re
 
-from transformer_utils import copy_line, find_identifier, find_number_in_node
+from transformer_utils import (
+    copy_line,
+    decode_string_token,
+    find_identifier,
+    find_number_in_node,
+)
 
 
 class StatementTransformer:
@@ -91,7 +96,7 @@ class StatementTransformer:
                                 and "token" in part
                                 and part["token"].startswith('"')
                             ):
-                                val = part["token"][1:-1]
+                                val = decode_string_token(part["token"])
                                 if len(val) == 1:
                                     init = {"type": "const", "value": ord(val)}
                                 else:
@@ -112,6 +117,72 @@ class StatementTransformer:
                 decl["decl_type"] = decl_type
             return [decl]
         return []
+
+    @staticmethod
+    def _is_stmt_node(node):
+        return isinstance(node, dict) and node.get("node") in (
+            "compound_stmt",
+            "expr_stmt",
+            "declaration",
+            "return_stmt",
+            "if_stmt",
+            "while_stmt",
+            "for_stmt",
+        )
+
+    @staticmethod
+    def _is_expr_node(node):
+        if not isinstance(node, dict):
+            return False
+        n = node.get("node")
+        return n in {
+            "expr",
+            "assignment",
+            "conditional",
+            "logic_or",
+            "logic_and",
+            "bit_or",
+            "bit_xor",
+            "bit_and",
+            "equality",
+            "relational",
+            "shift",
+            "additive",
+            "multiplicative",
+            "postfix",
+            "primary",
+            "unary",
+            "call_suffix",
+            "array_index",
+            "member_access",
+            "ptr_member_access",
+            "post_inc",
+            "post_dec",
+        } or ("token" in node)
+
+    def _expr_to_stmt(self, expr_node, src_node):
+        expr = self.expr.from_node(expr_node)
+        if not expr:
+            return None
+        if expr.get("type") == "assign":
+            return copy_line(
+                src_node,
+                {
+                    "type": "assign",
+                    "target": expr.get("target"),
+                    "value": expr.get("value"),
+                },
+            )
+        if expr.get("type") == "call":
+            return copy_line(
+                src_node,
+                {
+                    "type": "call_stmt",
+                    "name": expr.get("name"),
+                    "args": expr.get("args", []),
+                },
+            )
+        return None
 
     def process_stmt_node(self, stmt_node):
         """Process a single statement node (compound or simple)."""
@@ -182,6 +253,28 @@ class StatementTransformer:
                     return result
         return None
 
+    def _extract_condition_and_body(self, children):
+        cond = None
+        body_node = None
+
+        for ch in children:
+            if not isinstance(ch, dict):
+                continue
+            if cond is None and self._is_expr_node(ch):
+                candidate = self.expr.from_node(ch)
+                if candidate is not None:
+                    cond = candidate
+                    continue
+            if body_node is None and self._is_stmt_node(ch):
+                body_node = ch
+
+        if cond is None and len(children) >= 3 and isinstance(children[2], dict):
+            cond = self.expr.from_node(children[2])
+        if body_node is None and children:
+            body_node = children[-1]
+
+        return cond, body_node
+
     def compound_to_stmts(self, comp_node):
         stmts = []
         for child in comp_node.get("children", []):
@@ -191,56 +284,7 @@ class StatementTransformer:
 
             if node_type == "while_stmt":
                 children = child.get("children", [])
-                cond = None
-                body_node = None
-                for ch in children:
-                    if isinstance(ch, dict) and "token" in ch:
-                        if cond is None:
-                            candidate = self.expr.from_node(ch)
-                            if candidate is not None:
-                                cond = candidate
-                                continue
-                    if (
-                        isinstance(ch, dict)
-                        and ch.get("node")
-                        and ch.get("node") not in ("(", ")")
-                    ):
-                        if cond is None and ch.get("node") not in (
-                            "statement",
-                            "compound_stmt",
-                            "expr_stmt",
-                            "declaration",
-                            "return_stmt",
-                        ):
-                            cond = self.expr.from_node(ch)
-                        elif cond is None and ch.get("node") in (
-                            "expr",
-                            "assignment",
-                            "conditional",
-                            "logic_or",
-                            "additive",
-                            "multiplicative",
-                            "postfix",
-                            "primary",
-                            "unary",
-                        ):
-                            cond = self.expr.from_node(ch)
-                        elif body_node is None and ch.get("node") in (
-                            "compound_stmt",
-                            "expr_stmt",
-                            "declaration",
-                            "return_stmt",
-                        ):
-                            body_node = ch
-                if (
-                    cond is None
-                    and len(children) >= 3
-                    and isinstance(children[2], dict)
-                ):
-                    cond = self.expr.from_node(children[2])
-                if body_node is None and children:
-                    body_node = children[-1]
-
+                cond, body_node = self._extract_condition_and_body(children)
                 body_stmts = self.process_stmt_node(body_node) if body_node else []
                 stmts.append(
                     copy_line(
@@ -254,54 +298,22 @@ class StatementTransformer:
                 cond = None
                 then_node = None
                 else_node = None
+
                 for ch in children:
-                    if isinstance(ch, dict) and "token" in ch:
-                        if cond is None:
-                            candidate = self.expr.from_node(ch)
-                            if candidate is not None:
-                                cond = candidate
-                                continue
-                    if (
-                        isinstance(ch, dict)
-                        and ch.get("node")
-                        and ch.get("node") not in ("(", ")")
-                    ):
-                        if cond is None and ch.get("node") in (
-                            "expr",
-                            "assignment",
-                            "conditional",
-                            "logic_or",
-                            "additive",
-                            "multiplicative",
-                            "postfix",
-                            "primary",
-                            "unary",
-                        ):
-                            cond = self.expr.from_node(ch)
-                        elif then_node is None and ch.get("node") in (
-                            "compound_stmt",
-                            "expr_stmt",
-                            "declaration",
-                            "return_stmt",
-                        ):
+                    if not isinstance(ch, dict):
+                        continue
+                    if cond is None and self._is_expr_node(ch):
+                        candidate = self.expr.from_node(ch)
+                        if candidate is not None:
+                            cond = candidate
+                            continue
+                    if self._is_stmt_node(ch):
+                        if then_node is None:
                             then_node = ch
-                        elif (
-                            ch.get("node")
-                            in (
-                                "compound_stmt",
-                                "expr_stmt",
-                                "declaration",
-                                "return_stmt",
-                            )
-                            and then_node is not None
-                            and else_node is None
-                        ):
+                        elif else_node is None:
                             else_node = ch
-                if (
-                    cond is None
-                    and len(children) >= 3
-                    and isinstance(children[2], dict)
-                ):
+
+                if cond is None and len(children) >= 3 and isinstance(children[2], dict):
                     cond = self.expr.from_node(children[2])
 
                 if cond is None:
@@ -310,28 +322,6 @@ class StatementTransformer:
                         cond = {"type": "var", "name": name_found}
                     else:
                         cond = {"type": "const", "value": 1}
-                if then_node is None:
-                    for ch in children:
-                        if isinstance(ch, dict) and ch.get("node") in (
-                            "compound_stmt",
-                            "expr_stmt",
-                            "declaration",
-                            "return_stmt",
-                        ):
-                            then_node = ch
-                            break
-                if else_node is None:
-                    for i, ch in enumerate(children):
-                        if (
-                            isinstance(ch, dict)
-                            and "token" in ch
-                            and ch["token"] == "else"
-                        ):
-                            if i + 1 < len(children) and isinstance(
-                                children[i + 1], dict
-                            ):
-                                else_node = children[i + 1]
-                                break
 
                 then_stmts = self.process_stmt_node(then_node) if then_node else []
                 else_stmts = self.process_stmt_node(else_node) if else_node else []
@@ -344,6 +334,62 @@ class StatementTransformer:
                             "cond": cond,
                             "then": then_stmts,
                             "else": else_stmts,
+                        },
+                    )
+                )
+                continue
+
+            if node_type == "for_stmt":
+                children = [ch for ch in child.get("children", []) if isinstance(ch, dict)]
+                init_node = None
+                cond_node = None
+                step_node = None
+                body_node = None
+
+                if children and children[0].get("node") in ("declaration", "expr_stmt"):
+                    init_node = children[0]
+                    children = children[1:]
+
+                if children:
+                    if self._is_stmt_node(children[0]):
+                        body_node = children[0]
+                        children = children[1:]
+                    else:
+                        cond_node = children[0]
+                        children = children[1:]
+
+                if children:
+                    if self._is_stmt_node(children[0]):
+                        body_node = children[0]
+                        children = children[1:]
+                    else:
+                        step_node = children[0]
+                        children = children[1:]
+
+                if body_node is None and children:
+                    body_node = children[-1]
+
+                init_stmts = self.process_stmt_node(init_node) if init_node else []
+                cond_expr = (
+                    self.expr.from_node(cond_node)
+                    if cond_node
+                    else {"type": "const", "value": 1}
+                )
+                body_stmts = self.process_stmt_node(body_node) if body_node else []
+                step_stmt = self._expr_to_stmt(step_node, child) if step_node else None
+
+                while_body = list(body_stmts)
+                if step_stmt is not None:
+                    while_body.append(step_stmt)
+
+                stmts.extend(init_stmts)
+                stmts.append(
+                    copy_line(
+                        child,
+                        {
+                            "type": "while",
+                            "cond": cond_expr,
+                            "body": while_body,
                         },
                     )
                 )
