@@ -1,0 +1,38 @@
+#include <stdio.rosc>
+
+// .rosc translation of binaries/bc.ros
+void bc()
+{
+    print_string("BC: BASIC CALCULATOR\n");
+    print_string("Enter an expression (e.g., 2+3) or 'q' to quit:\n");
+    print_string("BC> ");
+
+    char buffer[32];
+    int idx = 0;
+
+    while (1)
+    {
+        char c = read_char();
+
+        if (c == 0x71)
+        {
+            return;
+        }
+
+        if (c == 0x0A)
+        {
+            buffer[idx] = 0;
+            print_string("\nBC> ");
+            idx = 0;
+        }
+        else
+        {
+            print_char(c);
+            if (idx < 31)
+            {
+                buffer[idx] = c;
+                idx = idx + 1;
+            }
+        }
+    }
+}

@@ -1,0 +1,23 @@
+// .rosc translation of binaries/screen_test.ros
+
+void screen_test()
+{
+    int addr = 0x20000000;
+    int remaining = 0x00010000;
+    int lfsr = 0xBEEF;
+
+    while (remaining)
+    {
+        __sb(addr, lfsr);
+        addr = addr + 1;
+
+        int lsb = lfsr & 1;
+        lfsr = lfsr >> 1;
+        if (lsb)
+        {
+            lfsr = lfsr ^ 0xB400;
+        }
+
+        remaining = remaining - 1;
+    }
+}

@@ -72,7 +72,12 @@ def include_replacer(match):
     filename = match.group(1)
     try:
         # Get the directory of the current file
-        current_dir = os.path.dirname(os.path.abspath(__file__))
+        current_file = getattr(include_replacer, "_current_file", None)
+        current_dir = (
+            os.path.dirname(os.path.abspath(current_file))
+            if current_file
+            else os.getcwd()
+        )
         files = [
             current_dir,
             os.path.join(current_dir, "include"),

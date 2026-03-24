@@ -1,0 +1,64 @@
+// .rosc translation of display.ros routines.
+// This version uses a fixed font base that matches the assembly layout.
+
+void clear_display()
+{
+    int i = 0;
+    while (i < 0x10000)
+    {
+        __sb(0x20000000 + i, 0);
+        i = i + 1;
+    }
+}
+
+void clear_char_on_display(int x, int y)
+{
+    int row = 0;
+    while (row < 8)
+    {
+        int col = 0;
+        while (col < 8)
+        {
+            int px = x + col;
+            int py = y + row;
+            int index = (py * 256) + px;
+            __sb(0x20000000 + index, 0);
+            col = col + 1;
+        }
+        row = row + 1;
+    }
+}
+
+void draw_char_to_display(int ch, int x, int y)
+{
+    int glyph = (ch - 34) * 8;
+    int row = 0;
+    while (row < 8)
+    {
+        int glyph_row = __lb(0x00100002 + glyph + row);
+        int col = 0;
+        while (col < 8)
+        {
+            int bit = (glyph_row >> (7 - col)) & 1;
+            if (bit)
+            {
+                int px = x + col;
+                int py = y + row;
+                int index = (py * 256) + px;
+                __sb(0x20000000 + index, 0x3F);
+            }
+            col = col + 1;
+        }
+        row = row + 1;
+    }
+}
+
+void draw_string_to_display(char *str, int x, int y)
+{
+    while (*str)
+    {
+        draw_char_to_display(*str, x, y);
+        str = str + 1;
+        x = x + 8;
+    }
+}
