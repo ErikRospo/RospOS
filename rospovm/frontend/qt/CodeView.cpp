@@ -7,6 +7,8 @@
 #include <KSyntaxHighlighting/Theme>
 
 #include <QCoreApplication>
+#include <QGuiApplication>
+#include <QStyleHints>
 #include <QDir>
 #include <QVBoxLayout>
 #include <QFont>
@@ -137,9 +139,13 @@ void CodeView::setupSyntaxHighlighting()
     {
         syntaxRepository->addCustomSearchPath(highlightingRoot);
     }
-
+    Qt::ColorScheme colorScheme = QGuiApplication::styleHints()->colorScheme();
     KSyntaxHighlighting::Theme theme = syntaxRepository->defaultTheme(KSyntaxHighlighting::Repository::DarkTheme);
-        
+    // May be good to make this user-configurable in the future, but for now just match the system theme as best we can
+    if (colorScheme==Qt::ColorScheme::Light)
+    {
+        theme = syntaxRepository->defaultTheme(KSyntaxHighlighting::Repository::LightTheme);
+    }
     codeHighlighter = new KSyntaxHighlighting::SyntaxHighlighter(codeDisplay->document());
     codeHighlighter->setTheme(theme);
     KSyntaxHighlighting::Definition codeDefinition =
