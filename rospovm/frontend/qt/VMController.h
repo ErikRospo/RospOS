@@ -7,6 +7,7 @@
 #include <memory>
 #include <cstdint>
 #include <QTimer>
+#include <QElapsedTimer>
 #include "RospOSVM.h"
 
 class VMController : public QObject
@@ -87,11 +88,15 @@ private:
     void onExecutionTick();
     void scheduleNextExecutionTick();
     int executionIntervalMs() const;
+    bool usesBurstExecutor() const;
+    int targetInstructionsPerSecond() const;
 
     std::unique_ptr<RospOSVM> vm;
     QTimer executionTimer;
     bool running;
     int speedLevel = 4;
+    QElapsedTimer throughputTimer;
+    double pendingBurstSteps = 0.0;
     uint32_t codeStartAddress = 0x10000;
     uint32_t codeEndAddress = 0x20000;
 };

@@ -67,6 +67,8 @@ void VMController::run()
     }
 
     running = true;
+    pendingBurstSteps = 0.0;
+    throughputTimer.invalidate();
     emit executionStarted();
     scheduleNextExecutionTick();
 }
@@ -75,6 +77,8 @@ void VMController::pause()
 {
     executionTimer.stop();
     running = false;
+    pendingBurstSteps = 0.0;
+    throughputTimer.invalidate();
     emit executionStopped();
 }
 
@@ -83,6 +87,8 @@ void VMController::reset()
     executionTimer.stop();
     vm = std::make_unique<RospOSVM>(true);
     running = false;
+    pendingBurstSteps = 0.0;
+    throughputTimer.invalidate();
     emit stateChanged();
     emit executionStopped();
 }
@@ -98,6 +104,8 @@ void VMController::setExecutionSpeedLevel(int level)
     speedLevel = level;
     if (running) {
         executionTimer.stop();
+        pendingBurstSteps = 0.0;
+        throughputTimer.invalidate();
         scheduleNextExecutionTick();
     }
 }
@@ -109,6 +117,11 @@ bool VMController::canStepBackward() const
 
 int VMController::executionIntervalMs() const
 {
+    if (usesBurstExecutor()) {
+        // Burst-mode speeds are paced by instruction quotas, not per-instruction delay.
+        return (speedLevel == 9) ? 0 : 8;
+    }
+
     switch (speedLevel) {
     case 0:
         return 5000;
@@ -122,16 +135,41 @@ int VMController::executionIntervalMs() const
         return 200;
     case 5:
         return 100;
-    case 6:
-        return 40;
-    case 7:
-        return 20;
-    case 8:
+    default:
+        return 200;
+    }
+}
+
+bool VMController::usesBurstExecutor() const
+{
+    return speedLevel >= 6;
+}
+
+int VMController::targetInstructionsPerSecond() const
+{
+    switch (speedLevel) {
+    case 0:
+        return 0;
+    case 1:
+        return 1;
+    case 2:
+        return 1;
+    case 3:
+        return 2;
+    case 4:
+        return 5;
+    case 5:
         return 10;
+    case 6:
+        return 25;
+    case 7:
+        return 50;
+    case 8:
+        return 100;
     case 9:
         return 0;
     default:
-        return 200;
+        return 5;
     }
 }
 
@@ -146,12 +184,6 @@ void VMController::scheduleNextExecutionTick()
 
 void VMController::onExecutionTick()
 {
-    
-    // If we're not running, do nothing
-    // If we should shut down, stop running and emit signal
-    // Otherwise, if we're running at max speed, run in 2500-instruction bursts to keep UI responsive, otherwise just step once
-    // Then, if we're still running, schedule the next tick
-    
     if (!running) {
         return;
     }
@@ -163,11 +195,40 @@ void VMController::onExecutionTick()
     }
 
     try {
-        if (speedLevel == 9) {
-            // Run in short bursts to maximize throughput while keeping UI responsive.
+        if (usesBurstExecutor()) {
+            constexpr int kMaxBurstInstructions = 2500;
+            int stepsToRun = kMaxBurstInstructions;
+
+            if (speedLevel != 9) {
+                const int targetIps = targetInstructionsPerSecond();
+                if (!throughputTimer.isValid()) {
+                    throughputTimer.start();
+                }
+
+                qint64 elapsedMs = throughputTimer.restart();
+                if (elapsedMs <= 0) {
+                    elapsedMs = executionIntervalMs();
+                }
+
+                pendingBurstSteps += (static_cast<double>(targetIps) * static_cast<double>(elapsedMs)) / 1000.0;
+                stepsToRun = static_cast<int>(pendingBurstSteps);
+                if (stepsToRun <= 0) {
+                    if (running) {
+                        scheduleNextExecutionTick();
+                    }
+                    return;
+                }
+
+                pendingBurstSteps -= static_cast<double>(stepsToRun);
+                if (stepsToRun > kMaxBurstInstructions) {
+                    pendingBurstSteps += static_cast<double>(stepsToRun - kMaxBurstInstructions);
+                    stepsToRun = kMaxBurstInstructions;
+                }
+            }
+
             QElapsedTimer burstTimer;
             burstTimer.start();
-            for (int i = 0; i < 2500; ++i) {
+            for (int i = 0; i < stepsToRun; ++i) {
                 vm->step();
                 if (shouldShutdown()) {
                     running = false;
@@ -176,6 +237,9 @@ void VMController::onExecutionTick()
                     return;
                 }
                 if (burstTimer.elapsed() >= 8) { // Limit bursts to ~8ms to keep UI responsive
+                    if (speedLevel != 9 && i + 1 < stepsToRun) {
+                        pendingBurstSteps += static_cast<double>(stepsToRun - (i + 1));
+                    }
                     break;
                 }
             }
