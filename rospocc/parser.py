@@ -38,7 +38,7 @@ args = argp.parse_args()
 with open(args.input, "r") as f:
     code = f.read()
 
-code = preprocess(code)
+code = preprocess(code, current_file=args.input)
 
 # Ensure output directory exists and write files there
 

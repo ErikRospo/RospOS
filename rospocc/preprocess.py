@@ -71,7 +71,9 @@ def replace_quotes(code):
 def include_replacer(match):
     filename = match.group(1)
     try:
-        # Get the directory of the current file
+        # This hack is *the* ugliest and most disgusting hack I've ever seen in my entire life
+        # Hats off to Copilot for coming up with this one, I've never seen anything like it
+        # And I want to preserve it for posterity as a monument to the absolute madness of this codebase
         current_file = getattr(include_replacer, "_current_file", None)
         current_dir = (
             os.path.dirname(os.path.abspath(current_file))
@@ -108,7 +110,8 @@ def pp_replacer(match):
     return f"{var_name} = {var_name} {operator[0]} 1;"
 
 
-def preprocess(code):
+def preprocess(code, current_file=None):
+    include_replacer._current_file = current_file
     include_pattern = re.compile(r"#include\s+<([^>]+)>")
     for _ in range(10):
         code = include_pattern.sub(include_replacer, code)
