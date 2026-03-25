@@ -24,6 +24,7 @@ private:
     static const int SCALED_HEIGHT = HEIGHT * SCALE;
 
     QImage displayImage;
+    mutable std::mutex imageMutex;  // Protects displayImage from concurrent access
 
     // Internal methods for MMIO logic
     static uint8_t read(uint32_t address);

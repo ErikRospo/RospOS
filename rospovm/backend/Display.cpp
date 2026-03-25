@@ -5,6 +5,7 @@
 #include <iostream>
 #include <algorithm>
 #include <QPainter>
+#include <QMetaObject>
 
 namespace {
 constexpr uint32_t kDisplayBase = 0x20000000;
@@ -20,12 +21,12 @@ static VMDisplay *displayInstance = nullptr;
 // Static MMIO handlers
 uint8_t VMDisplay::displayReadHandler(uint32_t address)
 {
-    return read(address);
+    return VMDisplay::read(address);
 }
 
 void VMDisplay::displayWriteHandler(uint32_t address, uint8_t value)
 {
-    write(address, value);
+    VMDisplay::write(address, value);
 }
 
 // Non-static methods for internal logic
@@ -80,13 +81,18 @@ void VMDisplay::write(uint32_t address, uint8_t value)
     uint8_t b = b2 * 85;
 
     if (instanceCopy != nullptr) {
-        // Update the QImage when the UI widget is active.
-        const int x = static_cast<int>(offset % WIDTH);
-        const int y = static_cast<int>(offset / WIDTH);
-        instanceCopy->displayImage.setPixelColor(x, y, QColor(r, g, b));
+        // Update the QImage when the UI widget is active (thread-safe).
+        const int x = static_cast<int>(offset % 256);
+        const int y = static_cast<int>(offset / 256);
+        {
+            std::lock_guard<std::mutex> lock(instanceCopy->imageMutex);
+            instanceCopy->displayImage.setPixelColor(x, y, QColor(r, g, b));
+        }
 
-        // Schedule a paint update on the Qt event loop.
-        instanceCopy->update();
+        // Schedule a paint update on the Qt event loop (thread-safe).
+        QMetaObject::invokeMethod(instanceCopy, [instanceCopy]() {
+            instanceCopy->update();
+        }, Qt::QueuedConnection);
     }
 }
 
@@ -104,6 +110,7 @@ VMDisplay::VMDisplay(QWidget *parent)
     // Mirror the backend framebuffer into the Qt image.
     {
         std::lock_guard<std::mutex> lock(g_fbMutex);
+        std::lock_guard<std::mutex> imageLock(imageMutex);
         for (uint32_t offset = 0; offset < kDisplaySize; ++offset) {
             const uint8_t v = g_framebuffer[offset];
             const uint8_t r = static_cast<uint8_t>(((v >> 4) & 0x03) * 85);
@@ -134,7 +141,10 @@ void VMDisplay::paintEvent(QPaintEvent *event)
     QPainter painter(this);
     painter.setRenderHint(QPainter::SmoothPixmapTransform, false);
 
-    // Scale and draw the image
+    // Scale and draw the image (thread-safe)
     QRect targetRect(0, 0, SCALED_WIDTH, SCALED_HEIGHT);
-    painter.drawImage(targetRect, displayImage);
+    {
+        std::lock_guard<std::mutex> lock(imageMutex);
+        painter.drawImage(targetRect, displayImage);
+    }
 }
