@@ -167,6 +167,14 @@ class Emitter:
             self.register_allocator.deallocate(reg)
             self.reg_free.append(reg)
 
+    def is_var_reg(self, reg: str) -> bool:
+        return reg in self.var_regs.values()
+
+    def release_expr_reg(self, reg: str):
+        # Only expression temporaries are releasable; variable-backed registers must stay live.
+        if reg and reg in abi.TEMP_REGS and not self.is_var_reg(reg):
+            self.free_reg(reg)
+
     # Helper: ensure a var has a register (allocate+zero-init if not)
     def _ensure_var_reg(self, name: str, out) -> str:
         return ensure_var_reg(self, name, out)
@@ -192,11 +200,11 @@ class Emitter:
         out.write(f"  LLI {rd}, 1\n")
         out.write(f"{lend}:\n")
 
-    def _intrinsic_lb(self, args, out):
-        intrinsic_lb(self, args, out)
+    def _intrinsic_lb(self, args, out, return_reg=None):
+        intrinsic_lb(self, args, out, return_reg=return_reg)
 
-    def _intrinsic_sb(self, args, out):
-        intrinsic_sb(self, args, out)
+    def _intrinsic_sb(self, args, out, return_reg=None):
+        intrinsic_sb(self, args, out, return_reg=return_reg)
 
     def emit_translation_unit(self, ast: Dict[str, Any], out_path: str):
         out_file = Path(out_path)

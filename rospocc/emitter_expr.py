@@ -49,8 +49,7 @@ def _emit_deref(emitter, expr: Dict[str, Any], out) -> str:
     rd = emitter.alloc_reg()
     load_instr = "LB" if _is_char_ptr_expr(emitter, inner) else "LW"
     out.write(f"  {load_instr} {rd}, {raddr}, 0    // deref\n")
-    if raddr in abi.TEMP_REGS:
-        emitter.free_reg(raddr)
+    emitter.release_expr_reg(raddr)
     return rd
 
 
@@ -166,8 +165,7 @@ def _emit_member_access(emitter, expr: Dict[str, Any], out) -> str:
             if addr_reg in abi.TEMP_REGS:
                 emitter.free_reg(addr_reg)
 
-        if base_expr in abi.TEMP_REGS:
-            emitter.free_reg(base_expr)
+        emitter.release_expr_reg(base_expr)
         return rd
 
     out.write(f"  // ERROR: unsupported member access op {op}\n")
@@ -189,10 +187,10 @@ def _emit_binop(emitter, expr: Dict[str, Any], out) -> str:
 
     if not rl or not rr:
         out.write(f"  // ERROR: failed to emit operands for binop {op}\n")
-        if rl and rl in abi.TEMP_REGS:
-            emitter.free_reg(rl)
-        if rr and rr in abi.TEMP_REGS:
-            emitter.free_reg(rr)
+        if rl:
+            emitter.release_expr_reg(rl)
+        if rr:
+            emitter.release_expr_reg(rr)
         return ""
 
     rd = emitter.alloc_reg()
@@ -213,6 +211,16 @@ def _emit_binop(emitter, expr: Dict[str, Any], out) -> str:
         out.write(f"  OR {rd}, {rl}, {rr}    // binop |\n")
     elif op == "xor":
         out.write(f"  XOR {rd}, {rl}, {rr}    // binop ^\n")
+    elif op == "land":
+        rtmp = emitter.alloc_reg()
+        out.write(f"  AND {rtmp}, {rl}, {rr}    // logic && fold\n")
+        emitter._emit_compare(rd, "neq", rtmp, abi.SPECIAL_REGS["zero"], out)
+        emitter.release_expr_reg(rtmp)
+    elif op == "lor":
+        rtmp = emitter.alloc_reg()
+        out.write(f"  OR {rtmp}, {rl}, {rr}    // logic || fold\n")
+        emitter._emit_compare(rd, "neq", rtmp, abi.SPECIAL_REGS["zero"], out)
+        emitter.release_expr_reg(rtmp)
     elif op == "lshift":
         out.write(f"  SHL {rd}, {rl}, {rr}    // binop <<\n")
     elif op == "rshift":
@@ -222,10 +230,8 @@ def _emit_binop(emitter, expr: Dict[str, Any], out) -> str:
     else:
         out.write(f"  // unsupported binop {op}\n")
 
-    if rl in abi.TEMP_REGS:
-        emitter.free_reg(rl)
-    if rr in abi.TEMP_REGS:
-        emitter.free_reg(rr)
+    emitter.release_expr_reg(rl)
+    emitter.release_expr_reg(rr)
     return rd
 
 
@@ -245,8 +251,7 @@ def _emit_unop(emitter, expr: Dict[str, Any], out) -> str:
         out.write(f"{nt_label}:\n")
         out.write(f"  LLI {rd}, 1    // operand is zero -> true\n")
         out.write(f"{ne_label}:\n")
-        if r_operand in abi.TEMP_REGS:
-            emitter.free_reg(r_operand)
+        emitter.release_expr_reg(r_operand)
         return rd
     return ""
 
@@ -274,8 +279,7 @@ def _emit_assign_expr(emitter, expr: Dict[str, Any], out) -> str:
         if raddr:
             store_instr = "SB" if _is_char_ptr_expr(emitter, addr_expr) else "SW"
             out.write(f"  {store_instr} {rval}, {raddr}, 0    // store (assign-expr)\n")
-            if raddr in abi.TEMP_REGS:
-                emitter.free_reg(raddr)
+            emitter.release_expr_reg(raddr)
         else:
             out.write("  // ERROR: assign-expr deref target has no address register\n")
     elif isinstance(target, dict) and target.get("type") == "var":
@@ -302,8 +306,8 @@ def _emit_assign_expr(emitter, expr: Dict[str, Any], out) -> str:
     else:
         out.write(f"  // assign-expr to unsupported target {target!r}\n")
 
-    if rval != result and rval in abi.TEMP_REGS:
-        emitter.free_reg(rval)
+    if rval != result:
+        emitter.release_expr_reg(rval)
 
     return result
 

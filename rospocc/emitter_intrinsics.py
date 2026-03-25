@@ -1,7 +1,7 @@
 import abi
 
 
-def intrinsic_lb(emitter, args, out):
+def intrinsic_lb(emitter, args, out, return_reg=None):
     a = args[0] if args else None
     raddr = None
     if a is None:
@@ -34,12 +34,12 @@ def intrinsic_lb(emitter, args, out):
         raddr = emitter.emit_expr(a, out)
 
     assert raddr is not None, "Failed to prepare address for __lb"
-    out.write(f"  LB {abi.RETURN_REG}, {raddr}, 0    // intrinsic __lb -> return\n")
-    if raddr in abi.TEMP_REGS:
-        emitter.free_reg(raddr)
+    target = return_reg if return_reg else abi.RETURN_REG
+    out.write(f"  LB {target}, {raddr}, 0    // intrinsic __lb -> return\n")
+    emitter.release_expr_reg(raddr)
 
 
-def intrinsic_sb(emitter, args, out):
+def intrinsic_sb(emitter, args, out, return_reg=None):
     if len(args) < 2:
         out.write("  // __sb missing args\n")
         return
@@ -78,7 +78,5 @@ def intrinsic_sb(emitter, args, out):
         rval = emitter.emit_expr(a_val, out)
 
     out.write(f"  SB {rval}, {raddr}, 0    // intrinsic __sb\n")
-    if raddr in abi.TEMP_REGS:
-        emitter.free_reg(raddr)
-    if rval in abi.TEMP_REGS:
-        emitter.free_reg(rval)
+    emitter.release_expr_reg(raddr)
+    emitter.release_expr_reg(rval)

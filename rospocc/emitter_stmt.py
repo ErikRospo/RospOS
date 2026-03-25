@@ -25,8 +25,7 @@ def _emit_return(emitter, stmt: Dict[str, Any], out):
     if reg:
         if reg != abi.RETURN_REG:
             out.write(f"  ADD {abi.RETURN_REG}, {reg}, {abi.SPECIAL_REGS['zero']}\n")
-        if reg in abi.TEMP_REGS:
-            emitter.free_reg(reg)
+        emitter.release_expr_reg(reg)
     out.write(f"  POP {abi.LINK_REG}\n")
     out.write("  RET\n")
     emitter.had_return = True
@@ -92,8 +91,7 @@ def _emit_decl(emitter, stmt: Dict[str, Any], out):
             rinit = emitter.emit_expr(init, out)
             if rinit:
                 out.write(f"  ADDI {dest}, {rinit}, 0    // init {name} from expr\n")
-                if rinit in abi.TEMP_REGS:
-                    emitter.free_reg(rinit)
+                emitter.release_expr_reg(rinit)
         return
 
     emitter._alloc_var_reg(name, out, init_value=None, typ="int")
@@ -190,8 +188,7 @@ def _emit_assign_member_access(emitter, target: Dict[str, Any], rval: str, out):
                     if addr_reg in abi.TEMP_REGS:
                         emitter.free_reg(addr_reg)
 
-        if base_expr in abi.TEMP_REGS:
-            emitter.free_reg(base_expr)
+        emitter.release_expr_reg(base_expr)
 
 
 def _emit_assign(emitter, stmt: Dict[str, Any], out):
@@ -206,8 +203,7 @@ def _emit_assign(emitter, stmt: Dict[str, Any], out):
         raddr = emitter.emit_expr(addr_expr, out)
         store_instr = "SB" if _is_char_ptr_expr(emitter, addr_expr) else "SW"
         out.write(f"  {store_instr} {rval}, {raddr}, 0    // store \n")
-        if raddr in abi.TEMP_REGS:
-            emitter.free_reg(raddr)
+        emitter.release_expr_reg(raddr)
     elif isinstance(target, dict) and target.get("type") == "var":
         name = target.get("name")
         dest = emitter.var_regs.get(name)
@@ -230,8 +226,8 @@ def _emit_assign(emitter, stmt: Dict[str, Any], out):
     else:
         out.write(f"  // assign to unsupported target {target!r}\n")
 
-    if rval and rval in abi.TEMP_REGS:
-        emitter.free_reg(rval)
+    if rval:
+        emitter.release_expr_reg(rval)
 
 
 def _emit_if(emitter, stmt: Dict[str, Any], out):
@@ -247,8 +243,8 @@ def _emit_if(emitter, stmt: Dict[str, Any], out):
     rcond = emitter.emit_expr(cond, out)
     rcond_reg = rcond if rcond else abi.SPECIAL_REGS["zero"]
     out.write(f"  BEQ {rcond_reg}, {abi.SPECIAL_REGS['zero']}, {lbl_else}\n")
-    if rcond and rcond in abi.TEMP_REGS:
-        emitter.free_reg(rcond)
+    if rcond:
+        emitter.release_expr_reg(rcond)
     for s in then_stmts:
         emitter.emit_statement(s, out)
     out.write(f"  JMP {lbl_end}\n")
@@ -285,8 +281,8 @@ def _emit_while(emitter, stmt: Dict[str, Any], out):
     rcond = emitter.emit_expr(cond, out)
     rcond_reg = rcond if rcond else abi.SPECIAL_REGS["zero"]
     out.write(f"  BEQ {rcond_reg}, {abi.SPECIAL_REGS['zero']}, {lbl_end}\n")
-    if rcond and rcond in abi.TEMP_REGS:
-        emitter.free_reg(rcond)
+    if rcond:
+        emitter.release_expr_reg(rcond)
     for s in body:
         emitter.emit_statement(s, out)
     out.write(f"  JMP {lbl_start}\n")

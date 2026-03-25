@@ -34,6 +34,36 @@ class ExpressionTransformer:
 
         return left
 
+    def _fold_left_token_binops(self, children, token_map):
+        if not children:
+            return None
+
+        left = self.from_node(children[0])
+        i = 1
+        while i + 1 < len(children):
+            op_node = children[i]
+            right_node = children[i + 1]
+            if not isinstance(op_node, dict):
+                i += 1
+                continue
+
+            token = op_node.get("token")
+            op_name = token_map.get(token)
+            right = self.from_node(right_node)
+            if op_name is None or left is None or right is None:
+                i += 2
+                continue
+
+            left = {
+                "type": "binop",
+                "op": op_name,
+                "left": left,
+                "right": right,
+            }
+            i += 2
+
+        return left
+
     def from_node(self, node):
         if not isinstance(node, dict):
             return None
@@ -66,6 +96,21 @@ class ExpressionTransformer:
         ):
             children = node.get("children", [])
             return self._fold_left_binops(children)
+
+        if node_type == "bit_and":
+            return self._fold_left_token_binops(node.get("children", []), {"&": "and"})
+
+        if node_type == "bit_xor":
+            return self._fold_left_token_binops(node.get("children", []), {"^": "xor"})
+
+        if node_type == "bit_or":
+            return self._fold_left_token_binops(node.get("children", []), {"|": "or"})
+
+        if node_type == "logic_and":
+            return self._fold_left_token_binops(node.get("children", []), {"&&": "land"})
+
+        if node_type == "logic_or":
+            return self._fold_left_token_binops(node.get("children", []), {"||": "lor"})
 
         if node_type == "assignment":
             children = node.get("children", [])

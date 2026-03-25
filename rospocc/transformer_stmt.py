@@ -4,7 +4,6 @@ from transformer_utils import (
     copy_line,
     decode_string_token,
     find_identifier,
-    find_number_in_node,
 )
 
 
@@ -103,13 +102,9 @@ class StatementTransformer:
                                     label = self.ctx.get_or_create_string_label(val)
                                     init = {"type": "string_addr", "label": label}
                             if isinstance(part, dict) and part.get("node"):
-                                val = find_number_in_node(part)
-                                if val is not None:
-                                    init = {"type": "const", "value": val}
-                                else:
-                                    expr_init = self.expr.from_node(part)
-                                    if expr_init is not None:
-                                        init = expr_init
+                                expr_init = self.expr.from_node(part)
+                                if expr_init is not None:
+                                    init = expr_init
 
         if name:
             decl = copy_line(decl_node, {"type": "decl", "name": name, "init": init})

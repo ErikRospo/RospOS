@@ -10,7 +10,7 @@ def emit_call(emitter, call_expr: Dict, return_reg: Optional[str], out):
     if isinstance(name, str) and name.startswith("__"):
         handler = emitter.intrinsics.get(name)
         if handler:
-            handler(args, out)
+            handler(args, out, return_reg=return_reg)
             return
         print(f"Warning: no handler for intrinsic {name!r}")
 
@@ -43,8 +43,20 @@ def emit_call(emitter, call_expr: Dict, return_reg: Optional[str], out):
                 out.write(f"  ADDI {dest}, {r}, 0    // move arg {i}\n")
             else:
                 emitter._load_imm(dest, 0, out)
+        elif a.get("type") == "deref":
+            r = emitter.emit_expr(a, out)
+            if r:
+                out.write(f"  ADDI {dest}, {r}, 0    // move arg {i} from deref\n")
+                emitter.release_expr_reg(r)
+            else:
+                emitter._load_imm(dest, 0, out)
         else:
-            out.write(f"  // unsupported arg type {a!r}\n")
+            r = emitter.emit_expr(a, out)
+            if r:
+                out.write(f"  ADDI {dest}, {r}, 0    // move arg {i} from expr\n")
+                emitter.release_expr_reg(r)
+            else:
+                out.write(f"  // unsupported arg type {a!r}\n")
 
     out.write(f"  CALL {call_expr.get('name')}\n")
     out.write(f"  // call return value in {abi.RETURN_REG}\n")
