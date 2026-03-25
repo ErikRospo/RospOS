@@ -4,19 +4,15 @@ void screen_test()
 {
     int addr = 0x20000000;
     int remaining = 0x00010000;
-    int lfsr = 0xBEEF;
+    int lfsr = 0xDEADBEEF;
 
     while (remaining)
     {
         __sb(addr, lfsr);
         addr = addr + 1;
-
-        int lsb = lfsr & 1;
-        lfsr = lfsr >> 1;
-        if (lsb)
-        {
-            lfsr = lfsr ^ 0xB400;
-        }
+        // taps at 16, 14, 13, 11 (0-based indexing)
+        int bit = ((lfsr >> 0) ^ (lfsr >> 2) ^ (lfsr >> 3) ^ (lfsr >> 5)) & 1;
+        lfsr = (lfsr >> 1) | (bit << 15);
 
         remaining = remaining - 1;
     }
