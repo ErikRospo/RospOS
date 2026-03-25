@@ -23,6 +23,7 @@
 #include <QHelpEvent>
 #include <QToolTip>
 #include <QRegularExpression>
+#include <QDebug>
 
 namespace
 {
@@ -142,8 +143,10 @@ void CodeView::setupSyntaxHighlighting()
     Qt::ColorScheme colorScheme = QGuiApplication::styleHints()->colorScheme();
     KSyntaxHighlighting::Theme theme = syntaxRepository->defaultTheme(KSyntaxHighlighting::Repository::DarkTheme);
     // May be good to make this user-configurable in the future, but for now just match the system theme as best we can
+    qInfo() << "System color scheme: " << colorScheme;
     if (colorScheme==Qt::ColorScheme::Light)
     {
+        qInfo() << "Light color scheme detected, using light theme";
         theme = syntaxRepository->defaultTheme(KSyntaxHighlighting::Repository::LightTheme);
     }
     codeHighlighter = new KSyntaxHighlighting::SyntaxHighlighter(codeDisplay->document());
