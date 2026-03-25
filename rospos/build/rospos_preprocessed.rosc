@@ -109,13 +109,15 @@ void clear_char_on_display(int x, int y)
     }
 }
 
+char* font_address = __embed("font_bitmap.bin");
+
 void draw_char_to_display(int ch, int x, int y)
 {
     int glyph = (ch - 34) * 8;
     int row = 0;
     while (row < 8)
     {
-        int glyph_row = __lb(0x00100002 + glyph + row);
+        int glyph_row = __lb(font_address + glyph + row);
         int col = 0;
         while (col < 8)
         {

@@ -1484,30 +1484,57 @@ program
     instruction
       lli
         register	r8
-        imm	1048578
+        imm	0
   codeline
     instruction
       lli
         register	r9
+        imm
+          labeluse	font_address
+  codeline
+    instruction
+      rinstructuse
+        add
+        register	r10
+        register	r9
+        register	r4
+  codeline
+    instruction
+      rinstructuse
+        add
+        register	r11
+        register	r10
+        register	r5
+  codeline
+    instruction
+      lsinstructuse
+        lb
+        register	r1
+        register	r11
+        imm	0
+  codeline
+    instruction
+      lli
+        register	r12
         imm	0
   codeline
     label	WHILE48:
   codeline
     instruction
       lli
-        register	r10
+        register	r5
         imm	8
   codeline
     instruction
       lli
-        register	r11
+        register	r6
         imm	0
   codeline
     instruction
       binstructuse
         blt
-        register	r9
-        register	r10
+        register	r12
+        register	r5
         imm
           labeluse	CMP_TRUE50
   codeline
@@ -1520,7 +1547,7 @@ program
   codeline
     instruction
       lli
-        register	r11
+        register	r6
         imm	1
   codeline
     label	CMP_END51:
@@ -1528,89 +1555,89 @@ program
     instruction
       binstructuse
         beq
-        register	r11
+        register	r6
         register	r0
         imm
           labeluse	WHILE_END49
   codeline
     instruction
       lli
-        register	r12
+        register	r7
         imm	7
   codeline
     instruction
       binstructuse
         beq
-        register	r12
+        register	r7
         register	r0
         imm
           labeluse	ELSE52
   codeline
     instruction
       lli
-        register	r5
+        register	r9
         imm	0
   codeline
     instruction
       rinstructuse
         add
-        register	r6
+        register	r4
         register	r2
-        register	r9
+        register	r12
   codeline
     instruction
       iinstructuse
         addi
-        register	r5
-        register	r6
+        register	r9
+        register	r4
         imm	0
   codeline
     instruction
       lli
-        register	r7
+        register	r10
         imm	0
   codeline
     instruction
       rinstructuse
         add
-        register	r9
+        register	r11
         register	r3
         register	r5
   codeline
     instruction
       iinstructuse
         addi
-        register	r7
-        register	r9
+        register	r10
+        register	r11
         imm	0
   codeline
     instruction
       lli
-        register	r10
+        register	r12
         imm	256
   codeline
     instruction
       lli
-        register	r11
+        register	r5
         imm	536870912
   codeline
     instruction
       rinstructuse
         add
+        register	r6
+        register	r5
         register	r12
-        register	r11
-        register	r10
   codeline
     instruction
       lli
-        register	r2
+        register	r7
         imm	63
   codeline
     instruction
       lsinstructuse
         sb
-        register	r2
-        register	r12
+        register	r7
+        register	r6
         imm	0
   codeline
     instruction
@@ -1624,21 +1651,21 @@ program
   codeline
     instruction
       lli
-        register	r6
+        register	r2
         imm	1
   codeline
     instruction
       rinstructuse
         add
-        register	r3
-        register	r9
-        register	r6
+        register	r4
+        register	r12
+        register	r2
   codeline
     instruction
       iinstructuse
         addi
-        register	r9
-        register	r3
+        register	r12
+        register	r4
         imm	0
   codeline
     instruction
@@ -1650,21 +1677,21 @@ program
   codeline
     instruction
       lli
-        register	r5
+        register	r3
         imm	1
   codeline
     instruction
       rinstructuse
         add
-        register	r9
+        register	r11
         register	r5
-        register	r5
+        register	r3
   codeline
     instruction
       iinstructuse
         addi
         register	r5
-        register	r9
+        register	r11
         imm	0
   codeline
     instruction
@@ -2524,6 +2551,3016 @@ program
     instruction
       systeminstructuse
         break
+  codeline
+    label	font_address:
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0x18
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0x18
+  codeline
+    directiveuse
+      data
+        imm	0x18
+  codeline
+    directiveuse
+      data
+        imm	0x3C
+  codeline
+    directiveuse
+      data
+        imm	0x3C
+  codeline
+    directiveuse
+      data
+        imm	0x18
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0x6C
+  codeline
+    directiveuse
+      data
+        imm	0x6C
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0x6C
+  codeline
+    directiveuse
+      data
+        imm	0x6C
+  codeline
+    directiveuse
+      data
+        imm	0xFE
+  codeline
+    directiveuse
+      data
+        imm	0x6C
+  codeline
+    directiveuse
+      data
+        imm	0xFE
+  codeline
+    directiveuse
+      data
+        imm	0x6C
+  codeline
+    directiveuse
+      data
+        imm	0x6C
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0x30
+  codeline
+    directiveuse
+      data
+        imm	0xF8
+  codeline
+    directiveuse
+      data
+        imm	0x0C
+  codeline
+    directiveuse
+      data
+        imm	0x78
+  codeline
+    directiveuse
+      data
+        imm	0xC0
+  codeline
+    directiveuse
+      data
+        imm	0x7C
+  codeline
+    directiveuse
+      data
+        imm	0x30
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0xC6
+  codeline
+    directiveuse
+      data
+        imm	0x66
+  codeline
+    directiveuse
+      data
+        imm	0x30
+  codeline
+    directiveuse
+      data
+        imm	0x18
+  codeline
+    directiveuse
+      data
+        imm	0xCC
+  codeline
+    directiveuse
+      data
+        imm	0xC6
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0x76
+  codeline
+    directiveuse
+      data
+        imm	0xCC
+  codeline
+    directiveuse
+      data
+        imm	0xDC
+  codeline
+    directiveuse
+      data
+        imm	0x76
+  codeline
+    directiveuse
+      data
+        imm	0x38
+  codeline
+    directiveuse
+      data
+        imm	0x6C
+  codeline
+    directiveuse
+      data
+        imm	0x38
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0xC0
+  codeline
+    directiveuse
+      data
+        imm	0x60
+  codeline
+    directiveuse
+      data
+        imm	0x60
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0x18
+  codeline
+    directiveuse
+      data
+        imm	0x30
+  codeline
+    directiveuse
+      data
+        imm	0x60
+  codeline
+    directiveuse
+      data
+        imm	0x60
+  codeline
+    directiveuse
+      data
+        imm	0x60
+  codeline
+    directiveuse
+      data
+        imm	0x30
+  codeline
+    directiveuse
+      data
+        imm	0x18
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0x60
+  codeline
+    directiveuse
+      data
+        imm	0x30
+  codeline
+    directiveuse
+      data
+        imm	0x18
+  codeline
+    directiveuse
+      data
+        imm	0x18
+  codeline
+    directiveuse
+      data
+        imm	0x18
+  codeline
+    directiveuse
+      data
+        imm	0x30
+  codeline
+    directiveuse
+      data
+        imm	0x60
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0x66
+  codeline
+    directiveuse
+      data
+        imm	0x3C
+  codeline
+    directiveuse
+      data
+        imm	0xFF
+  codeline
+    directiveuse
+      data
+        imm	0x3C
+  codeline
+    directiveuse
+      data
+        imm	0x66
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0x30
+  codeline
+    directiveuse
+      data
+        imm	0x30
+  codeline
+    directiveuse
+      data
+        imm	0xFC
+  codeline
+    directiveuse
+      data
+        imm	0x30
+  codeline
+    directiveuse
+      data
+        imm	0x30
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0x60
+  codeline
+    directiveuse
+      data
+        imm	0x30
+  codeline
+    directiveuse
+      data
+        imm	0x30
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0xFC
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0x30
+  codeline
+    directiveuse
+      data
+        imm	0x30
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0x80
+  codeline
+    directiveuse
+      data
+        imm	0xC0
+  codeline
+    directiveuse
+      data
+        imm	0x60
+  codeline
+    directiveuse
+      data
+        imm	0x30
+  codeline
+    directiveuse
+      data
+        imm	0x18
+  codeline
+    directiveuse
+      data
+        imm	0x0C
+  codeline
+    directiveuse
+      data
+        imm	0x06
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0x7C
+  codeline
+    directiveuse
+      data
+        imm	0xE6
+  codeline
+    directiveuse
+      data
+        imm	0xF6
+  codeline
+    directiveuse
+      data
+        imm	0xDE
+  codeline
+    directiveuse
+      data
+        imm	0xCE
+  codeline
+    directiveuse
+      data
+        imm	0xC6
+  codeline
+    directiveuse
+      data
+        imm	0x7C
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0xFC
+  codeline
+    directiveuse
+      data
+        imm	0x30
+  codeline
+    directiveuse
+      data
+        imm	0x30
+  codeline
+    directiveuse
+      data
+        imm	0x30
+  codeline
+    directiveuse
+      data
+        imm	0x30
+  codeline
+    directiveuse
+      data
+        imm	0x70
+  codeline
+    directiveuse
+      data
+        imm	0x30
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0xFC
+  codeline
+    directiveuse
+      data
+        imm	0xCC
+  codeline
+    directiveuse
+      data
+        imm	0x60
+  codeline
+    directiveuse
+      data
+        imm	0x38
+  codeline
+    directiveuse
+      data
+        imm	0x0C
+  codeline
+    directiveuse
+      data
+        imm	0xCC
+  codeline
+    directiveuse
+      data
+        imm	0x78
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0x78
+  codeline
+    directiveuse
+      data
+        imm	0xCC
+  codeline
+    directiveuse
+      data
+        imm	0x0C
+  codeline
+    directiveuse
+      data
+        imm	0x38
+  codeline
+    directiveuse
+      data
+        imm	0x0C
+  codeline
+    directiveuse
+      data
+        imm	0xCC
+  codeline
+    directiveuse
+      data
+        imm	0x78
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0x1E
+  codeline
+    directiveuse
+      data
+        imm	0x0C
+  codeline
+    directiveuse
+      data
+        imm	0xFE
+  codeline
+    directiveuse
+      data
+        imm	0xCC
+  codeline
+    directiveuse
+      data
+        imm	0x6C
+  codeline
+    directiveuse
+      data
+        imm	0x3C
+  codeline
+    directiveuse
+      data
+        imm	0x1C
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0x78
+  codeline
+    directiveuse
+      data
+        imm	0xCC
+  codeline
+    directiveuse
+      data
+        imm	0x0C
+  codeline
+    directiveuse
+      data
+        imm	0x0C
+  codeline
+    directiveuse
+      data
+        imm	0xF8
+  codeline
+    directiveuse
+      data
+        imm	0xC0
+  codeline
+    directiveuse
+      data
+        imm	0xFC
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0x78
+  codeline
+    directiveuse
+      data
+        imm	0xCC
+  codeline
+    directiveuse
+      data
+        imm	0xCC
+  codeline
+    directiveuse
+      data
+        imm	0xF8
+  codeline
+    directiveuse
+      data
+        imm	0xC0
+  codeline
+    directiveuse
+      data
+        imm	0x60
+  codeline
+    directiveuse
+      data
+        imm	0x38
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0x30
+  codeline
+    directiveuse
+      data
+        imm	0x30
+  codeline
+    directiveuse
+      data
+        imm	0x30
+  codeline
+    directiveuse
+      data
+        imm	0x18
+  codeline
+    directiveuse
+      data
+        imm	0x0C
+  codeline
+    directiveuse
+      data
+        imm	0xCC
+  codeline
+    directiveuse
+      data
+        imm	0xFC
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0x78
+  codeline
+    directiveuse
+      data
+        imm	0xCC
+  codeline
+    directiveuse
+      data
+        imm	0xCC
+  codeline
+    directiveuse
+      data
+        imm	0x78
+  codeline
+    directiveuse
+      data
+        imm	0xCC
+  codeline
+    directiveuse
+      data
+        imm	0xCC
+  codeline
+    directiveuse
+      data
+        imm	0x78
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0x70
+  codeline
+    directiveuse
+      data
+        imm	0x18
+  codeline
+    directiveuse
+      data
+        imm	0x0C
+  codeline
+    directiveuse
+      data
+        imm	0x7C
+  codeline
+    directiveuse
+      data
+        imm	0xCC
+  codeline
+    directiveuse
+      data
+        imm	0xCC
+  codeline
+    directiveuse
+      data
+        imm	0x78
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0x30
+  codeline
+    directiveuse
+      data
+        imm	0x30
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0x30
+  codeline
+    directiveuse
+      data
+        imm	0x30
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0x60
+  codeline
+    directiveuse
+      data
+        imm	0x30
+  codeline
+    directiveuse
+      data
+        imm	0x30
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0x30
+  codeline
+    directiveuse
+      data
+        imm	0x30
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0x18
+  codeline
+    directiveuse
+      data
+        imm	0x30
+  codeline
+    directiveuse
+      data
+        imm	0x60
+  codeline
+    directiveuse
+      data
+        imm	0xC0
+  codeline
+    directiveuse
+      data
+        imm	0x60
+  codeline
+    directiveuse
+      data
+        imm	0x30
+  codeline
+    directiveuse
+      data
+        imm	0x18
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0xFC
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0xFC
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0x60
+  codeline
+    directiveuse
+      data
+        imm	0x30
+  codeline
+    directiveuse
+      data
+        imm	0x18
+  codeline
+    directiveuse
+      data
+        imm	0x0C
+  codeline
+    directiveuse
+      data
+        imm	0x18
+  codeline
+    directiveuse
+      data
+        imm	0x30
+  codeline
+    directiveuse
+      data
+        imm	0x60
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0x30
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0x30
+  codeline
+    directiveuse
+      data
+        imm	0x18
+  codeline
+    directiveuse
+      data
+        imm	0x0C
+  codeline
+    directiveuse
+      data
+        imm	0xCC
+  codeline
+    directiveuse
+      data
+        imm	0x78
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0x78
+  codeline
+    directiveuse
+      data
+        imm	0xC0
+  codeline
+    directiveuse
+      data
+        imm	0xDE
+  codeline
+    directiveuse
+      data
+        imm	0xDE
+  codeline
+    directiveuse
+      data
+        imm	0xDE
+  codeline
+    directiveuse
+      data
+        imm	0xC6
+  codeline
+    directiveuse
+      data
+        imm	0x7C
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0xCC
+  codeline
+    directiveuse
+      data
+        imm	0xCC
+  codeline
+    directiveuse
+      data
+        imm	0xFC
+  codeline
+    directiveuse
+      data
+        imm	0xCC
+  codeline
+    directiveuse
+      data
+        imm	0xCC
+  codeline
+    directiveuse
+      data
+        imm	0x78
+  codeline
+    directiveuse
+      data
+        imm	0x30
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0xFC
+  codeline
+    directiveuse
+      data
+        imm	0x66
+  codeline
+    directiveuse
+      data
+        imm	0x66
+  codeline
+    directiveuse
+      data
+        imm	0x7C
+  codeline
+    directiveuse
+      data
+        imm	0x66
+  codeline
+    directiveuse
+      data
+        imm	0x66
+  codeline
+    directiveuse
+      data
+        imm	0xFC
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0x3C
+  codeline
+    directiveuse
+      data
+        imm	0x66
+  codeline
+    directiveuse
+      data
+        imm	0xC0
+  codeline
+    directiveuse
+      data
+        imm	0xC0
+  codeline
+    directiveuse
+      data
+        imm	0xC0
+  codeline
+    directiveuse
+      data
+        imm	0x66
+  codeline
+    directiveuse
+      data
+        imm	0x3C
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0xF8
+  codeline
+    directiveuse
+      data
+        imm	0x6C
+  codeline
+    directiveuse
+      data
+        imm	0x66
+  codeline
+    directiveuse
+      data
+        imm	0x66
+  codeline
+    directiveuse
+      data
+        imm	0x66
+  codeline
+    directiveuse
+      data
+        imm	0x6C
+  codeline
+    directiveuse
+      data
+        imm	0xF8
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0xFE
+  codeline
+    directiveuse
+      data
+        imm	0x62
+  codeline
+    directiveuse
+      data
+        imm	0x68
+  codeline
+    directiveuse
+      data
+        imm	0x78
+  codeline
+    directiveuse
+      data
+        imm	0x68
+  codeline
+    directiveuse
+      data
+        imm	0x62
+  codeline
+    directiveuse
+      data
+        imm	0xFE
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0xF0
+  codeline
+    directiveuse
+      data
+        imm	0x60
+  codeline
+    directiveuse
+      data
+        imm	0x68
+  codeline
+    directiveuse
+      data
+        imm	0x78
+  codeline
+    directiveuse
+      data
+        imm	0x68
+  codeline
+    directiveuse
+      data
+        imm	0x62
+  codeline
+    directiveuse
+      data
+        imm	0xFE
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0x3E
+  codeline
+    directiveuse
+      data
+        imm	0x66
+  codeline
+    directiveuse
+      data
+        imm	0xCE
+  codeline
+    directiveuse
+      data
+        imm	0xC0
+  codeline
+    directiveuse
+      data
+        imm	0xC0
+  codeline
+    directiveuse
+      data
+        imm	0x66
+  codeline
+    directiveuse
+      data
+        imm	0x3C
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0xCC
+  codeline
+    directiveuse
+      data
+        imm	0xCC
+  codeline
+    directiveuse
+      data
+        imm	0xCC
+  codeline
+    directiveuse
+      data
+        imm	0xFC
+  codeline
+    directiveuse
+      data
+        imm	0xCC
+  codeline
+    directiveuse
+      data
+        imm	0xCC
+  codeline
+    directiveuse
+      data
+        imm	0xCC
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0x78
+  codeline
+    directiveuse
+      data
+        imm	0x30
+  codeline
+    directiveuse
+      data
+        imm	0x30
+  codeline
+    directiveuse
+      data
+        imm	0x30
+  codeline
+    directiveuse
+      data
+        imm	0x30
+  codeline
+    directiveuse
+      data
+        imm	0x30
+  codeline
+    directiveuse
+      data
+        imm	0x78
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0x78
+  codeline
+    directiveuse
+      data
+        imm	0xCC
+  codeline
+    directiveuse
+      data
+        imm	0xCC
+  codeline
+    directiveuse
+      data
+        imm	0x0C
+  codeline
+    directiveuse
+      data
+        imm	0x0C
+  codeline
+    directiveuse
+      data
+        imm	0x0C
+  codeline
+    directiveuse
+      data
+        imm	0x1E
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0xE6
+  codeline
+    directiveuse
+      data
+        imm	0x66
+  codeline
+    directiveuse
+      data
+        imm	0x6C
+  codeline
+    directiveuse
+      data
+        imm	0x78
+  codeline
+    directiveuse
+      data
+        imm	0x6C
+  codeline
+    directiveuse
+      data
+        imm	0x66
+  codeline
+    directiveuse
+      data
+        imm	0xE6
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0xFE
+  codeline
+    directiveuse
+      data
+        imm	0x66
+  codeline
+    directiveuse
+      data
+        imm	0x62
+  codeline
+    directiveuse
+      data
+        imm	0x60
+  codeline
+    directiveuse
+      data
+        imm	0x60
+  codeline
+    directiveuse
+      data
+        imm	0x60
+  codeline
+    directiveuse
+      data
+        imm	0xF0
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0xC6
+  codeline
+    directiveuse
+      data
+        imm	0xC6
+  codeline
+    directiveuse
+      data
+        imm	0xD6
+  codeline
+    directiveuse
+      data
+        imm	0xFE
+  codeline
+    directiveuse
+      data
+        imm	0xFE
+  codeline
+    directiveuse
+      data
+        imm	0xEE
+  codeline
+    directiveuse
+      data
+        imm	0xC6
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0xC6
+  codeline
+    directiveuse
+      data
+        imm	0xC6
+  codeline
+    directiveuse
+      data
+        imm	0xCE
+  codeline
+    directiveuse
+      data
+        imm	0xDE
+  codeline
+    directiveuse
+      data
+        imm	0xF6
+  codeline
+    directiveuse
+      data
+        imm	0xE6
+  codeline
+    directiveuse
+      data
+        imm	0xC6
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0x38
+  codeline
+    directiveuse
+      data
+        imm	0x6C
+  codeline
+    directiveuse
+      data
+        imm	0xC6
+  codeline
+    directiveuse
+      data
+        imm	0xC6
+  codeline
+    directiveuse
+      data
+        imm	0xC6
+  codeline
+    directiveuse
+      data
+        imm	0x6C
+  codeline
+    directiveuse
+      data
+        imm	0x38
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0xF0
+  codeline
+    directiveuse
+      data
+        imm	0x60
+  codeline
+    directiveuse
+      data
+        imm	0x60
+  codeline
+    directiveuse
+      data
+        imm	0x7C
+  codeline
+    directiveuse
+      data
+        imm	0x66
+  codeline
+    directiveuse
+      data
+        imm	0x66
+  codeline
+    directiveuse
+      data
+        imm	0xFC
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0x1C
+  codeline
+    directiveuse
+      data
+        imm	0x78
+  codeline
+    directiveuse
+      data
+        imm	0xDC
+  codeline
+    directiveuse
+      data
+        imm	0xCC
+  codeline
+    directiveuse
+      data
+        imm	0xCC
+  codeline
+    directiveuse
+      data
+        imm	0xCC
+  codeline
+    directiveuse
+      data
+        imm	0x78
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0xE6
+  codeline
+    directiveuse
+      data
+        imm	0x66
+  codeline
+    directiveuse
+      data
+        imm	0x6C
+  codeline
+    directiveuse
+      data
+        imm	0x7C
+  codeline
+    directiveuse
+      data
+        imm	0x66
+  codeline
+    directiveuse
+      data
+        imm	0x66
+  codeline
+    directiveuse
+      data
+        imm	0xFC
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0x78
+  codeline
+    directiveuse
+      data
+        imm	0xCC
+  codeline
+    directiveuse
+      data
+        imm	0x1C
+  codeline
+    directiveuse
+      data
+        imm	0x70
+  codeline
+    directiveuse
+      data
+        imm	0xE0
+  codeline
+    directiveuse
+      data
+        imm	0xCC
+  codeline
+    directiveuse
+      data
+        imm	0x78
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0x78
+  codeline
+    directiveuse
+      data
+        imm	0x30
+  codeline
+    directiveuse
+      data
+        imm	0x30
+  codeline
+    directiveuse
+      data
+        imm	0x30
+  codeline
+    directiveuse
+      data
+        imm	0x30
+  codeline
+    directiveuse
+      data
+        imm	0xB4
+  codeline
+    directiveuse
+      data
+        imm	0xFC
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0xFC
+  codeline
+    directiveuse
+      data
+        imm	0xCC
+  codeline
+    directiveuse
+      data
+        imm	0xCC
+  codeline
+    directiveuse
+      data
+        imm	0xCC
+  codeline
+    directiveuse
+      data
+        imm	0xCC
+  codeline
+    directiveuse
+      data
+        imm	0xCC
+  codeline
+    directiveuse
+      data
+        imm	0xCC
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0x30
+  codeline
+    directiveuse
+      data
+        imm	0x78
+  codeline
+    directiveuse
+      data
+        imm	0xCC
+  codeline
+    directiveuse
+      data
+        imm	0xCC
+  codeline
+    directiveuse
+      data
+        imm	0xCC
+  codeline
+    directiveuse
+      data
+        imm	0xCC
+  codeline
+    directiveuse
+      data
+        imm	0xCC
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0xC6
+  codeline
+    directiveuse
+      data
+        imm	0xEE
+  codeline
+    directiveuse
+      data
+        imm	0xFE
+  codeline
+    directiveuse
+      data
+        imm	0xD6
+  codeline
+    directiveuse
+      data
+        imm	0xC6
+  codeline
+    directiveuse
+      data
+        imm	0xC6
+  codeline
+    directiveuse
+      data
+        imm	0xC6
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0xC6
+  codeline
+    directiveuse
+      data
+        imm	0x6C
+  codeline
+    directiveuse
+      data
+        imm	0x38
+  codeline
+    directiveuse
+      data
+        imm	0x38
+  codeline
+    directiveuse
+      data
+        imm	0x6C
+  codeline
+    directiveuse
+      data
+        imm	0xC6
+  codeline
+    directiveuse
+      data
+        imm	0xC6
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0x78
+  codeline
+    directiveuse
+      data
+        imm	0x30
+  codeline
+    directiveuse
+      data
+        imm	0x30
+  codeline
+    directiveuse
+      data
+        imm	0x78
+  codeline
+    directiveuse
+      data
+        imm	0xCC
+  codeline
+    directiveuse
+      data
+        imm	0xCC
+  codeline
+    directiveuse
+      data
+        imm	0xCC
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0xFE
+  codeline
+    directiveuse
+      data
+        imm	0x66
+  codeline
+    directiveuse
+      data
+        imm	0x32
+  codeline
+    directiveuse
+      data
+        imm	0x18
+  codeline
+    directiveuse
+      data
+        imm	0x8C
+  codeline
+    directiveuse
+      data
+        imm	0xC6
+  codeline
+    directiveuse
+      data
+        imm	0xFE
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0x78
+  codeline
+    directiveuse
+      data
+        imm	0x60
+  codeline
+    directiveuse
+      data
+        imm	0x60
+  codeline
+    directiveuse
+      data
+        imm	0x60
+  codeline
+    directiveuse
+      data
+        imm	0x60
+  codeline
+    directiveuse
+      data
+        imm	0x60
+  codeline
+    directiveuse
+      data
+        imm	0x78
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0x02
+  codeline
+    directiveuse
+      data
+        imm	0x06
+  codeline
+    directiveuse
+      data
+        imm	0x0C
+  codeline
+    directiveuse
+      data
+        imm	0x18
+  codeline
+    directiveuse
+      data
+        imm	0x30
+  codeline
+    directiveuse
+      data
+        imm	0x60
+  codeline
+    directiveuse
+      data
+        imm	0xC0
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0x78
+  codeline
+    directiveuse
+      data
+        imm	0x18
+  codeline
+    directiveuse
+      data
+        imm	0x18
+  codeline
+    directiveuse
+      data
+        imm	0x18
+  codeline
+    directiveuse
+      data
+        imm	0x18
+  codeline
+    directiveuse
+      data
+        imm	0x18
+  codeline
+    directiveuse
+      data
+        imm	0x78
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0xC6
+  codeline
+    directiveuse
+      data
+        imm	0x6C
+  codeline
+    directiveuse
+      data
+        imm	0x38
+  codeline
+    directiveuse
+      data
+        imm	0x10
+  codeline
+    directiveuse
+      data
+        imm	0xFF
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0x18
+  codeline
+    directiveuse
+      data
+        imm	0x30
+  codeline
+    directiveuse
+      data
+        imm	0x30
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0x76
+  codeline
+    directiveuse
+      data
+        imm	0xCC
+  codeline
+    directiveuse
+      data
+        imm	0x7C
+  codeline
+    directiveuse
+      data
+        imm	0x0C
+  codeline
+    directiveuse
+      data
+        imm	0x78
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0xDC
+  codeline
+    directiveuse
+      data
+        imm	0x66
+  codeline
+    directiveuse
+      data
+        imm	0x66
+  codeline
+    directiveuse
+      data
+        imm	0x7C
+  codeline
+    directiveuse
+      data
+        imm	0x60
+  codeline
+    directiveuse
+      data
+        imm	0x60
+  codeline
+    directiveuse
+      data
+        imm	0xE0
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0x78
+  codeline
+    directiveuse
+      data
+        imm	0xCC
+  codeline
+    directiveuse
+      data
+        imm	0xC0
+  codeline
+    directiveuse
+      data
+        imm	0xCC
+  codeline
+    directiveuse
+      data
+        imm	0x78
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0x76
+  codeline
+    directiveuse
+      data
+        imm	0xCC
+  codeline
+    directiveuse
+      data
+        imm	0xCC
+  codeline
+    directiveuse
+      data
+        imm	0x7C
+  codeline
+    directiveuse
+      data
+        imm	0x0C
+  codeline
+    directiveuse
+      data
+        imm	0x0C
+  codeline
+    directiveuse
+      data
+        imm	0x1C
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0x78
+  codeline
+    directiveuse
+      data
+        imm	0xC0
+  codeline
+    directiveuse
+      data
+        imm	0xFC
+  codeline
+    directiveuse
+      data
+        imm	0xCC
+  codeline
+    directiveuse
+      data
+        imm	0x78
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0xF0
+  codeline
+    directiveuse
+      data
+        imm	0x60
+  codeline
+    directiveuse
+      data
+        imm	0x60
+  codeline
+    directiveuse
+      data
+        imm	0xF0
+  codeline
+    directiveuse
+      data
+        imm	0x60
+  codeline
+    directiveuse
+      data
+        imm	0x6C
+  codeline
+    directiveuse
+      data
+        imm	0x38
+  codeline
+    directiveuse
+      data
+        imm	0xF8
+  codeline
+    directiveuse
+      data
+        imm	0x0C
+  codeline
+    directiveuse
+      data
+        imm	0x7C
+  codeline
+    directiveuse
+      data
+        imm	0xCC
+  codeline
+    directiveuse
+      data
+        imm	0xCC
+  codeline
+    directiveuse
+      data
+        imm	0x76
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0xE6
+  codeline
+    directiveuse
+      data
+        imm	0x66
+  codeline
+    directiveuse
+      data
+        imm	0x66
+  codeline
+    directiveuse
+      data
+        imm	0x76
+  codeline
+    directiveuse
+      data
+        imm	0x6C
+  codeline
+    directiveuse
+      data
+        imm	0x60
+  codeline
+    directiveuse
+      data
+        imm	0xE0
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0x78
+  codeline
+    directiveuse
+      data
+        imm	0x30
+  codeline
+    directiveuse
+      data
+        imm	0x30
+  codeline
+    directiveuse
+      data
+        imm	0x30
+  codeline
+    directiveuse
+      data
+        imm	0x70
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0x30
+  codeline
+    directiveuse
+      data
+        imm	0x78
+  codeline
+    directiveuse
+      data
+        imm	0xCC
+  codeline
+    directiveuse
+      data
+        imm	0xCC
+  codeline
+    directiveuse
+      data
+        imm	0x0C
+  codeline
+    directiveuse
+      data
+        imm	0x0C
+  codeline
+    directiveuse
+      data
+        imm	0x0C
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0x0C
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0xE6
+  codeline
+    directiveuse
+      data
+        imm	0x6C
+  codeline
+    directiveuse
+      data
+        imm	0x78
+  codeline
+    directiveuse
+      data
+        imm	0x6C
+  codeline
+    directiveuse
+      data
+        imm	0x66
+  codeline
+    directiveuse
+      data
+        imm	0x60
+  codeline
+    directiveuse
+      data
+        imm	0xE0
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0x78
+  codeline
+    directiveuse
+      data
+        imm	0x30
+  codeline
+    directiveuse
+      data
+        imm	0x30
+  codeline
+    directiveuse
+      data
+        imm	0x30
+  codeline
+    directiveuse
+      data
+        imm	0x30
+  codeline
+    directiveuse
+      data
+        imm	0x30
+  codeline
+    directiveuse
+      data
+        imm	0x70
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0xC6
+  codeline
+    directiveuse
+      data
+        imm	0xD6
+  codeline
+    directiveuse
+      data
+        imm	0xFE
+  codeline
+    directiveuse
+      data
+        imm	0xFE
+  codeline
+    directiveuse
+      data
+        imm	0xCC
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0xCC
+  codeline
+    directiveuse
+      data
+        imm	0xCC
+  codeline
+    directiveuse
+      data
+        imm	0xCC
+  codeline
+    directiveuse
+      data
+        imm	0xCC
+  codeline
+    directiveuse
+      data
+        imm	0xF8
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0x78
+  codeline
+    directiveuse
+      data
+        imm	0xCC
+  codeline
+    directiveuse
+      data
+        imm	0xCC
+  codeline
+    directiveuse
+      data
+        imm	0xCC
+  codeline
+    directiveuse
+      data
+        imm	0x78
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0xF0
+  codeline
+    directiveuse
+      data
+        imm	0x60
+  codeline
+    directiveuse
+      data
+        imm	0x7C
+  codeline
+    directiveuse
+      data
+        imm	0x66
+  codeline
+    directiveuse
+      data
+        imm	0x66
+  codeline
+    directiveuse
+      data
+        imm	0xDC
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0x1E
+  codeline
+    directiveuse
+      data
+        imm	0x0C
+  codeline
+    directiveuse
+      data
+        imm	0x7C
+  codeline
+    directiveuse
+      data
+        imm	0xCC
+  codeline
+    directiveuse
+      data
+        imm	0xCC
+  codeline
+    directiveuse
+      data
+        imm	0x76
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0xF0
+  codeline
+    directiveuse
+      data
+        imm	0x60
+  codeline
+    directiveuse
+      data
+        imm	0x66
+  codeline
+    directiveuse
+      data
+        imm	0x76
+  codeline
+    directiveuse
+      data
+        imm	0xDC
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0xF8
+  codeline
+    directiveuse
+      data
+        imm	0x0C
+  codeline
+    directiveuse
+      data
+        imm	0x78
+  codeline
+    directiveuse
+      data
+        imm	0xC0
+  codeline
+    directiveuse
+      data
+        imm	0x7C
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0x18
+  codeline
+    directiveuse
+      data
+        imm	0x34
+  codeline
+    directiveuse
+      data
+        imm	0x30
+  codeline
+    directiveuse
+      data
+        imm	0x30
+  codeline
+    directiveuse
+      data
+        imm	0x7C
+  codeline
+    directiveuse
+      data
+        imm	0x30
+  codeline
+    directiveuse
+      data
+        imm	0x10
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0x76
+  codeline
+    directiveuse
+      data
+        imm	0xCC
+  codeline
+    directiveuse
+      data
+        imm	0xCC
+  codeline
+    directiveuse
+      data
+        imm	0xCC
+  codeline
+    directiveuse
+      data
+        imm	0xCC
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0x30
+  codeline
+    directiveuse
+      data
+        imm	0x78
+  codeline
+    directiveuse
+      data
+        imm	0xCC
+  codeline
+    directiveuse
+      data
+        imm	0xCC
+  codeline
+    directiveuse
+      data
+        imm	0xCC
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0x6C
+  codeline
+    directiveuse
+      data
+        imm	0xFE
+  codeline
+    directiveuse
+      data
+        imm	0xFE
+  codeline
+    directiveuse
+      data
+        imm	0xD6
+  codeline
+    directiveuse
+      data
+        imm	0xC6
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0xC6
+  codeline
+    directiveuse
+      data
+        imm	0x6C
+  codeline
+    directiveuse
+      data
+        imm	0x38
+  codeline
+    directiveuse
+      data
+        imm	0x6C
+  codeline
+    directiveuse
+      data
+        imm	0xC6
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0xF8
+  codeline
+    directiveuse
+      data
+        imm	0x0C
+  codeline
+    directiveuse
+      data
+        imm	0x7C
+  codeline
+    directiveuse
+      data
+        imm	0xCC
+  codeline
+    directiveuse
+      data
+        imm	0xCC
+  codeline
+    directiveuse
+      data
+        imm	0xCC
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0xFC
+  codeline
+    directiveuse
+      data
+        imm	0x64
+  codeline
+    directiveuse
+      data
+        imm	0x30
+  codeline
+    directiveuse
+      data
+        imm	0x98
+  codeline
+    directiveuse
+      data
+        imm	0xFC
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0x1C
+  codeline
+    directiveuse
+      data
+        imm	0x30
+  codeline
+    directiveuse
+      data
+        imm	0x30
+  codeline
+    directiveuse
+      data
+        imm	0xE0
+  codeline
+    directiveuse
+      data
+        imm	0x30
+  codeline
+    directiveuse
+      data
+        imm	0x30
+  codeline
+    directiveuse
+      data
+        imm	0x1C
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0x18
+  codeline
+    directiveuse
+      data
+        imm	0x18
+  codeline
+    directiveuse
+      data
+        imm	0x18
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0x18
+  codeline
+    directiveuse
+      data
+        imm	0x18
+  codeline
+    directiveuse
+      data
+        imm	0x18
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0xE0
+  codeline
+    directiveuse
+      data
+        imm	0x30
+  codeline
+    directiveuse
+      data
+        imm	0x30
+  codeline
+    directiveuse
+      data
+        imm	0x1C
+  codeline
+    directiveuse
+      data
+        imm	0x30
+  codeline
+    directiveuse
+      data
+        imm	0x30
+  codeline
+    directiveuse
+      data
+        imm	0xE0
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0x00
+  codeline
+    directiveuse
+      data
+        imm	0xDC
+  codeline
+    directiveuse
+      data
+        imm	0x76
   codeline
     label	str_0:
   codeline
