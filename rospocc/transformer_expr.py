@@ -38,29 +38,44 @@ class ExpressionTransformer:
         if not children:
             return None
 
-        left = self.from_node(children[0])
-        i = 1
-        while i + 1 < len(children):
-            op_node = children[i]
-            right_node = children[i + 1]
-            if not isinstance(op_node, dict):
-                i += 1
+        # Some Lark reductions flatten delimiter operators and keep only
+        # operand children (e.g. bit_xor: [a, b, c]). Support both shapes:
+        # [a, '^', b, '^', c] and [a, b, c].
+        default_op = None
+        if len(token_map) == 1:
+            default_op = next(iter(token_map.values()))
+
+        left = None
+        pending_op = None
+
+        for child in children:
+            if not isinstance(child, dict):
                 continue
 
-            token = op_node.get("token")
-            op_name = token_map.get(token)
-            right = self.from_node(right_node)
-            if op_name is None or left is None or right is None:
-                i += 2
+            token = child.get("token")
+            if token in token_map:
+                pending_op = token_map[token]
+                continue
+
+            expr = self.from_node(child)
+            if expr is None:
+                continue
+
+            if left is None:
+                left = expr
+                continue
+
+            op_name = pending_op if pending_op is not None else default_op
+            if op_name is None:
                 continue
 
             left = {
                 "type": "binop",
                 "op": op_name,
                 "left": left,
-                "right": right,
+                "right": expr,
             }
-            i += 2
+            pending_op = None
 
         return left
 
