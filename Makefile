@@ -10,6 +10,7 @@ ROSPOAS_ARGS := --optimize --bin-version 2 --rospocc-mapping --segment-debug
 ROSPOAS_DEP := $(shell find ./rospoas -maxdepth 1 -type f)
 ROSPCC_DEP := $(shell find ./rospocc -maxdepth 1 -type f)
 ROSPOS_DEP :=  $(shell find ./rospos -maxdepth 1 -type f -not -path "./rospos/build/*") 
+ROSPOVM_DEP := rospovm/build/Makefile $(shell find ./rospovm -type f -not -path "./rospovm/build/*")
 # Ensure build directory exists (order-only dependency)
 
 HTMLDOCS := $(DOCS:.md=.html)
@@ -46,11 +47,11 @@ rospovm/build:
 rospovm/build/Makefile: rospovm/CMakeLists.txt | rospovm/build
 	cmake -S rospovm -B rospovm/build/
 	
-rospovm/build/rospovm_qt: rospovm/build/Makefile $(shell find ./rospovm -type f)
+rospovm/build/rospovm_qt: $(ROSPOVM_DEP)
 	mkdir -p $(dir $@)
 	cmake --build rospovm/build/ -j $(shell nproc)
 
-rospovm/build/rospovm_headless: rospovm/build/Makefile $(shell find ./rospovm -type f)
+rospovm/build/rospovm_headless: $(ROSPOVM_DEP)
 	cmake --build rospovm/build/ --target rospovm_headless -j $(shell nproc)
 
 
