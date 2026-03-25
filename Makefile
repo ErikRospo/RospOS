@@ -16,7 +16,7 @@ ROSPOVM_DEP := rospovm/build/Makefile $(shell find ./rospovm -type f -not -path 
 HTMLDOCS := $(DOCS:.md=.html)
 PDFDOCS := $(DOCS:.md=.pdf)
 
-.PHONY: all bm parse compile dump build clean doc format frontend frontend_cmake run vm_headless run_headless test
+.PHONY: all bm parse compile dump build clean doc format frontend frontend_cmake run vm_headless run_headless test report
 
 all: build
 
@@ -73,6 +73,8 @@ parse: rospos/build/rospos.ros
 compile: rospos/build/rospos.rosp rospos/build/rospos_debc.rosp rospos/build/rospos_binc.rosp rospos/build/rospos_c.rosp
 frontend_cmake: rospovm/build/Makefile
 frontend: rospovm/build/rospovm_qt
+report: tools/report.py
+	$(PY) tools/report.py
 
 run: rospos/build/rospos.rosp | rospovm/build/rospovm_qt
 	rospovm/build/rospovm_qt $<
