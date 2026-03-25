@@ -31,6 +31,15 @@ def _emit_var(emitter, expr: Dict[str, Any], out) -> str:
     r = emitter.var_regs.get(name)
     if r:
         return r
+    if name in emitter.global_value_inits:
+        return emitter._alloc_var_reg(
+            name,
+            out,
+            init_value=emitter.global_value_inits[name],
+            typ=emitter.global_types.get(name, "int"),
+            is_label=True,
+            comment="global symbol addr",
+        )
     return emitter._alloc_var_reg(name, out, init_value=None, typ="int")
 
 

@@ -71,7 +71,7 @@ ast_str = tree.pretty()
 with open(out_dir / "ast.txt", "w") as f:
     f.write(ast_str)
 # Convert parsed AST into the translation-unit for emitter (centralized)
-tu = transform_to_translation_unit(tree)
+tu = transform_to_translation_unit(tree, source_file=args.input)
 
 # Load source lines for tracking
 with open(out_dir / preprocessed_name, "r") as f:

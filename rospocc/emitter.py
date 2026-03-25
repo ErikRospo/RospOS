@@ -34,6 +34,8 @@ class Emitter:
         self.var_types = {}
         # globals type hints collected from translation unit
         self.global_types = {}
+        # global symbol -> label/immediate value to materialize when referenced in code
+        self.global_value_inits = {}
         # function return type hints collected from translation unit
         self.func_return_types = {}
         # struct type definitions: name -> {members: [...], size: int}
@@ -93,6 +95,10 @@ class Emitter:
             print("collecting global type for:", g)
             if g.get("kind") == "string":
                 self.global_types[g.get("name")] = "char_ptr"
+                self.global_value_inits[g.get("name")] = g.get("name")
+            if g.get("kind") == "blob":
+                self.global_types[g.get("name")] = "char_ptr"
+                self.global_value_inits[g.get("name")] = g.get("name")
         for fn in ast.get("functions", []):
             name = fn.get("name")
             return_type = fn.get("return_type")
@@ -250,6 +256,22 @@ class Emitter:
             s = _escape_ros_string(str(g.get("value", "")))
             out.write(f"{lbl}:\n")
             out.write(f'  .STR "{s}"\n\n')
+        elif g.get("kind") == "blob":
+            lbl = g.get("name") or self.gen_label("blob")
+            raw = g.get("value", b"")
+            if isinstance(raw, str):
+                blob_bytes = raw.encode("latin1")
+            else:
+                blob_bytes = bytes(raw)
+
+            out.write(f"{lbl}:\n")
+            if not blob_bytes:
+                out.write("  .SPACE 0\n\n")
+                return
+
+            for byte in blob_bytes:
+                out.write(f"  .DATA 0x{byte:02X}\n")
+            out.write("\n")
         else:
             # unknown global; emit a commented placeholder
             out.write(f"// global: {g!r}\n")

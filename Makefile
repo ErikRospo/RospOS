@@ -25,9 +25,9 @@ $(DIR_ROSPOS_BUILD):
 $(DIR_DOCS_BUILD):
 	mkdir -p $(DIR_DOCS_BUILD)
 	
-rospos/font_bitmap.ros: generate_fb_map_data.py
+rospos/font_bitmap.bin: generate_fb_map_data.py 
 	mkdir -p $(dir $@)
-	$(PY) generate_fb_map_data.py > $@
+	$(PY) generate_fb_map_data.py --output $@
 
 rospos/build/rospos.ros: rospos/main.rosc $(ROSPCC_DEP) $(ROSPOS_DEP) | $(DIR_ROSPOS_BUILD)
 	$(PY) $(ROSPCC_PARSER) --input rospos/main.rosc --output $@ 1>&2
@@ -68,7 +68,7 @@ build/%.pdf: doc/%.md | $(DIR_DOCS_BUILD)
 
 doc: $(addprefix build/,$(HTMLDOCS)) $(addprefix build/,$(PDFDOCS))
 
-bm: rospos/font_bitmap.ros
+bm: rospos/font_bitmap.bin
 parse: rospos/build/rospos.ros
 compile: rospos/build/rospos.rosp rospos/build/rospos_debc.rosp rospos/build/rospos_binc.rosp rospos/build/rospos_c.rosp
 frontend_cmake: rospovm/build/Makefile
@@ -96,4 +96,4 @@ clean:
 	rm -rf rospovm/build
 	rm -rf build/*.html
 	rm -rf build/*.pdf
-	rm -rf rospos/font_bitmap.ros
+	rm -rf rospos/font_bitmap.bin

@@ -56,13 +56,13 @@ def transform_tree(tree: Tree):
     return tree
 
 
-def transform_to_translation_unit(input_data: Tree) -> dict:
+def transform_to_translation_unit(input_data: Tree, source_file=None) -> dict:
     ast = (
         transform_tree(input_data)
         if isinstance(input_data, (Tree, Token))
         else input_data
     )
-    return TranslationUnitTransformer().transform(ast)
+    return TranslationUnitTransformer(source_file=source_file).transform(ast)
 
 
 __all__ = ["ASTTransformer", "transform_tree", "transform_to_translation_unit"]

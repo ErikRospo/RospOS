@@ -1,12 +1,16 @@
+from pathlib import Path
+
 from transformer_context import TranslationUnitContext
 from transformer_expr import ExpressionTransformer
 from transformer_stmt import StatementTransformer
-from transformer_utils import find_identifier, node_name
+from transformer_utils import decode_string_token, find_identifier, node_name
 
 
 class TranslationUnitTransformer:
-    def __init__(self):
+    def __init__(self, source_file=None):
         self.ctx = TranslationUnitContext()
+        if source_file:
+            self.ctx.source_file = str(source_file)
         self.expr = ExpressionTransformer(self.ctx)
         self.stmt = StatementTransformer(self.ctx, self.expr)
 
@@ -145,6 +149,97 @@ class TranslationUnitTransformer:
 
         return params, param_types
 
+    def _parse_type_specifier(self, type_node):
+        base_type = None
+        pointer_count = 0
+
+        if not isinstance(type_node, dict):
+            return base_type, pointer_count
+
+        for child in type_node.get("children", []):
+            if isinstance(child, dict):
+                if "node" in child:
+                    node_val = node_name(child.get("node"))
+                    if node_val == "pointer":
+                        pointer_count += 1
+                    elif isinstance(node_val, str):
+                        base_type = node_val
+                elif "token" in child and child["token"].isidentifier():
+                    base_type = child["token"]
+
+        return base_type, pointer_count
+
+    def _count_declarator_pointers(self, declarator_node):
+        count = 0
+        if not isinstance(declarator_node, dict):
+            return count
+
+        for child in declarator_node.get("children", []):
+            if isinstance(child, dict):
+                if node_name(child.get("node")) == "pointer":
+                    count += 1
+                elif child.get("node") == "declarator":
+                    count += self._count_declarator_pointers(child)
+
+        return count
+
+    def _extract_string_literal(self, node):
+        if not isinstance(node, dict):
+            return None
+
+        token = node.get("token")
+        if isinstance(token, str) and token.startswith('"') and token.endswith('"'):
+            return decode_string_token(token)
+
+        for child in node.get("children", []):
+            value = self._extract_string_literal(child)
+            if value is not None:
+                return value
+
+        return None
+
+    def _extract_embed_path(self, node):
+        if not isinstance(node, dict):
+            return None
+
+        if node.get("node") == "postfix":
+            children = node.get("children", [])
+            if children:
+                primary = children[0]
+                if (
+                    isinstance(primary, dict)
+                    and isinstance(primary.get("token"), str)
+                    and primary["token"] in ("__embed", "__blob")
+                ):
+                    print(f"Found potential embed call: {primary['token']} at line {node.get('_line')}")
+                    for suffix in children[1:]:
+                        if not (
+                            isinstance(suffix, dict)
+                            and suffix.get("node") == "call_suffix"
+                        ):
+                            continue
+                        for call_child in suffix.get("children", []):
+                            if not (
+                                isinstance(call_child, dict)
+                                and call_child.get("node") == "arg_list"
+                            ):
+                                continue
+                            args = [
+                                arg
+                                for arg in call_child.get("children", [])
+                                if isinstance(arg, dict)
+                            ]
+                            if not args:
+                                return None
+                            return self._extract_string_literal(args[0])
+
+        for child in node.get("children", []):
+            value = self._extract_embed_path(child)
+            if value is not None:
+                return value
+
+        return None
+
     def _handle_struct_decl(self, node):
         children = node.get("children", [])
         struct_name = None
@@ -215,36 +310,70 @@ class TranslationUnitTransformer:
     def _handle_global_declaration(self, node):
         children = node.get("children", [])
         t_spec = None
+        t_pointer_count = 0
         init_list = None
         for child in children:
             if isinstance(child, dict) and child.get("node") == "type_specifier":
-                for type_child in child.get("children", []):
-                    if isinstance(type_child, dict) and "token" in type_child:
-                        t_spec = type_child["token"]
+                t_spec, t_pointer_count = self._parse_type_specifier(child)
             if isinstance(child, dict) and child.get("node") == "init_declarator_list":
                 init_list = child
-        if t_spec == "char" and init_list:
-            for init in init_list.get("children", []):
-                if isinstance(init, dict) and init.get("node") == "init_declarator":
-                    decl_children = init.get("children", [])
-                    name = None
-                    val = None
-                    for decl_child in decl_children:
-                        if (
-                            isinstance(decl_child, dict)
-                            and decl_child.get("node") == "declarator"
-                        ):
-                            ident = find_identifier(decl_child)
-                            if ident:
-                                name = ident
-                        if (
-                            isinstance(decl_child, dict)
-                            and "token" in decl_child
-                            and decl_child["token"].startswith('"')
-                        ):
-                            val = decl_child["token"][1:-1]
-                    if name and val is not None:
-                        self.ctx.tu["globals"].append(
-                            {"kind": "string", "name": name, "value": val}
-                        )
+
+        if not init_list:
+            return []
+
+        for init in init_list.get("children", []):
+            if not (isinstance(init, dict) and init.get("node") == "init_declarator"):
+                continue
+
+            decl_children = init.get("children", [])
+            name = None
+            declarator_node = None
+            init_node = None
+
+            for decl_child in decl_children:
+                if isinstance(decl_child, dict) and decl_child.get("node") == "declarator":
+                    declarator_node = decl_child
+                    ident = find_identifier(decl_child)
+                    if ident:
+                        name = ident
+                elif isinstance(decl_child, dict) and init_node is None:
+                    init_node = decl_child
+
+            if not name or init_node is None:
+                continue
+
+            decl_pointer_count = self._count_declarator_pointers(declarator_node)
+            total_pointer_count = t_pointer_count + decl_pointer_count
+
+            embed_path = self._extract_embed_path(init_node)
+            if embed_path is not None:
+                print(f"Embedding blob for global '{name}' from path: {embed_path}")
+                path_obj = Path(embed_path)
+                if not path_obj.is_absolute():
+                    path_obj = self.ctx.source_dir / path_obj
+                path_obj = path_obj.resolve()
+
+                if not path_obj.exists():
+                    raise FileNotFoundError(
+                        f"Embedded blob for global '{name}' not found: {path_obj}"
+                    )
+
+                blob_bytes = path_obj.read_bytes()
+                self.ctx.tu["globals"].append(
+                    {
+                        "kind": "blob",
+                        "name": name,
+                        "value": blob_bytes,
+                        "size": len(blob_bytes),
+                        "source_path": str(path_obj),
+                    }
+                )
+                continue
+
+            if t_spec == "char" and total_pointer_count == 0:
+                str_value = self._extract_string_literal(init_node)
+                if str_value is not None:
+                    self.ctx.tu["globals"].append(
+                        {"kind": "string", "name": name, "value": str_value}
+                    )
         return []
