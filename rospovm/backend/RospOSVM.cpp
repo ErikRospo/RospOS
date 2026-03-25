@@ -672,33 +672,10 @@ void RospOSVM::sTypeInstruction(uint32_t instruction)
         Logger::instance().info("BREAK invoked. Halting execution.");
         Logger::instance().info(QString("Final PC: 0x%1").arg(pc, 8, 16, QChar('0')));
         Logger::instance().info(QString::fromStdString(std::string("Final Registers: ") + getRegisterState()));
-        dumpMemoryToFile(memory);
         requestShutdown();
         break;
     default:
         Logger::instance().error(QString("Unknown S-type sub-opcode: %1").arg(sub_op));
         break;
     }
-}
-
-void dumpMemoryToFile(const Memory &memory)
-{
-    std::ofstream file("memory_dump.bin", std::ios::binary);
-    if (!file.is_open())
-    {
-        Logger::instance().error("Failed to open memory_dump.bin for writing.");
-        return;
-    }
-
-    for (uint32_t addr = 0; addr < (1ULL << 16); addr += 4)
-    {
-        uint32_t word = memory.readWord(addr);
-        file.write(reinterpret_cast<const char *>(&word), sizeof(word));
-    } 
-    if (!file.good())
-    {
-        Logger::instance().error("Error writing to memory_dump.bin.");
-    }
-
-    file.close();
 }

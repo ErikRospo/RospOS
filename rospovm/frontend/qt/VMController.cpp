@@ -146,6 +146,12 @@ void VMController::scheduleNextExecutionTick()
 
 void VMController::onExecutionTick()
 {
+    
+    // If we're not running, do nothing
+    // If we should shut down, stop running and emit signal
+    // Otherwise, if we're running at max speed, run in 2500-instruction bursts to keep UI responsive, otherwise just step once
+    // Then, if we're still running, schedule the next tick
+    
     if (!running) {
         return;
     }

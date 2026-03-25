@@ -132,5 +132,4 @@ public:
     std::shared_ptr<Binary> getLoadedBinary() const { return loadedBinary; }
 };
 
-void dumpMemoryToFile(const Memory &memory);
 #endif // ROSPOS_VM_H
