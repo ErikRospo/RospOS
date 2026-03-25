@@ -335,75 +335,98 @@ WHILE_END41:
 
 .FUNC draw_char_to_display:
   PUSH r14
-  LLI r4, 0    // zero init glyph
-  LLI r5, 34    // load immediate 34
-  SUB r5, r1, r5    // binop -
-  LLI r6, 8    // load immediate 8
-  MUL r5, r5, r6    // binop *
-  ADDI r4, r5, 0    // init glyph from expr
-  LLI r7, 0    // init row
-WHILE48:
-  LLI r8, 8    // load immediate 8
-  BLT r7, r8, CMP_TRUE50
-  LLI r8, 0    // compare false path
+  LLI r4, 32    // load immediate 32
+  BLT r1, r4, CMP_TRUE50
+  LLI r4, 0    // compare false path
   JMP CMP_END51
 CMP_TRUE50:
-  LLI r8, 1
+  LLI r4, 1
 CMP_END51:
-  BEQ r8, r0, WHILE_END49
-  LLI r9, 0    // zero init glyph_row
-  LLI r10, font_address    // init font_address (global symbol addr)
-  ADD r11, r10, r4    // binop +
-  ADD r11, r11, r7    // binop +
-  LB r9, r11, 0    // intrinsic __lb -> return
-  LLI r12, 0    // init col
-WHILE52:
-  LLI r6, 8    // load immediate 8
-  BLT r12, r6, CMP_TRUE54
-  LLI r6, 0    // compare false path
+  LLI r5, 127    // load immediate 127
+  BLT r5, r1, CMP_TRUE52
+  LLI r5, 0    // compare false path
+  JMP CMP_END53
+CMP_TRUE52:
+  LLI r5, 1
+CMP_END53:
+  OR r4, r4, r5    // logic || fold
+  BNE r4, r0, CMP_TRUE54
+  LLI r4, 0    // compare false path
   JMP CMP_END55
 CMP_TRUE54:
-  LLI r6, 1
+  LLI r4, 1
 CMP_END55:
-  BEQ r6, r0, WHILE_END53
-  LLI r5, 0    // zero init bit
-  LLI r8, 7    // load immediate 7
-  SUB r8, r8, r12    // binop -
-  SHR r8, r9, r8    // binop >>
-  LLI r11, 1    // load immediate 1
-  AND r8, r8, r11    // binop &
-  ADDI r5, r8, 0    // init bit from expr
-  BEQ r5, r0, ELSE56
-  LLI r6, 0    // zero init px
-  ADD r11, r2, r12    // binop +
-  ADDI r6, r11, 0    // init px from expr
-  LLI r8, 0    // zero init py
-  ADD r11, r3, r7    // binop +
-  ADDI r8, r11, 0    // init py from expr
-  LLI r11, 0    // zero init index
+  BEQ r4, r0, ELSE48
+  JMP IF_END49
+ELSE48:
+IF_END49:
+  LLI r6, 0    // zero init glyph
+  LLI r7, 8    // load immediate 8
+  MUL r7, r1, r7    // binop *
+  ADDI r6, r7, 0    // init glyph from expr
+  LLI r8, 0    // init row
+WHILE56:
+  LLI r9, 8    // load immediate 8
+  BLT r8, r9, CMP_TRUE58
+  LLI r9, 0    // compare false path
+  JMP CMP_END59
+CMP_TRUE58:
+  LLI r9, 1
+CMP_END59:
+  BEQ r9, r0, WHILE_END57
+  LLI r10, 0    // zero init glyph_row
+  LLI r11, font_address    // init font_address (global symbol addr)
+  ADD r12, r11, r6    // binop +
+  ADD r12, r12, r8    // binop +
+  LB r10, r12, 0    // intrinsic __lb -> return
+  LLI r5, 0    // init col
+WHILE60:
+  LLI r4, 8    // load immediate 8
+  BLT r5, r4, CMP_TRUE62
+  LLI r4, 0    // compare false path
+  JMP CMP_END63
+CMP_TRUE62:
+  LLI r4, 1
+CMP_END63:
+  BEQ r4, r0, WHILE_END61
+  LLI r7, 0    // zero init bit
+  LLI r9, 7    // load immediate 7
+  SUB r9, r9, r5    // binop -
+  SHR r9, r10, r9    // binop >>
+  LLI r12, 1    // load immediate 1
+  AND r9, r9, r12    // binop &
+  ADDI r7, r9, 0    // init bit from expr
+  BEQ r7, r0, ELSE64
+  LLI r4, 0    // zero init px
+  ADD r12, r2, r5    // binop +
+  ADDI r4, r12, 0    // init px from expr
+  LLI r9, 0    // zero init py
+  ADD r12, r3, r8    // binop +
+  ADDI r9, r12, 0    // init py from expr
+  LLI r12, 0    // zero init index
   LLI r13, 256    // load immediate 256
-  MUL r13, r8, r13    // binop *
-  ADD r13, r13, r6    // binop +
-  ADDI r11, r13, 0    // init index from expr
+  MUL r13, r9, r13    // binop *
+  ADD r13, r13, r4    // binop +
+  ADDI r12, r13, 0    // init index from expr
   LLI r13, 536870912    // load immediate 536870912
-  ADD r13, r13, r11    // binop +
+  ADD r13, r13, r12    // binop +
   PUSH r2    // spill live temp for intrinsic scratch
   LLI r2, 63    // val const for __sb
   SB r2, r13, 0    // intrinsic __sb
   POP r2    // restore spilled temp
-  JMP IF_END57
-ELSE56:
-IF_END57:
+  JMP IF_END65
+ELSE64:
+IF_END65:
   LLI r13, 1    // load immediate 1
-  ADD r13, r12, r13    // binop +
-  ADDI r12, r13, 0    // assign col
-  JMP WHILE52
-WHILE_END53:
+  ADD r13, r5, r13    // binop +
+  ADDI r5, r13, 0    // assign col
+  JMP WHILE60
+WHILE_END61:
   LLI r13, 1    // load immediate 1
-  ADD r13, r7, r13    // binop +
-  ADDI r7, r13, 0    // assign row
-  JMP WHILE48
-WHILE_END49:
+  ADD r13, r8, r13    // binop +
+  ADDI r8, r13, 0    // assign row
+  JMP WHILE56
+WHILE_END57:
   // epilogue and return
   ADDI r1, r0, 0  // ensure r1=0
   POP r14
@@ -411,9 +434,9 @@ WHILE_END49:
 
 .FUNC draw_string_to_display:
   PUSH r14
-WHILE58:
+WHILE66:
   LB r4, r1, 0    // deref
-  BEQ r4, r0, WHILE_END59
+  BEQ r4, r0, WHILE_END67
   // emit call to draw_char_to_display with args [{'type': 'deref', 'expr': {'type': 'var', 'name': 'str'}}, {'type': 'var', 'name': 'x'}, {'type': 'var', 'name': 'y'}]
   PUSH r2    // save caller temp
   PUSH r3    // save caller temp
@@ -433,8 +456,8 @@ WHILE58:
   LLI r7, 8    // load immediate 8
   ADD r7, r2, r7    // binop +
   ADDI r2, r7, 0    // assign x
-  JMP WHILE58
-WHILE_END59:
+  JMP WHILE66
+WHILE_END67:
   // epilogue and return
   ADDI r1, r0, 0  // ensure r1=0
   POP r14
@@ -445,8 +468,8 @@ WHILE_END59:
   LLI r2, 536870912    // init addr
   LLI r3, 65536    // init remaining
   LLI r4, 3735928559    // init lfsr
-WHILE60:
-  BEQ r3, r0, WHILE_END61
+WHILE68:
+  BEQ r3, r0, WHILE_END69
   SB r4, r2, 0    // intrinsic __sb
   LLI r5, 1    // load immediate 1
   ADD r5, r2, r5    // binop +
@@ -475,8 +498,8 @@ WHILE60:
   LLI r8, 1    // load immediate 1
   SUB r8, r3, r8    // binop -
   ADDI r3, r8, 0    // assign remaining
-  JMP WHILE60
-WHILE_END61:
+  JMP WHILE68
+WHILE_END69:
   // epilogue and return
   ADDI r1, r0, 0  // ensure r1=0
   POP r14
@@ -539,8 +562,8 @@ WHILE_END61:
   POP r4    // restore caller temp
   POP r3    // restore caller temp
   POP r2    // restore caller temp
-  LLI r5, p1_struct62    // init p1 (struct Point addr)
-  LLI r6, s_struct63    // init s (struct Size addr)
+  LLI r5, p1_struct70    // init p1 (struct Point addr)
+  LLI r6, s_struct71    // init s (struct Size addr)
   LLI r7, 10    // load immediate 10
   SW r7, r5, 0    // store p1.x
   LLI r8, 20    // load immediate 20
@@ -739,194 +762,262 @@ WHILE_END61:
 // Globals
 
 font_address:
-  .DATA 0x00180018
+  .DATA 0x00000000
+  .DATA 0x00000000
+  .DATA 0x00000000
+  .DATA 0x00000000
+  .DATA 0x00000000
+  .DATA 0x00000000
+  .DATA 0x00000000
+  .DATA 0x00000000
+  .DATA 0x00000000
+  .DATA 0x00000000
+  .DATA 0x00000000
+  .DATA 0x00000000
+  .DATA 0x00000000
+  .DATA 0x00000000
+  .DATA 0x00000000
+  .DATA 0x00000000
+  .DATA 0x00000000
+  .DATA 0x00000000
+  .DATA 0x00000000
+  .DATA 0x00000000
+  .DATA 0x00000000
+  .DATA 0x00000000
+  .DATA 0x00000000
+  .DATA 0x00000000
+  .DATA 0x00000000
+  .DATA 0x00000000
+  .DATA 0x00000000
+  .DATA 0x00000000
+  .DATA 0x00000000
+  .DATA 0x00000000
+  .DATA 0x00000000
+  .DATA 0x00000000
+  .DATA 0x00000000
+  .DATA 0x00000000
+  .DATA 0x00000000
+  .DATA 0x00000000
+  .DATA 0x00000000
+  .DATA 0x00000000
+  .DATA 0x00000000
+  .DATA 0x00000000
+  .DATA 0x00000000
+  .DATA 0x00000000
+  .DATA 0x00000000
+  .DATA 0x00000000
+  .DATA 0x00000000
+  .DATA 0x00000000
+  .DATA 0x00000000
+  .DATA 0x00000000
+  .DATA 0x00000000
+  .DATA 0x00000000
+  .DATA 0x00000000
+  .DATA 0x00000000
+  .DATA 0x00000000
+  .DATA 0x00000000
+  .DATA 0x00000000
+  .DATA 0x00000000
+  .DATA 0x00000000
+  .DATA 0x00000000
+  .DATA 0x00000000
+  .DATA 0x00000000
+  .DATA 0x00000000
+  .DATA 0x00000000
+  .DATA 0x00000000
+  .DATA 0x00000000
+  .DATA 0x00000000
+  .DATA 0x00000000
   .DATA 0x183C3C18
+  .DATA 0x18001800
+  .DATA 0x36360000
   .DATA 0x00000000
-  .DATA 0x00006C6C
-  .DATA 0x006C6CFE
-  .DATA 0x6CFE6C6C
-  .DATA 0x0030F80C
-  .DATA 0x78C07C30
-  .DATA 0x00C66630
-  .DATA 0x18CCC600
-  .DATA 0x0076CCDC
-  .DATA 0x76386C38
+  .DATA 0x36367F36
+  .DATA 0x7F363600
+  .DATA 0x0C3E031E
+  .DATA 0x301F0C00
+  .DATA 0x00633318
+  .DATA 0x0C666300
+  .DATA 0x1C361C6E
+  .DATA 0x3B336E00
+  .DATA 0x06060300
   .DATA 0x00000000
-  .DATA 0x00C06060
-  .DATA 0x00183060
-  .DATA 0x60603018
-  .DATA 0x00603018
-  .DATA 0x18183060
-  .DATA 0x0000663C
-  .DATA 0xFF3C6600
-  .DATA 0x00003030
-  .DATA 0xFC303000
-  .DATA 0x60303000
+  .DATA 0x180C0606
+  .DATA 0x060C1800
+  .DATA 0x060C1818
+  .DATA 0x180C0600
+  .DATA 0x00663CFF
+  .DATA 0x3C660000
+  .DATA 0x000C0C3F
+  .DATA 0x0C0C0000
   .DATA 0x00000000
-  .DATA 0x00000000
-  .DATA 0xFC000000
-  .DATA 0x00303000
-  .DATA 0x00000000
-  .DATA 0x0080C060
-  .DATA 0x30180C06
-  .DATA 0x007CE6F6
-  .DATA 0xDECEC67C
-  .DATA 0x00FC3030
-  .DATA 0x30307030
-  .DATA 0x00FCCC60
-  .DATA 0x380CCC78
-  .DATA 0x0078CC0C
-  .DATA 0x380CCC78
-  .DATA 0x001E0CFE
-  .DATA 0xCC6C3C1C
-  .DATA 0x0078CC0C
-  .DATA 0x0CF8C0FC
-  .DATA 0x0078CCCC
-  .DATA 0xF8C06038
-  .DATA 0x00303030
-  .DATA 0x180CCCFC
-  .DATA 0x0078CCCC
-  .DATA 0x78CCCC78
-  .DATA 0x0070180C
-  .DATA 0x7CCCCC78
-  .DATA 0x00303000
-  .DATA 0x00303000
-  .DATA 0x60303000
-  .DATA 0x00303000
-  .DATA 0x00183060
-  .DATA 0xC0603018
-  .DATA 0x0000FC00
-  .DATA 0x00FC0000
-  .DATA 0x00603018
-  .DATA 0x0C183060
-  .DATA 0x00300030
-  .DATA 0x180CCC78
-  .DATA 0x0078C0DE
-  .DATA 0xDEDEC67C
-  .DATA 0x00CCCCFC
-  .DATA 0xCCCC7830
-  .DATA 0x00FC6666
-  .DATA 0x7C6666FC
-  .DATA 0x003C66C0
-  .DATA 0xC0C0663C
-  .DATA 0x00F86C66
-  .DATA 0x66666CF8
-  .DATA 0x00FE6268
-  .DATA 0x786862FE
-  .DATA 0x00F06068
-  .DATA 0x786862FE
-  .DATA 0x003E66CE
-  .DATA 0xC0C0663C
-  .DATA 0x00CCCCCC
-  .DATA 0xFCCCCCCC
-  .DATA 0x00783030
-  .DATA 0x30303078
-  .DATA 0x0078CCCC
-  .DATA 0x0C0C0C1E
-  .DATA 0x00E6666C
-  .DATA 0x786C66E6
-  .DATA 0x00FE6662
-  .DATA 0x606060F0
-  .DATA 0x00C6C6D6
-  .DATA 0xFEFEEEC6
-  .DATA 0x00C6C6CE
-  .DATA 0xDEF6E6C6
-  .DATA 0x00386CC6
-  .DATA 0xC6C66C38
-  .DATA 0x00F06060
-  .DATA 0x7C6666FC
-  .DATA 0x001C78DC
-  .DATA 0xCCCCCC78
-  .DATA 0x00E6666C
-  .DATA 0x7C6666FC
-  .DATA 0x0078CC1C
-  .DATA 0x70E0CC78
-  .DATA 0x00783030
-  .DATA 0x3030B4FC
-  .DATA 0x00FCCCCC
-  .DATA 0xCCCCCCCC
-  .DATA 0x003078CC
-  .DATA 0xCCCCCCCC
-  .DATA 0x00C6EEFE
-  .DATA 0xD6C6C6C6
-  .DATA 0x00C66C38
-  .DATA 0x386CC6C6
-  .DATA 0x00783030
-  .DATA 0x78CCCCCC
-  .DATA 0x00FE6632
-  .DATA 0x188CC6FE
-  .DATA 0x00786060
-  .DATA 0x60606078
-  .DATA 0x0002060C
-  .DATA 0x183060C0
-  .DATA 0x00781818
-  .DATA 0x18181878
-  .DATA 0x00000000
-  .DATA 0xC66C3810
-  .DATA 0xFF000000
+  .DATA 0x000C0C06
+  .DATA 0x0000003F
   .DATA 0x00000000
   .DATA 0x00000000
-  .DATA 0x00183030
-  .DATA 0x0076CC7C
-  .DATA 0x0C780000
-  .DATA 0x00DC6666
-  .DATA 0x7C6060E0
-  .DATA 0x0078CCC0
-  .DATA 0xCC780000
-  .DATA 0x0076CCCC
-  .DATA 0x7C0C0C1C
-  .DATA 0x0078C0FC
-  .DATA 0xCC780000
-  .DATA 0x00F06060
-  .DATA 0xF0606C38
-  .DATA 0xF80C7CCC
-  .DATA 0xCC760000
-  .DATA 0x00E66666
-  .DATA 0x766C60E0
-  .DATA 0x00783030
-  .DATA 0x30700030
-  .DATA 0x78CCCC0C
-  .DATA 0x0C0C000C
-  .DATA 0x00E66C78
-  .DATA 0x6C6660E0
-  .DATA 0x00783030
-  .DATA 0x30303070
-  .DATA 0x00C6D6FE
-  .DATA 0xFECC0000
-  .DATA 0x00CCCCCC
-  .DATA 0xCCF80000
-  .DATA 0x0078CCCC
-  .DATA 0xCC780000
-  .DATA 0xF0607C66
-  .DATA 0x66DC0000
-  .DATA 0x1E0C7CCC
-  .DATA 0xCC760000
-  .DATA 0x00F06066
-  .DATA 0x76DC0000
-  .DATA 0x00F80C78
-  .DATA 0xC07C0000
-  .DATA 0x00183430
-  .DATA 0x307C3010
-  .DATA 0x0076CCCC
-  .DATA 0xCCCC0000
-  .DATA 0x003078CC
-  .DATA 0xCCCC0000
-  .DATA 0x006CFEFE
-  .DATA 0xD6C60000
-  .DATA 0x00C66C38
-  .DATA 0x6CC60000
-  .DATA 0xF80C7CCC
-  .DATA 0xCCCC0000
-  .DATA 0x00FC6430
-  .DATA 0x98FC0000
-  .DATA 0x001C3030
-  .DATA 0xE030301C
-  .DATA 0x00181818
-  .DATA 0x00181818
-  .DATA 0x00E03030
-  .DATA 0x1C3030E0
+  .DATA 0x000C0C00
+  .DATA 0x6030180C
+  .DATA 0x06030100
+  .DATA 0x3E63737B
+  .DATA 0x6F673E00
+  .DATA 0x0C0E0C0C
+  .DATA 0x0C0C3F00
+  .DATA 0x1E33301C
+  .DATA 0x06333F00
+  .DATA 0x1E33301C
+  .DATA 0x30331E00
+  .DATA 0x383C3633
+  .DATA 0x7F307800
+  .DATA 0x3F031F30
+  .DATA 0x30331E00
+  .DATA 0x1C06031F
+  .DATA 0x33331E00
+  .DATA 0x3F333018
+  .DATA 0x0C0C0C00
+  .DATA 0x1E33331E
+  .DATA 0x33331E00
+  .DATA 0x1E33333E
+  .DATA 0x30180E00
+  .DATA 0x000C0C00
+  .DATA 0x000C0C00
+  .DATA 0x000C0C00
+  .DATA 0x000C0C06
+  .DATA 0x180C0603
+  .DATA 0x060C1800
+  .DATA 0x00003F00
+  .DATA 0x003F0000
+  .DATA 0x060C1830
+  .DATA 0x180C0600
+  .DATA 0x1E333018
+  .DATA 0x0C000C00
+  .DATA 0x3E637B7B
+  .DATA 0x7B031E00
+  .DATA 0x0C1E3333
+  .DATA 0x3F333300
+  .DATA 0x3F66663E
+  .DATA 0x66663F00
+  .DATA 0x3C660303
+  .DATA 0x03663C00
+  .DATA 0x1F366666
+  .DATA 0x66361F00
+  .DATA 0x7F46161E
+  .DATA 0x16467F00
+  .DATA 0x7F46161E
+  .DATA 0x16060F00
+  .DATA 0x3C660303
+  .DATA 0x73667C00
+  .DATA 0x3333333F
+  .DATA 0x33333300
+  .DATA 0x1E0C0C0C
+  .DATA 0x0C0C1E00
+  .DATA 0x78303030
+  .DATA 0x33331E00
+  .DATA 0x6766361E
+  .DATA 0x36666700
+  .DATA 0x0F060606
+  .DATA 0x46667F00
+  .DATA 0x63777F7F
+  .DATA 0x6B636300
+  .DATA 0x63676F7B
+  .DATA 0x73636300
+  .DATA 0x1C366363
+  .DATA 0x63361C00
+  .DATA 0x3F66663E
+  .DATA 0x06060F00
+  .DATA 0x1E333333
+  .DATA 0x3B1E3800
+  .DATA 0x3F66663E
+  .DATA 0x36666700
+  .DATA 0x1E33070E
+  .DATA 0x38331E00
+  .DATA 0x3F2D0C0C
+  .DATA 0x0C0C1E00
+  .DATA 0x33333333
+  .DATA 0x33333F00
+  .DATA 0x33333333
+  .DATA 0x331E0C00
+  .DATA 0x6363636B
+  .DATA 0x7F776300
+  .DATA 0x6363361C
+  .DATA 0x1C366300
+  .DATA 0x3333331E
+  .DATA 0x0C0C1E00
+  .DATA 0x7F633118
+  .DATA 0x4C667F00
+  .DATA 0x1E060606
+  .DATA 0x06061E00
+  .DATA 0x03060C18
+  .DATA 0x30604000
+  .DATA 0x1E181818
+  .DATA 0x18181E00
+  .DATA 0x081C3663
   .DATA 0x00000000
-  .DATA 0x0000DC76
+  .DATA 0x00000000
+  .DATA 0x000000FF
+  .DATA 0x0C0C1800
+  .DATA 0x00000000
+  .DATA 0x00001E30
+  .DATA 0x3E336E00
+  .DATA 0x0706063E
+  .DATA 0x66663B00
+  .DATA 0x00001E33
+  .DATA 0x03331E00
+  .DATA 0x3830303E
+  .DATA 0x33336E00
+  .DATA 0x00001E33
+  .DATA 0x3F031E00
+  .DATA 0x1C36060F
+  .DATA 0x06060F00
+  .DATA 0x00006E33
+  .DATA 0x333E301F
+  .DATA 0x0706366E
+  .DATA 0x66666700
+  .DATA 0x0C000E0C
+  .DATA 0x0C0C1E00
+  .DATA 0x30003030
+  .DATA 0x3033331E
+  .DATA 0x07066636
+  .DATA 0x1E366700
+  .DATA 0x0E0C0C0C
+  .DATA 0x0C0C1E00
+  .DATA 0x0000337F
+  .DATA 0x7F6B6300
+  .DATA 0x00001F33
+  .DATA 0x33333300
+  .DATA 0x00001E33
+  .DATA 0x33331E00
+  .DATA 0x00003B66
+  .DATA 0x663E060F
+  .DATA 0x00006E33
+  .DATA 0x333E3078
+  .DATA 0x00003B6E
+  .DATA 0x66060F00
+  .DATA 0x00003E03
+  .DATA 0x1E301F00
+  .DATA 0x080C3E0C
+  .DATA 0x0C2C1800
+  .DATA 0x00003333
+  .DATA 0x33336E00
+  .DATA 0x00003333
+  .DATA 0x331E0C00
+  .DATA 0x0000636B
+  .DATA 0x7F7F3600
+  .DATA 0x00006336
+  .DATA 0x1C366300
+  .DATA 0x00003333
+  .DATA 0x333E301F
+  .DATA 0x00003F19
+  .DATA 0x0C263F00
+  .DATA 0x380C0C07
+  .DATA 0x0C0C3800
+  .DATA 0x18181800
+  .DATA 0x18181800
+  .DATA 0x070C0C38
+  .DATA 0x0C0C0700
+  .DATA 0x6E3B0000
+  .DATA 0x00000000
+  .DATA 0x00000000
+  .DATA 0x00000000
 
 str_0:
   .STR "The result of 10 + 5 is: "
@@ -940,10 +1031,10 @@ str_2:
 buffer_buf3:
   .SPACE 12 // lifted buffer
 
-p1_struct62:
+p1_struct70:
   .SPACE 8 // lifted buffer
 
-s_struct63:
+s_struct71:
   .SPACE 8 // lifted buffer
 
 

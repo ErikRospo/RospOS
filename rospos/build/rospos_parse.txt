@@ -1572,62 +1572,19 @@ program
     instruction
       lli
         register	r4
-        imm	0
-  codeline
-    instruction
-      lli
-        register	r5
-        imm	34
-  codeline
-    instruction
-      rinstructuse
-        sub
-        register	r5
-        register	r1
-        register	r5
-  codeline
-    instruction
-      lli
-        register	r6
-        imm	8
-  codeline
-    instruction
-      rinstructuse
-        mul
-        register	r5
-        register	r5
-        register	r6
-  codeline
-    instruction
-      iinstructuse
-        addi
-        register	r4
-        register	r5
-        imm	0
-  codeline
-    instruction
-      lli
-        register	r7
-        imm	0
-  codeline
-    label	WHILE48:
-  codeline
-    instruction
-      lli
-        register	r8
-        imm	8
+        imm	32
   codeline
     instruction
       binstructuse
         blt
-        register	r7
-        register	r8
+        register	r1
+        register	r4
         imm
           labeluse	CMP_TRUE50
   codeline
     instruction
       lli
-        register	r8
+        register	r4
         imm	0
   codeline
     instruction
@@ -1639,74 +1596,61 @@ program
   codeline
     instruction
       lli
-        register	r8
+        register	r4
         imm	1
   codeline
     label	CMP_END51:
   codeline
     instruction
-      binstructuse
-        beq
-        register	r8
-        register	r0
-        imm
-          labeluse	WHILE_END49
-  codeline
-    instruction
       lli
-        register	r9
-        imm	0
-  codeline
-    instruction
-      lli
-        register	r10
-        imm
-          labeluse	font_address
-  codeline
-    instruction
-      rinstructuse
-        add
-        register	r11
-        register	r10
-        register	r4
-  codeline
-    instruction
-      rinstructuse
-        add
-        register	r11
-        register	r11
-        register	r7
-  codeline
-    instruction
-      lsinstructuse
-        lb
-        register	r9
-        register	r11
-        imm	0
-  codeline
-    instruction
-      lli
-        register	r12
-        imm	0
-  codeline
-    label	WHILE52:
-  codeline
-    instruction
-      lli
-        register	r6
-        imm	8
+        register	r5
+        imm	127
   codeline
     instruction
       binstructuse
         blt
-        register	r12
-        register	r6
+        register	r5
+        register	r1
+        imm
+          labeluse	CMP_TRUE52
+  codeline
+    instruction
+      lli
+        register	r5
+        imm	0
+  codeline
+    instruction
+      jmpseudo
+        imm
+          labeluse	CMP_END53
+  codeline
+    label	CMP_TRUE52:
+  codeline
+    instruction
+      lli
+        register	r5
+        imm	1
+  codeline
+    label	CMP_END53:
+  codeline
+    instruction
+      rinstructuse
+        or
+        register	r4
+        register	r4
+        register	r5
+  codeline
+    instruction
+      binstructuse
+        bne
+        register	r4
+        register	r0
         imm
           labeluse	CMP_TRUE54
   codeline
     instruction
       lli
-        register	r6
+        register	r4
         imm	0
   codeline
     instruction
@@ -1718,7 +1662,7 @@ program
   codeline
     instruction
       lli
-        register	r6
+        register	r4
         imm	1
   codeline
     label	CMP_END55:
@@ -1726,61 +1670,19 @@ program
     instruction
       binstructuse
         beq
-        register	r6
+        register	r4
         register	r0
         imm
-          labeluse	WHILE_END53
+          labeluse	ELSE48
   codeline
     instruction
-      lli
-        register	r5
-        imm	0
-  codeline
-    instruction
-      lli
-        register	r8
-        imm	7
-  codeline
-    instruction
-      rinstructuse
-        sub
-        register	r8
-        register	r8
-        register	r12
-  codeline
-    instruction
-      rinstructuse
-        shr
-        register	r8
-        register	r9
-        register	r8
-  codeline
-    instruction
-      lli
-        register	r11
-        imm	1
-  codeline
-    instruction
-      rinstructuse
-        and
-        register	r8
-        register	r8
-        register	r11
-  codeline
-    instruction
-      iinstructuse
-        addi
-        register	r5
-        register	r8
-        imm	0
-  codeline
-    instruction
-      binstructuse
-        beq
-        register	r5
-        register	r0
+      jmpseudo
         imm
-          labeluse	ELSE56
+          labeluse	IF_END49
+  codeline
+    label	ELSE48:
+  codeline
+    label	IF_END49:
   codeline
     instruction
       lli
@@ -1788,41 +1690,242 @@ program
         imm	0
   codeline
     instruction
-      rinstructuse
-        add
-        register	r11
-        register	r2
-        register	r12
-  codeline
-    instruction
-      iinstructuse
-        addi
-        register	r6
-        register	r11
-        imm	0
-  codeline
-    instruction
       lli
-        register	r8
-        imm	0
+        register	r7
+        imm	8
   codeline
     instruction
       rinstructuse
-        add
-        register	r11
-        register	r3
+        mul
+        register	r7
+        register	r1
         register	r7
   codeline
     instruction
       iinstructuse
         addi
+        register	r6
+        register	r7
+        imm	0
+  codeline
+    instruction
+      lli
         register	r8
-        register	r11
+        imm	0
+  codeline
+    label	WHILE56:
+  codeline
+    instruction
+      lli
+        register	r9
+        imm	8
+  codeline
+    instruction
+      binstructuse
+        blt
+        register	r8
+        register	r9
+        imm
+          labeluse	CMP_TRUE58
+  codeline
+    instruction
+      lli
+        register	r9
+        imm	0
+  codeline
+    instruction
+      jmpseudo
+        imm
+          labeluse	CMP_END59
+  codeline
+    label	CMP_TRUE58:
+  codeline
+    instruction
+      lli
+        register	r9
+        imm	1
+  codeline
+    label	CMP_END59:
+  codeline
+    instruction
+      binstructuse
+        beq
+        register	r9
+        register	r0
+        imm
+          labeluse	WHILE_END57
+  codeline
+    instruction
+      lli
+        register	r10
         imm	0
   codeline
     instruction
       lli
         register	r11
+        imm
+          labeluse	font_address
+  codeline
+    instruction
+      rinstructuse
+        add
+        register	r12
+        register	r11
+        register	r6
+  codeline
+    instruction
+      rinstructuse
+        add
+        register	r12
+        register	r12
+        register	r8
+  codeline
+    instruction
+      lsinstructuse
+        lb
+        register	r10
+        register	r12
+        imm	0
+  codeline
+    instruction
+      lli
+        register	r5
+        imm	0
+  codeline
+    label	WHILE60:
+  codeline
+    instruction
+      lli
+        register	r4
+        imm	8
+  codeline
+    instruction
+      binstructuse
+        blt
+        register	r5
+        register	r4
+        imm
+          labeluse	CMP_TRUE62
+  codeline
+    instruction
+      lli
+        register	r4
+        imm	0
+  codeline
+    instruction
+      jmpseudo
+        imm
+          labeluse	CMP_END63
+  codeline
+    label	CMP_TRUE62:
+  codeline
+    instruction
+      lli
+        register	r4
+        imm	1
+  codeline
+    label	CMP_END63:
+  codeline
+    instruction
+      binstructuse
+        beq
+        register	r4
+        register	r0
+        imm
+          labeluse	WHILE_END61
+  codeline
+    instruction
+      lli
+        register	r7
+        imm	0
+  codeline
+    instruction
+      lli
+        register	r9
+        imm	7
+  codeline
+    instruction
+      rinstructuse
+        sub
+        register	r9
+        register	r9
+        register	r5
+  codeline
+    instruction
+      rinstructuse
+        shr
+        register	r9
+        register	r10
+        register	r9
+  codeline
+    instruction
+      lli
+        register	r12
+        imm	1
+  codeline
+    instruction
+      rinstructuse
+        and
+        register	r9
+        register	r9
+        register	r12
+  codeline
+    instruction
+      iinstructuse
+        addi
+        register	r7
+        register	r9
+        imm	0
+  codeline
+    instruction
+      binstructuse
+        beq
+        register	r7
+        register	r0
+        imm
+          labeluse	ELSE64
+  codeline
+    instruction
+      lli
+        register	r4
+        imm	0
+  codeline
+    instruction
+      rinstructuse
+        add
+        register	r12
+        register	r2
+        register	r5
+  codeline
+    instruction
+      iinstructuse
+        addi
+        register	r4
+        register	r12
+        imm	0
+  codeline
+    instruction
+      lli
+        register	r9
+        imm	0
+  codeline
+    instruction
+      rinstructuse
+        add
+        register	r12
+        register	r3
+        register	r8
+  codeline
+    instruction
+      iinstructuse
+        addi
+        register	r9
+        register	r12
+        imm	0
+  codeline
+    instruction
+      lli
+        register	r12
         imm	0
   codeline
     instruction
@@ -1834,7 +1937,7 @@ program
       rinstructuse
         mul
         register	r13
-        register	r8
+        register	r9
         register	r13
   codeline
     instruction
@@ -1842,12 +1945,12 @@ program
         add
         register	r13
         register	r13
-        register	r6
+        register	r4
   codeline
     instruction
       iinstructuse
         addi
-        register	r11
+        register	r12
         register	r13
         imm	0
   codeline
@@ -1861,7 +1964,7 @@ program
         add
         register	r13
         register	r13
-        register	r11
+        register	r12
   codeline
     instruction
       push
@@ -1886,37 +1989,11 @@ program
     instruction
       jmpseudo
         imm
-          labeluse	IF_END57
+          labeluse	IF_END65
   codeline
-    label	ELSE56:
+    label	ELSE64:
   codeline
-    label	IF_END57:
-  codeline
-    instruction
-      lli
-        register	r13
-        imm	1
-  codeline
-    instruction
-      rinstructuse
-        add
-        register	r13
-        register	r12
-        register	r13
-  codeline
-    instruction
-      iinstructuse
-        addi
-        register	r12
-        register	r13
-        imm	0
-  codeline
-    instruction
-      jmpseudo
-        imm
-          labeluse	WHILE52
-  codeline
-    label	WHILE_END53:
+    label	IF_END65:
   codeline
     instruction
       lli
@@ -1927,22 +2004,48 @@ program
       rinstructuse
         add
         register	r13
-        register	r7
+        register	r5
         register	r13
   codeline
     instruction
       iinstructuse
         addi
-        register	r7
+        register	r5
         register	r13
         imm	0
   codeline
     instruction
       jmpseudo
         imm
-          labeluse	WHILE48
+          labeluse	WHILE60
   codeline
-    label	WHILE_END49:
+    label	WHILE_END61:
+  codeline
+    instruction
+      lli
+        register	r13
+        imm	1
+  codeline
+    instruction
+      rinstructuse
+        add
+        register	r13
+        register	r8
+        register	r13
+  codeline
+    instruction
+      iinstructuse
+        addi
+        register	r8
+        register	r13
+        imm	0
+  codeline
+    instruction
+      jmpseudo
+        imm
+          labeluse	WHILE56
+  codeline
+    label	WHILE_END57:
   codeline
     instruction
       iinstructuse
@@ -1966,7 +2069,7 @@ program
       push
         register	r14
   codeline
-    label	WHILE58:
+    label	WHILE66:
   codeline
     instruction
       lsinstructuse
@@ -1981,7 +2084,7 @@ program
         register	r4
         register	r0
         imm
-          labeluse	WHILE_END59
+          labeluse	WHILE_END67
   codeline
     instruction
       push
@@ -2081,9 +2184,9 @@ program
     instruction
       jmpseudo
         imm
-          labeluse	WHILE58
+          labeluse	WHILE66
   codeline
-    label	WHILE_END59:
+    label	WHILE_END67:
   codeline
     instruction
       iinstructuse
@@ -2122,7 +2225,7 @@ program
         register	r4
         imm	3735928559
   codeline
-    label	WHILE60:
+    label	WHILE68:
   codeline
     instruction
       binstructuse
@@ -2130,7 +2233,7 @@ program
         register	r3
         register	r0
         imm
-          labeluse	WHILE_END61
+          labeluse	WHILE_END69
   codeline
     instruction
       lsinstructuse
@@ -2311,9 +2414,9 @@ program
     instruction
       jmpseudo
         imm
-          labeluse	WHILE60
+          labeluse	WHILE68
   codeline
-    label	WHILE_END61:
+    label	WHILE_END69:
   codeline
     instruction
       iinstructuse
@@ -2565,13 +2668,13 @@ program
       lli
         register	r5
         imm
-          labeluse	p1_struct62
+          labeluse	p1_struct70
   codeline
     instruction
       lli
         register	r6
         imm
-          labeluse	s_struct63
+          labeluse	s_struct71
   codeline
     instruction
       lli
@@ -3317,7 +3420,267 @@ program
   codeline
     directiveuse
       data
-        imm	0x00180018
+        imm	0x00000000
+  codeline
+    directiveuse
+      data
+        imm	0x00000000
+  codeline
+    directiveuse
+      data
+        imm	0x00000000
+  codeline
+    directiveuse
+      data
+        imm	0x00000000
+  codeline
+    directiveuse
+      data
+        imm	0x00000000
+  codeline
+    directiveuse
+      data
+        imm	0x00000000
+  codeline
+    directiveuse
+      data
+        imm	0x00000000
+  codeline
+    directiveuse
+      data
+        imm	0x00000000
+  codeline
+    directiveuse
+      data
+        imm	0x00000000
+  codeline
+    directiveuse
+      data
+        imm	0x00000000
+  codeline
+    directiveuse
+      data
+        imm	0x00000000
+  codeline
+    directiveuse
+      data
+        imm	0x00000000
+  codeline
+    directiveuse
+      data
+        imm	0x00000000
+  codeline
+    directiveuse
+      data
+        imm	0x00000000
+  codeline
+    directiveuse
+      data
+        imm	0x00000000
+  codeline
+    directiveuse
+      data
+        imm	0x00000000
+  codeline
+    directiveuse
+      data
+        imm	0x00000000
+  codeline
+    directiveuse
+      data
+        imm	0x00000000
+  codeline
+    directiveuse
+      data
+        imm	0x00000000
+  codeline
+    directiveuse
+      data
+        imm	0x00000000
+  codeline
+    directiveuse
+      data
+        imm	0x00000000
+  codeline
+    directiveuse
+      data
+        imm	0x00000000
+  codeline
+    directiveuse
+      data
+        imm	0x00000000
+  codeline
+    directiveuse
+      data
+        imm	0x00000000
+  codeline
+    directiveuse
+      data
+        imm	0x00000000
+  codeline
+    directiveuse
+      data
+        imm	0x00000000
+  codeline
+    directiveuse
+      data
+        imm	0x00000000
+  codeline
+    directiveuse
+      data
+        imm	0x00000000
+  codeline
+    directiveuse
+      data
+        imm	0x00000000
+  codeline
+    directiveuse
+      data
+        imm	0x00000000
+  codeline
+    directiveuse
+      data
+        imm	0x00000000
+  codeline
+    directiveuse
+      data
+        imm	0x00000000
+  codeline
+    directiveuse
+      data
+        imm	0x00000000
+  codeline
+    directiveuse
+      data
+        imm	0x00000000
+  codeline
+    directiveuse
+      data
+        imm	0x00000000
+  codeline
+    directiveuse
+      data
+        imm	0x00000000
+  codeline
+    directiveuse
+      data
+        imm	0x00000000
+  codeline
+    directiveuse
+      data
+        imm	0x00000000
+  codeline
+    directiveuse
+      data
+        imm	0x00000000
+  codeline
+    directiveuse
+      data
+        imm	0x00000000
+  codeline
+    directiveuse
+      data
+        imm	0x00000000
+  codeline
+    directiveuse
+      data
+        imm	0x00000000
+  codeline
+    directiveuse
+      data
+        imm	0x00000000
+  codeline
+    directiveuse
+      data
+        imm	0x00000000
+  codeline
+    directiveuse
+      data
+        imm	0x00000000
+  codeline
+    directiveuse
+      data
+        imm	0x00000000
+  codeline
+    directiveuse
+      data
+        imm	0x00000000
+  codeline
+    directiveuse
+      data
+        imm	0x00000000
+  codeline
+    directiveuse
+      data
+        imm	0x00000000
+  codeline
+    directiveuse
+      data
+        imm	0x00000000
+  codeline
+    directiveuse
+      data
+        imm	0x00000000
+  codeline
+    directiveuse
+      data
+        imm	0x00000000
+  codeline
+    directiveuse
+      data
+        imm	0x00000000
+  codeline
+    directiveuse
+      data
+        imm	0x00000000
+  codeline
+    directiveuse
+      data
+        imm	0x00000000
+  codeline
+    directiveuse
+      data
+        imm	0x00000000
+  codeline
+    directiveuse
+      data
+        imm	0x00000000
+  codeline
+    directiveuse
+      data
+        imm	0x00000000
+  codeline
+    directiveuse
+      data
+        imm	0x00000000
+  codeline
+    directiveuse
+      data
+        imm	0x00000000
+  codeline
+    directiveuse
+      data
+        imm	0x00000000
+  codeline
+    directiveuse
+      data
+        imm	0x00000000
+  codeline
+    directiveuse
+      data
+        imm	0x00000000
+  codeline
+    directiveuse
+      data
+        imm	0x00000000
+  codeline
+    directiveuse
+      data
+        imm	0x00000000
+  codeline
+    directiveuse
+      data
+        imm	0x00000000
   codeline
     directiveuse
       data
@@ -3325,43 +3688,11 @@ program
   codeline
     directiveuse
       data
-        imm	0x00000000
+        imm	0x18001800
   codeline
     directiveuse
       data
-        imm	0x00006C6C
-  codeline
-    directiveuse
-      data
-        imm	0x006C6CFE
-  codeline
-    directiveuse
-      data
-        imm	0x6CFE6C6C
-  codeline
-    directiveuse
-      data
-        imm	0x0030F80C
-  codeline
-    directiveuse
-      data
-        imm	0x78C07C30
-  codeline
-    directiveuse
-      data
-        imm	0x00C66630
-  codeline
-    directiveuse
-      data
-        imm	0x18CCC600
-  codeline
-    directiveuse
-      data
-        imm	0x0076CCDC
-  codeline
-    directiveuse
-      data
-        imm	0x76386C38
+        imm	0x36360000
   codeline
     directiveuse
       data
@@ -3369,43 +3700,39 @@ program
   codeline
     directiveuse
       data
-        imm	0x00C06060
+        imm	0x36367F36
   codeline
     directiveuse
       data
-        imm	0x00183060
+        imm	0x7F363600
   codeline
     directiveuse
       data
-        imm	0x60603018
+        imm	0x0C3E031E
   codeline
     directiveuse
       data
-        imm	0x00603018
+        imm	0x301F0C00
   codeline
     directiveuse
       data
-        imm	0x18183060
+        imm	0x00633318
   codeline
     directiveuse
       data
-        imm	0x0000663C
+        imm	0x0C666300
   codeline
     directiveuse
       data
-        imm	0xFF3C6600
+        imm	0x1C361C6E
   codeline
     directiveuse
       data
-        imm	0x00003030
+        imm	0x3B336E00
   codeline
     directiveuse
       data
-        imm	0xFC303000
-  codeline
-    directiveuse
-      data
-        imm	0x60303000
+        imm	0x06060300
   codeline
     directiveuse
       data
@@ -3413,395 +3740,35 @@ program
   codeline
     directiveuse
       data
-        imm	0x00000000
+        imm	0x180C0606
   codeline
     directiveuse
       data
-        imm	0xFC000000
+        imm	0x060C1800
   codeline
     directiveuse
       data
-        imm	0x00303000
+        imm	0x060C1818
   codeline
     directiveuse
       data
-        imm	0x00000000
+        imm	0x180C0600
   codeline
     directiveuse
       data
-        imm	0x0080C060
+        imm	0x00663CFF
   codeline
     directiveuse
       data
-        imm	0x30180C06
+        imm	0x3C660000
   codeline
     directiveuse
       data
-        imm	0x007CE6F6
+        imm	0x000C0C3F
   codeline
     directiveuse
       data
-        imm	0xDECEC67C
-  codeline
-    directiveuse
-      data
-        imm	0x00FC3030
-  codeline
-    directiveuse
-      data
-        imm	0x30307030
-  codeline
-    directiveuse
-      data
-        imm	0x00FCCC60
-  codeline
-    directiveuse
-      data
-        imm	0x380CCC78
-  codeline
-    directiveuse
-      data
-        imm	0x0078CC0C
-  codeline
-    directiveuse
-      data
-        imm	0x380CCC78
-  codeline
-    directiveuse
-      data
-        imm	0x001E0CFE
-  codeline
-    directiveuse
-      data
-        imm	0xCC6C3C1C
-  codeline
-    directiveuse
-      data
-        imm	0x0078CC0C
-  codeline
-    directiveuse
-      data
-        imm	0x0CF8C0FC
-  codeline
-    directiveuse
-      data
-        imm	0x0078CCCC
-  codeline
-    directiveuse
-      data
-        imm	0xF8C06038
-  codeline
-    directiveuse
-      data
-        imm	0x00303030
-  codeline
-    directiveuse
-      data
-        imm	0x180CCCFC
-  codeline
-    directiveuse
-      data
-        imm	0x0078CCCC
-  codeline
-    directiveuse
-      data
-        imm	0x78CCCC78
-  codeline
-    directiveuse
-      data
-        imm	0x0070180C
-  codeline
-    directiveuse
-      data
-        imm	0x7CCCCC78
-  codeline
-    directiveuse
-      data
-        imm	0x00303000
-  codeline
-    directiveuse
-      data
-        imm	0x00303000
-  codeline
-    directiveuse
-      data
-        imm	0x60303000
-  codeline
-    directiveuse
-      data
-        imm	0x00303000
-  codeline
-    directiveuse
-      data
-        imm	0x00183060
-  codeline
-    directiveuse
-      data
-        imm	0xC0603018
-  codeline
-    directiveuse
-      data
-        imm	0x0000FC00
-  codeline
-    directiveuse
-      data
-        imm	0x00FC0000
-  codeline
-    directiveuse
-      data
-        imm	0x00603018
-  codeline
-    directiveuse
-      data
-        imm	0x0C183060
-  codeline
-    directiveuse
-      data
-        imm	0x00300030
-  codeline
-    directiveuse
-      data
-        imm	0x180CCC78
-  codeline
-    directiveuse
-      data
-        imm	0x0078C0DE
-  codeline
-    directiveuse
-      data
-        imm	0xDEDEC67C
-  codeline
-    directiveuse
-      data
-        imm	0x00CCCCFC
-  codeline
-    directiveuse
-      data
-        imm	0xCCCC7830
-  codeline
-    directiveuse
-      data
-        imm	0x00FC6666
-  codeline
-    directiveuse
-      data
-        imm	0x7C6666FC
-  codeline
-    directiveuse
-      data
-        imm	0x003C66C0
-  codeline
-    directiveuse
-      data
-        imm	0xC0C0663C
-  codeline
-    directiveuse
-      data
-        imm	0x00F86C66
-  codeline
-    directiveuse
-      data
-        imm	0x66666CF8
-  codeline
-    directiveuse
-      data
-        imm	0x00FE6268
-  codeline
-    directiveuse
-      data
-        imm	0x786862FE
-  codeline
-    directiveuse
-      data
-        imm	0x00F06068
-  codeline
-    directiveuse
-      data
-        imm	0x786862FE
-  codeline
-    directiveuse
-      data
-        imm	0x003E66CE
-  codeline
-    directiveuse
-      data
-        imm	0xC0C0663C
-  codeline
-    directiveuse
-      data
-        imm	0x00CCCCCC
-  codeline
-    directiveuse
-      data
-        imm	0xFCCCCCCC
-  codeline
-    directiveuse
-      data
-        imm	0x00783030
-  codeline
-    directiveuse
-      data
-        imm	0x30303078
-  codeline
-    directiveuse
-      data
-        imm	0x0078CCCC
-  codeline
-    directiveuse
-      data
-        imm	0x0C0C0C1E
-  codeline
-    directiveuse
-      data
-        imm	0x00E6666C
-  codeline
-    directiveuse
-      data
-        imm	0x786C66E6
-  codeline
-    directiveuse
-      data
-        imm	0x00FE6662
-  codeline
-    directiveuse
-      data
-        imm	0x606060F0
-  codeline
-    directiveuse
-      data
-        imm	0x00C6C6D6
-  codeline
-    directiveuse
-      data
-        imm	0xFEFEEEC6
-  codeline
-    directiveuse
-      data
-        imm	0x00C6C6CE
-  codeline
-    directiveuse
-      data
-        imm	0xDEF6E6C6
-  codeline
-    directiveuse
-      data
-        imm	0x00386CC6
-  codeline
-    directiveuse
-      data
-        imm	0xC6C66C38
-  codeline
-    directiveuse
-      data
-        imm	0x00F06060
-  codeline
-    directiveuse
-      data
-        imm	0x7C6666FC
-  codeline
-    directiveuse
-      data
-        imm	0x001C78DC
-  codeline
-    directiveuse
-      data
-        imm	0xCCCCCC78
-  codeline
-    directiveuse
-      data
-        imm	0x00E6666C
-  codeline
-    directiveuse
-      data
-        imm	0x7C6666FC
-  codeline
-    directiveuse
-      data
-        imm	0x0078CC1C
-  codeline
-    directiveuse
-      data
-        imm	0x70E0CC78
-  codeline
-    directiveuse
-      data
-        imm	0x00783030
-  codeline
-    directiveuse
-      data
-        imm	0x3030B4FC
-  codeline
-    directiveuse
-      data
-        imm	0x00FCCCCC
-  codeline
-    directiveuse
-      data
-        imm	0xCCCCCCCC
-  codeline
-    directiveuse
-      data
-        imm	0x003078CC
-  codeline
-    directiveuse
-      data
-        imm	0xCCCCCCCC
-  codeline
-    directiveuse
-      data
-        imm	0x00C6EEFE
-  codeline
-    directiveuse
-      data
-        imm	0xD6C6C6C6
-  codeline
-    directiveuse
-      data
-        imm	0x00C66C38
-  codeline
-    directiveuse
-      data
-        imm	0x386CC6C6
-  codeline
-    directiveuse
-      data
-        imm	0x00783030
-  codeline
-    directiveuse
-      data
-        imm	0x78CCCCCC
-  codeline
-    directiveuse
-      data
-        imm	0x00FE6632
-  codeline
-    directiveuse
-      data
-        imm	0x188CC6FE
-  codeline
-    directiveuse
-      data
-        imm	0x00786060
-  codeline
-    directiveuse
-      data
-        imm	0x60606078
-  codeline
-    directiveuse
-      data
-        imm	0x0002060C
-  codeline
-    directiveuse
-      data
-        imm	0x183060C0
-  codeline
-    directiveuse
-      data
-        imm	0x00781818
-  codeline
-    directiveuse
-      data
-        imm	0x18181878
+        imm	0x0C0C0000
   codeline
     directiveuse
       data
@@ -3809,11 +3776,11 @@ program
   codeline
     directiveuse
       data
-        imm	0xC66C3810
+        imm	0x000C0C06
   codeline
     directiveuse
       data
-        imm	0xFF000000
+        imm	0x0000003F
   codeline
     directiveuse
       data
@@ -3825,239 +3792,387 @@ program
   codeline
     directiveuse
       data
-        imm	0x00183030
+        imm	0x000C0C00
   codeline
     directiveuse
       data
-        imm	0x0076CC7C
+        imm	0x6030180C
   codeline
     directiveuse
       data
-        imm	0x0C780000
+        imm	0x06030100
   codeline
     directiveuse
       data
-        imm	0x00DC6666
+        imm	0x3E63737B
   codeline
     directiveuse
       data
-        imm	0x7C6060E0
+        imm	0x6F673E00
   codeline
     directiveuse
       data
-        imm	0x0078CCC0
+        imm	0x0C0E0C0C
   codeline
     directiveuse
       data
-        imm	0xCC780000
+        imm	0x0C0C3F00
   codeline
     directiveuse
       data
-        imm	0x0076CCCC
+        imm	0x1E33301C
   codeline
     directiveuse
       data
-        imm	0x7C0C0C1C
+        imm	0x06333F00
   codeline
     directiveuse
       data
-        imm	0x0078C0FC
+        imm	0x1E33301C
   codeline
     directiveuse
       data
-        imm	0xCC780000
+        imm	0x30331E00
   codeline
     directiveuse
       data
-        imm	0x00F06060
+        imm	0x383C3633
   codeline
     directiveuse
       data
-        imm	0xF0606C38
+        imm	0x7F307800
   codeline
     directiveuse
       data
-        imm	0xF80C7CCC
+        imm	0x3F031F30
   codeline
     directiveuse
       data
-        imm	0xCC760000
+        imm	0x30331E00
   codeline
     directiveuse
       data
-        imm	0x00E66666
+        imm	0x1C06031F
   codeline
     directiveuse
       data
-        imm	0x766C60E0
+        imm	0x33331E00
   codeline
     directiveuse
       data
-        imm	0x00783030
+        imm	0x3F333018
   codeline
     directiveuse
       data
-        imm	0x30700030
+        imm	0x0C0C0C00
   codeline
     directiveuse
       data
-        imm	0x78CCCC0C
+        imm	0x1E33331E
   codeline
     directiveuse
       data
-        imm	0x0C0C000C
+        imm	0x33331E00
   codeline
     directiveuse
       data
-        imm	0x00E66C78
+        imm	0x1E33333E
   codeline
     directiveuse
       data
-        imm	0x6C6660E0
+        imm	0x30180E00
   codeline
     directiveuse
       data
-        imm	0x00783030
+        imm	0x000C0C00
   codeline
     directiveuse
       data
-        imm	0x30303070
+        imm	0x000C0C00
   codeline
     directiveuse
       data
-        imm	0x00C6D6FE
+        imm	0x000C0C00
   codeline
     directiveuse
       data
-        imm	0xFECC0000
+        imm	0x000C0C06
   codeline
     directiveuse
       data
-        imm	0x00CCCCCC
+        imm	0x180C0603
   codeline
     directiveuse
       data
-        imm	0xCCF80000
+        imm	0x060C1800
   codeline
     directiveuse
       data
-        imm	0x0078CCCC
+        imm	0x00003F00
   codeline
     directiveuse
       data
-        imm	0xCC780000
+        imm	0x003F0000
   codeline
     directiveuse
       data
-        imm	0xF0607C66
+        imm	0x060C1830
   codeline
     directiveuse
       data
-        imm	0x66DC0000
+        imm	0x180C0600
   codeline
     directiveuse
       data
-        imm	0x1E0C7CCC
+        imm	0x1E333018
   codeline
     directiveuse
       data
-        imm	0xCC760000
+        imm	0x0C000C00
   codeline
     directiveuse
       data
-        imm	0x00F06066
+        imm	0x3E637B7B
   codeline
     directiveuse
       data
-        imm	0x76DC0000
+        imm	0x7B031E00
   codeline
     directiveuse
       data
-        imm	0x00F80C78
+        imm	0x0C1E3333
   codeline
     directiveuse
       data
-        imm	0xC07C0000
+        imm	0x3F333300
   codeline
     directiveuse
       data
-        imm	0x00183430
+        imm	0x3F66663E
   codeline
     directiveuse
       data
-        imm	0x307C3010
+        imm	0x66663F00
   codeline
     directiveuse
       data
-        imm	0x0076CCCC
+        imm	0x3C660303
   codeline
     directiveuse
       data
-        imm	0xCCCC0000
+        imm	0x03663C00
   codeline
     directiveuse
       data
-        imm	0x003078CC
+        imm	0x1F366666
   codeline
     directiveuse
       data
-        imm	0xCCCC0000
+        imm	0x66361F00
   codeline
     directiveuse
       data
-        imm	0x006CFEFE
+        imm	0x7F46161E
   codeline
     directiveuse
       data
-        imm	0xD6C60000
+        imm	0x16467F00
   codeline
     directiveuse
       data
-        imm	0x00C66C38
+        imm	0x7F46161E
   codeline
     directiveuse
       data
-        imm	0x6CC60000
+        imm	0x16060F00
   codeline
     directiveuse
       data
-        imm	0xF80C7CCC
+        imm	0x3C660303
   codeline
     directiveuse
       data
-        imm	0xCCCC0000
+        imm	0x73667C00
   codeline
     directiveuse
       data
-        imm	0x00FC6430
+        imm	0x3333333F
   codeline
     directiveuse
       data
-        imm	0x98FC0000
+        imm	0x33333300
   codeline
     directiveuse
       data
-        imm	0x001C3030
+        imm	0x1E0C0C0C
   codeline
     directiveuse
       data
-        imm	0xE030301C
+        imm	0x0C0C1E00
   codeline
     directiveuse
       data
-        imm	0x00181818
+        imm	0x78303030
   codeline
     directiveuse
       data
-        imm	0x00181818
+        imm	0x33331E00
   codeline
     directiveuse
       data
-        imm	0x00E03030
+        imm	0x6766361E
   codeline
     directiveuse
       data
-        imm	0x1C3030E0
+        imm	0x36666700
+  codeline
+    directiveuse
+      data
+        imm	0x0F060606
+  codeline
+    directiveuse
+      data
+        imm	0x46667F00
+  codeline
+    directiveuse
+      data
+        imm	0x63777F7F
+  codeline
+    directiveuse
+      data
+        imm	0x6B636300
+  codeline
+    directiveuse
+      data
+        imm	0x63676F7B
+  codeline
+    directiveuse
+      data
+        imm	0x73636300
+  codeline
+    directiveuse
+      data
+        imm	0x1C366363
+  codeline
+    directiveuse
+      data
+        imm	0x63361C00
+  codeline
+    directiveuse
+      data
+        imm	0x3F66663E
+  codeline
+    directiveuse
+      data
+        imm	0x06060F00
+  codeline
+    directiveuse
+      data
+        imm	0x1E333333
+  codeline
+    directiveuse
+      data
+        imm	0x3B1E3800
+  codeline
+    directiveuse
+      data
+        imm	0x3F66663E
+  codeline
+    directiveuse
+      data
+        imm	0x36666700
+  codeline
+    directiveuse
+      data
+        imm	0x1E33070E
+  codeline
+    directiveuse
+      data
+        imm	0x38331E00
+  codeline
+    directiveuse
+      data
+        imm	0x3F2D0C0C
+  codeline
+    directiveuse
+      data
+        imm	0x0C0C1E00
+  codeline
+    directiveuse
+      data
+        imm	0x33333333
+  codeline
+    directiveuse
+      data
+        imm	0x33333F00
+  codeline
+    directiveuse
+      data
+        imm	0x33333333
+  codeline
+    directiveuse
+      data
+        imm	0x331E0C00
+  codeline
+    directiveuse
+      data
+        imm	0x6363636B
+  codeline
+    directiveuse
+      data
+        imm	0x7F776300
+  codeline
+    directiveuse
+      data
+        imm	0x6363361C
+  codeline
+    directiveuse
+      data
+        imm	0x1C366300
+  codeline
+    directiveuse
+      data
+        imm	0x3333331E
+  codeline
+    directiveuse
+      data
+        imm	0x0C0C1E00
+  codeline
+    directiveuse
+      data
+        imm	0x7F633118
+  codeline
+    directiveuse
+      data
+        imm	0x4C667F00
+  codeline
+    directiveuse
+      data
+        imm	0x1E060606
+  codeline
+    directiveuse
+      data
+        imm	0x06061E00
+  codeline
+    directiveuse
+      data
+        imm	0x03060C18
+  codeline
+    directiveuse
+      data
+        imm	0x30604000
+  codeline
+    directiveuse
+      data
+        imm	0x1E181818
+  codeline
+    directiveuse
+      data
+        imm	0x18181E00
+  codeline
+    directiveuse
+      data
+        imm	0x081C3663
   codeline
     directiveuse
       data
@@ -4065,7 +4180,267 @@ program
   codeline
     directiveuse
       data
-        imm	0x0000DC76
+        imm	0x00000000
+  codeline
+    directiveuse
+      data
+        imm	0x000000FF
+  codeline
+    directiveuse
+      data
+        imm	0x0C0C1800
+  codeline
+    directiveuse
+      data
+        imm	0x00000000
+  codeline
+    directiveuse
+      data
+        imm	0x00001E30
+  codeline
+    directiveuse
+      data
+        imm	0x3E336E00
+  codeline
+    directiveuse
+      data
+        imm	0x0706063E
+  codeline
+    directiveuse
+      data
+        imm	0x66663B00
+  codeline
+    directiveuse
+      data
+        imm	0x00001E33
+  codeline
+    directiveuse
+      data
+        imm	0x03331E00
+  codeline
+    directiveuse
+      data
+        imm	0x3830303E
+  codeline
+    directiveuse
+      data
+        imm	0x33336E00
+  codeline
+    directiveuse
+      data
+        imm	0x00001E33
+  codeline
+    directiveuse
+      data
+        imm	0x3F031E00
+  codeline
+    directiveuse
+      data
+        imm	0x1C36060F
+  codeline
+    directiveuse
+      data
+        imm	0x06060F00
+  codeline
+    directiveuse
+      data
+        imm	0x00006E33
+  codeline
+    directiveuse
+      data
+        imm	0x333E301F
+  codeline
+    directiveuse
+      data
+        imm	0x0706366E
+  codeline
+    directiveuse
+      data
+        imm	0x66666700
+  codeline
+    directiveuse
+      data
+        imm	0x0C000E0C
+  codeline
+    directiveuse
+      data
+        imm	0x0C0C1E00
+  codeline
+    directiveuse
+      data
+        imm	0x30003030
+  codeline
+    directiveuse
+      data
+        imm	0x3033331E
+  codeline
+    directiveuse
+      data
+        imm	0x07066636
+  codeline
+    directiveuse
+      data
+        imm	0x1E366700
+  codeline
+    directiveuse
+      data
+        imm	0x0E0C0C0C
+  codeline
+    directiveuse
+      data
+        imm	0x0C0C1E00
+  codeline
+    directiveuse
+      data
+        imm	0x0000337F
+  codeline
+    directiveuse
+      data
+        imm	0x7F6B6300
+  codeline
+    directiveuse
+      data
+        imm	0x00001F33
+  codeline
+    directiveuse
+      data
+        imm	0x33333300
+  codeline
+    directiveuse
+      data
+        imm	0x00001E33
+  codeline
+    directiveuse
+      data
+        imm	0x33331E00
+  codeline
+    directiveuse
+      data
+        imm	0x00003B66
+  codeline
+    directiveuse
+      data
+        imm	0x663E060F
+  codeline
+    directiveuse
+      data
+        imm	0x00006E33
+  codeline
+    directiveuse
+      data
+        imm	0x333E3078
+  codeline
+    directiveuse
+      data
+        imm	0x00003B6E
+  codeline
+    directiveuse
+      data
+        imm	0x66060F00
+  codeline
+    directiveuse
+      data
+        imm	0x00003E03
+  codeline
+    directiveuse
+      data
+        imm	0x1E301F00
+  codeline
+    directiveuse
+      data
+        imm	0x080C3E0C
+  codeline
+    directiveuse
+      data
+        imm	0x0C2C1800
+  codeline
+    directiveuse
+      data
+        imm	0x00003333
+  codeline
+    directiveuse
+      data
+        imm	0x33336E00
+  codeline
+    directiveuse
+      data
+        imm	0x00003333
+  codeline
+    directiveuse
+      data
+        imm	0x331E0C00
+  codeline
+    directiveuse
+      data
+        imm	0x0000636B
+  codeline
+    directiveuse
+      data
+        imm	0x7F7F3600
+  codeline
+    directiveuse
+      data
+        imm	0x00006336
+  codeline
+    directiveuse
+      data
+        imm	0x1C366300
+  codeline
+    directiveuse
+      data
+        imm	0x00003333
+  codeline
+    directiveuse
+      data
+        imm	0x333E301F
+  codeline
+    directiveuse
+      data
+        imm	0x00003F19
+  codeline
+    directiveuse
+      data
+        imm	0x0C263F00
+  codeline
+    directiveuse
+      data
+        imm	0x380C0C07
+  codeline
+    directiveuse
+      data
+        imm	0x0C0C3800
+  codeline
+    directiveuse
+      data
+        imm	0x18181800
+  codeline
+    directiveuse
+      data
+        imm	0x18181800
+  codeline
+    directiveuse
+      data
+        imm	0x070C0C38
+  codeline
+    directiveuse
+      data
+        imm	0x0C0C0700
+  codeline
+    directiveuse
+      data
+        imm	0x6E3B0000
+  codeline
+    directiveuse
+      data
+        imm	0x00000000
+  codeline
+    directiveuse
+      data
+        imm	0x00000000
+  codeline
+    directiveuse
+      data
+        imm	0x00000000
   codeline
     label	str_0:
   codeline
@@ -4088,13 +4463,13 @@ program
       space
         imm	12
   codeline
-    label	p1_struct62:
+    label	p1_struct70:
   codeline
     directiveuse
       space
         imm	8
   codeline
-    label	s_struct63:
+    label	s_struct71:
   codeline
     directiveuse
       space
