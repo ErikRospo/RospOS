@@ -3,7 +3,7 @@ from typing import Any, Dict, Optional
 import abi
 
 
-def _is_char_ptr_expr(emitter, expr: Dict[str, Any]) -> bool:
+def _is_char_ptr_expr(emitter, expr: Optional[Dict[str, Any]]) -> bool:
     if not isinstance(expr, dict):
         return False
 
@@ -46,10 +46,11 @@ def _emit_var(emitter, expr: Dict[str, Any], out) -> str:
 def _emit_deref(emitter, expr: Dict[str, Any], out) -> str:
     inner = expr.get("expr")
     raddr = emitter.emit_expr(inner, out)
-    rd = emitter.alloc_reg()
+    rd = raddr if (raddr and not emitter.is_var_reg(raddr)) else emitter.alloc_reg()
     load_instr = "LB" if _is_char_ptr_expr(emitter, inner) else "LW"
     out.write(f"  {load_instr} {rd}, {raddr}, 0    // deref\n")
-    emitter.release_expr_reg(raddr)
+    if rd != raddr:
+        emitter.release_expr_reg(raddr)
     return rd
 
 
@@ -183,7 +184,9 @@ def _emit_binop(emitter, expr: Dict[str, Any], out) -> str:
     left = expr.get("left")
     right = expr.get("right")
     rl = emitter.emit_expr(left, out)
+    emitter.pin_reg(rl)
     rr = emitter.emit_expr(right, out)
+    emitter.unpin_reg(rl)
 
     if not rl or not rr:
         out.write(f"  // ERROR: failed to emit operands for binop {op}\n")
@@ -193,7 +196,26 @@ def _emit_binop(emitter, expr: Dict[str, Any], out) -> str:
             emitter.release_expr_reg(rr)
         return ""
 
-    rd = emitter.alloc_reg()
+    def _pick_dest_reg() -> str:
+        if rl and rl in abi.TEMP_REGS and not emitter.is_var_reg(rl):
+            return rl
+        if rr and rr in abi.TEMP_REGS and not emitter.is_var_reg(rr):
+            return rr
+        return emitter.alloc_reg()
+
+    rd = _pick_dest_reg()
+
+    def _release_operands_for_result():
+        if rd == rl and rd == rr:
+            return
+        if rd == rl:
+            emitter.release_expr_reg(rr)
+            return
+        if rd == rr:
+            emitter.release_expr_reg(rl)
+            return
+        emitter.release_expr_reg(rl)
+        emitter.release_expr_reg(rr)
 
     if op == "plus":
         out.write(f"  ADD {rd}, {rl}, {rr}    // binop +\n")
@@ -212,15 +234,11 @@ def _emit_binop(emitter, expr: Dict[str, Any], out) -> str:
     elif op == "xor":
         out.write(f"  XOR {rd}, {rl}, {rr}    // binop ^\n")
     elif op == "land":
-        rtmp = emitter.alloc_reg()
-        out.write(f"  AND {rtmp}, {rl}, {rr}    // logic && fold\n")
-        emitter._emit_compare(rd, "neq", rtmp, abi.SPECIAL_REGS["zero"], out)
-        emitter.release_expr_reg(rtmp)
+        out.write(f"  AND {rd}, {rl}, {rr}    // logic && fold\n")
+        emitter._emit_compare(rd, "neq", rd, abi.SPECIAL_REGS["zero"], out)
     elif op == "lor":
-        rtmp = emitter.alloc_reg()
-        out.write(f"  OR {rtmp}, {rl}, {rr}    // logic || fold\n")
-        emitter._emit_compare(rd, "neq", rtmp, abi.SPECIAL_REGS["zero"], out)
-        emitter.release_expr_reg(rtmp)
+        out.write(f"  OR {rd}, {rl}, {rr}    // logic || fold\n")
+        emitter._emit_compare(rd, "neq", rd, abi.SPECIAL_REGS["zero"], out)
     elif op == "lshift":
         out.write(f"  SHL {rd}, {rl}, {rr}    // binop <<\n")
     elif op == "rshift":
@@ -230,8 +248,7 @@ def _emit_binop(emitter, expr: Dict[str, Any], out) -> str:
     else:
         out.write(f"  // unsupported binop {op}\n")
 
-    emitter.release_expr_reg(rl)
-    emitter.release_expr_reg(rr)
+    _release_operands_for_result()
     return rd
 
 
@@ -242,7 +259,11 @@ def _emit_unop(emitter, expr: Dict[str, Any], out) -> str:
         operand = expr.get("operand")
         assert operand is not None, "unop 'not' missing operand"
         r_operand = emitter.emit_expr(operand, out)
-        rd = emitter.alloc_reg()
+        rd = (
+            r_operand
+            if r_operand and r_operand in abi.TEMP_REGS and not emitter.is_var_reg(r_operand)
+            else emitter.alloc_reg()
+        )
         nt_label = emitter.gen_label("UNOP_NOT_TRUE")
         ne_label = emitter.gen_label("UNOP_NOT_END")
         out.write(f"  BEQ {r_operand}, {abi.SPECIAL_REGS['zero']}, {nt_label}\n")
@@ -251,7 +272,8 @@ def _emit_unop(emitter, expr: Dict[str, Any], out) -> str:
         out.write(f"{nt_label}:\n")
         out.write(f"  LLI {rd}, 1    // operand is zero -> true\n")
         out.write(f"{ne_label}:\n")
-        emitter.release_expr_reg(r_operand)
+        if rd != r_operand:
+            emitter.release_expr_reg(r_operand)
         return rd
     return ""
 
@@ -275,7 +297,9 @@ def _emit_assign_expr(emitter, expr: Dict[str, Any], out) -> str:
 
     if isinstance(target, dict) and target.get("type") == "deref":
         addr_expr = target.get("expr")
+        emitter.pin_reg(rval)
         raddr = emitter.emit_expr(addr_expr, out)
+        emitter.unpin_reg(rval)
         if raddr:
             store_instr = "SB" if _is_char_ptr_expr(emitter, addr_expr) else "SW"
             out.write(f"  {store_instr} {rval}, {raddr}, 0    // store (assign-expr)\n")

@@ -55,6 +55,10 @@ class Emitter:
         self.register_allocator = RegisterAllocator()
         self.current_context_origin: Optional[str] = None
         self.temp_counter = 0
+        # Spill tracking for temporary allocations under register pressure.
+        self._spill_depth = {}
+        # Pinned regs are protected from spill while their current value is needed.
+        self._pinned_regs = {}
 
     def _get_source_text(self, line_num: int) -> str:
         """Get the source text for a given line number (1-indexed)."""
@@ -131,13 +135,35 @@ class Emitter:
         return f"{prefix}{self.label_counter}"
 
     def alloc_reg(self, track_as_temp: bool = True) -> str:
+        borrowed_spill = False
         if not self.reg_free:
-            # Very simple fallback: use r13 (caller-saved temp)
-            reg = "r13"
+            reg = None
+            if track_as_temp:
+                for candidate in abi.TEMP_REGS:
+                    if candidate in self.reg_free:
+                        continue
+                    if self.is_var_reg(candidate):
+                        continue
+                    if self._pinned_regs.get(candidate, 0) > 0:
+                        continue
+                    reg = candidate
+                    break
+            if reg is not None and self.tracked_writer is not None:
+                self.tracked_writer.write(
+                    f"  PUSH {reg}    // spill live temp for reg pressure\n"
+                )
+                self._spill_depth[reg] = self._spill_depth.get(reg, 0) + 1
+                borrowed_spill = True
+            else:
+                # Fallback for non-temp allocations or if no spill-safe candidate exists.
+                print(
+                    "Warning: register pressure fallback to r13; consider freeing unused vars earlier"
+                )
+                reg = "r13"
         else:
             reg = self.reg_free.pop(0)
 
-        if track_as_temp:
+        if track_as_temp and not borrowed_spill:
             self.temp_counter += 1
             temp_name = f"$tmp{self.temp_counter}"
             if self.tracked_writer is not None:
@@ -154,6 +180,17 @@ class Emitter:
         return reg
 
     def free_reg(self, reg: str):
+        spill_depth = self._spill_depth.get(reg, 0)
+        if spill_depth > 0:
+            if self.tracked_writer is not None:
+                self.tracked_writer.write(f"  POP {reg}    // restore spilled temp\n")
+            spill_depth -= 1
+            if spill_depth > 0:
+                self._spill_depth[reg] = spill_depth
+            else:
+                del self._spill_depth[reg]
+            return
+
         if (
             reg
             and reg.startswith("r")
@@ -175,12 +212,24 @@ class Emitter:
         if reg and reg in abi.TEMP_REGS and not self.is_var_reg(reg):
             self.free_reg(reg)
 
+    def pin_reg(self, reg: Optional[str]):
+        if reg and reg in abi.TEMP_REGS:
+            self._pinned_regs[reg] = self._pinned_regs.get(reg, 0) + 1
+
+    def unpin_reg(self, reg: Optional[str]):
+        if not reg or reg not in abi.TEMP_REGS:
+            return
+        depth = self._pinned_regs.get(reg, 0)
+        if depth <= 1:
+            self._pinned_regs.pop(reg, None)
+        else:
+            self._pinned_regs[reg] = depth - 1
+
     # Helper: ensure a var has a register (allocate+zero-init if not)
     def _ensure_var_reg(self, name: str, out) -> str:
         return ensure_var_reg(self, name, out)
 
     def _emit_compare(self, rd: str, op: str, rl: str, rr: str, out):
-        out.write(f"  LLI {rd}, 0    // compare init 0\n")
         ltrue = self.gen_label("CMP_TRUE")
         lend = self.gen_label("CMP_END")
         if op == "eq":
@@ -195,6 +244,7 @@ class Emitter:
             out.write(f"  BLT {rr}, {rl}, {ltrue}\n")
         elif op == "gte":
             out.write(f"  BGE {rl}, {rr}, {ltrue}\n")
+        out.write(f"  LLI {rd}, 0    // compare false path\n")
         out.write(f"  JMP {lend}\n")
         out.write(f"{ltrue}:\n")
         out.write(f"  LLI {rd}, 1\n")
@@ -298,6 +348,8 @@ class Emitter:
         self.current_context_origin = f"_{name}"
         self.reg_free = list(abi.TEMP_REGS)
         self.var_regs = {}
+        self._spill_depth = {}
+        self._pinned_regs = {}
         # start var_types with globals available
         self.var_types = dict(self.global_types)
         # Handle parameters: map param names to argument registers (r1..r4)

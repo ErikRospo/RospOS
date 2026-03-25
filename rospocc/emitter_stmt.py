@@ -200,7 +200,9 @@ def _emit_assign(emitter, stmt: Dict[str, Any], out):
         _emit_assign_member_access(emitter, target, rval, out)
     elif isinstance(target, dict) and target.get("type") == "deref":
         addr_expr = target.get("expr")
+        emitter.pin_reg(rval)
         raddr = emitter.emit_expr(addr_expr, out)
+        emitter.unpin_reg(rval)
         store_instr = "SB" if _is_char_ptr_expr(emitter, addr_expr) else "SW"
         out.write(f"  {store_instr} {rval}, {raddr}, 0    // store \n")
         emitter.release_expr_reg(raddr)

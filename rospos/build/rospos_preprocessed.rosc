@@ -145,6 +145,25 @@ void draw_string_to_display(char *str, int x, int y)
     }
 }
 
+// .rosc translation of binaries/screen_test.ros
+
+void screen_test()
+{
+    int addr = 0x20000000;
+    int remaining = 0x00010000;
+    int lfsr = 0xDEADBEEF;
+
+    while (remaining)
+    {
+        __sb(addr, lfsr);
+        addr = addr + 1;
+        // taps at 16, 14, 13, 11 (0-based indexing)
+        int bit = ((lfsr >> 0) ^ (lfsr >> 2) ^ (lfsr >> 3) ^ (lfsr >> 5)) & 1;
+        lfsr = (lfsr >> 1) | (bit << 15);
+
+        remaining = remaining - 1;
+    }
+}
 
 
 typedef struct {
@@ -199,6 +218,7 @@ void old_main(){
 
 void main()
 {
+    // screen_test();
     draw_char_to_display("A", 0, 0);
     draw_char_to_display("B", 8, 0);
     draw_char_to_display("C", 16, 0);
