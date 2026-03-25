@@ -5,6 +5,7 @@ from pathlib import Path
 
 GLYPH_WIDTH = 8
 GLYPH_HEIGHT = 8
+TABLE_GLYPHS = 128
 
 
 def bitmap_bits(value, width, height):
@@ -47,11 +48,14 @@ def extract_font8x8_basic_and_descriptions(header_path):
         raise ValueError("Closing brace for font8x8_basic array not found")
 
     arr = content[brace_start + 1 : brace_end]
-    glyphs = re.findall(r"\{([^}]+)\}\s*,\s*//\s*U\+([0-9A-F]{4})\s*\(([^)]+)\)", arr)
+    glyphs = re.findall(
+        r"\{([^}]+)\}\s*,?\s*(?://\s*U\+([0-9A-Fa-f]{4})(?:\s*\(([^)]*)\))?)?",
+        arr,
+    )
 
-    font = []
-    descriptions = []
-    for glyph_bytes, _, desc in glyphs:
+    font_by_codepoint = {}
+    descriptions_by_codepoint = {}
+    for glyph_bytes, codepoint_hex, desc in glyphs:
         bytestr = glyph_bytes.split(",")
         clean_bytes = []
         for b in bytestr:
@@ -68,33 +72,32 @@ def extract_font8x8_basic_and_descriptions(header_path):
         if len(clean_bytes) != 8:
             continue
 
-        font.append(clean_bytes)
-        descriptions.append(desc.replace(" ", "_"))
+        if not codepoint_hex:
+            continue
 
-    return font, descriptions
+        codepoint = int(codepoint_hex, 16)
+        font_by_codepoint[codepoint] = clean_bytes
+        if desc:
+            descriptions_by_codepoint[codepoint] = desc.replace(" ", "_")
 
-
-def glyph_to_u64_compatible(glyph_bytes):
-    # Keep the exact historical bit ordering from the old script.
-    val = 0
-    for byte in glyph_bytes:
-        val = (val << 8) | byte
-    bitmap = bitmap_bits(val, GLYPH_WIDTH, GLYPH_HEIGHT)[::-1]
-    flattened_bitmap = bitmap.replace("\n", "")
-    return int(flattened_bitmap, 2)
+    return font_by_codepoint, descriptions_by_codepoint
 
 
-def write_blob(output_path, font8x8):
+def write_blob(output_path, font_by_codepoint, table_glyphs=TABLE_GLYPHS):
     with open(output_path, "wb") as f:
-        for glyph_bytes in font8x8:
-            glyph_value = glyph_to_u64_compatible(glyph_bytes)
-            f.write(glyph_value.to_bytes(8, byteorder="big", signed=False))
+        blob = bytearray(table_glyphs * GLYPH_HEIGHT)
+        for codepoint, glyph_bytes in font_by_codepoint.items():
+            if 0 <= codepoint < table_glyphs:
+                start = codepoint * GLYPH_HEIGHT
+                blob[start : start + GLYPH_HEIGHT] = bytes(glyph_bytes)
+        f.write(blob)
 
 
-def write_index(index_path, descriptions):
+def write_index(index_path, descriptions_by_codepoint):
     with open(index_path, "w", encoding="utf-8") as f:
-        for i, desc in enumerate(descriptions):
-            f.write(f"{i:03d} {desc}\n")
+        for codepoint in sorted(descriptions_by_codepoint):
+            desc = descriptions_by_codepoint[codepoint]
+            f.write(f"{codepoint:03d} {desc}\n")
 
 
 def parse_args():
@@ -124,17 +127,22 @@ def main():
     input_path = Path(args.input)
     output_path = Path(args.output)
 
-    font8x8, descriptions = extract_font8x8_basic_and_descriptions(input_path)
+    font_by_codepoint, descriptions_by_codepoint = extract_font8x8_basic_and_descriptions(
+        input_path
+    )
 
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    write_blob(output_path, font8x8)
+    write_blob(output_path, font_by_codepoint)
 
     if args.index_output:
         index_path = Path(args.index_output)
         index_path.parent.mkdir(parents=True, exist_ok=True)
-        write_index(index_path, descriptions)
+        write_index(index_path, descriptions_by_codepoint)
 
-    print(f"Wrote {len(font8x8)} glyphs to {output_path} ({len(font8x8) * 8} bytes)")
+    print(
+        f"Wrote {TABLE_GLYPHS} glyph slots to {output_path} ({TABLE_GLYPHS * 8} bytes), "
+        f"filled {len(font_by_codepoint)} codepoints"
+    )
     if args.index_output:
         print(f"Wrote glyph index to {args.index_output}")
 

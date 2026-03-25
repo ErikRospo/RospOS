@@ -1,5 +1,5 @@
 // .rosc translation of display.ros routines.
-// This version uses a fixed font base that matches the assembly layout.
+// Font blob is generated as a direct 128-entry table: 8 bytes per char code.
 
 void clear_display()
 {
@@ -33,7 +33,11 @@ char* font_address = __embed("font_bitmap.bin");
 
 void draw_char_to_display(int ch, int x, int y)
 {
-    int glyph = (ch - 34) * 8;
+    if (ch < 32 || ch > 127)
+    {
+        return; // Non-printable characters are ignored.
+    }
+    int glyph = ch * 8;
     int row = 0;
     while (row < 8)
     {
