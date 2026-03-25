@@ -230,14 +230,13 @@ def print_file_sizes(analyzer: BuildAnalyzer):
     print_section("Build Artifacts Size Analysis")
 
     stages = [
-        ('rospos.ros', 'Original ROS Source'),
-        ('rospos_preprocessed.ros', 'Preprocessed (ROS)'),
-        ('rospos.rosc', 'Compiled (ROSC)'),
-        ('rospos_preprocessed.rosc', 'Preprocessed (ROSC)'),
-        ('rospos_c.rosp', 'C Compilation (ROSP)'),
-        ('rospos_debc.rosp', 'Debug C (ROSP)'),
-        ('rospos_binc.rosp', 'Binary C (ROSP)'),
-        ('rospos.rosp', 'Final Binary (ROSP)'),
+        ('rospos_preprocessed.rosc', 'ROSC source (preprocessed)'),
+        ('rospos.ros', 'Compiled ROS Assembly'),
+        ('rospos_preprocessed.ros', 'ROS Assembly (preprocessed)'),
+        ('rospos_c.rosp', 'All-compressed (ROSP)'),
+        ('rospos_debc.rosp', 'Debug-compressed executable (ROSP)'),
+        ('rospos_binc.rosp', 'Binary-compressed executable (ROSP)'),
+        ('rospos.rosp', 'Uncompressed Binary (ROSP)'),
     ]
 
     sizes = {}
@@ -249,10 +248,9 @@ def print_file_sizes(analyzer: BuildAnalyzer):
             print_metric(description, size_str, Colors.BLUE)
 
     print()
-    
-    if 'rospos.ros' in sizes and 'rospos_preprocessed.ros' in sizes:
-        print_comparison("ROS source → Preprocessed", 
-                        sizes['rospos.ros'], sizes['rospos_preprocessed.ros'])
+    if 'rospos_c.rosp' in sizes and 'rospos.rosp' in sizes:
+        print_comparison("Uncompressed → Compressed ROSP size", 
+                        sizes['rospos.rosp'], sizes['rospos_c.rosp'])
         print()
 
     if 'rospos_c.rosp' in sizes and 'rospos_binc.rosp' in sizes:
@@ -342,7 +340,6 @@ def print_summary(analyzer: BuildAnalyzer):
     before_count = analyzer.count_instructions('debug_before_opt.txt')
     after_count = analyzer.count_instructions('debug_after_opt.txt')
     final_rosp = analyzer.get_file('rospos.rosp')
-    c_rosp = analyzer.get_file('rospos_c.rosp')
     source_ros = analyzer.get_file('rospos.ros')
 
     print_metric("Total instructions (before opt)", f"{before_count:,}")
