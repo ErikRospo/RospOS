@@ -329,7 +329,7 @@ class Emitter:
 
             for word in range(0, len(blob_bytes), 4):
                 byte = blob_bytes[word:word+4]
-                out.write(f"  .DATA 0x{int.from_bytes(byte, 'big'):08X}\n")
+                out.write(f"  .DATA 0x{int.from_bytes(byte, 'little'):08X}\n")
             out.write("\n")
         else:
             # unknown global; emit a commented placeholder

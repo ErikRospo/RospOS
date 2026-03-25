@@ -45,7 +45,7 @@ void draw_char_to_display(int ch, int x, int y)
         int col = 0;
         while (col < 8)
         {
-            int bit = (glyph_row >> (7 - col)) & 1;
+            int bit = (glyph_row >> col) & 1;
             if (bit)
             {
                 int px = x + col;
