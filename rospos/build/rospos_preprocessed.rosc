@@ -58,66 +58,7 @@ char *read_string(char *buffer, int max_len)
     buffer[i] = "\0";
     return buffer;
 }
-void print_string(char *str)
-{
-    int tty_addr = 0x10000000;
-    while (*str)
-    {
-        __sb(tty_addr, *str);
-        str = str + 1;
-    }
-}
-void print_char(char c)
-{
-    int tty_addr = 0x10000000;
-    __sb(tty_addr, c);
-}
 
-void printi(int num)
-{
-    char buffer[12]; // Enough for 32-bit int
-    int i = 0;
-    if (num < 0)
-    {
-        print_char("-");
-        num = -num;
-    }
-    while (num > 0)
-    {
-        buffer[i++] = "0" + (num % 10);
-        num = num / 10;
-    }
-    buffer[i] = "\0";
-    // Reverse the string
-    for (int j = 0; j < i / 2; j++)
-    {
-        char temp = buffer[j];
-        buffer[j] = buffer[i - j - 1];
-        buffer[i - j - 1] = temp;
-    }
-    print_string(buffer);
-}
-
-char read_char()
-{
-    int tty_addr = 0x10000000;
-    return __lb(tty_addr);
-}
-
-char *read_string(char *buffer, int max_len)
-{
-    int tty_addr = 0x10000000;
-    int i = 0;
-    while (i < max_len - 1)
-    {
-        char c = __lb(tty_addr);
-        if (c == "\n" || c == "\r")
-            break;
-        buffer[i++] = c;
-    }
-    buffer[i] = "\0";
-    return buffer;
-}
 
 // .rosc translation of tty.ros helpers.
 char read_line(char *buffer, int max_len)
