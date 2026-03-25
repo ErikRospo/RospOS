@@ -88,7 +88,7 @@ test:
 	$(PY) -m unittest discover -s tests -p "test_*.py" -v
 dump: rospos/build/rospos.rosp
 	$(HEXDUMP) $< 1>&2
-build: bm parse compile frontend_cmake frontend
+build: bm parse compile frontend_cmake frontend vm_headless
 
 format:
 	black .
@@ -99,3 +99,5 @@ clean:
 	rm -rf build/*.html
 	rm -rf build/*.pdf
 	rm -rf rospos/font_bitmap.bin
+	
+everything: build doc report 
