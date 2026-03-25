@@ -1840,23 +1840,11 @@ program
         imm	0
   codeline
     instruction
-      lli
-        register	r9
-        imm	7
-  codeline
-    instruction
-      rinstructuse
-        sub
-        register	r9
-        register	r9
-        register	r5
-  codeline
-    instruction
       rinstructuse
         shr
         register	r9
         register	r10
-        register	r9
+        register	r5
   codeline
     instruction
       lli
@@ -2204,6 +2192,2190 @@ program
   codeline
     directiveuse
       func
+        label	draw_horizontal_line:
+  codeline
+    instruction
+      push
+        register	r14
+  codeline
+    instruction
+      lli
+        register	r4
+        imm	0
+  codeline
+    label	WHILE68:
+  codeline
+    instruction
+      binstructuse
+        blt
+        register	r4
+        register	r3
+        imm
+          labeluse	CMP_TRUE70
+  codeline
+    instruction
+      lli
+        register	r5
+        imm	0
+  codeline
+    instruction
+      jmpseudo
+        imm
+          labeluse	CMP_END71
+  codeline
+    label	CMP_TRUE70:
+  codeline
+    instruction
+      lli
+        register	r5
+        imm	1
+  codeline
+    label	CMP_END71:
+  codeline
+    instruction
+      binstructuse
+        beq
+        register	r5
+        register	r0
+        imm
+          labeluse	WHILE_END69
+  codeline
+    instruction
+      lli
+        register	r6
+        imm	0
+  codeline
+    instruction
+      rinstructuse
+        add
+        register	r7
+        register	r1
+        register	r4
+  codeline
+    instruction
+      iinstructuse
+        addi
+        register	r6
+        register	r7
+        imm	0
+  codeline
+    instruction
+      lli
+        register	r8
+        imm	0
+  codeline
+    instruction
+      lli
+        register	r9
+        imm	0
+  codeline
+    instruction
+      lli
+        register	r10
+        imm	256
+  codeline
+    instruction
+      rinstructuse
+        mul
+        register	r10
+        register	r8
+        register	r10
+  codeline
+    instruction
+      rinstructuse
+        add
+        register	r10
+        register	r10
+        register	r6
+  codeline
+    instruction
+      iinstructuse
+        addi
+        register	r9
+        register	r10
+        imm	0
+  codeline
+    instruction
+      lli
+        register	r11
+        imm	536870912
+  codeline
+    instruction
+      rinstructuse
+        add
+        register	r11
+        register	r11
+        register	r9
+  codeline
+    instruction
+      lli
+        register	r12
+        imm	63
+  codeline
+    instruction
+      lsinstructuse
+        sb
+        register	r12
+        register	r11
+        imm	0
+  codeline
+    instruction
+      lli
+        register	r5
+        imm	1
+  codeline
+    instruction
+      rinstructuse
+        add
+        register	r5
+        register	r4
+        register	r5
+  codeline
+    instruction
+      iinstructuse
+        addi
+        register	r4
+        register	r5
+        imm	0
+  codeline
+    instruction
+      jmpseudo
+        imm
+          labeluse	WHILE68
+  codeline
+    label	WHILE_END69:
+  codeline
+    instruction
+      iinstructuse
+        addi
+        register	r1
+        register	r0
+        imm	0
+  codeline
+    instruction
+      pop
+        register	r14
+  codeline
+    instruction
+      retpseudo
+  codeline
+    directiveuse
+      func
+        label	draw_vertical_line:
+  codeline
+    instruction
+      push
+        register	r14
+  codeline
+    instruction
+      lli
+        register	r4
+        imm	0
+  codeline
+    label	WHILE72:
+  codeline
+    instruction
+      binstructuse
+        blt
+        register	r4
+        register	r3
+        imm
+          labeluse	CMP_TRUE74
+  codeline
+    instruction
+      lli
+        register	r5
+        imm	0
+  codeline
+    instruction
+      jmpseudo
+        imm
+          labeluse	CMP_END75
+  codeline
+    label	CMP_TRUE74:
+  codeline
+    instruction
+      lli
+        register	r5
+        imm	1
+  codeline
+    label	CMP_END75:
+  codeline
+    instruction
+      binstructuse
+        beq
+        register	r5
+        register	r0
+        imm
+          labeluse	WHILE_END73
+  codeline
+    instruction
+      lli
+        register	r6
+        imm	0
+  codeline
+    instruction
+      lli
+        register	r7
+        imm	0
+  codeline
+    instruction
+      rinstructuse
+        add
+        register	r8
+        register	r2
+        register	r4
+  codeline
+    instruction
+      iinstructuse
+        addi
+        register	r7
+        register	r8
+        imm	0
+  codeline
+    instruction
+      lli
+        register	r9
+        imm	0
+  codeline
+    instruction
+      lli
+        register	r10
+        imm	256
+  codeline
+    instruction
+      rinstructuse
+        mul
+        register	r10
+        register	r7
+        register	r10
+  codeline
+    instruction
+      rinstructuse
+        add
+        register	r10
+        register	r10
+        register	r6
+  codeline
+    instruction
+      iinstructuse
+        addi
+        register	r9
+        register	r10
+        imm	0
+  codeline
+    instruction
+      lli
+        register	r11
+        imm	536870912
+  codeline
+    instruction
+      rinstructuse
+        add
+        register	r11
+        register	r11
+        register	r9
+  codeline
+    instruction
+      lli
+        register	r12
+        imm	63
+  codeline
+    instruction
+      lsinstructuse
+        sb
+        register	r12
+        register	r11
+        imm	0
+  codeline
+    instruction
+      lli
+        register	r5
+        imm	1
+  codeline
+    instruction
+      rinstructuse
+        add
+        register	r5
+        register	r4
+        register	r5
+  codeline
+    instruction
+      iinstructuse
+        addi
+        register	r4
+        register	r5
+        imm	0
+  codeline
+    instruction
+      jmpseudo
+        imm
+          labeluse	WHILE72
+  codeline
+    label	WHILE_END73:
+  codeline
+    instruction
+      iinstructuse
+        addi
+        register	r1
+        register	r0
+        imm	0
+  codeline
+    instruction
+      pop
+        register	r14
+  codeline
+    instruction
+      retpseudo
+  codeline
+    directiveuse
+      func
+        label	draw_line:
+  codeline
+    instruction
+      push
+        register	r14
+  codeline
+    instruction
+      binstructuse
+        beq
+        register	r1
+        register	r3
+        imm
+          labeluse	CMP_TRUE78
+  codeline
+    instruction
+      lli
+        register	r5
+        imm	0
+  codeline
+    instruction
+      jmpseudo
+        imm
+          labeluse	CMP_END79
+  codeline
+    label	CMP_TRUE78:
+  codeline
+    instruction
+      lli
+        register	r5
+        imm	1
+  codeline
+    label	CMP_END79:
+  codeline
+    instruction
+      binstructuse
+        beq
+        register	r5
+        register	r0
+        imm
+          labeluse	ELSE76
+  codeline
+    instruction
+      lli
+        register	r6
+        imm	0
+  codeline
+    instruction
+      lli
+        register	r7
+        imm	0
+  codeline
+    instruction
+      binstructuse
+        blt
+        register	r2
+        register	r4
+        imm
+          labeluse	CMP_TRUE82
+  codeline
+    instruction
+      lli
+        register	r8
+        imm	0
+  codeline
+    instruction
+      jmpseudo
+        imm
+          labeluse	CMP_END83
+  codeline
+    label	CMP_TRUE82:
+  codeline
+    instruction
+      lli
+        register	r8
+        imm	1
+  codeline
+    label	CMP_END83:
+  codeline
+    instruction
+      binstructuse
+        beq
+        register	r8
+        register	r0
+        imm
+          labeluse	ELSE80
+  codeline
+    instruction
+      iinstructuse
+        addi
+        register	r6
+        register	r2
+        imm	0
+  codeline
+    instruction
+      rinstructuse
+        sub
+        register	r9
+        register	r4
+        register	r2
+  codeline
+    instruction
+      lli
+        register	r10
+        imm	1
+  codeline
+    instruction
+      rinstructuse
+        add
+        register	r9
+        register	r9
+        register	r10
+  codeline
+    instruction
+      iinstructuse
+        addi
+        register	r7
+        register	r9
+        imm	0
+  codeline
+    instruction
+      jmpseudo
+        imm
+          labeluse	IF_END81
+  codeline
+    label	ELSE80:
+  codeline
+    instruction
+      iinstructuse
+        addi
+        register	r6
+        register	r4
+        imm	0
+  codeline
+    instruction
+      rinstructuse
+        sub
+        register	r11
+        register	r2
+        register	r4
+  codeline
+    instruction
+      lli
+        register	r12
+        imm	1
+  codeline
+    instruction
+      rinstructuse
+        add
+        register	r11
+        register	r11
+        register	r12
+  codeline
+    instruction
+      iinstructuse
+        addi
+        register	r7
+        register	r11
+        imm	0
+  codeline
+    label	IF_END81:
+  codeline
+    instruction
+      push
+        register	r2
+  codeline
+    instruction
+      push
+        register	r3
+  codeline
+    instruction
+      push
+        register	r4
+  codeline
+    instruction
+      push
+        register	r6
+  codeline
+    instruction
+      push
+        register	r7
+  codeline
+    instruction
+      push
+        register	r1
+  codeline
+    instruction
+      iinstructuse
+        addi
+        register	r1
+        register	r1
+        imm	0
+  codeline
+    instruction
+      iinstructuse
+        addi
+        register	r2
+        register	r6
+        imm	0
+  codeline
+    instruction
+      iinstructuse
+        addi
+        register	r3
+        register	r7
+        imm	0
+  codeline
+    instruction
+      callpseudo
+        imm
+          labeluse	draw_vertical_line
+  codeline
+    instruction
+      pop
+        register	r1
+  codeline
+    instruction
+      pop
+        register	r7
+  codeline
+    instruction
+      pop
+        register	r6
+  codeline
+    instruction
+      pop
+        register	r4
+  codeline
+    instruction
+      pop
+        register	r3
+  codeline
+    instruction
+      pop
+        register	r2
+  codeline
+    instruction
+      jmpseudo
+        imm
+          labeluse	IF_END77
+  codeline
+    label	ELSE76:
+  codeline
+    label	IF_END77:
+  codeline
+    instruction
+      binstructuse
+        beq
+        register	r2
+        register	r4
+        imm
+          labeluse	CMP_TRUE86
+  codeline
+    instruction
+      lli
+        register	r5
+        imm	0
+  codeline
+    instruction
+      jmpseudo
+        imm
+          labeluse	CMP_END87
+  codeline
+    label	CMP_TRUE86:
+  codeline
+    instruction
+      lli
+        register	r5
+        imm	1
+  codeline
+    label	CMP_END87:
+  codeline
+    instruction
+      binstructuse
+        beq
+        register	r5
+        register	r0
+        imm
+          labeluse	ELSE84
+  codeline
+    instruction
+      lli
+        register	r8
+        imm	0
+  codeline
+    instruction
+      lli
+        register	r10
+        imm	0
+  codeline
+    instruction
+      binstructuse
+        blt
+        register	r1
+        register	r3
+        imm
+          labeluse	CMP_TRUE90
+  codeline
+    instruction
+      lli
+        register	r9
+        imm	0
+  codeline
+    instruction
+      jmpseudo
+        imm
+          labeluse	CMP_END91
+  codeline
+    label	CMP_TRUE90:
+  codeline
+    instruction
+      lli
+        register	r9
+        imm	1
+  codeline
+    label	CMP_END91:
+  codeline
+    instruction
+      binstructuse
+        beq
+        register	r9
+        register	r0
+        imm
+          labeluse	ELSE88
+  codeline
+    instruction
+      iinstructuse
+        addi
+        register	r8
+        register	r1
+        imm	0
+  codeline
+    instruction
+      rinstructuse
+        sub
+        register	r12
+        register	r3
+        register	r1
+  codeline
+    instruction
+      lli
+        register	r11
+        imm	1
+  codeline
+    instruction
+      rinstructuse
+        add
+        register	r12
+        register	r12
+        register	r11
+  codeline
+    instruction
+      iinstructuse
+        addi
+        register	r10
+        register	r12
+        imm	0
+  codeline
+    instruction
+      jmpseudo
+        imm
+          labeluse	IF_END89
+  codeline
+    label	ELSE88:
+  codeline
+    instruction
+      iinstructuse
+        addi
+        register	r8
+        register	r3
+        imm	0
+  codeline
+    instruction
+      rinstructuse
+        sub
+        register	r5
+        register	r1
+        register	r3
+  codeline
+    instruction
+      lli
+        register	r9
+        imm	1
+  codeline
+    instruction
+      rinstructuse
+        add
+        register	r5
+        register	r5
+        register	r9
+  codeline
+    instruction
+      iinstructuse
+        addi
+        register	r10
+        register	r5
+        imm	0
+  codeline
+    label	IF_END89:
+  codeline
+    instruction
+      push
+        register	r2
+  codeline
+    instruction
+      push
+        register	r3
+  codeline
+    instruction
+      push
+        register	r4
+  codeline
+    instruction
+      push
+        register	r6
+  codeline
+    instruction
+      push
+        register	r7
+  codeline
+    instruction
+      push
+        register	r8
+  codeline
+    instruction
+      push
+        register	r10
+  codeline
+    instruction
+      push
+        register	r1
+  codeline
+    instruction
+      iinstructuse
+        addi
+        register	r1
+        register	r8
+        imm	0
+  codeline
+    instruction
+      iinstructuse
+        addi
+        register	r2
+        register	r2
+        imm	0
+  codeline
+    instruction
+      iinstructuse
+        addi
+        register	r3
+        register	r10
+        imm	0
+  codeline
+    instruction
+      callpseudo
+        imm
+          labeluse	draw_horizontal_line
+  codeline
+    instruction
+      pop
+        register	r1
+  codeline
+    instruction
+      pop
+        register	r10
+  codeline
+    instruction
+      pop
+        register	r8
+  codeline
+    instruction
+      pop
+        register	r7
+  codeline
+    instruction
+      pop
+        register	r6
+  codeline
+    instruction
+      pop
+        register	r4
+  codeline
+    instruction
+      pop
+        register	r3
+  codeline
+    instruction
+      pop
+        register	r2
+  codeline
+    instruction
+      jmpseudo
+        imm
+          labeluse	IF_END85
+  codeline
+    label	ELSE84:
+  codeline
+    label	IF_END85:
+  codeline
+    instruction
+      lli
+        register	r11
+        imm	0
+  codeline
+    instruction
+      rinstructuse
+        sub
+        register	r12
+        register	r3
+        register	r1
+  codeline
+    instruction
+      iinstructuse
+        addi
+        register	r11
+        register	r12
+        imm	0
+  codeline
+    instruction
+      lli
+        register	r9
+        imm	0
+  codeline
+    instruction
+      rinstructuse
+        sub
+        register	r5
+        register	r4
+        register	r2
+  codeline
+    instruction
+      iinstructuse
+        addi
+        register	r9
+        register	r5
+        imm	0
+  codeline
+    instruction
+      lli
+        register	r12
+        imm	0
+  codeline
+    instruction
+      lli
+        register	r5
+        imm	0
+  codeline
+    instruction
+      push
+        register	r7
+  codeline
+    instruction
+      lli
+        register	r7
+        imm	1
+  codeline
+    instruction
+      rinstructuse
+        sub
+        register	r5
+        register	r5
+        register	r7
+  codeline
+    instruction
+      pop
+        register	r7
+  codeline
+    instruction
+      iinstructuse
+        addi
+        register	r12
+        register	r5
+        imm	0
+  codeline
+    instruction
+      lli
+        register	r5
+        imm	0
+  codeline
+    instruction
+      push
+        register	r7
+  codeline
+    instruction
+      lli
+        register	r7
+        imm	0
+  codeline
+    instruction
+      lli
+        register	r13
+        imm	1
+  codeline
+    instruction
+      rinstructuse
+        sub
+        register	r7
+        register	r7
+        register	r13
+  codeline
+    instruction
+      iinstructuse
+        addi
+        register	r5
+        register	r7
+        imm	0
+  codeline
+    instruction
+      pop
+        register	r7
+  codeline
+    instruction
+      push
+        register	r7
+  codeline
+    instruction
+      lli
+        register	r7
+        imm	0
+  codeline
+    instruction
+      binstructuse
+        blt
+        register	r7
+        register	r11
+        imm
+          labeluse	CMP_TRUE94
+  codeline
+    instruction
+      lli
+        register	r7
+        imm	0
+  codeline
+    instruction
+      jmpseudo
+        imm
+          labeluse	CMP_END95
+  codeline
+    label	CMP_TRUE94:
+  codeline
+    instruction
+      lli
+        register	r7
+        imm	1
+  codeline
+    label	CMP_END95:
+  codeline
+    instruction
+      binstructuse
+        beq
+        register	r7
+        register	r0
+        imm
+          labeluse	ELSE92
+  codeline
+    instruction
+      pop
+        register	r7
+  codeline
+    instruction
+      push
+        register	r7
+  codeline
+    instruction
+      lli
+        register	r7
+        imm	1
+  codeline
+    instruction
+      iinstructuse
+        addi
+        register	r12
+        register	r7
+        imm	0
+  codeline
+    instruction
+      pop
+        register	r7
+  codeline
+    instruction
+      jmpseudo
+        imm
+          labeluse	IF_END93
+  codeline
+    label	ELSE92:
+  codeline
+    label	IF_END93:
+  codeline
+    instruction
+      push
+        register	r7
+  codeline
+    instruction
+      lli
+        register	r7
+        imm	0
+  codeline
+    instruction
+      binstructuse
+        blt
+        register	r7
+        register	r9
+        imm
+          labeluse	CMP_TRUE98
+  codeline
+    instruction
+      lli
+        register	r7
+        imm	0
+  codeline
+    instruction
+      jmpseudo
+        imm
+          labeluse	CMP_END99
+  codeline
+    label	CMP_TRUE98:
+  codeline
+    instruction
+      lli
+        register	r7
+        imm	1
+  codeline
+    label	CMP_END99:
+  codeline
+    instruction
+      binstructuse
+        beq
+        register	r7
+        register	r0
+        imm
+          labeluse	ELSE96
+  codeline
+    instruction
+      pop
+        register	r7
+  codeline
+    instruction
+      push
+        register	r7
+  codeline
+    instruction
+      lli
+        register	r7
+        imm	1
+  codeline
+    instruction
+      iinstructuse
+        addi
+        register	r5
+        register	r7
+        imm	0
+  codeline
+    instruction
+      pop
+        register	r7
+  codeline
+    instruction
+      jmpseudo
+        imm
+          labeluse	IF_END97
+  codeline
+    label	ELSE96:
+  codeline
+    label	IF_END97:
+  codeline
+    instruction
+      push
+        register	r7
+  codeline
+    instruction
+      lli
+        register	r7
+        imm	0
+  codeline
+    instruction
+      binstructuse
+        blt
+        register	r11
+        register	r7
+        imm
+          labeluse	CMP_TRUE102
+  codeline
+    instruction
+      lli
+        register	r7
+        imm	0
+  codeline
+    instruction
+      jmpseudo
+        imm
+          labeluse	CMP_END103
+  codeline
+    label	CMP_TRUE102:
+  codeline
+    instruction
+      lli
+        register	r7
+        imm	1
+  codeline
+    label	CMP_END103:
+  codeline
+    instruction
+      binstructuse
+        beq
+        register	r7
+        register	r0
+        imm
+          labeluse	ELSE100
+  codeline
+    instruction
+      pop
+        register	r7
+  codeline
+    instruction
+      push
+        register	r7
+  codeline
+    instruction
+      lli
+        register	r7
+        imm	0
+  codeline
+    instruction
+      rinstructuse
+        sub
+        register	r7
+        register	r7
+        register	r11
+  codeline
+    instruction
+      iinstructuse
+        addi
+        register	r11
+        register	r7
+        imm	0
+  codeline
+    instruction
+      pop
+        register	r7
+  codeline
+    instruction
+      jmpseudo
+        imm
+          labeluse	IF_END101
+  codeline
+    label	ELSE100:
+  codeline
+    label	IF_END101:
+  codeline
+    instruction
+      push
+        register	r7
+  codeline
+    instruction
+      lli
+        register	r7
+        imm	0
+  codeline
+    instruction
+      binstructuse
+        blt
+        register	r9
+        register	r7
+        imm
+          labeluse	CMP_TRUE106
+  codeline
+    instruction
+      lli
+        register	r7
+        imm	0
+  codeline
+    instruction
+      jmpseudo
+        imm
+          labeluse	CMP_END107
+  codeline
+    label	CMP_TRUE106:
+  codeline
+    instruction
+      lli
+        register	r7
+        imm	1
+  codeline
+    label	CMP_END107:
+  codeline
+    instruction
+      binstructuse
+        beq
+        register	r7
+        register	r0
+        imm
+          labeluse	ELSE104
+  codeline
+    instruction
+      pop
+        register	r7
+  codeline
+    instruction
+      push
+        register	r7
+  codeline
+    instruction
+      lli
+        register	r7
+        imm	0
+  codeline
+    instruction
+      rinstructuse
+        sub
+        register	r7
+        register	r7
+        register	r9
+  codeline
+    instruction
+      iinstructuse
+        addi
+        register	r9
+        register	r7
+        imm	0
+  codeline
+    instruction
+      pop
+        register	r7
+  codeline
+    instruction
+      jmpseudo
+        imm
+          labeluse	IF_END105
+  codeline
+    label	ELSE104:
+  codeline
+    label	IF_END105:
+  codeline
+    instruction
+      lli
+        register	r13
+        imm	0
+  codeline
+    instruction
+      push
+        register	r7
+  codeline
+    instruction
+      binstructuse
+        blt
+        register	r9
+        register	r11
+        imm
+          labeluse	CMP_TRUE110
+  codeline
+    instruction
+      lli
+        register	r7
+        imm	0
+  codeline
+    instruction
+      jmpseudo
+        imm
+          labeluse	CMP_END111
+  codeline
+    label	CMP_TRUE110:
+  codeline
+    instruction
+      lli
+        register	r7
+        imm	1
+  codeline
+    label	CMP_END111:
+  codeline
+    instruction
+      binstructuse
+        beq
+        register	r7
+        register	r0
+        imm
+          labeluse	ELSE108
+  codeline
+    instruction
+      pop
+        register	r7
+  codeline
+    instruction
+      push
+        register	r7
+  codeline
+    instruction
+      lli
+        register	r7
+        imm	2
+  codeline
+    instruction
+      rinstructuse
+        div
+        register	r7
+        register	r11
+        register	r7
+  codeline
+    instruction
+      iinstructuse
+        addi
+        register	r13
+        register	r7
+        imm	0
+  codeline
+    instruction
+      pop
+        register	r7
+  codeline
+    instruction
+      jmpseudo
+        imm
+          labeluse	IF_END109
+  codeline
+    label	ELSE108:
+  codeline
+    instruction
+      push
+        register	r7
+  codeline
+    instruction
+      lli
+        register	r7
+        imm	0
+  codeline
+    instruction
+      rinstructuse
+        sub
+        register	r7
+        register	r7
+        register	r9
+  codeline
+    instruction
+      lli
+        register	r13
+        imm	2
+  codeline
+    instruction
+      rinstructuse
+        div
+        register	r7
+        register	r7
+        register	r13
+  codeline
+    instruction
+      iinstructuse
+        addi
+        register	r13
+        register	r7
+        imm	0
+  codeline
+    instruction
+      pop
+        register	r7
+  codeline
+    label	IF_END109:
+  codeline
+    instruction
+      lli
+        register	r13
+        imm	0
+  codeline
+    label	WHILE112:
+  codeline
+    instruction
+      push
+        register	r7
+  codeline
+    instruction
+      lli
+        register	r7
+        imm	0
+  codeline
+    instruction
+      binstructuse
+        beq
+        register	r13
+        register	r7
+        imm
+          labeluse	CMP_TRUE114
+  codeline
+    instruction
+      lli
+        register	r7
+        imm	0
+  codeline
+    instruction
+      jmpseudo
+        imm
+          labeluse	CMP_END115
+  codeline
+    label	CMP_TRUE114:
+  codeline
+    instruction
+      lli
+        register	r7
+        imm	1
+  codeline
+    label	CMP_END115:
+  codeline
+    instruction
+      binstructuse
+        beq
+        register	r7
+        register	r0
+        imm
+          labeluse	WHILE_END113
+  codeline
+    instruction
+      pop
+        register	r7
+  codeline
+    instruction
+      lli
+        register	r13
+        imm	0
+  codeline
+    instruction
+      push
+        register	r7
+  codeline
+    instruction
+      lli
+        register	r7
+        imm	256
+  codeline
+    instruction
+      rinstructuse
+        mul
+        register	r7
+        register	r2
+        register	r7
+  codeline
+    instruction
+      rinstructuse
+        add
+        register	r7
+        register	r7
+        register	r1
+  codeline
+    instruction
+      iinstructuse
+        addi
+        register	r13
+        register	r7
+        imm	0
+  codeline
+    instruction
+      pop
+        register	r7
+  codeline
+    instruction
+      push
+        register	r7
+  codeline
+    instruction
+      lli
+        register	r7
+        imm	536870912
+  codeline
+    instruction
+      rinstructuse
+        add
+        register	r7
+        register	r7
+        register	r13
+  codeline
+    instruction
+      push
+        register	r2
+  codeline
+    instruction
+      lli
+        register	r2
+        imm	63
+  codeline
+    instruction
+      lsinstructuse
+        sb
+        register	r2
+        register	r7
+        imm	0
+  codeline
+    instruction
+      pop
+        register	r2
+  codeline
+    instruction
+      pop
+        register	r7
+  codeline
+    instruction
+      push
+        register	r7
+  codeline
+    instruction
+      binstructuse
+        beq
+        register	r1
+        register	r3
+        imm
+          labeluse	CMP_TRUE118
+  codeline
+    instruction
+      lli
+        register	r7
+        imm	0
+  codeline
+    instruction
+      jmpseudo
+        imm
+          labeluse	CMP_END119
+  codeline
+    label	CMP_TRUE118:
+  codeline
+    instruction
+      lli
+        register	r7
+        imm	1
+  codeline
+    label	CMP_END119:
+  codeline
+    instruction
+      binstructuse
+        beq
+        register	r2
+        register	r4
+        imm
+          labeluse	CMP_TRUE120
+  codeline
+    instruction
+      lli
+        register	r13
+        imm	0
+  codeline
+    instruction
+      jmpseudo
+        imm
+          labeluse	CMP_END121
+  codeline
+    label	CMP_TRUE120:
+  codeline
+    instruction
+      lli
+        register	r13
+        imm	1
+  codeline
+    label	CMP_END121:
+  codeline
+    instruction
+      rinstructuse
+        and
+        register	r7
+        register	r7
+        register	r13
+  codeline
+    instruction
+      binstructuse
+        bne
+        register	r7
+        register	r0
+        imm
+          labeluse	CMP_TRUE122
+  codeline
+    instruction
+      lli
+        register	r7
+        imm	0
+  codeline
+    instruction
+      jmpseudo
+        imm
+          labeluse	CMP_END123
+  codeline
+    label	CMP_TRUE122:
+  codeline
+    instruction
+      lli
+        register	r7
+        imm	1
+  codeline
+    label	CMP_END123:
+  codeline
+    instruction
+      binstructuse
+        beq
+        register	r7
+        register	r0
+        imm
+          labeluse	ELSE116
+  codeline
+    instruction
+      pop
+        register	r7
+  codeline
+    instruction
+      push
+        register	r7
+  codeline
+    instruction
+      lli
+        register	r7
+        imm	1
+  codeline
+    instruction
+      iinstructuse
+        addi
+        register	r13
+        register	r7
+        imm	0
+  codeline
+    instruction
+      pop
+        register	r7
+  codeline
+    instruction
+      jmpseudo
+        imm
+          labeluse	IF_END117
+  codeline
+    label	ELSE116:
+  codeline
+    label	IF_END117:
+  codeline
+    instruction
+      lli
+        register	r13
+        imm	0
+  codeline
+    instruction
+      push
+        register	r7
+  codeline
+    instruction
+      lli
+        register	r7
+        imm	0
+  codeline
+    instruction
+      rinstructuse
+        sub
+        register	r7
+        register	r7
+        register	r11
+  codeline
+    instruction
+      binstructuse
+        blt
+        register	r7
+        register	r13
+        imm
+          labeluse	CMP_TRUE126
+  codeline
+    instruction
+      lli
+        register	r7
+        imm	0
+  codeline
+    instruction
+      jmpseudo
+        imm
+          labeluse	CMP_END127
+  codeline
+    label	CMP_TRUE126:
+  codeline
+    instruction
+      lli
+        register	r7
+        imm	1
+  codeline
+    label	CMP_END127:
+  codeline
+    instruction
+      binstructuse
+        beq
+        register	r7
+        register	r0
+        imm
+          labeluse	ELSE124
+  codeline
+    instruction
+      pop
+        register	r7
+  codeline
+    instruction
+      push
+        register	r7
+  codeline
+    instruction
+      rinstructuse
+        sub
+        register	r7
+        register	r13
+        register	r9
+  codeline
+    instruction
+      iinstructuse
+        addi
+        register	r13
+        register	r7
+        imm	0
+  codeline
+    instruction
+      pop
+        register	r7
+  codeline
+    instruction
+      push
+        register	r7
+  codeline
+    instruction
+      rinstructuse
+        add
+        register	r7
+        register	r1
+        register	r12
+  codeline
+    instruction
+      iinstructuse
+        addi
+        register	r1
+        register	r7
+        imm	0
+  codeline
+    instruction
+      pop
+        register	r7
+  codeline
+    instruction
+      jmpseudo
+        imm
+          labeluse	IF_END125
+  codeline
+    label	ELSE124:
+  codeline
+    label	IF_END125:
+  codeline
+    instruction
+      push
+        register	r7
+  codeline
+    instruction
+      binstructuse
+        blt
+        register	r13
+        register	r9
+        imm
+          labeluse	CMP_TRUE130
+  codeline
+    instruction
+      lli
+        register	r7
+        imm	0
+  codeline
+    instruction
+      jmpseudo
+        imm
+          labeluse	CMP_END131
+  codeline
+    label	CMP_TRUE130:
+  codeline
+    instruction
+      lli
+        register	r7
+        imm	1
+  codeline
+    label	CMP_END131:
+  codeline
+    instruction
+      binstructuse
+        beq
+        register	r7
+        register	r0
+        imm
+          labeluse	ELSE128
+  codeline
+    instruction
+      pop
+        register	r7
+  codeline
+    instruction
+      push
+        register	r7
+  codeline
+    instruction
+      rinstructuse
+        add
+        register	r7
+        register	r13
+        register	r11
+  codeline
+    instruction
+      iinstructuse
+        addi
+        register	r13
+        register	r7
+        imm	0
+  codeline
+    instruction
+      pop
+        register	r7
+  codeline
+    instruction
+      push
+        register	r7
+  codeline
+    instruction
+      rinstructuse
+        add
+        register	r7
+        register	r2
+        register	r5
+  codeline
+    instruction
+      iinstructuse
+        addi
+        register	r2
+        register	r7
+        imm	0
+  codeline
+    instruction
+      pop
+        register	r7
+  codeline
+    instruction
+      jmpseudo
+        imm
+          labeluse	IF_END129
+  codeline
+    label	ELSE128:
+  codeline
+    label	IF_END129:
+  codeline
+    instruction
+      jmpseudo
+        imm
+          labeluse	WHILE112
+  codeline
+    label	WHILE_END113:
+  codeline
+    instruction
+      iinstructuse
+        addi
+        register	r1
+        register	r0
+        imm	0
+  codeline
+    instruction
+      pop
+        register	r14
+  codeline
+    instruction
+      retpseudo
+  codeline
+    directiveuse
+      func
+        label	draw_rectangle:
+  codeline
+    instruction
+      push
+        register	r14
+  codeline
+    instruction
+      push
+        register	r2
+  codeline
+    instruction
+      push
+        register	r3
+  codeline
+    instruction
+      push
+        register	r4
+  codeline
+    instruction
+      push
+        register	r1
+  codeline
+    instruction
+      iinstructuse
+        addi
+        register	r1
+        register	r1
+        imm	0
+  codeline
+    instruction
+      iinstructuse
+        addi
+        register	r2
+        register	r2
+        imm	0
+  codeline
+    instruction
+      iinstructuse
+        addi
+        register	r3
+        register	r3
+        imm	0
+  codeline
+    instruction
+      callpseudo
+        imm
+          labeluse	draw_horizontal_line
+  codeline
+    instruction
+      pop
+        register	r1
+  codeline
+    instruction
+      pop
+        register	r4
+  codeline
+    instruction
+      pop
+        register	r3
+  codeline
+    instruction
+      pop
+        register	r2
+  codeline
+    instruction
+      push
+        register	r2
+  codeline
+    instruction
+      push
+        register	r3
+  codeline
+    instruction
+      push
+        register	r4
+  codeline
+    instruction
+      push
+        register	r1
+  codeline
+    instruction
+      iinstructuse
+        addi
+        register	r1
+        register	r1
+        imm	0
+  codeline
+    instruction
+      rinstructuse
+        add
+        register	r5
+        register	r2
+        register	r4
+  codeline
+    instruction
+      lli
+        register	r6
+        imm	1
+  codeline
+    instruction
+      rinstructuse
+        sub
+        register	r5
+        register	r5
+        register	r6
+  codeline
+    instruction
+      iinstructuse
+        addi
+        register	r2
+        register	r5
+        imm	0
+  codeline
+    instruction
+      iinstructuse
+        addi
+        register	r3
+        register	r3
+        imm	0
+  codeline
+    instruction
+      callpseudo
+        imm
+          labeluse	draw_horizontal_line
+  codeline
+    instruction
+      pop
+        register	r1
+  codeline
+    instruction
+      pop
+        register	r4
+  codeline
+    instruction
+      pop
+        register	r3
+  codeline
+    instruction
+      pop
+        register	r2
+  codeline
+    instruction
+      push
+        register	r2
+  codeline
+    instruction
+      push
+        register	r3
+  codeline
+    instruction
+      push
+        register	r4
+  codeline
+    instruction
+      push
+        register	r1
+  codeline
+    instruction
+      iinstructuse
+        addi
+        register	r1
+        register	r1
+        imm	0
+  codeline
+    instruction
+      iinstructuse
+        addi
+        register	r2
+        register	r2
+        imm	0
+  codeline
+    instruction
+      iinstructuse
+        addi
+        register	r3
+        register	r4
+        imm	0
+  codeline
+    instruction
+      callpseudo
+        imm
+          labeluse	draw_vertical_line
+  codeline
+    instruction
+      pop
+        register	r1
+  codeline
+    instruction
+      pop
+        register	r4
+  codeline
+    instruction
+      pop
+        register	r3
+  codeline
+    instruction
+      pop
+        register	r2
+  codeline
+    instruction
+      push
+        register	r2
+  codeline
+    instruction
+      push
+        register	r3
+  codeline
+    instruction
+      push
+        register	r4
+  codeline
+    instruction
+      push
+        register	r1
+  codeline
+    instruction
+      rinstructuse
+        add
+        register	r7
+        register	r1
+        register	r3
+  codeline
+    instruction
+      lli
+        register	r8
+        imm	1
+  codeline
+    instruction
+      rinstructuse
+        sub
+        register	r7
+        register	r7
+        register	r8
+  codeline
+    instruction
+      iinstructuse
+        addi
+        register	r1
+        register	r7
+        imm	0
+  codeline
+    instruction
+      iinstructuse
+        addi
+        register	r2
+        register	r2
+        imm	0
+  codeline
+    instruction
+      iinstructuse
+        addi
+        register	r3
+        register	r4
+        imm	0
+  codeline
+    instruction
+      callpseudo
+        imm
+          labeluse	draw_vertical_line
+  codeline
+    instruction
+      pop
+        register	r1
+  codeline
+    instruction
+      pop
+        register	r4
+  codeline
+    instruction
+      pop
+        register	r3
+  codeline
+    instruction
+      pop
+        register	r2
+  codeline
+    instruction
+      iinstructuse
+        addi
+        register	r1
+        register	r0
+        imm	0
+  codeline
+    instruction
+      pop
+        register	r14
+  codeline
+    instruction
+      retpseudo
+  codeline
+    directiveuse
+      func
         label	screen_test:
   codeline
     instruction
@@ -2225,7 +4397,7 @@ program
         register	r4
         imm	3735928559
   codeline
-    label	WHILE68:
+    label	WHILE132:
   codeline
     instruction
       binstructuse
@@ -2233,7 +4405,7 @@ program
         register	r3
         register	r0
         imm
-          labeluse	WHILE_END69
+          labeluse	WHILE_END133
   codeline
     instruction
       lsinstructuse
@@ -2414,9 +4586,9 @@ program
     instruction
       jmpseudo
         imm
-          labeluse	WHILE68
+          labeluse	WHILE132
   codeline
-    label	WHILE_END69:
+    label	WHILE_END133:
   codeline
     instruction
       iinstructuse
@@ -2668,13 +4840,13 @@ program
       lli
         register	r5
         imm
-          labeluse	p1_struct70
+          labeluse	p1_struct134
   codeline
     instruction
       lli
         register	r6
         imm
-          labeluse	s_struct71
+          labeluse	s_struct135
   codeline
     instruction
       lli
@@ -3160,22 +5332,23 @@ program
     instruction
       lli
         register	r1
-        imm	65
+        imm
+          labeluse	str_3
   codeline
     instruction
       lli
         register	r2
-        imm	0
+        imm	10
   codeline
     instruction
       lli
         register	r3
-        imm	0
+        imm	10
   codeline
     instruction
       callpseudo
         imm
-          labeluse	draw_char_to_display
+          labeluse	draw_string_to_display
   codeline
     instruction
       pop
@@ -3188,134 +5361,27 @@ program
     instruction
       lli
         register	r1
-        imm	66
+        imm	20
   codeline
     instruction
       lli
         register	r2
-        imm	8
-  codeline
-    instruction
-      lli
-        register	r3
-        imm	0
-  codeline
-    instruction
-      callpseudo
-        imm
-          labeluse	draw_char_to_display
-  codeline
-    instruction
-      pop
-        register	r1
-  codeline
-    instruction
-      push
-        register	r1
-  codeline
-    instruction
-      lli
-        register	r1
-        imm	67
-  codeline
-    instruction
-      lli
-        register	r2
-        imm	16
-  codeline
-    instruction
-      lli
-        register	r3
-        imm	0
-  codeline
-    instruction
-      callpseudo
-        imm
-          labeluse	draw_char_to_display
-  codeline
-    instruction
-      pop
-        register	r1
-  codeline
-    instruction
-      push
-        register	r1
-  codeline
-    instruction
-      lli
-        register	r1
-        imm	48
-  codeline
-    instruction
-      lli
-        register	r2
-        imm	0
-  codeline
-    instruction
-      lli
-        register	r3
-        imm	8
-  codeline
-    instruction
-      callpseudo
-        imm
-          labeluse	draw_char_to_display
-  codeline
-    instruction
-      pop
-        register	r1
-  codeline
-    instruction
-      push
-        register	r1
-  codeline
-    instruction
-      lli
-        register	r1
-        imm	49
-  codeline
-    instruction
-      lli
-        register	r2
-        imm	8
-  codeline
-    instruction
-      lli
-        register	r3
-        imm	8
-  codeline
-    instruction
-      callpseudo
-        imm
-          labeluse	draw_char_to_display
-  codeline
-    instruction
-      pop
-        register	r1
-  codeline
-    instruction
-      push
-        register	r1
-  codeline
-    instruction
-      lli
-        register	r1
         imm	50
   codeline
     instruction
       lli
-        register	r2
-        imm	16
+        register	r3
+        imm	30
   codeline
     instruction
       lli
-        register	r3
-        imm	8
+        register	r4
+        imm	60
   codeline
     instruction
       callpseudo
         imm
-          labeluse	draw_char_to_display
+          labeluse	draw_line
   codeline
     instruction
       pop
@@ -3328,78 +5394,27 @@ program
     instruction
       lli
         register	r1
-        imm	88
+        imm	100
   codeline
     instruction
       lli
         register	r2
-        imm	0
+        imm	100
   codeline
     instruction
       lli
         register	r3
-        imm	16
+        imm	150
+  codeline
+    instruction
+      lli
+        register	r4
+        imm	100
   codeline
     instruction
       callpseudo
         imm
-          labeluse	draw_char_to_display
-  codeline
-    instruction
-      pop
-        register	r1
-  codeline
-    instruction
-      push
-        register	r1
-  codeline
-    instruction
-      lli
-        register	r1
-        imm	89
-  codeline
-    instruction
-      lli
-        register	r2
-        imm	8
-  codeline
-    instruction
-      lli
-        register	r3
-        imm	16
-  codeline
-    instruction
-      callpseudo
-        imm
-          labeluse	draw_char_to_display
-  codeline
-    instruction
-      pop
-        register	r1
-  codeline
-    instruction
-      push
-        register	r1
-  codeline
-    instruction
-      lli
-        register	r1
-        imm	90
-  codeline
-    instruction
-      lli
-        register	r2
-        imm	16
-  codeline
-    instruction
-      lli
-        register	r3
-        imm	16
-  codeline
-    instruction
-      callpseudo
-        imm
-          labeluse	draw_char_to_display
+          labeluse	draw_rectangle
   codeline
     instruction
       pop
@@ -3688,51 +5703,11 @@ program
   codeline
     directiveuse
       data
-        imm	0x18001800
+        imm	0x00180018
   codeline
     directiveuse
       data
-        imm	0x36360000
-  codeline
-    directiveuse
-      data
-        imm	0x00000000
-  codeline
-    directiveuse
-      data
-        imm	0x36367F36
-  codeline
-    directiveuse
-      data
-        imm	0x7F363600
-  codeline
-    directiveuse
-      data
-        imm	0x0C3E031E
-  codeline
-    directiveuse
-      data
-        imm	0x301F0C00
-  codeline
-    directiveuse
-      data
-        imm	0x00633318
-  codeline
-    directiveuse
-      data
-        imm	0x0C666300
-  codeline
-    directiveuse
-      data
-        imm	0x1C361C6E
-  codeline
-    directiveuse
-      data
-        imm	0x3B336E00
-  codeline
-    directiveuse
-      data
-        imm	0x06060300
+        imm	0x00003636
   codeline
     directiveuse
       data
@@ -3740,35 +5715,39 @@ program
   codeline
     directiveuse
       data
-        imm	0x180C0606
+        imm	0x367F3636
   codeline
     directiveuse
       data
-        imm	0x060C1800
+        imm	0x0036367F
   codeline
     directiveuse
       data
-        imm	0x060C1818
+        imm	0x1E033E0C
   codeline
     directiveuse
       data
-        imm	0x180C0600
+        imm	0x000C1F30
   codeline
     directiveuse
       data
-        imm	0x00663CFF
+        imm	0x18336300
   codeline
     directiveuse
       data
-        imm	0x3C660000
+        imm	0x0063660C
   codeline
     directiveuse
       data
-        imm	0x000C0C3F
+        imm	0x6E1C361C
   codeline
     directiveuse
       data
-        imm	0x0C0C0000
+        imm	0x006E333B
+  codeline
+    directiveuse
+      data
+        imm	0x00030606
   codeline
     directiveuse
       data
@@ -3776,11 +5755,47 @@ program
   codeline
     directiveuse
       data
-        imm	0x000C0C06
+        imm	0x06060C18
   codeline
     directiveuse
       data
-        imm	0x0000003F
+        imm	0x00180C06
+  codeline
+    directiveuse
+      data
+        imm	0x18180C06
+  codeline
+    directiveuse
+      data
+        imm	0x00060C18
+  codeline
+    directiveuse
+      data
+        imm	0xFF3C6600
+  codeline
+    directiveuse
+      data
+        imm	0x0000663C
+  codeline
+    directiveuse
+      data
+        imm	0x3F0C0C00
+  codeline
+    directiveuse
+      data
+        imm	0x00000C0C
+  codeline
+    directiveuse
+      data
+        imm	0x00000000
+  codeline
+    directiveuse
+      data
+        imm	0x060C0C00
+  codeline
+    directiveuse
+      data
+        imm	0x3F000000
   codeline
     directiveuse
       data
@@ -3796,75 +5811,75 @@ program
   codeline
     directiveuse
       data
-        imm	0x6030180C
+        imm	0x0C183060
   codeline
     directiveuse
       data
-        imm	0x06030100
+        imm	0x00010306
   codeline
     directiveuse
       data
-        imm	0x3E63737B
+        imm	0x7B73633E
   codeline
     directiveuse
       data
-        imm	0x6F673E00
+        imm	0x003E676F
   codeline
     directiveuse
       data
-        imm	0x0C0E0C0C
+        imm	0x0C0C0E0C
   codeline
     directiveuse
       data
-        imm	0x0C0C3F00
+        imm	0x003F0C0C
   codeline
     directiveuse
       data
-        imm	0x1E33301C
+        imm	0x1C30331E
   codeline
     directiveuse
       data
-        imm	0x06333F00
+        imm	0x003F3306
   codeline
     directiveuse
       data
-        imm	0x1E33301C
+        imm	0x1C30331E
   codeline
     directiveuse
       data
-        imm	0x30331E00
+        imm	0x001E3330
   codeline
     directiveuse
       data
-        imm	0x383C3633
+        imm	0x33363C38
   codeline
     directiveuse
       data
-        imm	0x7F307800
+        imm	0x0078307F
   codeline
     directiveuse
       data
-        imm	0x3F031F30
+        imm	0x301F033F
   codeline
     directiveuse
       data
-        imm	0x30331E00
+        imm	0x001E3330
   codeline
     directiveuse
       data
-        imm	0x1C06031F
+        imm	0x1F03061C
   codeline
     directiveuse
       data
-        imm	0x33331E00
+        imm	0x001E3333
   codeline
     directiveuse
       data
-        imm	0x3F333018
+        imm	0x1830333F
   codeline
     directiveuse
       data
-        imm	0x0C0C0C00
+        imm	0x000C0C0C
   codeline
     directiveuse
       data
@@ -3872,19 +5887,15 @@ program
   codeline
     directiveuse
       data
-        imm	0x33331E00
+        imm	0x001E3333
   codeline
     directiveuse
       data
-        imm	0x1E33333E
+        imm	0x3E33331E
   codeline
     directiveuse
       data
-        imm	0x30180E00
-  codeline
-    directiveuse
-      data
-        imm	0x000C0C00
+        imm	0x000E1830
   codeline
     directiveuse
       data
@@ -3896,263 +5907,11 @@ program
   codeline
     directiveuse
       data
-        imm	0x000C0C06
+        imm	0x000C0C00
   codeline
     directiveuse
       data
-        imm	0x180C0603
-  codeline
-    directiveuse
-      data
-        imm	0x060C1800
-  codeline
-    directiveuse
-      data
-        imm	0x00003F00
-  codeline
-    directiveuse
-      data
-        imm	0x003F0000
-  codeline
-    directiveuse
-      data
-        imm	0x060C1830
-  codeline
-    directiveuse
-      data
-        imm	0x180C0600
-  codeline
-    directiveuse
-      data
-        imm	0x1E333018
-  codeline
-    directiveuse
-      data
-        imm	0x0C000C00
-  codeline
-    directiveuse
-      data
-        imm	0x3E637B7B
-  codeline
-    directiveuse
-      data
-        imm	0x7B031E00
-  codeline
-    directiveuse
-      data
-        imm	0x0C1E3333
-  codeline
-    directiveuse
-      data
-        imm	0x3F333300
-  codeline
-    directiveuse
-      data
-        imm	0x3F66663E
-  codeline
-    directiveuse
-      data
-        imm	0x66663F00
-  codeline
-    directiveuse
-      data
-        imm	0x3C660303
-  codeline
-    directiveuse
-      data
-        imm	0x03663C00
-  codeline
-    directiveuse
-      data
-        imm	0x1F366666
-  codeline
-    directiveuse
-      data
-        imm	0x66361F00
-  codeline
-    directiveuse
-      data
-        imm	0x7F46161E
-  codeline
-    directiveuse
-      data
-        imm	0x16467F00
-  codeline
-    directiveuse
-      data
-        imm	0x7F46161E
-  codeline
-    directiveuse
-      data
-        imm	0x16060F00
-  codeline
-    directiveuse
-      data
-        imm	0x3C660303
-  codeline
-    directiveuse
-      data
-        imm	0x73667C00
-  codeline
-    directiveuse
-      data
-        imm	0x3333333F
-  codeline
-    directiveuse
-      data
-        imm	0x33333300
-  codeline
-    directiveuse
-      data
-        imm	0x1E0C0C0C
-  codeline
-    directiveuse
-      data
-        imm	0x0C0C1E00
-  codeline
-    directiveuse
-      data
-        imm	0x78303030
-  codeline
-    directiveuse
-      data
-        imm	0x33331E00
-  codeline
-    directiveuse
-      data
-        imm	0x6766361E
-  codeline
-    directiveuse
-      data
-        imm	0x36666700
-  codeline
-    directiveuse
-      data
-        imm	0x0F060606
-  codeline
-    directiveuse
-      data
-        imm	0x46667F00
-  codeline
-    directiveuse
-      data
-        imm	0x63777F7F
-  codeline
-    directiveuse
-      data
-        imm	0x6B636300
-  codeline
-    directiveuse
-      data
-        imm	0x63676F7B
-  codeline
-    directiveuse
-      data
-        imm	0x73636300
-  codeline
-    directiveuse
-      data
-        imm	0x1C366363
-  codeline
-    directiveuse
-      data
-        imm	0x63361C00
-  codeline
-    directiveuse
-      data
-        imm	0x3F66663E
-  codeline
-    directiveuse
-      data
-        imm	0x06060F00
-  codeline
-    directiveuse
-      data
-        imm	0x1E333333
-  codeline
-    directiveuse
-      data
-        imm	0x3B1E3800
-  codeline
-    directiveuse
-      data
-        imm	0x3F66663E
-  codeline
-    directiveuse
-      data
-        imm	0x36666700
-  codeline
-    directiveuse
-      data
-        imm	0x1E33070E
-  codeline
-    directiveuse
-      data
-        imm	0x38331E00
-  codeline
-    directiveuse
-      data
-        imm	0x3F2D0C0C
-  codeline
-    directiveuse
-      data
-        imm	0x0C0C1E00
-  codeline
-    directiveuse
-      data
-        imm	0x33333333
-  codeline
-    directiveuse
-      data
-        imm	0x33333F00
-  codeline
-    directiveuse
-      data
-        imm	0x33333333
-  codeline
-    directiveuse
-      data
-        imm	0x331E0C00
-  codeline
-    directiveuse
-      data
-        imm	0x6363636B
-  codeline
-    directiveuse
-      data
-        imm	0x7F776300
-  codeline
-    directiveuse
-      data
-        imm	0x6363361C
-  codeline
-    directiveuse
-      data
-        imm	0x1C366300
-  codeline
-    directiveuse
-      data
-        imm	0x3333331E
-  codeline
-    directiveuse
-      data
-        imm	0x0C0C1E00
-  codeline
-    directiveuse
-      data
-        imm	0x7F633118
-  codeline
-    directiveuse
-      data
-        imm	0x4C667F00
-  codeline
-    directiveuse
-      data
-        imm	0x1E060606
-  codeline
-    directiveuse
-      data
-        imm	0x06061E00
+        imm	0x060C0C00
   codeline
     directiveuse
       data
@@ -4160,19 +5919,275 @@ program
   codeline
     directiveuse
       data
-        imm	0x30604000
+        imm	0x00180C06
   codeline
     directiveuse
       data
-        imm	0x1E181818
+        imm	0x003F0000
   codeline
     directiveuse
       data
-        imm	0x18181E00
+        imm	0x00003F00
   codeline
     directiveuse
       data
-        imm	0x081C3663
+        imm	0x30180C06
+  codeline
+    directiveuse
+      data
+        imm	0x00060C18
+  codeline
+    directiveuse
+      data
+        imm	0x1830331E
+  codeline
+    directiveuse
+      data
+        imm	0x000C000C
+  codeline
+    directiveuse
+      data
+        imm	0x7B7B633E
+  codeline
+    directiveuse
+      data
+        imm	0x001E037B
+  codeline
+    directiveuse
+      data
+        imm	0x33331E0C
+  codeline
+    directiveuse
+      data
+        imm	0x0033333F
+  codeline
+    directiveuse
+      data
+        imm	0x3E66663F
+  codeline
+    directiveuse
+      data
+        imm	0x003F6666
+  codeline
+    directiveuse
+      data
+        imm	0x0303663C
+  codeline
+    directiveuse
+      data
+        imm	0x003C6603
+  codeline
+    directiveuse
+      data
+        imm	0x6666361F
+  codeline
+    directiveuse
+      data
+        imm	0x001F3666
+  codeline
+    directiveuse
+      data
+        imm	0x1E16467F
+  codeline
+    directiveuse
+      data
+        imm	0x007F4616
+  codeline
+    directiveuse
+      data
+        imm	0x1E16467F
+  codeline
+    directiveuse
+      data
+        imm	0x000F0616
+  codeline
+    directiveuse
+      data
+        imm	0x0303663C
+  codeline
+    directiveuse
+      data
+        imm	0x007C6673
+  codeline
+    directiveuse
+      data
+        imm	0x3F333333
+  codeline
+    directiveuse
+      data
+        imm	0x00333333
+  codeline
+    directiveuse
+      data
+        imm	0x0C0C0C1E
+  codeline
+    directiveuse
+      data
+        imm	0x001E0C0C
+  codeline
+    directiveuse
+      data
+        imm	0x30303078
+  codeline
+    directiveuse
+      data
+        imm	0x001E3333
+  codeline
+    directiveuse
+      data
+        imm	0x1E366667
+  codeline
+    directiveuse
+      data
+        imm	0x00676636
+  codeline
+    directiveuse
+      data
+        imm	0x0606060F
+  codeline
+    directiveuse
+      data
+        imm	0x007F6646
+  codeline
+    directiveuse
+      data
+        imm	0x7F7F7763
+  codeline
+    directiveuse
+      data
+        imm	0x0063636B
+  codeline
+    directiveuse
+      data
+        imm	0x7B6F6763
+  codeline
+    directiveuse
+      data
+        imm	0x00636373
+  codeline
+    directiveuse
+      data
+        imm	0x6363361C
+  codeline
+    directiveuse
+      data
+        imm	0x001C3663
+  codeline
+    directiveuse
+      data
+        imm	0x3E66663F
+  codeline
+    directiveuse
+      data
+        imm	0x000F0606
+  codeline
+    directiveuse
+      data
+        imm	0x3333331E
+  codeline
+    directiveuse
+      data
+        imm	0x00381E3B
+  codeline
+    directiveuse
+      data
+        imm	0x3E66663F
+  codeline
+    directiveuse
+      data
+        imm	0x00676636
+  codeline
+    directiveuse
+      data
+        imm	0x0E07331E
+  codeline
+    directiveuse
+      data
+        imm	0x001E3338
+  codeline
+    directiveuse
+      data
+        imm	0x0C0C2D3F
+  codeline
+    directiveuse
+      data
+        imm	0x001E0C0C
+  codeline
+    directiveuse
+      data
+        imm	0x33333333
+  codeline
+    directiveuse
+      data
+        imm	0x003F3333
+  codeline
+    directiveuse
+      data
+        imm	0x33333333
+  codeline
+    directiveuse
+      data
+        imm	0x000C1E33
+  codeline
+    directiveuse
+      data
+        imm	0x6B636363
+  codeline
+    directiveuse
+      data
+        imm	0x0063777F
+  codeline
+    directiveuse
+      data
+        imm	0x1C366363
+  codeline
+    directiveuse
+      data
+        imm	0x0063361C
+  codeline
+    directiveuse
+      data
+        imm	0x1E333333
+  codeline
+    directiveuse
+      data
+        imm	0x001E0C0C
+  codeline
+    directiveuse
+      data
+        imm	0x1831637F
+  codeline
+    directiveuse
+      data
+        imm	0x007F664C
+  codeline
+    directiveuse
+      data
+        imm	0x0606061E
+  codeline
+    directiveuse
+      data
+        imm	0x001E0606
+  codeline
+    directiveuse
+      data
+        imm	0x180C0603
+  codeline
+    directiveuse
+      data
+        imm	0x00406030
+  codeline
+    directiveuse
+      data
+        imm	0x1818181E
+  codeline
+    directiveuse
+      data
+        imm	0x001E1818
+  codeline
+    directiveuse
+      data
+        imm	0x63361C08
   codeline
     directiveuse
       data
@@ -4184,11 +6199,11 @@ program
   codeline
     directiveuse
       data
-        imm	0x000000FF
+        imm	0xFF000000
   codeline
     directiveuse
       data
-        imm	0x0C0C1800
+        imm	0x00180C0C
   codeline
     directiveuse
       data
@@ -4196,227 +6211,211 @@ program
   codeline
     directiveuse
       data
-        imm	0x00001E30
+        imm	0x301E0000
   codeline
     directiveuse
       data
-        imm	0x3E336E00
+        imm	0x006E333E
   codeline
     directiveuse
       data
-        imm	0x0706063E
+        imm	0x3E060607
   codeline
     directiveuse
       data
-        imm	0x66663B00
+        imm	0x003B6666
   codeline
     directiveuse
       data
-        imm	0x00001E33
+        imm	0x331E0000
   codeline
     directiveuse
       data
-        imm	0x03331E00
+        imm	0x001E3303
   codeline
     directiveuse
       data
-        imm	0x3830303E
+        imm	0x3E303038
   codeline
     directiveuse
       data
-        imm	0x33336E00
+        imm	0x006E3333
   codeline
     directiveuse
       data
-        imm	0x00001E33
+        imm	0x331E0000
   codeline
     directiveuse
       data
-        imm	0x3F031E00
+        imm	0x001E033F
   codeline
     directiveuse
       data
-        imm	0x1C36060F
+        imm	0x0F06361C
   codeline
     directiveuse
       data
-        imm	0x06060F00
+        imm	0x000F0606
   codeline
     directiveuse
       data
-        imm	0x00006E33
+        imm	0x336E0000
   codeline
     directiveuse
       data
-        imm	0x333E301F
+        imm	0x1F303E33
   codeline
     directiveuse
       data
-        imm	0x0706366E
+        imm	0x6E360607
   codeline
     directiveuse
       data
-        imm	0x66666700
+        imm	0x00676666
   codeline
     directiveuse
       data
-        imm	0x0C000E0C
+        imm	0x0C0E000C
   codeline
     directiveuse
       data
-        imm	0x0C0C1E00
+        imm	0x001E0C0C
   codeline
     directiveuse
       data
-        imm	0x30003030
+        imm	0x30300030
   codeline
     directiveuse
       data
-        imm	0x3033331E
+        imm	0x1E333330
   codeline
     directiveuse
       data
-        imm	0x07066636
+        imm	0x36660607
   codeline
     directiveuse
       data
-        imm	0x1E366700
+        imm	0x0067361E
   codeline
     directiveuse
       data
-        imm	0x0E0C0C0C
+        imm	0x0C0C0C0E
   codeline
     directiveuse
       data
-        imm	0x0C0C1E00
+        imm	0x001E0C0C
   codeline
     directiveuse
       data
-        imm	0x0000337F
+        imm	0x7F330000
   codeline
     directiveuse
       data
-        imm	0x7F6B6300
+        imm	0x00636B7F
   codeline
     directiveuse
       data
-        imm	0x00001F33
+        imm	0x331F0000
   codeline
     directiveuse
       data
-        imm	0x33333300
+        imm	0x00333333
   codeline
     directiveuse
       data
-        imm	0x00001E33
+        imm	0x331E0000
   codeline
     directiveuse
       data
-        imm	0x33331E00
+        imm	0x001E3333
   codeline
     directiveuse
       data
-        imm	0x00003B66
+        imm	0x663B0000
   codeline
     directiveuse
       data
-        imm	0x663E060F
+        imm	0x0F063E66
   codeline
     directiveuse
       data
-        imm	0x00006E33
+        imm	0x336E0000
   codeline
     directiveuse
       data
-        imm	0x333E3078
+        imm	0x78303E33
   codeline
     directiveuse
       data
-        imm	0x00003B6E
+        imm	0x6E3B0000
   codeline
     directiveuse
       data
-        imm	0x66060F00
+        imm	0x000F0666
   codeline
     directiveuse
       data
-        imm	0x00003E03
+        imm	0x033E0000
   codeline
     directiveuse
       data
-        imm	0x1E301F00
+        imm	0x001F301E
   codeline
     directiveuse
       data
-        imm	0x080C3E0C
+        imm	0x0C3E0C08
   codeline
     directiveuse
       data
-        imm	0x0C2C1800
+        imm	0x00182C0C
   codeline
     directiveuse
       data
-        imm	0x00003333
+        imm	0x33330000
   codeline
     directiveuse
       data
-        imm	0x33336E00
+        imm	0x006E3333
   codeline
     directiveuse
       data
-        imm	0x00003333
+        imm	0x33330000
   codeline
     directiveuse
       data
-        imm	0x331E0C00
+        imm	0x000C1E33
   codeline
     directiveuse
       data
-        imm	0x0000636B
+        imm	0x6B630000
   codeline
     directiveuse
       data
-        imm	0x7F7F3600
+        imm	0x00367F7F
   codeline
     directiveuse
       data
-        imm	0x00006336
+        imm	0x36630000
   codeline
     directiveuse
       data
-        imm	0x1C366300
+        imm	0x0063361C
   codeline
     directiveuse
       data
-        imm	0x00003333
+        imm	0x33330000
   codeline
     directiveuse
       data
-        imm	0x333E301F
+        imm	0x1F303E33
   codeline
     directiveuse
       data
-        imm	0x00003F19
+        imm	0x193F0000
   codeline
     directiveuse
       data
-        imm	0x0C263F00
-  codeline
-    directiveuse
-      data
-        imm	0x380C0C07
-  codeline
-    directiveuse
-      data
-        imm	0x0C0C3800
-  codeline
-    directiveuse
-      data
-        imm	0x18181800
-  codeline
-    directiveuse
-      data
-        imm	0x18181800
+        imm	0x003F260C
   codeline
     directiveuse
       data
@@ -4424,11 +6423,27 @@ program
   codeline
     directiveuse
       data
-        imm	0x0C0C0700
+        imm	0x00380C0C
   codeline
     directiveuse
       data
-        imm	0x6E3B0000
+        imm	0x00181818
+  codeline
+    directiveuse
+      data
+        imm	0x00181818
+  codeline
+    directiveuse
+      data
+        imm	0x380C0C07
+  codeline
+    directiveuse
+      data
+        imm	0x00070C0C
+  codeline
+    directiveuse
+      data
+        imm	0x00003B6E
   codeline
     directiveuse
       data
@@ -4457,19 +6472,24 @@ program
     directiveuse
       strv	"The area of the size is: \n"
   codeline
+    label	str_3:
+  codeline
+    directiveuse
+      strv	"Hello, RospOS!"
+  codeline
     label	buffer_buf3:
   codeline
     directiveuse
       space
         imm	12
   codeline
-    label	p1_struct70:
+    label	p1_struct134:
   codeline
     directiveuse
       space
         imm	8
   codeline
-    label	s_struct71:
+    label	s_struct135:
   codeline
     directiveuse
       space

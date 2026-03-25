@@ -614,10 +614,7 @@ translation_unit
                         shift
                           glyph_row
                           rshift
-                          additive
-                            7
-                            minus
-                            col
+                          col
                         1
                 if_stmt
                   bit
@@ -728,6 +725,583 @@ translation_unit
                   x
                   plus
                   8
+  external_decl
+    function_def
+      type_specifier
+        void
+      declarator	draw_horizontal_line
+      param_list
+        param
+          type_specifier
+            int
+          declarator	x
+        param
+          type_specifier
+            int
+          declarator	y
+        param
+          type_specifier
+            int
+          declarator	length
+      compound_stmt
+        declaration
+          type_specifier
+            int
+          init_declarator_list
+            init_declarator
+              declarator	i
+              0
+        while_stmt
+          relational
+            i
+            lt
+            length
+          compound_stmt
+            declaration
+              type_specifier
+                int
+              init_declarator_list
+                init_declarator
+                  declarator	px
+                  additive
+                    x
+                    plus
+                    i
+            declaration
+              type_specifier
+                int
+              init_declarator_list
+                init_declarator
+                  declarator	py
+                  y
+            declaration
+              type_specifier
+                int
+              init_declarator_list
+                init_declarator
+                  declarator	index
+                  additive
+                    multiplicative
+                      py
+                      mult
+                      256
+                    plus
+                    px
+            expr_stmt
+              postfix
+                __sb
+                call_suffix
+                  arg_list
+                    additive
+                      0x20000000
+                      plus
+                      index
+                    0x3F
+            expr_stmt
+              assignment
+                i
+                additive
+                  i
+                  plus
+                  1
+  external_decl
+    function_def
+      type_specifier
+        void
+      declarator	draw_vertical_line
+      param_list
+        param
+          type_specifier
+            int
+          declarator	x
+        param
+          type_specifier
+            int
+          declarator	y
+        param
+          type_specifier
+            int
+          declarator	length
+      compound_stmt
+        declaration
+          type_specifier
+            int
+          init_declarator_list
+            init_declarator
+              declarator	i
+              0
+        while_stmt
+          relational
+            i
+            lt
+            length
+          compound_stmt
+            declaration
+              type_specifier
+                int
+              init_declarator_list
+                init_declarator
+                  declarator	px
+                  x
+            declaration
+              type_specifier
+                int
+              init_declarator_list
+                init_declarator
+                  declarator	py
+                  additive
+                    y
+                    plus
+                    i
+            declaration
+              type_specifier
+                int
+              init_declarator_list
+                init_declarator
+                  declarator	index
+                  additive
+                    multiplicative
+                      py
+                      mult
+                      256
+                    plus
+                    px
+            expr_stmt
+              postfix
+                __sb
+                call_suffix
+                  arg_list
+                    additive
+                      0x20000000
+                      plus
+                      index
+                    0x3F
+            expr_stmt
+              assignment
+                i
+                additive
+                  i
+                  plus
+                  1
+  external_decl
+    function_def
+      type_specifier
+        void
+      declarator	draw_line
+      param_list
+        param
+          type_specifier
+            int
+          declarator	x1
+        param
+          type_specifier
+            int
+          declarator	y1
+        param
+          type_specifier
+            int
+          declarator	x2
+        param
+          type_specifier
+            int
+          declarator	y2
+      compound_stmt
+        if_stmt
+          equality
+            x1
+            eq
+            x2
+          compound_stmt
+            declaration
+              type_specifier
+                int
+              init_declarator_list
+                init_declarator
+                  declarator	start_y
+                  y1
+            declaration
+              type_specifier
+                int
+              init_declarator_list
+                init_declarator
+                  declarator	length
+                  0
+            if_stmt
+              relational
+                y1
+                lt
+                y2
+              compound_stmt
+                expr_stmt
+                  assignment
+                    start_y
+                    y1
+                expr_stmt
+                  assignment
+                    length
+                    additive
+                      y2
+                      minus
+                      y1
+                      plus
+                      1
+              compound_stmt
+                expr_stmt
+                  assignment
+                    start_y
+                    y2
+                expr_stmt
+                  assignment
+                    length
+                    additive
+                      y1
+                      minus
+                      y2
+                      plus
+                      1
+            expr_stmt
+              postfix
+                draw_vertical_line
+                call_suffix
+                  arg_list
+                    x1
+                    start_y
+                    length
+            declaration
+              type_specifier	return
+        if_stmt
+          equality
+            y1
+            eq
+            y2
+          compound_stmt
+            declaration
+              type_specifier
+                int
+              init_declarator_list
+                init_declarator
+                  declarator	start_x
+                  x1
+            declaration
+              type_specifier
+                int
+              init_declarator_list
+                init_declarator
+                  declarator	length
+                  0
+            if_stmt
+              relational
+                x1
+                lt
+                x2
+              compound_stmt
+                expr_stmt
+                  assignment
+                    start_x
+                    x1
+                expr_stmt
+                  assignment
+                    length
+                    additive
+                      x2
+                      minus
+                      x1
+                      plus
+                      1
+              compound_stmt
+                expr_stmt
+                  assignment
+                    start_x
+                    x2
+                expr_stmt
+                  assignment
+                    length
+                    additive
+                      x1
+                      minus
+                      x2
+                      plus
+                      1
+            expr_stmt
+              postfix
+                draw_horizontal_line
+                call_suffix
+                  arg_list
+                    start_x
+                    y1
+                    length
+            declaration
+              type_specifier	return
+        declaration
+          type_specifier
+            int
+          init_declarator_list
+            init_declarator
+              declarator	dx
+              additive
+                x2
+                minus
+                x1
+        declaration
+          type_specifier
+            int
+          init_declarator_list
+            init_declarator
+              declarator	dy
+              additive
+                y2
+                minus
+                y1
+        declaration
+          type_specifier
+            int
+          init_declarator_list
+            init_declarator
+              declarator	sx
+              unary
+                uminus
+                1
+        declaration
+          type_specifier
+            int
+          init_declarator_list
+            init_declarator
+              declarator	sy
+              unary
+                uminus
+                1
+        if_stmt
+          relational
+            dx
+            gt
+            0
+          expr_stmt
+            assignment
+              sx
+              1
+        if_stmt
+          relational
+            dy
+            gt
+            0
+          expr_stmt
+            assignment
+              sy
+              1
+        if_stmt
+          relational
+            dx
+            lt
+            0
+          expr_stmt
+            assignment
+              dx
+              unary
+                uminus
+                dx
+        if_stmt
+          relational
+            dy
+            lt
+            0
+          expr_stmt
+            assignment
+              dy
+              unary
+                uminus
+                dy
+        declaration
+          type_specifier
+            int
+          init_declarator_list
+            init_declarator
+              declarator	err
+              0
+        if_stmt
+          relational
+            dx
+            gt
+            dy
+          expr_stmt
+            assignment
+              err
+              multiplicative
+                dx
+                div
+                2
+          expr_stmt
+            assignment
+              err
+              multiplicative
+                unary
+                  uminus
+                  dy
+                div
+                2
+        declaration
+          type_specifier
+            int
+          init_declarator_list
+            init_declarator
+              declarator	exit
+              0
+        while_stmt
+          equality
+            exit
+            eq
+            0
+          compound_stmt
+            declaration
+              type_specifier
+                int
+              init_declarator_list
+                init_declarator
+                  declarator	index
+                  additive
+                    multiplicative
+                      y1
+                      mult
+                      256
+                    plus
+                    x1
+            expr_stmt
+              postfix
+                __sb
+                call_suffix
+                  arg_list
+                    additive
+                      0x20000000
+                      plus
+                      index
+                    0x3F
+            if_stmt
+              logic_and
+                equality
+                  x1
+                  eq
+                  x2
+                equality
+                  y1
+                  eq
+                  y2
+              expr_stmt
+                assignment
+                  exit
+                  1
+            declaration
+              type_specifier
+                int
+              init_declarator_list
+                init_declarator
+                  declarator	err2
+                  err
+            if_stmt
+              relational
+                err2
+                gt
+                unary
+                  uminus
+                  dx
+              compound_stmt
+                expr_stmt
+                  assignment
+                    err
+                    additive
+                      err
+                      minus
+                      dy
+                expr_stmt
+                  assignment
+                    x1
+                    additive
+                      x1
+                      plus
+                      sx
+            if_stmt
+              relational
+                err2
+                lt
+                dy
+              compound_stmt
+                expr_stmt
+                  assignment
+                    err
+                    additive
+                      err
+                      plus
+                      dx
+                expr_stmt
+                  assignment
+                    y1
+                    additive
+                      y1
+                      plus
+                      sy
+  external_decl
+    function_def
+      type_specifier
+        void
+      declarator	draw_rectangle
+      param_list
+        param
+          type_specifier
+            int
+          declarator	x
+        param
+          type_specifier
+            int
+          declarator	y
+        param
+          type_specifier
+            int
+          declarator	width
+        param
+          type_specifier
+            int
+          declarator	height
+      compound_stmt
+        expr_stmt
+          postfix
+            draw_horizontal_line
+            call_suffix
+              arg_list
+                x
+                y
+                width
+        expr_stmt
+          postfix
+            draw_horizontal_line
+            call_suffix
+              arg_list
+                x
+                additive
+                  y
+                  plus
+                  height
+                  minus
+                  1
+                width
+        expr_stmt
+          postfix
+            draw_vertical_line
+            call_suffix
+              arg_list
+                x
+                y
+                height
+        expr_stmt
+          postfix
+            draw_vertical_line
+            call_suffix
+              arg_list
+                additive
+                  x
+                  plus
+                  width
+                  minus
+                  1
+                y
+                height
   external_decl
     function_def
       type_specifier
@@ -1013,73 +1587,27 @@ translation_unit
       compound_stmt
         expr_stmt
           postfix
-            draw_char_to_display
+            draw_string_to_display
             call_suffix
               arg_list
-                "A"
-                0
-                0
+                "Hello, RospOS!"
+                10
+                10
         expr_stmt
           postfix
-            draw_char_to_display
+            draw_line
             call_suffix
               arg_list
-                "B"
-                8
-                0
+                20
+                50
+                30
+                60
         expr_stmt
           postfix
-            draw_char_to_display
+            draw_rectangle
             call_suffix
               arg_list
-                "C"
-                16
-                0
-        expr_stmt
-          postfix
-            draw_char_to_display
-            call_suffix
-              arg_list
-                "0"
-                0
-                8
-        expr_stmt
-          postfix
-            draw_char_to_display
-            call_suffix
-              arg_list
-                "1"
-                8
-                8
-        expr_stmt
-          postfix
-            draw_char_to_display
-            call_suffix
-              arg_list
-                "2"
-                16
-                8
-        expr_stmt
-          postfix
-            draw_char_to_display
-            call_suffix
-              arg_list
-                "X"
-                0
-                16
-        expr_stmt
-          postfix
-            draw_char_to_display
-            call_suffix
-              arg_list
-                "Y"
-                8
-                16
-        expr_stmt
-          postfix
-            draw_char_to_display
-            call_suffix
-              arg_list
-                "Z"
-                16
-                16
+                100
+                100
+                150
+                100

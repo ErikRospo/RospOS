@@ -68,3 +68,117 @@ void draw_string_to_display(char *str, int x, int y)
         x = x + 8;
     }
 }
+
+void draw_horizontal_line(int x, int y, int length)
+{
+    int i = 0;
+    while (i < length)
+    {
+        int px = x + i;
+        int py = y;
+        int index = (py * 256) + px;
+        __sb(0x20000000 + index, 0x3F);
+        i = i + 1;
+    }
+}
+void draw_vertical_line(int x, int y, int length)
+{
+    int i = 0;
+    while (i < length)
+    {
+        int px = x;
+        int py = y + i;
+        int index = (py * 256) + px;
+        __sb(0x20000000 + index, 0x3F);
+        i = i + 1;
+    }
+}
+void draw_line(int x1, int y1, int x2, int y2)
+{
+    if (x1 == x2)
+    {
+        int start_y = y1;
+        int length = 0;
+        if (y1 < y2)
+        {
+            start_y = y1;
+            length = y2 - y1 + 1;
+        }
+        else
+        {
+            start_y = y2;
+            length = y1 - y2 + 1;
+        }
+        draw_vertical_line(x1, start_y, length);
+        return;
+    }
+
+    if (y1 == y2)
+    {
+        int start_x = x1;
+        int length = 0;
+        if (x1 < x2)
+        {
+            start_x = x1;
+            length = x2 - x1 + 1;
+        }
+        else
+        {
+            start_x = x2;
+            length = x1 - x2 + 1;
+        }
+        draw_horizontal_line(start_x, y1, length);
+        return;
+    }
+
+    // Bresenham's line algorithm
+    int dx = x2 - x1;
+    int dy = y2 - y1;
+    int sx = -1;
+    int sy = -1;
+
+    if (dx > 0)
+        sx = 1;
+    if (dy > 0)
+        sy = 1;
+
+    if (dx < 0)
+        dx = -dx;
+    if (dy < 0)
+        dy = -dy;
+
+    int err = 0;
+    if (dx > dy)
+        err = dx / 2;
+    else
+        err = -dy / 2;
+    int exit=0;
+    while (exit==0)
+    {
+        int index = (y1 * 256) + x1;
+        __sb(0x20000000 + index, 0x3F); // Set pixel
+
+        if (x1 == x2 && y1 == y2)
+            exit=1;
+
+        int err2 = err;
+        if (err2 > -dx)
+        {
+            err -= dy;
+            x1 += sx;
+        }
+        if (err2 < dy)
+        {
+            err += dx;
+            y1 += sy;
+        }
+    }
+}
+
+void draw_rectangle(int x, int y, int width, int height)
+{
+    draw_horizontal_line(x, y, width);
+    draw_horizontal_line(x, y + height - 1, width);
+    draw_vertical_line(x, y, height);
+    draw_vertical_line(x + width - 1, y, height);
+}

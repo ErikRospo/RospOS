@@ -390,9 +390,7 @@ CMP_TRUE62:
 CMP_END63:
   BEQ r4, r0, WHILE_END61
   LLI r7, 0    // zero init bit
-  LLI r9, 7    // load immediate 7
-  SUB r9, r9, r5    // binop -
-  SHR r9, r10, r9    // binop >>
+  SHR r9, r10, r5    // binop >>
   LLI r12, 1    // load immediate 1
   AND r9, r9, r12    // binop &
   ADDI r7, r9, 0    // init bit from expr
@@ -463,13 +461,477 @@ WHILE_END67:
   POP r14
   RET
 
+.FUNC draw_horizontal_line:
+  PUSH r14
+  LLI r4, 0    // init i
+WHILE68:
+  BLT r4, r3, CMP_TRUE70
+  LLI r5, 0    // compare false path
+  JMP CMP_END71
+CMP_TRUE70:
+  LLI r5, 1
+CMP_END71:
+  BEQ r5, r0, WHILE_END69
+  LLI r6, 0    // zero init px
+  ADD r7, r1, r4    // binop +
+  ADDI r6, r7, 0    // init px from expr
+  LLI r8, 0    // zero init py
+  LLI r9, 0    // zero init index
+  LLI r10, 256    // load immediate 256
+  MUL r10, r8, r10    // binop *
+  ADD r10, r10, r6    // binop +
+  ADDI r9, r10, 0    // init index from expr
+  LLI r11, 536870912    // load immediate 536870912
+  ADD r11, r11, r9    // binop +
+  LLI r12, 63    // val const for __sb
+  SB r12, r11, 0    // intrinsic __sb
+  LLI r5, 1    // load immediate 1
+  ADD r5, r4, r5    // binop +
+  ADDI r4, r5, 0    // assign i
+  JMP WHILE68
+WHILE_END69:
+  // epilogue and return
+  ADDI r1, r0, 0  // ensure r1=0
+  POP r14
+  RET
+
+.FUNC draw_vertical_line:
+  PUSH r14
+  LLI r4, 0    // init i
+WHILE72:
+  BLT r4, r3, CMP_TRUE74
+  LLI r5, 0    // compare false path
+  JMP CMP_END75
+CMP_TRUE74:
+  LLI r5, 1
+CMP_END75:
+  BEQ r5, r0, WHILE_END73
+  LLI r6, 0    // zero init px
+  LLI r7, 0    // zero init py
+  ADD r8, r2, r4    // binop +
+  ADDI r7, r8, 0    // init py from expr
+  LLI r9, 0    // zero init index
+  LLI r10, 256    // load immediate 256
+  MUL r10, r7, r10    // binop *
+  ADD r10, r10, r6    // binop +
+  ADDI r9, r10, 0    // init index from expr
+  LLI r11, 536870912    // load immediate 536870912
+  ADD r11, r11, r9    // binop +
+  LLI r12, 63    // val const for __sb
+  SB r12, r11, 0    // intrinsic __sb
+  LLI r5, 1    // load immediate 1
+  ADD r5, r4, r5    // binop +
+  ADDI r4, r5, 0    // assign i
+  JMP WHILE72
+WHILE_END73:
+  // epilogue and return
+  ADDI r1, r0, 0  // ensure r1=0
+  POP r14
+  RET
+
+.FUNC draw_line:
+  PUSH r14
+  BEQ r1, r3, CMP_TRUE78
+  LLI r5, 0    // compare false path
+  JMP CMP_END79
+CMP_TRUE78:
+  LLI r5, 1
+CMP_END79:
+  BEQ r5, r0, ELSE76
+  LLI r6, 0    // zero init start_y
+  LLI r7, 0    // init length
+  BLT r2, r4, CMP_TRUE82
+  LLI r8, 0    // compare false path
+  JMP CMP_END83
+CMP_TRUE82:
+  LLI r8, 1
+CMP_END83:
+  BEQ r8, r0, ELSE80
+  ADDI r6, r2, 0    // assign start_y
+  SUB r9, r4, r2    // binop -
+  LLI r10, 1    // load immediate 1
+  ADD r9, r9, r10    // binop +
+  ADDI r7, r9, 0    // assign length
+  JMP IF_END81
+ELSE80:
+  ADDI r6, r4, 0    // assign start_y
+  SUB r11, r2, r4    // binop -
+  LLI r12, 1    // load immediate 1
+  ADD r11, r11, r12    // binop +
+  ADDI r7, r11, 0    // assign length
+IF_END81:
+  // emit call to draw_vertical_line with args [{'type': 'var', 'name': 'x1'}, {'type': 'var', 'name': 'start_y'}, {'type': 'var', 'name': 'length'}]
+  PUSH r2    // save caller temp
+  PUSH r3    // save caller temp
+  PUSH r4    // save caller temp
+  PUSH r6    // save caller temp
+  PUSH r7    // save caller temp
+  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
+  ADDI r1, r1, 0    // move arg 0
+  ADDI r2, r6, 0    // move arg 1
+  ADDI r3, r7, 0    // move arg 2
+  CALL draw_vertical_line
+  // call return value in r1
+  POP r1  
+  POP r7    // restore caller temp
+  POP r6    // restore caller temp
+  POP r4    // restore caller temp
+  POP r3    // restore caller temp
+  POP r2    // restore caller temp
+  JMP IF_END77
+ELSE76:
+IF_END77:
+  BEQ r2, r4, CMP_TRUE86
+  LLI r5, 0    // compare false path
+  JMP CMP_END87
+CMP_TRUE86:
+  LLI r5, 1
+CMP_END87:
+  BEQ r5, r0, ELSE84
+  LLI r8, 0    // zero init start_x
+  LLI r10, 0    // init length
+  BLT r1, r3, CMP_TRUE90
+  LLI r9, 0    // compare false path
+  JMP CMP_END91
+CMP_TRUE90:
+  LLI r9, 1
+CMP_END91:
+  BEQ r9, r0, ELSE88
+  ADDI r8, r1, 0    // assign start_x
+  SUB r12, r3, r1    // binop -
+  LLI r11, 1    // load immediate 1
+  ADD r12, r12, r11    // binop +
+  ADDI r10, r12, 0    // assign length
+  JMP IF_END89
+ELSE88:
+  ADDI r8, r3, 0    // assign start_x
+  SUB r5, r1, r3    // binop -
+  LLI r9, 1    // load immediate 1
+  ADD r5, r5, r9    // binop +
+  ADDI r10, r5, 0    // assign length
+IF_END89:
+  // emit call to draw_horizontal_line with args [{'type': 'var', 'name': 'start_x'}, {'type': 'var', 'name': 'y1'}, {'type': 'var', 'name': 'length'}]
+  PUSH r2    // save caller temp
+  PUSH r3    // save caller temp
+  PUSH r4    // save caller temp
+  PUSH r6    // save caller temp
+  PUSH r7    // save caller temp
+  PUSH r8    // save caller temp
+  PUSH r10    // save caller temp
+  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
+  ADDI r1, r8, 0    // move arg 0
+  ADDI r2, r2, 0    // move arg 1
+  ADDI r3, r10, 0    // move arg 2
+  CALL draw_horizontal_line
+  // call return value in r1
+  POP r1  
+  POP r10    // restore caller temp
+  POP r8    // restore caller temp
+  POP r7    // restore caller temp
+  POP r6    // restore caller temp
+  POP r4    // restore caller temp
+  POP r3    // restore caller temp
+  POP r2    // restore caller temp
+  JMP IF_END85
+ELSE84:
+IF_END85:
+  LLI r11, 0    // zero init dx
+  SUB r12, r3, r1    // binop -
+  ADDI r11, r12, 0    // init dx from expr
+  LLI r9, 0    // zero init dy
+  SUB r5, r4, r2    // binop -
+  ADDI r9, r5, 0    // init dy from expr
+  LLI r12, 0    // zero init sx
+  LLI r5, 0    // load immediate 0
+  PUSH r7    // spill live temp for reg pressure
+  LLI r7, 1    // load immediate 1
+  SUB r5, r5, r7    // binop -
+  POP r7    // restore spilled temp
+  ADDI r12, r5, 0    // init sx from expr
+  LLI r5, 0    // zero init sy
+  PUSH r7    // spill live temp for reg pressure
+  LLI r7, 0    // load immediate 0
+  LLI r13, 1    // load immediate 1
+  SUB r7, r7, r13    // binop -
+  ADDI r5, r7, 0    // init sy from expr
+  POP r7    // restore spilled temp
+  PUSH r7    // spill live temp for reg pressure
+  LLI r7, 0    // load immediate 0
+  BLT r7, r11, CMP_TRUE94
+  LLI r7, 0    // compare false path
+  JMP CMP_END95
+CMP_TRUE94:
+  LLI r7, 1
+CMP_END95:
+  BEQ r7, r0, ELSE92
+  POP r7    // restore spilled temp
+  PUSH r7    // spill live temp for reg pressure
+  LLI r7, 1    // load immediate 1
+  ADDI r12, r7, 0    // assign sx
+  POP r7    // restore spilled temp
+  JMP IF_END93
+ELSE92:
+IF_END93:
+  PUSH r7    // spill live temp for reg pressure
+  LLI r7, 0    // load immediate 0
+  BLT r7, r9, CMP_TRUE98
+  LLI r7, 0    // compare false path
+  JMP CMP_END99
+CMP_TRUE98:
+  LLI r7, 1
+CMP_END99:
+  BEQ r7, r0, ELSE96
+  POP r7    // restore spilled temp
+  PUSH r7    // spill live temp for reg pressure
+  LLI r7, 1    // load immediate 1
+  ADDI r5, r7, 0    // assign sy
+  POP r7    // restore spilled temp
+  JMP IF_END97
+ELSE96:
+IF_END97:
+  PUSH r7    // spill live temp for reg pressure
+  LLI r7, 0    // load immediate 0
+  BLT r11, r7, CMP_TRUE102
+  LLI r7, 0    // compare false path
+  JMP CMP_END103
+CMP_TRUE102:
+  LLI r7, 1
+CMP_END103:
+  BEQ r7, r0, ELSE100
+  POP r7    // restore spilled temp
+  PUSH r7    // spill live temp for reg pressure
+  LLI r7, 0    // load immediate 0
+  SUB r7, r7, r11    // binop -
+  ADDI r11, r7, 0    // assign dx
+  POP r7    // restore spilled temp
+  JMP IF_END101
+ELSE100:
+IF_END101:
+  PUSH r7    // spill live temp for reg pressure
+  LLI r7, 0    // load immediate 0
+  BLT r9, r7, CMP_TRUE106
+  LLI r7, 0    // compare false path
+  JMP CMP_END107
+CMP_TRUE106:
+  LLI r7, 1
+CMP_END107:
+  BEQ r7, r0, ELSE104
+  POP r7    // restore spilled temp
+  PUSH r7    // spill live temp for reg pressure
+  LLI r7, 0    // load immediate 0
+  SUB r7, r7, r9    // binop -
+  ADDI r9, r7, 0    // assign dy
+  POP r7    // restore spilled temp
+  JMP IF_END105
+ELSE104:
+IF_END105:
+  LLI r13, 0    // init err
+  PUSH r7    // spill live temp for reg pressure
+  BLT r9, r11, CMP_TRUE110
+  LLI r7, 0    // compare false path
+  JMP CMP_END111
+CMP_TRUE110:
+  LLI r7, 1
+CMP_END111:
+  BEQ r7, r0, ELSE108
+  POP r7    // restore spilled temp
+  PUSH r7    // spill live temp for reg pressure
+  LLI r7, 2    // load immediate 2
+  DIV r7, r11, r7    // binop /
+  ADDI r13, r7, 0    // assign err
+  POP r7    // restore spilled temp
+  JMP IF_END109
+ELSE108:
+  PUSH r7    // spill live temp for reg pressure
+  LLI r7, 0    // load immediate 0
+  SUB r7, r7, r9    // binop -
+  LLI r13, 2    // load immediate 2
+  DIV r7, r7, r13    // binop /
+  ADDI r13, r7, 0    // assign err
+  POP r7    // restore spilled temp
+IF_END109:
+  LLI r13, 0    // init exit
+WHILE112:
+  PUSH r7    // spill live temp for reg pressure
+  LLI r7, 0    // load immediate 0
+  BEQ r13, r7, CMP_TRUE114
+  LLI r7, 0    // compare false path
+  JMP CMP_END115
+CMP_TRUE114:
+  LLI r7, 1
+CMP_END115:
+  BEQ r7, r0, WHILE_END113
+  POP r7    // restore spilled temp
+  LLI r13, 0    // zero init index
+  PUSH r7    // spill live temp for reg pressure
+  LLI r7, 256    // load immediate 256
+  MUL r7, r2, r7    // binop *
+  ADD r7, r7, r1    // binop +
+  ADDI r13, r7, 0    // init index from expr
+  POP r7    // restore spilled temp
+  PUSH r7    // spill live temp for reg pressure
+  LLI r7, 536870912    // load immediate 536870912
+  ADD r7, r7, r13    // binop +
+  PUSH r2    // spill live temp for intrinsic scratch
+  LLI r2, 63    // val const for __sb
+  SB r2, r7, 0    // intrinsic __sb
+  POP r2    // restore spilled temp
+  POP r7    // restore spilled temp
+  PUSH r7    // spill live temp for reg pressure
+  BEQ r1, r3, CMP_TRUE118
+  LLI r7, 0    // compare false path
+  JMP CMP_END119
+CMP_TRUE118:
+  LLI r7, 1
+CMP_END119:
+  BEQ r2, r4, CMP_TRUE120
+  LLI r13, 0    // compare false path
+  JMP CMP_END121
+CMP_TRUE120:
+  LLI r13, 1
+CMP_END121:
+  AND r7, r7, r13    // logic && fold
+  BNE r7, r0, CMP_TRUE122
+  LLI r7, 0    // compare false path
+  JMP CMP_END123
+CMP_TRUE122:
+  LLI r7, 1
+CMP_END123:
+  BEQ r7, r0, ELSE116
+  POP r7    // restore spilled temp
+  PUSH r7    // spill live temp for reg pressure
+  LLI r7, 1    // load immediate 1
+  ADDI r13, r7, 0    // assign exit
+  POP r7    // restore spilled temp
+  JMP IF_END117
+ELSE116:
+IF_END117:
+  LLI r13, 0    // zero init err2
+  PUSH r7    // spill live temp for reg pressure
+  LLI r7, 0    // load immediate 0
+  SUB r7, r7, r11    // binop -
+  BLT r7, r13, CMP_TRUE126
+  LLI r7, 0    // compare false path
+  JMP CMP_END127
+CMP_TRUE126:
+  LLI r7, 1
+CMP_END127:
+  BEQ r7, r0, ELSE124
+  POP r7    // restore spilled temp
+  PUSH r7    // spill live temp for reg pressure
+  SUB r7, r13, r9    // binop -
+  ADDI r13, r7, 0    // assign err
+  POP r7    // restore spilled temp
+  PUSH r7    // spill live temp for reg pressure
+  ADD r7, r1, r12    // binop +
+  ADDI r1, r7, 0    // assign x1
+  POP r7    // restore spilled temp
+  JMP IF_END125
+ELSE124:
+IF_END125:
+  PUSH r7    // spill live temp for reg pressure
+  BLT r13, r9, CMP_TRUE130
+  LLI r7, 0    // compare false path
+  JMP CMP_END131
+CMP_TRUE130:
+  LLI r7, 1
+CMP_END131:
+  BEQ r7, r0, ELSE128
+  POP r7    // restore spilled temp
+  PUSH r7    // spill live temp for reg pressure
+  ADD r7, r13, r11    // binop +
+  ADDI r13, r7, 0    // assign err
+  POP r7    // restore spilled temp
+  PUSH r7    // spill live temp for reg pressure
+  ADD r7, r2, r5    // binop +
+  ADDI r2, r7, 0    // assign y1
+  POP r7    // restore spilled temp
+  JMP IF_END129
+ELSE128:
+IF_END129:
+  JMP WHILE112
+WHILE_END113:
+  // epilogue and return
+  ADDI r1, r0, 0  // ensure r1=0
+  POP r14
+  RET
+
+.FUNC draw_rectangle:
+  PUSH r14
+  // emit call to draw_horizontal_line with args [{'type': 'var', 'name': 'x'}, {'type': 'var', 'name': 'y'}, {'type': 'var', 'name': 'width'}]
+  PUSH r2    // save caller temp
+  PUSH r3    // save caller temp
+  PUSH r4    // save caller temp
+  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
+  ADDI r1, r1, 0    // move arg 0
+  ADDI r2, r2, 0    // move arg 1
+  ADDI r3, r3, 0    // move arg 2
+  CALL draw_horizontal_line
+  // call return value in r1
+  POP r1  
+  POP r4    // restore caller temp
+  POP r3    // restore caller temp
+  POP r2    // restore caller temp
+  // emit call to draw_horizontal_line with args [{'type': 'var', 'name': 'x'}, {'type': 'binop', 'op': 'minus', 'left': {'type': 'binop', 'op': 'plus', 'left': {'type': 'var', 'name': 'y'}, 'right': {'type': 'var', 'name': 'height'}}, 'right': {'type': 'const', 'value': 1}}, {'type': 'var', 'name': 'width'}]
+  PUSH r2    // save caller temp
+  PUSH r3    // save caller temp
+  PUSH r4    // save caller temp
+  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
+  ADDI r1, r1, 0    // move arg 0
+  ADD r5, r2, r4    // binop +
+  LLI r6, 1    // load immediate 1
+  SUB r5, r5, r6    // binop -
+  ADDI r2, r5, 0    // move arg 1 from expr
+  ADDI r3, r3, 0    // move arg 2
+  CALL draw_horizontal_line
+  // call return value in r1
+  POP r1  
+  POP r4    // restore caller temp
+  POP r3    // restore caller temp
+  POP r2    // restore caller temp
+  // emit call to draw_vertical_line with args [{'type': 'var', 'name': 'x'}, {'type': 'var', 'name': 'y'}, {'type': 'var', 'name': 'height'}]
+  PUSH r2    // save caller temp
+  PUSH r3    // save caller temp
+  PUSH r4    // save caller temp
+  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
+  ADDI r1, r1, 0    // move arg 0
+  ADDI r2, r2, 0    // move arg 1
+  ADDI r3, r4, 0    // move arg 2
+  CALL draw_vertical_line
+  // call return value in r1
+  POP r1  
+  POP r4    // restore caller temp
+  POP r3    // restore caller temp
+  POP r2    // restore caller temp
+  // emit call to draw_vertical_line with args [{'type': 'binop', 'op': 'minus', 'left': {'type': 'binop', 'op': 'plus', 'left': {'type': 'var', 'name': 'x'}, 'right': {'type': 'var', 'name': 'width'}}, 'right': {'type': 'const', 'value': 1}}, {'type': 'var', 'name': 'y'}, {'type': 'var', 'name': 'height'}]
+  PUSH r2    // save caller temp
+  PUSH r3    // save caller temp
+  PUSH r4    // save caller temp
+  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
+  ADD r7, r1, r3    // binop +
+  LLI r8, 1    // load immediate 1
+  SUB r7, r7, r8    // binop -
+  ADDI r1, r7, 0    // move arg 0 from expr
+  ADDI r2, r2, 0    // move arg 1
+  ADDI r3, r4, 0    // move arg 2
+  CALL draw_vertical_line
+  // call return value in r1
+  POP r1  
+  POP r4    // restore caller temp
+  POP r3    // restore caller temp
+  POP r2    // restore caller temp
+  // epilogue and return
+  ADDI r1, r0, 0  // ensure r1=0
+  POP r14
+  RET
+
 .FUNC screen_test:
   PUSH r14
   LLI r2, 536870912    // init addr
   LLI r3, 65536    // init remaining
   LLI r4, 3735928559    // init lfsr
-WHILE68:
-  BEQ r3, r0, WHILE_END69
+WHILE132:
+  BEQ r3, r0, WHILE_END133
   SB r4, r2, 0    // intrinsic __sb
   LLI r5, 1    // load immediate 1
   ADD r5, r2, r5    // binop +
@@ -498,8 +960,8 @@ WHILE68:
   LLI r8, 1    // load immediate 1
   SUB r8, r3, r8    // binop -
   ADDI r3, r8, 0    // assign remaining
-  JMP WHILE68
-WHILE_END69:
+  JMP WHILE132
+WHILE_END133:
   // epilogue and return
   ADDI r1, r0, 0  // ensure r1=0
   POP r14
@@ -562,8 +1024,8 @@ WHILE_END69:
   POP r4    // restore caller temp
   POP r3    // restore caller temp
   POP r2    // restore caller temp
-  LLI r5, p1_struct70    // init p1 (struct Point addr)
-  LLI r6, s_struct71    // init s (struct Size addr)
+  LLI r5, p1_struct134    // init p1 (struct Point addr)
+  LLI r6, s_struct135    // init s (struct Size addr)
   LLI r7, 10    // load immediate 10
   SW r7, r5, 0    // store p1.x
   LLI r8, 20    // load immediate 20
@@ -682,76 +1144,30 @@ WHILE_END69:
 
 .FUNC main:
   PUSH r14
-  // emit call to draw_char_to_display with args [{'type': 'const', 'value': 65}, {'type': 'const', 'value': 0}, {'type': 'const', 'value': 0}]
+  // emit call to draw_string_to_display with args [{'type': 'string_addr', 'label': 'str_3'}, {'type': 'const', 'value': 10}, {'type': 'const', 'value': 10}]
   PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  LLI r1, 65    // load immediate 65
-  LLI r2, 0    // load immediate 0
-  LLI r3, 0    // load immediate 0
-  CALL draw_char_to_display
+  LLI r1, str_3    // load immediate str_3
+  LLI r2, 10    // load immediate 10
+  LLI r3, 10    // load immediate 10
+  CALL draw_string_to_display
   // call return value in r1
   POP r1  
-  // emit call to draw_char_to_display with args [{'type': 'const', 'value': 66}, {'type': 'const', 'value': 8}, {'type': 'const', 'value': 0}]
+  // emit call to draw_line with args [{'type': 'const', 'value': 20}, {'type': 'const', 'value': 50}, {'type': 'const', 'value': 30}, {'type': 'const', 'value': 60}]
   PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  LLI r1, 66    // load immediate 66
-  LLI r2, 8    // load immediate 8
-  LLI r3, 0    // load immediate 0
-  CALL draw_char_to_display
+  LLI r1, 20    // load immediate 20
+  LLI r2, 50    // load immediate 50
+  LLI r3, 30    // load immediate 30
+  LLI r4, 60    // load immediate 60
+  CALL draw_line
   // call return value in r1
   POP r1  
-  // emit call to draw_char_to_display with args [{'type': 'const', 'value': 67}, {'type': 'const', 'value': 16}, {'type': 'const', 'value': 0}]
+  // emit call to draw_rectangle with args [{'type': 'const', 'value': 100}, {'type': 'const', 'value': 100}, {'type': 'const', 'value': 150}, {'type': 'const', 'value': 100}]
   PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  LLI r1, 67    // load immediate 67
-  LLI r2, 16    // load immediate 16
-  LLI r3, 0    // load immediate 0
-  CALL draw_char_to_display
-  // call return value in r1
-  POP r1  
-  // emit call to draw_char_to_display with args [{'type': 'const', 'value': 48}, {'type': 'const', 'value': 0}, {'type': 'const', 'value': 8}]
-  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  LLI r1, 48    // load immediate 48
-  LLI r2, 0    // load immediate 0
-  LLI r3, 8    // load immediate 8
-  CALL draw_char_to_display
-  // call return value in r1
-  POP r1  
-  // emit call to draw_char_to_display with args [{'type': 'const', 'value': 49}, {'type': 'const', 'value': 8}, {'type': 'const', 'value': 8}]
-  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  LLI r1, 49    // load immediate 49
-  LLI r2, 8    // load immediate 8
-  LLI r3, 8    // load immediate 8
-  CALL draw_char_to_display
-  // call return value in r1
-  POP r1  
-  // emit call to draw_char_to_display with args [{'type': 'const', 'value': 50}, {'type': 'const', 'value': 16}, {'type': 'const', 'value': 8}]
-  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  LLI r1, 50    // load immediate 50
-  LLI r2, 16    // load immediate 16
-  LLI r3, 8    // load immediate 8
-  CALL draw_char_to_display
-  // call return value in r1
-  POP r1  
-  // emit call to draw_char_to_display with args [{'type': 'const', 'value': 88}, {'type': 'const', 'value': 0}, {'type': 'const', 'value': 16}]
-  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  LLI r1, 88    // load immediate 88
-  LLI r2, 0    // load immediate 0
-  LLI r3, 16    // load immediate 16
-  CALL draw_char_to_display
-  // call return value in r1
-  POP r1  
-  // emit call to draw_char_to_display with args [{'type': 'const', 'value': 89}, {'type': 'const', 'value': 8}, {'type': 'const', 'value': 16}]
-  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  LLI r1, 89    // load immediate 89
-  LLI r2, 8    // load immediate 8
-  LLI r3, 16    // load immediate 16
-  CALL draw_char_to_display
-  // call return value in r1
-  POP r1  
-  // emit call to draw_char_to_display with args [{'type': 'const', 'value': 90}, {'type': 'const', 'value': 16}, {'type': 'const', 'value': 16}]
-  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  LLI r1, 90    // load immediate 90
-  LLI r2, 16    // load immediate 16
-  LLI r3, 16    // load immediate 16
-  CALL draw_char_to_display
+  LLI r1, 100    // load immediate 100
+  LLI r2, 100    // load immediate 100
+  LLI r3, 150    // load immediate 150
+  LLI r4, 100    // load immediate 100
+  CALL draw_rectangle
   // call return value in r1
   POP r1  
   // epilogue and return
@@ -829,192 +1245,192 @@ font_address:
   .DATA 0x00000000
   .DATA 0x00000000
   .DATA 0x183C3C18
-  .DATA 0x18001800
-  .DATA 0x36360000
+  .DATA 0x00180018
+  .DATA 0x00003636
   .DATA 0x00000000
-  .DATA 0x36367F36
-  .DATA 0x7F363600
-  .DATA 0x0C3E031E
-  .DATA 0x301F0C00
-  .DATA 0x00633318
-  .DATA 0x0C666300
-  .DATA 0x1C361C6E
-  .DATA 0x3B336E00
-  .DATA 0x06060300
+  .DATA 0x367F3636
+  .DATA 0x0036367F
+  .DATA 0x1E033E0C
+  .DATA 0x000C1F30
+  .DATA 0x18336300
+  .DATA 0x0063660C
+  .DATA 0x6E1C361C
+  .DATA 0x006E333B
+  .DATA 0x00030606
   .DATA 0x00000000
-  .DATA 0x180C0606
-  .DATA 0x060C1800
-  .DATA 0x060C1818
-  .DATA 0x180C0600
-  .DATA 0x00663CFF
-  .DATA 0x3C660000
-  .DATA 0x000C0C3F
-  .DATA 0x0C0C0000
+  .DATA 0x06060C18
+  .DATA 0x00180C06
+  .DATA 0x18180C06
+  .DATA 0x00060C18
+  .DATA 0xFF3C6600
+  .DATA 0x0000663C
+  .DATA 0x3F0C0C00
+  .DATA 0x00000C0C
   .DATA 0x00000000
-  .DATA 0x000C0C06
-  .DATA 0x0000003F
+  .DATA 0x060C0C00
+  .DATA 0x3F000000
   .DATA 0x00000000
   .DATA 0x00000000
   .DATA 0x000C0C00
-  .DATA 0x6030180C
-  .DATA 0x06030100
-  .DATA 0x3E63737B
-  .DATA 0x6F673E00
-  .DATA 0x0C0E0C0C
-  .DATA 0x0C0C3F00
-  .DATA 0x1E33301C
-  .DATA 0x06333F00
-  .DATA 0x1E33301C
-  .DATA 0x30331E00
-  .DATA 0x383C3633
-  .DATA 0x7F307800
-  .DATA 0x3F031F30
-  .DATA 0x30331E00
-  .DATA 0x1C06031F
-  .DATA 0x33331E00
-  .DATA 0x3F333018
-  .DATA 0x0C0C0C00
+  .DATA 0x0C183060
+  .DATA 0x00010306
+  .DATA 0x7B73633E
+  .DATA 0x003E676F
+  .DATA 0x0C0C0E0C
+  .DATA 0x003F0C0C
+  .DATA 0x1C30331E
+  .DATA 0x003F3306
+  .DATA 0x1C30331E
+  .DATA 0x001E3330
+  .DATA 0x33363C38
+  .DATA 0x0078307F
+  .DATA 0x301F033F
+  .DATA 0x001E3330
+  .DATA 0x1F03061C
+  .DATA 0x001E3333
+  .DATA 0x1830333F
+  .DATA 0x000C0C0C
   .DATA 0x1E33331E
-  .DATA 0x33331E00
-  .DATA 0x1E33333E
-  .DATA 0x30180E00
+  .DATA 0x001E3333
+  .DATA 0x3E33331E
+  .DATA 0x000E1830
   .DATA 0x000C0C00
   .DATA 0x000C0C00
   .DATA 0x000C0C00
-  .DATA 0x000C0C06
-  .DATA 0x180C0603
-  .DATA 0x060C1800
-  .DATA 0x00003F00
-  .DATA 0x003F0000
-  .DATA 0x060C1830
-  .DATA 0x180C0600
-  .DATA 0x1E333018
-  .DATA 0x0C000C00
-  .DATA 0x3E637B7B
-  .DATA 0x7B031E00
-  .DATA 0x0C1E3333
-  .DATA 0x3F333300
-  .DATA 0x3F66663E
-  .DATA 0x66663F00
-  .DATA 0x3C660303
-  .DATA 0x03663C00
-  .DATA 0x1F366666
-  .DATA 0x66361F00
-  .DATA 0x7F46161E
-  .DATA 0x16467F00
-  .DATA 0x7F46161E
-  .DATA 0x16060F00
-  .DATA 0x3C660303
-  .DATA 0x73667C00
-  .DATA 0x3333333F
-  .DATA 0x33333300
-  .DATA 0x1E0C0C0C
-  .DATA 0x0C0C1E00
-  .DATA 0x78303030
-  .DATA 0x33331E00
-  .DATA 0x6766361E
-  .DATA 0x36666700
-  .DATA 0x0F060606
-  .DATA 0x46667F00
-  .DATA 0x63777F7F
-  .DATA 0x6B636300
-  .DATA 0x63676F7B
-  .DATA 0x73636300
-  .DATA 0x1C366363
-  .DATA 0x63361C00
-  .DATA 0x3F66663E
-  .DATA 0x06060F00
-  .DATA 0x1E333333
-  .DATA 0x3B1E3800
-  .DATA 0x3F66663E
-  .DATA 0x36666700
-  .DATA 0x1E33070E
-  .DATA 0x38331E00
-  .DATA 0x3F2D0C0C
-  .DATA 0x0C0C1E00
-  .DATA 0x33333333
-  .DATA 0x33333F00
-  .DATA 0x33333333
-  .DATA 0x331E0C00
-  .DATA 0x6363636B
-  .DATA 0x7F776300
-  .DATA 0x6363361C
-  .DATA 0x1C366300
-  .DATA 0x3333331E
-  .DATA 0x0C0C1E00
-  .DATA 0x7F633118
-  .DATA 0x4C667F00
-  .DATA 0x1E060606
-  .DATA 0x06061E00
+  .DATA 0x060C0C00
   .DATA 0x03060C18
-  .DATA 0x30604000
-  .DATA 0x1E181818
-  .DATA 0x18181E00
-  .DATA 0x081C3663
+  .DATA 0x00180C06
+  .DATA 0x003F0000
+  .DATA 0x00003F00
+  .DATA 0x30180C06
+  .DATA 0x00060C18
+  .DATA 0x1830331E
+  .DATA 0x000C000C
+  .DATA 0x7B7B633E
+  .DATA 0x001E037B
+  .DATA 0x33331E0C
+  .DATA 0x0033333F
+  .DATA 0x3E66663F
+  .DATA 0x003F6666
+  .DATA 0x0303663C
+  .DATA 0x003C6603
+  .DATA 0x6666361F
+  .DATA 0x001F3666
+  .DATA 0x1E16467F
+  .DATA 0x007F4616
+  .DATA 0x1E16467F
+  .DATA 0x000F0616
+  .DATA 0x0303663C
+  .DATA 0x007C6673
+  .DATA 0x3F333333
+  .DATA 0x00333333
+  .DATA 0x0C0C0C1E
+  .DATA 0x001E0C0C
+  .DATA 0x30303078
+  .DATA 0x001E3333
+  .DATA 0x1E366667
+  .DATA 0x00676636
+  .DATA 0x0606060F
+  .DATA 0x007F6646
+  .DATA 0x7F7F7763
+  .DATA 0x0063636B
+  .DATA 0x7B6F6763
+  .DATA 0x00636373
+  .DATA 0x6363361C
+  .DATA 0x001C3663
+  .DATA 0x3E66663F
+  .DATA 0x000F0606
+  .DATA 0x3333331E
+  .DATA 0x00381E3B
+  .DATA 0x3E66663F
+  .DATA 0x00676636
+  .DATA 0x0E07331E
+  .DATA 0x001E3338
+  .DATA 0x0C0C2D3F
+  .DATA 0x001E0C0C
+  .DATA 0x33333333
+  .DATA 0x003F3333
+  .DATA 0x33333333
+  .DATA 0x000C1E33
+  .DATA 0x6B636363
+  .DATA 0x0063777F
+  .DATA 0x1C366363
+  .DATA 0x0063361C
+  .DATA 0x1E333333
+  .DATA 0x001E0C0C
+  .DATA 0x1831637F
+  .DATA 0x007F664C
+  .DATA 0x0606061E
+  .DATA 0x001E0606
+  .DATA 0x180C0603
+  .DATA 0x00406030
+  .DATA 0x1818181E
+  .DATA 0x001E1818
+  .DATA 0x63361C08
   .DATA 0x00000000
   .DATA 0x00000000
-  .DATA 0x000000FF
-  .DATA 0x0C0C1800
+  .DATA 0xFF000000
+  .DATA 0x00180C0C
   .DATA 0x00000000
-  .DATA 0x00001E30
-  .DATA 0x3E336E00
-  .DATA 0x0706063E
-  .DATA 0x66663B00
-  .DATA 0x00001E33
-  .DATA 0x03331E00
-  .DATA 0x3830303E
-  .DATA 0x33336E00
-  .DATA 0x00001E33
-  .DATA 0x3F031E00
-  .DATA 0x1C36060F
-  .DATA 0x06060F00
-  .DATA 0x00006E33
-  .DATA 0x333E301F
-  .DATA 0x0706366E
-  .DATA 0x66666700
-  .DATA 0x0C000E0C
-  .DATA 0x0C0C1E00
-  .DATA 0x30003030
-  .DATA 0x3033331E
-  .DATA 0x07066636
-  .DATA 0x1E366700
-  .DATA 0x0E0C0C0C
-  .DATA 0x0C0C1E00
-  .DATA 0x0000337F
-  .DATA 0x7F6B6300
-  .DATA 0x00001F33
-  .DATA 0x33333300
-  .DATA 0x00001E33
-  .DATA 0x33331E00
-  .DATA 0x00003B66
-  .DATA 0x663E060F
-  .DATA 0x00006E33
-  .DATA 0x333E3078
-  .DATA 0x00003B6E
-  .DATA 0x66060F00
-  .DATA 0x00003E03
-  .DATA 0x1E301F00
-  .DATA 0x080C3E0C
-  .DATA 0x0C2C1800
-  .DATA 0x00003333
-  .DATA 0x33336E00
-  .DATA 0x00003333
-  .DATA 0x331E0C00
-  .DATA 0x0000636B
-  .DATA 0x7F7F3600
-  .DATA 0x00006336
-  .DATA 0x1C366300
-  .DATA 0x00003333
-  .DATA 0x333E301F
-  .DATA 0x00003F19
-  .DATA 0x0C263F00
-  .DATA 0x380C0C07
-  .DATA 0x0C0C3800
-  .DATA 0x18181800
-  .DATA 0x18181800
-  .DATA 0x070C0C38
-  .DATA 0x0C0C0700
+  .DATA 0x301E0000
+  .DATA 0x006E333E
+  .DATA 0x3E060607
+  .DATA 0x003B6666
+  .DATA 0x331E0000
+  .DATA 0x001E3303
+  .DATA 0x3E303038
+  .DATA 0x006E3333
+  .DATA 0x331E0000
+  .DATA 0x001E033F
+  .DATA 0x0F06361C
+  .DATA 0x000F0606
+  .DATA 0x336E0000
+  .DATA 0x1F303E33
+  .DATA 0x6E360607
+  .DATA 0x00676666
+  .DATA 0x0C0E000C
+  .DATA 0x001E0C0C
+  .DATA 0x30300030
+  .DATA 0x1E333330
+  .DATA 0x36660607
+  .DATA 0x0067361E
+  .DATA 0x0C0C0C0E
+  .DATA 0x001E0C0C
+  .DATA 0x7F330000
+  .DATA 0x00636B7F
+  .DATA 0x331F0000
+  .DATA 0x00333333
+  .DATA 0x331E0000
+  .DATA 0x001E3333
+  .DATA 0x663B0000
+  .DATA 0x0F063E66
+  .DATA 0x336E0000
+  .DATA 0x78303E33
   .DATA 0x6E3B0000
+  .DATA 0x000F0666
+  .DATA 0x033E0000
+  .DATA 0x001F301E
+  .DATA 0x0C3E0C08
+  .DATA 0x00182C0C
+  .DATA 0x33330000
+  .DATA 0x006E3333
+  .DATA 0x33330000
+  .DATA 0x000C1E33
+  .DATA 0x6B630000
+  .DATA 0x00367F7F
+  .DATA 0x36630000
+  .DATA 0x0063361C
+  .DATA 0x33330000
+  .DATA 0x1F303E33
+  .DATA 0x193F0000
+  .DATA 0x003F260C
+  .DATA 0x070C0C38
+  .DATA 0x00380C0C
+  .DATA 0x00181818
+  .DATA 0x00181818
+  .DATA 0x380C0C07
+  .DATA 0x00070C0C
+  .DATA 0x00003B6E
   .DATA 0x00000000
   .DATA 0x00000000
   .DATA 0x00000000
@@ -1028,12 +1444,15 @@ str_1:
 str_2:
   .STR "The area of the size is: \n"
 
+str_3:
+  .STR "Hello, RospOS!"
+
 buffer_buf3:
   .SPACE 12 // lifted buffer
 
-p1_struct70:
+p1_struct134:
   .SPACE 8 // lifted buffer
 
-s_struct71:
+s_struct135:
   .SPACE 8 // lifted buffer
 
