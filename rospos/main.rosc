@@ -24,13 +24,14 @@ int add(int a, int b)
     return a + b;
 }
 
-void main()
-{
+void old_main(){
     int x = 5;
     int y = 10;
     int result = add(x, y);
+    
     print_string("The result of 10 + 5 is: ");
     printi(result);
+    
     // Declare struct variables
     Point p1;
     Size s;
@@ -45,6 +46,15 @@ void main()
     // Read from struct members
     int sum = add_coords(p1);
     int area = s.width * s.height;
+        
+    print_string("The sum of p1's coordinates is: \n");
+    printi(sum);
+    print_string("The area of the size is: \n");
+    printi(area);
+}
+
+void main()
+{
     draw_char_to_display('A', 0, 0);
     draw_char_to_display('B', 8, 0);
     draw_char_to_display('C', 16, 0);
@@ -55,9 +65,5 @@ void main()
     draw_char_to_display('Y', 8, 16);
     draw_char_to_display('Z', 16, 16);
     
-    
-    print_string("The sum of p1's coordinates is: \n");
-    printi(sum);
-    print_string("The area of the size is: \n");
-    printi(area);
+
 }
