@@ -15,24 +15,26 @@ QString speedLabelForLevel(int level)
 {
     switch (level) {
     case 0:
-        return QObject::tr("1/5 s");
+        return QObject::tr("1/2s");
     case 1:
-        return QObject::tr("1/2 s");
-    case 2:
         return QObject::tr("1/s");
-    case 3:
-        return QObject::tr("2/s");
-    case 4:
+    case 2:
         return QObject::tr("5/s");
-    case 5:
+    case 3:
         return QObject::tr("10/s");
-    case 6:
+    case 4:
         return QObject::tr("25/s");
-    case 7:
+    case 5:
         return QObject::tr("50/s");
-    case 8:
+    case 6:
         return QObject::tr("100/s");
+    case 7:
+        return QObject::tr("250/s");
+    case 8:
+        return QObject::tr("1000/s");
     case 9:
+        return QObject::tr("2500/s");
+    case 10:
         return QObject::tr("Max");
     default:
         return QObject::tr("?");
@@ -41,7 +43,7 @@ QString speedLabelForLevel(int level)
 }
 
 DebugControlPanel::DebugControlPanel(QWidget *parent)
-    : QWidget(parent), vmController(nullptr), currentSpeed(2)
+    : QWidget(parent), vmController(nullptr), currentSpeed(4)
 {
     createUI();
     setupConnections();
@@ -87,7 +89,7 @@ void DebugControlPanel::createUI()
     
     speedSlider = new QSlider(Qt::Horizontal);
     speedSlider->setMinimum(0);
-    speedSlider->setMaximum(9);
+    speedSlider->setMaximum(10);
     speedSlider->setValue(currentSpeed);
     speedSlider->setTickPosition(QSlider::TicksBelow);
     speedSlider->setTickInterval(1);
