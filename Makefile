@@ -25,9 +25,9 @@ $(DIR_ROSPOS_BUILD):
 $(DIR_DOCS_BUILD):
 	mkdir -p $(DIR_DOCS_BUILD)
 	
-rospos/font_bitmap.bin: generate_fb_map_data.py 
+rospos/font_bitmap.bin: tools/generate_fb_map_data.py ./tools/font8x8_basic_data.h
 	mkdir -p $(dir $@)
-	$(PY) generate_fb_map_data.py --output $@
+	$(PY) tools/generate_fb_map_data.py --output $@ --input ./tools/font8x8_basic_data.h 1>&2
 
 rospos/build/rospos.ros: rospos/main.rosc $(ROSPCC_DEP) $(ROSPOS_DEP) | $(DIR_ROSPOS_BUILD)
 	$(PY) $(ROSPCC_PARSER) --input rospos/main.rosc --output $@ 1>&2
