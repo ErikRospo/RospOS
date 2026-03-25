@@ -13,6 +13,18 @@ constexpr uint32_t kDisplaySize = 256U * 256U;
 
 std::array<uint8_t, kDisplaySize> g_framebuffer{};
 std::mutex g_fbMutex;
+
+std::array<QRgb, 256> g_colorLut = []() {
+    std::array<QRgb, 256> lut{};
+    for (int v = 0; v < 256; ++v) {
+        const uint8_t value = static_cast<uint8_t>(v);
+        const uint8_t r = static_cast<uint8_t>(((value >> 4) & 0x03) * 85);
+        const uint8_t g = static_cast<uint8_t>(((value >> 2) & 0x03) * 85);
+        const uint8_t b = static_cast<uint8_t>((value & 0x03) * 85);
+        lut[v] = qRgb(r, g, b);
+    }
+    return lut;
+}();
 }
 
 // Add a static instance for the VMDisplay class
@@ -70,23 +82,13 @@ void VMDisplay::write(uint32_t address, uint8_t value)
         instanceCopy = displayInstance;
     }
 
-    // Convert 8-bit color to RGB
-    // Format: 00RRGGBB where each component is 2 bits
-    uint8_t v = value;
-    uint8_t r2 = (v >> 4) & 0x03;
-    uint8_t g2 = (v >> 2) & 0x03;
-    uint8_t b2 = v & 0x03;
-    uint8_t r = r2 * 85;
-    uint8_t g = g2 * 85;
-    uint8_t b = b2 * 85;
-
     if (instanceCopy != nullptr) {
         // Update the QImage when the UI widget is active (thread-safe).
         const int x = static_cast<int>(offset % 256);
         const int y = static_cast<int>(offset / 256);
         {
             std::lock_guard<std::mutex> lock(instanceCopy->imageMutex);
-            instanceCopy->displayImage.setPixelColor(x, y, QColor(r, g, b));
+            instanceCopy->displayImage.setPixel(x, y, g_colorLut[value]);
         }
 
         // Schedule a paint update on the Qt event loop (thread-safe).
@@ -113,12 +115,9 @@ VMDisplay::VMDisplay(QWidget *parent)
         std::lock_guard<std::mutex> imageLock(imageMutex);
         for (uint32_t offset = 0; offset < kDisplaySize; ++offset) {
             const uint8_t v = g_framebuffer[offset];
-            const uint8_t r = static_cast<uint8_t>(((v >> 4) & 0x03) * 85);
-            const uint8_t g = static_cast<uint8_t>(((v >> 2) & 0x03) * 85);
-            const uint8_t b = static_cast<uint8_t>((v & 0x03) * 85);
             const int x = static_cast<int>(offset % WIDTH);
             const int y = static_cast<int>(offset / WIDTH);
-            displayImage.setPixelColor(x, y, QColor(r, g, b));
+            displayImage.setPixel(x, y, g_colorLut[v]);
         }
     }
 
