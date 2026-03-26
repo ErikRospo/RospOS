@@ -61,6 +61,9 @@ class Emitter:
         self._pinned_regs = {}
         # Per-function look-ahead: variable -> remaining read count.
         self._remaining_var_reads = {}
+        # Control-flow aware liveness guards.
+        self._control_flow_depth = 0
+        self._protected_var_depth = {}
 
     def _get_source_text(self, line_num: int) -> str:
         """Get the source text for a given line number (1-indexed)."""
@@ -324,6 +327,31 @@ class Emitter:
             for arg in stmt.get("args", []) or []:
                 self._count_expr_var_reads(arg, counts)
 
+    def get_expr_read_vars(self, expr: Optional[Dict[str, Any]]) -> set[str]:
+        counts: Dict[str, int] = {}
+        self._count_expr_var_reads(expr, counts)
+        return {name for name, count in counts.items() if count > 0}
+
+    def get_stmt_read_vars(self, stmt: Optional[Dict[str, Any]]) -> set[str]:
+        counts: Dict[str, int] = {}
+        self._count_stmt_var_reads(stmt, counts)
+        return {name for name, count in counts.items() if count > 0}
+
+    def enter_control_context(self, protected_vars: set[str]):
+        self._control_flow_depth += 1
+        for name in protected_vars:
+            self._protected_var_depth[name] = self._protected_var_depth.get(name, 0) + 1
+
+    def exit_control_context(self, protected_vars: set[str]):
+        for name in protected_vars:
+            depth = self._protected_var_depth.get(name, 0)
+            if depth <= 1:
+                self._protected_var_depth.pop(name, None)
+            else:
+                self._protected_var_depth[name] = depth - 1
+        if self._control_flow_depth > 0:
+            self._control_flow_depth -= 1
+
     def prepare_function_liveness(self, fn: Dict[str, Any]):
         counts: Dict[str, int] = {}
         for stmt in fn.get("body", []) or []:
@@ -335,6 +363,8 @@ class Emitter:
             return
         if self._spill_depth.get(reg, 0) > 0:
             return
+        if self._control_flow_depth > 0:
+            return
 
         aliases = [name for name, mapped_reg in self.var_regs.items() if mapped_reg == reg]
         if not aliases:
@@ -342,6 +372,8 @@ class Emitter:
 
         for name in aliases:
             if self._remaining_var_reads.get(name, 0) > 0:
+                return
+            if self._protected_var_depth.get(name, 0) > 0:
                 return
 
         for name in aliases:
@@ -360,6 +392,10 @@ class Emitter:
         remaining = self._remaining_var_reads.get(name, 0)
         if remaining > 0:
             self._remaining_var_reads[name] = remaining - 1
+        if self._control_flow_depth > 0:
+            return
+        if self._protected_var_depth.get(name, 0) > 0:
+            return
         reg = self.var_regs.get(name)
         if reg:
             self._try_release_reg_aliases_if_dead(reg)
@@ -485,6 +521,8 @@ class Emitter:
         self.var_regs = {}
         self._spill_depth = {}
         self._pinned_regs = {}
+        self._control_flow_depth = 0
+        self._protected_var_depth = {}
         # start var_types with globals available
         self.var_types = dict(self.global_types)
         # Handle parameters: map param names to argument registers (r1..r4)

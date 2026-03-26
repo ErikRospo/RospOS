@@ -9,6 +9,7 @@ void clear_display()
         __sb(0x20000000 + i, 0);
         i = i + 1;
     }
+    return;
 }
 
 void clear_char_on_display(int x, int y)
@@ -27,6 +28,7 @@ void clear_char_on_display(int x, int y)
         }
         row = row + 1;
     }
+    return;
 }
 
 char *font_address = __embed("font_bitmap.bin");
@@ -57,6 +59,7 @@ void draw_char_to_display(int ch, int x, int y)
         }
         row = row + 1;
     }
+    return;
 }
 
 void draw_string_to_display(char *str, int x, int y)
@@ -67,6 +70,7 @@ void draw_string_to_display(char *str, int x, int y)
         str = str + 1;
         x = x + 8;
     }
+    return;
 }
 
 void draw_horizontal_line(int x, int y, int length)
@@ -80,6 +84,7 @@ void draw_horizontal_line(int x, int y, int length)
         __sb(0x20000000 + index, 0x3F);
         i = i + 1;
     }
+    return;
 }
 void draw_vertical_line(int x, int y, int length)
 {
@@ -92,6 +97,7 @@ void draw_vertical_line(int x, int y, int length)
         __sb(0x20000000 + index, 0x3F);
         i = i + 1;
     }
+    return;
 }
 
 void draw_line(int x1, int y1, int x2, int y2)
@@ -171,6 +177,7 @@ void draw_line(int x1, int y1, int x2, int y2)
             y1 += sy;
         }
     }
+    return;
 }
 
 void draw_rectangle(int x, int y, int width, int height)
@@ -179,4 +186,5 @@ void draw_rectangle(int x, int y, int width, int height)
     draw_horizontal_line(x, y + height - 1, width);
     draw_vertical_line(x, y, height);
     draw_vertical_line(x + width - 1, y, height);
+    return;
 }

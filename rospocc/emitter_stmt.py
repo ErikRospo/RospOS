@@ -224,11 +224,16 @@ def _emit_assign(emitter, stmt: Dict[str, Any], out):
             force_temp = True
 
     if force_temp:
-        # Temporarily remove the target variable's register to avoid reuse
-        orig_reg = emitter.var_regs.pop(target_name, None)
-        rval = emitter.emit_expr(val, out)
-        if orig_reg is not None:
-            emitter.var_regs[target_name] = orig_reg
+        # Keep target mapped but pin its register so temporary allocation and
+        # spill heuristics cannot repurpose it while computing the RHS.
+        orig_reg = emitter.var_regs.get(target_name)
+        if orig_reg:
+            emitter.pin_reg(orig_reg)
+        try:
+            rval = emitter.emit_expr(val, out)
+        finally:
+            if orig_reg:
+                emitter.unpin_reg(orig_reg)
     else:
         rval = emitter.emit_expr(val, out)
 
@@ -272,24 +277,29 @@ def _emit_if(emitter, stmt: Dict[str, Any], out):
     cond = stmt.get("cond")
     then_stmts = stmt.get("then", []) or []
     else_stmts = stmt.get("else", []) or []
+    protected_vars = emitter.get_stmt_read_vars(stmt)
+    emitter.enter_control_context(protected_vars)
     lbl_else = emitter.gen_label("ELSE")
     lbl_end = emitter.gen_label("IF_END")
-    if isinstance(cond, dict) and cond.get("type") == "var":
-        vname = cond.get("name")
-        if emitter.var_types.get(vname) == "char_ptr":
-            cond = {"type": "deref", "expr": cond}
-    rcond = emitter.emit_expr(cond, out)
-    rcond_reg = rcond if rcond else abi.SPECIAL_REGS["zero"]
-    out.write(f"  BEQ {rcond_reg}, {abi.SPECIAL_REGS['zero']}, {lbl_else}\n")
-    if rcond:
-        emitter.release_expr_reg(rcond)
-    for s in then_stmts:
-        emitter.emit_statement(s, out)
-    out.write(f"  JMP {lbl_end}\n")
-    out.write(f"{lbl_else}:\n")
-    for s in else_stmts:
-        emitter.emit_statement(s, out)
-    out.write(f"{lbl_end}:\n")
+    try:
+        if isinstance(cond, dict) and cond.get("type") == "var":
+            vname = cond.get("name")
+            if emitter.var_types.get(vname) == "char_ptr":
+                cond = {"type": "deref", "expr": cond}
+        rcond = emitter.emit_expr(cond, out)
+        rcond_reg = rcond if rcond else abi.SPECIAL_REGS["zero"]
+        out.write(f"  BEQ {rcond_reg}, {abi.SPECIAL_REGS['zero']}, {lbl_else}\n")
+        if rcond:
+            emitter.release_expr_reg(rcond)
+        for s in then_stmts:
+            emitter.emit_statement(s, out)
+        out.write(f"  JMP {lbl_end}\n")
+        out.write(f"{lbl_else}:\n")
+        for s in else_stmts:
+            emitter.emit_statement(s, out)
+        out.write(f"{lbl_end}:\n")
+    finally:
+        emitter.exit_control_context(protected_vars)
 
 
 def _emit_call_stmt(emitter, stmt: Dict[str, Any], out):
@@ -309,22 +319,27 @@ def _emit_call_stmt(emitter, stmt: Dict[str, Any], out):
 def _emit_while(emitter, stmt: Dict[str, Any], out):
     cond = stmt.get("cond")
     body = stmt.get("body", []) or []
+    protected_vars = emitter.get_stmt_read_vars(stmt)
+    emitter.enter_control_context(protected_vars)
     lbl_start = emitter.gen_label("WHILE")
     lbl_end = emitter.gen_label("WHILE_END")
-    out.write(f"{lbl_start}:\n")
-    if isinstance(cond, dict) and cond.get("type") == "var":
-        vname = cond.get("name")
-        if emitter.var_types.get(vname) == "char_ptr":
-            cond = {"type": "deref", "expr": cond}
-    rcond = emitter.emit_expr(cond, out)
-    rcond_reg = rcond if rcond else abi.SPECIAL_REGS["zero"]
-    out.write(f"  BEQ {rcond_reg}, {abi.SPECIAL_REGS['zero']}, {lbl_end}\n")
-    if rcond:
-        emitter.release_expr_reg(rcond)
-    for s in body:
-        emitter.emit_statement(s, out)
-    out.write(f"  JMP {lbl_start}\n")
-    out.write(f"{lbl_end}:\n")
+    try:
+        out.write(f"{lbl_start}:\n")
+        if isinstance(cond, dict) and cond.get("type") == "var":
+            vname = cond.get("name")
+            if emitter.var_types.get(vname) == "char_ptr":
+                cond = {"type": "deref", "expr": cond}
+        rcond = emitter.emit_expr(cond, out)
+        rcond_reg = rcond if rcond else abi.SPECIAL_REGS["zero"]
+        out.write(f"  BEQ {rcond_reg}, {abi.SPECIAL_REGS['zero']}, {lbl_end}\n")
+        if rcond:
+            emitter.release_expr_reg(rcond)
+        for s in body:
+            emitter.emit_statement(s, out)
+        out.write(f"  JMP {lbl_start}\n")
+        out.write(f"{lbl_end}:\n")
+    finally:
+        emitter.exit_control_context(protected_vars)
 
 
 def _emit_unsupported(emitter, stmt: Dict[str, Any], out):
