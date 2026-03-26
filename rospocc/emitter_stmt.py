@@ -194,7 +194,43 @@ def _emit_assign_member_access(emitter, target: Dict[str, Any], rval: str, out):
 def _emit_assign(emitter, stmt: Dict[str, Any], out):
     target = stmt.get("target")
     val = stmt.get("value")
-    rval = emitter.emit_expr(val, out)
+
+    # Evaluate RHS first, and if assigning to a variable that is also used in the RHS,
+    # force the result into a temp register to avoid clobbering.
+    target_name = None
+    if isinstance(target, dict) and target.get("type") == "var":
+        target_name = target.get("name")
+    elif isinstance(target, str):
+        target_name = target
+
+    # If the RHS is a binop and both operands are the same as the target, force temp
+    force_temp = False
+    if (
+        isinstance(val, dict)
+        and val.get("type") == "binop"
+        and target_name is not None
+    ):
+        left = val.get("left")
+        right = val.get("right")
+        if (
+            isinstance(left, dict)
+            and left.get("type") == "var"
+            and left.get("name") == target_name
+        ) or (
+            isinstance(right, dict)
+            and right.get("type") == "var"
+            and right.get("name") == target_name
+        ):
+            force_temp = True
+
+    if force_temp:
+        # Temporarily remove the target variable's register to avoid reuse
+        orig_reg = emitter.var_regs.pop(target_name, None)
+        rval = emitter.emit_expr(val, out)
+        if orig_reg is not None:
+            emitter.var_regs[target_name] = orig_reg
+    else:
+        rval = emitter.emit_expr(val, out)
 
     if isinstance(target, dict) and target.get("type") == "member_access":
         _emit_assign_member_access(emitter, target, rval, out)
