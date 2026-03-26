@@ -1,4 +1,5 @@
 import argparse
+import json
 import re
 from pathlib import Path
 
@@ -73,6 +74,10 @@ with open(out_dir / "ast.txt", "w") as f:
 # Convert parsed AST into the translation-unit for emitter (centralized)
 tu = transform_to_translation_unit(tree, source_file=args.input)
 
+
+tu_json = json.dumps(tu, indent=2, ensure_ascii=False, default=str)
+with open(out_dir / "tu.json", "w") as f:
+    f.write(tu_json)
 # Load source lines for tracking
 with open(out_dir / preprocessed_name, "r") as f:
     source_lines = f.read().splitlines()

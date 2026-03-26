@@ -134,6 +134,8 @@ def pp_replacer(match):
     operator = match.group(2)
     return f"{var_name} = {var_name} {operator[0]} 1;"
 
+def void_return_replacer(match):
+    return "return 0;"
 
 def preprocess(code, current_file=None):
     include_pattern = re.compile(r"#include\s+<([^>]+)>")
@@ -152,5 +154,9 @@ def preprocess(code, current_file=None):
     code = aug_expr_pattern.sub(aug_replacer, code)
     pp_pattern = re.compile(r"(\w+)\s*(\+\+|--);")
     code = pp_pattern.sub(pp_replacer, code)
+    void_return_pattern = re.compile(r"\breturn\s*;") # Match 'return;' with optional whitespace
+    # Replace 'return;' with 'return 0;' to ensure all functions return a value, as RospOS does not support void returns.
+    
+    code = void_return_pattern.sub(void_return_replacer, code)
 
     return code

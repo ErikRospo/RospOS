@@ -148,6 +148,7 @@ class Emitter:
                         continue
                     reg = candidate
                     break
+            print(f"Register pressure: no free registers, spilling {reg} for temp allocation")
             if reg is not None and self.tracked_writer is not None:
                 self.tracked_writer.write(
                     f"  PUSH {reg}    // spill live temp for reg pressure\n"
@@ -159,6 +160,7 @@ class Emitter:
                 print(
                     "Warning: register pressure fallback to r13; consider freeing unused vars earlier"
                 )
+                print(f"Register picture at spill point: free={self.reg_free}, var_regs={self.var_regs}, pinned={self._pinned_regs}, spill_depth={self._spill_depth}")
                 reg = "r13"
         else:
             reg = self.reg_free.pop(0)

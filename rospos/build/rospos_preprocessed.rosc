@@ -115,7 +115,7 @@ void draw_char_to_display(int ch, int x, int y)
 {
     if (ch < 32 || ch > 127)
     {
-        return; // Non-printable characters are ignored.
+        return 0; // Non-printable characters are ignored.
     }
     int glyph = ch * 8;
     int row = 0;
@@ -191,7 +191,7 @@ void draw_line(int x1, int y1, int x2, int y2)
             length = y1 - y2 + 1;
         }
         draw_vertical_line(x1, start_y, length);
-        return;
+        return 0;
     }
 
     if (y1 == y2)
@@ -209,7 +209,7 @@ void draw_line(int x1, int y1, int x2, int y2)
             length = x1 - x2 + 1;
         }
         draw_horizontal_line(start_x, y1, length);
-        return;
+        return 0;
     }
 
     // Bresenham's line algorithm (all octants)
@@ -239,17 +239,17 @@ void draw_line(int x1, int y1, int x2, int y2)
         {
             exit_condition = 0;
         }
-            int e2 = err + err;
-            if (e2 >= dy)
-            {
-                err = err + dy;
-                x1 = x1 + sx;
-            }
-            if (e2 <= dx)
-            {
-                err = err + dx;
-                y1 = y1 + sy;
-            }
+        int e2 = err + err;
+        if (e2 >= dy)
+        {
+            err = err + dy;
+            x1 = x1 + sx;
+        }
+        if (e2 <= dx)
+        {
+            err = err + dx;
+            y1 = y1 + sy;
+        }
     }
 }
 
