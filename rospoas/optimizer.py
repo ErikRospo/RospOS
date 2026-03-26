@@ -19,7 +19,7 @@ def _remove_unneeded_jumps(ast, logs):
     i = 0
     while i < len(ast):
         instr = ast[i]
-        if isinstance(instr, Instruction) and instr.type and instr.name == "jmp":
+        if _is_jmp_to_label(instr):
             imm = instr.imm
             target = imm.name if isinstance(imm, ImmLabel) else None
 
@@ -143,6 +143,7 @@ def _is_jmp_to_label(instr):
     return (
         isinstance(instr, Instruction)
         and instr.name == "jmp"
+        and (instr.rd is None or instr.rd == 0)
         and isinstance(getattr(instr, "imm", None), ImmLabel)
     )
 def _next_non_label_index(ast, idx):
