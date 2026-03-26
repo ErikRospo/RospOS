@@ -5,7 +5,90 @@
 #include <QFile>
 #include <QDebug>
 #include <QElapsedTimer>
+#include <QTextStream>
+#include <QRegularExpression>
 #include <fstream>
+
+namespace {
+
+constexpr uint32_t kSourceLineSearchRadius = 10;
+
+QString normalizeSourceLine(const QString &line)
+{
+    QString normalized = line;
+    normalized.replace('\t', ' ');
+    normalized.replace(QRegularExpression(" +"), " ");
+    return normalized.simplified();
+}
+
+bool tryResolveNearbySourceLine(
+    const QString &sourceFilePath,
+    uint32_t suggestedLine,
+    const QString &expectedLineContent,
+    uint32_t &resolvedLine
+)
+{
+    const QString normalizedExpected = normalizeSourceLine(expectedLineContent);
+    if (normalizedExpected.isEmpty()) {
+        return false;
+    }
+
+    QFile sourceFile(sourceFilePath);
+    if (!sourceFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        return false;
+    }
+
+    QTextStream stream(&sourceFile);
+    QStringList lines;
+    while (!stream.atEnd()) {
+        lines.append(stream.readLine());
+    }
+
+    if (lines.isEmpty()) {
+        return false;
+    }
+
+    const uint32_t lineCount = static_cast<uint32_t>(lines.size());
+    uint32_t centerLine = suggestedLine;
+    if (centerLine == 0) {
+        centerLine = 1;
+    } else if (centerLine > lineCount) {
+        centerLine = lineCount;
+    }
+
+    const auto lineMatches = [&](uint32_t oneBasedLine) -> bool {
+        if (oneBasedLine == 0 || oneBasedLine > lineCount) {
+            return false;
+        }
+        const QString sourceLine = lines.at(static_cast<int>(oneBasedLine - 1));
+        const QString normalizedSource = normalizeSourceLine(sourceLine);
+        return normalizedSource == normalizedExpected;
+    };
+
+    for (uint32_t offset = 0; offset <= kSourceLineSearchRadius; ++offset) {
+        if (centerLine > offset) {
+            const uint32_t upLine = centerLine - offset;
+            if (lineMatches(upLine)) {
+                resolvedLine = upLine;
+                return true;
+            }
+        }
+
+        if (offset == 0) {
+            continue;
+        }
+
+        const uint32_t downLine = centerLine + offset;
+        if (downLine <= lineCount && lineMatches(downLine)) {
+            resolvedLine = downLine;
+            return true;
+        }
+    }
+
+    return false;
+}
+
+} // namespace
 
 VMController::VMController(QObject *parent)
     : QObject(parent), vm(std::make_unique<RospOSVM>(true)), running(false)
@@ -549,6 +632,12 @@ QString VMController::getCurrentOriginalInstruction() const
 
 QString VMController::getSourceLocation(uint32_t address) const
 {
+    QString filePath;
+    uint32_t line = 0;
+    if (getSourceReference(address, filePath, line)) {
+        return QString("%1:%2").arg(filePath).arg(line);
+    }
+
     std::string location = vm->formatSourceLocation(address);
     return QString::fromStdString(location);
 }
@@ -571,6 +660,16 @@ bool VMController::getSourceReference(uint32_t address, QString &filePath, uint3
         if (fileIt != debugInfo->file_table.end()) {
             filePath = QString::fromStdString(fileIt->second);
             line = entry->line;
+
+            uint32_t resolvedLine = 0;
+            if (tryResolveNearbySourceLine(
+                    filePath,
+                    line,
+                    QString::fromStdString(entry->original_text),
+                    resolvedLine)) {
+                line = resolvedLine;
+            }
+
             return true;
         }
     }
