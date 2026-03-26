@@ -39,6 +39,7 @@ public:
     uint32_t readMemory(uint32_t address) const;
     uint8_t readMemoryByte(uint32_t address) const;
     uint8_t readMemoryByteForInspector(uint32_t address) const;
+    bool exportMemoryRangeToBinary(uint32_t startAddress, uint32_t endAddress, const QString &filePath, QString *errorMessage = nullptr) const;
     void writeMemory(uint32_t address, uint32_t value);
     bool getLastMemoryAccess(uint32_t &address, uint8_t &size, bool &isWrite) const;
     bool getPredictedMemoryAccess(uint32_t &address, uint8_t &size, bool &isWrite) const;

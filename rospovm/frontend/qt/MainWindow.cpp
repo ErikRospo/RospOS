@@ -23,6 +23,9 @@
 #include <QMetaObject>
 #include <QTimer>
 #include <QScrollArea>
+#include <QInputDialog>
+#include <QFileInfo>
+#include <QDateTime>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent),
@@ -67,6 +70,10 @@ void MainWindow::createMenuBar()
     QAction *openAction = fileMenu->addAction(tr("&Open Binary..."));
     openAction->setShortcut(QKeySequence::Open);
     connect(openAction, &QAction::triggered, this, &MainWindow::onLoadFile);
+
+    QAction *exportAction = fileMenu->addAction(tr("Export Display as &PNG..."));
+    exportAction->setShortcut(QKeySequence(Qt::CTRL | Qt::SHIFT | Qt::Key_S));
+    connect(exportAction, &QAction::triggered, this, &MainWindow::onExportDisplayPng);
 
     fileMenu->addSeparator();
 
@@ -118,6 +125,11 @@ void MainWindow::createToolBar()
     loadAction->setIcon(style()->standardIcon(QStyle::SP_DirOpenIcon));
     connect(loadAction, &QAction::triggered, this, &MainWindow::onLoadFile);
     loadButton = loadAction;
+
+    exportDisplayAction = toolBar->addAction(tr("Export PNG"));
+    exportDisplayAction->setIcon(style()->standardIcon(QStyle::SP_DialogSaveButton));
+    exportDisplayAction->setToolTip(tr("Export display framebuffer to a PNG file"));
+    connect(exportDisplayAction, &QAction::triggered, this, &MainWindow::onExportDisplayPng);
 
     toolBar->addSeparator();
 
@@ -295,6 +307,51 @@ void MainWindow::onLoadFile()
 void MainWindow::onStep()
 {
     vmController->step();
+}
+
+void MainWindow::onExportDisplayPng()
+{
+    bool ok = false;
+    const int scaleFactor = QInputDialog::getInt(
+        this,
+        tr("Export Display as PNG"),
+        tr("Scale factor:"),
+        4,
+        1,
+        32,
+        1,
+        &ok);
+
+    if (!ok) {
+        return;
+    }
+
+    const QString defaultName = QString("display_%1_x%2.png")
+                                    .arg(QDateTime::currentDateTime().toString("yyyyMMdd_HHmmss"))
+                                    .arg(scaleFactor);
+
+    QString fileName = QFileDialog::getSaveFileName(
+        this,
+        tr("Save Display PNG"),
+        defaultName,
+        tr("PNG Image (*.png)"));
+
+    if (fileName.isEmpty()) {
+        return;
+    }
+
+    QFileInfo info(fileName);
+    if (info.suffix().isEmpty()) {
+        fileName += ".png";
+    }
+
+    QString errorMessage;
+    if (!displayWidget->exportToPng(fileName, scaleFactor, &errorMessage)) {
+        QMessageBox::warning(this, tr("Export Failed"), errorMessage);
+        return;
+    }
+
+    statusLabel->setText(tr("Status: Display exported to %1").arg(fileName));
 }
 
 void MainWindow::onStepBack()

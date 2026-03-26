@@ -389,6 +389,63 @@ uint8_t VMController::readMemoryByteForInspector(uint32_t address) const
     }
 }
 
+bool VMController::exportMemoryRangeToBinary(uint32_t startAddress, uint32_t endAddress, const QString &filePath, QString *errorMessage) const
+{
+    if (endAddress < startAddress) {
+        if (errorMessage) {
+            *errorMessage = QString("End address must be greater than or equal to start address.");
+        }
+        return false;
+    }
+
+    QFile outputFile(filePath);
+    if (!outputFile.open(QIODevice::WriteOnly)) {
+        if (errorMessage) {
+            *errorMessage = QString("Failed to open file for writing: %1").arg(outputFile.errorString());
+        }
+        return false;
+    }
+
+    constexpr uint32_t kChunkSize = 4096;
+    uint64_t current = startAddress;
+    const uint64_t last = endAddress;
+
+    while (current <= last) {
+        const uint64_t remaining = (last - current) + 1;
+        const int chunkLen = static_cast<int>(remaining < kChunkSize ? remaining : kChunkSize);
+
+        QByteArray buffer;
+        buffer.resize(chunkLen);
+
+        for (int i = 0; i < chunkLen; ++i) {
+            const uint32_t byteAddress = static_cast<uint32_t>(current + static_cast<uint64_t>(i));
+            try {
+                buffer[i] = static_cast<char>(vm->readMemoryByteForInspector(byteAddress));
+            } catch (...) {
+                if (errorMessage) {
+                    *errorMessage = QString("Failed to read memory at address 0x%1")
+                                        .arg(byteAddress, 8, 16, QChar('0'));
+                }
+                outputFile.close();
+                return false;
+            }
+        }
+
+        const qint64 bytesWritten = outputFile.write(buffer);
+        if (bytesWritten != chunkLen) {
+            if (errorMessage) {
+                *errorMessage = QString("Failed while writing output file: %1").arg(outputFile.errorString());
+            }
+            outputFile.close();
+            return false;
+        }
+
+        current += static_cast<uint64_t>(chunkLen);
+    }
+
+    return true;
+}
+
 void VMController::writeMemory(uint32_t address, uint32_t value)
 {
     try {

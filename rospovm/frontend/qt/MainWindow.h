@@ -26,6 +26,7 @@ public:
 
 private slots:
     void onLoadFile();
+    void onExportDisplayPng();
     void onStep();
     void onStepBack();
     void onRun();
@@ -56,6 +57,7 @@ private:
 
     // UI Controls
     QAction *loadButton;
+    QAction *exportDisplayAction;
     QAction *stepAction;
     QAction *stepBackAction;
     QAction *runAction;

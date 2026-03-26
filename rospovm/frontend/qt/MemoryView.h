@@ -22,6 +22,7 @@ public:
 
 private slots:
     void onAddressChanged();
+    void onExportRangeClicked();
 
 private:
     void createUI();
@@ -31,6 +32,8 @@ private:
     QTableWidget *memoryTable;
     QLabel *titleLabel;
     QLineEdit *addressInput;
+    QLineEdit *exportStartInput;
+    QLineEdit *exportEndInput;
     uint32_t currentAddress;
     uint32_t lastAddress = 0;
     uint8_t lastSize = 0;

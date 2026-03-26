@@ -147,3 +147,42 @@ void VMDisplay::paintEvent(QPaintEvent *event)
         painter.drawImage(targetRect, displayImage);
     }
 }
+
+bool VMDisplay::exportToPng(const QString &filePath, int scaleFactor, QString *errorMessage) const
+{
+    if (filePath.isEmpty()) {
+        if (errorMessage) {
+            *errorMessage = "Output file path is empty.";
+        }
+        return false;
+    }
+
+    if (scaleFactor < 1) {
+        if (errorMessage) {
+            *errorMessage = "Scale factor must be at least 1.";
+        }
+        return false;
+    }
+
+    QImage snapshot;
+    {
+        std::lock_guard<std::mutex> lock(imageMutex);
+        snapshot = displayImage.copy();
+    }
+
+    if (scaleFactor > 1) {
+        snapshot = snapshot.scaled(WIDTH * scaleFactor,
+                                   HEIGHT * scaleFactor,
+                                   Qt::IgnoreAspectRatio,
+                                   Qt::FastTransformation);
+    }
+
+    if (!snapshot.save(filePath, "PNG")) {
+        if (errorMessage) {
+            *errorMessage = QString("Failed to write PNG: %1").arg(filePath);
+        }
+        return false;
+    }
+
+    return true;
+}

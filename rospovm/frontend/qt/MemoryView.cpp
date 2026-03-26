@@ -7,6 +7,22 @@
 #include <QFont>
 #include <QLabel>
 #include <QColor>
+#include <QPushButton>
+#include <QFileDialog>
+#include <QFileInfo>
+#include <QDateTime>
+#include <QMessageBox>
+
+namespace {
+bool parseAddressText(const QString &text, uint32_t &outAddress)
+{
+    bool ok = false;
+    outAddress = text.startsWith("0x") || text.startsWith("0X")
+                     ? text.mid(2).toUInt(&ok, 16)
+                     : text.toUInt(&ok, 10);
+    return ok;
+}
+}
 
 MemoryView::MemoryView(QWidget *parent)
     : QWidget(parent), vmController(nullptr), currentAddress(0x0000)
@@ -46,6 +62,34 @@ void MemoryView::createUI()
 
     mainLayout->addLayout(addressLayout);
 
+    // Export range controls
+    QHBoxLayout *exportLayout = new QHBoxLayout();
+    exportLayout->addWidget(new QLabel("Export Range:"));
+
+    exportStartInput = new QLineEdit();
+    exportStartInput->setText("0x00000000");
+    exportStartInput->setMaximumWidth(120);
+    exportStartInput->setToolTip("Start address (hex or decimal)");
+    exportLayout->addWidget(exportStartInput);
+
+    exportLayout->addWidget(new QLabel("to"));
+
+    exportEndInput = new QLineEdit();
+    exportEndInput->setText("0x000000FF");
+    exportEndInput->setMaximumWidth(120);
+    exportEndInput->setToolTip("End address (inclusive)");
+    exportLayout->addWidget(exportEndInput);
+
+    QPushButton *exportButton = new QPushButton("Export .bin");
+    exportLayout->addWidget(exportButton);
+    exportLayout->addStretch();
+
+    connect(exportButton, &QPushButton::clicked, this, &MemoryView::onExportRangeClicked);
+    connect(exportStartInput, &QLineEdit::returnPressed, this, &MemoryView::onExportRangeClicked);
+    connect(exportEndInput, &QLineEdit::returnPressed, this, &MemoryView::onExportRangeClicked);
+
+    mainLayout->addLayout(exportLayout);
+
     // Memory table
     memoryTable = new QTableWidget();
     memoryTable->setColumnCount(17); // Address + 16 bytes
@@ -82,16 +126,69 @@ void MemoryView::createUI()
 
 void MemoryView::onAddressChanged()
 {
-    QString text = addressInput->text();
-    bool ok;
-    uint32_t address = text.startsWith("0x") || text.startsWith("0X")
-                           ? text.mid(2).toUInt(&ok, 16)
-                           : text.toUInt(&ok, 10);
+    const QString text = addressInput->text();
+    uint32_t address = 0;
 
-    if (ok) {
+    if (parseAddressText(text, address)) {
         currentAddress = address;
+        exportStartInput->setText(QString("0x%1").arg(currentAddress, 8, 16, QChar('0')));
+        exportEndInput->setText(QString("0x%1").arg(currentAddress + 0xFFu, 8, 16, QChar('0')));
         populateMemory(currentAddress);
     }
+}
+
+void MemoryView::onExportRangeClicked()
+{
+    if (!vmController) {
+        QMessageBox::warning(this, "Export Failed", "VM controller is not available.");
+        return;
+    }
+
+    uint32_t startAddress = 0;
+    uint32_t endAddress = 0;
+    if (!parseAddressText(exportStartInput->text(), startAddress)) {
+        QMessageBox::warning(this, "Invalid Address", "Start address is invalid.");
+        return;
+    }
+    if (!parseAddressText(exportEndInput->text(), endAddress)) {
+        QMessageBox::warning(this, "Invalid Address", "End address is invalid.");
+        return;
+    }
+
+    if (endAddress < startAddress) {
+        QMessageBox::warning(this, "Invalid Range", "End address must be greater than or equal to start address.");
+        return;
+    }
+
+    const QString defaultName = QString("memory_%1_%2_%3.bin")
+                                    .arg(startAddress, 8, 16, QChar('0'))
+                                    .arg(endAddress, 8, 16, QChar('0'))
+                                    .arg(QDateTime::currentDateTime().toString("yyyyMMdd_HHmmss"));
+
+    QString fileName = QFileDialog::getSaveFileName(
+        this,
+        "Export Memory Range",
+        defaultName,
+        "Binary Files (*.bin);;All Files (*)");
+
+    if (fileName.isEmpty()) {
+        return;
+    }
+
+    QFileInfo info(fileName);
+    if (info.suffix().isEmpty()) {
+        fileName += ".bin";
+    }
+
+    QString errorMessage;
+    if (!vmController->exportMemoryRangeToBinary(startAddress, endAddress, fileName, &errorMessage)) {
+        QMessageBox::warning(this, "Export Failed", errorMessage);
+        return;
+    }
+
+    QMessageBox::information(this, "Export Complete", QString("Exported %1 bytes to:\n%2")
+        .arg(static_cast<qulonglong>(endAddress) - static_cast<qulonglong>(startAddress) + 1ULL)
+        .arg(fileName));
 }
 
 void MemoryView::populateMemory(uint32_t address)

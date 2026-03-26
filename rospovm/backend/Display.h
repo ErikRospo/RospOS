@@ -35,6 +35,8 @@ public:
     static uint8_t displayReadHandler(uint32_t address);
     static void displayWriteHandler(uint32_t address, uint8_t value);
 
+    bool exportToPng(const QString &filePath, int scaleFactor = 1, QString *errorMessage = nullptr) const;
+
     VMDisplay(QWidget *parent = nullptr);
     ~VMDisplay();
 
