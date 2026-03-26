@@ -10,6 +10,8 @@ Goal:
 * Small OS atop ISA (*RospOS*)
 * `sh`-like shell
 * `bc`-like calculator
+* `TI-84`-like graphing calculator
+  * Bresenham's line algorithm on steroids
 * `nano`-like text editor
 * **Audio**: SID-like synth
 * **Display**: 256x256 8-bit framebuffer

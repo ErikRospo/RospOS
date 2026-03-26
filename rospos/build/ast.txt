@@ -1042,52 +1042,6 @@ translation_unit
                 x2
                 minus
                 x1
-        declaration
-          type_specifier
-            int
-          init_declarator_list
-            init_declarator
-              declarator	dy
-              additive
-                y2
-                minus
-                y1
-        declaration
-          type_specifier
-            int
-          init_declarator_list
-            init_declarator
-              declarator	sx
-              unary
-                uminus
-                1
-        declaration
-          type_specifier
-            int
-          init_declarator_list
-            init_declarator
-              declarator	sy
-              unary
-                uminus
-                1
-        if_stmt
-          relational
-            dx
-            gt
-            0
-          expr_stmt
-            assignment
-              sx
-              1
-        if_stmt
-          relational
-            dy
-            gt
-            0
-          expr_stmt
-            assignment
-              sy
-              1
         if_stmt
           relational
             dx
@@ -1099,6 +1053,34 @@ translation_unit
               unary
                 uminus
                 dx
+        declaration
+          type_specifier
+            int
+          init_declarator_list
+            init_declarator
+              declarator	sx
+              unary
+                uminus
+                1
+        if_stmt
+          relational
+            x1
+            lt
+            x2
+          expr_stmt
+            assignment
+              sx
+              1
+        declaration
+          type_specifier
+            int
+          init_declarator_list
+            init_declarator
+              declarator	dy
+              additive
+                y1
+                minus
+                y2
         if_stmt
           relational
             dy
@@ -1110,46 +1092,49 @@ translation_unit
               unary
                 uminus
                 dy
+        expr_stmt
+          assignment
+            dy
+            unary
+              uminus
+              dy
+        declaration
+          type_specifier
+            int
+          init_declarator_list
+            init_declarator
+              declarator	sy
+              unary
+                uminus
+                1
+        if_stmt
+          relational
+            y1
+            lt
+            y2
+          expr_stmt
+            assignment
+              sy
+              1
         declaration
           type_specifier
             int
           init_declarator_list
             init_declarator
               declarator	err
-              0
-        if_stmt
-          relational
-            dx
-            gt
-            dy
-          expr_stmt
-            assignment
-              err
-              multiplicative
+              additive
                 dx
-                div
-                2
-          expr_stmt
-            assignment
-              err
-              multiplicative
-                unary
-                  uminus
-                  dy
-                div
-                2
+                plus
+                dy
         declaration
           type_specifier
             int
           init_declarator_list
             init_declarator
-              declarator	exit
-              0
+              declarator	exit_condition
+              1
         while_stmt
-          equality
-            exit
-            eq
-            0
+          exit_condition
           compound_stmt
             declaration
               type_specifier
@@ -1184,31 +1169,33 @@ translation_unit
                   y1
                   eq
                   y2
-              expr_stmt
-                assignment
-                  exit
-                  1
+              compound_stmt
+                expr_stmt
+                  assignment
+                    exit_condition
+                    0
             declaration
               type_specifier
                 int
               init_declarator_list
                 init_declarator
-                  declarator	err2
-                  err
+                  declarator	e2
+                  additive
+                    err
+                    plus
+                    err
             if_stmt
               relational
-                err2
-                gt
-                unary
-                  uminus
-                  dx
+                e2
+                gte
+                dy
               compound_stmt
                 expr_stmt
                   assignment
                     err
                     additive
                       err
-                      minus
+                      plus
                       dy
                 expr_stmt
                   assignment
@@ -1219,9 +1206,9 @@ translation_unit
                       sx
             if_stmt
               relational
-                err2
-                lt
-                dy
+                e2
+                lte
+                dx
               compound_stmt
                 expr_stmt
                   assignment
