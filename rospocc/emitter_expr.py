@@ -30,9 +30,10 @@ def _emit_var(emitter, expr: Dict[str, Any], out) -> str:
     name = expr.get("name")
     r = emitter.var_regs.get(name)
     if r:
+        emitter.consume_var_read(name)
         return r
     if name in emitter.global_value_inits:
-        return emitter._alloc_var_reg(
+        reg = emitter._alloc_var_reg(
             name,
             out,
             init_value=emitter.global_value_inits[name],
@@ -40,7 +41,11 @@ def _emit_var(emitter, expr: Dict[str, Any], out) -> str:
             is_label=True,
             comment="global symbol addr",
         )
-    return emitter._alloc_var_reg(name, out, init_value=None, typ="int")
+        emitter.consume_var_read(name)
+        return reg
+    reg = emitter._alloc_var_reg(name, out, init_value=None, typ="int")
+    emitter.consume_var_read(name)
+    return reg
 
 
 def _emit_deref(emitter, expr: Dict[str, Any], out) -> str:

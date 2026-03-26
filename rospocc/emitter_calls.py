@@ -38,9 +38,11 @@ def emit_call(emitter, call_expr: Dict, return_reg: Optional[str], out):
         elif a.get("type") == "string_addr":
             emitter._load_imm(dest, a.get("label"), out)
         elif a.get("type") == "var":
-            r = emitter.var_regs.get(a.get("name"))
+            var_name = a.get("name")
+            r = emitter.var_regs.get(var_name)
             if r:
                 out.write(f"  ADDI {dest}, {r}, 0    // move arg {i}\n")
+                emitter.consume_var_read(var_name)
             else:
                 emitter._load_imm(dest, 0, out)
         elif a.get("type") == "deref":

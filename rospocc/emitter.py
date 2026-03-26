@@ -59,6 +59,8 @@ class Emitter:
         self._spill_depth = {}
         # Pinned regs are protected from spill while their current value is needed.
         self._pinned_regs = {}
+        # Per-function look-ahead: variable -> remaining read count.
+        self._remaining_var_reads = {}
 
     def _get_source_text(self, line_num: int) -> str:
         """Get the source text for a given line number (1-indexed)."""
@@ -137,6 +139,9 @@ class Emitter:
     def alloc_reg(self, track_as_temp: bool = True) -> str:
         borrowed_spill = False
         if not self.reg_free:
+            self.reclaim_dead_var_regs()
+
+        if not self.reg_free:
             reg = None
             if track_as_temp:
                 for candidate in abi.TEMP_REGS:
@@ -146,8 +151,11 @@ class Emitter:
                         continue
                     if self._pinned_regs.get(candidate, 0) > 0:
                         continue
+                    if self._spill_depth.get(candidate, 0) > 0:
+                        continue
                     reg = candidate
                     break
+
             print(f"Register pressure: no free registers, spilling {reg} for temp allocation")
             if reg is not None and self.tracked_writer is not None:
                 self.tracked_writer.write(
@@ -230,6 +238,131 @@ class Emitter:
     # Helper: ensure a var has a register (allocate+zero-init if not)
     def _ensure_var_reg(self, name: str, out) -> str:
         return ensure_var_reg(self, name, out)
+
+    def _count_expr_var_reads(self, expr: Optional[Dict[str, Any]], counts: Dict[str, int]):
+        if not isinstance(expr, dict):
+            return
+
+        et = expr.get("type")
+        if et == "var":
+            name = expr.get("name")
+            if isinstance(name, str):
+                counts[name] = counts.get(name, 0) + 1
+            return
+
+        if et == "binop":
+            self._count_expr_var_reads(expr.get("left"), counts)
+            self._count_expr_var_reads(expr.get("right"), counts)
+            return
+
+        if et == "unop":
+            self._count_expr_var_reads(expr.get("operand"), counts)
+            return
+
+        if et in ("deref", "addr_of"):
+            self._count_expr_var_reads(expr.get("expr"), counts)
+            return
+
+        if et == "member_access":
+            self._count_expr_var_reads(expr.get("base"), counts)
+            return
+
+        if et == "call":
+            for arg in expr.get("args", []) or []:
+                self._count_expr_var_reads(arg, counts)
+            return
+
+        if et == "assign":
+            target = expr.get("target")
+            if isinstance(target, dict):
+                target_type = target.get("type")
+                if target_type == "deref":
+                    self._count_expr_var_reads(target.get("expr"), counts)
+                elif target_type == "member_access":
+                    self._count_expr_var_reads(target.get("base"), counts)
+            self._count_expr_var_reads(expr.get("value"), counts)
+
+    def _count_stmt_var_reads(self, stmt: Optional[Dict[str, Any]], counts: Dict[str, int]):
+        if not isinstance(stmt, dict):
+            return
+
+        st = stmt.get("type")
+        if st == "decl":
+            self._count_expr_var_reads(stmt.get("init"), counts)
+            return
+
+        if st == "assign":
+            target = stmt.get("target")
+            if isinstance(target, dict):
+                target_type = target.get("type")
+                if target_type == "deref":
+                    self._count_expr_var_reads(target.get("expr"), counts)
+                elif target_type == "member_access":
+                    self._count_expr_var_reads(target.get("base"), counts)
+            self._count_expr_var_reads(stmt.get("value"), counts)
+            return
+
+        if st == "return":
+            self._count_expr_var_reads(stmt.get("value"), counts)
+            return
+
+        if st == "if":
+            self._count_expr_var_reads(stmt.get("cond"), counts)
+            for child in stmt.get("then", []) or []:
+                self._count_stmt_var_reads(child, counts)
+            for child in stmt.get("else", []) or []:
+                self._count_stmt_var_reads(child, counts)
+            return
+
+        if st == "while":
+            self._count_expr_var_reads(stmt.get("cond"), counts)
+            for child in stmt.get("body", []) or []:
+                self._count_stmt_var_reads(child, counts)
+            return
+
+        if st == "call_stmt":
+            for arg in stmt.get("args", []) or []:
+                self._count_expr_var_reads(arg, counts)
+
+    def prepare_function_liveness(self, fn: Dict[str, Any]):
+        counts: Dict[str, int] = {}
+        for stmt in fn.get("body", []) or []:
+            self._count_stmt_var_reads(stmt, counts)
+        self._remaining_var_reads = counts
+
+    def _try_release_reg_aliases_if_dead(self, reg: str):
+        if self._pinned_regs.get(reg, 0) > 0:
+            return
+        if self._spill_depth.get(reg, 0) > 0:
+            return
+
+        aliases = [name for name, mapped_reg in self.var_regs.items() if mapped_reg == reg]
+        if not aliases:
+            return
+
+        for name in aliases:
+            if self._remaining_var_reads.get(name, 0) > 0:
+                return
+
+        for name in aliases:
+            del self.var_regs[name]
+        self.free_reg(reg)
+
+    def reclaim_dead_var_regs(self):
+        for reg in list(dict.fromkeys(self.var_regs.values())):
+            self._try_release_reg_aliases_if_dead(reg)
+
+    def consume_var_read(self, name: Optional[str]):
+        if not isinstance(name, str):
+            return
+        if name not in self._remaining_var_reads:
+            return
+        remaining = self._remaining_var_reads.get(name, 0)
+        if remaining > 0:
+            self._remaining_var_reads[name] = remaining - 1
+        reg = self.var_regs.get(name)
+        if reg:
+            self._try_release_reg_aliases_if_dead(reg)
 
     def _emit_compare(self, rd: str, op: str, rl: str, rr: str, out):
         ltrue = self.gen_label("CMP_TRUE")
@@ -380,6 +513,7 @@ class Emitter:
 
         # per-function flag: whether a return was emitted inside body
         self.had_return = False
+        self.prepare_function_liveness(fn)
 
         # Emit body
         for stmt in fn.get("body", []):
