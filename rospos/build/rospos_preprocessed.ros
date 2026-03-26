@@ -15,9 +15,8 @@ WHILE1:
   BEQ r3, r0, WHILE_END2
   LB r4, r1, 0    // deref
   SB r4, r2, 0    // intrinsic __sb
-  LLI r5, 0    // zero init str
-  LLI r6, 1    // load immediate 1
-  ADD r5, r5, r6    // binop +
+  LLI r5, 1    // load immediate 1
+  ADD r5, r1, r5    // binop +
   ADDI r1, r5, 0    // assign str
   JMP WHILE1
 WHILE_END2:
@@ -58,83 +57,82 @@ CMP_END7:
   POP r3    // restore caller temp
   POP r2    // restore caller temp
   LLI r5, 0    // load immediate 0
-  LLI r6, 0    // zero init num
-  SUB r5, r5, r6    // binop -
+  SUB r5, r5, r1    // binop -
   ADDI r1, r5, 0    // assign num
   JMP IF_END5
 ELSE4:
 IF_END5:
 WHILE8:
-  LLI r7, 0    // load immediate 0
-  BLT r7, r1, CMP_TRUE10
-  LLI r7, 0    // compare false path
+  LLI r6, 0    // load immediate 0
+  BLT r6, r1, CMP_TRUE10
+  LLI r6, 0    // compare false path
   JMP CMP_END11
 CMP_TRUE10:
-  LLI r7, 1
+  LLI r6, 1
 CMP_END11:
-  BEQ r7, r0, WHILE_END9
-  LLI r8, 48    // load immediate 48
-  LLI r9, 10    // load immediate 10
-  REM r9, r1, r9    // binop %
-  ADD r8, r8, r9    // binop +
-  LLI r10, 1    // load immediate 1
-  ADD r10, r3, r10    // binop +
-  ADDI r3, r10, 0    // assign-expr i
-  ADD r11, r2, r3    // binop +
-  SB r8, r11, 0    // store 
-  LLI r12, 0    // zero init num
-  LLI r4, 10    // load immediate 10
-  DIV r12, r12, r4    // binop /
-  ADDI r1, r12, 0    // assign num
+  BEQ r6, r0, WHILE_END9
+  LLI r7, 48    // load immediate 48
+  LLI r8, 10    // load immediate 10
+  REM r8, r1, r8    // binop %
+  ADD r7, r7, r8    // binop +
+  LLI r9, 1    // load immediate 1
+  ADD r9, r3, r9    // binop +
+  ADDI r3, r9, 0    // assign-expr i
+  ADD r10, r2, r3    // binop +
+  SB r7, r10, 0    // store 
+  LLI r11, 10    // load immediate 10
+  DIV r11, r1, r11    // binop /
+  ADDI r1, r11, 0    // assign num
   JMP WHILE8
 WHILE_END9:
-  LLI r5, 0    // load immediate 0
-  ADD r7, r2, r3    // binop +
-  SB r5, r7, 0    // store 
-  LLI r9, 0    // init j
+  LLI r12, 0    // load immediate 0
+  ADD r4, r2, r3    // binop +
+  SB r12, r4, 0    // store 
+  LLI r5, 0    // init j
 WHILE12:
-  LLI r10, 2    // load immediate 2
-  DIV r10, r3, r10    // binop /
-  BLT r9, r10, CMP_TRUE14
-  LLI r10, 0    // compare false path
+  LLI r6, 2    // load immediate 2
+  DIV r6, r3, r6    // binop /
+  BLT r5, r6, CMP_TRUE14
+  LLI r6, 0    // compare false path
   JMP CMP_END15
 CMP_TRUE14:
-  LLI r10, 1
+  LLI r6, 1
 CMP_END15:
-  BEQ r10, r0, WHILE_END13
-  LLI r11, 0    // zero init temp
-  ADD r8, r2, r9    // binop +
-  LB r8, r8, 0    // deref
-  ADDI r11, r8, 0    // init temp from expr
-  SUB r12, r3, r9    // binop -
-  LLI r4, 1    // load immediate 1
-  SUB r12, r12, r4    // binop -
-  ADD r12, r2, r12    // binop +
-  LB r12, r12, 0    // deref
-  ADD r7, r2, r9    // binop +
-  SB r12, r7, 0    // store 
-  SUB r3, r3, r9    // binop -
-  LLI r5, 1    // load immediate 1
-  SUB r3, r3, r5    // binop -
-  ADD r3, r2, r3    // binop +
-  SB r11, r3, 0    // store 
-  LLI r10, 0    // zero init j
-  LLI r8, 1    // load immediate 1
-  ADD r10, r10, r8    // binop +
-  ADDI r9, r10, 0    // assign j
+  BEQ r6, r0, WHILE_END13
+  LLI r8, 0    // zero init temp
+  ADD r9, r2, r5    // binop +
+  LB r9, r9, 0    // deref
+  ADDI r8, r9, 0    // init temp from expr
+  SUB r10, r3, r5    // binop -
+  LLI r7, 1    // load immediate 1
+  SUB r10, r10, r7    // binop -
+  ADD r10, r2, r10    // binop +
+  LB r10, r10, 0    // deref
+  ADD r11, r2, r5    // binop +
+  SB r10, r11, 0    // store 
+  SUB r4, r3, r5    // binop -
+  LLI r12, 1    // load immediate 1
+  SUB r4, r4, r12    // binop -
+  ADD r4, r2, r4    // binop +
+  SB r8, r4, 0    // store 
+  LLI r6, 1    // load immediate 1
+  ADD r6, r5, r6    // binop +
+  ADDI r5, r6, 0    // assign j
   JMP WHILE12
 WHILE_END13:
   // emit call to print_string with args [{'type': 'var', 'name': 'buffer'}]
   PUSH r2    // save caller temp
-  PUSH r6    // save caller temp
-  PUSH r9    // save caller temp
+  PUSH r3    // save caller temp
+  PUSH r5    // save caller temp
+  PUSH r8    // save caller temp
   PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
   ADDI r1, r2, 0    // move arg 0
   CALL print_string
   // call return value in r1
   POP r1  
-  POP r9    // restore caller temp
-  POP r6    // restore caller temp
+  POP r8    // restore caller temp
+  POP r5    // restore caller temp
+  POP r3    // restore caller temp
   POP r2    // restore caller temp
   // epilogue and return
   ADDI r1, r0, 0  // ensure r1=0
@@ -155,14 +153,14 @@ WHILE_END13:
   LLI r4, 0    // init i
 WHILE16:
   LLI r5, 1    // load immediate 1
-  SUB r2, r2, r5    // binop -
-  BLT r4, r2, CMP_TRUE18
-  LLI r2, 0    // compare false path
+  SUB r5, r2, r5    // binop -
+  BLT r4, r5, CMP_TRUE18
+  LLI r5, 0    // compare false path
   JMP CMP_END19
 CMP_TRUE18:
-  LLI r2, 1
+  LLI r5, 1
 CMP_END19:
-  BEQ r2, r0, WHILE_END17
+  BEQ r5, r0, WHILE_END17
   LLI r6, 0    // zero init c
   LB r6, r3, 0    // intrinsic __lb -> return
   LLI r7, 10    // load immediate 10
@@ -211,22 +209,24 @@ WHILE_END17:
   LLI r3, 0    // init i
 WHILE28:
   LLI r4, 1    // load immediate 1
-  SUB r2, r2, r4    // binop -
-  BLT r3, r2, CMP_TRUE30
-  LLI r2, 0    // compare false path
+  SUB r4, r2, r4    // binop -
+  BLT r3, r4, CMP_TRUE30
+  LLI r4, 0    // compare false path
   JMP CMP_END31
 CMP_TRUE30:
-  LLI r2, 1
+  LLI r4, 1
 CMP_END31:
-  BEQ r2, r0, WHILE_END29
+  BEQ r4, r0, WHILE_END29
   LLI r5, 0    // zero init c
   // emit call to read_char with args []
+  PUSH r2    // save caller temp
   PUSH r3    // save caller temp
   PUSH r5    // save caller temp
   CALL read_char
   // call return value in r1
   POP r5    // restore caller temp
   POP r3    // restore caller temp
+  POP r2    // restore caller temp
   ADDI r5, r1, 0    // move return value
   LLI r6, 10    // load immediate 10
   BEQ r5, r6, CMP_TRUE34
@@ -241,16 +241,15 @@ ELSE32:
 IF_END33:
   ADD r7, r1, r3    // binop +
   SB r5, r7, 0    // store 
-  LLI r8, 0    // zero init i
-  LLI r9, 1    // load immediate 1
-  ADD r9, r8, r9    // binop +
-  ADDI r3, r9, 0    // assign i
+  LLI r8, 1    // load immediate 1
+  ADD r8, r3, r8    // binop +
+  ADDI r3, r8, 0    // assign i
   JMP WHILE28
 WHILE_END29:
-  LLI r10, 0    // load immediate 0
+  LLI r9, 0    // load immediate 0
   ADD r3, r1, r3    // binop +
-  SB r10, r3, 0    // store 
-  LLI r11, 0    // zero init i
+  SB r9, r3, 0    // store 
+  LLI r10, 0    // zero init i
   // epilogue and return
   ADDI r1, r0, 0  // ensure r1=0
   POP r14
@@ -272,14 +271,13 @@ CMP_END39:
   ADD r4, r4, r2    // binop +
   LLI r5, 0    // val const for __sb
   SB r5, r4, 0    // intrinsic __sb
-  LLI r6, 0    // zero init i
-  LLI r7, 1    // load immediate 1
-  ADD r6, r6, r7    // binop +
+  LLI r6, 1    // load immediate 1
+  ADD r6, r2, r6    // binop +
   ADDI r2, r6, 0    // assign i
   JMP WHILE36
 WHILE_END37:
-  // epilogue and return
-  ADDI r1, r0, 0  // ensure r1=0
+  LLI r7, 0    // load immediate 0
+  ADD r1, r7, r0
   POP r14
   RET
 
@@ -309,31 +307,29 @@ CMP_END47:
   ADD r8, r1, r5    // binop +
   ADDI r7, r8, 0    // init px from expr
   LLI r9, 0    // zero init py
-  ADD r2, r2, r3    // binop +
-  ADDI r9, r2, 0    // init py from expr
-  LLI r10, 0    // zero init index
-  LLI r11, 256    // load immediate 256
-  MUL r9, r9, r11    // binop *
-  ADD r9, r9, r7    // binop +
-  ADDI r10, r9, 0    // init index from expr
-  LLI r12, 536870912    // load immediate 536870912
-  ADD r12, r12, r10    // binop +
-  LLI r4, 0    // val const for __sb
-  SB r4, r12, 0    // intrinsic __sb
-  LLI r6, 0    // zero init col
+  ADD r10, r2, r3    // binop +
+  ADDI r9, r10, 0    // init py from expr
+  LLI r11, 0    // zero init index
+  LLI r12, 256    // load immediate 256
+  MUL r12, r9, r12    // binop *
+  ADD r12, r12, r7    // binop +
+  ADDI r11, r12, 0    // init index from expr
+  LLI r4, 536870912    // load immediate 536870912
+  ADD r4, r4, r11    // binop +
+  LLI r6, 0    // val const for __sb
+  SB r6, r4, 0    // intrinsic __sb
   LLI r8, 1    // load immediate 1
-  ADD r6, r6, r8    // binop +
-  ADDI r5, r6, 0    // assign col
+  ADD r8, r5, r8    // binop +
+  ADDI r5, r8, 0    // assign col
   JMP WHILE44
 WHILE_END45:
-  LLI r2, 0    // zero init row
-  LLI r9, 1    // load immediate 1
-  ADD r2, r2, r9    // binop +
-  ADDI r3, r2, 0    // assign row
+  LLI r10, 1    // load immediate 1
+  ADD r10, r3, r10    // binop +
+  ADDI r3, r10, 0    // assign row
   JMP WHILE40
 WHILE_END41:
-  // epilogue and return
-  ADDI r1, r0, 0  // ensure r1=0
+  LLI r12, 0    // load immediate 0
+  ADD r1, r12, r0
   POP r14
   RET
 
@@ -384,55 +380,59 @@ CMP_END59:
   BEQ r10, r0, WHILE_END57
   LLI r11, 0    // zero init glyph_row
   LLI r12, font_address    // init font_address (global symbol addr)
-  ADD r12, r12, r7    // binop +
-  ADD r12, r12, r9    // binop +
-  LB r11, r12, 0    // intrinsic __lb -> return
-  LLI r5, 0    // init col
+  ADD r5, r12, r7    // binop +
+  ADD r5, r5, r9    // binop +
+  LB r11, r5, 0    // intrinsic __lb -> return
+  LLI r4, 0    // init col
 WHILE60:
-  LLI r4, 8    // load immediate 8
-  BLT r5, r4, CMP_TRUE62
-  LLI r4, 0    // compare false path
+  LLI r6, 8    // load immediate 8
+  BLT r4, r6, CMP_TRUE62
+  LLI r6, 0    // compare false path
   JMP CMP_END63
 CMP_TRUE62:
-  LLI r4, 1
+  LLI r6, 1
 CMP_END63:
-  BEQ r4, r0, WHILE_END61
-  LLI r6, 0    // zero init bit
-  SHR r11, r11, r5    // binop >>
-  LLI r8, 1    // load immediate 1
-  AND r11, r11, r8    // binop &
-  ADDI r6, r11, 0    // init bit from expr
-  BEQ r6, r0, ELSE64
-  LLI r10, 0    // zero init px
-  ADD r2, r2, r5    // binop +
-  ADDI r10, r2, 0    // init px from expr
-  LLI r12, 0    // zero init py
-  ADD r3, r3, r9    // binop +
-  ADDI r12, r3, 0    // init py from expr
-  LLI r7, 0    // zero init index
-  LLI r4, 256    // load immediate 256
-  MUL r12, r12, r4    // binop *
-  ADD r12, r12, r10    // binop +
-  ADDI r7, r12, 0    // init index from expr
-  LLI r11, 536870912    // load immediate 536870912
-  ADD r11, r11, r7    // binop +
-  LLI r8, 63    // val const for __sb
-  SB r8, r11, 0    // intrinsic __sb
+  BEQ r6, r0, WHILE_END61
+  LLI r8, 0    // zero init bit
+  SHR r10, r11, r4    // binop >>
+  LLI r5, 1    // load immediate 1
+  AND r10, r10, r5    // binop &
+  ADDI r8, r10, 0    // init bit from expr
+  BEQ r8, r0, ELSE64
+  LLI r6, 0    // zero init px
+  ADD r5, r2, r4    // binop +
+  ADDI r6, r5, 0    // init px from expr
+  LLI r10, 0    // zero init py
+  ADD r5, r3, r9    // binop +
+  ADDI r10, r5, 0    // init py from expr
+  LLI r5, 0    // zero init index
+  LLI r13, 256    // load immediate 256
+  MUL r13, r10, r13    // binop *
+  ADD r13, r13, r6    // binop +
+  ADDI r5, r13, 0    // init index from expr
+  LLI r13, 536870912    // load immediate 536870912
+  ADD r13, r13, r5    // binop +
+  PUSH r2    // spill live temp for intrinsic scratch
+  LLI r2, 63    // val const for __sb
+  SB r2, r13, 0    // intrinsic __sb
+  POP r2    // restore spilled temp
   JMP IF_END65
 ELSE64:
 IF_END65:
-  LLI r6, 0    // zero init col
-  LLI r2, 1    // load immediate 1
-  ADD r6, r6, r2    // binop +
-  ADDI r5, r6, 0    // assign col
+  LLI r13, 1    // load immediate 1
+  ADD r13, r4, r13    // binop +
+  ADDI r4, r13, 0    // assign col
   JMP WHILE60
 WHILE_END61:
-  LLI r3, 0    // zero init row
-  LLI r12, 1    // load immediate 1
-  ADD r3, r3, r12    // binop +
-  ADDI r9, r3, 0    // assign row
+  LLI r13, 1    // load immediate 1
+  ADD r13, r9, r13    // binop +
+  ADDI r9, r13, 0    // assign row
   JMP WHILE56
 WHILE_END57:
+  LLI r2, 0    // load immediate 0
+  ADD r1, r2, r0
+  POP r14
+  RET
 
 .FUNC draw_string_to_display:
   PUSH r14
@@ -452,18 +452,16 @@ WHILE66:
   POP r1  
   POP r3    // restore caller temp
   POP r2    // restore caller temp
-  LLI r6, 0    // zero init str
-  LLI r7, 1    // load immediate 1
-  ADD r6, r6, r7    // binop +
+  LLI r6, 1    // load immediate 1
+  ADD r6, r1, r6    // binop +
   ADDI r1, r6, 0    // assign str
-  LLI r8, 0    // zero init x
-  LLI r9, 8    // load immediate 8
-  ADD r8, r8, r9    // binop +
-  ADDI r2, r8, 0    // assign x
+  LLI r7, 8    // load immediate 8
+  ADD r7, r2, r7    // binop +
+  ADDI r2, r7, 0    // assign x
   JMP WHILE66
 WHILE_END67:
-  // epilogue and return
-  ADDI r1, r0, 0  // ensure r1=0
+  LLI r8, 0    // load immediate 0
+  ADD r1, r8, r0
   POP r14
   RET
 
@@ -472,33 +470,32 @@ WHILE_END67:
   LLI r4, 0    // init i
 WHILE68:
   BLT r4, r3, CMP_TRUE70
-  LLI r3, 0    // compare false path
+  LLI r5, 0    // compare false path
   JMP CMP_END71
 CMP_TRUE70:
-  LLI r3, 1
+  LLI r5, 1
 CMP_END71:
-  BEQ r3, r0, WHILE_END69
-  LLI r5, 0    // zero init px
-  ADD r6, r1, r4    // binop +
-  ADDI r5, r6, 0    // init px from expr
-  LLI r7, 0    // zero init py
-  LLI r8, 0    // zero init index
-  LLI r9, 256    // load immediate 256
-  MUL r7, r7, r9    // binop *
-  ADD r7, r7, r5    // binop +
-  ADDI r8, r7, 0    // init index from expr
-  LLI r10, 536870912    // load immediate 536870912
-  ADD r10, r10, r8    // binop +
-  LLI r11, 63    // val const for __sb
-  SB r11, r10, 0    // intrinsic __sb
-  LLI r12, 0    // zero init i
-  LLI r3, 1    // load immediate 1
-  ADD r12, r12, r3    // binop +
-  ADDI r4, r12, 0    // assign i
+  BEQ r5, r0, WHILE_END69
+  LLI r6, 0    // zero init px
+  ADD r7, r1, r4    // binop +
+  ADDI r6, r7, 0    // init px from expr
+  LLI r8, 0    // zero init py
+  LLI r9, 0    // zero init index
+  LLI r10, 256    // load immediate 256
+  MUL r10, r8, r10    // binop *
+  ADD r10, r10, r6    // binop +
+  ADDI r9, r10, 0    // init index from expr
+  LLI r11, 536870912    // load immediate 536870912
+  ADD r11, r11, r9    // binop +
+  LLI r12, 63    // val const for __sb
+  SB r12, r11, 0    // intrinsic __sb
+  LLI r5, 1    // load immediate 1
+  ADD r5, r4, r5    // binop +
+  ADDI r4, r5, 0    // assign i
   JMP WHILE68
 WHILE_END69:
-  // epilogue and return
-  ADDI r1, r0, 0  // ensure r1=0
+  LLI r7, 0    // load immediate 0
+  ADD r1, r7, r0
   POP r14
   RET
 
@@ -507,33 +504,32 @@ WHILE_END69:
   LLI r4, 0    // init i
 WHILE72:
   BLT r4, r3, CMP_TRUE74
-  LLI r3, 0    // compare false path
+  LLI r5, 0    // compare false path
   JMP CMP_END75
 CMP_TRUE74:
-  LLI r3, 1
+  LLI r5, 1
 CMP_END75:
-  BEQ r3, r0, WHILE_END73
-  LLI r5, 0    // zero init px
-  LLI r6, 0    // zero init py
-  ADD r2, r2, r4    // binop +
-  ADDI r6, r2, 0    // init py from expr
-  LLI r7, 0    // zero init index
-  LLI r8, 256    // load immediate 256
-  MUL r6, r6, r8    // binop *
-  ADD r6, r6, r5    // binop +
-  ADDI r7, r6, 0    // init index from expr
-  LLI r9, 536870912    // load immediate 536870912
-  ADD r9, r9, r7    // binop +
-  LLI r10, 63    // val const for __sb
-  SB r10, r9, 0    // intrinsic __sb
-  LLI r11, 0    // zero init i
-  LLI r12, 1    // load immediate 1
-  ADD r11, r11, r12    // binop +
-  ADDI r4, r11, 0    // assign i
+  BEQ r5, r0, WHILE_END73
+  LLI r6, 0    // zero init px
+  LLI r7, 0    // zero init py
+  ADD r8, r2, r4    // binop +
+  ADDI r7, r8, 0    // init py from expr
+  LLI r9, 0    // zero init index
+  LLI r10, 256    // load immediate 256
+  MUL r10, r7, r10    // binop *
+  ADD r10, r10, r6    // binop +
+  ADDI r9, r10, 0    // init index from expr
+  LLI r11, 536870912    // load immediate 536870912
+  ADD r11, r11, r9    // binop +
+  LLI r12, 63    // val const for __sb
+  SB r12, r11, 0    // intrinsic __sb
+  LLI r5, 1    // load immediate 1
+  ADD r5, r4, r5    // binop +
+  ADDI r4, r5, 0    // assign i
   JMP WHILE72
 WHILE_END73:
-  // epilogue and return
-  ADDI r1, r0, 0  // ensure r1=0
+  LLI r8, 0    // load immediate 0
+  ADD r1, r8, r0
   POP r14
   RET
 
@@ -611,21 +607,22 @@ CMP_END91:
   BEQ r12, r0, ELSE88
   ADDI r10, r1, 0    // assign start_x
   SUB r11, r3, r1    // binop -
-  LLI r6, 1    // load immediate 1
-  ADD r11, r11, r6    // binop +
+  LLI r5, 1    // load immediate 1
+  ADD r11, r11, r5    // binop +
   ADDI r9, r11, 0    // assign length
   JMP IF_END89
 ELSE88:
   ADDI r10, r3, 0    // assign start_x
-  SUB r5, r1, r3    // binop -
-  LLI r8, 1    // load immediate 1
-  ADD r5, r5, r8    // binop +
-  ADDI r9, r5, 0    // assign length
+  SUB r8, r1, r3    // binop -
+  LLI r12, 1    // load immediate 1
+  ADD r8, r8, r12    // binop +
+  ADDI r9, r8, 0    // assign length
 IF_END89:
   // emit call to draw_horizontal_line with args [{'type': 'var', 'name': 'start_x'}, {'type': 'var', 'name': 'y1'}, {'type': 'var', 'name': 'length'}]
   PUSH r2    // save caller temp
   PUSH r3    // save caller temp
   PUSH r4    // save caller temp
+  PUSH r6    // save caller temp
   PUSH r7    // save caller temp
   PUSH r9    // save caller temp
   PUSH r10    // save caller temp
@@ -639,21 +636,22 @@ IF_END89:
   POP r10    // restore caller temp
   POP r9    // restore caller temp
   POP r7    // restore caller temp
+  POP r6    // restore caller temp
   POP r4    // restore caller temp
   POP r3    // restore caller temp
   POP r2    // restore caller temp
-  LLI r12, 0    // load immediate 0
-  ADD r1, r12, r0
+  LLI r5, 0    // load immediate 0
+  ADD r1, r5, r0
   POP r14
   RET
   JMP IF_END85
 ELSE84:
 IF_END85:
-  LLI r6, 0    // zero init dx
-  SUB r11, r3, r1    // binop -
-  ADDI r6, r11, 0    // init dx from expr
+  LLI r11, 0    // zero init dx
+  SUB r12, r3, r1    // binop -
+  ADDI r11, r12, 0    // init dx from expr
   LLI r8, 0    // load immediate 0
-  BLT r6, r8, CMP_TRUE94
+  BLT r11, r8, CMP_TRUE94
   LLI r8, 0    // compare false path
   JMP CMP_END95
 CMP_TRUE94:
@@ -661,161 +659,166 @@ CMP_TRUE94:
 CMP_END95:
   BEQ r8, r0, ELSE92
   LLI r5, 0    // load immediate 0
-  LLI r10, 0    // zero init dx
-  SUB r5, r5, r10    // binop -
-  ADDI r6, r5, 0    // assign dx
+  SUB r5, r5, r11    // binop -
+  ADDI r11, r5, 0    // assign dx
   JMP IF_END93
 ELSE92:
 IF_END93:
-  LLI r9, 0    // zero init sx
-  LLI r12, 0    // load immediate 0
-  LLI r11, 1    // load immediate 1
-  SUB r12, r12, r11    // binop -
-  ADDI r9, r12, 0    // init sx from expr
+  LLI r12, 0    // zero init sx
+  LLI r8, 0    // load immediate 0
+  LLI r5, 1    // load immediate 1
+  SUB r8, r8, r5    // binop -
+  ADDI r12, r8, 0    // init sx from expr
   BLT r1, r3, CMP_TRUE98
-  LLI r8, 0    // compare false path
+  LLI r5, 0    // compare false path
   JMP CMP_END99
 CMP_TRUE98:
-  LLI r8, 1
+  LLI r5, 1
 CMP_END99:
-  BEQ r8, r0, ELSE96
-  LLI r5, 1    // load immediate 1
-  ADDI r9, r5, 0    // assign sx
+  BEQ r5, r0, ELSE96
+  LLI r8, 1    // load immediate 1
+  ADDI r12, r8, 0    // assign sx
   JMP IF_END97
 ELSE96:
 IF_END97:
-  LLI r11, 0    // zero init dy
-  SUB r12, r2, r4    // binop -
-  ADDI r11, r12, 0    // init dy from expr
+  LLI r5, 0    // zero init dy
+  SUB r8, r2, r4    // binop -
+  ADDI r5, r8, 0    // init dy from expr
   LLI r8, 0    // load immediate 0
-  BLT r11, r8, CMP_TRUE102
+  BLT r5, r8, CMP_TRUE102
   LLI r8, 0    // compare false path
   JMP CMP_END103
 CMP_TRUE102:
   LLI r8, 1
 CMP_END103:
   BEQ r8, r0, ELSE100
-  LLI r5, 0    // load immediate 0
-  LLI r12, 0    // zero init dy
-  SUB r5, r5, r12    // binop -
-  ADDI r11, r5, 0    // assign dy
+  LLI r8, 0    // load immediate 0
+  SUB r8, r8, r5    // binop -
+  ADDI r5, r8, 0    // assign dy
   JMP IF_END101
 ELSE100:
 IF_END101:
   LLI r8, 0    // load immediate 0
-  LLI r5, 0    // zero init dy
   SUB r8, r8, r5    // binop -
-  ADDI r11, r8, 0    // assign dy
+  ADDI r5, r8, 0    // assign dy
   LLI r8, 0    // zero init sy
-  PUSH r5    // spill live temp for reg pressure
-  LLI r5, 0    // load immediate 0
-  PUSH r7    // spill live temp for reg pressure
-  LLI r7, 1    // load immediate 1
-  SUB r5, r5, r7    // binop -
-  POP r7    // restore spilled temp
-  ADDI r8, r5, 0    // init sy from expr
-  POP r5    // restore spilled temp
-  PUSH r5    // spill live temp for reg pressure
+  LLI r6, 0    // load immediate 0
+  LLI r9, 1    // load immediate 1
+  SUB r6, r6, r9    // binop -
+  ADDI r8, r6, 0    // init sy from expr
   BLT r2, r4, CMP_TRUE106
-  LLI r5, 0    // compare false path
+  LLI r10, 0    // compare false path
   JMP CMP_END107
 CMP_TRUE106:
-  LLI r5, 1
+  LLI r10, 1
 CMP_END107:
-  BEQ r5, r0, ELSE104
-  POP r5    // restore spilled temp
-  PUSH r5    // spill live temp for reg pressure
-  LLI r5, 1    // load immediate 1
-  ADDI r8, r5, 0    // assign sy
-  POP r5    // restore spilled temp
+  BEQ r10, r0, ELSE104
+  LLI r9, 1    // load immediate 1
+  ADDI r8, r9, 0    // assign sy
   JMP IF_END105
 ELSE104:
 IF_END105:
-  LLI r13, 0    // zero init err
-  PUSH r5    // spill live temp for reg pressure
-  ADD r5, r6, r11    // binop +
-  ADDI r13, r5, 0    // init err from expr
-  POP r5    // restore spilled temp
-  LLI r13, 1    // init exit_condition
+  LLI r6, 0    // zero init err
+  ADD r10, r11, r5    // binop +
+  ADDI r6, r10, 0    // init err from expr
+  LLI r9, 1    // init exit_condition
 WHILE108:
-  BEQ r13, r0, WHILE_END109
-  LLI r13, 0    // zero init index
-  PUSH r5    // spill live temp for reg pressure
-  LLI r5, 256    // load immediate 256
-  MUL r5, r2, r5    // binop *
-  ADD r5, r5, r1    // binop +
-  ADDI r13, r5, 0    // init index from expr
-  POP r5    // restore spilled temp
-  PUSH r5    // spill live temp for reg pressure
-  LLI r5, 536870912    // load immediate 536870912
-  ADD r5, r5, r13    // binop +
+  BEQ r9, r0, WHILE_END109
+  LLI r10, 0    // zero init index
+  PUSH r7    // spill live temp for reg pressure
+  LLI r7, 256    // load immediate 256
+  MUL r7, r2, r7    // binop *
+  ADD r7, r7, r1    // binop +
+  ADDI r10, r7, 0    // init index from expr
+  POP r7    // restore spilled temp
+  PUSH r7    // spill live temp for reg pressure
+  LLI r7, 536870912    // load immediate 536870912
+  ADD r7, r7, r10    // binop +
   PUSH r2    // spill live temp for intrinsic scratch
   LLI r2, 63    // val const for __sb
-  SB r2, r5, 0    // intrinsic __sb
+  SB r2, r7, 0    // intrinsic __sb
   POP r2    // restore spilled temp
-  POP r5    // restore spilled temp
+  POP r7    // restore spilled temp
+  PUSH r7    // spill live temp for reg pressure
   BEQ r1, r3, CMP_TRUE112
-  LLI r3, 0    // compare false path
+  LLI r7, 0    // compare false path
   JMP CMP_END113
 CMP_TRUE112:
-  LLI r3, 1
+  LLI r7, 1
 CMP_END113:
   BEQ r2, r4, CMP_TRUE114
-  LLI r4, 0    // compare false path
+  LLI r13, 0    // compare false path
   JMP CMP_END115
 CMP_TRUE114:
-  LLI r4, 1
+  LLI r13, 1
 CMP_END115:
-  AND r3, r3, r4    // logic && fold
-  BNE r3, r0, CMP_TRUE116
-  LLI r3, 0    // compare false path
+  AND r7, r7, r13    // logic && fold
+  BNE r7, r0, CMP_TRUE116
+  LLI r7, 0    // compare false path
   JMP CMP_END117
 CMP_TRUE116:
-  LLI r3, 1
+  LLI r7, 1
 CMP_END117:
-  BEQ r3, r0, ELSE110
-  LLI r3, 0    // load immediate 0
-  ADDI r13, r3, 0    // assign exit_condition
+  BEQ r7, r0, ELSE110
+  POP r7    // restore spilled temp
+  PUSH r7    // spill live temp for reg pressure
+  LLI r7, 0    // load immediate 0
+  ADDI r9, r7, 0    // assign exit_condition
+  POP r7    // restore spilled temp
   JMP IF_END111
 ELSE110:
 IF_END111:
-  LLI r4, 0    // zero init e2
-  ADD r3, r13, r13    // binop +
-  ADDI r4, r3, 0    // init e2 from expr
-  BGE r4, r11, CMP_TRUE120
-  LLI r3, 0    // compare false path
+  LLI r13, 0    // zero init e2
+  PUSH r7    // spill live temp for reg pressure
+  ADD r7, r6, r6    // binop +
+  ADDI r13, r7, 0    // init e2 from expr
+  POP r7    // restore spilled temp
+  PUSH r7    // spill live temp for reg pressure
+  BGE r13, r5, CMP_TRUE120
+  LLI r7, 0    // compare false path
   JMP CMP_END121
 CMP_TRUE120:
-  LLI r3, 1
+  LLI r7, 1
 CMP_END121:
-  BEQ r3, r0, ELSE118
-  LLI r3, 0    // zero init err
-  ADD r11, r3, r11    // binop +
-  ADDI r13, r11, 0    // assign err
-  LLI r11, 0    // zero init x1
-  ADD r11, r11, r9    // binop +
-  ADDI r1, r11, 0    // assign x1
+  BEQ r7, r0, ELSE118
+  POP r7    // restore spilled temp
+  PUSH r7    // spill live temp for reg pressure
+  ADD r7, r6, r5    // binop +
+  ADDI r6, r7, 0    // assign err
+  POP r7    // restore spilled temp
+  PUSH r7    // spill live temp for reg pressure
+  ADD r7, r1, r12    // binop +
+  ADDI r1, r7, 0    // assign x1
+  POP r7    // restore spilled temp
   JMP IF_END119
 ELSE118:
 IF_END119:
-  BGE r6, r4, CMP_TRUE124
-  LLI r4, 0    // compare false path
+  PUSH r7    // spill live temp for reg pressure
+  BGE r11, r13, CMP_TRUE124
+  LLI r7, 0    // compare false path
   JMP CMP_END125
 CMP_TRUE124:
-  LLI r4, 1
+  LLI r7, 1
 CMP_END125:
-  BEQ r4, r0, ELSE122
-  LLI r11, 0    // zero init err
-  ADD r11, r11, r6    // binop +
-  ADDI r13, r11, 0    // assign err
-  LLI r9, 0    // zero init y1
-  ADD r9, r9, r8    // binop +
-  ADDI r2, r9, 0    // assign y1
+  BEQ r7, r0, ELSE122
+  POP r7    // restore spilled temp
+  PUSH r7    // spill live temp for reg pressure
+  ADD r7, r6, r11    // binop +
+  ADDI r6, r7, 0    // assign err
+  POP r7    // restore spilled temp
+  PUSH r7    // spill live temp for reg pressure
+  ADD r7, r2, r8    // binop +
+  ADDI r2, r7, 0    // assign y1
+  POP r7    // restore spilled temp
   JMP IF_END123
 ELSE122:
 IF_END123:
   JMP WHILE108
 WHILE_END109:
+  LLI r2, 0    // load immediate 0
+  ADD r1, r2, r0
+  POP r14
+  RET
 
 .FUNC draw_rectangle:
   PUSH r14
@@ -881,8 +884,8 @@ WHILE_END109:
   POP r4    // restore caller temp
   POP r3    // restore caller temp
   POP r2    // restore caller temp
-  // epilogue and return
-  ADDI r1, r0, 0  // ensure r1=0
+  LLI r8, 0    // load immediate 0
+  ADD r1, r8, r0
   POP r14
   RET
 
@@ -894,35 +897,33 @@ WHILE_END109:
 WHILE126:
   BEQ r3, r0, WHILE_END127
   SB r4, r2, 0    // intrinsic __sb
-  LLI r5, 0    // zero init addr
-  LLI r6, 1    // load immediate 1
-  ADD r6, r5, r6    // binop +
-  ADDI r2, r6, 0    // assign addr
-  LLI r7, 0    // zero init bit
-  LLI r8, 0    // load immediate 0
+  LLI r5, 1    // load immediate 1
+  ADD r5, r2, r5    // binop +
+  ADDI r2, r5, 0    // assign addr
+  LLI r6, 0    // zero init bit
+  LLI r7, 0    // load immediate 0
+  SHR r7, r4, r7    // binop >>
+  LLI r8, 2    // load immediate 2
   SHR r8, r4, r8    // binop >>
-  LLI r9, 2    // load immediate 2
+  XOR r7, r7, r8    // binop ^
+  LLI r9, 3    // load immediate 3
   SHR r9, r4, r9    // binop >>
-  XOR r8, r8, r9    // binop ^
-  LLI r10, 3    // load immediate 3
+  XOR r7, r7, r9    // binop ^
+  LLI r10, 5    // load immediate 5
   SHR r10, r4, r10    // binop >>
-  XOR r8, r8, r10    // binop ^
-  LLI r11, 5    // load immediate 5
-  SHR r11, r4, r11    // binop >>
-  XOR r8, r8, r11    // binop ^
-  LLI r12, 1    // load immediate 1
-  AND r8, r8, r12    // binop &
-  ADDI r7, r8, 0    // init bit from expr
-  LLI r6, 1    // load immediate 1
-  SHR r6, r4, r6    // binop >>
-  LLI r9, 15    // load immediate 15
-  SHL r7, r7, r9    // binop <<
-  OR r6, r6, r7    // binop |
-  ADDI r4, r6, 0    // assign lfsr
-  LLI r10, 0    // zero init remaining
+  XOR r7, r7, r10    // binop ^
   LLI r11, 1    // load immediate 1
-  SUB r10, r10, r11    // binop -
-  ADDI r3, r10, 0    // assign remaining
+  AND r7, r7, r11    // binop &
+  ADDI r6, r7, 0    // init bit from expr
+  LLI r12, 1    // load immediate 1
+  SHR r12, r4, r12    // binop >>
+  LLI r5, 15    // load immediate 15
+  SHL r5, r6, r5    // binop <<
+  OR r12, r12, r5    // binop |
+  ADDI r4, r12, 0    // assign lfsr
+  LLI r8, 1    // load immediate 1
+  SUB r8, r3, r8    // binop -
+  ADDI r3, r8, 0    // assign remaining
   JMP WHILE126
 WHILE_END127:
   // epilogue and return
