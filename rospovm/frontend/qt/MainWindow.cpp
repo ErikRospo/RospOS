@@ -77,7 +77,7 @@ void MainWindow::createMenuBar()
 
     fileMenu->addSeparator();
 
-    QAction *exitAction = fileMenu->addAction(tr("E&xit"));
+    QAction *exitAction = fileMenu->addAction(tr("&Exit"));
     exitAction->setShortcut(QKeySequence::Quit);
     connect(exitAction, &QAction::triggered, this, &QWidget::close);
 
@@ -133,6 +133,13 @@ void MainWindow::createToolBar()
 
     toolBar->addSeparator();
 
+    stepBackAction = toolBar->addAction(tr("Step Back"));
+    stepBackAction->setIcon(style()->standardIcon(QStyle::SP_MediaSkipBackward));
+    stepBackAction->setShortcut(QKeySequence(Qt::SHIFT | Qt::Key_F10));
+    stepBackAction->setToolTip(tr("Step the program backward 1 instruction (Shift + F10)"));
+    connect(stepBackAction, &QAction::triggered, this, &MainWindow::onStepBack);
+    stepBackAction->setEnabled(false);
+    
     // Add step control buttons to toolbar
     stepAction = toolBar->addAction(tr("Step"));
     stepAction->setIcon(style()->standardIcon(QStyle::SP_MediaSkipForward));
@@ -140,12 +147,7 @@ void MainWindow::createToolBar()
     stepAction->setToolTip(tr("Step the program forward 1 instruction (F10)"));
     connect(stepAction, &QAction::triggered, this, &MainWindow::onStep);
 
-    stepBackAction = toolBar->addAction(tr("Step Back"));
-    stepBackAction->setIcon(style()->standardIcon(QStyle::SP_MediaSkipBackward));
-    stepBackAction->setShortcut(QKeySequence(Qt::SHIFT | Qt::Key_F10));
-    stepBackAction->setToolTip(tr("Step the program backward 1 instruction (Shift + F10)"));
-    connect(stepBackAction, &QAction::triggered, this, &MainWindow::onStepBack);
-    stepBackAction->setEnabled(false);
+
 
     runAction = toolBar->addAction(tr("Run"));
     runAction->setIcon(style()->standardIcon(QStyle::SP_MediaPlay));
