@@ -228,6 +228,15 @@ class Emitter:
                 if name not in self.var_regs:
                     self.var_regs[name] = r
 
+        def _discard_stale_spill_tops():
+            while self._spill_stack and self._spill_stack[-1].get("restored_early", False):
+                stale = self._spill_stack.pop()
+                stale_reg = stale.get("reg")
+                self.tracked_writer.write(
+                    f"  ADDI {abi.SP_REG}, {abi.SP_REG}, 4    // discard stale spill slot for {stale_reg}\n"
+                )
+                _dec_spill_depth(stale_reg)
+
         spill_depth = self._spill_depth.get(reg, 0)
         if spill_depth > 0:
             if self.tracked_writer is None:
@@ -250,12 +259,11 @@ class Emitter:
 
             # Fast path: normal LIFO restore.
             if target_idx == top_idx:
-                entry = self._spill_stack.pop()
+                entry = self._spill_stack[-1]
                 if entry.get("restored_early", False):
-                    self.tracked_writer.write(
-                        f"  ADDI {abi.SP_REG}, {abi.SP_REG}, 4    // discard stale spill slot for {reg}\n"
-                    )
+                    _discard_stale_spill_tops()
                 else:
+                    self._spill_stack.pop()
                     self.tracked_writer.write(f"  POP {reg}    // restore spilled temp\n")
                     _restore_aliases(reg, entry.get("aliases", []))
                     _dec_spill_depth(reg)
@@ -269,6 +277,7 @@ class Emitter:
                         self._spilled_var_aliases.pop(reg, None)
                 elif not entry.get("restored_early", False):
                     self._spilled_var_aliases.pop(reg, None)
+                _discard_stale_spill_tops()
                 return
 
             # Non-top restore request.
@@ -333,7 +342,6 @@ class Emitter:
                 _restore_aliases(reg, target_entry.get("aliases", []))
                 target_entry["aliases"] = []
                 target_entry["restored_early"] = True
-                _dec_spill_depth(reg)
 
             alias_stack = self._spilled_var_aliases.get(reg, [])
             if alias_stack:

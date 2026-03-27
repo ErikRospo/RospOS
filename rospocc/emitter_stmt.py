@@ -221,6 +221,44 @@ def _emit_assign(emitter, stmt: Dict[str, Any], out):
     elif isinstance(target, str):
         target_name = target
 
+    # Fast path: x = x +/- const  ->  ADDI x, x, +/-const
+    if (
+        isinstance(val, dict)
+        and val.get("type") == "binop"
+        and target_name is not None
+    ):
+        op = val.get("op")
+        left = val.get("left")
+        right = val.get("right")
+
+        def _var_name(node):
+            if isinstance(node, dict) and node.get("type") == "var":
+                return node.get("name")
+            return None
+
+        def _const_val(node):
+            if isinstance(node, dict) and node.get("type") == "const":
+                return int(node.get("value", 0))
+            return None
+
+        imm = None
+        if op == "plus":
+            if _var_name(left) == target_name and _const_val(right) is not None:
+                imm = _const_val(right)
+            elif _const_val(left) is not None and _var_name(right) == target_name:
+                imm = _const_val(left)
+        elif op == "minus":
+            if _var_name(left) == target_name and _const_val(right) is not None:
+                imm = -_const_val(right)
+
+        if imm is not None:
+            dest = emitter.var_regs.get(target_name)
+            if dest:
+                emitter.consume_var_read(target_name)
+                out.write(f"  ADDI {dest}, {dest}, {imm}    // assign {target_name} (addi fast path)\n")
+                emitter.reclaim_dead_var_regs()
+                return
+
     # If the RHS is a binop and both operands are the same as the target, force temp
     force_temp = False
     if (
