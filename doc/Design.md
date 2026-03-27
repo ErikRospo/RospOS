@@ -37,6 +37,7 @@ For register file, see [Calling Convention (ABI)](#calling-convention-abi).
 | `0x10000000–0x1000FFFF`    | TTY  MMIO                | Read input / write output                |
 | `0x20000000–0x2007FFFF`    | Display MMIO             | See [Display](#display) for more details |
 | `0x30000000–0x3000FFFF`    | Audio MMIO               | freq, waveform, volume, gate registers   |
+| `0x40000000–0x400000FF`    | Block device MMIO        | See [Block Device](#block-device) for more details |
 | `0xFFFFFF00–0xFFFFFFFF`    | Interrupt vectors        | Includes reset vector                    |
 
 
@@ -77,6 +78,51 @@ Stack pointer is initialized to top of RAM (`0x0FFFFFFF`) on reset. Stack grows 
   * Waveform
   * Volume
   * Gate (on/off)
+  
+### Block Device
+
+* Memory-mapped at `0x40000000`
+* Registers:
+| Offset | Name        |
+|--------|-------------|
+| `0x00` | Status      |
+| `0x04` | Command     |
+| `0x08` | Block ID    |
+| `0x0C` | Buffer Addr |
+| `0x10` | Block Count |
+
+**Status** register bits:
+| Bit | Name       | Description                                       |
+|-----|------------|---------------------------------------------------|
+| 0   | Busy       | Set when device is processing a command           |
+| 1   | Error      | Set if the last command resulted in an error      |
+| 2   | Data Ready | Set when data is ready to be read from the buffer |
+
+**Command** register values:
+| Value | Name   | Description                           |
+|-------|--------|---------------------------------------|
+| `0x00` | None   | No operation                         |
+| `0x01` | Read   | Read blocks from device into buffer  |
+| `0x02` | Write  | Write blocks from buffer to device   |
+
+Writing to the Command register initiates the specified operation. The device will set the Busy bit while processing the command, and clear the busy bit, set the data ready bit (for reads), and clear the command register when the operation is complete. If an error occurs, the device will set the Error bit.
+
+**Block ID**: Logical block number to read/write (0-based)
+**Buffer Addr**: Physical address of data buffer in RAM (must be 512-byte aligned)
+**Block Count**: Number of blocks to read/write (1-128)
+
+32-bit block ID allows for up to 4 billion blocks. With 512 bytes per block, this supports up to 2 TB of storage.
+
+I don't anticipate needing more than 2 TB for this project, so this is fine. 
+
+Special blocks:
+| Block ID | Readable | Writable| Purpose                          |
+|----------|----------|---------|----------------------------------|
+| `0xFFFFFFFD` | Yes  | No      | Time block (unix ms) |
+| `0xFFFFFFFE` | Yes  | No      | RNG block (returns random values) |
+| `0xFFFFFFFF` | Yes  | No      | Device info block |
+
+Note: Not-writable blocks will ignore write commands and set the Error bit in the Status register. Given that they're in memory, loads and stores to those addresses will still work as normal, but writes to the block device's Command register with those block IDs will be rejected.
 
 ### Reset Behavior
 
