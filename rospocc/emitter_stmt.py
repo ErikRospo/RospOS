@@ -34,6 +34,7 @@ def _emit_return(emitter, stmt: Dict[str, Any], out):
 def _emit_decl(emitter, stmt: Dict[str, Any], out):
     name = stmt.get("name")
     assert isinstance(name, str), "Expected variable name as string in decl"
+    emitter.note_var_declaration(name)
     decl_type = stmt.get("decl_type")
     init = stmt.get("init")
 
@@ -87,11 +88,28 @@ def _emit_decl(emitter, stmt: Dict[str, Any], out):
                 comment="string addr",
             )
         else:
-            dest = emitter._alloc_var_reg(name, out, init_value=None, typ="int")
             rinit = emitter.emit_expr(init, out)
             if rinit:
-                out.write(f"  ADDI {dest}, {rinit}, 0    // init {name} from expr\n")
-                emitter.release_expr_reg(rinit)
+                # Prefer reusing initializer temp as the variable register to
+                # avoid allocating one extra register under pressure.
+                if rinit in abi.TEMP_REGS and not emitter.is_var_reg(rinit):
+                    emitter.var_regs[name] = rinit
+                    emitter.var_types[name] = "int"
+                    if hasattr(emitter, "register_allocator") and hasattr(out, "get_current_output_line"):
+                        emitter.register_allocator.set_output_line(out.get_current_output_line())
+                        emitter.register_allocator.allocate(
+                            register=rinit,
+                            variable_name=name,
+                            variable_type="int",
+                            var_kind="local",
+                            origin=emitter.current_context_origin,
+                        )
+                else:
+                    dest = emitter._alloc_var_reg(name, out, init_value=None, typ="int")
+                    out.write(f"  ADDI {dest}, {rinit}, 0    // init {name} from expr\n")
+                    emitter.release_expr_reg(rinit)
+        # Reclaim any variables that are now dead (all reads consumed)
+        emitter.reclaim_dead_var_regs()
         return
 
     emitter._alloc_var_reg(name, out, init_value=None, typ="int")
@@ -271,6 +289,8 @@ def _emit_assign(emitter, stmt: Dict[str, Any], out):
 
     if rval:
         emitter.release_expr_reg(rval)
+    # Reclaim any variables that are now dead after this assignment
+    emitter.reclaim_dead_var_regs()
 
 
 def _emit_if(emitter, stmt: Dict[str, Any], out):
@@ -291,12 +311,16 @@ def _emit_if(emitter, stmt: Dict[str, Any], out):
         out.write(f"  BEQ {rcond_reg}, {abi.SPECIAL_REGS['zero']}, {lbl_else}\n")
         if rcond:
             emitter.release_expr_reg(rcond)
+        emitter.enter_var_scope()
         for s in then_stmts:
             emitter.emit_statement(s, out)
+        emitter.exit_var_scope()
         out.write(f"  JMP {lbl_end}\n")
         out.write(f"{lbl_else}:\n")
+        emitter.enter_var_scope()
         for s in else_stmts:
             emitter.emit_statement(s, out)
+        emitter.exit_var_scope()
         out.write(f"{lbl_end}:\n")
     finally:
         emitter.exit_control_context(protected_vars)
@@ -334,8 +358,10 @@ def _emit_while(emitter, stmt: Dict[str, Any], out):
         out.write(f"  BEQ {rcond_reg}, {abi.SPECIAL_REGS['zero']}, {lbl_end}\n")
         if rcond:
             emitter.release_expr_reg(rcond)
+        emitter.enter_var_scope()
         for s in body:
             emitter.emit_statement(s, out)
+        emitter.exit_var_scope()
         out.write(f"  JMP {lbl_start}\n")
         out.write(f"{lbl_end}:\n")
     finally:

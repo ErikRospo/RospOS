@@ -188,9 +188,38 @@ def _emit_binop(emitter, expr: Dict[str, Any], out) -> str:
     op = expr.get("op")
     left = expr.get("left")
     right = expr.get("right")
+
+    # Protect variable registers used by the opposite operand while evaluating
+    # each side. This prevents spill fallback from clobbering not-yet-evaluated
+    # operand values under heavy register pressure.
+    right_vars = emitter.get_expr_read_vars(right)
+    pinned_for_left = []
+    for vname in right_vars:
+        pinned_reg = emitter.var_regs.get(vname)
+        if pinned_reg:
+            emitter.pin_reg(pinned_reg)
+            pinned_for_left.append(pinned_reg)
+
     rl = emitter.emit_expr(left, out)
+
+    for pinned_reg in reversed(pinned_for_left):
+        emitter.unpin_reg(pinned_reg)
+
     emitter.pin_reg(rl)
+
+    left_vars = emitter.get_expr_read_vars(left)
+    pinned_for_right = []
+    for vname in left_vars:
+        pinned_reg = emitter.var_regs.get(vname)
+        if pinned_reg and pinned_reg != rl:
+            emitter.pin_reg(pinned_reg)
+            pinned_for_right.append(pinned_reg)
+
     rr = emitter.emit_expr(right, out)
+
+    for pinned_reg in reversed(pinned_for_right):
+        emitter.unpin_reg(pinned_reg)
+
     emitter.unpin_reg(rl)
 
     if not rl or not rr:

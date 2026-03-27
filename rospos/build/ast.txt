@@ -540,19 +540,11 @@ translation_unit
           type_specifier
             int
           declarator	y
+        param
+          type_specifier
+            int
+          declarator	color
       compound_stmt
-        if_stmt
-          logic_or
-            relational
-              ch
-              lt
-              32
-            relational
-              ch
-              gt
-              127
-          compound_stmt
-            return_stmt	0
         declaration
           type_specifier
             int
@@ -662,7 +654,7 @@ translation_unit
                               0x20000000
                               plus
                               index
-                            0x3F
+                            color
                 expr_stmt
                   assignment
                     col
@@ -697,6 +689,10 @@ translation_unit
           type_specifier
             int
           declarator	y
+        param
+          type_specifier
+            int
+          declarator	color
       compound_stmt
         while_stmt
           unary
@@ -713,6 +709,7 @@ translation_unit
                       str
                     x
                     y
+                    color
             expr_stmt
               assignment
                 str
@@ -1585,21 +1582,40 @@ translation_unit
                 "Hello, RospOS!"
                 10
                 10
+                0x3F
         expr_stmt
           postfix
-            draw_line
+            draw_string_to_display
             call_suffix
               arg_list
-                20
-                50
+                "Green RospOS"
+                10
                 30
-                60
+                0x0C
         expr_stmt
           postfix
-            draw_rectangle
+            draw_string_to_display
             call_suffix
               arg_list
-                100
-                100
-                150
-                100
+                "Red RospOS"
+                10
+                50
+                0x30
+        expr_stmt
+          postfix
+            draw_string_to_display
+            call_suffix
+              arg_list
+                "Blue RospOS"
+                10
+                70
+                0x07
+        expr_stmt
+          postfix
+            draw_string_to_display
+            call_suffix
+              arg_list
+                "Yellow RospOS"
+                10
+                90
+                0x3C

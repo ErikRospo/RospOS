@@ -26,6 +26,26 @@
       "kind": "string",
       "name": "str_3",
       "value": "Hello, RospOS!"
+    },
+    {
+      "kind": "string",
+      "name": "str_4",
+      "value": "Green RospOS"
+    },
+    {
+      "kind": "string",
+      "name": "str_5",
+      "value": "Red RospOS"
+    },
+    {
+      "kind": "string",
+      "name": "str_6",
+      "value": "Blue RospOS"
+    },
+    {
+      "kind": "string",
+      "name": "str_7",
+      "value": "Yellow RospOS"
     }
   ],
   "functions": [
@@ -1146,52 +1166,10 @@
       "params": [
         "ch",
         "x",
-        "y"
+        "y",
+        "color"
       ],
       "body": [
-        {
-          "type": "if",
-          "cond": {
-            "type": "binop",
-            "op": "lor",
-            "left": {
-              "type": "binop",
-              "op": "lt",
-              "left": {
-                "type": "var",
-                "name": "ch"
-              },
-              "right": {
-                "type": "const",
-                "value": 32
-              }
-            },
-            "right": {
-              "type": "binop",
-              "op": "gt",
-              "left": {
-                "type": "var",
-                "name": "ch"
-              },
-              "right": {
-                "type": "const",
-                "value": 127
-              }
-            }
-          },
-          "then": [
-            {
-              "type": "return",
-              "value": {
-                "type": "const",
-                "value": 0
-              },
-              "_line": 120
-            }
-          ],
-          "else": [],
-          "_line": 118
-        },
         {
           "type": "decl",
           "name": "glyph",
@@ -1207,7 +1185,7 @@
               "value": 8
             }
           },
-          "_line": 122,
+          "_line": 118,
           "decl_type": "int"
         },
         {
@@ -1217,7 +1195,7 @@
             "type": "const",
             "value": 0
           },
-          "_line": 123,
+          "_line": 119,
           "decl_type": "int"
         },
         {
@@ -1264,7 +1242,7 @@
                   }
                 ]
               },
-              "_line": 126,
+              "_line": 122,
               "decl_type": "int"
             },
             {
@@ -1274,7 +1252,7 @@
                 "type": "const",
                 "value": 0
               },
-              "_line": 127,
+              "_line": 123,
               "decl_type": "int"
             },
             {
@@ -1315,7 +1293,7 @@
                       "value": 1
                     }
                   },
-                  "_line": 130,
+                  "_line": 126,
                   "decl_type": "int"
                 },
                 {
@@ -1340,7 +1318,7 @@
                           "name": "col"
                         }
                       },
-                      "_line": 133,
+                      "_line": 129,
                       "decl_type": "int"
                     },
                     {
@@ -1358,7 +1336,7 @@
                           "name": "row"
                         }
                       },
-                      "_line": 134,
+                      "_line": 130,
                       "decl_type": "int"
                     },
                     {
@@ -1384,7 +1362,7 @@
                           "name": "px"
                         }
                       },
-                      "_line": 135,
+                      "_line": 131,
                       "decl_type": "int"
                     },
                     {
@@ -1404,15 +1382,15 @@
                           }
                         },
                         {
-                          "type": "const",
-                          "value": 63
+                          "type": "var",
+                          "name": "color"
                         }
                       ],
-                      "_line": 136
+                      "_line": 132
                     }
                   ],
                   "else": [],
-                  "_line": 131
+                  "_line": 127
                 },
                 {
                   "type": "assign",
@@ -1429,10 +1407,10 @@
                       "value": 1
                     }
                   },
-                  "_line": 138
+                  "_line": 134
                 }
               ],
-              "_line": 128
+              "_line": 124
             },
             {
               "type": "assign",
@@ -1449,10 +1427,10 @@
                   "value": 1
                 }
               },
-              "_line": 140
+              "_line": 136
             }
           ],
-          "_line": 124
+          "_line": 120
         },
         {
           "type": "return",
@@ -1460,13 +1438,14 @@
             "type": "const",
             "value": 0
           },
-          "_line": 142
+          "_line": 138
         }
       ],
       "param_types": {
         "ch": "int",
         "x": "int",
-        "y": "int"
+        "y": "int",
+        "color": "int"
       },
       "return_type": "void",
       "_line": 116
@@ -1476,7 +1455,8 @@
       "params": [
         "str",
         "x",
-        "y"
+        "y",
+        "color"
       ],
       "body": [
         {
@@ -1507,9 +1487,13 @@
                 {
                   "type": "var",
                   "name": "y"
+                },
+                {
+                  "type": "var",
+                  "name": "color"
                 }
               ],
-              "_line": 149
+              "_line": 145
             },
             {
               "type": "assign",
@@ -1526,7 +1510,7 @@
                   "value": 1
                 }
               },
-              "_line": 150
+              "_line": 146
             },
             {
               "type": "assign",
@@ -1543,10 +1527,10 @@
                   "value": 8
                 }
               },
-              "_line": 151
+              "_line": 147
             }
           ],
-          "_line": 147
+          "_line": 143
         },
         {
           "type": "return",
@@ -1554,16 +1538,17 @@
             "type": "const",
             "value": 0
           },
-          "_line": 153
+          "_line": 149
         }
       ],
       "param_types": {
         "str": "char_ptr",
         "x": "int",
-        "y": "int"
+        "y": "int",
+        "color": "int"
       },
       "return_type": "void",
-      "_line": 145
+      "_line": 141
     },
     {
       "name": "draw_horizontal_line",
@@ -1580,7 +1565,7 @@
             "type": "const",
             "value": 0
           },
-          "_line": 158,
+          "_line": 154,
           "decl_type": "int"
         },
         {
@@ -1613,14 +1598,14 @@
                   "name": "i"
                 }
               },
-              "_line": 161,
+              "_line": 157,
               "decl_type": "int"
             },
             {
               "type": "decl",
               "name": "py",
               "init": null,
-              "_line": 162,
+              "_line": 158,
               "decl_type": "int"
             },
             {
@@ -1646,7 +1631,7 @@
                   "name": "px"
                 }
               },
-              "_line": 163,
+              "_line": 159,
               "decl_type": "int"
             },
             {
@@ -1670,7 +1655,7 @@
                   "value": 63
                 }
               ],
-              "_line": 164
+              "_line": 160
             },
             {
               "type": "assign",
@@ -1687,10 +1672,10 @@
                   "value": 1
                 }
               },
-              "_line": 165
+              "_line": 161
             }
           ],
-          "_line": 159
+          "_line": 155
         },
         {
           "type": "return",
@@ -1698,7 +1683,7 @@
             "type": "const",
             "value": 0
           },
-          "_line": 167
+          "_line": 163
         }
       ],
       "param_types": {
@@ -1707,7 +1692,7 @@
         "length": "int"
       },
       "return_type": "void",
-      "_line": 156
+      "_line": 152
     },
     {
       "name": "draw_vertical_line",
@@ -1724,7 +1709,7 @@
             "type": "const",
             "value": 0
           },
-          "_line": 171,
+          "_line": 167,
           "decl_type": "int"
         },
         {
@@ -1746,7 +1731,7 @@
               "type": "decl",
               "name": "px",
               "init": null,
-              "_line": 174,
+              "_line": 170,
               "decl_type": "int"
             },
             {
@@ -1764,7 +1749,7 @@
                   "name": "i"
                 }
               },
-              "_line": 175,
+              "_line": 171,
               "decl_type": "int"
             },
             {
@@ -1790,7 +1775,7 @@
                   "name": "px"
                 }
               },
-              "_line": 176,
+              "_line": 172,
               "decl_type": "int"
             },
             {
@@ -1814,7 +1799,7 @@
                   "value": 63
                 }
               ],
-              "_line": 177
+              "_line": 173
             },
             {
               "type": "assign",
@@ -1831,10 +1816,10 @@
                   "value": 1
                 }
               },
-              "_line": 178
+              "_line": 174
             }
           ],
-          "_line": 172
+          "_line": 168
         },
         {
           "type": "return",
@@ -1842,7 +1827,7 @@
             "type": "const",
             "value": 0
           },
-          "_line": 180
+          "_line": 176
         }
       ],
       "param_types": {
@@ -1851,7 +1836,7 @@
         "length": "int"
       },
       "return_type": "void",
-      "_line": 169
+      "_line": 165
     },
     {
       "name": "draw_line",
@@ -1881,7 +1866,7 @@
               "type": "decl",
               "name": "start_y",
               "init": null,
-              "_line": 187,
+              "_line": 183,
               "decl_type": "int"
             },
             {
@@ -1891,7 +1876,7 @@
                 "type": "const",
                 "value": 0
               },
-              "_line": 188,
+              "_line": 184,
               "decl_type": "int"
             },
             {
@@ -1916,7 +1901,7 @@
                     "type": "var",
                     "name": "y1"
                   },
-                  "_line": 191
+                  "_line": 187
                 },
                 {
                   "type": "assign",
@@ -1941,7 +1926,7 @@
                       "value": 1
                     }
                   },
-                  "_line": 192
+                  "_line": 188
                 }
               ],
               "else": [
@@ -1952,7 +1937,7 @@
                     "type": "var",
                     "name": "y2"
                   },
-                  "_line": 196
+                  "_line": 192
                 },
                 {
                   "type": "assign",
@@ -1977,10 +1962,10 @@
                       "value": 1
                     }
                   },
-                  "_line": 197
+                  "_line": 193
                 }
               ],
-              "_line": 189
+              "_line": 185
             },
             {
               "type": "call_stmt",
@@ -1999,7 +1984,7 @@
                   "name": "length"
                 }
               ],
-              "_line": 199
+              "_line": 195
             },
             {
               "type": "return",
@@ -2007,11 +1992,11 @@
                 "type": "const",
                 "value": 0
               },
-              "_line": 200
+              "_line": 196
             }
           ],
           "else": [],
-          "_line": 185
+          "_line": 181
         },
         {
           "type": "if",
@@ -2032,7 +2017,7 @@
               "type": "decl",
               "name": "start_x",
               "init": null,
-              "_line": 205,
+              "_line": 201,
               "decl_type": "int"
             },
             {
@@ -2042,7 +2027,7 @@
                 "type": "const",
                 "value": 0
               },
-              "_line": 206,
+              "_line": 202,
               "decl_type": "int"
             },
             {
@@ -2067,7 +2052,7 @@
                     "type": "var",
                     "name": "x1"
                   },
-                  "_line": 209
+                  "_line": 205
                 },
                 {
                   "type": "assign",
@@ -2092,7 +2077,7 @@
                       "value": 1
                     }
                   },
-                  "_line": 210
+                  "_line": 206
                 }
               ],
               "else": [
@@ -2103,7 +2088,7 @@
                     "type": "var",
                     "name": "x2"
                   },
-                  "_line": 214
+                  "_line": 210
                 },
                 {
                   "type": "assign",
@@ -2128,10 +2113,10 @@
                       "value": 1
                     }
                   },
-                  "_line": 215
+                  "_line": 211
                 }
               ],
-              "_line": 207
+              "_line": 203
             },
             {
               "type": "call_stmt",
@@ -2150,7 +2135,7 @@
                   "name": "length"
                 }
               ],
-              "_line": 217
+              "_line": 213
             },
             {
               "type": "return",
@@ -2158,11 +2143,11 @@
                 "type": "const",
                 "value": 0
               },
-              "_line": 218
+              "_line": 214
             }
           ],
           "else": [],
-          "_line": 203
+          "_line": 199
         },
         {
           "type": "decl",
@@ -2179,7 +2164,7 @@
               "name": "x1"
             }
           },
-          "_line": 222,
+          "_line": 218,
           "decl_type": "int"
         },
         {
@@ -2212,11 +2197,11 @@
                   "name": "dx"
                 }
               },
-              "_line": 224
+              "_line": 220
             }
           ],
           "else": [],
-          "_line": 223
+          "_line": 219
         },
         {
           "type": "decl",
@@ -2233,7 +2218,7 @@
               "value": 1
             }
           },
-          "_line": 225,
+          "_line": 221,
           "decl_type": "int"
         },
         {
@@ -2258,11 +2243,11 @@
                 "type": "const",
                 "value": 1
               },
-              "_line": 227
+              "_line": 223
             }
           ],
           "else": [],
-          "_line": 226
+          "_line": 222
         },
         {
           "type": "decl",
@@ -2279,7 +2264,7 @@
               "name": "y2"
             }
           },
-          "_line": 229,
+          "_line": 225,
           "decl_type": "int"
         },
         {
@@ -2312,11 +2297,11 @@
                   "name": "dy"
                 }
               },
-              "_line": 231
+              "_line": 227
             }
           ],
           "else": [],
-          "_line": 230
+          "_line": 226
         },
         {
           "type": "assign",
@@ -2333,7 +2318,7 @@
               "name": "dy"
             }
           },
-          "_line": 232
+          "_line": 228
         },
         {
           "type": "decl",
@@ -2350,7 +2335,7 @@
               "value": 1
             }
           },
-          "_line": 233,
+          "_line": 229,
           "decl_type": "int"
         },
         {
@@ -2375,11 +2360,11 @@
                 "type": "const",
                 "value": 1
               },
-              "_line": 235
+              "_line": 231
             }
           ],
           "else": [],
-          "_line": 234
+          "_line": 230
         },
         {
           "type": "decl",
@@ -2396,7 +2381,7 @@
               "name": "dy"
             }
           },
-          "_line": 237,
+          "_line": 233,
           "decl_type": "int"
         },
         {
@@ -2406,7 +2391,7 @@
             "type": "const",
             "value": 1
           },
-          "_line": 238,
+          "_line": 234,
           "decl_type": "int"
         },
         {
@@ -2439,7 +2424,7 @@
                   "name": "x1"
                 }
               },
-              "_line": 241,
+              "_line": 237,
               "decl_type": "int"
             },
             {
@@ -2463,7 +2448,7 @@
                   "value": 63
                 }
               ],
-              "_line": 242
+              "_line": 238
             },
             {
               "type": "if",
@@ -2503,11 +2488,11 @@
                     "type": "const",
                     "value": 0
                   },
-                  "_line": 246
+                  "_line": 242
                 }
               ],
               "else": [],
-              "_line": 244
+              "_line": 240
             },
             {
               "type": "decl",
@@ -2524,7 +2509,7 @@
                   "name": "err"
                 }
               },
-              "_line": 248,
+              "_line": 244,
               "decl_type": "int"
             },
             {
@@ -2557,7 +2542,7 @@
                       "name": "dy"
                     }
                   },
-                  "_line": 251
+                  "_line": 247
                 },
                 {
                   "type": "assign",
@@ -2574,11 +2559,11 @@
                       "name": "sx"
                     }
                   },
-                  "_line": 252
+                  "_line": 248
                 }
               ],
               "else": [],
-              "_line": 249
+              "_line": 245
             },
             {
               "type": "if",
@@ -2610,7 +2595,7 @@
                       "name": "dx"
                     }
                   },
-                  "_line": 256
+                  "_line": 252
                 },
                 {
                   "type": "assign",
@@ -2627,14 +2612,14 @@
                       "name": "sy"
                     }
                   },
-                  "_line": 257
+                  "_line": 253
                 }
               ],
               "else": [],
-              "_line": 254
+              "_line": 250
             }
           ],
-          "_line": 239
+          "_line": 235
         },
         {
           "type": "return",
@@ -2642,7 +2627,7 @@
             "type": "const",
             "value": 0
           },
-          "_line": 260
+          "_line": 256
         }
       ],
       "param_types": {
@@ -2652,7 +2637,7 @@
         "y2": "int"
       },
       "return_type": "void",
-      "_line": 183
+      "_line": 179
     },
     {
       "name": "draw_rectangle",
@@ -2680,7 +2665,7 @@
               "name": "width"
             }
           ],
-          "_line": 265
+          "_line": 262
         },
         {
           "type": "call_stmt",
@@ -2715,7 +2700,7 @@
               "name": "width"
             }
           ],
-          "_line": 266
+          "_line": 263
         },
         {
           "type": "call_stmt",
@@ -2734,7 +2719,7 @@
               "name": "height"
             }
           ],
-          "_line": 267
+          "_line": 264
         },
         {
           "type": "call_stmt",
@@ -2769,7 +2754,7 @@
               "name": "height"
             }
           ],
-          "_line": 268
+          "_line": 265
         },
         {
           "type": "return",
@@ -2777,7 +2762,7 @@
             "type": "const",
             "value": 0
           },
-          "_line": 269
+          "_line": 266
         }
       ],
       "param_types": {
@@ -2787,7 +2772,7 @@
         "height": "int"
       },
       "return_type": "void",
-      "_line": 263
+      "_line": 260
     },
     {
       "name": "screen_test",
@@ -2800,7 +2785,7 @@
             "type": "const",
             "value": 536870912
           },
-          "_line": 276,
+          "_line": 273,
           "decl_type": "int"
         },
         {
@@ -2810,7 +2795,7 @@
             "type": "const",
             "value": 65536
           },
-          "_line": 277,
+          "_line": 274,
           "decl_type": "int"
         },
         {
@@ -2820,7 +2805,7 @@
             "type": "const",
             "value": 3735928559
           },
-          "_line": 278,
+          "_line": 275,
           "decl_type": "int"
         },
         {
@@ -2843,7 +2828,7 @@
                   "name": "lfsr"
                 }
               ],
-              "_line": 282
+              "_line": 279
             },
             {
               "type": "assign",
@@ -2860,7 +2845,7 @@
                   "value": 1
                 }
               },
-              "_line": 283
+              "_line": 280
             },
             {
               "type": "decl",
@@ -2933,7 +2918,7 @@
                   "value": 1
                 }
               },
-              "_line": 285,
+              "_line": 282,
               "decl_type": "int"
             },
             {
@@ -2967,7 +2952,7 @@
                   }
                 }
               },
-              "_line": 286
+              "_line": 283
             },
             {
               "type": "assign",
@@ -2984,14 +2969,14 @@
                   "value": 1
                 }
               },
-              "_line": 288
+              "_line": 285
             }
           ],
-          "_line": 280
+          "_line": 277
         }
       ],
       "return_type": "void",
-      "_line": 274
+      "_line": 271
     },
     {
       "name": "add_coords",
@@ -3023,14 +3008,14 @@
               "member": "y"
             }
           },
-          "_line": 305
+          "_line": 302
         }
       ],
       "param_types": {
         "p": "Point"
       },
       "return_type": "int",
-      "_line": 303
+      "_line": 300
     },
     {
       "name": "add",
@@ -3053,7 +3038,7 @@
               "name": "b"
             }
           },
-          "_line": 311
+          "_line": 308
         }
       ],
       "param_types": {
@@ -3061,7 +3046,7 @@
         "b": "int"
       },
       "return_type": "int",
-      "_line": 309
+      "_line": 306
     },
     {
       "name": "old_main",
@@ -3074,7 +3059,7 @@
             "type": "const",
             "value": 5
           },
-          "_line": 315,
+          "_line": 312,
           "decl_type": "int"
         },
         {
@@ -3084,7 +3069,7 @@
             "type": "const",
             "value": 10
           },
-          "_line": 316,
+          "_line": 313,
           "decl_type": "int"
         },
         {
@@ -3104,7 +3089,7 @@
               }
             ]
           },
-          "_line": 317,
+          "_line": 314,
           "decl_type": "int"
         },
         {
@@ -3116,7 +3101,7 @@
               "label": "str_0"
             }
           ],
-          "_line": 319
+          "_line": 316
         },
         {
           "type": "call_stmt",
@@ -3127,20 +3112,20 @@
               "name": "result"
             }
           ],
-          "_line": 320
+          "_line": 317
         },
         {
           "type": "decl",
           "name": "p1",
           "init": null,
-          "_line": 323,
+          "_line": 320,
           "decl_type": "Point"
         },
         {
           "type": "decl",
           "name": "s",
           "init": null,
-          "_line": 324,
+          "_line": 321,
           "decl_type": "Size"
         },
         {
@@ -3158,7 +3143,7 @@
             "type": "const",
             "value": 10
           },
-          "_line": 327
+          "_line": 324
         },
         {
           "type": "assign",
@@ -3175,7 +3160,7 @@
             "type": "const",
             "value": 20
           },
-          "_line": 328
+          "_line": 325
         },
         {
           "type": "assign",
@@ -3192,7 +3177,7 @@
             "type": "const",
             "value": 640
           },
-          "_line": 330
+          "_line": 327
         },
         {
           "type": "assign",
@@ -3209,7 +3194,7 @@
             "type": "const",
             "value": 480
           },
-          "_line": 331
+          "_line": 328
         },
         {
           "type": "decl",
@@ -3224,7 +3209,7 @@
               }
             ]
           },
-          "_line": 334,
+          "_line": 331,
           "decl_type": "int"
         },
         {
@@ -3252,7 +3237,7 @@
               "member": "height"
             }
           },
-          "_line": 335,
+          "_line": 332,
           "decl_type": "int"
         },
         {
@@ -3264,7 +3249,7 @@
               "label": "str_1"
             }
           ],
-          "_line": 337
+          "_line": 334
         },
         {
           "type": "call_stmt",
@@ -3275,7 +3260,7 @@
               "name": "sum"
             }
           ],
-          "_line": 338
+          "_line": 335
         },
         {
           "type": "call_stmt",
@@ -3286,7 +3271,7 @@
               "label": "str_2"
             }
           ],
-          "_line": 339
+          "_line": 336
         },
         {
           "type": "call_stmt",
@@ -3297,11 +3282,11 @@
               "name": "area"
             }
           ],
-          "_line": 340
+          "_line": 337
         }
       ],
       "return_type": "void",
-      "_line": 314
+      "_line": 311
     },
     {
       "name": "main",
@@ -3322,21 +3307,25 @@
             {
               "type": "const",
               "value": 10
-            }
-          ],
-          "_line": 346
-        },
-        {
-          "type": "call_stmt",
-          "name": "draw_line",
-          "args": [
-            {
-              "type": "const",
-              "value": 20
             },
             {
               "type": "const",
-              "value": 50
+              "value": 63
+            }
+          ],
+          "_line": 343
+        },
+        {
+          "type": "call_stmt",
+          "name": "draw_string_to_display",
+          "args": [
+            {
+              "type": "string_addr",
+              "label": "str_4"
+            },
+            {
+              "type": "const",
+              "value": 10
             },
             {
               "type": "const",
@@ -3344,37 +3333,83 @@
             },
             {
               "type": "const",
+              "value": 12
+            }
+          ],
+          "_line": 344
+        },
+        {
+          "type": "call_stmt",
+          "name": "draw_string_to_display",
+          "args": [
+            {
+              "type": "string_addr",
+              "label": "str_5"
+            },
+            {
+              "type": "const",
+              "value": 10
+            },
+            {
+              "type": "const",
+              "value": 50
+            },
+            {
+              "type": "const",
+              "value": 48
+            }
+          ],
+          "_line": 345
+        },
+        {
+          "type": "call_stmt",
+          "name": "draw_string_to_display",
+          "args": [
+            {
+              "type": "string_addr",
+              "label": "str_6"
+            },
+            {
+              "type": "const",
+              "value": 10
+            },
+            {
+              "type": "const",
+              "value": 70
+            },
+            {
+              "type": "const",
+              "value": 7
+            }
+          ],
+          "_line": 346
+        },
+        {
+          "type": "call_stmt",
+          "name": "draw_string_to_display",
+          "args": [
+            {
+              "type": "string_addr",
+              "label": "str_7"
+            },
+            {
+              "type": "const",
+              "value": 10
+            },
+            {
+              "type": "const",
+              "value": 90
+            },
+            {
+              "type": "const",
               "value": 60
             }
           ],
           "_line": 347
-        },
-        {
-          "type": "call_stmt",
-          "name": "draw_rectangle",
-          "args": [
-            {
-              "type": "const",
-              "value": 100
-            },
-            {
-              "type": "const",
-              "value": 100
-            },
-            {
-              "type": "const",
-              "value": 150
-            },
-            {
-              "type": "const",
-              "value": 100
-            }
-          ],
-          "_line": 348
         }
       ],
       "return_type": "void",
-      "_line": 343
+      "_line": 340
     }
   ],
   "types": [

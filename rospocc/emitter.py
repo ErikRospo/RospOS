@@ -58,6 +58,12 @@ class Emitter:
         self.temp_counter = 0
         # Spill tracking for temporary allocations under register pressure.
         self._spill_depth = {}
+        # Depth of expression-temporary borrows for registers that may also map vars.
+        self._borrowed_temp_depth = {}
+        # For spill-borrowed registers, preserve and restore var aliases across PUSH/POP.
+        self._spilled_var_aliases = {}
+        # Global spill push order for safe stack-correct restore logic.
+        self._spill_stack = []
         # Pinned regs are protected from spill while their current value is needed.
         self._pinned_regs = {}
         # Per-function look-ahead: variable -> remaining read count.
@@ -65,6 +71,8 @@ class Emitter:
         # Control-flow aware liveness guards.
         self._control_flow_depth = 0
         self._protected_var_depth = {}
+        # Stack of block scopes used to release block-local declarations safely.
+        self._var_scope_stack = []
 
     def _get_source_text(self, line_num: int) -> str:
         """Get the source text for a given line number (1-indexed)."""
@@ -149,31 +157,45 @@ class Emitter:
             reg = None
             if track_as_temp:
                 for candidate in abi.TEMP_REGS:
-                    if candidate in self.reg_free:
-                        continue
-                    if self.is_var_reg(candidate):
-                        continue
                     if self._pinned_regs.get(candidate, 0) > 0:
                         continue
                     if self._spill_depth.get(candidate, 0) > 0:
+                        continue
+                    if self._borrowed_temp_depth.get(candidate, 0) > 0:
                         continue
                     reg = candidate
                     break
 
             print(f"Register pressure: no free registers, spilling {reg} for temp allocation")
-            if reg is not None and self.tracked_writer is not None:
+            if reg is not None and self.tracked_writer is not None and track_as_temp:
                 self.tracked_writer.write(
                     f"  PUSH {reg}    // spill live temp for reg pressure\n"
                 )
-                self._spill_depth[reg] = self._spill_depth.get(reg, 0) + 1
-                borrowed_spill = True
-            else:
-                # Fallback for non-temp allocations or if no spill-safe candidate exists.
-                print(
-                    "Warning: register pressure fallback to r13; consider freeing unused vars earlier"
+                aliases = [name for name, mapped_reg in self.var_regs.items() if mapped_reg == reg]
+                if aliases:
+                    self._spilled_var_aliases.setdefault(reg, []).append(list(aliases))
+                    for name in aliases:
+                        del self.var_regs[name]
+                else:
+                    self._spilled_var_aliases.setdefault(reg, []).append([])
+                self._spill_stack.append(
+                    {
+                        "reg": reg,
+                        "aliases": list(aliases),
+                        "restored_early": False,
+                    }
                 )
-                print(f"Register picture at spill point: free={self.reg_free}, var_regs={self.var_regs}, pinned={self._pinned_regs}, spill_depth={self._spill_depth}")
-                reg = "r13"
+                self._spill_depth[reg] = self._spill_depth.get(reg, 0) + 1
+                self._borrowed_temp_depth[reg] = self._borrowed_temp_depth.get(reg, 0) + 1
+                borrowed_spill = True
+            elif track_as_temp:
+                raise RuntimeError(
+                    "Out of registers for temporary expression evaluation; no spill-safe candidate available"
+                )
+            else:
+                raise RuntimeError(
+                    "Out of registers for variable allocation; consider reducing simultaneously-live variables"
+                )
         else:
             reg = self.reg_free.pop(0)
 
@@ -194,15 +216,134 @@ class Emitter:
         return reg
 
     def free_reg(self, reg: str):
+        def _dec_spill_depth(r: str):
+            depth = self._spill_depth.get(r, 0)
+            if depth <= 1:
+                self._spill_depth.pop(r, None)
+            else:
+                self._spill_depth[r] = depth - 1
+
+        def _restore_aliases(r: str, aliases: list[str]):
+            for name in aliases:
+                if name not in self.var_regs:
+                    self.var_regs[name] = r
+
         spill_depth = self._spill_depth.get(reg, 0)
         if spill_depth > 0:
-            if self.tracked_writer is not None:
+            if self.tracked_writer is None:
+                raise RuntimeError("Cannot restore spilled register without tracked_writer")
+
+            # Find the most recent spill slot for this register.
+            target_idx = None
+            for i in range(len(self._spill_stack) - 1, -1, -1):
+                if self._spill_stack[i].get("reg") == reg:
+                    target_idx = i
+                    break
+
+            if target_idx is None:
+                # Fallback for legacy state mismatch.
                 self.tracked_writer.write(f"  POP {reg}    // restore spilled temp\n")
-            spill_depth -= 1
-            if spill_depth > 0:
-                self._spill_depth[reg] = spill_depth
+                _dec_spill_depth(reg)
+                return
+
+            top_idx = len(self._spill_stack) - 1
+
+            # Fast path: normal LIFO restore.
+            if target_idx == top_idx:
+                entry = self._spill_stack.pop()
+                if entry.get("restored_early", False):
+                    self.tracked_writer.write(
+                        f"  ADDI {abi.SP_REG}, {abi.SP_REG}, 4    // discard stale spill slot for {reg}\n"
+                    )
+                else:
+                    self.tracked_writer.write(f"  POP {reg}    // restore spilled temp\n")
+                    _restore_aliases(reg, entry.get("aliases", []))
+                    _dec_spill_depth(reg)
+                # Keep legacy alias stack roughly in sync.
+                alias_stack = self._spilled_var_aliases.get(reg, [])
+                if alias_stack:
+                    alias_stack.pop()
+                    if alias_stack:
+                        self._spilled_var_aliases[reg] = alias_stack
+                    else:
+                        self._spilled_var_aliases.pop(reg, None)
+                elif not entry.get("restored_early", False):
+                    self._spilled_var_aliases.pop(reg, None)
+                return
+
+            # Non-top restore request.
+            above_entries = self._spill_stack[target_idx + 1 :]
+
+            # Safe to reverse-pop/rewind only if all above entries are not currently borrowed
+            # and were not already early-restored placeholders.
+            can_unwind = True
+            for e in above_entries:
+                e_reg = e.get("reg")
+                if e.get("restored_early", False):
+                    can_unwind = False
+                    break
+                if self._borrowed_temp_depth.get(e_reg, 0) > 0:
+                    can_unwind = False
+                    break
+                if self._pinned_regs.get(e_reg, 0) > 0:
+                    can_unwind = False
+                    break
+
+            if can_unwind:
+                # Unwind top entries (reverse order), restore target, then re-spill unwound entries.
+                for e in reversed(above_entries):
+                    e_reg = e.get("reg")
+                    self.tracked_writer.write(
+                        f"  POP {e_reg}    // unwind spill stack for restoring {reg}\n"
+                    )
+
+                self.tracked_writer.write(f"  POP {reg}    // restore spilled temp\n")
+                target_entry = self._spill_stack[target_idx]
+                _restore_aliases(reg, target_entry.get("aliases", []))
+                _dec_spill_depth(reg)
+
+                for e in above_entries:
+                    e_reg = e.get("reg")
+                    self.tracked_writer.write(
+                        f"  PUSH {e_reg}    // rewind spill stack after restoring {reg}\n"
+                    )
+
+                # Remove target entry; above entries remain spilled in same relative order.
+                self._spill_stack = self._spill_stack[:target_idx] + above_entries
+
+                alias_stack = self._spilled_var_aliases.get(reg, [])
+                if alias_stack:
+                    alias_stack.pop()
+                    if alias_stack:
+                        self._spilled_var_aliases[reg] = alias_stack
+                    else:
+                        self._spilled_var_aliases.pop(reg, None)
+                else:
+                    self._spilled_var_aliases.pop(reg, None)
+                return
+
+            # Unsafe to unwind: restore value from stack slot without disturbing top spill order.
+            slots_from_top = top_idx - target_idx
+            byte_off = slots_from_top * 4
+            self.tracked_writer.write(
+                f"  LW {reg}, {abi.SP_REG}, {byte_off}    // restore spilled temp from stack slot\n"
+            )
+            target_entry = self._spill_stack[target_idx]
+            if not target_entry.get("restored_early", False):
+                _restore_aliases(reg, target_entry.get("aliases", []))
+                target_entry["aliases"] = []
+                target_entry["restored_early"] = True
+                _dec_spill_depth(reg)
+
+            alias_stack = self._spilled_var_aliases.get(reg, [])
+            if alias_stack:
+                alias_stack.pop()
+                if alias_stack:
+                    self._spilled_var_aliases[reg] = alias_stack
+                else:
+                    self._spilled_var_aliases.pop(reg, None)
             else:
-                del self._spill_depth[reg]
+                self._spilled_var_aliases.pop(reg, None)
             return
 
         if (
@@ -223,7 +364,19 @@ class Emitter:
 
     def release_expr_reg(self, reg: str):
         # Only expression temporaries are releasable; variable-backed registers must stay live.
-        if reg and reg in abi.TEMP_REGS and not self.is_var_reg(reg):
+        if not reg or reg not in abi.TEMP_REGS:
+            return
+
+        borrowed_depth = self._borrowed_temp_depth.get(reg, 0)
+        if borrowed_depth > 0:
+            if borrowed_depth == 1:
+                del self._borrowed_temp_depth[reg]
+            else:
+                self._borrowed_temp_depth[reg] = borrowed_depth - 1
+            self.free_reg(reg)
+            return
+
+        if not self.is_var_reg(reg):
             self.free_reg(reg)
 
     def pin_reg(self, reg: Optional[str]):
@@ -364,7 +517,7 @@ class Emitter:
             return
         if self._spill_depth.get(reg, 0) > 0:
             return
-        if self._control_flow_depth > 0:
+        if self._borrowed_temp_depth.get(reg, 0) > 0:
             return
 
         aliases = [name for name, mapped_reg in self.var_regs.items() if mapped_reg == reg]
@@ -393,8 +546,6 @@ class Emitter:
         remaining = self._remaining_var_reads.get(name, 0)
         if remaining > 0:
             self._remaining_var_reads[name] = remaining - 1
-        if self._control_flow_depth > 0:
-            return
         if self._protected_var_depth.get(name, 0) > 0:
             return
         reg = self.var_regs.get(name)
@@ -421,6 +572,51 @@ class Emitter:
         out.write(f"{ltrue}:\n")
         out.write(f"  LLI {rd}, 1\n")
         out.write(f"{lend}:\n")
+
+    def enter_var_scope(self):
+        self._var_scope_stack.append({})
+
+    def note_var_declaration(self, name: Optional[str]):
+        if not isinstance(name, str):
+            return
+        if not self._var_scope_stack:
+            return
+
+        scope = self._var_scope_stack[-1]
+        if name in scope:
+            return
+
+        had_prev = name in self.var_regs
+        scope[name] = {
+            "had_prev": had_prev,
+            "prev_reg": self.var_regs.get(name),
+            "prev_type": self.var_types.get(name),
+        }
+
+    def exit_var_scope(self):
+        if not self._var_scope_stack:
+            return
+
+        scope = self._var_scope_stack.pop()
+        for name, info in reversed(list(scope.items())):
+            reg = self.var_regs.get(name)
+            if reg and reg in abi.TEMP_REGS and self._spill_depth.get(reg, 0) == 0 and self._borrowed_temp_depth.get(reg, 0) == 0:
+                del self.var_regs[name]
+                self.free_reg(reg)
+            else:
+                self.var_regs.pop(name, None)
+
+            if info.get("had_prev"):
+                prev_reg = info.get("prev_reg")
+                if prev_reg:
+                    self.var_regs[name] = prev_reg
+                prev_type = info.get("prev_type")
+                if prev_type is not None:
+                    self.var_types[name] = prev_type
+                else:
+                    self.var_types.pop(name, None)
+            elif name in self.var_types:
+                self.var_types.pop(name, None)
 
     def _intrinsic_lb(self, args, out, return_reg=None):
         intrinsic_lb(self, args, out, return_reg=return_reg)
@@ -522,9 +718,13 @@ class Emitter:
         self.reg_free = list(abi.TEMP_REGS)
         self.var_regs = {}
         self._spill_depth = {}
+        self._borrowed_temp_depth = {}
+        self._spilled_var_aliases = {}
+        self._spill_stack = []
         self._pinned_regs = {}
         self._control_flow_depth = 0
         self._protected_var_depth = {}
+        self._var_scope_stack = []
         # start var_types with globals available
         self.var_types = dict(self.global_types)
         # Handle parameters: map param names to argument registers (r1..r4)
@@ -556,8 +756,12 @@ class Emitter:
         self.prepare_function_liveness(fn)
 
         # Emit body
-        for stmt in fn.get("body", []):
-            self.emit_statement(stmt, out)
+        self.enter_var_scope()
+        try:
+            for stmt in fn.get("body", []):
+                self.emit_statement(stmt, out)
+        finally:
+            self.exit_var_scope()
 
         # If no return was emitted in the body, emit epilogue and return 0
         if not self.had_return:
@@ -580,6 +784,7 @@ class Emitter:
 
     def emit_statement(self, stmt: Dict[str, Any], out):
         emit_statement_impl(self, stmt, out)
+        self.reclaim_dead_var_regs()
 
     def emit_expr(self, expr: Optional[Dict[str, Any]], out) -> str:
         return emit_expression(self, expr, out)
