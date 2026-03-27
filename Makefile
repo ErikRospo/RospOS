@@ -5,7 +5,7 @@ DOCS := Design.md Ideas.md Log.md
 
 # Build directories
 DIR_ROSPOS_BUILD := rospos/build
-DIR_DOCS_BUILD := build
+DIR_DOCS_BUILD := build/
 ROSPOAS_ARGS := --optimize --bin-version 2 --rospocc-mapping --segment-debug
 ROSPOAS_DEP := $(shell find ./rospoas -maxdepth 1 -type f)
 ROSPCC_DEP := $(shell find ./rospocc -maxdepth 1 -type f)
