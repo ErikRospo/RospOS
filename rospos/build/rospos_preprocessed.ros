@@ -820,16 +820,16 @@ WHILE_END111:
   CALL draw_string_to_display
   // call return value in r1
   POP r1  
-  // emit call to draw_rectangle with args [{'type': 'const', 'value': 20}, {'type': 'const', 'value': 50}, {'type': 'const', 'value': 30}, {'type': 'const', 'value': 40}, {'type': 'const', 'value': 63}, {'type': 'const', 'value': 12}]
+  // emit call to draw_rectangle with args [{'type': 'const', 'value': 20}, {'type': 'const', 'value': 100}, {'type': 'const', 'value': 30}, {'type': 'const', 'value': 20}, {'type': 'const', 'value': 63}, {'type': 'const', 'value': 12}]
   PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
   LLI r2, 12    // load immediate 12
   PUSH r2    // pass overflow arg on stack
   LLI r3, 63    // load immediate 63
   PUSH r3    // pass overflow arg on stack
   LLI r1, 20    // load immediate 20
-  LLI r2, 50    // load immediate 50
+  LLI r2, 100    // load immediate 100
   LLI r3, 30    // load immediate 30
-  LLI r4, 40    // load immediate 40
+  LLI r4, 20    // load immediate 20
   CALL draw_rectangle
   // call return value in r1
   ADDI r15, r15, 8    // discard overflow arg slots
