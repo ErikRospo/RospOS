@@ -730,156 +730,6 @@
       "_line": 47
     },
     {
-      "name": "read_line",
-      "params": [
-        "buffer",
-        "max_len"
-      ],
-      "body": [
-        {
-          "type": "decl",
-          "name": "i",
-          "init": {
-            "type": "const",
-            "value": 0
-          },
-          "_line": 66,
-          "decl_type": "int"
-        },
-        {
-          "type": "while",
-          "cond": {
-            "type": "binop",
-            "op": "lt",
-            "left": {
-              "type": "var",
-              "name": "i"
-            },
-            "right": {
-              "type": "binop",
-              "op": "minus",
-              "left": {
-                "type": "var",
-                "name": "max_len"
-              },
-              "right": {
-                "type": "const",
-                "value": 1
-              }
-            }
-          },
-          "body": [
-            {
-              "type": "decl",
-              "name": "c",
-              "init": {
-                "type": "call",
-                "name": "read_char",
-                "args": []
-              },
-              "_line": 69,
-              "decl_type": "char"
-            },
-            {
-              "type": "if",
-              "cond": {
-                "type": "binop",
-                "op": "eq",
-                "left": {
-                  "type": "var",
-                  "name": "c"
-                },
-                "right": {
-                  "type": "const",
-                  "value": 10
-                }
-              },
-              "then": [],
-              "else": [],
-              "_line": 70
-            },
-            {
-              "type": "assign",
-              "target": {
-                "type": "deref",
-                "expr": {
-                  "type": "binop",
-                  "op": "plus",
-                  "left": {
-                    "type": "var",
-                    "name": "buffer"
-                  },
-                  "right": {
-                    "type": "var",
-                    "name": "i"
-                  }
-                }
-              },
-              "value": {
-                "type": "var",
-                "name": "c"
-              },
-              "_line": 74
-            },
-            {
-              "type": "assign",
-              "target": "i",
-              "value": {
-                "type": "binop",
-                "op": "plus",
-                "left": {
-                  "type": "var",
-                  "name": "i"
-                },
-                "right": {
-                  "type": "const",
-                  "value": 1
-                }
-              },
-              "_line": 75
-            }
-          ],
-          "_line": 67
-        },
-        {
-          "type": "assign",
-          "target": {
-            "type": "deref",
-            "expr": {
-              "type": "binop",
-              "op": "plus",
-              "left": {
-                "type": "var",
-                "name": "buffer"
-              },
-              "right": {
-                "type": "var",
-                "name": "i"
-              }
-            }
-          },
-          "value": {
-            "type": "const",
-            "value": 0
-          },
-          "_line": 77
-        },
-        {
-          "type": "decl",
-          "name": "i",
-          "init": null,
-          "_line": 78,
-          "decl_type": "return"
-        }
-      ],
-      "param_types": {
-        "buffer": "char_ptr",
-        "max_len": "int"
-      },
-      "return_type": "char",
-      "_line": 64
-    },
-    {
       "name": "clear_display",
       "params": [],
       "body": [
@@ -890,7 +740,7 @@
             "type": "const",
             "value": 0
           },
-          "_line": 86,
+          "_line": 66,
           "decl_type": "int"
         },
         {
@@ -929,7 +779,7 @@
                   "value": 0
                 }
               ],
-              "_line": 89
+              "_line": 69
             },
             {
               "type": "assign",
@@ -946,10 +796,10 @@
                   "value": 1
                 }
               },
-              "_line": 90
+              "_line": 70
             }
           ],
-          "_line": 87
+          "_line": 67
         },
         {
           "type": "return",
@@ -957,11 +807,11 @@
             "type": "const",
             "value": 0
           },
-          "_line": 92
+          "_line": 72
         }
       ],
       "return_type": "void",
-      "_line": 84
+      "_line": 64
     },
     {
       "name": "clear_char_on_display",
@@ -977,7 +827,7 @@
             "type": "const",
             "value": 0
           },
-          "_line": 97,
+          "_line": 77,
           "decl_type": "int"
         },
         {
@@ -1002,7 +852,7 @@
                 "type": "const",
                 "value": 0
               },
-              "_line": 100,
+              "_line": 80,
               "decl_type": "int"
             },
             {
@@ -1035,7 +885,7 @@
                       "name": "col"
                     }
                   },
-                  "_line": 103,
+                  "_line": 83,
                   "decl_type": "int"
                 },
                 {
@@ -1053,7 +903,7 @@
                       "name": "row"
                     }
                   },
-                  "_line": 104,
+                  "_line": 84,
                   "decl_type": "int"
                 },
                 {
@@ -1079,7 +929,7 @@
                       "name": "px"
                     }
                   },
-                  "_line": 105,
+                  "_line": 85,
                   "decl_type": "int"
                 },
                 {
@@ -1103,7 +953,7 @@
                       "value": 0
                     }
                   ],
-                  "_line": 106
+                  "_line": 86
                 },
                 {
                   "type": "assign",
@@ -1120,10 +970,10 @@
                       "value": 1
                     }
                   },
-                  "_line": 107
+                  "_line": 87
                 }
               ],
-              "_line": 101
+              "_line": 81
             },
             {
               "type": "assign",
@@ -1140,10 +990,10 @@
                   "value": 1
                 }
               },
-              "_line": 109
+              "_line": 89
             }
           ],
-          "_line": 98
+          "_line": 78
         },
         {
           "type": "return",
@@ -1151,7 +1001,7 @@
             "type": "const",
             "value": 0
           },
-          "_line": 111
+          "_line": 91
         }
       ],
       "param_types": {
@@ -1159,7 +1009,7 @@
         "y": "int"
       },
       "return_type": "void",
-      "_line": 95
+      "_line": 75
     },
     {
       "name": "draw_char_to_display",
@@ -1185,7 +1035,7 @@
               "value": 8
             }
           },
-          "_line": 118,
+          "_line": 98,
           "decl_type": "int"
         },
         {
@@ -1195,7 +1045,7 @@
             "type": "const",
             "value": 0
           },
-          "_line": 119,
+          "_line": 99,
           "decl_type": "int"
         },
         {
@@ -1242,7 +1092,7 @@
                   }
                 ]
               },
-              "_line": 122,
+              "_line": 102,
               "decl_type": "int"
             },
             {
@@ -1252,7 +1102,7 @@
                 "type": "const",
                 "value": 0
               },
-              "_line": 123,
+              "_line": 103,
               "decl_type": "int"
             },
             {
@@ -1293,7 +1143,7 @@
                       "value": 1
                     }
                   },
-                  "_line": 126,
+                  "_line": 106,
                   "decl_type": "int"
                 },
                 {
@@ -1318,7 +1168,7 @@
                           "name": "col"
                         }
                       },
-                      "_line": 129,
+                      "_line": 109,
                       "decl_type": "int"
                     },
                     {
@@ -1336,7 +1186,7 @@
                           "name": "row"
                         }
                       },
-                      "_line": 130,
+                      "_line": 110,
                       "decl_type": "int"
                     },
                     {
@@ -1362,7 +1212,7 @@
                           "name": "px"
                         }
                       },
-                      "_line": 131,
+                      "_line": 111,
                       "decl_type": "int"
                     },
                     {
@@ -1386,11 +1236,11 @@
                           "name": "color"
                         }
                       ],
-                      "_line": 132
+                      "_line": 112
                     }
                   ],
                   "else": [],
-                  "_line": 127
+                  "_line": 107
                 },
                 {
                   "type": "assign",
@@ -1407,10 +1257,10 @@
                       "value": 1
                     }
                   },
-                  "_line": 134
+                  "_line": 114
                 }
               ],
-              "_line": 124
+              "_line": 104
             },
             {
               "type": "assign",
@@ -1427,10 +1277,10 @@
                   "value": 1
                 }
               },
-              "_line": 136
+              "_line": 116
             }
           ],
-          "_line": 120
+          "_line": 100
         },
         {
           "type": "return",
@@ -1438,7 +1288,7 @@
             "type": "const",
             "value": 0
           },
-          "_line": 138
+          "_line": 118
         }
       ],
       "param_types": {
@@ -1448,7 +1298,7 @@
         "color": "int"
       },
       "return_type": "void",
-      "_line": 116
+      "_line": 96
     },
     {
       "name": "draw_string_to_display",
@@ -1493,7 +1343,7 @@
                   "name": "color"
                 }
               ],
-              "_line": 145
+              "_line": 125
             },
             {
               "type": "assign",
@@ -1510,7 +1360,7 @@
                   "value": 1
                 }
               },
-              "_line": 146
+              "_line": 126
             },
             {
               "type": "assign",
@@ -1527,10 +1377,10 @@
                   "value": 8
                 }
               },
-              "_line": 147
+              "_line": 127
             }
           ],
-          "_line": 143
+          "_line": 123
         },
         {
           "type": "return",
@@ -1538,7 +1388,7 @@
             "type": "const",
             "value": 0
           },
-          "_line": 149
+          "_line": 129
         }
       ],
       "param_types": {
@@ -1548,295 +1398,7 @@
         "color": "int"
       },
       "return_type": "void",
-      "_line": 141
-    },
-    {
-      "name": "draw_horizontal_line",
-      "params": [
-        "x",
-        "y",
-        "length"
-      ],
-      "body": [
-        {
-          "type": "decl",
-          "name": "i",
-          "init": {
-            "type": "const",
-            "value": 0
-          },
-          "_line": 154,
-          "decl_type": "int"
-        },
-        {
-          "type": "while",
-          "cond": {
-            "type": "binop",
-            "op": "lt",
-            "left": {
-              "type": "var",
-              "name": "i"
-            },
-            "right": {
-              "type": "var",
-              "name": "length"
-            }
-          },
-          "body": [
-            {
-              "type": "decl",
-              "name": "px",
-              "init": {
-                "type": "binop",
-                "op": "plus",
-                "left": {
-                  "type": "var",
-                  "name": "x"
-                },
-                "right": {
-                  "type": "var",
-                  "name": "i"
-                }
-              },
-              "_line": 157,
-              "decl_type": "int"
-            },
-            {
-              "type": "decl",
-              "name": "py",
-              "init": null,
-              "_line": 158,
-              "decl_type": "int"
-            },
-            {
-              "type": "decl",
-              "name": "index",
-              "init": {
-                "type": "binop",
-                "op": "plus",
-                "left": {
-                  "type": "binop",
-                  "op": "mult",
-                  "left": {
-                    "type": "var",
-                    "name": "py"
-                  },
-                  "right": {
-                    "type": "const",
-                    "value": 256
-                  }
-                },
-                "right": {
-                  "type": "var",
-                  "name": "px"
-                }
-              },
-              "_line": 159,
-              "decl_type": "int"
-            },
-            {
-              "type": "call_stmt",
-              "name": "__sb",
-              "args": [
-                {
-                  "type": "binop",
-                  "op": "plus",
-                  "left": {
-                    "type": "const",
-                    "value": 536870912
-                  },
-                  "right": {
-                    "type": "var",
-                    "name": "index"
-                  }
-                },
-                {
-                  "type": "const",
-                  "value": 63
-                }
-              ],
-              "_line": 160
-            },
-            {
-              "type": "assign",
-              "target": "i",
-              "value": {
-                "type": "binop",
-                "op": "plus",
-                "left": {
-                  "type": "var",
-                  "name": "i"
-                },
-                "right": {
-                  "type": "const",
-                  "value": 1
-                }
-              },
-              "_line": 161
-            }
-          ],
-          "_line": 155
-        },
-        {
-          "type": "return",
-          "value": {
-            "type": "const",
-            "value": 0
-          },
-          "_line": 163
-        }
-      ],
-      "param_types": {
-        "x": "int",
-        "y": "int",
-        "length": "int"
-      },
-      "return_type": "void",
-      "_line": 152
-    },
-    {
-      "name": "draw_vertical_line",
-      "params": [
-        "x",
-        "y",
-        "length"
-      ],
-      "body": [
-        {
-          "type": "decl",
-          "name": "i",
-          "init": {
-            "type": "const",
-            "value": 0
-          },
-          "_line": 167,
-          "decl_type": "int"
-        },
-        {
-          "type": "while",
-          "cond": {
-            "type": "binop",
-            "op": "lt",
-            "left": {
-              "type": "var",
-              "name": "i"
-            },
-            "right": {
-              "type": "var",
-              "name": "length"
-            }
-          },
-          "body": [
-            {
-              "type": "decl",
-              "name": "px",
-              "init": null,
-              "_line": 170,
-              "decl_type": "int"
-            },
-            {
-              "type": "decl",
-              "name": "py",
-              "init": {
-                "type": "binop",
-                "op": "plus",
-                "left": {
-                  "type": "var",
-                  "name": "y"
-                },
-                "right": {
-                  "type": "var",
-                  "name": "i"
-                }
-              },
-              "_line": 171,
-              "decl_type": "int"
-            },
-            {
-              "type": "decl",
-              "name": "index",
-              "init": {
-                "type": "binop",
-                "op": "plus",
-                "left": {
-                  "type": "binop",
-                  "op": "mult",
-                  "left": {
-                    "type": "var",
-                    "name": "py"
-                  },
-                  "right": {
-                    "type": "const",
-                    "value": 256
-                  }
-                },
-                "right": {
-                  "type": "var",
-                  "name": "px"
-                }
-              },
-              "_line": 172,
-              "decl_type": "int"
-            },
-            {
-              "type": "call_stmt",
-              "name": "__sb",
-              "args": [
-                {
-                  "type": "binop",
-                  "op": "plus",
-                  "left": {
-                    "type": "const",
-                    "value": 536870912
-                  },
-                  "right": {
-                    "type": "var",
-                    "name": "index"
-                  }
-                },
-                {
-                  "type": "const",
-                  "value": 63
-                }
-              ],
-              "_line": 173
-            },
-            {
-              "type": "assign",
-              "target": "i",
-              "value": {
-                "type": "binop",
-                "op": "plus",
-                "left": {
-                  "type": "var",
-                  "name": "i"
-                },
-                "right": {
-                  "type": "const",
-                  "value": 1
-                }
-              },
-              "_line": 174
-            }
-          ],
-          "_line": 168
-        },
-        {
-          "type": "return",
-          "value": {
-            "type": "const",
-            "value": 0
-          },
-          "_line": 176
-        }
-      ],
-      "param_types": {
-        "x": "int",
-        "y": "int",
-        "length": "int"
-      },
-      "return_type": "void",
-      "_line": 165
+      "_line": 121
     },
     {
       "name": "draw_line",
@@ -1847,308 +1409,6 @@
         "y2"
       ],
       "body": [
-        {
-          "type": "if",
-          "cond": {
-            "type": "binop",
-            "op": "eq",
-            "left": {
-              "type": "var",
-              "name": "x1"
-            },
-            "right": {
-              "type": "var",
-              "name": "x2"
-            }
-          },
-          "then": [
-            {
-              "type": "decl",
-              "name": "start_y",
-              "init": null,
-              "_line": 183,
-              "decl_type": "int"
-            },
-            {
-              "type": "decl",
-              "name": "length",
-              "init": {
-                "type": "const",
-                "value": 0
-              },
-              "_line": 184,
-              "decl_type": "int"
-            },
-            {
-              "type": "if",
-              "cond": {
-                "type": "binop",
-                "op": "lt",
-                "left": {
-                  "type": "var",
-                  "name": "y1"
-                },
-                "right": {
-                  "type": "var",
-                  "name": "y2"
-                }
-              },
-              "then": [
-                {
-                  "type": "assign",
-                  "target": "start_y",
-                  "value": {
-                    "type": "var",
-                    "name": "y1"
-                  },
-                  "_line": 187
-                },
-                {
-                  "type": "assign",
-                  "target": "length",
-                  "value": {
-                    "type": "binop",
-                    "op": "plus",
-                    "left": {
-                      "type": "binop",
-                      "op": "minus",
-                      "left": {
-                        "type": "var",
-                        "name": "y2"
-                      },
-                      "right": {
-                        "type": "var",
-                        "name": "y1"
-                      }
-                    },
-                    "right": {
-                      "type": "const",
-                      "value": 1
-                    }
-                  },
-                  "_line": 188
-                }
-              ],
-              "else": [
-                {
-                  "type": "assign",
-                  "target": "start_y",
-                  "value": {
-                    "type": "var",
-                    "name": "y2"
-                  },
-                  "_line": 192
-                },
-                {
-                  "type": "assign",
-                  "target": "length",
-                  "value": {
-                    "type": "binop",
-                    "op": "plus",
-                    "left": {
-                      "type": "binop",
-                      "op": "minus",
-                      "left": {
-                        "type": "var",
-                        "name": "y1"
-                      },
-                      "right": {
-                        "type": "var",
-                        "name": "y2"
-                      }
-                    },
-                    "right": {
-                      "type": "const",
-                      "value": 1
-                    }
-                  },
-                  "_line": 193
-                }
-              ],
-              "_line": 185
-            },
-            {
-              "type": "call_stmt",
-              "name": "draw_vertical_line",
-              "args": [
-                {
-                  "type": "var",
-                  "name": "x1"
-                },
-                {
-                  "type": "var",
-                  "name": "start_y"
-                },
-                {
-                  "type": "var",
-                  "name": "length"
-                }
-              ],
-              "_line": 195
-            },
-            {
-              "type": "return",
-              "value": {
-                "type": "const",
-                "value": 0
-              },
-              "_line": 196
-            }
-          ],
-          "else": [],
-          "_line": 181
-        },
-        {
-          "type": "if",
-          "cond": {
-            "type": "binop",
-            "op": "eq",
-            "left": {
-              "type": "var",
-              "name": "y1"
-            },
-            "right": {
-              "type": "var",
-              "name": "y2"
-            }
-          },
-          "then": [
-            {
-              "type": "decl",
-              "name": "start_x",
-              "init": null,
-              "_line": 201,
-              "decl_type": "int"
-            },
-            {
-              "type": "decl",
-              "name": "length",
-              "init": {
-                "type": "const",
-                "value": 0
-              },
-              "_line": 202,
-              "decl_type": "int"
-            },
-            {
-              "type": "if",
-              "cond": {
-                "type": "binop",
-                "op": "lt",
-                "left": {
-                  "type": "var",
-                  "name": "x1"
-                },
-                "right": {
-                  "type": "var",
-                  "name": "x2"
-                }
-              },
-              "then": [
-                {
-                  "type": "assign",
-                  "target": "start_x",
-                  "value": {
-                    "type": "var",
-                    "name": "x1"
-                  },
-                  "_line": 205
-                },
-                {
-                  "type": "assign",
-                  "target": "length",
-                  "value": {
-                    "type": "binop",
-                    "op": "plus",
-                    "left": {
-                      "type": "binop",
-                      "op": "minus",
-                      "left": {
-                        "type": "var",
-                        "name": "x2"
-                      },
-                      "right": {
-                        "type": "var",
-                        "name": "x1"
-                      }
-                    },
-                    "right": {
-                      "type": "const",
-                      "value": 1
-                    }
-                  },
-                  "_line": 206
-                }
-              ],
-              "else": [
-                {
-                  "type": "assign",
-                  "target": "start_x",
-                  "value": {
-                    "type": "var",
-                    "name": "x2"
-                  },
-                  "_line": 210
-                },
-                {
-                  "type": "assign",
-                  "target": "length",
-                  "value": {
-                    "type": "binop",
-                    "op": "plus",
-                    "left": {
-                      "type": "binop",
-                      "op": "minus",
-                      "left": {
-                        "type": "var",
-                        "name": "x1"
-                      },
-                      "right": {
-                        "type": "var",
-                        "name": "x2"
-                      }
-                    },
-                    "right": {
-                      "type": "const",
-                      "value": 1
-                    }
-                  },
-                  "_line": 211
-                }
-              ],
-              "_line": 203
-            },
-            {
-              "type": "call_stmt",
-              "name": "draw_horizontal_line",
-              "args": [
-                {
-                  "type": "var",
-                  "name": "start_x"
-                },
-                {
-                  "type": "var",
-                  "name": "y1"
-                },
-                {
-                  "type": "var",
-                  "name": "length"
-                }
-              ],
-              "_line": 213
-            },
-            {
-              "type": "return",
-              "value": {
-                "type": "const",
-                "value": 0
-              },
-              "_line": 214
-            }
-          ],
-          "else": [],
-          "_line": 199
-        },
         {
           "type": "decl",
           "name": "dx",
@@ -2164,7 +1424,7 @@
               "name": "x1"
             }
           },
-          "_line": 218,
+          "_line": 136,
           "decl_type": "int"
         },
         {
@@ -2197,11 +1457,11 @@
                   "name": "dx"
                 }
               },
-              "_line": 220
+              "_line": 138
             }
           ],
           "else": [],
-          "_line": 219
+          "_line": 137
         },
         {
           "type": "decl",
@@ -2218,7 +1478,7 @@
               "value": 1
             }
           },
-          "_line": 221,
+          "_line": 139,
           "decl_type": "int"
         },
         {
@@ -2243,11 +1503,11 @@
                 "type": "const",
                 "value": 1
               },
-              "_line": 223
+              "_line": 141
             }
           ],
           "else": [],
-          "_line": 222
+          "_line": 140
         },
         {
           "type": "decl",
@@ -2264,7 +1524,7 @@
               "name": "y2"
             }
           },
-          "_line": 225,
+          "_line": 143,
           "decl_type": "int"
         },
         {
@@ -2297,11 +1557,11 @@
                   "name": "dy"
                 }
               },
-              "_line": 227
+              "_line": 145
             }
           ],
           "else": [],
-          "_line": 226
+          "_line": 144
         },
         {
           "type": "assign",
@@ -2318,7 +1578,7 @@
               "name": "dy"
             }
           },
-          "_line": 228
+          "_line": 146
         },
         {
           "type": "decl",
@@ -2335,7 +1595,7 @@
               "value": 1
             }
           },
-          "_line": 229,
+          "_line": 147,
           "decl_type": "int"
         },
         {
@@ -2360,11 +1620,11 @@
                 "type": "const",
                 "value": 1
               },
-              "_line": 231
+              "_line": 149
             }
           ],
           "else": [],
-          "_line": 230
+          "_line": 148
         },
         {
           "type": "decl",
@@ -2381,7 +1641,7 @@
               "name": "dy"
             }
           },
-          "_line": 233,
+          "_line": 151,
           "decl_type": "int"
         },
         {
@@ -2391,7 +1651,7 @@
             "type": "const",
             "value": 1
           },
-          "_line": 234,
+          "_line": 152,
           "decl_type": "int"
         },
         {
@@ -2424,7 +1684,7 @@
                   "name": "x1"
                 }
               },
-              "_line": 237,
+              "_line": 155,
               "decl_type": "int"
             },
             {
@@ -2448,7 +1708,7 @@
                   "value": 63
                 }
               ],
-              "_line": 238
+              "_line": 156
             },
             {
               "type": "if",
@@ -2488,11 +1748,11 @@
                     "type": "const",
                     "value": 0
                   },
-                  "_line": 242
+                  "_line": 160
                 }
               ],
               "else": [],
-              "_line": 240
+              "_line": 158
             },
             {
               "type": "decl",
@@ -2509,7 +1769,7 @@
                   "name": "err"
                 }
               },
-              "_line": 244,
+              "_line": 162,
               "decl_type": "int"
             },
             {
@@ -2542,7 +1802,7 @@
                       "name": "dy"
                     }
                   },
-                  "_line": 247
+                  "_line": 165
                 },
                 {
                   "type": "assign",
@@ -2559,11 +1819,11 @@
                       "name": "sx"
                     }
                   },
-                  "_line": 248
+                  "_line": 166
                 }
               ],
               "else": [],
-              "_line": 245
+              "_line": 163
             },
             {
               "type": "if",
@@ -2595,7 +1855,7 @@
                       "name": "dx"
                     }
                   },
-                  "_line": 252
+                  "_line": 170
                 },
                 {
                   "type": "assign",
@@ -2612,14 +1872,14 @@
                       "name": "sy"
                     }
                   },
-                  "_line": 253
+                  "_line": 171
                 }
               ],
               "else": [],
-              "_line": 250
+              "_line": 168
             }
           ],
-          "_line": 235
+          "_line": 153
         },
         {
           "type": "return",
@@ -2627,7 +1887,7 @@
             "type": "const",
             "value": 0
           },
-          "_line": 256
+          "_line": 174
         }
       ],
       "param_types": {
@@ -2637,7 +1897,7 @@
         "y2": "int"
       },
       "return_type": "void",
-      "_line": 179
+      "_line": 133
     },
     {
       "name": "draw_rectangle",
@@ -2645,116 +1905,292 @@
         "x",
         "y",
         "width",
-        "height"
+        "height",
+        "bc",
+        "fc"
       ],
       "body": [
         {
-          "type": "call_stmt",
-          "name": "draw_horizontal_line",
-          "args": [
-            {
-              "type": "var",
-              "name": "x"
-            },
-            {
-              "type": "var",
-              "name": "y"
-            },
-            {
-              "type": "var",
-              "name": "width"
-            }
-          ],
-          "_line": 262
+          "type": "decl",
+          "name": "row",
+          "init": {
+            "type": "const",
+            "value": 0
+          },
+          "_line": 182,
+          "decl_type": "int"
         },
         {
-          "type": "call_stmt",
-          "name": "draw_horizontal_line",
-          "args": [
-            {
+          "type": "while",
+          "cond": {
+            "type": "binop",
+            "op": "lt",
+            "left": {
               "type": "var",
-              "name": "x"
+              "name": "row"
             },
-            {
-              "type": "binop",
-              "op": "minus",
-              "left": {
-                "type": "binop",
-                "op": "plus",
-                "left": {
-                  "type": "var",
-                  "name": "y"
-                },
-                "right": {
-                  "type": "var",
-                  "name": "height"
-                }
-              },
-              "right": {
-                "type": "const",
-                "value": 1
-              }
-            },
-            {
-              "type": "var",
-              "name": "width"
-            }
-          ],
-          "_line": 263
-        },
-        {
-          "type": "call_stmt",
-          "name": "draw_vertical_line",
-          "args": [
-            {
-              "type": "var",
-              "name": "x"
-            },
-            {
-              "type": "var",
-              "name": "y"
-            },
-            {
+            "right": {
               "type": "var",
               "name": "height"
             }
-          ],
-          "_line": 264
-        },
-        {
-          "type": "call_stmt",
-          "name": "draw_vertical_line",
-          "args": [
+          },
+          "body": [
             {
-              "type": "binop",
-              "op": "minus",
-              "left": {
+              "type": "decl",
+              "name": "col",
+              "init": {
+                "type": "const",
+                "value": 0
+              },
+              "_line": 185,
+              "decl_type": "int"
+            },
+            {
+              "type": "while",
+              "cond": {
                 "type": "binop",
-                "op": "plus",
+                "op": "lt",
                 "left": {
                   "type": "var",
-                  "name": "x"
+                  "name": "col"
                 },
                 "right": {
                   "type": "var",
                   "name": "width"
                 }
               },
-              "right": {
-                "type": "const",
-                "value": 1
-              }
+              "body": [
+                {
+                  "type": "decl",
+                  "name": "px",
+                  "init": {
+                    "type": "binop",
+                    "op": "plus",
+                    "left": {
+                      "type": "var",
+                      "name": "x"
+                    },
+                    "right": {
+                      "type": "var",
+                      "name": "col"
+                    }
+                  },
+                  "_line": 188,
+                  "decl_type": "int"
+                },
+                {
+                  "type": "decl",
+                  "name": "py",
+                  "init": {
+                    "type": "binop",
+                    "op": "plus",
+                    "left": {
+                      "type": "var",
+                      "name": "y"
+                    },
+                    "right": {
+                      "type": "var",
+                      "name": "row"
+                    }
+                  },
+                  "_line": 189,
+                  "decl_type": "int"
+                },
+                {
+                  "type": "decl",
+                  "name": "index",
+                  "init": {
+                    "type": "binop",
+                    "op": "plus",
+                    "left": {
+                      "type": "binop",
+                      "op": "mult",
+                      "left": {
+                        "type": "var",
+                        "name": "py"
+                      },
+                      "right": {
+                        "type": "const",
+                        "value": 256
+                      }
+                    },
+                    "right": {
+                      "type": "var",
+                      "name": "px"
+                    }
+                  },
+                  "_line": 190,
+                  "decl_type": "int"
+                },
+                {
+                  "type": "if",
+                  "cond": {
+                    "type": "binop",
+                    "op": "lor",
+                    "left": {
+                      "type": "binop",
+                      "op": "lor",
+                      "left": {
+                        "type": "binop",
+                        "op": "lor",
+                        "left": {
+                          "type": "binop",
+                          "op": "eq",
+                          "left": {
+                            "type": "var",
+                            "name": "row"
+                          },
+                          "right": {
+                            "type": "const",
+                            "value": 0
+                          }
+                        },
+                        "right": {
+                          "type": "binop",
+                          "op": "eq",
+                          "left": {
+                            "type": "var",
+                            "name": "row"
+                          },
+                          "right": {
+                            "type": "binop",
+                            "op": "minus",
+                            "left": {
+                              "type": "var",
+                              "name": "height"
+                            },
+                            "right": {
+                              "type": "const",
+                              "value": 1
+                            }
+                          }
+                        }
+                      },
+                      "right": {
+                        "type": "binop",
+                        "op": "eq",
+                        "left": {
+                          "type": "var",
+                          "name": "col"
+                        },
+                        "right": {
+                          "type": "const",
+                          "value": 0
+                        }
+                      }
+                    },
+                    "right": {
+                      "type": "binop",
+                      "op": "eq",
+                      "left": {
+                        "type": "var",
+                        "name": "col"
+                      },
+                      "right": {
+                        "type": "binop",
+                        "op": "minus",
+                        "left": {
+                          "type": "var",
+                          "name": "width"
+                        },
+                        "right": {
+                          "type": "const",
+                          "value": 1
+                        }
+                      }
+                    }
+                  },
+                  "then": [
+                    {
+                      "type": "call_stmt",
+                      "name": "__sb",
+                      "args": [
+                        {
+                          "type": "binop",
+                          "op": "plus",
+                          "left": {
+                            "type": "const",
+                            "value": 536870912
+                          },
+                          "right": {
+                            "type": "var",
+                            "name": "index"
+                          }
+                        },
+                        {
+                          "type": "var",
+                          "name": "bc"
+                        }
+                      ],
+                      "_line": 193
+                    }
+                  ],
+                  "else": [
+                    {
+                      "type": "call_stmt",
+                      "name": "__sb",
+                      "args": [
+                        {
+                          "type": "binop",
+                          "op": "plus",
+                          "left": {
+                            "type": "const",
+                            "value": 536870912
+                          },
+                          "right": {
+                            "type": "var",
+                            "name": "index"
+                          }
+                        },
+                        {
+                          "type": "var",
+                          "name": "fc"
+                        }
+                      ],
+                      "_line": 197
+                    }
+                  ],
+                  "_line": 191
+                },
+                {
+                  "type": "assign",
+                  "target": "col",
+                  "value": {
+                    "type": "binop",
+                    "op": "plus",
+                    "left": {
+                      "type": "var",
+                      "name": "col"
+                    },
+                    "right": {
+                      "type": "const",
+                      "value": 1
+                    }
+                  },
+                  "_line": 199
+                }
+              ],
+              "_line": 186
             },
             {
-              "type": "var",
-              "name": "y"
-            },
-            {
-              "type": "var",
-              "name": "height"
+              "type": "assign",
+              "target": "row",
+              "value": {
+                "type": "binop",
+                "op": "plus",
+                "left": {
+                  "type": "var",
+                  "name": "row"
+                },
+                "right": {
+                  "type": "const",
+                  "value": 1
+                }
+              },
+              "_line": 201
             }
           ],
-          "_line": 265
+          "_line": 183
         },
         {
           "type": "return",
@@ -2762,17 +2198,19 @@
             "type": "const",
             "value": 0
           },
-          "_line": 266
+          "_line": 203
         }
       ],
       "param_types": {
         "x": "int",
         "y": "int",
         "width": "int",
-        "height": "int"
+        "height": "int",
+        "bc": "int",
+        "fc": "int"
       },
       "return_type": "void",
-      "_line": 260
+      "_line": 178
     },
     {
       "name": "screen_test",
@@ -2785,7 +2223,7 @@
             "type": "const",
             "value": 536870912
           },
-          "_line": 273,
+          "_line": 210,
           "decl_type": "int"
         },
         {
@@ -2795,7 +2233,7 @@
             "type": "const",
             "value": 65536
           },
-          "_line": 274,
+          "_line": 211,
           "decl_type": "int"
         },
         {
@@ -2805,7 +2243,7 @@
             "type": "const",
             "value": 3735928559
           },
-          "_line": 275,
+          "_line": 212,
           "decl_type": "int"
         },
         {
@@ -2828,7 +2266,7 @@
                   "name": "lfsr"
                 }
               ],
-              "_line": 279
+              "_line": 216
             },
             {
               "type": "assign",
@@ -2845,7 +2283,7 @@
                   "value": 1
                 }
               },
-              "_line": 280
+              "_line": 217
             },
             {
               "type": "decl",
@@ -2918,7 +2356,7 @@
                   "value": 1
                 }
               },
-              "_line": 282,
+              "_line": 219,
               "decl_type": "int"
             },
             {
@@ -2952,7 +2390,7 @@
                   }
                 }
               },
-              "_line": 283
+              "_line": 220
             },
             {
               "type": "assign",
@@ -2969,14 +2407,14 @@
                   "value": 1
                 }
               },
-              "_line": 285
+              "_line": 222
             }
           ],
-          "_line": 277
+          "_line": 214
         }
       ],
       "return_type": "void",
-      "_line": 271
+      "_line": 208
     },
     {
       "name": "add_coords",
@@ -3008,14 +2446,14 @@
               "member": "y"
             }
           },
-          "_line": 302
+          "_line": 239
         }
       ],
       "param_types": {
         "p": "Point"
       },
       "return_type": "int",
-      "_line": 300
+      "_line": 237
     },
     {
       "name": "add",
@@ -3038,7 +2476,7 @@
               "name": "b"
             }
           },
-          "_line": 308
+          "_line": 245
         }
       ],
       "param_types": {
@@ -3046,7 +2484,7 @@
         "b": "int"
       },
       "return_type": "int",
-      "_line": 306
+      "_line": 243
     },
     {
       "name": "old_main",
@@ -3059,7 +2497,7 @@
             "type": "const",
             "value": 5
           },
-          "_line": 312,
+          "_line": 249,
           "decl_type": "int"
         },
         {
@@ -3069,7 +2507,7 @@
             "type": "const",
             "value": 10
           },
-          "_line": 313,
+          "_line": 250,
           "decl_type": "int"
         },
         {
@@ -3089,7 +2527,7 @@
               }
             ]
           },
-          "_line": 314,
+          "_line": 251,
           "decl_type": "int"
         },
         {
@@ -3101,7 +2539,7 @@
               "label": "str_0"
             }
           ],
-          "_line": 316
+          "_line": 253
         },
         {
           "type": "call_stmt",
@@ -3112,20 +2550,20 @@
               "name": "result"
             }
           ],
-          "_line": 317
+          "_line": 254
         },
         {
           "type": "decl",
           "name": "p1",
           "init": null,
-          "_line": 320,
+          "_line": 257,
           "decl_type": "Point"
         },
         {
           "type": "decl",
           "name": "s",
           "init": null,
-          "_line": 321,
+          "_line": 258,
           "decl_type": "Size"
         },
         {
@@ -3143,7 +2581,7 @@
             "type": "const",
             "value": 10
           },
-          "_line": 324
+          "_line": 261
         },
         {
           "type": "assign",
@@ -3160,7 +2598,7 @@
             "type": "const",
             "value": 20
           },
-          "_line": 325
+          "_line": 262
         },
         {
           "type": "assign",
@@ -3177,7 +2615,7 @@
             "type": "const",
             "value": 640
           },
-          "_line": 327
+          "_line": 264
         },
         {
           "type": "assign",
@@ -3194,7 +2632,7 @@
             "type": "const",
             "value": 480
           },
-          "_line": 328
+          "_line": 265
         },
         {
           "type": "decl",
@@ -3209,7 +2647,7 @@
               }
             ]
           },
-          "_line": 331,
+          "_line": 268,
           "decl_type": "int"
         },
         {
@@ -3237,7 +2675,7 @@
               "member": "height"
             }
           },
-          "_line": 332,
+          "_line": 269,
           "decl_type": "int"
         },
         {
@@ -3249,7 +2687,7 @@
               "label": "str_1"
             }
           ],
-          "_line": 334
+          "_line": 271
         },
         {
           "type": "call_stmt",
@@ -3260,7 +2698,7 @@
               "name": "sum"
             }
           ],
-          "_line": 335
+          "_line": 272
         },
         {
           "type": "call_stmt",
@@ -3271,7 +2709,7 @@
               "label": "str_2"
             }
           ],
-          "_line": 336
+          "_line": 273
         },
         {
           "type": "call_stmt",
@@ -3282,11 +2720,11 @@
               "name": "area"
             }
           ],
-          "_line": 337
+          "_line": 274
         }
       ],
       "return_type": "void",
-      "_line": 311
+      "_line": 248
     },
     {
       "name": "main",
@@ -3313,7 +2751,7 @@
               "value": 63
             }
           ],
-          "_line": 343
+          "_line": 280
         },
         {
           "type": "call_stmt",
@@ -3336,7 +2774,7 @@
               "value": 12
             }
           ],
-          "_line": 344
+          "_line": 281
         },
         {
           "type": "call_stmt",
@@ -3359,7 +2797,7 @@
               "value": 48
             }
           ],
-          "_line": 345
+          "_line": 282
         },
         {
           "type": "call_stmt",
@@ -3382,7 +2820,7 @@
               "value": 7
             }
           ],
-          "_line": 346
+          "_line": 283
         },
         {
           "type": "call_stmt",
@@ -3405,11 +2843,42 @@
               "value": 60
             }
           ],
-          "_line": 347
+          "_line": 284
+        },
+        {
+          "type": "call_stmt",
+          "name": "draw_rectangle",
+          "args": [
+            {
+              "type": "const",
+              "value": 20
+            },
+            {
+              "type": "const",
+              "value": 50
+            },
+            {
+              "type": "const",
+              "value": 30
+            },
+            {
+              "type": "const",
+              "value": 40
+            },
+            {
+              "type": "const",
+              "value": 63
+            },
+            {
+              "type": "const",
+              "value": 12
+            }
+          ],
+          "_line": 286
         }
       ],
       "return_type": "void",
-      "_line": 340
+      "_line": 277
     }
   ],
   "types": [

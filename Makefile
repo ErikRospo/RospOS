@@ -9,7 +9,7 @@ DIR_DOCS_BUILD := build/
 ROSPOAS_ARGS := --optimize --bin-version 2 --rospocc-mapping --segment-debug
 ROSPOAS_DEP := $(shell find ./rospoas -maxdepth 1 -type f)
 ROSPCC_DEP := $(shell find ./rospocc -maxdepth 1 -type f)
-ROSPOS_DEP :=  $(shell find ./rospos -maxdepth 1 -type f -not -path "./rospos/build/*") 
+ROSPOS_DEP :=  $(shell find ./rospos -type f -not -path "./rospos/build/*") 
 ROSPOVM_DEP := rospovm/build/Makefile $(shell find ./rospovm -type f -not -path "./rospovm/build/*")
 # Ensure build directory exists (order-only dependency)
 
