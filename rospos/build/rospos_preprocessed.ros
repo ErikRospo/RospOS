@@ -503,100 +503,106 @@ WHILE_END69:
 
 .FUNC draw_rectangle:
   PUSH r14
-  LLI r5, 0    // init row
+  LW r5, r15, 4    // load stack arg bc
+  LW r6, r15, 8    // load stack arg fc
+  LLI r7, 0    // init row
 WHILE86:
-  BLT r5, r4, CMP_TRUE88
-  LLI r6, 0    // compare false path
+  BLT r7, r4, CMP_TRUE88
+  LLI r8, 0    // compare false path
   JMP CMP_END89
 CMP_TRUE88:
-  LLI r6, 1
+  LLI r8, 1
 CMP_END89:
-  BEQ r6, r0, WHILE_END87
-  LLI r7, 0    // init col
+  BEQ r8, r0, WHILE_END87
+  LLI r9, 0    // init col
 WHILE90:
-  BLT r7, r3, CMP_TRUE92
-  LLI r8, 0    // compare false path
+  BLT r9, r3, CMP_TRUE92
+  LLI r10, 0    // compare false path
   JMP CMP_END93
 CMP_TRUE92:
-  LLI r8, 1
+  LLI r10, 1
 CMP_END93:
-  BEQ r8, r0, WHILE_END91
-  ADD r9, r1, r7    // binop +
-  ADD r10, r2, r5    // binop +
-  LLI r11, 256    // load immediate 256
-  MUL r11, r10, r11    // binop *
-  ADD r11, r11, r9    // binop +
-  LLI r12, 0    // load immediate 0
-  BEQ r5, r12, CMP_TRUE96
-  LLI r12, 0    // compare false path
+  BEQ r10, r0, WHILE_END91
+  ADD r11, r1, r9    // binop +
+  ADD r12, r2, r7    // binop +
+  LLI r8, 256    // load immediate 256
+  MUL r8, r12, r8    // binop *
+  ADD r8, r8, r11    // binop +
+  LLI r10, 0    // load immediate 0
+  BEQ r7, r10, CMP_TRUE96
+  LLI r10, 0    // compare false path
   JMP CMP_END97
 CMP_TRUE96:
-  LLI r12, 1
+  LLI r10, 1
 CMP_END97:
-  LLI r6, 1    // load immediate 1
-  SUB r6, r4, r6    // binop -
-  BEQ r5, r6, CMP_TRUE98
-  LLI r6, 0    // compare false path
+  PUSH r2    // spill live temp for reg pressure
+  LLI r2, 1    // load immediate 1
+  SUB r2, r4, r2    // binop -
+  BEQ r7, r2, CMP_TRUE98
+  LLI r2, 0    // compare false path
   JMP CMP_END99
 CMP_TRUE98:
-  LLI r6, 1
+  LLI r2, 1
 CMP_END99:
-  OR r12, r12, r6    // logic || fold
-  BNE r12, r0, CMP_TRUE100
-  LLI r12, 0    // compare false path
+  OR r10, r10, r2    // logic || fold
+  BNE r10, r0, CMP_TRUE100
+  LLI r10, 0    // compare false path
   JMP CMP_END101
 CMP_TRUE100:
-  LLI r12, 1
+  LLI r10, 1
 CMP_END101:
-  LLI r8, 0    // load immediate 0
-  BEQ r7, r8, CMP_TRUE102
-  LLI r8, 0    // compare false path
+  POP r2    // restore spilled temp
+  PUSH r2    // spill live temp for reg pressure
+  LLI r2, 0    // load immediate 0
+  BEQ r9, r2, CMP_TRUE102
+  LLI r2, 0    // compare false path
   JMP CMP_END103
 CMP_TRUE102:
-  LLI r8, 1
+  LLI r2, 1
 CMP_END103:
-  OR r12, r12, r8    // logic || fold
-  BNE r12, r0, CMP_TRUE104
-  LLI r12, 0    // compare false path
+  OR r10, r10, r2    // logic || fold
+  BNE r10, r0, CMP_TRUE104
+  LLI r10, 0    // compare false path
   JMP CMP_END105
 CMP_TRUE104:
-  LLI r12, 1
+  LLI r10, 1
 CMP_END105:
-  LLI r6, 1    // load immediate 1
-  SUB r6, r3, r6    // binop -
-  BEQ r7, r6, CMP_TRUE106
-  LLI r6, 0    // compare false path
+  POP r2    // restore spilled temp
+  PUSH r2    // spill live temp for reg pressure
+  LLI r2, 1    // load immediate 1
+  SUB r2, r3, r2    // binop -
+  BEQ r9, r2, CMP_TRUE106
+  LLI r2, 0    // compare false path
   JMP CMP_END107
 CMP_TRUE106:
-  LLI r6, 1
+  LLI r2, 1
 CMP_END107:
-  OR r12, r12, r6    // logic || fold
-  BNE r12, r0, CMP_TRUE108
-  LLI r12, 0    // compare false path
+  OR r10, r10, r2    // logic || fold
+  BNE r10, r0, CMP_TRUE108
+  LLI r10, 0    // compare false path
   JMP CMP_END109
 CMP_TRUE108:
-  LLI r12, 1
+  LLI r10, 1
 CMP_END109:
-  BEQ r12, r0, ELSE94
-  LLI r8, 536870912    // load immediate 536870912
-  ADD r8, r8, r11    // binop +
-  LLI r6, 0    // implicit init bc
-  SB r6, r8, 0    // intrinsic __sb
+  POP r2    // restore spilled temp
+  BEQ r10, r0, ELSE94
+  LLI r10, 536870912    // load immediate 536870912
+  ADD r10, r10, r8    // binop +
+  SB r5, r10, 0    // intrinsic __sb
   JMP IF_END95
 ELSE94:
-  LLI r12, 536870912    // load immediate 536870912
-  ADD r12, r12, r11    // binop +
-  LLI r8, 0    // implicit init fc
-  SB r8, r12, 0    // intrinsic __sb
+  LLI r10, 536870912    // load immediate 536870912
+  ADD r10, r10, r8    // binop +
+  SB r6, r10, 0    // intrinsic __sb
 IF_END95:
-  ADDI r7, r7, 1    // assign col (addi fast path)
+  ADDI r9, r9, 1    // assign col (addi fast path)
   JMP WHILE90
 WHILE_END91:
-  ADDI r5, r5, 1    // assign row (addi fast path)
+  ADDI r7, r7, 1    // assign row (addi fast path)
   JMP WHILE86
 WHILE_END87:
-  LLI r12, 0    // load immediate 0
-  ADD r1, r12, r0
+  LLI r10, 0    // load immediate 0
+  ADD r1, r10, r0
   POP r14
   RET
 
@@ -816,12 +822,17 @@ WHILE_END111:
   POP r1  
   // emit call to draw_rectangle with args [{'type': 'const', 'value': 20}, {'type': 'const', 'value': 50}, {'type': 'const', 'value': 30}, {'type': 'const', 'value': 40}, {'type': 'const', 'value': 63}, {'type': 'const', 'value': 12}]
   PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
+  LLI r2, 12    // load immediate 12
+  PUSH r2    // pass overflow arg on stack
+  LLI r3, 63    // load immediate 63
+  PUSH r3    // pass overflow arg on stack
   LLI r1, 20    // load immediate 20
   LLI r2, 50    // load immediate 50
   LLI r3, 30    // load immediate 30
   LLI r4, 40    // load immediate 40
   CALL draw_rectangle
   // call return value in r1
+  ADDI r15, r15, 8    // discard overflow arg slots
   POP r1  
   // epilogue and return
   ADDI r1, r0, 0  // ensure r1=0

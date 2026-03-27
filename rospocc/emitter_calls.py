@@ -3,6 +3,41 @@ from typing import Dict, Optional
 import abi
 
 
+def _materialize_call_arg(emitter, arg, out):
+    """Materialize a call argument to a register.
+
+    Returns:
+        (reg_name, should_release)
+    """
+    if arg.get("type") == "const":
+        reg = emitter.alloc_reg()
+        emitter._load_imm(reg, int(arg.get("value")), out)
+        return reg, True
+
+    if arg.get("type") == "string_addr":
+        reg = emitter.alloc_reg()
+        emitter._load_imm(reg, arg.get("label"), out)
+        return reg, True
+
+    if arg.get("type") == "var":
+        var_name = arg.get("name")
+        reg = emitter.var_regs.get(var_name)
+        if reg:
+            emitter.consume_var_read(var_name)
+            return reg, False
+        reg = emitter.alloc_reg()
+        emitter._load_imm(reg, 0, out)
+        return reg, True
+
+    reg = emitter.emit_expr(arg, out)
+    if reg:
+        return reg, True
+
+    reg = emitter.alloc_reg()
+    emitter._load_imm(reg, 0, out)
+    return reg, True
+
+
 def emit_call(emitter, call_expr: Dict, return_reg: Optional[str], out):
     name = call_expr.get("name")
     args = call_expr.get("args", [])
@@ -31,7 +66,20 @@ def emit_call(emitter, call_expr: Dict, return_reg: Optional[str], out):
             "  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered\n"
         )
 
-    for i, a in enumerate(args[: len(abi.ARG_REGS)]):
+    reg_arg_count = len(abi.ARG_REGS)
+    reg_args = args[:reg_arg_count]
+    stack_args = args[reg_arg_count:]
+
+    # Pass overflow args on stack right-to-left, so arg5 is at the lowest callee offset.
+    stack_arg_count = 0
+    for a in reversed(stack_args):
+        reg, should_release = _materialize_call_arg(emitter, a, out)
+        out.write(f"  PUSH {reg}    // pass overflow arg on stack\n")
+        stack_arg_count += 1
+        if should_release:
+            emitter.release_expr_reg(reg)
+
+    for i, a in enumerate(reg_args):
         dest = abi.ARG_REGS[i]
         if a.get("type") == "const":
             emitter._load_imm(dest, int(a.get("value")), out)
@@ -62,6 +110,11 @@ def emit_call(emitter, call_expr: Dict, return_reg: Optional[str], out):
 
     out.write(f"  CALL {call_expr.get('name')}\n")
     out.write(f"  // call return value in {abi.RETURN_REG}\n")
+
+    if stack_arg_count:
+        out.write(
+            f"  ADDI {abi.SP_REG}, {abi.SP_REG}, {stack_arg_count * 4}    // discard overflow arg slots\n"
+        )
 
     if return_reg is None:
         out.write("  POP r1  \n")

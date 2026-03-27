@@ -737,7 +737,8 @@ class Emitter:
         self.var_types = dict(self.global_types)
         # Handle parameters: map param names to argument registers (r1..r4)
         params = fn.get("params", []) or []
-        for i, p in enumerate(params[: len(abi.ARG_REGS)]):
+        reg_param_count = len(abi.ARG_REGS)
+        for i, p in enumerate(params[:reg_param_count]):
             self.var_regs[p] = abi.ARG_REGS[i]
             try:
                 self.reg_free.remove(abi.ARG_REGS[i])  # mark arg registers as used
@@ -754,6 +755,31 @@ class Emitter:
                     var_kind="param",
                     origin=f"_{name}_entry",
                 )
+
+        # Load overflow parameters from caller stack slots.
+        # Stack layout on entry after PUSH r14:
+        #   [sp+0]  = saved r14
+        #   [sp+4]  = arg5
+        #   [sp+8]  = arg6
+        #   ...
+        for i, p in enumerate(params[reg_param_count:], start=reg_param_count):
+            r = self.alloc_reg(track_as_temp=False)
+            self.var_regs[p] = r
+            param_type = (fn.get("param_types", {}) or {}).get(p, "int")
+            self.var_types[p] = param_type
+            if hasattr(out, "get_current_output_line"):
+                self.register_allocator.set_output_line(out.get_current_output_line())
+                self.register_allocator.allocate(
+                    register=r,
+                    variable_name=p,
+                    variable_type=param_type,
+                    var_kind="param",
+                    origin=f"_{name}_entry",
+                )
+
+            stack_slot = (i - reg_param_count) + 1
+            stack_offset = stack_slot * 4
+            out.write(f"  LW {r}, {abi.SP_REG}, {stack_offset}    // load stack arg {p}\n")
 
         # import any parameter type hints (e.g., pointer params)
         for pname, ptype in (fn.get("param_types", {}) or {}).items():
