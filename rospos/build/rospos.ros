@@ -15,9 +15,7 @@ WHILE1:
   BEQ r3, r0, WHILE_END2
   LB r4, r1, 0    // deref
   SB r4, r2, 0    // intrinsic __sb
-  LLI r5, 1    // load immediate 1
-  ADD r5, r1, r5    // binop +
-  ADDI r1, r5, 0    // assign str
+  ADDI r1, r1, 1    // assign str (addi fast path)
   JMP WHILE1
 WHILE_END2:
   // epilogue and return
@@ -113,9 +111,7 @@ CMP_END15:
   SUB r11, r11, r4    // binop -
   ADD r11, r2, r11    // binop +
   SB r8, r11, 0    // store 
-  LLI r12, 1    // load immediate 1
-  ADD r12, r5, r12    // binop +
-  ADDI r5, r12, 0    // assign j
+  ADDI r5, r5, 1    // assign j (addi fast path)
   JMP WHILE12
 WHILE_END13:
   // emit call to print_string with args [{'type': 'var', 'name': 'buffer'}]
@@ -233,15 +229,13 @@ ELSE32:
 IF_END33:
   ADD r7, r1, r3    // binop +
   SB r5, r7, 0    // store 
-  LLI r8, 1    // load immediate 1
-  ADD r8, r3, r8    // binop +
-  ADDI r3, r8, 0    // assign i
+  ADDI r3, r3, 1    // assign i (addi fast path)
   JMP WHILE28
 WHILE_END29:
-  LLI r9, 0    // load immediate 0
+  LLI r8, 0    // load immediate 0
   ADD r3, r1, r3    // binop +
-  SB r9, r3, 0    // store 
-  LLI r10, 0    // zero init i
+  SB r8, r3, 0    // store 
+  LLI r9, 0    // zero init i
   // epilogue and return
   ADDI r1, r0, 0  // ensure r1=0
   POP r14
@@ -263,13 +257,11 @@ CMP_END39:
   ADD r4, r4, r2    // binop +
   LLI r5, 0    // val const for __sb
   SB r5, r4, 0    // intrinsic __sb
-  LLI r6, 1    // load immediate 1
-  ADD r6, r2, r6    // binop +
-  ADDI r2, r6, 0    // assign i
+  ADDI r2, r2, 1    // assign i (addi fast path)
   JMP WHILE36
 WHILE_END37:
-  LLI r7, 0    // load immediate 0
-  ADD r1, r7, r0
+  LLI r6, 0    // load immediate 0
+  ADD r1, r6, r0
   POP r14
   RET
 
@@ -304,18 +296,14 @@ CMP_END47:
   ADD r10, r10, r9    // binop +
   LLI r11, 0    // val const for __sb
   SB r11, r10, 0    // intrinsic __sb
-  LLI r12, 1    // load immediate 1
-  ADD r12, r5, r12    // binop +
-  ADDI r5, r12, 0    // assign col
+  ADDI r5, r5, 1    // assign col (addi fast path)
   JMP WHILE44
 WHILE_END45:
-  LLI r4, 1    // load immediate 1
-  ADD r4, r3, r4    // binop +
-  ADDI r3, r4, 0    // assign row
+  ADDI r3, r3, 1    // assign row (addi fast path)
   JMP WHILE40
 WHILE_END41:
-  LLI r6, 0    // load immediate 0
-  ADD r1, r6, r0
+  LLI r12, 0    // load immediate 0
+  ADD r1, r12, r0
   POP r14
   RET
 
@@ -364,21 +352,18 @@ CMP_END55:
   LW r2, r15, 4    // restore spilled temp from stack slot
   SB r4, r3, 0    // intrinsic __sb
   POP r3    // restore spilled temp
+  ADDI r15, r15, 4    // discard stale spill slot for r2
   JMP IF_END57
 ELSE56:
 IF_END57:
-  LLI r2, 1    // load immediate 1
-  ADD r10, r11, r2    // binop +
-  ADDI r11, r10, 0    // assign col
+  ADDI r11, r11, 1    // assign col (addi fast path)
   JMP WHILE52
 WHILE_END53:
-  LLI r12, 1    // load immediate 1
-  ADD r12, r6, r12    // binop +
-  ADDI r6, r12, 0    // assign row
+  ADDI r6, r6, 1    // assign row (addi fast path)
   JMP WHILE48
 WHILE_END49:
-  LLI r10, 0    // load immediate 0
-  ADD r1, r10, r0
+  LLI r2, 0    // load immediate 0
+  ADD r1, r2, r0
   POP r14
   RET
 
@@ -403,16 +388,12 @@ WHILE58:
   POP r4    // restore caller temp
   POP r3    // restore caller temp
   POP r2    // restore caller temp
-  LLI r7, 1    // load immediate 1
-  ADD r7, r1, r7    // binop +
-  ADDI r1, r7, 0    // assign str
-  LLI r8, 8    // load immediate 8
-  ADD r8, r2, r8    // binop +
-  ADDI r2, r8, 0    // assign x
+  ADDI r1, r1, 1    // assign str (addi fast path)
+  ADDI r2, r2, 8    // assign x (addi fast path)
   JMP WHILE58
 WHILE_END59:
-  LLI r9, 0    // load immediate 0
-  ADD r1, r9, r0
+  LLI r7, 0    // load immediate 0
+  ADD r1, r7, r0
   POP r14
   RET
 
@@ -436,13 +417,11 @@ CMP_END63:
   ADD r9, r9, r8    // binop +
   LLI r10, 63    // val const for __sb
   SB r10, r9, 0    // intrinsic __sb
-  LLI r11, 1    // load immediate 1
-  ADD r11, r4, r11    // binop +
-  ADDI r4, r11, 0    // assign i
+  ADDI r4, r4, 1    // assign i (addi fast path)
   JMP WHILE60
 WHILE_END61:
-  LLI r12, 0    // load immediate 0
-  ADD r1, r12, r0
+  LLI r11, 0    // load immediate 0
+  ADD r1, r11, r0
   POP r14
   RET
 
@@ -466,13 +445,11 @@ CMP_END67:
   ADD r9, r9, r8    // binop +
   LLI r10, 63    // val const for __sb
   SB r10, r9, 0    // intrinsic __sb
-  LLI r11, 1    // load immediate 1
-  ADD r11, r4, r11    // binop +
-  ADDI r4, r11, 0    // assign i
+  ADDI r4, r4, 1    // assign i (addi fast path)
   JMP WHILE64
 WHILE_END65:
-  LLI r12, 0    // load immediate 0
-  ADD r1, r12, r0
+  LLI r11, 0    // load immediate 0
+  ADD r1, r11, r0
   POP r14
   RET
 
@@ -814,31 +791,27 @@ WHILE_END101:
 WHILE118:
   BEQ r3, r0, WHILE_END119
   SB r4, r2, 0    // intrinsic __sb
-  LLI r5, 1    // load immediate 1
-  ADD r5, r2, r5    // binop +
-  ADDI r2, r5, 0    // assign addr
-  LLI r6, 0    // load immediate 0
+  ADDI r2, r2, 1    // assign addr (addi fast path)
+  LLI r5, 0    // load immediate 0
+  SHR r5, r4, r5    // binop >>
+  LLI r6, 2    // load immediate 2
   SHR r6, r4, r6    // binop >>
-  LLI r7, 2    // load immediate 2
+  XOR r5, r5, r6    // binop ^
+  LLI r7, 3    // load immediate 3
   SHR r7, r4, r7    // binop >>
-  XOR r6, r6, r7    // binop ^
-  LLI r8, 3    // load immediate 3
+  XOR r5, r5, r7    // binop ^
+  LLI r8, 5    // load immediate 5
   SHR r8, r4, r8    // binop >>
-  XOR r6, r6, r8    // binop ^
-  LLI r9, 5    // load immediate 5
-  SHR r9, r4, r9    // binop >>
-  XOR r6, r6, r9    // binop ^
+  XOR r5, r5, r8    // binop ^
+  LLI r9, 1    // load immediate 1
+  AND r5, r5, r9    // binop &
   LLI r10, 1    // load immediate 1
-  AND r6, r6, r10    // binop &
-  LLI r11, 1    // load immediate 1
-  SHR r11, r4, r11    // binop >>
-  LLI r12, 15    // load immediate 15
-  SHL r12, r6, r12    // binop <<
-  OR r11, r11, r12    // binop |
-  ADDI r4, r11, 0    // assign lfsr
-  LLI r5, 1    // load immediate 1
-  SUB r5, r3, r5    // binop -
-  ADDI r3, r5, 0    // assign remaining
+  SHR r10, r4, r10    // binop >>
+  LLI r11, 15    // load immediate 15
+  SHL r11, r5, r11    // binop <<
+  OR r10, r10, r11    // binop |
+  ADDI r4, r10, 0    // assign lfsr
+  ADDI r3, r3, -1    // assign remaining (addi fast path)
   JMP WHILE118
 WHILE_END119:
   // epilogue and return
