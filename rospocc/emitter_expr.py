@@ -187,9 +187,10 @@ def _emit_member_access(emitter, expr: Dict[str, Any], out) -> str:
 
 
 def _emit_call(emitter, expr: Dict[str, Any], out) -> str:
-    emitter._emit_call(expr, "r1", out)
-    out.write(f"  // call expr {expr.get('name')} -> return in {abi.RETURN_REG}\n")
-    return abi.RETURN_REG
+    result_reg = emitter.alloc_reg()
+    emitter._emit_call(expr, result_reg, out)
+    out.write(f"  // call expr {expr.get('name')} -> return in {result_reg}\n")
+    return result_reg
 
 
 def _emit_binop(emitter, expr: Dict[str, Any], out) -> str:

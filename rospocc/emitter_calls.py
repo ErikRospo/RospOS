@@ -64,7 +64,7 @@ def emit_call(emitter, call_expr: Dict, return_reg: Optional[str], out):
         for r in live_regs:
             out.write(f"  PUSH {r}    // save caller temp\n")
 
-    if return_reg == abi.RETURN_REG or is_void:
+    if is_void:
         return_reg = None
 
     if return_reg is None:

@@ -227,8 +227,10 @@ class StatementTransformer:
             expr = None
             for child in stmt_node.get("children", []):
                 if isinstance(child, dict):
-                    expr = self.expr.from_node(child)
-                    break
+                    candidate = self.expr.from_node(child)
+                    if candidate is not None:
+                        expr = candidate
+                        break
             return [copy_line(stmt_node, {"type": "return", "value": expr})]
 
         return []
