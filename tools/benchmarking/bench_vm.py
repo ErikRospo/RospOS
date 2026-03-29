@@ -13,7 +13,15 @@ SCRIPT_DIR = Path(__file__).resolve().parent
 if str(SCRIPT_DIR) not in sys.path:
     sys.path.insert(0, str(SCRIPT_DIR))
 
-from common import DEFAULT_RESULTS_DIR, ROOT, format_summary, run_benchmark, summarize, write_results
+from common import (
+    DEFAULT_RESULTS_DIR,
+    ROOT,
+    add_instructions_per_second_metric,
+    format_summary,
+    run_vm_benchmark,
+    summarize,
+    write_results,
+)
 
 
 def main() -> int:
@@ -51,7 +59,7 @@ def main() -> int:
     print("Benchmarking VM with command:")
     print(" ", " ".join(command))
 
-    results = run_benchmark(
+    results, vm_steps = run_vm_benchmark(
         name="rospovm_headless",
         command=command,
         cwd=ROOT,
@@ -60,7 +68,22 @@ def main() -> int:
         timeout_s=None if args.timeout == 0 else args.timeout,
     )
     summary = summarize(results)
+    add_instructions_per_second_metric(
+        summary,
+        metric_name="mean_instructions_per_second",
+        results=results,
+        step_counts=vm_steps,
+    )
     print("Summary:", format_summary(summary))
+    print(
+        "         mean_instructions_per_second=",
+        f"{summary['mean_instructions_per_second']:.3f}"
+        if summary["mean_instructions_per_second"] is not None
+        else "None",
+    )
+
+    known_steps = [steps for steps in vm_steps if steps is not None]
+    unique_steps = sorted(set(known_steps))
 
     json_path, csv_path = write_results(
         benchmark_name="rospovm_headless",
@@ -71,9 +94,12 @@ def main() -> int:
             "repeat": args.repeat,
             "warmup": args.warmup,
             "timeout_s": args.timeout,
+            "detected_steps_unique": unique_steps,
+            "detected_steps_missing_count": len(vm_steps) - len(known_steps),
         },
         results=results,
         output_dir=Path(args.results_dir),
+        summary=summary,
     )
     print(f"Wrote {json_path}")
     print(f"Wrote {csv_path}")

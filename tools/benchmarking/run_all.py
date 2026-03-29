@@ -16,7 +16,17 @@ SCRIPT_DIR = Path(__file__).resolve().parent
 if str(SCRIPT_DIR) not in sys.path:
     sys.path.insert(0, str(SCRIPT_DIR))
 
-from common import DEFAULT_RESULTS_DIR, ROOT, format_summary, run_benchmark, summarize, add_time_per_line_metric, count_effective_lines
+from common import (
+    DEFAULT_RESULTS_DIR,
+    ROOT,
+    add_instructions_per_second_metric,
+    add_time_per_line_metric,
+    count_effective_lines,
+    format_summary,
+    run_benchmark,
+    run_vm_benchmark,
+    summarize,
+)
 
 
 def repo_relative(path: Path) -> Path:
@@ -139,7 +149,7 @@ def main() -> int:
     )
 
     print("Running VM benchmark...")
-    vm_results = run_benchmark(
+    vm_results, vm_steps = run_vm_benchmark(
         name="rospovm_headless",
         command=vm_cmd,
         cwd=ROOT,
@@ -170,6 +180,17 @@ def main() -> int:
         line_count=ros_effective_lines,
     )
 
+    vm_summary = summarize(vm_results)
+    add_instructions_per_second_metric(
+        vm_summary,
+        metric_name="mean_instructions_per_second",
+        results=vm_results,
+        step_counts=vm_steps,
+    )
+
+    known_steps = [steps for steps in vm_steps if steps is not None]
+    unique_steps = sorted(set(known_steps))
+
     result_dir = Path(args.results_dir)
     if not result_dir.is_absolute():
         result_dir = ROOT / result_dir
@@ -189,6 +210,8 @@ def main() -> int:
             "warmup": args.warmup,
             "timeout_s": args.timeout,
             "cpu": detect_cpu(),
+            "vm_detected_steps_unique": unique_steps,
+            "vm_detected_steps_missing_count": len(vm_steps) - len(known_steps),
         },
         "stages": {
             "rospocc": {
@@ -203,7 +226,7 @@ def main() -> int:
             },
             "rospovm_headless": {
                 "command": vm_cmd,
-                "summary": summarize(vm_results),
+                "summary": vm_summary,
                 "iterations": [r.__dict__ for r in vm_results],
             },
         },
@@ -232,6 +255,12 @@ def main() -> int:
         else "None",
     )
     print("  rospovm_headless", format_summary(payload["stages"]["rospovm_headless"]["summary"]))
+    print(
+        "                 mean_instructions_per_second=",
+        f"{payload['stages']['rospovm_headless']['summary']['mean_instructions_per_second']:.3f}"
+        if payload["stages"]["rospovm_headless"]["summary"]["mean_instructions_per_second"] is not None
+        else "None",
+    )
     print(f"Wrote {repo_relative(out_path)}")
     return 0
 

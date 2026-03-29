@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import csv
 import json
+import re
 import statistics
 import subprocess
 import time
@@ -25,6 +26,15 @@ class IterationResult:
 
 
 def run_command(command: list[str], cwd: Path, timeout_s: int | None = None) -> float:
+    elapsed_ms, _, _ = run_command_with_output(command, cwd=cwd, timeout_s=timeout_s)
+    return elapsed_ms
+
+
+def run_command_with_output(
+    command: list[str],
+    cwd: Path,
+    timeout_s: int | None = None,
+) -> tuple[float, str, str]:
     start_ns = time.perf_counter_ns()
     proc = subprocess.run(
         command,
@@ -48,7 +58,7 @@ def run_command(command: list[str], cwd: Path, timeout_s: int | None = None) -> 
             f"{proc.returncode}: {' '.join(command)}\n{joined}"
         )
 
-    return elapsed_ms
+    return elapsed_ms, proc.stdout, proc.stderr
 
 
 def run_benchmark(
@@ -76,6 +86,50 @@ def run_benchmark(
         results.append(IterationResult(iteration=i, duration_ms=elapsed_ms))
 
     return results
+
+
+_HEADLESS_STEPS_RE = re.compile(r"Headless run completed in\s+(\d+)\s+steps")
+
+
+def extract_headless_steps(stdout: str, stderr: str) -> int | None:
+    text = "\n".join((stdout, stderr))
+    match = _HEADLESS_STEPS_RE.search(text)
+    if not match:
+        return None
+    return int(match.group(1))
+
+
+def run_vm_benchmark(
+    *,
+    name: str,
+    command: list[str],
+    cwd: Path,
+    repeat: int,
+    warmup: int,
+    timeout_s: int | None,
+) -> tuple[list[IterationResult], list[int | None]]:
+    if repeat <= 0:
+        raise ValueError("repeat must be > 0")
+    if warmup < 0:
+        raise ValueError("warmup must be >= 0")
+
+    for i in range(1, warmup + 1):
+        _, out, err = run_command_with_output(command, cwd=cwd, timeout_s=timeout_s)
+        steps = extract_headless_steps(out, err)
+        steps_str = str(steps) if steps is not None else "unknown"
+        print(f"[{name}] warmup {i}/{warmup} complete (steps={steps_str})")
+
+    results: list[IterationResult] = []
+    step_counts: list[int | None] = []
+    for i in range(1, repeat + 1):
+        elapsed_ms, out, err = run_command_with_output(command, cwd=cwd, timeout_s=timeout_s)
+        steps = extract_headless_steps(out, err)
+        step_counts.append(steps)
+        steps_str = str(steps) if steps is not None else "unknown"
+        print(f"[{name}] iteration {i}/{repeat}: {elapsed_ms:.3f} ms (steps={steps_str})")
+        results.append(IterationResult(iteration=i, duration_ms=elapsed_ms))
+
+    return results, step_counts
 
 
 def summarize(results: list[IterationResult]) -> dict[str, Any]:
@@ -152,6 +206,25 @@ def add_time_per_line_metric(summary: dict[str, Any], *, metric_name: str, line_
         summary[metric_name] = None
         return
     summary[metric_name] = summary["mean_ms"] / line_count
+
+
+def add_instructions_per_second_metric(
+    summary: dict[str, Any],
+    *,
+    metric_name: str,
+    results: list[IterationResult],
+    step_counts: list[int | None],
+) -> None:
+    if len(results) != len(step_counts):
+        raise ValueError("results and step_counts must have the same length")
+
+    values: list[float] = []
+    for result, steps in zip(results, step_counts):
+        if steps is None or result.duration_ms <= 0:
+            continue
+        values.append(steps * 1000.0 / result.duration_ms)
+
+    summary[metric_name] = statistics.fmean(values) if values else None
 
 
 def write_results(
