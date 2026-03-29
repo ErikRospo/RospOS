@@ -39,7 +39,7 @@ ROSPOVM_SRC := $(sort $(shell find rospovm -type f -not -path "rospovm/build/*")
 
 .PHONY: all help bm parse compile dump build clean doc format frontend \
 		frontend_cmake run vm_headless run_headless test report \
-		benchmark everything frontend_minimal run_minimal
+		benchmark benchmark_plot everything frontend_minimal run_minimal
 
 all: build
 
@@ -57,6 +57,7 @@ help:
 	@echo "  doc              Build HTML and PDF docs"
 	@echo "  test             Run test suite"
 	@echo "  benchmark        Run benchmark suite"
+	@echo "  benchmark_plot   Plot benchmark metric trends over time"
 	@echo "  report           Generate project report"
 	@echo "  build            Full project build"
 	@echo "  everything       Build + docs + benchmark + report"
@@ -129,6 +130,9 @@ report: tools/report.py
 benchmark:
 	$(PY) tools/benchmarking/run_all.py --repeat $(BENCH_REPEAT)
 
+benchmark_plot:
+	$(PY) tools/benchmarking/plot_benchmarks.py
+
 test:
 	$(PY) -m unittest discover -s tests -p "test_*.py" -v
 
@@ -148,4 +152,4 @@ clean:
 	rm -f $(PDFDOCS)
 	rm -f rospos/font_bitmap.bin
 
-everything: build doc benchmark report
+everything: build doc benchmark benchmark_plot report
