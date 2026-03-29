@@ -481,6 +481,26 @@ WHILE_END72:
   POP r14
   RET
 
+.FUNC steplfsr:
+  PUSH r14
+  LLI r2, 0    // load immediate 0
+  SHR r2, r1, r2    // binop >>
+  LLI r3, 2    // load immediate 2
+  SHR r3, r1, r3    // binop >>
+  XOR r2, r2, r3    // binop ^
+  LLI r4, 3    // load immediate 3
+  SHR r4, r1, r4    // binop >>
+  XOR r2, r2, r4    // binop ^
+  LLI r5, 5    // load immediate 5
+  SHR r5, r1, r5    // binop >>
+  XOR r2, r2, r5    // binop ^
+  LLI r6, 1    // load immediate 1
+  AND r2, r2, r6    // binop &
+  // epilogue and return
+  ADDI r1, r0, 0  // ensure r1=0
+  POP r14
+  RET
+
 .FUNC screen_test:
   PUSH r14
   LLI r2, 536870912    // init addr
@@ -490,25 +510,36 @@ WHILE95:
   BEQ r3, r0, WHILE_END96
   SB r4, r2, 0    // intrinsic __sb
   ADDI r2, r2, 1    // assign addr (addi fast path)
-  LLI r5, 0    // load immediate 0
-  SHR r5, r4, r5    // binop >>
-  LLI r6, 2    // load immediate 2
-  SHR r6, r4, r6    // binop >>
-  XOR r5, r5, r6    // binop ^
-  LLI r7, 3    // load immediate 3
-  SHR r7, r4, r7    // binop >>
-  XOR r5, r5, r7    // binop ^
-  LLI r8, 5    // load immediate 5
-  SHR r8, r4, r8    // binop >>
-  XOR r5, r5, r8    // binop ^
-  LLI r9, 1    // load immediate 1
-  AND r5, r5, r9    // binop &
-  LLI r10, 1    // load immediate 1
-  SHR r10, r4, r10    // binop >>
-  LLI r11, 15    // load immediate 15
-  SHL r11, r5, r11    // binop <<
-  OR r10, r10, r11    // binop |
-  ADDI r4, r10, 0    // assign lfsr
+  LLI r5, 0    // init i
+WHILE97:
+  LLI r6, 16    // load immediate 16
+  BLT r5, r6, CMP_TRUE99
+  LLI r6, 0    // compare false path
+  JMP CMP_END100
+CMP_TRUE99:
+  LLI r6, 1
+CMP_END100:
+  BEQ r6, r0, WHILE_END98
+  // emit call to steplfsr with args [{'type': 'var', 'name': 'lfsr'}]
+  PUSH r2    // save caller temp
+  PUSH r3    // save caller temp
+  PUSH r4    // save caller temp
+  PUSH r5    // save caller temp
+  PUSH r7    // save caller temp
+  ADDI r1, r4, 0    // move arg 0
+  CALL steplfsr
+  // call return value in r1
+  POP r7    // restore caller temp
+  POP r5    // restore caller temp
+  POP r4    // restore caller temp
+  POP r3    // restore caller temp
+  POP r2    // restore caller temp
+  ADDI r7, r1, 0    // move return value
+  // call expr steplfsr -> return in r7
+  ADDI r4, r7, 0    // assign lfsr
+  ADDI r5, r5, 1    // assign i (addi fast path)
+  JMP WHILE97
+WHILE_END98:
   ADDI r3, r3, -1    // assign remaining (addi fast path)
   JMP WHILE95
 WHILE_END96:
@@ -519,30 +550,30 @@ WHILE_END96:
 
 .FUNC bd_read_u32:
   PUSH r14
-  LLI r2, 0    // load immediate 0
-  ADD r2, r1, r2    // binop +
-  LB r1, r2, 0    // intrinsic __lb -> return
-  // call expr __lb -> return in r1
-  LLI r3, 255    // load immediate 255
-  AND r3, r1, r3    // binop &
-  LLI r4, 1    // load immediate 1
-  ADD r4, r1, r4    // binop +
-  LB r1, r4, 0    // intrinsic __lb -> return
-  // call expr __lb -> return in r1
-  LLI r5, 255    // load immediate 255
-  AND r5, r1, r5    // binop &
-  LLI r6, 2    // load immediate 2
+  LLI r3, 0    // load immediate 0
+  ADD r3, r1, r3    // binop +
+  LB r2, r3, 0    // intrinsic __lb -> return
+  // call expr __lb -> return in r2
+  LLI r4, 255    // load immediate 255
+  AND r2, r2, r4    // binop &
+  LLI r6, 1    // load immediate 1
   ADD r6, r1, r6    // binop +
-  LB r1, r6, 0    // intrinsic __lb -> return
-  // call expr __lb -> return in r1
+  LB r5, r6, 0    // intrinsic __lb -> return
+  // call expr __lb -> return in r5
   LLI r7, 255    // load immediate 255
-  AND r7, r1, r7    // binop &
-  LLI r8, 3    // load immediate 3
-  ADD r8, r1, r8    // binop +
-  LB r1, r8, 0    // intrinsic __lb -> return
-  // call expr __lb -> return in r1
-  LLI r9, 255    // load immediate 255
-  AND r9, r1, r9    // binop &
+  AND r5, r5, r7    // binop &
+  LLI r9, 2    // load immediate 2
+  ADD r9, r1, r9    // binop +
+  LB r8, r9, 0    // intrinsic __lb -> return
+  // call expr __lb -> return in r8
+  LLI r10, 255    // load immediate 255
+  AND r8, r8, r10    // binop &
+  LLI r12, 3    // load immediate 3
+  ADD r12, r1, r12    // binop +
+  LB r11, r12, 0    // intrinsic __lb -> return
+  // call expr __lb -> return in r11
+  LLI r3, 255    // load immediate 255
+  AND r11, r11, r3    // binop &
   // epilogue and return
   ADDI r1, r0, 0  // ensure r1=0
   POP r14
@@ -615,26 +646,27 @@ WHILE_END96:
   CALL bd_write_u32
   // call return value in r1
   POP r1  
-WHILE97:
+WHILE101:
   // emit call to bd_read_u32 with args [{'type': 'const', 'value': 1073741828}]
-  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
+  PUSH r3    // save caller temp
   LLI r1, 1073741828    // load immediate 1073741828
   CALL bd_read_u32
   // call return value in r1
-  POP r1  
-  // call expr bd_read_u32 -> return in r1
-  LLI r3, 0    // load immediate 0
-  BNE r1, r3, CMP_TRUE99
-  LLI r3, 0    // compare false path
-  JMP CMP_END100
-CMP_TRUE99:
-  LLI r3, 1
-CMP_END100:
-  BEQ r3, r0, WHILE_END98
-  JMP WHILE97
-WHILE_END98:
+  POP r3    // restore caller temp
+  ADDI r3, r1, 0    // move return value
+  // call expr bd_read_u32 -> return in r3
   LLI r4, 0    // load immediate 0
-  ADD r1, r4, r0
+  BNE r3, r4, CMP_TRUE103
+  LLI r3, 0    // compare false path
+  JMP CMP_END104
+CMP_TRUE103:
+  LLI r3, 1
+CMP_END104:
+  BEQ r3, r0, WHILE_END102
+  JMP WHILE101
+WHILE_END102:
+  LLI r5, 0    // load immediate 0
+  ADD r1, r5, r0
   POP r14
   RET
 
@@ -672,32 +704,33 @@ WHILE_END98:
   CALL bd_write_u32
   // call return value in r1
   POP r1  
-WHILE101:
+WHILE105:
   // emit call to bd_read_u32 with args [{'type': 'const', 'value': 1073741828}]
-  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
+  PUSH r3    // save caller temp
   LLI r1, 1073741828    // load immediate 1073741828
   CALL bd_read_u32
   // call return value in r1
-  POP r1  
-  // call expr bd_read_u32 -> return in r1
-  LLI r3, 0    // load immediate 0
-  BNE r1, r3, CMP_TRUE103
-  LLI r3, 0    // compare false path
-  JMP CMP_END104
-CMP_TRUE103:
-  LLI r3, 1
-CMP_END104:
-  BEQ r3, r0, WHILE_END102
-  JMP WHILE101
-WHILE_END102:
+  POP r3    // restore caller temp
+  ADDI r3, r1, 0    // move return value
+  // call expr bd_read_u32 -> return in r3
   LLI r4, 0    // load immediate 0
-  ADD r1, r4, r0
+  BNE r3, r4, CMP_TRUE107
+  LLI r3, 0    // compare false path
+  JMP CMP_END108
+CMP_TRUE107:
+  LLI r3, 1
+CMP_END108:
+  BEQ r3, r0, WHILE_END106
+  JMP WHILE105
+WHILE_END106:
+  LLI r5, 0    // load immediate 0
+  ADD r1, r5, r0
   POP r14
   RET
 
 .FUNC initialize_filesystem:
   PUSH r14
-  LLI r2, superblock_buf105    // init superblock (buffer addr)
+  LLI r2, superblock_buf109    // init superblock (buffer addr)
   LLI r3, 82    // load immediate 82
   LLI r4, 0    // load immediate 0
   ADD r4, r2, r4    // binop +
@@ -727,21 +760,21 @@ WHILE_END102:
   ADD r5, r2, r5    // binop +
   SB r6, r5, 0    // store 
   LLI r8, 7    // init i
-WHILE106:
+WHILE110:
   LLI r7, 512    // load immediate 512
-  BLT r8, r7, CMP_TRUE108
+  BLT r8, r7, CMP_TRUE112
   LLI r7, 0    // compare false path
-  JMP CMP_END109
-CMP_TRUE108:
+  JMP CMP_END113
+CMP_TRUE112:
   LLI r7, 1
-CMP_END109:
-  BEQ r7, r0, WHILE_END107
+CMP_END113:
+  BEQ r7, r0, WHILE_END111
   LLI r10, 0    // load immediate 0
   ADD r9, r2, r8    // binop +
   SB r10, r9, 0    // store 
   ADDI r8, r8, 1    // assign i (addi fast path)
-  JMP WHILE106
-WHILE_END107:
+  JMP WHILE110
+WHILE_END111:
   // emit call to write_block with args [{'type': 'const', 'value': 0}, {'type': 'var', 'name': 'superblock'}]
   PUSH r2    // save caller temp
   PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
@@ -758,7 +791,7 @@ WHILE_END107:
 
 .FUNC ensure_filesystem_initialized:
   PUSH r14
-  LLI r2, superblock_buf110    // init superblock (buffer addr)
+  LLI r2, superblock_buf114    // init superblock (buffer addr)
   // emit call to read_block with args [{'type': 'const', 'value': 0}, {'type': 'var', 'name': 'superblock'}]
   PUSH r2    // save caller temp
   PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
@@ -772,98 +805,98 @@ WHILE_END107:
   ADD r3, r2, r3    // binop +
   LB r3, r3, 0    // deref
   LLI r4, 82    // load immediate 82
-  BNE r3, r4, CMP_TRUE113
-  LLI r3, 0    // compare false path
-  JMP CMP_END114
-CMP_TRUE113:
-  LLI r3, 1
-CMP_END114:
-  LLI r5, 1    // load immediate 1
-  ADD r5, r2, r5    // binop +
-  LB r5, r5, 0    // deref
-  LLI r6, 79    // load immediate 79
-  BNE r5, r6, CMP_TRUE115
-  LLI r5, 0    // compare false path
-  JMP CMP_END116
-CMP_TRUE115:
-  LLI r5, 1
-CMP_END116:
-  OR r3, r3, r5    // logic || fold
-  BNE r3, r0, CMP_TRUE117
+  BNE r3, r4, CMP_TRUE117
   LLI r3, 0    // compare false path
   JMP CMP_END118
 CMP_TRUE117:
   LLI r3, 1
 CMP_END118:
-  LLI r7, 2    // load immediate 2
-  ADD r7, r2, r7    // binop +
-  LB r7, r7, 0    // deref
-  LLI r8, 83    // load immediate 83
-  BNE r7, r8, CMP_TRUE119
-  LLI r7, 0    // compare false path
+  LLI r5, 1    // load immediate 1
+  ADD r5, r2, r5    // binop +
+  LB r5, r5, 0    // deref
+  LLI r6, 79    // load immediate 79
+  BNE r5, r6, CMP_TRUE119
+  LLI r5, 0    // compare false path
   JMP CMP_END120
 CMP_TRUE119:
-  LLI r7, 1
+  LLI r5, 1
 CMP_END120:
-  OR r3, r3, r7    // logic || fold
+  OR r3, r3, r5    // logic || fold
   BNE r3, r0, CMP_TRUE121
   LLI r3, 0    // compare false path
   JMP CMP_END122
 CMP_TRUE121:
   LLI r3, 1
 CMP_END122:
-  LLI r9, 3    // load immediate 3
-  ADD r9, r2, r9    // binop +
-  LB r9, r9, 0    // deref
-  LLI r10, 80    // load immediate 80
-  BNE r9, r10, CMP_TRUE123
-  LLI r9, 0    // compare false path
+  LLI r7, 2    // load immediate 2
+  ADD r7, r2, r7    // binop +
+  LB r7, r7, 0    // deref
+  LLI r8, 83    // load immediate 83
+  BNE r7, r8, CMP_TRUE123
+  LLI r7, 0    // compare false path
   JMP CMP_END124
 CMP_TRUE123:
-  LLI r9, 1
+  LLI r7, 1
 CMP_END124:
-  OR r3, r3, r9    // logic || fold
+  OR r3, r3, r7    // logic || fold
   BNE r3, r0, CMP_TRUE125
   LLI r3, 0    // compare false path
   JMP CMP_END126
 CMP_TRUE125:
   LLI r3, 1
 CMP_END126:
-  LLI r11, 4    // load immediate 4
-  ADD r11, r2, r11    // binop +
-  LB r11, r11, 0    // deref
-  LLI r12, 70    // load immediate 70
-  BNE r11, r12, CMP_TRUE127
-  LLI r11, 0    // compare false path
+  LLI r9, 3    // load immediate 3
+  ADD r9, r2, r9    // binop +
+  LB r9, r9, 0    // deref
+  LLI r10, 80    // load immediate 80
+  BNE r9, r10, CMP_TRUE127
+  LLI r9, 0    // compare false path
   JMP CMP_END128
 CMP_TRUE127:
-  LLI r11, 1
+  LLI r9, 1
 CMP_END128:
-  OR r3, r3, r11    // logic || fold
+  OR r3, r3, r9    // logic || fold
   BNE r3, r0, CMP_TRUE129
   LLI r3, 0    // compare false path
   JMP CMP_END130
 CMP_TRUE129:
   LLI r3, 1
 CMP_END130:
-  LLI r4, 5    // load immediate 5
-  ADD r4, r2, r4    // binop +
-  LB r4, r4, 0    // deref
-  LLI r6, 83    // load immediate 83
-  BNE r4, r6, CMP_TRUE131
-  LLI r4, 0    // compare false path
+  LLI r11, 4    // load immediate 4
+  ADD r11, r2, r11    // binop +
+  LB r11, r11, 0    // deref
+  LLI r12, 70    // load immediate 70
+  BNE r11, r12, CMP_TRUE131
+  LLI r11, 0    // compare false path
   JMP CMP_END132
 CMP_TRUE131:
-  LLI r4, 1
+  LLI r11, 1
 CMP_END132:
-  OR r3, r3, r4    // logic || fold
+  OR r3, r3, r11    // logic || fold
   BNE r3, r0, CMP_TRUE133
   LLI r3, 0    // compare false path
   JMP CMP_END134
 CMP_TRUE133:
   LLI r3, 1
 CMP_END134:
-  BEQ r3, r0, ELSE111
+  LLI r4, 5    // load immediate 5
+  ADD r4, r2, r4    // binop +
+  LB r4, r4, 0    // deref
+  LLI r6, 83    // load immediate 83
+  BNE r4, r6, CMP_TRUE135
+  LLI r4, 0    // compare false path
+  JMP CMP_END136
+CMP_TRUE135:
+  LLI r4, 1
+CMP_END136:
+  OR r3, r3, r4    // logic || fold
+  BNE r3, r0, CMP_TRUE137
+  LLI r3, 0    // compare false path
+  JMP CMP_END138
+CMP_TRUE137:
+  LLI r3, 1
+CMP_END138:
+  BEQ r3, r0, ELSE115
   // emit call to initialize_filesystem with args []
   PUSH r2    // save caller temp
   PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
@@ -871,9 +904,9 @@ CMP_END134:
   // call return value in r1
   POP r1  
   POP r2    // restore caller temp
-  JMP IF_END112
-ELSE111:
-IF_END112:
+  JMP IF_END116
+ELSE115:
+IF_END116:
   // epilogue and return
   ADDI r1, r0, 0  // ensure r1=0
   POP r14
@@ -881,27 +914,27 @@ IF_END112:
 
 .FUNC write_file:
   PUSH r14
-  LLI r2, filename_buf135    // init filename (buffer addr)
-  LLI r3, data_buf136    // init data (buffer addr)
+  LLI r2, filename_buf139    // init filename (buffer addr)
+  LLI r3, data_buf140    // init data (buffer addr)
   LLI r4, 25    // init file_size
-  LLI r5, dir_entry_buf137    // init dir_entry (buffer addr)
+  LLI r5, dir_entry_buf141    // init dir_entry (buffer addr)
   LLI r6, 0    // init i
-WHILE138:
+WHILE142:
   LLI r7, 32    // load immediate 32
-  BLT r6, r7, CMP_TRUE140
+  BLT r6, r7, CMP_TRUE144
   LLI r7, 0    // compare false path
-  JMP CMP_END141
-CMP_TRUE140:
+  JMP CMP_END145
+CMP_TRUE144:
   LLI r7, 1
-CMP_END141:
-  BEQ r7, r0, WHILE_END139
+CMP_END145:
+  BEQ r7, r0, WHILE_END143
   ADD r8, r2, r6    // binop +
   LB r8, r8, 0    // deref
   ADD r9, r5, r6    // binop +
   SB r8, r9, 0    // store 
   ADDI r6, r6, 1    // assign i (addi fast path)
-  JMP WHILE138
-WHILE_END139:
+  JMP WHILE142
+WHILE_END143:
   LLI r10, 24    // load immediate 24
   SHR r10, r4, r10    // binop >>
   LLI r11, 255    // load immediate 255
@@ -986,7 +1019,7 @@ WHILE_END139:
 
 .FUNC read_file:
   PUSH r14
-  LLI r2, dir_entry_buf142    // init dir_entry (buffer addr)
+  LLI r2, dir_entry_buf146    // init dir_entry (buffer addr)
   // emit call to read_block with args [{'type': 'const', 'value': 1}, {'type': 'var', 'name': 'dir_entry'}]
   PUSH r2    // save caller temp
   PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
@@ -996,24 +1029,24 @@ WHILE_END139:
   // call return value in r1
   POP r1  
   POP r2    // restore caller temp
-  LLI r3, filename_buf143    // init filename (buffer addr)
+  LLI r3, filename_buf147    // init filename (buffer addr)
   LLI r4, 0    // init i
-WHILE144:
+WHILE148:
   LLI r5, 32    // load immediate 32
-  BLT r4, r5, CMP_TRUE146
+  BLT r4, r5, CMP_TRUE150
   LLI r5, 0    // compare false path
-  JMP CMP_END147
-CMP_TRUE146:
+  JMP CMP_END151
+CMP_TRUE150:
   LLI r5, 1
-CMP_END147:
-  BEQ r5, r0, WHILE_END145
+CMP_END151:
+  BEQ r5, r0, WHILE_END149
   ADD r6, r2, r4    // binop +
   LB r6, r6, 0    // deref
   ADD r7, r3, r4    // binop +
   SB r6, r7, 0    // store 
   ADDI r4, r4, 1    // assign i (addi fast path)
-  JMP WHILE144
-WHILE_END145:
+  JMP WHILE148
+WHILE_END149:
   LLI r8, 0    // load immediate 0
   LLI r9, 32    // load immediate 32
   ADD r9, r3, r9    // binop +
@@ -1060,7 +1093,7 @@ WHILE_END145:
   ADD r7, r2, r7    // binop +
   LB r7, r7, 0    // deref
   OR r9, r9, r7    // binop |
-  LLI r4, data_buf148    // init data (buffer addr)
+  LLI r4, data_buf152    // init data (buffer addr)
   // emit call to read_block with args [{'type': 'var', 'name': 'data_block_index'}, {'type': 'var', 'name': 'data'}]
   PUSH r3    // save caller temp
   PUSH r4    // save caller temp
@@ -1143,7 +1176,7 @@ WHILE_END145:
   POP r1  
   POP r6    // restore caller temp
   POP r2    // restore caller temp
-  LLI r9, device_info_buf149    // init device_info (buffer addr)
+  LLI r9, device_info_buf153    // init device_info (buffer addr)
   // emit call to read_block with args [{'type': 'const', 'value': 4294967295}, {'type': 'var', 'name': 'device_info'}]
   PUSH r2    // save caller temp
   PUSH r6    // save caller temp
@@ -1242,15 +1275,6 @@ WHILE_END145:
   LLI r3, 150    // load immediate 150
   LLI r4, 60    // load immediate 60
   CALL draw_string_to_display
-  // call return value in r1
-  POP r1  
-  POP r6    // restore caller temp
-  POP r2    // restore caller temp
-  // emit call to clear_display with args []
-  PUSH r2    // save caller temp
-  PUSH r6    // save caller temp
-  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  CALL clear_display
   // call return value in r1
   POP r1  
   POP r6    // restore caller temp
@@ -1541,31 +1565,31 @@ str_3:
 str_4:
   .STR "Yellow RospOS"
 
-superblock_buf105:
+superblock_buf109:
   .SPACE 512 // lifted buffer
 
-superblock_buf110:
+superblock_buf114:
   .SPACE 512 // lifted buffer
 
-filename_buf135:
+filename_buf139:
   .SPACE 32 // lifted buffer
 
-data_buf136:
+data_buf140:
   .SPACE 512 // lifted buffer
 
-dir_entry_buf137:
+dir_entry_buf141:
   .SPACE 64 // lifted buffer
 
-dir_entry_buf142:
+dir_entry_buf146:
   .SPACE 64 // lifted buffer
 
-filename_buf143:
+filename_buf147:
   .SPACE 33 // lifted buffer
 
-data_buf148:
+data_buf152:
   .SPACE 512 // lifted buffer
 
-device_info_buf149:
+device_info_buf153:
   .SPACE 512 // lifted buffer
 
 

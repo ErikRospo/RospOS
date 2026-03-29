@@ -180,7 +180,11 @@ void draw_rectangle(int x, int y, int width, int height, int bc, int fc)
 }
 
 // .rosc translation of binaries/screen_test.ros
-
+int steplfsr(int lfsr)
+{
+    int bit = ((lfsr >> 0) ^ (lfsr >> 2) ^ (lfsr >> 3) ^ (lfsr >> 5)) & 1;
+    return (lfsr >> 1) | (bit << 15);
+}
 void screen_test()
 {
     int addr = 0x20000000;
@@ -191,10 +195,11 @@ void screen_test()
     {
         __sb(addr, lfsr);
         addr = addr + 1;
-        // taps at 16, 14, 13, 11 (0-based indexing)
-        int bit = ((lfsr >> 0) ^ (lfsr >> 2) ^ (lfsr >> 3) ^ (lfsr >> 5)) & 1;
-        lfsr = (lfsr >> 1) | (bit << 15);
-
+        
+        for (int i = 0; i < 16; i++)
+        {
+            lfsr = steplfsr(lfsr);
+        }
         remaining = remaining - 1;
     }
 }
@@ -356,6 +361,5 @@ void main()
     draw_string_to_display("Red RospOS", 10, 110 , 0x30);
     draw_string_to_display("Blue RospOS", 10, 130 , 0x07);
     draw_string_to_display("Yellow RospOS", 10, 150 , 0x3C);
-    clear_display();
     screen_test();
 }

@@ -890,6 +890,56 @@ translation_unit
   external_decl
     function_def
       type_specifier
+        int
+      declarator	steplfsr
+      param_list
+        param
+          type_specifier
+            int
+          declarator	lfsr
+      compound_stmt
+        declaration
+          type_specifier
+            int
+          init_declarator_list
+            init_declarator
+              declarator	bit
+              bit_and
+                bit_xor
+                  shift
+                    lfsr
+                    rshift
+                    0
+                  shift
+                    lfsr
+                    rshift
+                    2
+                  shift
+                    lfsr
+                    rshift
+                    3
+                  shift
+                    lfsr
+                    rshift
+                    5
+                1
+        expr_stmt
+          bit_or
+            postfix
+              return
+              call_suffix
+                arg_list
+                  shift
+                    lfsr
+                    rshift
+                    1
+            shift
+              bit
+              lshift
+              15
+  external_decl
+    function_def
+      type_specifier
         void
       declarator	screen_test
       compound_stmt
@@ -931,43 +981,29 @@ translation_unit
                   addr
                   plus
                   1
-            declaration
-              type_specifier
-                int
-              init_declarator_list
-                init_declarator
-                  declarator	bit
-                  bit_and
-                    bit_xor
-                      shift
-                        lfsr
-                        rshift
-                        0
-                      shift
-                        lfsr
-                        rshift
-                        2
-                      shift
-                        lfsr
-                        rshift
-                        3
-                      shift
-                        lfsr
-                        rshift
-                        5
-                    1
-            expr_stmt
-              assignment
-                lfsr
-                bit_or
-                  shift
+            for_stmt
+              declaration
+                type_specifier
+                  int
+                init_declarator_list
+                  init_declarator
+                    declarator	i
+                    0
+              relational
+                i
+                lt
+                16
+              postfix
+                i
+                post_inc
+              compound_stmt
+                expr_stmt
+                  assignment
                     lfsr
-                    rshift
-                    1
-                  shift
-                    bit
-                    lshift
-                    15
+                    postfix
+                      steplfsr
+                      call_suffix
+                        arg_list	lfsr
             expr_stmt
               assignment
                 remaining
@@ -1859,10 +1895,6 @@ translation_unit
                 10
                 150
                 0x3C
-        expr_stmt
-          postfix
-            clear_display
-            call_suffix
         expr_stmt
           postfix
             screen_test
