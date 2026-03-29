@@ -32,6 +32,12 @@ class Memory
 private:
     std::vector<SpecialMemoryRange> specialRanges;
     std::vector<uint8_t> mem;
+    mutable int lastSpecialRangeIndex = -1;
+
+    const SpecialMemoryRange* findSpecialRange(uint32_t address) const;
+    const SpecialMemoryRange* findOverlappingSpecialRange(uint32_t startAddress, uint32_t endAddress) const;
+    uint32_t readWordDirectRam(uint32_t address) const;
+    void writeWordDirectRam(uint32_t address, uint32_t value);
 
 public:
     Memory(size_t size);

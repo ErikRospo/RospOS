@@ -158,10 +158,12 @@ void RospOSVM::writeMemoryTrackedHalf(uint32_t address, uint16_t value)
 
 void RospOSVM::writeMemoryTrackedWord(uint32_t address, uint32_t value)
 {
-    writeMemoryTrackedByte(address, static_cast<uint8_t>((value >> 24) & 0xFF));
-    writeMemoryTrackedByte(address + 1, static_cast<uint8_t>((value >> 16) & 0xFF));
-    writeMemoryTrackedByte(address + 2, static_cast<uint8_t>((value >> 8) & 0xFF));
-    writeMemoryTrackedByte(address + 3, static_cast<uint8_t>(value & 0xFF));
+    // Keep per-byte deltas for reversible execution while doing a single memory write.
+    recordMemoryDeltaForByte(address);
+    recordMemoryDeltaForByte(address + 1);
+    recordMemoryDeltaForByte(address + 2);
+    recordMemoryDeltaForByte(address + 3);
+    memory.writeWord(address, value);
 }
 
 void RospOSVM::writeMemory(uint32_t address, uint32_t value)
