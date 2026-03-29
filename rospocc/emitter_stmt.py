@@ -259,7 +259,10 @@ def _emit_assign(emitter, stmt: Dict[str, Any], out):
     elif isinstance(target, str):
         target_name = target
 
-    # Fast path: x = x +/- const  ->  ADDI x, x, +/-const
+    # Fast path:
+    #   x = x +/- const  -> ADDI x, x, +/-const
+    #   x = x << const   -> SHLI x, x, const
+    #   x = x >> const   -> SHRI x, x, const
     if (
         isinstance(val, dict)
         and val.get("type") == "binop"
@@ -280,20 +283,42 @@ def _emit_assign(emitter, stmt: Dict[str, Any], out):
             return None
 
         imm = None
+        instr = None
         if op == "plus":
-            if _var_name(left) == target_name and _const_val(right) is not None:
-                imm = _const_val(right)
-            elif _const_val(left) is not None and _var_name(right) == target_name:
-                imm = _const_val(left)
+            right_const = _const_val(right)
+            left_const = _const_val(left)
+            if _var_name(left) == target_name and right_const is not None:
+                imm = right_const
+            elif left_const is not None and _var_name(right) == target_name:
+                imm = left_const
+            if imm is not None:
+                instr = "ADDI"
         elif op == "minus":
-            if _var_name(left) == target_name and _const_val(right) is not None:
-                imm = -_const_val(right)
+            right_const = _const_val(right)
+            if _var_name(left) == target_name and right_const is not None:
+                imm = -right_const
+            if imm is not None:
+                instr = "ADDI"
+        elif op == "lshift":
+            right_const = _const_val(right)
+            if _var_name(left) == target_name and right_const is not None:
+                imm = right_const
+            if imm is not None:
+                instr = "SHLI"
+        elif op == "rshift":
+            right_const = _const_val(right)
+            if _var_name(left) == target_name and right_const is not None:
+                imm = right_const
+            if imm is not None:
+                instr = "SHRI"
 
-        if imm is not None:
+        if imm is not None and instr is not None:
             dest = emitter.var_regs.get(target_name)
             if dest:
                 emitter.consume_var_read(target_name)
-                out.write(f"  ADDI {dest}, {dest}, {imm}    // assign {target_name} (addi fast path)\n")
+                out.write(
+                    f"  {instr} {dest}, {dest}, {imm}    // assign {target_name} ({instr.lower()} fast path)\n"
+                )
                 emitter.reclaim_dead_var_regs()
                 return
 

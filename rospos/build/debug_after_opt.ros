@@ -1,0 +1,2019 @@
+.SEG 4294967292
+
+.DATA 0
+
+.SEG 0
+
+  JMP main
+
+WHILE1:
+
+  LLI r5, 1
+  SUB r5, r2, r5
+  BLT r4, r5, CMP_TRUE3
+  LLI r5, 0
+  JMP CMP_END4
+
+CMP_TRUE3:
+
+  LLI r5, 1
+CMP_END4:
+
+  BEQ r5, r0, WHILE_END2
+  LLI r6, 0
+  LB r6, r3, 0
+  LLI r7, 10
+  BEQ r6, r7, CMP_TRUE7
+  LLI r7, 0
+  JMP CMP_END8
+
+CMP_TRUE7:
+
+  LLI r7, 1
+CMP_END8:
+
+  LLI r8, 13
+  BEQ r6, r8, CMP_TRUE9
+  LLI r8, 0
+  JMP CMP_END10
+
+CMP_TRUE9:
+
+  LLI r8, 1
+CMP_END10:
+
+  OR r7, r7, r8
+  BNE r7, r0, CMP_TRUE11
+  LLI r7, 0
+  JMP CMP_END12
+
+CMP_TRUE11:
+
+  LLI r7, 1
+CMP_END12:
+
+  BEQ r7, r0, ELSE5
+ELSE5:
+
+  LLI r9, 1
+  ADD r4, r4, r9
+  ADD r10, r1, r4
+  SB r6, r10, 0
+  JMP WHILE1
+
+WHILE_END2:
+
+  LLI r11, 0
+  ADD r4, r1, r4
+  SB r11, r4, 0
+  POP r14
+  JALR r0, r14, 0
+  PUSH r14
+  LLI r2, 0
+WHILE13:
+
+  LLI r3, 65536
+  BLT r2, r3, CMP_TRUE15
+  LLI r3, 0
+  JMP CMP_END16
+
+CMP_TRUE15:
+
+  LLI r3, 1
+CMP_END16:
+
+  BEQ r3, r0, WHILE_END14
+  LLI r4, 536870912
+  ADD r4, r4, r2
+  LLI r5, 0
+  SB r5, r4, 0
+  ADDI r2, r2, 1
+  JMP WHILE13
+
+WHILE_END14:
+
+  LLI r6, 0
+  ADD r1, r6, r0
+  POP r14
+  JALR r0, r14, 0
+  PUSH r14
+  LLI r3, 0
+WHILE17:
+
+  LLI r4, 8
+  BLT r3, r4, CMP_TRUE19
+  LLI r4, 0
+  JMP CMP_END20
+
+CMP_TRUE19:
+
+  LLI r4, 1
+CMP_END20:
+
+  BEQ r4, r0, WHILE_END18
+  LLI r5, 0
+WHILE21:
+
+  LLI r6, 8
+  BLT r5, r6, CMP_TRUE23
+  LLI r6, 0
+  JMP CMP_END24
+
+CMP_TRUE23:
+
+  LLI r6, 1
+CMP_END24:
+
+  BEQ r6, r0, WHILE_END22
+  ADD r7, r1, r5
+  ADD r8, r2, r3
+  LLI r9, 256
+  MUL r9, r8, r9
+  ADD r9, r9, r7
+  LLI r10, 536870912
+  ADD r10, r10, r9
+  LLI r11, 0
+  SB r11, r10, 0
+  ADDI r5, r5, 1
+  JMP WHILE21
+
+WHILE_END22:
+
+  ADDI r3, r3, 1
+  JMP WHILE17
+
+WHILE_END18:
+
+  LLI r12, 0
+  ADD r1, r12, r0
+  POP r14
+  JALR r0, r14, 0
+draw_char_to_display:
+
+  PUSH r14
+  LLI r5, 8
+  MUL r5, r1, r5
+  LLI r6, 0
+WHILE25:
+
+  LLI r7, 8
+  BLT r6, r7, CMP_TRUE27
+  LLI r7, 0
+  JMP CMP_END28
+
+CMP_TRUE27:
+
+  LLI r7, 1
+CMP_END28:
+
+  BEQ r7, r0, WHILE_END26
+  LLI r8, 0
+  LLI r9, font_address
+  ADD r10, r9, r5
+  ADD r10, r10, r6
+  LB r8, r10, 0
+  LLI r11, 0
+WHILE29:
+
+  LLI r12, 8
+  BLT r11, r12, CMP_TRUE31
+  LLI r12, 0
+  JMP CMP_END32
+
+CMP_TRUE31:
+
+  LLI r12, 1
+CMP_END32:
+
+  BEQ r12, r0, WHILE_END30
+  SHR r7, r8, r11
+  LLI r10, 1
+  AND r7, r7, r10
+  BEQ r7, r0, ELSE33
+  ADD r12, r2, r11
+  ADD r10, r3, r6
+  PUSH r2
+  LLI r2, 256
+  MUL r2, r10, r2
+  ADD r2, r2, r12
+  PUSH r3
+  LLI r3, 536870912
+  ADD r3, r3, r2
+  LW r2, r15, 4
+  SB r4, r3, 0
+  POP r3
+  ADDI r15, r15, 4
+ELSE33:
+
+  ADDI r11, r11, 1
+  JMP WHILE29
+
+WHILE_END30:
+
+  ADDI r6, r6, 1
+  JMP WHILE25
+
+WHILE_END26:
+
+  LLI r2, 0
+  ADD r1, r2, r0
+  POP r14
+  JALR r0, r14, 0
+draw_string_to_display:
+
+  PUSH r14
+WHILE35:
+
+  LB r5, r1, 0
+  BEQ r5, r0, WHILE_END36
+  PUSH r2
+  PUSH r3
+  PUSH r4
+  PUSH r1
+  LB r6, r1, 0
+  ADDI r1, r6, 0
+  JMP draw_char_to_display
+
+  POP r1
+  POP r4
+  POP r3
+  POP r2
+  ADDI r1, r1, 1
+  ADDI r2, r2, 8
+  JMP WHILE35
+
+WHILE_END36:
+
+  LLI r7, 0
+  ADD r1, r7, r0
+  POP r14
+  JALR r0, r14, 0
+  PUSH r14
+  SUB r5, r3, r1
+  LLI r6, 0
+  BLT r5, r6, CMP_TRUE39
+  LLI r6, 0
+  JMP CMP_END40
+
+CMP_TRUE39:
+
+  LLI r6, 1
+CMP_END40:
+
+  BEQ r6, r0, ELSE37
+  LLI r7, 0
+  SUB r5, r7, r5
+ELSE37:
+
+  LLI r8, 0
+  LLI r9, 1
+  SUB r8, r8, r9
+  BLT r1, r3, CMP_TRUE43
+  LLI r10, 0
+  JMP CMP_END44
+
+CMP_TRUE43:
+
+  LLI r10, 1
+CMP_END44:
+
+  BEQ r10, r0, ELSE41
+  LLI r11, 1
+  ADDI r8, r11, 0
+ELSE41:
+
+  SUB r12, r2, r4
+  LLI r6, 0
+  BLT r12, r6, CMP_TRUE47
+  LLI r6, 0
+  JMP CMP_END48
+
+CMP_TRUE47:
+
+  LLI r6, 1
+CMP_END48:
+
+  BEQ r6, r0, ELSE45
+  LLI r7, 0
+  SUB r12, r7, r12
+ELSE45:
+
+  LLI r9, 0
+  SUB r12, r9, r12
+  LLI r10, 0
+  LLI r11, 1
+  SUB r10, r10, r11
+  BLT r2, r4, CMP_TRUE51
+  LLI r6, 0
+  JMP CMP_END52
+
+CMP_TRUE51:
+
+  LLI r6, 1
+CMP_END52:
+
+  BEQ r6, r0, ELSE49
+  LLI r7, 1
+  ADDI r10, r7, 0
+ELSE49:
+
+  ADD r9, r5, r12
+  LLI r11, 1
+WHILE53:
+
+  BEQ r11, r0, WHILE_END54
+  LLI r6, 256
+  MUL r6, r2, r6
+  ADD r6, r6, r1
+  LLI r7, 536870912
+  ADD r7, r7, r6
+  PUSH r2
+  LLI r2, 63
+  SB r2, r7, 0
+  POP r2
+  BEQ r1, r3, CMP_TRUE57
+  LLI r7, 0
+  JMP CMP_END58
+
+CMP_TRUE57:
+
+  LLI r7, 1
+CMP_END58:
+
+  PUSH r2
+  BEQ r2, r4, CMP_TRUE59
+  LLI r2, 0
+  JMP CMP_END60
+
+CMP_TRUE59:
+
+  LLI r2, 1
+CMP_END60:
+
+  AND r7, r7, r2
+  BNE r7, r0, CMP_TRUE61
+  LLI r7, 0
+  JMP CMP_END62
+
+CMP_TRUE61:
+
+  LLI r7, 1
+CMP_END62:
+
+  POP r2
+  BEQ r7, r0, ELSE55
+  LLI r7, 0
+  ADDI r11, r7, 0
+ELSE55:
+
+  ADD r7, r9, r9
+  PUSH r2
+  BGE r7, r12, CMP_TRUE65
+  LLI r2, 0
+  JMP CMP_END66
+
+CMP_TRUE65:
+
+  LLI r2, 1
+CMP_END66:
+
+  BEQ r2, r0, ELSE63
+  ADD r9, r9, r12
+  ADD r1, r1, r8
+  POP r2
+ELSE63:
+
+  PUSH r2
+  BGE r5, r7, CMP_TRUE69
+  LLI r2, 0
+  JMP CMP_END70
+
+CMP_TRUE69:
+
+  LLI r2, 1
+CMP_END70:
+
+  BEQ r2, r0, ELSE67
+  ADD r9, r9, r5
+  POP r2
+  PUSH r3
+  ADD r2, r2, r10
+  POP r3
+ELSE67:
+
+  JMP WHILE53
+
+WHILE_END54:
+
+  LLI r7, 0
+  ADD r1, r7, r0
+  POP r14
+  JALR r0, r14, 0
+  PUSH r14
+  LW r5, r15, 4
+  LW r6, r15, 8
+  LLI r7, 0
+WHILE71:
+
+  BLT r7, r4, CMP_TRUE73
+  LLI r8, 0
+  JMP CMP_END74
+
+CMP_TRUE73:
+
+  LLI r8, 1
+CMP_END74:
+
+  BEQ r8, r0, WHILE_END72
+  LLI r9, 0
+WHILE75:
+
+  BLT r9, r3, CMP_TRUE77
+  LLI r10, 0
+  JMP CMP_END78
+
+CMP_TRUE77:
+
+  LLI r10, 1
+CMP_END78:
+
+  BEQ r10, r0, WHILE_END76
+  ADD r11, r1, r9
+  ADD r12, r2, r7
+  LLI r8, 256
+  MUL r8, r12, r8
+  ADD r8, r8, r11
+  LLI r10, 0
+  BEQ r7, r10, CMP_TRUE81
+  LLI r10, 0
+  JMP CMP_END82
+
+CMP_TRUE81:
+
+  LLI r10, 1
+CMP_END82:
+
+  PUSH r2
+  LLI r2, 1
+  SUB r2, r4, r2
+  BEQ r7, r2, CMP_TRUE83
+  LLI r2, 0
+  JMP CMP_END84
+
+CMP_TRUE83:
+
+  LLI r2, 1
+CMP_END84:
+
+  OR r10, r10, r2
+  BNE r10, r0, CMP_TRUE85
+  LLI r10, 0
+  JMP CMP_END86
+
+CMP_TRUE85:
+
+  LLI r10, 1
+CMP_END86:
+
+  LLI r2, 0
+  BEQ r9, r2, CMP_TRUE87
+  LLI r2, 0
+  JMP CMP_END88
+
+CMP_TRUE87:
+
+  LLI r2, 1
+CMP_END88:
+
+  OR r10, r10, r2
+  BNE r10, r0, CMP_TRUE89
+  LLI r10, 0
+  JMP CMP_END90
+
+CMP_TRUE89:
+
+  LLI r10, 1
+CMP_END90:
+
+  LLI r2, 1
+  SUB r2, r3, r2
+  BEQ r9, r2, CMP_TRUE91
+  LLI r2, 0
+  JMP CMP_END92
+
+CMP_TRUE91:
+
+  LLI r2, 1
+CMP_END92:
+
+  OR r10, r10, r2
+  BNE r10, r0, CMP_TRUE93
+  LLI r10, 0
+  JMP CMP_END94
+
+CMP_TRUE93:
+
+  LLI r10, 1
+CMP_END94:
+
+  POP r2
+  BEQ r10, r0, ELSE79
+  LLI r10, 536870912
+  ADD r10, r10, r8
+  SB r5, r10, 0
+  JMP IF_END80
+
+ELSE79:
+
+  LLI r10, 536870912
+  ADD r10, r10, r8
+  SB r6, r10, 0
+IF_END80:
+
+  ADDI r9, r9, 1
+  JMP WHILE75
+
+WHILE_END76:
+
+  ADDI r7, r7, 1
+  JMP WHILE71
+
+WHILE_END72:
+
+  LLI r10, 0
+  ADD r1, r10, r0
+  POP r14
+  JALR r0, r14, 0
+screen_test:
+
+  PUSH r14
+  LLI r2, 536870912
+  LLI r3, 65536
+  LLI r4, 3735928559
+WHILE95:
+
+  BEQ r3, r0, WHILE_END96
+  SB r4, r2, 0
+  ADDI r2, r2, 1
+  SHRI r5, r4, 0
+  SHRI r6, r4, 2
+  XOR r5, r5, r6
+  SHRI r7, r4, 3
+  XOR r5, r5, r7
+  SHRI r8, r4, 5
+  XOR r5, r5, r8
+  LLI r9, 1
+  AND r5, r5, r9
+  SHRI r10, r4, 1
+  SHLI r11, r5, 15
+  OR r4, r10, r11
+  SHRI r12, r4, 0
+  SHRI r6, r4, 2
+  XOR r12, r12, r6
+  SHRI r7, r4, 3
+  XOR r12, r12, r7
+  SHRI r8, r4, 7
+  XOR r12, r12, r8
+  LLI r9, 1
+  AND r5, r12, r9
+  SHRI r11, r4, 1
+  SHLI r10, r5, 15
+  OR r4, r11, r10
+  SHRI r6, r4, 0
+  SHRI r7, r4, 2
+  XOR r6, r6, r7
+  SHRI r8, r4, 3
+  XOR r6, r6, r8
+  SHRI r9, r4, 11
+  XOR r6, r6, r9
+  LLI r12, 1
+  AND r5, r6, r12
+  SHRI r10, r4, 1
+  SHLI r11, r5, 15
+  OR r4, r10, r11
+  SHRI r7, r4, 0
+  SHRI r8, r4, 2
+  XOR r7, r7, r8
+  SHRI r9, r4, 3
+  XOR r7, r7, r9
+  SHRI r12, r4, 13
+  XOR r7, r7, r12
+  LLI r6, 1
+  AND r5, r7, r6
+  SHRI r11, r4, 1
+  SHLI r10, r5, 15
+  OR r4, r11, r10
+  ADDI r3, r3, -1
+  JMP WHILE95
+
+WHILE_END96:
+
+  ADDI r1, r0, 0
+  POP r14
+  JALR r0, r14, 0
+bd_read_u32:
+
+  PUSH r14
+  LB r2, r1, 0
+  LLI r4, 255
+  AND r2, r2, r4
+  LB r5, r1, 1
+  LLI r7, 255
+  AND r5, r5, r7
+  LB r8, r1, 2
+  LLI r10, 255
+  AND r8, r8, r10
+  LB r11, r1, 3
+  LLI r3, 255
+  AND r11, r11, r3
+  SHLI r2, r2, 24
+  SHLI r5, r5, 16
+  OR r2, r2, r5
+  SHLI r8, r8, 8
+  OR r2, r2, r8
+  OR r2, r2, r11
+  ADD r1, r2, r0
+  POP r14
+  JALR r0, r14, 0
+bd_write_u32:
+
+  PUSH r14
+  SHRI r4, r2, 24
+  LLI r5, 255
+  AND r4, r4, r5
+  SB r4, r1, 0
+  SHRI r7, r2, 16
+  LLI r8, 255
+  AND r7, r7, r8
+  SB r7, r1, 1
+  SHRI r10, r2, 8
+  LLI r11, 255
+  AND r10, r10, r11
+  SB r10, r1, 2
+  LLI r5, 255
+  AND r2, r2, r5
+  SB r2, r1, 3
+  ADDI r1, r0, 0
+  POP r14
+  JALR r0, r14, 0
+write_block:
+
+  PUSH r14
+  PUSH r2
+  PUSH r1
+  LLI r3, 1073741832
+  PUSH r3
+  ADDI r2, r1, 0
+  POP r1
+  JMP bd_write_u32
+
+  LLI r4, 1073741836
+  ADDI r1, r4, 0
+  JMP bd_write_u32
+
+  POP r1
+  POP r2
+  PUSH r1
+  LLI r5, 1073741840
+  PUSH r5
+  LLI r6, 1
+  ADDI r2, r6, 0
+  POP r1
+  JMP bd_write_u32
+
+  LLI r7, 1073741828
+  PUSH r7
+  LLI r8, 2
+  ADDI r2, r8, 0
+  POP r1
+  JMP bd_write_u32
+
+  POP r1
+WHILE97:
+
+  PUSH r9
+  LLI r10, 1073741828
+  ADDI r1, r10, 0
+  JMP bd_read_u32
+
+  POP r9
+  ADDI r9, r1, 0
+  LLI r11, 0
+  BNE r9, r11, CMP_TRUE99
+  LLI r9, 0
+  JMP CMP_END100
+
+CMP_TRUE99:
+
+  LLI r9, 1
+CMP_END100:
+
+  BEQ r9, r0, WHILE_END98
+  JMP WHILE97
+
+WHILE_END98:
+
+  LLI r12, 0
+  ADD r1, r12, r0
+  POP r14
+  JALR r0, r14, 0
+read_block:
+
+  PUSH r14
+  PUSH r2
+  PUSH r1
+  LLI r3, 1073741832
+  PUSH r3
+  ADDI r2, r1, 0
+  POP r1
+  JMP bd_write_u32
+
+  LLI r4, 1073741836
+  ADDI r1, r4, 0
+  JMP bd_write_u32
+
+  POP r1
+  POP r2
+  PUSH r1
+  LLI r5, 1073741840
+  PUSH r5
+  LLI r6, 1
+  ADDI r2, r6, 0
+  POP r1
+  JMP bd_write_u32
+
+  LLI r7, 1073741828
+  PUSH r7
+  LLI r8, 1
+  ADDI r2, r8, 0
+  POP r1
+  JMP bd_write_u32
+
+  POP r1
+WHILE101:
+
+  PUSH r9
+  LLI r10, 1073741828
+  ADDI r1, r10, 0
+  JMP bd_read_u32
+
+  POP r9
+  ADDI r9, r1, 0
+  LLI r11, 0
+  BNE r9, r11, CMP_TRUE103
+  LLI r9, 0
+  JMP CMP_END104
+
+CMP_TRUE103:
+
+  LLI r9, 1
+CMP_END104:
+
+  BEQ r9, r0, WHILE_END102
+  JMP WHILE101
+
+WHILE_END102:
+
+  LLI r12, 0
+  ADD r1, r12, r0
+  POP r14
+  JALR r0, r14, 0
+initialize_filesystem:
+
+  PUSH r14
+  LLI r2, superblock_buf105
+  LLI r3, 82
+  SB r3, r2, 0
+  LLI r5, 79
+  SB r5, r2, 1
+  LLI r7, 83
+  SB r7, r2, 2
+  LLI r9, 80
+  SB r9, r2, 3
+  LLI r11, 70
+  SB r11, r2, 4
+  LLI r4, 83
+  SB r4, r2, 5
+  LLI r6, 1
+  SB r6, r2, 6
+  LLI r8, 7
+WHILE106:
+
+  LLI r7, 512
+  BLT r8, r7, CMP_TRUE108
+  LLI r7, 0
+  JMP CMP_END109
+
+CMP_TRUE108:
+
+  LLI r7, 1
+CMP_END109:
+
+  BEQ r7, r0, WHILE_END107
+  LLI r10, 0
+  ADD r9, r2, r8
+  SB r10, r9, 0
+  ADDI r8, r8, 1
+  JMP WHILE106
+
+WHILE_END107:
+
+  PUSH r2
+  PUSH r1
+  LLI r12, 0
+  ADDI r1, r12, 0
+  JMP write_block
+
+  POP r1
+  POP r2
+  ADDI r1, r0, 0
+  POP r14
+  JALR r0, r14, 0
+  PUSH r14
+  LLI r2, superblock_buf110
+  PUSH r2
+  PUSH r1
+  LLI r3, 0
+  ADDI r1, r3, 0
+  JMP read_block
+
+  POP r1
+  POP r2
+  LB r4, r2, 0
+  LLI r5, 82
+  BNE r4, r5, CMP_TRUE113
+  LLI r4, 0
+  JMP CMP_END114
+
+CMP_TRUE113:
+
+  LLI r4, 1
+CMP_END114:
+
+  LB r6, r2, 1
+  LLI r7, 79
+  BNE r6, r7, CMP_TRUE115
+  LLI r6, 0
+  JMP CMP_END116
+
+CMP_TRUE115:
+
+  LLI r6, 1
+CMP_END116:
+
+  OR r4, r4, r6
+  BNE r4, r0, CMP_TRUE117
+  LLI r4, 0
+  JMP CMP_END118
+
+CMP_TRUE117:
+
+  LLI r4, 1
+CMP_END118:
+
+  LB r8, r2, 2
+  LLI r9, 83
+  BNE r8, r9, CMP_TRUE119
+  LLI r8, 0
+  JMP CMP_END120
+
+CMP_TRUE119:
+
+  LLI r8, 1
+CMP_END120:
+
+  OR r4, r4, r8
+  BNE r4, r0, CMP_TRUE121
+  LLI r4, 0
+  JMP CMP_END122
+
+CMP_TRUE121:
+
+  LLI r4, 1
+CMP_END122:
+
+  LB r10, r2, 3
+  LLI r11, 80
+  BNE r10, r11, CMP_TRUE123
+  LLI r10, 0
+  JMP CMP_END124
+
+CMP_TRUE123:
+
+  LLI r10, 1
+CMP_END124:
+
+  OR r4, r4, r10
+  BNE r4, r0, CMP_TRUE125
+  LLI r4, 0
+  JMP CMP_END126
+
+CMP_TRUE125:
+
+  LLI r4, 1
+CMP_END126:
+
+  LB r12, r2, 4
+  LLI r3, 70
+  BNE r12, r3, CMP_TRUE127
+  LLI r12, 0
+  JMP CMP_END128
+
+CMP_TRUE127:
+
+  LLI r12, 1
+CMP_END128:
+
+  OR r4, r4, r12
+  BNE r4, r0, CMP_TRUE129
+  LLI r4, 0
+  JMP CMP_END130
+
+CMP_TRUE129:
+
+  LLI r4, 1
+CMP_END130:
+
+  LB r5, r2, 5
+  LLI r7, 83
+  BNE r5, r7, CMP_TRUE131
+  LLI r5, 0
+  JMP CMP_END132
+
+CMP_TRUE131:
+
+  LLI r5, 1
+CMP_END132:
+
+  OR r4, r4, r5
+  BNE r4, r0, CMP_TRUE133
+  LLI r4, 0
+  JMP CMP_END134
+
+CMP_TRUE133:
+
+  LLI r4, 1
+CMP_END134:
+
+  BEQ r4, r0, ELSE111
+  PUSH r2
+  PUSH r1
+  JMP initialize_filesystem
+
+  POP r1
+  POP r2
+ELSE111:
+
+  ADDI r1, r0, 0
+  POP r14
+  JALR r0, r14, 0
+write_file:
+
+  PUSH r14
+  LLI r2, filename_buf135
+  LLI r3, 101
+  LLI r4, 0
+  ADD r5, r2, r4
+  SB r3, r5, 0
+  LLI r6, 120
+  LLI r7, 1
+  ADD r8, r2, r7
+  SB r6, r8, 0
+  LLI r9, 97
+  LLI r10, 2
+  ADD r11, r2, r10
+  SB r9, r11, 0
+  LLI r12, 109
+  LLI r5, 3
+  ADD r4, r2, r5
+  SB r12, r4, 0
+  LLI r3, 112
+  LLI r8, 4
+  ADD r7, r2, r8
+  SB r3, r7, 0
+  LLI r6, 108
+  LLI r11, 5
+  ADD r10, r2, r11
+  SB r6, r10, 0
+  LLI r9, 101
+  LLI r4, 6
+  ADD r5, r2, r4
+  SB r9, r5, 0
+  LLI r12, 46
+  LLI r7, 7
+  ADD r8, r2, r7
+  SB r12, r8, 0
+  LLI r3, 116
+  LLI r10, 8
+  ADD r11, r2, r10
+  SB r3, r11, 0
+  LLI r6, 120
+  LLI r5, 9
+  ADD r4, r2, r5
+  SB r6, r4, 0
+  LLI r9, 116
+  LLI r8, 10
+  ADD r7, r2, r8
+  SB r9, r7, 0
+  LLI r12, 0
+  LLI r11, 11
+  ADD r10, r2, r11
+  SB r12, r10, 0
+  LLI r3, data_buf136
+  LLI r4, 72
+  LLI r5, 0
+  ADD r6, r3, r5
+  SB r4, r6, 0
+  LLI r7, 101
+  LLI r8, 1
+  ADD r9, r3, r8
+  SB r7, r9, 0
+  LLI r10, 108
+  LLI r11, 2
+  ADD r12, r3, r11
+  SB r10, r12, 0
+  LLI r6, 108
+  LLI r5, 3
+  ADD r4, r3, r5
+  SB r6, r4, 0
+  LLI r9, 111
+  LLI r8, 4
+  ADD r7, r3, r8
+  SB r9, r7, 0
+  LLI r12, 44
+  LLI r11, 5
+  ADD r10, r3, r11
+  SB r12, r10, 0
+  LLI r4, 32
+  LLI r5, 6
+  ADD r6, r3, r5
+  SB r4, r6, 0
+  LLI r7, 82
+  LLI r8, 7
+  ADD r9, r3, r8
+  SB r7, r9, 0
+  LLI r10, 111
+  LLI r11, 8
+  ADD r12, r3, r11
+  SB r10, r12, 0
+  LLI r6, 115
+  LLI r5, 9
+  ADD r4, r3, r5
+  SB r6, r4, 0
+  LLI r9, 112
+  LLI r8, 10
+  ADD r7, r3, r8
+  SB r9, r7, 0
+  LLI r12, 79
+  LLI r11, 11
+  ADD r10, r3, r11
+  SB r12, r10, 0
+  LLI r4, 83
+  LLI r5, 12
+  ADD r6, r3, r5
+  SB r4, r6, 0
+  LLI r7, 32
+  LLI r8, 13
+  ADD r9, r3, r8
+  SB r7, r9, 0
+  LLI r10, 102
+  LLI r11, 14
+  ADD r12, r3, r11
+  SB r10, r12, 0
+  LLI r6, 105
+  LLI r5, 15
+  ADD r4, r3, r5
+  SB r6, r4, 0
+  LLI r9, 108
+  LLI r8, 16
+  ADD r7, r3, r8
+  SB r9, r7, 0
+  LLI r12, 101
+  LLI r11, 17
+  ADD r10, r3, r11
+  SB r12, r10, 0
+  LLI r4, 115
+  LLI r5, 18
+  ADD r6, r3, r5
+  SB r4, r6, 0
+  LLI r7, 121
+  LLI r8, 19
+  ADD r9, r3, r8
+  SB r7, r9, 0
+  LLI r10, 115
+  LLI r11, 20
+  ADD r12, r3, r11
+  SB r10, r12, 0
+  LLI r6, 116
+  LLI r5, 21
+  ADD r4, r3, r5
+  SB r6, r4, 0
+  LLI r9, 101
+  LLI r8, 22
+  ADD r7, r3, r8
+  SB r9, r7, 0
+  LLI r12, 109
+  LLI r11, 23
+  ADD r10, r3, r11
+  SB r12, r10, 0
+  LLI r4, 33
+  LLI r5, 24
+  ADD r6, r3, r5
+  SB r4, r6, 0
+  LLI r7, 0
+  LLI r8, 25
+  ADD r9, r3, r8
+  SB r7, r9, 0
+  LLI r10, 25
+  LLI r11, dir_entry_buf137
+  LLI r12, 0
+WHILE138:
+
+  LLI r6, 32
+  BLT r12, r6, CMP_TRUE140
+  LLI r6, 0
+  JMP CMP_END141
+
+CMP_TRUE140:
+
+  LLI r6, 1
+CMP_END141:
+
+  BEQ r6, r0, WHILE_END139
+  ADD r5, r2, r12
+  LB r5, r5, 0
+  ADD r4, r11, r12
+  SB r5, r4, 0
+  ADDI r12, r12, 1
+  JMP WHILE138
+
+WHILE_END139:
+
+  SHRI r9, r10, 24
+  LLI r8, 255
+  AND r9, r9, r8
+  SB r9, r11, 32
+  SHRI r6, r10, 16
+  LLI r4, 255
+  AND r6, r6, r4
+  SB r6, r11, 33
+  SHRI r2, r10, 8
+  LLI r12, 255
+  AND r2, r2, r12
+  SB r2, r11, 34
+  LLI r7, 255
+  AND r10, r10, r7
+  SB r10, r11, 35
+  LLI r4, 2
+  SHRI r5, r4, 24
+  LLI r6, 255
+  AND r5, r5, r6
+  SB r5, r11, 36
+  SHRI r8, r4, 16
+  LLI r2, 255
+  AND r8, r8, r2
+  SB r8, r11, 37
+  SHRI r7, r4, 8
+  LLI r9, 255
+  AND r7, r7, r9
+  SB r7, r11, 38
+  LLI r12, 255
+  AND r12, r4, r12
+  SB r12, r11, 39
+  PUSH r3
+  PUSH r4
+  PUSH r11
+  PUSH r1
+  LLI r2, 1
+  PUSH r2
+  ADDI r2, r11, 0
+  POP r1
+  JMP write_block
+
+  POP r1
+  POP r11
+  POP r4
+  POP r3
+  PUSH r3
+  PUSH r4
+  PUSH r1
+  PUSH r4
+  ADDI r2, r3, 0
+  POP r1
+  JMP write_block
+
+  POP r1
+  POP r4
+  POP r3
+  ADDI r1, r0, 0
+  POP r14
+  JALR r0, r14, 0
+read_file:
+
+  PUSH r14
+  LLI r2, dir_entry_buf142
+  PUSH r2
+  PUSH r1
+  LLI r3, 1
+  ADDI r1, r3, 0
+  JMP read_block
+
+  POP r1
+  POP r2
+  LLI r4, filename_buf143
+  LLI r5, 0
+WHILE144:
+
+  LLI r6, 32
+  BLT r5, r6, CMP_TRUE146
+  LLI r6, 0
+  JMP CMP_END147
+
+CMP_TRUE146:
+
+  LLI r6, 1
+CMP_END147:
+
+  BEQ r6, r0, WHILE_END145
+  ADD r7, r2, r5
+  LB r7, r7, 0
+  ADD r8, r4, r5
+  SB r7, r8, 0
+  ADDI r5, r5, 1
+  JMP WHILE144
+
+WHILE_END145:
+
+  LLI r9, 0
+  SB r9, r4, 32
+  LB r11, r2, 32
+  SHLI r11, r11, 24
+  LB r12, r2, 33
+  SHLI r12, r12, 16
+  OR r11, r11, r12
+  LB r3, r2, 34
+  SHLI r3, r3, 8
+  OR r11, r11, r3
+  LB r6, r2, 35
+  OR r11, r11, r6
+  LB r8, r2, 36
+  SHLI r8, r8, 24
+  LB r7, r2, 37
+  SHLI r7, r7, 16
+  OR r8, r8, r7
+  LB r5, r2, 38
+  SHLI r5, r5, 8
+  OR r8, r8, r5
+  LB r10, r2, 39
+  OR r8, r8, r10
+  LLI r9, data_buf148
+  PUSH r4
+  PUSH r8
+  PUSH r9
+  PUSH r1
+  PUSH r8
+  ADDI r2, r9, 0
+  POP r1
+  JMP read_block
+
+  POP r1
+  POP r9
+  POP r8
+  POP r4
+  PUSH r4
+  PUSH r9
+  PUSH r1
+  PUSH r4
+  LLI r12, 10
+  PUSH r12
+  LLI r3, 30
+  PUSH r3
+  LLI r6, 63
+  ADDI r4, r6, 0
+  POP r3
+  POP r2
+  POP r1
+  JMP draw_string_to_display
+
+  POP r1
+  POP r9
+  POP r4
+  PUSH r9
+  PUSH r1
+  PUSH r9
+  LLI r11, 10
+  PUSH r11
+  LLI r7, 50
+  PUSH r7
+  LLI r5, 63
+  ADDI r4, r5, 0
+  POP r3
+  POP r2
+  POP r1
+  JMP draw_string_to_display
+
+  POP r1
+  POP r9
+  ADDI r1, r0, 0
+  POP r14
+  JALR r0, r14, 0
+main:
+
+  PUSH r14
+  LLI r2, 0
+  LLI r3, 15
+  LLI r4, 25
+  ADD r5, r3, r4
+  ADD r2, r5, r0
+  LLI r6, 50
+  LLI r7, 0
+  ADD r8, r2, r6
+  ADD r7, r8, r0
+  PUSH r2
+  PUSH r6
+  PUSH r1
+  JMP initialize_filesystem
+
+  JMP write_file
+
+  POP r1
+  POP r6
+  POP r2
+  LLI r9, device_info_buf149
+  PUSH r2
+  PUSH r6
+  PUSH r9
+  PUSH r1
+  LLI r10, 4294967295
+  PUSH r10
+  ADDI r2, r9, 0
+  POP r1
+  JMP read_block
+
+  POP r1
+  POP r9
+  POP r6
+  POP r2
+  PUSH r2
+  PUSH r6
+  PUSH r9
+  PUSH r1
+  PUSH r9
+  LLI r11, 10
+  PUSH r11
+  LLI r12, 10
+  PUSH r12
+  LLI r5, 63
+  ADDI r4, r5, 0
+  POP r3
+  POP r2
+  POP r1
+  JMP draw_string_to_display
+
+  POP r1
+  POP r9
+  POP r6
+  POP r2
+  PUSH r2
+  PUSH r6
+  PUSH r1
+  JMP read_file
+
+  LLI r3, str_0
+  PUSH r3
+  LLI r4, 10
+  PUSH r4
+  LLI r8, 70
+  PUSH r8
+  LLI r7, 63
+  ADDI r4, r7, 0
+  POP r3
+  POP r2
+  POP r1
+  JMP draw_string_to_display
+
+  LLI r10, str_1
+  PUSH r10
+  LLI r9, 10
+  PUSH r9
+  LLI r11, 90
+  PUSH r11
+  LLI r12, 12
+  ADDI r4, r12, 0
+  POP r3
+  POP r2
+  POP r1
+  JMP draw_string_to_display
+
+  LLI r5, str_2
+  PUSH r5
+  LLI r3, 10
+  PUSH r3
+  LLI r4, 110
+  PUSH r4
+  LLI r8, 48
+  ADDI r4, r8, 0
+  POP r3
+  POP r2
+  POP r1
+  JMP draw_string_to_display
+
+  LLI r7, str_3
+  PUSH r7
+  LLI r10, 10
+  PUSH r10
+  LLI r9, 130
+  PUSH r9
+  LLI r11, 7
+  ADDI r4, r11, 0
+  POP r3
+  POP r2
+  POP r1
+  JMP draw_string_to_display
+
+  LLI r12, str_4
+  PUSH r12
+  LLI r5, 10
+  PUSH r5
+  LLI r3, 150
+  PUSH r3
+  LLI r4, 60
+  POP r3
+  POP r2
+  POP r1
+  JMP draw_string_to_display
+
+  JMP screen_test
+
+  POP r1
+  POP r6
+  POP r2
+font_address:
+
+.DATA 0
+
+.DATA 0
+
+.DATA 0
+
+.DATA 0
+
+.DATA 0
+
+.DATA 0
+
+.DATA 0
+
+.DATA 0
+
+.DATA 0
+
+.DATA 0
+
+.DATA 0
+
+.DATA 0
+
+.DATA 0
+
+.DATA 0
+
+.DATA 0
+
+.DATA 0
+
+.DATA 0
+
+.DATA 0
+
+.DATA 0
+
+.DATA 0
+
+.DATA 0
+
+.DATA 0
+
+.DATA 0
+
+.DATA 0
+
+.DATA 0
+
+.DATA 0
+
+.DATA 0
+
+.DATA 0
+
+.DATA 0
+
+.DATA 0
+
+.DATA 0
+
+.DATA 0
+
+.DATA 0
+
+.DATA 0
+
+.DATA 0
+
+.DATA 0
+
+.DATA 0
+
+.DATA 0
+
+.DATA 0
+
+.DATA 0
+
+.DATA 0
+
+.DATA 0
+
+.DATA 0
+
+.DATA 0
+
+.DATA 0
+
+.DATA 0
+
+.DATA 0
+
+.DATA 0
+
+.DATA 0
+
+.DATA 0
+
+.DATA 0
+
+.DATA 0
+
+.DATA 0
+
+.DATA 0
+
+.DATA 0
+
+.DATA 0
+
+.DATA 0
+
+.DATA 0
+
+.DATA 0
+
+.DATA 0
+
+.DATA 0
+
+.DATA 0
+
+.DATA 0
+
+.DATA 0
+
+.DATA 0
+
+.DATA 0
+
+.DATA 406600728
+
+.DATA 1572888
+
+.DATA 13878
+
+.DATA 0
+
+.DATA 914306614
+
+.DATA 3552895
+
+.DATA 503528972
+
+.DATA 794416
+
+.DATA 406020864
+
+.DATA 6514188
+
+.DATA 1847342620
+
+.DATA 7222075
+
+.DATA 198150
+
+.DATA 0
+
+.DATA 101059608
+
+.DATA 1575942
+
+.DATA 404229126
+
+.DATA 396312
+
+.DATA 4282148352
+
+.DATA 26172
+
+.DATA 1057754112
+
+.DATA 3084
+
+.DATA 0
+
+.DATA 101452800
+
+.DATA 1056964608
+
+.DATA 0
+
+.DATA 0
+
+.DATA 789504
+
+.DATA 202911840
+
+.DATA 66310
+
+.DATA 2071159614
+
+.DATA 4089711
+
+.DATA 202116620
+
+.DATA 4131852
+
+.DATA 472920862
+
+.DATA 4141830
+
+.DATA 472920862
+
+.DATA 1979184
+
+.DATA 859192376
+
+.DATA 7876735
+
+.DATA 807338815
+
+.DATA 1979184
+
+.DATA 520291868
+
+.DATA 1979187
+
+.DATA 405812031
+
+.DATA 789516
+
+.DATA 506671902
+
+.DATA 1979187
+
+.DATA 1043542814
+
+.DATA 923696
+
+.DATA 789504
+
+.DATA 789504
+
+.DATA 789504
+
+.DATA 101452800
+
+.DATA 50727960
+
+.DATA 1575942
+
+.DATA 4128768
+
+.DATA 16128
+
+.DATA 806882310
+
+.DATA 396312
+
+.DATA 405811998
+
+.DATA 786444
+
+.DATA 2071683902
+
+.DATA 1966971
+
+.DATA 858988044
+
+.DATA 3355455
+
+.DATA 1046898239
+
+.DATA 4154982
+
+.DATA 50554428
+
+.DATA 3958275
+
+.DATA 1717974559
+
+.DATA 2045542
+
+.DATA 504776319
+
+.DATA 8341014
+
+.DATA 504776319
+
+.DATA 984598
+
+.DATA 50554428
+
+.DATA 8152691
+
+.DATA 1060320051
+
+.DATA 3355443
+
+.DATA 202116126
+
+.DATA 1969164
+
+.DATA 808464504
+
+.DATA 1979187
+
+.DATA 506881639
+
+.DATA 6776374
+
+.DATA 101058063
+
+.DATA 8349254
+
+.DATA 2139060067
+
+.DATA 6513515
+
+.DATA 2070898531
+
+.DATA 6513523
+
+.DATA 1667446300
+
+.DATA 1848931
+
+.DATA 1046898239
+
+.DATA 984582
+
+.DATA 858993438
+
+.DATA 3677755
+
+.DATA 1046898239
+
+.DATA 6776374
+
+.DATA 235352862
+
+.DATA 1979192
+
+.DATA 202124607
+
+.DATA 1969164
+
+.DATA 858993459
+
+.DATA 4141875
+
+.DATA 858993459
+
+.DATA 794163
+
+.DATA 1801675619
+
+.DATA 6518655
+
+.DATA 473326435
+
+.DATA 6501916
+
+.DATA 506671923
+
+.DATA 1969164
+
+.DATA 405889919
+
+.DATA 8349260
+
+.DATA 101058078
+
+.DATA 1967622
+
+.DATA 403441155
+
+.DATA 4218928
+
+.DATA 404232222
+
+.DATA 1972248
+
+.DATA 1664490504
+
+.DATA 0
+
+.DATA 0
+
+.DATA 4278190080
+
+.DATA 1575948
+
+.DATA 0
+
+.DATA 807272448
+
+.DATA 7222078
+
+.DATA 1040582151
+
+.DATA 3892838
+
+.DATA 857604096
+
+.DATA 1979139
+
+.DATA 1043345464
+
+.DATA 7222067
+
+.DATA 857604096
+
+.DATA 1966911
+
+.DATA 252065308
+
+.DATA 984582
+
+.DATA 862846976
+
+.DATA 523255347
+
+.DATA 1849034247
+
+.DATA 6776422
+
+.DATA 202244108
+
+.DATA 1969164
+
+.DATA 808452144
+
+.DATA 506671920
+
+.DATA 912655879
+
+.DATA 6764062
+
+.DATA 202116110
+
+.DATA 1969164
+
+.DATA 2134048768
+
+.DATA 6515583
+
+.DATA 857669632
+
+.DATA 3355443
+
+.DATA 857604096
+
+.DATA 1979187
+
+.DATA 1715142656
+
+.DATA 252067430
+
+.DATA 862846976
+
+.DATA 2016427571
+
+.DATA 1849360384
+
+.DATA 984678
+
+.DATA 54394880
+
+.DATA 2043934
+
+.DATA 205392904
+
+.DATA 1584140
+
+.DATA 858980352
+
+.DATA 7222067
+
+.DATA 858980352
+
+.DATA 794163
+
+.DATA 1801650176
+
+.DATA 3571583
+
+.DATA 912457728
+
+.DATA 6501916
+
+.DATA 858980352
+
+.DATA 523255347
+
+.DATA 423559168
+
+.DATA 4138508
+
+.DATA 118230072
+
+.DATA 3673100
+
+.DATA 1579032
+
+.DATA 1579032
+
+.DATA 940313607
+
+.DATA 461836
+
+.DATA 15214
+
+.DATA 0
+
+.DATA 0
+
+.DATA 0
+
+str_0:
+
+.DATA 0x48 0x65 0x6C 0x6C 0x6F 0x2C 0x20 0x52 0x6F 0x73 0x70 0x4F 0x53 0x21 0x00
+
+str_1:
+
+.DATA 0x47 0x72 0x65 0x65 0x6E 0x20 0x52 0x6F 0x73 0x70 0x4F 0x53 0x00
+
+str_2:
+
+.DATA 0x52 0x65 0x64 0x20 0x52 0x6F 0x73 0x70 0x4F 0x53 0x00
+
+str_3:
+
+.DATA 0x42 0x6C 0x75 0x65 0x20 0x52 0x6F 0x73 0x70 0x4F 0x53 0x00
+
+str_4:
+
+.DATA 0x59 0x65 0x6C 0x6C 0x6F 0x77 0x20 0x52 0x6F 0x73 0x70 0x4F 0x53 0x00
+
+superblock_buf105:
+
+.SPACE 512
+
+superblock_buf110:
+
+.SPACE 512
+
+filename_buf135:
+
+.SPACE 32
+
+data_buf136:
+
+.SPACE 512
+
+dir_entry_buf137:
+
+.SPACE 64
+
+dir_entry_buf142:
+
+.SPACE 64
+
+filename_buf143:
+
+.SPACE 33
+
+data_buf148:
+
+.SPACE 512
+
+device_info_buf149:
+
+.SPACE 512

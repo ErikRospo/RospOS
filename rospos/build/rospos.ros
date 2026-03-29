@@ -491,83 +491,59 @@ WHILE95:
   BEQ r3, r0, WHILE_END96
   SB r4, r2, 0    // intrinsic __sb
   ADDI r2, r2, 1    // assign addr (addi fast path)
-  LLI r5, 0    // load immediate 0
-  SHR r5, r4, r5    // binop >>
-  LLI r6, 2    // load immediate 2
-  SHR r6, r4, r6    // binop >>
+  SHRI r5, r4, 0    // binop >> (imm)
+  SHRI r6, r4, 2    // binop >> (imm)
   XOR r5, r5, r6    // binop ^
-  LLI r7, 3    // load immediate 3
-  SHR r7, r4, r7    // binop >>
+  SHRI r7, r4, 3    // binop >> (imm)
   XOR r5, r5, r7    // binop ^
-  LLI r8, 5    // load immediate 5
-  SHR r8, r4, r8    // binop >>
+  SHRI r8, r4, 5    // binop >> (imm)
   XOR r5, r5, r8    // binop ^
   LLI r9, 1    // load immediate 1
   AND r5, r5, r9    // binop &
-  LLI r10, 1    // load immediate 1
-  SHR r10, r4, r10    // binop >>
-  LLI r11, 15    // load immediate 15
-  SHL r11, r5, r11    // binop <<
+  SHRI r10, r4, 1    // binop >> (imm)
+  SHLI r11, r5, 15    // binop << (imm)
   OR r10, r10, r11    // binop |
   ADDI r4, r10, 0    // assign lfsr
-  LLI r12, 0    // load immediate 0
-  SHR r12, r4, r12    // binop >>
-  LLI r6, 2    // load immediate 2
-  SHR r6, r4, r6    // binop >>
+  SHRI r12, r4, 0    // binop >> (imm)
+  SHRI r6, r4, 2    // binop >> (imm)
   XOR r12, r12, r6    // binop ^
-  LLI r7, 3    // load immediate 3
-  SHR r7, r4, r7    // binop >>
+  SHRI r7, r4, 3    // binop >> (imm)
   XOR r12, r12, r7    // binop ^
-  LLI r8, 7    // load immediate 7
-  SHR r8, r4, r8    // binop >>
+  SHRI r8, r4, 7    // binop >> (imm)
   XOR r12, r12, r8    // binop ^
   LLI r9, 1    // load immediate 1
   AND r12, r12, r9    // binop &
   ADDI r5, r12, 0    // assign bit
-  LLI r11, 1    // load immediate 1
-  SHR r11, r4, r11    // binop >>
-  LLI r10, 15    // load immediate 15
-  SHL r10, r5, r10    // binop <<
+  SHRI r11, r4, 1    // binop >> (imm)
+  SHLI r10, r5, 15    // binop << (imm)
   OR r11, r11, r10    // binop |
   ADDI r4, r11, 0    // assign lfsr
-  LLI r6, 0    // load immediate 0
-  SHR r6, r4, r6    // binop >>
-  LLI r7, 2    // load immediate 2
-  SHR r7, r4, r7    // binop >>
+  SHRI r6, r4, 0    // binop >> (imm)
+  SHRI r7, r4, 2    // binop >> (imm)
   XOR r6, r6, r7    // binop ^
-  LLI r8, 3    // load immediate 3
-  SHR r8, r4, r8    // binop >>
+  SHRI r8, r4, 3    // binop >> (imm)
   XOR r6, r6, r8    // binop ^
-  LLI r9, 11    // load immediate 11
-  SHR r9, r4, r9    // binop >>
+  SHRI r9, r4, 11    // binop >> (imm)
   XOR r6, r6, r9    // binop ^
   LLI r12, 1    // load immediate 1
   AND r6, r6, r12    // binop &
   ADDI r5, r6, 0    // assign bit
-  LLI r10, 1    // load immediate 1
-  SHR r10, r4, r10    // binop >>
-  LLI r11, 15    // load immediate 15
-  SHL r11, r5, r11    // binop <<
+  SHRI r10, r4, 1    // binop >> (imm)
+  SHLI r11, r5, 15    // binop << (imm)
   OR r10, r10, r11    // binop |
   ADDI r4, r10, 0    // assign lfsr
-  LLI r7, 0    // load immediate 0
-  SHR r7, r4, r7    // binop >>
-  LLI r8, 2    // load immediate 2
-  SHR r8, r4, r8    // binop >>
+  SHRI r7, r4, 0    // binop >> (imm)
+  SHRI r8, r4, 2    // binop >> (imm)
   XOR r7, r7, r8    // binop ^
-  LLI r9, 3    // load immediate 3
-  SHR r9, r4, r9    // binop >>
+  SHRI r9, r4, 3    // binop >> (imm)
   XOR r7, r7, r9    // binop ^
-  LLI r12, 13    // load immediate 13
-  SHR r12, r4, r12    // binop >>
+  SHRI r12, r4, 13    // binop >> (imm)
   XOR r7, r7, r12    // binop ^
   LLI r6, 1    // load immediate 1
   AND r7, r7, r6    // binop &
   ADDI r5, r7, 0    // assign bit
-  LLI r11, 1    // load immediate 1
-  SHR r11, r4, r11    // binop >>
-  LLI r10, 15    // load immediate 15
-  SHL r10, r5, r10    // binop <<
+  SHRI r11, r4, 1    // binop >> (imm)
+  SHLI r10, r5, 15    // binop << (imm)
   OR r11, r11, r10    // binop |
   ADDI r4, r11, 0    // assign lfsr
   ADDI r3, r3, -1    // assign remaining (addi fast path)
@@ -604,14 +580,11 @@ WHILE_END96:
   // call expr __lb -> return in r11
   LLI r3, 255    // load immediate 255
   AND r11, r11, r3    // binop &
-  LLI r4, 24    // load immediate 24
-  SHL r2, r2, r4    // binop <<
-  LLI r6, 16    // load immediate 16
-  SHL r5, r5, r6    // binop <<
+  SHLI r2, r2, 24    // binop << (imm)
+  SHLI r5, r5, 16    // binop << (imm)
   OR r5, r2, r5    // binop |
   ADDI r2, r5, 0    // assign value
-  LLI r7, 8    // load immediate 8
-  SHL r8, r8, r7    // binop <<
+  SHLI r8, r8, 8    // binop << (imm)
   OR r8, r2, r8    // binop |
   ADDI r2, r8, 0    // assign value
   OR r11, r2, r11    // binop |
@@ -624,22 +597,19 @@ WHILE_END96:
   PUSH r14
   LLI r3, 0    // load immediate 0
   ADD r3, r1, r3    // binop +
-  LLI r4, 24    // load immediate 24
-  SHR r4, r2, r4    // binop >>
+  SHRI r4, r2, 24    // binop >> (imm)
   LLI r5, 255    // load immediate 255
   AND r4, r4, r5    // binop &
   SB r4, r3, 0    // intrinsic __sb
   LLI r6, 1    // load immediate 1
   ADD r6, r1, r6    // binop +
-  LLI r7, 16    // load immediate 16
-  SHR r7, r2, r7    // binop >>
+  SHRI r7, r2, 16    // binop >> (imm)
   LLI r8, 255    // load immediate 255
   AND r7, r7, r8    // binop &
   SB r7, r6, 0    // intrinsic __sb
   LLI r9, 2    // load immediate 2
   ADD r9, r1, r9    // binop +
-  LLI r10, 8    // load immediate 8
-  SHR r10, r2, r10    // binop >>
+  SHRI r10, r2, 8    // binop >> (imm)
   LLI r11, 255    // load immediate 255
   AND r10, r10, r11    // binop &
   SB r10, r9, 0    // intrinsic __sb
@@ -1166,22 +1136,19 @@ CMP_END141:
   ADDI r12, r12, 1    // assign i (addi fast path)
   JMP WHILE138
 WHILE_END139:
-  LLI r9, 24    // load immediate 24
-  SHR r9, r10, r9    // binop >>
+  SHRI r9, r10, 24    // binop >> (imm)
   LLI r8, 255    // load immediate 255
   AND r9, r9, r8    // binop &
   LLI r7, 32    // load immediate 32
   ADD r7, r11, r7    // binop +
   SB r9, r7, 0    // store 
-  LLI r6, 16    // load immediate 16
-  SHR r6, r10, r6    // binop >>
+  SHRI r6, r10, 16    // binop >> (imm)
   LLI r4, 255    // load immediate 255
   AND r6, r6, r4    // binop &
   LLI r5, 33    // load immediate 33
   ADD r5, r11, r5    // binop +
   SB r6, r5, 0    // store 
-  LLI r2, 8    // load immediate 8
-  SHR r2, r10, r2    // binop >>
+  SHRI r2, r10, 8    // binop >> (imm)
   LLI r12, 255    // load immediate 255
   AND r2, r2, r12    // binop &
   LLI r8, 34    // load immediate 34
@@ -1193,22 +1160,19 @@ WHILE_END139:
   ADD r9, r11, r9    // binop +
   SB r10, r9, 0    // store 
   LLI r4, 2    // init data_block_index
-  LLI r5, 24    // load immediate 24
-  SHR r5, r4, r5    // binop >>
+  SHRI r5, r4, 24    // binop >> (imm)
   LLI r6, 255    // load immediate 255
   AND r5, r5, r6    // binop &
   LLI r12, 36    // load immediate 36
   ADD r12, r11, r12    // binop +
   SB r5, r12, 0    // store 
-  LLI r8, 16    // load immediate 16
-  SHR r8, r4, r8    // binop >>
+  SHRI r8, r4, 16    // binop >> (imm)
   LLI r2, 255    // load immediate 255
   AND r8, r8, r2    // binop &
   LLI r10, 37    // load immediate 37
   ADD r10, r11, r10    // binop +
   SB r8, r10, 0    // store 
-  LLI r7, 8    // load immediate 8
-  SHR r7, r4, r7    // binop >>
+  SHRI r7, r4, 8    // binop >> (imm)
   LLI r9, 255    // load immediate 255
   AND r7, r7, r9    // binop &
   LLI r6, 38    // load immediate 38
@@ -1293,70 +1257,64 @@ WHILE_END145:
   LLI r11, 32    // load immediate 32
   ADD r11, r2, r11    // binop +
   LB r11, r11, 0    // deref
-  LLI r12, 24    // load immediate 24
-  SHL r11, r11, r12    // binop <<
-  LLI r3, 33    // load immediate 33
-  ADD r3, r2, r3    // binop +
-  LB r3, r3, 0    // deref
-  LLI r6, 16    // load immediate 16
-  SHL r3, r3, r6    // binop <<
-  OR r11, r11, r3    // binop |
-  LLI r8, 34    // load immediate 34
-  ADD r8, r2, r8    // binop +
-  LB r8, r8, 0    // deref
-  LLI r7, 8    // load immediate 8
-  SHL r8, r8, r7    // binop <<
-  OR r11, r11, r8    // binop |
-  LLI r5, 35    // load immediate 35
-  ADD r5, r2, r5    // binop +
-  LB r5, r5, 0    // deref
-  OR r11, r11, r5    // binop |
-  LLI r10, 36    // load immediate 36
-  ADD r10, r2, r10    // binop +
-  LB r10, r10, 0    // deref
-  LLI r9, 24    // load immediate 24
-  SHL r10, r10, r9    // binop <<
-  LLI r12, 37    // load immediate 37
+  SHLI r11, r11, 24    // binop << (imm)
+  LLI r12, 33    // load immediate 33
   ADD r12, r2, r12    // binop +
   LB r12, r12, 0    // deref
-  LLI r6, 16    // load immediate 16
-  SHL r12, r12, r6    // binop <<
-  OR r10, r10, r12    // binop |
-  LLI r3, 38    // load immediate 38
+  SHLI r12, r12, 16    // binop << (imm)
+  OR r11, r11, r12    // binop |
+  LLI r3, 34    // load immediate 34
   ADD r3, r2, r3    // binop +
   LB r3, r3, 0    // deref
-  LLI r7, 8    // load immediate 8
-  SHL r3, r3, r7    // binop <<
-  OR r10, r10, r3    // binop |
-  LLI r8, 39    // load immediate 39
+  SHLI r3, r3, 8    // binop << (imm)
+  OR r11, r11, r3    // binop |
+  LLI r6, 35    // load immediate 35
+  ADD r6, r2, r6    // binop +
+  LB r6, r6, 0    // deref
+  OR r11, r11, r6    // binop |
+  LLI r8, 36    // load immediate 36
   ADD r8, r2, r8    // binop +
   LB r8, r8, 0    // deref
-  OR r10, r10, r8    // binop |
-  LLI r5, data_buf148    // init data (buffer addr)
+  SHLI r8, r8, 24    // binop << (imm)
+  LLI r7, 37    // load immediate 37
+  ADD r7, r2, r7    // binop +
+  LB r7, r7, 0    // deref
+  SHLI r7, r7, 16    // binop << (imm)
+  OR r8, r8, r7    // binop |
+  LLI r5, 38    // load immediate 38
+  ADD r5, r2, r5    // binop +
+  LB r5, r5, 0    // deref
+  SHLI r5, r5, 8    // binop << (imm)
+  OR r8, r8, r5    // binop |
+  LLI r10, 39    // load immediate 39
+  ADD r10, r2, r10    // binop +
+  LB r10, r10, 0    // deref
+  OR r8, r8, r10    // binop |
+  LLI r9, data_buf148    // init data (buffer addr)
   // emit call to read_block with args [{'type': 'var', 'name': 'data_block_index'}, {'type': 'var', 'name': 'data'}]
   PUSH r4    // save caller temp
-  PUSH r5    // save caller temp
-  PUSH r10    // save caller temp
+  PUSH r8    // save caller temp
+  PUSH r9    // save caller temp
   PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  PUSH r10    // stage reg arg 0
-  PUSH r5    // stage reg arg 1
+  PUSH r8    // stage reg arg 0
+  PUSH r9    // stage reg arg 1
   POP r2    // load reg arg 1
   POP r1    // load reg arg 0
   CALL read_block
   // call return value in r1
   POP r1  
-  POP r10    // restore caller temp
-  POP r5    // restore caller temp
+  POP r9    // restore caller temp
+  POP r8    // restore caller temp
   POP r4    // restore caller temp
   // emit call to draw_string_to_display with args [{'type': 'var', 'name': 'filename'}, {'type': 'const', 'value': 10}, {'type': 'const', 'value': 30}, {'type': 'const', 'value': 63}]
   PUSH r4    // save caller temp
-  PUSH r5    // save caller temp
+  PUSH r9    // save caller temp
   PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
   PUSH r4    // stage reg arg 0
-  LLI r11, 10    // load immediate 10
-  PUSH r11    // stage reg arg 1
-  LLI r9, 30    // load immediate 30
-  PUSH r9    // stage reg arg 2
+  LLI r12, 10    // load immediate 10
+  PUSH r12    // stage reg arg 1
+  LLI r3, 30    // load immediate 30
+  PUSH r3    // stage reg arg 2
   LLI r6, 63    // load immediate 63
   PUSH r6    // stage reg arg 3
   POP r4    // load reg arg 3
@@ -1366,18 +1324,18 @@ WHILE_END145:
   CALL draw_string_to_display
   // call return value in r1
   POP r1  
-  POP r5    // restore caller temp
+  POP r9    // restore caller temp
   POP r4    // restore caller temp
   // emit call to draw_string_to_display with args [{'type': 'var', 'name': 'data'}, {'type': 'const', 'value': 10}, {'type': 'const', 'value': 50}, {'type': 'const', 'value': 63}]
-  PUSH r5    // save caller temp
+  PUSH r9    // save caller temp
   PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  PUSH r5    // stage reg arg 0
-  LLI r12, 10    // load immediate 10
-  PUSH r12    // stage reg arg 1
+  PUSH r9    // stage reg arg 0
+  LLI r11, 10    // load immediate 10
+  PUSH r11    // stage reg arg 1
   LLI r7, 50    // load immediate 50
   PUSH r7    // stage reg arg 2
-  LLI r3, 63    // load immediate 63
-  PUSH r3    // stage reg arg 3
+  LLI r5, 63    // load immediate 63
+  PUSH r5    // stage reg arg 3
   POP r4    // load reg arg 3
   POP r3    // load reg arg 2
   POP r2    // load reg arg 1
@@ -1385,7 +1343,7 @@ WHILE_END145:
   CALL draw_string_to_display
   // call return value in r1
   POP r1  
-  POP r5    // restore caller temp
+  POP r9    // restore caller temp
   // epilogue and return
   ADDI r1, r0, 0  // ensure r1=0
   POP r14

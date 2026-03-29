@@ -198,6 +198,29 @@ def _emit_binop(emitter, expr: Dict[str, Any], out) -> str:
     left = expr.get("left")
     right = expr.get("right")
 
+    # Fast path for immediate shifts to avoid materializing RHS constants.
+    if (
+        op in ("lshift", "rshift")
+        and isinstance(right, dict)
+        and right.get("type") == "const"
+    ):
+        rl = emitter.emit_expr(left, out)
+        if not rl:
+            out.write(f"  // ERROR: failed to emit left operand for binop {op}\n")
+            return ""
+
+        rd = (
+            rl
+            if rl in abi.TEMP_REGS and not emitter.is_var_reg(rl)
+            else emitter.alloc_reg()
+        )
+        imm = int(right.get("value", 0))
+        instr = "SHLI" if op == "lshift" else "SHRI"
+        out.write(f"  {instr} {rd}, {rl}, {imm}    // binop {'<<' if op == 'lshift' else '>>'} (imm)\n")
+        if rd != rl:
+            emitter.release_expr_reg(rl)
+        return rd
+
     # Protect variable registers used by the opposite operand while evaluating
     # each side. This prevents spill fallback from clobbering not-yet-evaluated
     # operand values under heavy register pressure.
