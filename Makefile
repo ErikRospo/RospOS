@@ -33,7 +33,7 @@ rospos/build/rospos.ros: rospos/main.rosc $(ROSPCC_DEP) $(ROSPOS_DEP) | $(DIR_RO
 	$(PY) $(ROSPCC_PARSER) --input rospos/main.rosc --output $@ 1>&2
 
 rospos/build/rospos.rosp: rospos/build/rospos.ros $(ROSPOAS_DEP) | $(DIR_ROSPOS_BUILD)
-	$(PY) rospoas/compile.py  $(ROSPOAS_ARGS) --debug-all --verbose --input $< --output $@ 1>&2
+	$(PY) rospoas/compile.py $(ROSPOAS_ARGS) --debug-all $(if $(VERBOSE),--verbose,) --input $< --output $@ 1>&2
 rospos/build/rospos_debc.rosp: rospos/build/rospos.ros $(ROSPOAS_DEP) | $(DIR_ROSPOS_BUILD)
 	$(PY) rospoas/compile.py $(ROSPOAS_ARGS) --compress-debug --input $< --output $@ 1>&2
 rospos/build/rospos_binc.rosp: rospos/build/rospos.ros $(ROSPOAS_DEP) | $(DIR_ROSPOS_BUILD)
