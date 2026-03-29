@@ -423,6 +423,7 @@ std::array<uint8_t, kBlockSize> read_block(uint32_t blockId)
         for (size_t i = 0; tag[i] != '\0' && i < block.size(); ++i) {
             block[i] = static_cast<uint8_t>(tag[i]);
         }
+        block[block.size() - 1] = 0; // Ensure null-termination
         const uint32_t persisted = g_state.persistedBlockCount;
         block[32] = static_cast<uint8_t>(persisted & 0xFFU);
         block[33] = static_cast<uint8_t>((persisted >> 8U) & 0xFFU);

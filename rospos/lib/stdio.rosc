@@ -1,4 +1,4 @@
-void print_string(char *str)
+inline void print_string(char *str)
 {
     int tty_addr = 0x10000000;
     while (*str)
@@ -7,7 +7,7 @@ void print_string(char *str)
         str++;
     }
 }
-void print_char(char c)
+inline void print_char(char c)
 {
     int tty_addr = 0x10000000;
     __sb(tty_addr, c);
@@ -38,7 +38,7 @@ void printi(int num)
     print_string(buffer);
 }
 
-char read_char()
+inline char read_char()
 {
     int tty_addr = 0x10000000;
     return __lb(tty_addr);

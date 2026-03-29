@@ -1,6 +1,7 @@
 translation_unit
   external_decl
     function_def
+      inline
       type_specifier
         void
       declarator	print_string
@@ -41,6 +42,7 @@ translation_unit
                   1
   external_decl
     function_def
+      inline
       type_specifier
         void
       declarator	print_char
@@ -202,6 +204,7 @@ translation_unit
               arg_list	buffer
   external_decl
     function_def
+      inline
       type_specifier
         char
       declarator	read_char
@@ -1109,54 +1112,569 @@ translation_unit
                   minus
                   1
   external_decl
-    struct_decl
-      struct_member
-        type_specifier
-          int
-        init_declarator_list
-          init_declarator
-            declarator	x
-      struct_member
-        type_specifier
-          int
-        init_declarator_list
-          init_declarator
-            declarator	y
-      Point
-  external_decl
-    struct_decl
-      struct_member
-        type_specifier
-          int
-        init_declarator_list
-          init_declarator
-            declarator	width
-      struct_member
-        type_specifier
-          int
-        init_declarator_list
-          init_declarator
-            declarator	height
-      Size
+    function_def
+      type_specifier
+        void
+      declarator	write_block
+      param_list
+        param
+          type_specifier
+            int
+          declarator	blockID
+        param
+          type_specifier
+            char
+            pointer
+          declarator	data
+      compound_stmt
+        expr_stmt
+          postfix
+            __sb
+            call_suffix
+              arg_list
+                0x40000008
+                blockID
+        expr_stmt
+          postfix
+            __sb
+            call_suffix
+              arg_list
+                0x4000000C
+                cast
+                  type_specifier
+                    int
+                  data
+        expr_stmt
+          postfix
+            __sb
+            call_suffix
+              arg_list
+                0x40000004
+                1
+        while_stmt
+          equality
+            postfix
+              __lb
+              call_suffix
+                arg_list	0x40000004
+            neq
+            0
+          compound_stmt
+        return_stmt	0
   external_decl
     function_def
       type_specifier
-        int
-      declarator	add_coords
+        void
+      declarator	read_block
       param_list
         param
-          type_specifier	Point
-          declarator	p
+          type_specifier
+            int
+          declarator	blockID
+        param
+          type_specifier
+            char
+            pointer
+          declarator	buffer
       compound_stmt
-        return_stmt
-          additive
+        expr_stmt
+          postfix
+            __sb
+            call_suffix
+              arg_list
+                0x40000008
+                blockID
+        expr_stmt
+          postfix
+            __sb
+            call_suffix
+              arg_list
+                0x4000000C
+                cast
+                  type_specifier
+                    int
+                  buffer
+        expr_stmt
+          postfix
+            __sb
+            call_suffix
+              arg_list
+                0x40000004
+                2
+        while_stmt
+          equality
             postfix
-              p
-              member_access	x
-            plus
+              __lb
+              call_suffix
+                arg_list	0x40000004
+            neq
+            0
+          compound_stmt
+        return_stmt	0
+  external_decl
+    function_def
+      type_specifier
+        void
+      declarator	initialize_filesystem
+      compound_stmt
+        declaration
+          type_specifier
+            char
+          init_declarator_list
+            init_declarator
+              declarator
+                superblock
+                array	512
+        expr_stmt
+          assignment
             postfix
-              p
-              member_access	y
+              superblock
+              array_index	0
+            "R"
+        expr_stmt
+          assignment
+            postfix
+              superblock
+              array_index	1
+            "O"
+        expr_stmt
+          assignment
+            postfix
+              superblock
+              array_index	2
+            "S"
+        expr_stmt
+          assignment
+            postfix
+              superblock
+              array_index	3
+            "P"
+        expr_stmt
+          assignment
+            postfix
+              superblock
+              array_index	4
+            "F"
+        expr_stmt
+          assignment
+            postfix
+              superblock
+              array_index	5
+            "S"
+        expr_stmt
+          assignment
+            postfix
+              superblock
+              array_index	6
+            1
+        for_stmt
+          declaration
+            type_specifier
+              int
+            init_declarator_list
+              init_declarator
+                declarator	i
+                7
+          relational
+            i
+            lt
+            512
+          postfix
+            i
+            post_inc
+          compound_stmt
+            expr_stmt
+              assignment
+                postfix
+                  superblock
+                  array_index	i
+                0
+        expr_stmt
+        expr_stmt
+          postfix
+            write_block
+            call_suffix
+              arg_list
+                0
+                superblock
+  external_decl
+    function_def
+      type_specifier
+        void
+      declarator	ensure_filesystem_initialized
+      compound_stmt
+        declaration
+          type_specifier
+            char
+          init_declarator_list
+            init_declarator
+              declarator
+                superblock
+                array	512
+        expr_stmt
+          postfix
+            read_block
+            call_suffix
+              arg_list
+                0
+                superblock
+        if_stmt
+          logic_or
+            equality
+              postfix
+                superblock
+                array_index	0
+              neq
+              "R"
+            equality
+              postfix
+                superblock
+                array_index	1
+              neq
+              "O"
+            equality
+              postfix
+                superblock
+                array_index	2
+              neq
+              "S"
+            equality
+              postfix
+                superblock
+                array_index	3
+              neq
+              "P"
+            equality
+              postfix
+                superblock
+                array_index	4
+              neq
+              "F"
+            equality
+              postfix
+                superblock
+                array_index	5
+              neq
+              "S"
+          compound_stmt
+            expr_stmt
+              postfix
+                initialize_filesystem
+                call_suffix
+  external_decl
+    function_def
+      type_specifier
+        void
+      declarator	write_file
+      compound_stmt
+        declaration
+          type_specifier
+            char
+          init_declarator_list
+            init_declarator
+              declarator
+                filename
+                array	32
+              "example.txt"
+        declaration
+          type_specifier
+            char
+          init_declarator_list
+            init_declarator
+              declarator
+                data
+                array	512
+              "Hello, RospOS filesystem!"
+        declaration
+          type_specifier
+            int
+          init_declarator_list
+            init_declarator
+              declarator	file_size
+              25
+        declaration
+          type_specifier
+            char
+          init_declarator_list
+            init_declarator
+              declarator
+                dir_entry
+                array	64
+        for_stmt
+          declaration
+            type_specifier
+              int
+            init_declarator_list
+              init_declarator
+                declarator	i
+                0
+          relational
+            i
+            lt
+            32
+          postfix
+            i
+            post_inc
+          compound_stmt
+            expr_stmt
+              assignment
+                postfix
+                  dir_entry
+                  array_index	i
+                postfix
+                  filename
+                  array_index	i
+        expr_stmt
+          assignment
+            postfix
+              dir_entry
+              array_index	32
+            bit_and
+              shift
+                file_size
+                rshift
+                24
+              0xFF
+        expr_stmt
+          assignment
+            postfix
+              dir_entry
+              array_index	33
+            bit_and
+              shift
+                file_size
+                rshift
+                16
+              0xFF
+        expr_stmt
+          assignment
+            postfix
+              dir_entry
+              array_index	34
+            bit_and
+              shift
+                file_size
+                rshift
+                8
+              0xFF
+        expr_stmt
+          assignment
+            postfix
+              dir_entry
+              array_index	35
+            bit_and
+              file_size
+              0xFF
+        declaration
+          type_specifier
+            int
+          init_declarator_list
+            init_declarator
+              declarator	data_block_index
+              2
+        expr_stmt
+          assignment
+            postfix
+              dir_entry
+              array_index	36
+            bit_and
+              shift
+                data_block_index
+                rshift
+                24
+              0xFF
+        expr_stmt
+          assignment
+            postfix
+              dir_entry
+              array_index	37
+            bit_and
+              shift
+                data_block_index
+                rshift
+                16
+              0xFF
+        expr_stmt
+          assignment
+            postfix
+              dir_entry
+              array_index	38
+            bit_and
+              shift
+                data_block_index
+                rshift
+                8
+              0xFF
+        expr_stmt
+          assignment
+            postfix
+              dir_entry
+              array_index	39
+            bit_and
+              data_block_index
+              0xFF
+        expr_stmt
+          postfix
+            write_block
+            call_suffix
+              arg_list
+                1
+                dir_entry
+        expr_stmt
+          postfix
+            write_block
+            call_suffix
+              arg_list
+                data_block_index
+                data
+  external_decl
+    function_def
+      type_specifier
+        void
+      declarator	read_file
+      compound_stmt
+        declaration
+          type_specifier
+            char
+          init_declarator_list
+            init_declarator
+              declarator
+                dir_entry
+                array	64
+        expr_stmt
+          postfix
+            read_block
+            call_suffix
+              arg_list
+                1
+                dir_entry
+        declaration
+          type_specifier
+            char
+          init_declarator_list
+            init_declarator
+              declarator
+                filename
+                array	33
+        for_stmt
+          declaration
+            type_specifier
+              int
+            init_declarator_list
+              init_declarator
+                declarator	i
+                0
+          relational
+            i
+            lt
+            32
+          postfix
+            i
+            post_inc
+          compound_stmt
+            expr_stmt
+              assignment
+                postfix
+                  filename
+                  array_index	i
+                postfix
+                  dir_entry
+                  array_index	i
+        expr_stmt
+          assignment
+            postfix
+              filename
+              array_index	32
+            "\0"
+        declaration
+          type_specifier
+            int
+          init_declarator_list
+            init_declarator
+              declarator	file_size
+              bit_or
+                shift
+                  postfix
+                    dir_entry
+                    array_index	32
+                  lshift
+                  24
+                shift
+                  postfix
+                    dir_entry
+                    array_index	33
+                  lshift
+                  16
+                shift
+                  postfix
+                    dir_entry
+                    array_index	34
+                  lshift
+                  8
+                postfix
+                  dir_entry
+                  array_index	35
+        declaration
+          type_specifier
+            int
+          init_declarator_list
+            init_declarator
+              declarator	data_block_index
+              bit_or
+                shift
+                  postfix
+                    dir_entry
+                    array_index	36
+                  lshift
+                  24
+                shift
+                  postfix
+                    dir_entry
+                    array_index	37
+                  lshift
+                  16
+                shift
+                  postfix
+                    dir_entry
+                    array_index	38
+                  lshift
+                  8
+                postfix
+                  dir_entry
+                  array_index	39
+        declaration
+          type_specifier
+            char
+          init_declarator_list
+            init_declarator
+              declarator
+                data
+                array	512
+        expr_stmt
+          postfix
+            read_block
+            call_suffix
+              arg_list
+                data_block_index
+                data
+        expr_stmt
+          postfix
+            draw_string_to_display
+            call_suffix
+              arg_list
+                filename
+                10
+                30
+                0x3F
+        expr_stmt
+          postfix
+            draw_string_to_display
+            call_suffix
+              arg_list
+                data
+                10
+                50
+                0x3F
   external_decl
     function_def
       inline
@@ -1182,173 +1700,8 @@ translation_unit
     function_def
       type_specifier
         void
-      declarator	old_main
-      compound_stmt
-        declaration
-          type_specifier
-            int
-          init_declarator_list
-            init_declarator
-              declarator	x
-              5
-        declaration
-          type_specifier
-            int
-          init_declarator_list
-            init_declarator
-              declarator	y
-              10
-        declaration
-          type_specifier
-            int
-          init_declarator_list
-            init_declarator
-              declarator	result
-              postfix
-                add
-                call_suffix
-                  arg_list
-                    x
-                    y
-        expr_stmt
-          postfix
-            print_string
-            call_suffix
-              arg_list	"The result of 10 + 5 is: "
-        expr_stmt
-          postfix
-            printi
-            call_suffix
-              arg_list	result
-        declaration
-          type_specifier	Point
-          init_declarator_list
-            init_declarator
-              declarator	p1
-        declaration
-          type_specifier	Size
-          init_declarator_list
-            init_declarator
-              declarator	s
-        expr_stmt
-          assignment
-            postfix
-              p1
-              member_access	x
-            10
-        expr_stmt
-          assignment
-            postfix
-              p1
-              member_access	y
-            20
-        expr_stmt
-          assignment
-            postfix
-              s
-              member_access	width
-            640
-        expr_stmt
-          assignment
-            postfix
-              s
-              member_access	height
-            480
-        declaration
-          type_specifier
-            int
-          init_declarator_list
-            init_declarator
-              declarator	sum
-              postfix
-                add_coords
-                call_suffix
-                  arg_list	p1
-        declaration
-          type_specifier
-            int
-          init_declarator_list
-            init_declarator
-              declarator	area
-              multiplicative
-                postfix
-                  s
-                  member_access	width
-                mult
-                postfix
-                  s
-                  member_access	height
-        expr_stmt
-          postfix
-            print_string
-            call_suffix
-              arg_list	"The sum of p1's coordinates is: \n"
-        expr_stmt
-          postfix
-            printi
-            call_suffix
-              arg_list	sum
-        expr_stmt
-          postfix
-            print_string
-            call_suffix
-              arg_list	"The area of the size is: \n"
-        expr_stmt
-          postfix
-            printi
-            call_suffix
-              arg_list	area
-  external_decl
-    function_def
-      type_specifier
-        void
       declarator	main
       compound_stmt
-        expr_stmt
-          postfix
-            draw_string_to_display
-            call_suffix
-              arg_list
-                "Hello, RospOS!"
-                10
-                10
-                0x3F
-        expr_stmt
-          postfix
-            draw_string_to_display
-            call_suffix
-              arg_list
-                "Green RospOS"
-                10
-                30
-                0x0C
-        expr_stmt
-          postfix
-            draw_string_to_display
-            call_suffix
-              arg_list
-                "Red RospOS"
-                10
-                50
-                0x30
-        expr_stmt
-          postfix
-            draw_string_to_display
-            call_suffix
-              arg_list
-                "Blue RospOS"
-                10
-                70
-                0x07
-        expr_stmt
-          postfix
-            draw_string_to_display
-            call_suffix
-              arg_list
-                "Yellow RospOS"
-                10
-                90
-                0x3C
         expr_stmt
           postfix
             draw_rectangle
@@ -1392,3 +1745,84 @@ translation_unit
                   arg_list
                     r1
                     r2
+        expr_stmt
+          postfix
+            initialize_filesystem
+            call_suffix
+        expr_stmt
+          postfix
+            write_file
+            call_suffix
+        declaration
+          type_specifier
+            char
+          init_declarator_list
+            init_declarator
+              declarator
+                device_info
+                array	512
+        expr_stmt
+          postfix
+            read_block
+            call_suffix
+              arg_list
+                0xFFFFFFFF
+                device_info
+        expr_stmt
+          postfix
+            draw_string_to_display
+            call_suffix
+              arg_list
+                device_info
+                10
+                10
+                0x3F
+        expr_stmt
+          postfix
+            read_file
+            call_suffix
+        expr_stmt
+          postfix
+            draw_string_to_display
+            call_suffix
+              arg_list
+                "Hello, RospOS!"
+                10
+                70
+                0x3F
+        expr_stmt
+          postfix
+            draw_string_to_display
+            call_suffix
+              arg_list
+                "Green RospOS"
+                10
+                90
+                0x0C
+        expr_stmt
+          postfix
+            draw_string_to_display
+            call_suffix
+              arg_list
+                "Red RospOS"
+                10
+                110
+                0x30
+        expr_stmt
+          postfix
+            draw_string_to_display
+            call_suffix
+              arg_list
+                "Blue RospOS"
+                10
+                130
+                0x07
+        expr_stmt
+          postfix
+            draw_string_to_display
+            call_suffix
+              arg_list
+                "Yellow RospOS"
+                10
+                150
+                0x3C

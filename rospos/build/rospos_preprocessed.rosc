@@ -1,4 +1,4 @@
-void print_string(char *str)
+inline void print_string(char *str)
 {
     int tty_addr = 0x10000000;
     while (*str)
@@ -7,7 +7,7 @@ void print_string(char *str)
         str = str + 1;
     }
 }
-void print_char(char c)
+inline void print_char(char c)
 {
     int tty_addr = 0x10000000;
     __sb(tty_addr, c);
@@ -38,7 +38,7 @@ void printi(int num)
     print_string(buffer);
 }
 
-char read_char()
+inline char read_char()
 {
     int tty_addr = 0x10000000;
     return __lb(tty_addr);
@@ -223,20 +223,118 @@ void screen_test()
     }
 }
 
-
-typedef struct {
-    int x;
-    int y;
-} Point;
-
-typedef struct {
-    int width;
-    int height;
-} Size;
-
-int add_coords(Point p)
+void write_block(int blockID, char *data)
 {
-    return p.x + p.y;
+    __sb(0x40000008, blockID);
+    __sb(0x4000000C, (int)data);
+    __sb(0x40000004, 1); // Write command
+    while (__lb(0x40000004) != 0) {
+
+    } // Wait for completion
+    return 0;
+}
+void read_block(int blockID, char *buffer)
+{
+    __sb(0x40000008, blockID); // Set block ID
+    __sb(0x4000000C, (int)buffer); // Set buffer address pointer
+    __sb(0x40000004, 2); // Set command to read
+    while (__lb(0x40000004) != 0) { //when the command register is 0, the operation is complete
+
+    } // Wait for completion
+    return 0;
+}
+//Basic filesystem for RospOS.
+
+// Block device layout:
+// - Block 0: Superblock (contains magic number, version, and other metadata)
+// Metadata:
+/// - Magic number (e.g. "ROSPFS") to identify the filesystem
+/// - Version number for future compatibility (1)
+// - Block 1: Directory entries (list of files with their metadata and block pointers)
+/// - Each entry contains:
+///   - Filename (e.g. 32 bytes)
+///   - File size in bytes (int)
+///   - Block pointer (int) to the first data block of the file
+// - Blocks 2-...: File data blocks
+/// - Each file's data is stored in contiguous blocks for simplicity (no fragmentation handling yet)
+
+void initialize_filesystem()
+{
+    char superblock[512];
+    // Write magic number "ROSPFS" and version 1 to superblock
+    superblock[0] = "R";
+    superblock[1] = "O";
+    superblock[2] = "S";
+    superblock[3] = "P";
+    superblock[4] = "F";
+    superblock[5] = "S";
+    superblock[6] = 1; // Version
+    // Zero out the rest of the superblock
+    for (int i = 7; i < 512; i++)
+    {
+        superblock[i] = 0;
+    };
+    write_block(0, superblock);
+}
+void ensure_filesystem_initialized()
+{
+    char superblock[512];
+    read_block(0, superblock);
+    if (superblock[0] != "R" || superblock[1] != "O" || superblock[2] != "S" || superblock[3] != "P" || superblock[4] != "F" || superblock[5] != "S")
+    {
+        initialize_filesystem();
+    }
+}
+void write_file(){
+    // For simplicity, this example only supports writing a single file with a fixed name and size
+    char filename[32] = "example.txt";
+    char data[512] = "Hello, RospOS filesystem!";
+    int file_size = 25; // Length of the string above
+
+    // Create directory entry for the file
+    char dir_entry[64];
+    for (int i = 0; i < 32; i++)
+    {
+        dir_entry[i] = filename[i];
+    }
+    dir_entry[32] = (file_size >> 24) & 0xFF;
+    dir_entry[33] = (file_size >> 16) & 0xFF;
+    dir_entry[34] = (file_size >> 8) & 0xFF;
+    dir_entry[35] = file_size & 0xFF;
+    int data_block_index = 2; // Start of file data blocks
+    dir_entry[36] = (data_block_index >> 24) & 0xFF;
+    dir_entry[37] = (data_block_index >> 16) & 0xFF;
+    dir_entry[38] = (data_block_index >> 8) & 0xFF;
+    dir_entry[39] = data_block_index & 0xFF;
+
+    // Write directory entry to block 1
+    write_block(1, dir_entry);
+
+    // Write file data to block 2
+    write_block(data_block_index, data);
+}
+void read_file(){
+    // Read directory entry from block 1
+    char dir_entry[64];
+    read_block(1, dir_entry);
+
+    // Extract filename, file size, and data block index from directory entry
+    char filename[33];
+    for (int i = 0; i < 32; i++)
+    {
+        filename[i] = dir_entry[i];
+    }
+    filename[32] = "\0"; // Null-terminate the filename
+    int file_size = (dir_entry[32] << 24) | (dir_entry[33] << 16) | (dir_entry[34] << 8) | dir_entry[35];
+    int data_block_index = (dir_entry[36] << 24) | (dir_entry[37] << 16) | (dir_entry[38] << 8) | dir_entry[39];
+
+    // Read file data from the specified data block
+    char data[512];
+    read_block(data_block_index, data);
+
+    // For demonstration, we can print the file contents to the display
+    draw_string_to_display(filename, 10, 30, 0x3F);
+    draw_string_to_display(data, 10, 50, 0x3F);
 }
 
 
@@ -245,46 +343,26 @@ inline int add(int a, int b)
     return a + b;
 }
 
-void old_main(){
-    int x = 5;
-    int y = 10;
-    int result = add(x, y);
-    
-    print_string("The result of 10 + 5 is: ");
-    printi(result);
-    
-    // Declare struct variables
-    Point p1;
-    Size s;
-    
-    // Assign to struct members
-    p1.x = 10;
-    p1.y = 20;
-    
-    s.width = 640;
-    s.height = 480;
-    
-    // Read from struct members
-    int sum = add_coords(p1);
-    int area = s.width * s.height;
-        
-    print_string("The sum of p1's coordinates is: \n");
-    printi(sum);
-    print_string("The area of the size is: \n");
-    printi(area);
-}
 
 void main()
 {
     // screen_test();
-    draw_string_to_display("Hello, RospOS!", 10, 10, 0x3F);
-    draw_string_to_display("Green RospOS", 10, 30 , 0x0C);
-    draw_string_to_display("Red RospOS", 10, 50 , 0x30);
-    draw_string_to_display("Blue RospOS", 10, 70 , 0x07);
-    draw_string_to_display("Yellow RospOS", 10, 90 , 0x3C);
-    
     draw_rectangle(20, 100, 30, 20, 0x3F, 0x0C); // Green-filled rectangle with white border
     int r1= add(15, 25);
     inline int r2 = 50;
     int r3 = add(r1, r2);
+    
+
+    initialize_filesystem();
+    write_file();
+    char device_info[512];
+    read_block(0xFFFFFFFF, device_info); // Read from the special block to get device info
+    draw_string_to_display(device_info, 10, 10, 0x3F);
+    read_file();
+    draw_string_to_display("Hello, RospOS!", 10, 70, 0x3F);
+    draw_string_to_display("Green RospOS", 10, 90 , 0x0C);
+    draw_string_to_display("Red RospOS", 10, 110 , 0x30);
+    draw_string_to_display("Blue RospOS", 10, 130 , 0x07);
+    draw_string_to_display("Yellow RospOS", 10, 150 , 0x3C);
+    
 }

@@ -11,41 +11,26 @@
     {
       "kind": "string",
       "name": "str_0",
-      "value": "The result of 10 + 5 is: "
-    },
-    {
-      "kind": "string",
-      "name": "str_1",
-      "value": "The sum of p1's coordinates is: \n"
-    },
-    {
-      "kind": "string",
-      "name": "str_2",
-      "value": "The area of the size is: \n"
-    },
-    {
-      "kind": "string",
-      "name": "str_3",
       "value": "Hello, RospOS!"
     },
     {
       "kind": "string",
-      "name": "str_4",
+      "name": "str_1",
       "value": "Green RospOS"
     },
     {
       "kind": "string",
-      "name": "str_5",
+      "name": "str_2",
       "value": "Red RospOS"
     },
     {
       "kind": "string",
-      "name": "str_6",
+      "name": "str_3",
       "value": "Blue RospOS"
     },
     {
       "kind": "string",
-      "name": "str_7",
+      "name": "str_4",
       "value": "Yellow RospOS"
     }
   ],
@@ -119,6 +104,7 @@
         "str": "char_ptr"
       },
       "return_type": "void",
+      "inline": true,
       "_line": 1
     },
     {
@@ -157,6 +143,7 @@
         "c": "char"
       },
       "return_type": "void",
+      "inline": true,
       "_line": 10
     },
     {
@@ -552,6 +539,7 @@
         }
       ],
       "return_type": "char",
+      "inline": true,
       "_line": 41
     },
     {
@@ -2418,43 +2406,1535 @@
       "_line": 208
     },
     {
-      "name": "add_coords",
+      "name": "write_block",
       "params": [
-        "p"
+        "blockID",
+        "data"
       ],
       "body": [
         {
-          "type": "return",
-          "value": {
+          "type": "call_stmt",
+          "name": "__sb",
+          "args": [
+            {
+              "type": "const",
+              "value": 1073741832
+            },
+            {
+              "type": "var",
+              "name": "blockID"
+            }
+          ],
+          "_line": 228
+        },
+        {
+          "type": "call_stmt",
+          "name": "__sb",
+          "args": [
+            {
+              "type": "const",
+              "value": 1073741836
+            },
+            {
+              "type": "var",
+              "name": "data"
+            }
+          ],
+          "_line": 229
+        },
+        {
+          "type": "call_stmt",
+          "name": "__sb",
+          "args": [
+            {
+              "type": "const",
+              "value": 1073741828
+            },
+            {
+              "type": "const",
+              "value": 1
+            }
+          ],
+          "_line": 230
+        },
+        {
+          "type": "while",
+          "cond": {
             "type": "binop",
-            "op": "plus",
+            "op": "neq",
             "left": {
-              "type": "member_access",
-              "op": ".",
-              "base": {
-                "type": "var",
-                "name": "p"
-              },
-              "member": "x"
+              "type": "call",
+              "name": "__lb",
+              "args": [
+                {
+                  "type": "const",
+                  "value": 1073741828
+                }
+              ]
             },
             "right": {
-              "type": "member_access",
-              "op": ".",
-              "base": {
-                "type": "var",
-                "name": "p"
-              },
-              "member": "y"
+              "type": "const",
+              "value": 0
             }
           },
-          "_line": 239
+          "body": [],
+          "_line": 231
+        },
+        {
+          "type": "return",
+          "value": {
+            "type": "const",
+            "value": 0
+          },
+          "_line": 234
         }
       ],
       "param_types": {
-        "p": "Point"
+        "blockID": "int",
+        "data": "char_ptr"
       },
-      "return_type": "int",
-      "_line": 237
+      "return_type": "void",
+      "_line": 226
+    },
+    {
+      "name": "read_block",
+      "params": [
+        "blockID",
+        "buffer"
+      ],
+      "body": [
+        {
+          "type": "call_stmt",
+          "name": "__sb",
+          "args": [
+            {
+              "type": "const",
+              "value": 1073741832
+            },
+            {
+              "type": "var",
+              "name": "blockID"
+            }
+          ],
+          "_line": 238
+        },
+        {
+          "type": "call_stmt",
+          "name": "__sb",
+          "args": [
+            {
+              "type": "const",
+              "value": 1073741836
+            },
+            {
+              "type": "var",
+              "name": "buffer"
+            }
+          ],
+          "_line": 239
+        },
+        {
+          "type": "call_stmt",
+          "name": "__sb",
+          "args": [
+            {
+              "type": "const",
+              "value": 1073741828
+            },
+            {
+              "type": "const",
+              "value": 2
+            }
+          ],
+          "_line": 240
+        },
+        {
+          "type": "while",
+          "cond": {
+            "type": "binop",
+            "op": "neq",
+            "left": {
+              "type": "call",
+              "name": "__lb",
+              "args": [
+                {
+                  "type": "const",
+                  "value": 1073741828
+                }
+              ]
+            },
+            "right": {
+              "type": "const",
+              "value": 0
+            }
+          },
+          "body": [],
+          "_line": 241
+        },
+        {
+          "type": "return",
+          "value": {
+            "type": "const",
+            "value": 0
+          },
+          "_line": 244
+        }
+      ],
+      "param_types": {
+        "blockID": "int",
+        "buffer": "char_ptr"
+      },
+      "return_type": "void",
+      "_line": 236
+    },
+    {
+      "name": "initialize_filesystem",
+      "params": [],
+      "body": [
+        {
+          "type": "decl",
+          "name": "superblock",
+          "init": {
+            "type": "array",
+            "size": 512
+          },
+          "_line": 263,
+          "decl_type": "char"
+        },
+        {
+          "type": "assign",
+          "target": {
+            "type": "deref",
+            "expr": {
+              "type": "binop",
+              "op": "plus",
+              "left": {
+                "type": "var",
+                "name": "superblock"
+              },
+              "right": {
+                "type": "const",
+                "value": 0
+              }
+            }
+          },
+          "value": {
+            "type": "const",
+            "value": 82
+          },
+          "_line": 265
+        },
+        {
+          "type": "assign",
+          "target": {
+            "type": "deref",
+            "expr": {
+              "type": "binop",
+              "op": "plus",
+              "left": {
+                "type": "var",
+                "name": "superblock"
+              },
+              "right": {
+                "type": "const",
+                "value": 1
+              }
+            }
+          },
+          "value": {
+            "type": "const",
+            "value": 79
+          },
+          "_line": 266
+        },
+        {
+          "type": "assign",
+          "target": {
+            "type": "deref",
+            "expr": {
+              "type": "binop",
+              "op": "plus",
+              "left": {
+                "type": "var",
+                "name": "superblock"
+              },
+              "right": {
+                "type": "const",
+                "value": 2
+              }
+            }
+          },
+          "value": {
+            "type": "const",
+            "value": 83
+          },
+          "_line": 267
+        },
+        {
+          "type": "assign",
+          "target": {
+            "type": "deref",
+            "expr": {
+              "type": "binop",
+              "op": "plus",
+              "left": {
+                "type": "var",
+                "name": "superblock"
+              },
+              "right": {
+                "type": "const",
+                "value": 3
+              }
+            }
+          },
+          "value": {
+            "type": "const",
+            "value": 80
+          },
+          "_line": 268
+        },
+        {
+          "type": "assign",
+          "target": {
+            "type": "deref",
+            "expr": {
+              "type": "binop",
+              "op": "plus",
+              "left": {
+                "type": "var",
+                "name": "superblock"
+              },
+              "right": {
+                "type": "const",
+                "value": 4
+              }
+            }
+          },
+          "value": {
+            "type": "const",
+            "value": 70
+          },
+          "_line": 269
+        },
+        {
+          "type": "assign",
+          "target": {
+            "type": "deref",
+            "expr": {
+              "type": "binop",
+              "op": "plus",
+              "left": {
+                "type": "var",
+                "name": "superblock"
+              },
+              "right": {
+                "type": "const",
+                "value": 5
+              }
+            }
+          },
+          "value": {
+            "type": "const",
+            "value": 83
+          },
+          "_line": 270
+        },
+        {
+          "type": "assign",
+          "target": {
+            "type": "deref",
+            "expr": {
+              "type": "binop",
+              "op": "plus",
+              "left": {
+                "type": "var",
+                "name": "superblock"
+              },
+              "right": {
+                "type": "const",
+                "value": 6
+              }
+            }
+          },
+          "value": {
+            "type": "const",
+            "value": 1
+          },
+          "_line": 271
+        },
+        {
+          "type": "decl",
+          "name": "i",
+          "init": {
+            "type": "const",
+            "value": 7
+          },
+          "_line": 273,
+          "decl_type": "int"
+        },
+        {
+          "type": "while",
+          "cond": {
+            "type": "binop",
+            "op": "lt",
+            "left": {
+              "type": "var",
+              "name": "i"
+            },
+            "right": {
+              "type": "const",
+              "value": 512
+            }
+          },
+          "body": [
+            {
+              "type": "assign",
+              "target": {
+                "type": "deref",
+                "expr": {
+                  "type": "binop",
+                  "op": "plus",
+                  "left": {
+                    "type": "var",
+                    "name": "superblock"
+                  },
+                  "right": {
+                    "type": "var",
+                    "name": "i"
+                  }
+                }
+              },
+              "value": {
+                "type": "const",
+                "value": 0
+              },
+              "_line": 275
+            },
+            {
+              "type": "assign",
+              "target": "i",
+              "value": {
+                "type": "binop",
+                "op": "plus",
+                "left": {
+                  "type": "var",
+                  "name": "i"
+                },
+                "right": {
+                  "type": "const",
+                  "value": 1
+                }
+              },
+              "_line": 273
+            }
+          ],
+          "_line": 273
+        },
+        {
+          "type": "call_stmt",
+          "name": "write_block",
+          "args": [
+            {
+              "type": "const",
+              "value": 0
+            },
+            {
+              "type": "var",
+              "name": "superblock"
+            }
+          ],
+          "_line": 277
+        }
+      ],
+      "return_type": "void",
+      "_line": 261
+    },
+    {
+      "name": "ensure_filesystem_initialized",
+      "params": [],
+      "body": [
+        {
+          "type": "decl",
+          "name": "superblock",
+          "init": {
+            "type": "array",
+            "size": 512
+          },
+          "_line": 281,
+          "decl_type": "char"
+        },
+        {
+          "type": "call_stmt",
+          "name": "read_block",
+          "args": [
+            {
+              "type": "const",
+              "value": 0
+            },
+            {
+              "type": "var",
+              "name": "superblock"
+            }
+          ],
+          "_line": 282
+        },
+        {
+          "type": "if",
+          "cond": {
+            "type": "binop",
+            "op": "lor",
+            "left": {
+              "type": "binop",
+              "op": "lor",
+              "left": {
+                "type": "binop",
+                "op": "lor",
+                "left": {
+                  "type": "binop",
+                  "op": "lor",
+                  "left": {
+                    "type": "binop",
+                    "op": "lor",
+                    "left": {
+                      "type": "binop",
+                      "op": "neq",
+                      "left": {
+                        "type": "deref",
+                        "expr": {
+                          "type": "binop",
+                          "op": "plus",
+                          "left": {
+                            "type": "var",
+                            "name": "superblock"
+                          },
+                          "right": {
+                            "type": "const",
+                            "value": 0
+                          }
+                        }
+                      },
+                      "right": {
+                        "type": "const",
+                        "value": 82
+                      }
+                    },
+                    "right": {
+                      "type": "binop",
+                      "op": "neq",
+                      "left": {
+                        "type": "deref",
+                        "expr": {
+                          "type": "binop",
+                          "op": "plus",
+                          "left": {
+                            "type": "var",
+                            "name": "superblock"
+                          },
+                          "right": {
+                            "type": "const",
+                            "value": 1
+                          }
+                        }
+                      },
+                      "right": {
+                        "type": "const",
+                        "value": 79
+                      }
+                    }
+                  },
+                  "right": {
+                    "type": "binop",
+                    "op": "neq",
+                    "left": {
+                      "type": "deref",
+                      "expr": {
+                        "type": "binop",
+                        "op": "plus",
+                        "left": {
+                          "type": "var",
+                          "name": "superblock"
+                        },
+                        "right": {
+                          "type": "const",
+                          "value": 2
+                        }
+                      }
+                    },
+                    "right": {
+                      "type": "const",
+                      "value": 83
+                    }
+                  }
+                },
+                "right": {
+                  "type": "binop",
+                  "op": "neq",
+                  "left": {
+                    "type": "deref",
+                    "expr": {
+                      "type": "binop",
+                      "op": "plus",
+                      "left": {
+                        "type": "var",
+                        "name": "superblock"
+                      },
+                      "right": {
+                        "type": "const",
+                        "value": 3
+                      }
+                    }
+                  },
+                  "right": {
+                    "type": "const",
+                    "value": 80
+                  }
+                }
+              },
+              "right": {
+                "type": "binop",
+                "op": "neq",
+                "left": {
+                  "type": "deref",
+                  "expr": {
+                    "type": "binop",
+                    "op": "plus",
+                    "left": {
+                      "type": "var",
+                      "name": "superblock"
+                    },
+                    "right": {
+                      "type": "const",
+                      "value": 4
+                    }
+                  }
+                },
+                "right": {
+                  "type": "const",
+                  "value": 70
+                }
+              }
+            },
+            "right": {
+              "type": "binop",
+              "op": "neq",
+              "left": {
+                "type": "deref",
+                "expr": {
+                  "type": "binop",
+                  "op": "plus",
+                  "left": {
+                    "type": "var",
+                    "name": "superblock"
+                  },
+                  "right": {
+                    "type": "const",
+                    "value": 5
+                  }
+                }
+              },
+              "right": {
+                "type": "const",
+                "value": 83
+              }
+            }
+          },
+          "then": [
+            {
+              "type": "call_stmt",
+              "name": "initialize_filesystem",
+              "args": [],
+              "_line": 285
+            }
+          ],
+          "else": [],
+          "_line": 283
+        }
+      ],
+      "return_type": "void",
+      "_line": 279
+    },
+    {
+      "name": "write_file",
+      "params": [],
+      "body": [
+        {
+          "type": "decl",
+          "name": "filename",
+          "init": {
+            "type": "array",
+            "size": 32
+          },
+          "_line": 290,
+          "decl_type": "char"
+        },
+        {
+          "type": "decl",
+          "name": "data",
+          "init": {
+            "type": "array",
+            "size": 512
+          },
+          "_line": 291,
+          "decl_type": "char"
+        },
+        {
+          "type": "decl",
+          "name": "file_size",
+          "init": {
+            "type": "const",
+            "value": 25
+          },
+          "_line": 292,
+          "decl_type": "int"
+        },
+        {
+          "type": "decl",
+          "name": "dir_entry",
+          "init": {
+            "type": "array",
+            "size": 64
+          },
+          "_line": 295,
+          "decl_type": "char"
+        },
+        {
+          "type": "decl",
+          "name": "i",
+          "init": {
+            "type": "const",
+            "value": 0
+          },
+          "_line": 296,
+          "decl_type": "int"
+        },
+        {
+          "type": "while",
+          "cond": {
+            "type": "binop",
+            "op": "lt",
+            "left": {
+              "type": "var",
+              "name": "i"
+            },
+            "right": {
+              "type": "const",
+              "value": 32
+            }
+          },
+          "body": [
+            {
+              "type": "assign",
+              "target": {
+                "type": "deref",
+                "expr": {
+                  "type": "binop",
+                  "op": "plus",
+                  "left": {
+                    "type": "var",
+                    "name": "dir_entry"
+                  },
+                  "right": {
+                    "type": "var",
+                    "name": "i"
+                  }
+                }
+              },
+              "value": {
+                "type": "deref",
+                "expr": {
+                  "type": "binop",
+                  "op": "plus",
+                  "left": {
+                    "type": "var",
+                    "name": "filename"
+                  },
+                  "right": {
+                    "type": "var",
+                    "name": "i"
+                  }
+                }
+              },
+              "_line": 298
+            },
+            {
+              "type": "assign",
+              "target": "i",
+              "value": {
+                "type": "binop",
+                "op": "plus",
+                "left": {
+                  "type": "var",
+                  "name": "i"
+                },
+                "right": {
+                  "type": "const",
+                  "value": 1
+                }
+              },
+              "_line": 296
+            }
+          ],
+          "_line": 296
+        },
+        {
+          "type": "assign",
+          "target": {
+            "type": "deref",
+            "expr": {
+              "type": "binop",
+              "op": "plus",
+              "left": {
+                "type": "var",
+                "name": "dir_entry"
+              },
+              "right": {
+                "type": "const",
+                "value": 32
+              }
+            }
+          },
+          "value": {
+            "type": "binop",
+            "op": "and",
+            "left": {
+              "type": "binop",
+              "op": "rshift",
+              "left": {
+                "type": "var",
+                "name": "file_size"
+              },
+              "right": {
+                "type": "const",
+                "value": 24
+              }
+            },
+            "right": {
+              "type": "const",
+              "value": 255
+            }
+          },
+          "_line": 300
+        },
+        {
+          "type": "assign",
+          "target": {
+            "type": "deref",
+            "expr": {
+              "type": "binop",
+              "op": "plus",
+              "left": {
+                "type": "var",
+                "name": "dir_entry"
+              },
+              "right": {
+                "type": "const",
+                "value": 33
+              }
+            }
+          },
+          "value": {
+            "type": "binop",
+            "op": "and",
+            "left": {
+              "type": "binop",
+              "op": "rshift",
+              "left": {
+                "type": "var",
+                "name": "file_size"
+              },
+              "right": {
+                "type": "const",
+                "value": 16
+              }
+            },
+            "right": {
+              "type": "const",
+              "value": 255
+            }
+          },
+          "_line": 301
+        },
+        {
+          "type": "assign",
+          "target": {
+            "type": "deref",
+            "expr": {
+              "type": "binop",
+              "op": "plus",
+              "left": {
+                "type": "var",
+                "name": "dir_entry"
+              },
+              "right": {
+                "type": "const",
+                "value": 34
+              }
+            }
+          },
+          "value": {
+            "type": "binop",
+            "op": "and",
+            "left": {
+              "type": "binop",
+              "op": "rshift",
+              "left": {
+                "type": "var",
+                "name": "file_size"
+              },
+              "right": {
+                "type": "const",
+                "value": 8
+              }
+            },
+            "right": {
+              "type": "const",
+              "value": 255
+            }
+          },
+          "_line": 302
+        },
+        {
+          "type": "assign",
+          "target": {
+            "type": "deref",
+            "expr": {
+              "type": "binop",
+              "op": "plus",
+              "left": {
+                "type": "var",
+                "name": "dir_entry"
+              },
+              "right": {
+                "type": "const",
+                "value": 35
+              }
+            }
+          },
+          "value": {
+            "type": "binop",
+            "op": "and",
+            "left": {
+              "type": "var",
+              "name": "file_size"
+            },
+            "right": {
+              "type": "const",
+              "value": 255
+            }
+          },
+          "_line": 303
+        },
+        {
+          "type": "decl",
+          "name": "data_block_index",
+          "init": {
+            "type": "const",
+            "value": 2
+          },
+          "_line": 304,
+          "decl_type": "int"
+        },
+        {
+          "type": "assign",
+          "target": {
+            "type": "deref",
+            "expr": {
+              "type": "binop",
+              "op": "plus",
+              "left": {
+                "type": "var",
+                "name": "dir_entry"
+              },
+              "right": {
+                "type": "const",
+                "value": 36
+              }
+            }
+          },
+          "value": {
+            "type": "binop",
+            "op": "and",
+            "left": {
+              "type": "binop",
+              "op": "rshift",
+              "left": {
+                "type": "var",
+                "name": "data_block_index"
+              },
+              "right": {
+                "type": "const",
+                "value": 24
+              }
+            },
+            "right": {
+              "type": "const",
+              "value": 255
+            }
+          },
+          "_line": 305
+        },
+        {
+          "type": "assign",
+          "target": {
+            "type": "deref",
+            "expr": {
+              "type": "binop",
+              "op": "plus",
+              "left": {
+                "type": "var",
+                "name": "dir_entry"
+              },
+              "right": {
+                "type": "const",
+                "value": 37
+              }
+            }
+          },
+          "value": {
+            "type": "binop",
+            "op": "and",
+            "left": {
+              "type": "binop",
+              "op": "rshift",
+              "left": {
+                "type": "var",
+                "name": "data_block_index"
+              },
+              "right": {
+                "type": "const",
+                "value": 16
+              }
+            },
+            "right": {
+              "type": "const",
+              "value": 255
+            }
+          },
+          "_line": 306
+        },
+        {
+          "type": "assign",
+          "target": {
+            "type": "deref",
+            "expr": {
+              "type": "binop",
+              "op": "plus",
+              "left": {
+                "type": "var",
+                "name": "dir_entry"
+              },
+              "right": {
+                "type": "const",
+                "value": 38
+              }
+            }
+          },
+          "value": {
+            "type": "binop",
+            "op": "and",
+            "left": {
+              "type": "binop",
+              "op": "rshift",
+              "left": {
+                "type": "var",
+                "name": "data_block_index"
+              },
+              "right": {
+                "type": "const",
+                "value": 8
+              }
+            },
+            "right": {
+              "type": "const",
+              "value": 255
+            }
+          },
+          "_line": 307
+        },
+        {
+          "type": "assign",
+          "target": {
+            "type": "deref",
+            "expr": {
+              "type": "binop",
+              "op": "plus",
+              "left": {
+                "type": "var",
+                "name": "dir_entry"
+              },
+              "right": {
+                "type": "const",
+                "value": 39
+              }
+            }
+          },
+          "value": {
+            "type": "binop",
+            "op": "and",
+            "left": {
+              "type": "var",
+              "name": "data_block_index"
+            },
+            "right": {
+              "type": "const",
+              "value": 255
+            }
+          },
+          "_line": 308
+        },
+        {
+          "type": "call_stmt",
+          "name": "write_block",
+          "args": [
+            {
+              "type": "const",
+              "value": 1
+            },
+            {
+              "type": "var",
+              "name": "dir_entry"
+            }
+          ],
+          "_line": 311
+        },
+        {
+          "type": "call_stmt",
+          "name": "write_block",
+          "args": [
+            {
+              "type": "var",
+              "name": "data_block_index"
+            },
+            {
+              "type": "var",
+              "name": "data"
+            }
+          ],
+          "_line": 314
+        }
+      ],
+      "return_type": "void",
+      "_line": 288
+    },
+    {
+      "name": "read_file",
+      "params": [],
+      "body": [
+        {
+          "type": "decl",
+          "name": "dir_entry",
+          "init": {
+            "type": "array",
+            "size": 64
+          },
+          "_line": 318,
+          "decl_type": "char"
+        },
+        {
+          "type": "call_stmt",
+          "name": "read_block",
+          "args": [
+            {
+              "type": "const",
+              "value": 1
+            },
+            {
+              "type": "var",
+              "name": "dir_entry"
+            }
+          ],
+          "_line": 319
+        },
+        {
+          "type": "decl",
+          "name": "filename",
+          "init": {
+            "type": "array",
+            "size": 33
+          },
+          "_line": 322,
+          "decl_type": "char"
+        },
+        {
+          "type": "decl",
+          "name": "i",
+          "init": {
+            "type": "const",
+            "value": 0
+          },
+          "_line": 323,
+          "decl_type": "int"
+        },
+        {
+          "type": "while",
+          "cond": {
+            "type": "binop",
+            "op": "lt",
+            "left": {
+              "type": "var",
+              "name": "i"
+            },
+            "right": {
+              "type": "const",
+              "value": 32
+            }
+          },
+          "body": [
+            {
+              "type": "assign",
+              "target": {
+                "type": "deref",
+                "expr": {
+                  "type": "binop",
+                  "op": "plus",
+                  "left": {
+                    "type": "var",
+                    "name": "filename"
+                  },
+                  "right": {
+                    "type": "var",
+                    "name": "i"
+                  }
+                }
+              },
+              "value": {
+                "type": "deref",
+                "expr": {
+                  "type": "binop",
+                  "op": "plus",
+                  "left": {
+                    "type": "var",
+                    "name": "dir_entry"
+                  },
+                  "right": {
+                    "type": "var",
+                    "name": "i"
+                  }
+                }
+              },
+              "_line": 325
+            },
+            {
+              "type": "assign",
+              "target": "i",
+              "value": {
+                "type": "binop",
+                "op": "plus",
+                "left": {
+                  "type": "var",
+                  "name": "i"
+                },
+                "right": {
+                  "type": "const",
+                  "value": 1
+                }
+              },
+              "_line": 323
+            }
+          ],
+          "_line": 323
+        },
+        {
+          "type": "assign",
+          "target": {
+            "type": "deref",
+            "expr": {
+              "type": "binop",
+              "op": "plus",
+              "left": {
+                "type": "var",
+                "name": "filename"
+              },
+              "right": {
+                "type": "const",
+                "value": 32
+              }
+            }
+          },
+          "value": {
+            "type": "const",
+            "value": 0
+          },
+          "_line": 327
+        },
+        {
+          "type": "decl",
+          "name": "file_size",
+          "init": {
+            "type": "binop",
+            "op": "or",
+            "left": {
+              "type": "binop",
+              "op": "or",
+              "left": {
+                "type": "binop",
+                "op": "or",
+                "left": {
+                  "type": "binop",
+                  "op": "lshift",
+                  "left": {
+                    "type": "deref",
+                    "expr": {
+                      "type": "binop",
+                      "op": "plus",
+                      "left": {
+                        "type": "var",
+                        "name": "dir_entry"
+                      },
+                      "right": {
+                        "type": "const",
+                        "value": 32
+                      }
+                    }
+                  },
+                  "right": {
+                    "type": "const",
+                    "value": 24
+                  }
+                },
+                "right": {
+                  "type": "binop",
+                  "op": "lshift",
+                  "left": {
+                    "type": "deref",
+                    "expr": {
+                      "type": "binop",
+                      "op": "plus",
+                      "left": {
+                        "type": "var",
+                        "name": "dir_entry"
+                      },
+                      "right": {
+                        "type": "const",
+                        "value": 33
+                      }
+                    }
+                  },
+                  "right": {
+                    "type": "const",
+                    "value": 16
+                  }
+                }
+              },
+              "right": {
+                "type": "binop",
+                "op": "lshift",
+                "left": {
+                  "type": "deref",
+                  "expr": {
+                    "type": "binop",
+                    "op": "plus",
+                    "left": {
+                      "type": "var",
+                      "name": "dir_entry"
+                    },
+                    "right": {
+                      "type": "const",
+                      "value": 34
+                    }
+                  }
+                },
+                "right": {
+                  "type": "const",
+                  "value": 8
+                }
+              }
+            },
+            "right": {
+              "type": "deref",
+              "expr": {
+                "type": "binop",
+                "op": "plus",
+                "left": {
+                  "type": "var",
+                  "name": "dir_entry"
+                },
+                "right": {
+                  "type": "const",
+                  "value": 35
+                }
+              }
+            }
+          },
+          "_line": 328,
+          "decl_type": "int"
+        },
+        {
+          "type": "decl",
+          "name": "data_block_index",
+          "init": {
+            "type": "binop",
+            "op": "or",
+            "left": {
+              "type": "binop",
+              "op": "or",
+              "left": {
+                "type": "binop",
+                "op": "or",
+                "left": {
+                  "type": "binop",
+                  "op": "lshift",
+                  "left": {
+                    "type": "deref",
+                    "expr": {
+                      "type": "binop",
+                      "op": "plus",
+                      "left": {
+                        "type": "var",
+                        "name": "dir_entry"
+                      },
+                      "right": {
+                        "type": "const",
+                        "value": 36
+                      }
+                    }
+                  },
+                  "right": {
+                    "type": "const",
+                    "value": 24
+                  }
+                },
+                "right": {
+                  "type": "binop",
+                  "op": "lshift",
+                  "left": {
+                    "type": "deref",
+                    "expr": {
+                      "type": "binop",
+                      "op": "plus",
+                      "left": {
+                        "type": "var",
+                        "name": "dir_entry"
+                      },
+                      "right": {
+                        "type": "const",
+                        "value": 37
+                      }
+                    }
+                  },
+                  "right": {
+                    "type": "const",
+                    "value": 16
+                  }
+                }
+              },
+              "right": {
+                "type": "binop",
+                "op": "lshift",
+                "left": {
+                  "type": "deref",
+                  "expr": {
+                    "type": "binop",
+                    "op": "plus",
+                    "left": {
+                      "type": "var",
+                      "name": "dir_entry"
+                    },
+                    "right": {
+                      "type": "const",
+                      "value": 38
+                    }
+                  }
+                },
+                "right": {
+                  "type": "const",
+                  "value": 8
+                }
+              }
+            },
+            "right": {
+              "type": "deref",
+              "expr": {
+                "type": "binop",
+                "op": "plus",
+                "left": {
+                  "type": "var",
+                  "name": "dir_entry"
+                },
+                "right": {
+                  "type": "const",
+                  "value": 39
+                }
+              }
+            }
+          },
+          "_line": 329,
+          "decl_type": "int"
+        },
+        {
+          "type": "decl",
+          "name": "data",
+          "init": {
+            "type": "array",
+            "size": 512
+          },
+          "_line": 332,
+          "decl_type": "char"
+        },
+        {
+          "type": "call_stmt",
+          "name": "read_block",
+          "args": [
+            {
+              "type": "var",
+              "name": "data_block_index"
+            },
+            {
+              "type": "var",
+              "name": "data"
+            }
+          ],
+          "_line": 333
+        },
+        {
+          "type": "call_stmt",
+          "name": "draw_string_to_display",
+          "args": [
+            {
+              "type": "var",
+              "name": "filename"
+            },
+            {
+              "type": "const",
+              "value": 10
+            },
+            {
+              "type": "const",
+              "value": 30
+            },
+            {
+              "type": "const",
+              "value": 63
+            }
+          ],
+          "_line": 336
+        },
+        {
+          "type": "call_stmt",
+          "name": "draw_string_to_display",
+          "args": [
+            {
+              "type": "var",
+              "name": "data"
+            },
+            {
+              "type": "const",
+              "value": 10
+            },
+            {
+              "type": "const",
+              "value": 50
+            },
+            {
+              "type": "const",
+              "value": 63
+            }
+          ],
+          "_line": 337
+        }
+      ],
+      "return_type": "void",
+      "_line": 316
     },
     {
       "name": "add",
@@ -2477,7 +3957,7 @@
               "name": "b"
             }
           },
-          "_line": 245
+          "_line": 343
         }
       ],
       "param_types": {
@@ -2486,367 +3966,12 @@
       },
       "return_type": "int",
       "inline": true,
-      "_line": 243
-    },
-    {
-      "name": "old_main",
-      "params": [],
-      "body": [
-        {
-          "type": "decl",
-          "name": "x",
-          "init": {
-            "type": "const",
-            "value": 5
-          },
-          "_line": 249,
-          "decl_type": "int"
-        },
-        {
-          "type": "decl",
-          "name": "y",
-          "init": {
-            "type": "const",
-            "value": 10
-          },
-          "_line": 250,
-          "decl_type": "int"
-        },
-        {
-          "type": "decl",
-          "name": "result",
-          "init": {
-            "type": "call",
-            "name": "add",
-            "args": [
-              {
-                "type": "var",
-                "name": "x"
-              },
-              {
-                "type": "var",
-                "name": "y"
-              }
-            ]
-          },
-          "_line": 251,
-          "decl_type": "int"
-        },
-        {
-          "type": "call_stmt",
-          "name": "print_string",
-          "args": [
-            {
-              "type": "string_addr",
-              "label": "str_0"
-            }
-          ],
-          "_line": 253
-        },
-        {
-          "type": "call_stmt",
-          "name": "printi",
-          "args": [
-            {
-              "type": "var",
-              "name": "result"
-            }
-          ],
-          "_line": 254
-        },
-        {
-          "type": "decl",
-          "name": "p1",
-          "init": null,
-          "_line": 257,
-          "decl_type": "Point"
-        },
-        {
-          "type": "decl",
-          "name": "s",
-          "init": null,
-          "_line": 258,
-          "decl_type": "Size"
-        },
-        {
-          "type": "assign",
-          "target": {
-            "type": "member_access",
-            "op": ".",
-            "base": {
-              "type": "var",
-              "name": "p1"
-            },
-            "member": "x"
-          },
-          "value": {
-            "type": "const",
-            "value": 10
-          },
-          "_line": 261
-        },
-        {
-          "type": "assign",
-          "target": {
-            "type": "member_access",
-            "op": ".",
-            "base": {
-              "type": "var",
-              "name": "p1"
-            },
-            "member": "y"
-          },
-          "value": {
-            "type": "const",
-            "value": 20
-          },
-          "_line": 262
-        },
-        {
-          "type": "assign",
-          "target": {
-            "type": "member_access",
-            "op": ".",
-            "base": {
-              "type": "var",
-              "name": "s"
-            },
-            "member": "width"
-          },
-          "value": {
-            "type": "const",
-            "value": 640
-          },
-          "_line": 264
-        },
-        {
-          "type": "assign",
-          "target": {
-            "type": "member_access",
-            "op": ".",
-            "base": {
-              "type": "var",
-              "name": "s"
-            },
-            "member": "height"
-          },
-          "value": {
-            "type": "const",
-            "value": 480
-          },
-          "_line": 265
-        },
-        {
-          "type": "decl",
-          "name": "sum",
-          "init": {
-            "type": "call",
-            "name": "add_coords",
-            "args": [
-              {
-                "type": "var",
-                "name": "p1"
-              }
-            ]
-          },
-          "_line": 268,
-          "decl_type": "int"
-        },
-        {
-          "type": "decl",
-          "name": "area",
-          "init": {
-            "type": "binop",
-            "op": "mult",
-            "left": {
-              "type": "member_access",
-              "op": ".",
-              "base": {
-                "type": "var",
-                "name": "s"
-              },
-              "member": "width"
-            },
-            "right": {
-              "type": "member_access",
-              "op": ".",
-              "base": {
-                "type": "var",
-                "name": "s"
-              },
-              "member": "height"
-            }
-          },
-          "_line": 269,
-          "decl_type": "int"
-        },
-        {
-          "type": "call_stmt",
-          "name": "print_string",
-          "args": [
-            {
-              "type": "string_addr",
-              "label": "str_1"
-            }
-          ],
-          "_line": 271
-        },
-        {
-          "type": "call_stmt",
-          "name": "printi",
-          "args": [
-            {
-              "type": "var",
-              "name": "sum"
-            }
-          ],
-          "_line": 272
-        },
-        {
-          "type": "call_stmt",
-          "name": "print_string",
-          "args": [
-            {
-              "type": "string_addr",
-              "label": "str_2"
-            }
-          ],
-          "_line": 273
-        },
-        {
-          "type": "call_stmt",
-          "name": "printi",
-          "args": [
-            {
-              "type": "var",
-              "name": "area"
-            }
-          ],
-          "_line": 274
-        }
-      ],
-      "return_type": "void",
-      "_line": 248
+      "_line": 341
     },
     {
       "name": "main",
       "params": [],
       "body": [
-        {
-          "type": "call_stmt",
-          "name": "draw_string_to_display",
-          "args": [
-            {
-              "type": "string_addr",
-              "label": "str_3"
-            },
-            {
-              "type": "const",
-              "value": 10
-            },
-            {
-              "type": "const",
-              "value": 10
-            },
-            {
-              "type": "const",
-              "value": 63
-            }
-          ],
-          "_line": 280
-        },
-        {
-          "type": "call_stmt",
-          "name": "draw_string_to_display",
-          "args": [
-            {
-              "type": "string_addr",
-              "label": "str_4"
-            },
-            {
-              "type": "const",
-              "value": 10
-            },
-            {
-              "type": "const",
-              "value": 30
-            },
-            {
-              "type": "const",
-              "value": 12
-            }
-          ],
-          "_line": 281
-        },
-        {
-          "type": "call_stmt",
-          "name": "draw_string_to_display",
-          "args": [
-            {
-              "type": "string_addr",
-              "label": "str_5"
-            },
-            {
-              "type": "const",
-              "value": 10
-            },
-            {
-              "type": "const",
-              "value": 50
-            },
-            {
-              "type": "const",
-              "value": 48
-            }
-          ],
-          "_line": 282
-        },
-        {
-          "type": "call_stmt",
-          "name": "draw_string_to_display",
-          "args": [
-            {
-              "type": "string_addr",
-              "label": "str_6"
-            },
-            {
-              "type": "const",
-              "value": 10
-            },
-            {
-              "type": "const",
-              "value": 70
-            },
-            {
-              "type": "const",
-              "value": 7
-            }
-          ],
-          "_line": 283
-        },
-        {
-          "type": "call_stmt",
-          "name": "draw_string_to_display",
-          "args": [
-            {
-              "type": "string_addr",
-              "label": "str_7"
-            },
-            {
-              "type": "const",
-              "value": 10
-            },
-            {
-              "type": "const",
-              "value": 90
-            },
-            {
-              "type": "const",
-              "value": 60
-            }
-          ],
-          "_line": 284
-        },
         {
           "type": "call_stmt",
           "name": "draw_rectangle",
@@ -2876,7 +4001,7 @@
               "value": 12
             }
           ],
-          "_line": 286
+          "_line": 350
         },
         {
           "type": "decl",
@@ -2895,7 +4020,7 @@
               }
             ]
           },
-          "_line": 287,
+          "_line": 351,
           "decl_type": "int"
         },
         {
@@ -2905,7 +4030,7 @@
             "type": "const",
             "value": 50
           },
-          "_line": 288,
+          "_line": 352,
           "decl_type": "int"
         },
         {
@@ -2925,52 +4050,194 @@
               }
             ]
           },
-          "_line": 289,
+          "_line": 353,
           "decl_type": "int"
+        },
+        {
+          "type": "call_stmt",
+          "name": "initialize_filesystem",
+          "args": [],
+          "_line": 356
+        },
+        {
+          "type": "call_stmt",
+          "name": "write_file",
+          "args": [],
+          "_line": 357
+        },
+        {
+          "type": "decl",
+          "name": "device_info",
+          "init": {
+            "type": "array",
+            "size": 512
+          },
+          "_line": 358,
+          "decl_type": "char"
+        },
+        {
+          "type": "call_stmt",
+          "name": "read_block",
+          "args": [
+            {
+              "type": "const",
+              "value": 4294967295
+            },
+            {
+              "type": "var",
+              "name": "device_info"
+            }
+          ],
+          "_line": 359
+        },
+        {
+          "type": "call_stmt",
+          "name": "draw_string_to_display",
+          "args": [
+            {
+              "type": "var",
+              "name": "device_info"
+            },
+            {
+              "type": "const",
+              "value": 10
+            },
+            {
+              "type": "const",
+              "value": 10
+            },
+            {
+              "type": "const",
+              "value": 63
+            }
+          ],
+          "_line": 360
+        },
+        {
+          "type": "call_stmt",
+          "name": "read_file",
+          "args": [],
+          "_line": 361
+        },
+        {
+          "type": "call_stmt",
+          "name": "draw_string_to_display",
+          "args": [
+            {
+              "type": "string_addr",
+              "label": "str_0"
+            },
+            {
+              "type": "const",
+              "value": 10
+            },
+            {
+              "type": "const",
+              "value": 70
+            },
+            {
+              "type": "const",
+              "value": 63
+            }
+          ],
+          "_line": 362
+        },
+        {
+          "type": "call_stmt",
+          "name": "draw_string_to_display",
+          "args": [
+            {
+              "type": "string_addr",
+              "label": "str_1"
+            },
+            {
+              "type": "const",
+              "value": 10
+            },
+            {
+              "type": "const",
+              "value": 90
+            },
+            {
+              "type": "const",
+              "value": 12
+            }
+          ],
+          "_line": 363
+        },
+        {
+          "type": "call_stmt",
+          "name": "draw_string_to_display",
+          "args": [
+            {
+              "type": "string_addr",
+              "label": "str_2"
+            },
+            {
+              "type": "const",
+              "value": 10
+            },
+            {
+              "type": "const",
+              "value": 110
+            },
+            {
+              "type": "const",
+              "value": 48
+            }
+          ],
+          "_line": 364
+        },
+        {
+          "type": "call_stmt",
+          "name": "draw_string_to_display",
+          "args": [
+            {
+              "type": "string_addr",
+              "label": "str_3"
+            },
+            {
+              "type": "const",
+              "value": 10
+            },
+            {
+              "type": "const",
+              "value": 130
+            },
+            {
+              "type": "const",
+              "value": 7
+            }
+          ],
+          "_line": 365
+        },
+        {
+          "type": "call_stmt",
+          "name": "draw_string_to_display",
+          "args": [
+            {
+              "type": "string_addr",
+              "label": "str_4"
+            },
+            {
+              "type": "const",
+              "value": 10
+            },
+            {
+              "type": "const",
+              "value": 150
+            },
+            {
+              "type": "const",
+              "value": 60
+            }
+          ],
+          "_line": 366
         }
       ],
       "return_type": "void",
-      "_line": 277
+      "_line": 347
     }
   ],
-  "types": [
-    {
-      "kind": "struct",
-      "name": "Point",
-      "members": [
-        {
-          "name": "x",
-          "type": "int",
-          "offset": 0,
-          "size": 4
-        },
-        {
-          "name": "y",
-          "type": "int",
-          "offset": 4,
-          "size": 4
-        }
-      ],
-      "size": 8
-    },
-    {
-      "kind": "struct",
-      "name": "Size",
-      "members": [
-        {
-          "name": "width",
-          "type": "int",
-          "offset": 0,
-          "size": 4
-        },
-        {
-          "name": "height",
-          "type": "int",
-          "offset": 4,
-          "size": 4
-        }
-      ],
-      "size": 8
-    }
-  ]
+  "types": []
 }
