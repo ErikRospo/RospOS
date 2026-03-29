@@ -1,0 +1,321 @@
+{
+  "benchmark": "all",
+  "metadata": {
+    "input_rosc": "tools/benchmarking/programs/static_test.rosc",
+    "rosc_effective_lines": 71,
+    "generated_ros": "rospos/build/bench/all_bench.ros",
+    "ros_effective_lines": 562,
+    "generated_rosp": "rospos/build/bench/all_bench.rosp",
+    "repeat": 20,
+    "warmup": 3,
+    "timeout_s": 0,
+    "cpu": "AMD Ryzen 7 8700G w/ Radeon 780M Graphics"
+  },
+  "stages": {
+    "rospocc": {
+      "command": [
+        "rospoas/venv/bin/python",
+        "rospocc/parser.py",
+        "--input",
+        "tools/benchmarking/programs/static_test.rosc",
+        "--output",
+        "rospos/build/bench/all_bench.ros"
+      ],
+      "summary": {
+        "count": 20,
+        "min_ms": 365.744636,
+        "max_ms": 418.475375,
+        "mean_ms": 395.79401405,
+        "median_ms": 395.012979,
+        "stdev_ms": 14.619177099613992,
+        "mean_ms_per_line_rosc": 5.5745635781690135
+      },
+      "iterations": [
+        {
+          "iteration": 1,
+          "duration_ms": 380.89662
+        },
+        {
+          "iteration": 2,
+          "duration_ms": 365.744636
+        },
+        {
+          "iteration": 3,
+          "duration_ms": 379.468064
+        },
+        {
+          "iteration": 4,
+          "duration_ms": 379.641186
+        },
+        {
+          "iteration": 5,
+          "duration_ms": 380.091092
+        },
+        {
+          "iteration": 6,
+          "duration_ms": 398.545764
+        },
+        {
+          "iteration": 7,
+          "duration_ms": 392.148941
+        },
+        {
+          "iteration": 8,
+          "duration_ms": 412.855599
+        },
+        {
+          "iteration": 9,
+          "duration_ms": 409.179997
+        },
+        {
+          "iteration": 10,
+          "duration_ms": 394.285055
+        },
+        {
+          "iteration": 11,
+          "duration_ms": 383.866465
+        },
+        {
+          "iteration": 12,
+          "duration_ms": 405.213201
+        },
+        {
+          "iteration": 13,
+          "duration_ms": 418.475375
+        },
+        {
+          "iteration": 14,
+          "duration_ms": 417.466043
+        },
+        {
+          "iteration": 15,
+          "duration_ms": 409.768834
+        },
+        {
+          "iteration": 16,
+          "duration_ms": 394.628659
+        },
+        {
+          "iteration": 17,
+          "duration_ms": 395.397299
+        },
+        {
+          "iteration": 18,
+          "duration_ms": 411.22218
+        },
+        {
+          "iteration": 19,
+          "duration_ms": 395.467268
+        },
+        {
+          "iteration": 20,
+          "duration_ms": 391.518003
+        }
+      ]
+    },
+    "rospoas": {
+      "command": [
+        "rospoas/venv/bin/python",
+        "rospoas/compile.py",
+        "--optimize",
+        "--bin-version",
+        "2",
+        "--rospocc-mapping",
+        "--segment-debug",
+        "--debug-all",
+        "--input",
+        "rospos/build/bench/all_bench.ros",
+        "--output",
+        "rospos/build/bench/all_bench.rosp"
+      ],
+      "summary": {
+        "count": 20,
+        "min_ms": 132.276498,
+        "max_ms": 159.025057,
+        "mean_ms": 145.63193180000002,
+        "median_ms": 144.663721,
+        "stdev_ms": 6.663867568629842,
+        "mean_ms_per_line_rosc": 2.0511539690140848,
+        "mean_ms_per_line_ros": 0.25913155124555165
+      },
+      "iterations": [
+        {
+          "iteration": 1,
+          "duration_ms": 159.025057
+        },
+        {
+          "iteration": 2,
+          "duration_ms": 145.669113
+        },
+        {
+          "iteration": 3,
+          "duration_ms": 153.1776
+        },
+        {
+          "iteration": 4,
+          "duration_ms": 154.452475
+        },
+        {
+          "iteration": 5,
+          "duration_ms": 150.775861
+        },
+        {
+          "iteration": 6,
+          "duration_ms": 146.761335
+        },
+        {
+          "iteration": 7,
+          "duration_ms": 149.955512
+        },
+        {
+          "iteration": 8,
+          "duration_ms": 147.295911
+        },
+        {
+          "iteration": 9,
+          "duration_ms": 143.050833
+        },
+        {
+          "iteration": 10,
+          "duration_ms": 143.121384
+        },
+        {
+          "iteration": 11,
+          "duration_ms": 148.089461
+        },
+        {
+          "iteration": 12,
+          "duration_ms": 154.703437
+        },
+        {
+          "iteration": 13,
+          "duration_ms": 139.872446
+        },
+        {
+          "iteration": 14,
+          "duration_ms": 143.658329
+        },
+        {
+          "iteration": 15,
+          "duration_ms": 139.992137
+        },
+        {
+          "iteration": 16,
+          "duration_ms": 132.276498
+        },
+        {
+          "iteration": 17,
+          "duration_ms": 138.181066
+        },
+        {
+          "iteration": 18,
+          "duration_ms": 142.322264
+        },
+        {
+          "iteration": 19,
+          "duration_ms": 141.685957
+        },
+        {
+          "iteration": 20,
+          "duration_ms": 138.57196
+        }
+      ]
+    },
+    "rospovm_headless": {
+      "command": [
+        "rospovm/build/rospovm_headless",
+        "rospos/build/bench/all_bench.rosp"
+      ],
+      "summary": {
+        "count": 20,
+        "min_ms": 472.476248,
+        "max_ms": 645.398216,
+        "mean_ms": 540.15715785,
+        "median_ms": 513.1405035,
+        "stdev_ms": 61.95996830004164
+      },
+      "iterations": [
+        {
+          "iteration": 1,
+          "duration_ms": 509.614117
+        },
+        {
+          "iteration": 2,
+          "duration_ms": 489.637326
+        },
+        {
+          "iteration": 3,
+          "duration_ms": 513.710135
+        },
+        {
+          "iteration": 4,
+          "duration_ms": 520.366982
+        },
+        {
+          "iteration": 5,
+          "duration_ms": 541.589137
+        },
+        {
+          "iteration": 6,
+          "duration_ms": 506.561122
+        },
+        {
+          "iteration": 7,
+          "duration_ms": 512.570872
+        },
+        {
+          "iteration": 8,
+          "duration_ms": 524.123615
+        },
+        {
+          "iteration": 9,
+          "duration_ms": 502.559746
+        },
+        {
+          "iteration": 10,
+          "duration_ms": 499.692202
+        },
+        {
+          "iteration": 11,
+          "duration_ms": 476.750688
+        },
+        {
+          "iteration": 12,
+          "duration_ms": 480.30599
+        },
+        {
+          "iteration": 13,
+          "duration_ms": 472.476248
+        },
+        {
+          "iteration": 14,
+          "duration_ms": 482.479904
+        },
+        {
+          "iteration": 15,
+          "duration_ms": 605.127751
+        },
+        {
+          "iteration": 16,
+          "duration_ms": 631.967851
+        },
+        {
+          "iteration": 17,
+          "duration_ms": 628.546441
+        },
+        {
+          "iteration": 18,
+          "duration_ms": 645.398216
+        },
+        {
+          "iteration": 19,
+          "duration_ms": 625.72464
+        },
+        {
+          "iteration": 20,
+          "duration_ms": 633.940174
+        }
+      ]
+    }
+  }
+}

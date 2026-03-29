@@ -6,6 +6,7 @@ from __future__ import annotations
 import argparse
 import json
 from pathlib import Path
+import platform
 import subprocess
 import sys
 from datetime import datetime
@@ -16,6 +17,38 @@ if str(SCRIPT_DIR) not in sys.path:
     sys.path.insert(0, str(SCRIPT_DIR))
 
 from common import DEFAULT_RESULTS_DIR, ROOT, format_summary, run_benchmark, summarize, add_time_per_line_metric, count_effective_lines
+
+
+def repo_relative(path: Path) -> Path:
+    """Return a path relative to repository root when possible."""
+    try:
+        return path.resolve().relative_to(ROOT)
+    except ValueError:
+        return path
+
+
+def detect_cpu() -> str | None:
+    """Best-effort CPU model detection for benchmark metadata."""
+    cpuinfo = Path("/proc/cpuinfo")
+    if cpuinfo.exists():
+        for line in cpuinfo.read_text(encoding="utf-8", errors="ignore").splitlines():
+            if line.startswith("model name"):
+                _, value = line.split(":", 1)
+                model = value.strip()
+                if model:
+                    return model
+            if line.startswith("Hardware"):
+                _, value = line.split(":", 1)
+                model = value.strip()
+                if model:
+                    return model
+
+    uname = platform.uname()
+    if uname.processor:
+        return uname.processor.strip() or None
+    if uname.machine:
+        return uname.machine.strip() or None
+    return None
 
 
 def maybe_prepare(prepare: bool) -> None:
@@ -38,33 +71,40 @@ def main() -> int:
     )
     parser.add_argument(
         "--results-dir",
-        default=str(DEFAULT_RESULTS_DIR),
+        default=str(repo_relative(DEFAULT_RESULTS_DIR)),
         help="Directory for aggregate benchmark output",
     )
     args = parser.parse_args()
 
     maybe_prepare(args.prepare)
 
-    bench_dir = ROOT / "rospos" / "build" / "bench"
+    bench_dir_rel = Path("rospos") / "build" / "bench"
+    bench_dir = ROOT / bench_dir_rel
     bench_dir.mkdir(parents=True, exist_ok=True)
 
-    rosc_in = ROOT / args.input_rosc
+    rosc_in = Path(args.input_rosc)
+    if not rosc_in.is_absolute():
+        rosc_in = ROOT / rosc_in
+    rosc_in_rel = repo_relative(rosc_in)
+
     ros_out = bench_dir / "all_bench.ros"
+    ros_out_rel = repo_relative(ros_out)
     rosp_out = bench_dir / "all_bench.rosp"
+    rosp_out_rel = repo_relative(rosp_out)
 
     timeout = None if args.timeout == 0 else args.timeout
 
     rospocc_cmd = [
-        str(ROOT / "rospoas/venv/bin/python"),
-        str(ROOT / "rospocc/parser.py"),
+        "rospoas/venv/bin/python",
+        "rospocc/parser.py",
         "--input",
-        str(rosc_in),
+        str(rosc_in_rel),
         "--output",
-        str(ros_out),
+        str(ros_out_rel),
     ]
     rospoas_cmd = [
-        str(ROOT / "rospoas/venv/bin/python"),
-        str(ROOT / "rospoas/compile.py"),
+        "rospoas/venv/bin/python",
+        "rospoas/compile.py",
         "--optimize",
         "--bin-version",
         "2",
@@ -72,11 +112,11 @@ def main() -> int:
         "--segment-debug",
         "--debug-all",
         "--input",
-        str(ros_out),
+        str(ros_out_rel),
         "--output",
-        str(rosp_out),
+        str(rosp_out_rel),
     ]
-    vm_cmd = [str(ROOT / "rospovm/build/rospovm_headless"), str(rosp_out)]
+    vm_cmd = ["rospovm/build/rospovm_headless", str(rosp_out_rel)]
 
     print("Running rospocc benchmark...")
     rospocc_results = run_benchmark(
@@ -131,6 +171,8 @@ def main() -> int:
     )
 
     result_dir = Path(args.results_dir)
+    if not result_dir.is_absolute():
+        result_dir = ROOT / result_dir
     result_dir.mkdir(parents=True, exist_ok=True)
     stamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     out_path = result_dir / f"benchmark_all_{stamp}.json"
@@ -138,14 +180,15 @@ def main() -> int:
     payload = {
         "benchmark": "all",
         "metadata": {
-            "input_rosc": str(rosc_in),
+            "input_rosc": str(rosc_in_rel),
             "rosc_effective_lines": rosc_effective_lines,
-            "generated_ros": str(ros_out),
+            "generated_ros": str(ros_out_rel),
             "ros_effective_lines": ros_effective_lines,
-            "generated_rosp": str(rosp_out),
+            "generated_rosp": str(rosp_out_rel),
             "repeat": args.repeat,
             "warmup": args.warmup,
             "timeout_s": args.timeout,
+            "cpu": detect_cpu(),
         },
         "stages": {
             "rospocc": {
@@ -189,7 +232,7 @@ def main() -> int:
         else "None",
     )
     print("  rospovm_headless", format_summary(payload["stages"]["rospovm_headless"]["summary"]))
-    print(f"Wrote {out_path}")
+    print(f"Wrote {repo_relative(out_path)}")
     return 0
 
 
