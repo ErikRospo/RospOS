@@ -118,7 +118,61 @@ def opt_30_nop_removal(ast, logs):
         optimized_ast.append(instr)
     return optimized_ast
 
+def opt_30_condition_against_zero(ast, logs):
+    #   LLI rX, 0
+    #   BEQ/BNE a, rX, label
+    # or
+    #   LLI rX, 0
+    #   BEQ/BNE rX, a, label
+    # =>
+    #   BEQ/BNE a, r0, label   (or r0, a depending on operand order)
+    optimized_ast = []
+    i = 0
 
+    def _is_zero_lli(node):
+        return (
+            isinstance(node, Instruction)
+            and node.type == "p"
+            and node.name == "lli"
+            and node.rd is not None
+            and _reg_from_imm(node.imm) == 0
+        )
+
+    def _is_eq_ne_branch(node):
+        return (
+            isinstance(node, Instruction)
+            and node.type == "b"
+            and node.name in {"beq", "bne"}
+            and node.rd is not None
+            and node.rs1 is not None
+        )
+
+    while i < len(ast):
+        if i + 1 < len(ast) and _is_zero_lli(ast[i]) and _is_eq_ne_branch(ast[i + 1]):
+            lli = ast[i]
+            br = ast[i + 1]
+            loaded_reg = lli.rd
+
+            lhs = br.rd
+            rhs = br.rs1
+            if lhs == loaded_reg or rhs == loaded_reg:
+                new_br = br.copy_with(
+                    rd=0 if lhs == loaded_reg else lhs,
+                    rs1=0 if rhs == loaded_reg else rhs,
+                    is_optimized=True,
+                )
+                optimized_ast.append(new_br)
+                logs.append(
+                    f"Optimized condition-against-zero at indices {i}-{i+1}: "
+                    f"replaced '{lli}' and '{br}' with '{new_br}'"
+                )
+                i += 2
+                continue
+
+        optimized_ast.append(ast[i])
+        i += 1
+
+    return optimized_ast
 def opt_20_push_pop(ast, logs):
     # find sequences of push and pop instructions that cancel each other out and eliminate them
     # e.g.
