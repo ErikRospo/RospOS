@@ -622,157 +622,34 @@ WHILE_END96:
   POP r14
   RET
 
-.FUNC write_block:
+// Inline function definition 'write_block' skipped (will be inlined at call sites)
+
+// Inline function definition 'read_block' skipped (will be inlined at call sites)
+
+.FUNC string_length:
   PUSH r14
-  // emit call to bd_write_u32 with args [{'type': 'const', 'value': 1073741832}, {'type': 'var', 'name': 'blockID'}]
-  PUSH r2    // save caller temp
-  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  LLI r3, 1073741832    // load immediate 1073741832
-  PUSH r3    // stage reg arg 0
-  PUSH r1    // stage reg arg 1
-  POP r2    // load reg arg 1
-  POP r1    // load reg arg 0
-  CALL bd_write_u32
-  // call return value in r1
-  POP r1  
-  POP r2    // restore caller temp
-  // emit call to bd_write_u32 with args [{'type': 'const', 'value': 1073741836}, {'type': 'var', 'name': 'data'}]
-  PUSH r2    // save caller temp
-  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  LLI r4, 1073741836    // load immediate 1073741836
-  PUSH r4    // stage reg arg 0
-  PUSH r2    // stage reg arg 1
-  POP r2    // load reg arg 1
-  POP r1    // load reg arg 0
-  CALL bd_write_u32
-  // call return value in r1
-  POP r1  
-  POP r2    // restore caller temp
-  // emit call to bd_write_u32 with args [{'type': 'const', 'value': 1073741840}, {'type': 'const', 'value': 1}]
-  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  LLI r5, 1073741840    // load immediate 1073741840
-  PUSH r5    // stage reg arg 0
-  LLI r6, 1    // load immediate 1
-  PUSH r6    // stage reg arg 1
-  POP r2    // load reg arg 1
-  POP r1    // load reg arg 0
-  CALL bd_write_u32
-  // call return value in r1
-  POP r1  
-  // emit call to bd_write_u32 with args [{'type': 'const', 'value': 1073741828}, {'type': 'const', 'value': 2}]
-  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  LLI r7, 1073741828    // load immediate 1073741828
-  PUSH r7    // stage reg arg 0
-  LLI r8, 2    // load immediate 2
-  PUSH r8    // stage reg arg 1
-  POP r2    // load reg arg 1
-  POP r1    // load reg arg 0
-  CALL bd_write_u32
-  // call return value in r1
-  POP r1  
+  LLI r2, 0    // init length
 WHILE97:
-  // emit call to bd_read_u32 with args [{'type': 'const', 'value': 1073741828}]
-  PUSH r9    // save caller temp
-  LLI r10, 1073741828    // load immediate 1073741828
-  PUSH r10    // stage reg arg 0
-  POP r1    // load reg arg 0
-  CALL bd_read_u32
-  // call return value in r1
-  POP r9    // restore caller temp
-  ADDI r9, r1, 0    // move return value
-  // call expr bd_read_u32 -> return in r9
-  LLI r11, 0    // load immediate 0
-  BNE r9, r11, CMP_TRUE99
-  LLI r9, 0    // compare false path
+  ADD r3, r1, r2    // binop +
+  LB r3, r3, 0    // deref
+  LLI r4, 0    // load immediate 0
+  BNE r3, r4, CMP_TRUE99
+  LLI r3, 0    // compare false path
   JMP CMP_END100
 CMP_TRUE99:
-  LLI r9, 1
+  LLI r3, 1
 CMP_END100:
-  BEQ r9, r0, WHILE_END98
+  BEQ r3, r0, WHILE_END98
+  ADDI r2, r2, 1    // assign length (addi fast path)
   JMP WHILE97
 WHILE_END98:
-  LLI r12, 0    // load immediate 0
-  ADD r1, r12, r0
-  POP r14
-  RET
-
-.FUNC read_block:
-  PUSH r14
-  // emit call to bd_write_u32 with args [{'type': 'const', 'value': 1073741832}, {'type': 'var', 'name': 'blockID'}]
-  PUSH r2    // save caller temp
-  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  LLI r3, 1073741832    // load immediate 1073741832
-  PUSH r3    // stage reg arg 0
-  PUSH r1    // stage reg arg 1
-  POP r2    // load reg arg 1
-  POP r1    // load reg arg 0
-  CALL bd_write_u32
-  // call return value in r1
-  POP r1  
-  POP r2    // restore caller temp
-  // emit call to bd_write_u32 with args [{'type': 'const', 'value': 1073741836}, {'type': 'var', 'name': 'buffer'}]
-  PUSH r2    // save caller temp
-  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  LLI r4, 1073741836    // load immediate 1073741836
-  PUSH r4    // stage reg arg 0
-  PUSH r2    // stage reg arg 1
-  POP r2    // load reg arg 1
-  POP r1    // load reg arg 0
-  CALL bd_write_u32
-  // call return value in r1
-  POP r1  
-  POP r2    // restore caller temp
-  // emit call to bd_write_u32 with args [{'type': 'const', 'value': 1073741840}, {'type': 'const', 'value': 1}]
-  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  LLI r5, 1073741840    // load immediate 1073741840
-  PUSH r5    // stage reg arg 0
-  LLI r6, 1    // load immediate 1
-  PUSH r6    // stage reg arg 1
-  POP r2    // load reg arg 1
-  POP r1    // load reg arg 0
-  CALL bd_write_u32
-  // call return value in r1
-  POP r1  
-  // emit call to bd_write_u32 with args [{'type': 'const', 'value': 1073741828}, {'type': 'const', 'value': 1}]
-  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  LLI r7, 1073741828    // load immediate 1073741828
-  PUSH r7    // stage reg arg 0
-  LLI r8, 1    // load immediate 1
-  PUSH r8    // stage reg arg 1
-  POP r2    // load reg arg 1
-  POP r1    // load reg arg 0
-  CALL bd_write_u32
-  // call return value in r1
-  POP r1  
-WHILE101:
-  // emit call to bd_read_u32 with args [{'type': 'const', 'value': 1073741828}]
-  PUSH r9    // save caller temp
-  LLI r10, 1073741828    // load immediate 1073741828
-  PUSH r10    // stage reg arg 0
-  POP r1    // load reg arg 0
-  CALL bd_read_u32
-  // call return value in r1
-  POP r9    // restore caller temp
-  ADDI r9, r1, 0    // move return value
-  // call expr bd_read_u32 -> return in r9
-  LLI r11, 0    // load immediate 0
-  BNE r9, r11, CMP_TRUE103
-  LLI r9, 0    // compare false path
-  JMP CMP_END104
-CMP_TRUE103:
-  LLI r9, 1
-CMP_END104:
-  BEQ r9, r0, WHILE_END102
-  JMP WHILE101
-WHILE_END102:
-  LLI r12, 0    // load immediate 0
-  ADD r1, r12, r0
+  ADD r1, r2, r0
   POP r14
   RET
 
 .FUNC initialize_filesystem:
   PUSH r14
-  LLI r2, superblock_buf105    // init superblock (buffer addr)
+  LLI r2, superblock_buf101    // init superblock (buffer addr)
   LLI r3, 82    // load immediate 82
   LLI r4, 0    // load immediate 0
   ADD r4, r2, r4    // binop +
@@ -802,149 +679,239 @@ WHILE_END102:
   ADD r5, r2, r5    // binop +
   SB r6, r5, 0    // store 
   LLI r8, 7    // init i
-WHILE106:
+WHILE102:
   LLI r7, 512    // load immediate 512
-  BLT r8, r7, CMP_TRUE108
+  BLT r8, r7, CMP_TRUE104
   LLI r7, 0    // compare false path
-  JMP CMP_END109
-CMP_TRUE108:
+  JMP CMP_END105
+CMP_TRUE104:
   LLI r7, 1
-CMP_END109:
-  BEQ r7, r0, WHILE_END107
+CMP_END105:
+  BEQ r7, r0, WHILE_END103
   LLI r10, 0    // load immediate 0
   ADD r9, r2, r8    // binop +
   SB r10, r9, 0    // store 
   ADDI r8, r8, 1    // assign i (addi fast path)
-  JMP WHILE106
-WHILE_END107:
-  // emit call to write_block with args [{'type': 'const', 'value': 0}, {'type': 'var', 'name': 'superblock'}]
-  PUSH r2    // save caller temp
-  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
+  JMP WHILE102
+WHILE_END103:
+  // inline call to write_block with args [{'type': 'const', 'value': 0}, {'type': 'var', 'name': 'superblock'}]
+  // begin inline expansion of write_block
   LLI r12, 0    // load immediate 0
-  PUSH r12    // stage reg arg 0
-  PUSH r2    // stage reg arg 1
+  // emit call to bd_write_u32 with args [{'type': 'const', 'value': 1073741832}, {'type': 'var', 'name': 'blockID'}]
+  PUSH r2    // save caller temp
+  PUSH r12    // save caller temp
+  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
+  LLI r11, 1073741832    // load immediate 1073741832
+  PUSH r11    // stage reg arg 0
+  PUSH r12    // stage reg arg 1
   POP r2    // load reg arg 1
   POP r1    // load reg arg 0
-  CALL write_block
+  CALL bd_write_u32
   // call return value in r1
   POP r1  
+  POP r12    // restore caller temp
   POP r2    // restore caller temp
-  // epilogue and return
-  ADDI r1, r0, 0  // ensure r1=0
-  POP r14
-  RET
-
-.FUNC ensure_filesystem_initialized:
-  PUSH r14
-  LLI r2, superblock_buf110    // init superblock (buffer addr)
-  // emit call to read_block with args [{'type': 'const', 'value': 0}, {'type': 'var', 'name': 'superblock'}]
+  // emit call to bd_write_u32 with args [{'type': 'const', 'value': 1073741836}, {'type': 'var', 'name': 'data'}]
   PUSH r2    // save caller temp
   PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  LLI r3, 0    // load immediate 0
+  LLI r3, 1073741836    // load immediate 1073741836
   PUSH r3    // stage reg arg 0
   PUSH r2    // stage reg arg 1
   POP r2    // load reg arg 1
   POP r1    // load reg arg 0
-  CALL read_block
+  CALL bd_write_u32
   // call return value in r1
   POP r1  
   POP r2    // restore caller temp
-  LLI r4, 0    // load immediate 0
+  // emit call to bd_write_u32 with args [{'type': 'const', 'value': 1073741840}, {'type': 'const', 'value': 1}]
+  PUSH r2    // save caller temp
+  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
+  LLI r4, 1073741840    // load immediate 1073741840
+  PUSH r4    // stage reg arg 0
+  LLI r5, 1    // load immediate 1
+  PUSH r5    // stage reg arg 1
+  POP r2    // load reg arg 1
+  POP r1    // load reg arg 0
+  CALL bd_write_u32
+  // call return value in r1
+  POP r1  
+  POP r2    // restore caller temp
+  // emit call to bd_write_u32 with args [{'type': 'const', 'value': 1073741828}, {'type': 'const', 'value': 2}]
+  PUSH r2    // save caller temp
+  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
+  LLI r6, 1073741828    // load immediate 1073741828
+  PUSH r6    // stage reg arg 0
+  LLI r7, 2    // load immediate 2
+  PUSH r7    // stage reg arg 1
+  POP r2    // load reg arg 1
+  POP r1    // load reg arg 0
+  CALL bd_write_u32
+  // call return value in r1
+  POP r1  
+  POP r2    // restore caller temp
+  LLI r9, 0    // load immediate 0
+  ADD r1, r9, r0
+  // inline function return (no RET emitted)
+  // end inline expansion of write_block
+
+.FUNC ensure_filesystem_initialized:
+  PUSH r14
+  LLI r2, superblock_buf106    // init superblock (buffer addr)
+  // inline call to read_block with args [{'type': 'const', 'value': 0}, {'type': 'var', 'name': 'superblock'}]
+  // begin inline expansion of read_block
+  LLI r3, 0    // load immediate 0
+  // emit call to bd_write_u32 with args [{'type': 'const', 'value': 1073741832}, {'type': 'var', 'name': 'blockID'}]
+  PUSH r2    // save caller temp
+  PUSH r3    // save caller temp
+  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
+  LLI r4, 1073741832    // load immediate 1073741832
+  PUSH r4    // stage reg arg 0
+  PUSH r3    // stage reg arg 1
+  POP r2    // load reg arg 1
+  POP r1    // load reg arg 0
+  CALL bd_write_u32
+  // call return value in r1
+  POP r1  
+  POP r3    // restore caller temp
+  POP r2    // restore caller temp
+  // emit call to bd_write_u32 with args [{'type': 'const', 'value': 1073741836}, {'type': 'var', 'name': 'buffer'}]
+  PUSH r2    // save caller temp
+  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
+  LLI r5, 1073741836    // load immediate 1073741836
+  PUSH r5    // stage reg arg 0
+  PUSH r2    // stage reg arg 1
+  POP r2    // load reg arg 1
+  POP r1    // load reg arg 0
+  CALL bd_write_u32
+  // call return value in r1
+  POP r1  
+  POP r2    // restore caller temp
+  // emit call to bd_write_u32 with args [{'type': 'const', 'value': 1073741840}, {'type': 'const', 'value': 1}]
+  PUSH r2    // save caller temp
+  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
+  LLI r6, 1073741840    // load immediate 1073741840
+  PUSH r6    // stage reg arg 0
+  LLI r7, 1    // load immediate 1
+  PUSH r7    // stage reg arg 1
+  POP r2    // load reg arg 1
+  POP r1    // load reg arg 0
+  CALL bd_write_u32
+  // call return value in r1
+  POP r1  
+  POP r2    // restore caller temp
+  // emit call to bd_write_u32 with args [{'type': 'const', 'value': 1073741828}, {'type': 'const', 'value': 1}]
+  PUSH r2    // save caller temp
+  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
+  LLI r8, 1073741828    // load immediate 1073741828
+  PUSH r8    // stage reg arg 0
+  LLI r9, 1    // load immediate 1
+  PUSH r9    // stage reg arg 1
+  POP r2    // load reg arg 1
+  POP r1    // load reg arg 0
+  CALL bd_write_u32
+  // call return value in r1
+  POP r1  
+  POP r2    // restore caller temp
+  LLI r10, 0    // load immediate 0
+  ADD r1, r10, r0
+  // inline function return (no RET emitted)
+  // end inline expansion of read_block
+  LLI r11, 0    // load immediate 0
+  ADD r11, r2, r11    // binop +
+  LB r11, r11, 0    // deref
+  LLI r12, 82    // load immediate 82
+  BNE r11, r12, CMP_TRUE109
+  LLI r11, 0    // compare false path
+  JMP CMP_END110
+CMP_TRUE109:
+  LLI r11, 1
+CMP_END110:
+  LLI r4, 1    // load immediate 1
   ADD r4, r2, r4    // binop +
   LB r4, r4, 0    // deref
-  LLI r5, 82    // load immediate 82
-  BNE r4, r5, CMP_TRUE113
+  LLI r3, 79    // load immediate 79
+  BNE r4, r3, CMP_TRUE111
   LLI r4, 0    // compare false path
+  JMP CMP_END112
+CMP_TRUE111:
+  LLI r4, 1
+CMP_END112:
+  OR r11, r11, r4    // logic || fold
+  BNE r11, r0, CMP_TRUE113
+  LLI r11, 0    // compare false path
   JMP CMP_END114
 CMP_TRUE113:
-  LLI r4, 1
+  LLI r11, 1
 CMP_END114:
-  LLI r6, 1    // load immediate 1
-  ADD r6, r2, r6    // binop +
-  LB r6, r6, 0    // deref
-  LLI r7, 79    // load immediate 79
-  BNE r6, r7, CMP_TRUE115
-  LLI r6, 0    // compare false path
+  LLI r5, 2    // load immediate 2
+  ADD r5, r2, r5    // binop +
+  LB r5, r5, 0    // deref
+  LLI r6, 83    // load immediate 83
+  BNE r5, r6, CMP_TRUE115
+  LLI r5, 0    // compare false path
   JMP CMP_END116
 CMP_TRUE115:
-  LLI r6, 1
+  LLI r5, 1
 CMP_END116:
-  OR r4, r4, r6    // logic || fold
-  BNE r4, r0, CMP_TRUE117
-  LLI r4, 0    // compare false path
+  OR r11, r11, r5    // logic || fold
+  BNE r11, r0, CMP_TRUE117
+  LLI r11, 0    // compare false path
   JMP CMP_END118
 CMP_TRUE117:
-  LLI r4, 1
+  LLI r11, 1
 CMP_END118:
-  LLI r8, 2    // load immediate 2
-  ADD r8, r2, r8    // binop +
-  LB r8, r8, 0    // deref
-  LLI r9, 83    // load immediate 83
-  BNE r8, r9, CMP_TRUE119
-  LLI r8, 0    // compare false path
+  LLI r7, 3    // load immediate 3
+  ADD r7, r2, r7    // binop +
+  LB r7, r7, 0    // deref
+  LLI r8, 80    // load immediate 80
+  BNE r7, r8, CMP_TRUE119
+  LLI r7, 0    // compare false path
   JMP CMP_END120
 CMP_TRUE119:
-  LLI r8, 1
+  LLI r7, 1
 CMP_END120:
-  OR r4, r4, r8    // logic || fold
-  BNE r4, r0, CMP_TRUE121
-  LLI r4, 0    // compare false path
+  OR r11, r11, r7    // logic || fold
+  BNE r11, r0, CMP_TRUE121
+  LLI r11, 0    // compare false path
   JMP CMP_END122
 CMP_TRUE121:
-  LLI r4, 1
+  LLI r11, 1
 CMP_END122:
-  LLI r10, 3    // load immediate 3
-  ADD r10, r2, r10    // binop +
-  LB r10, r10, 0    // deref
-  LLI r11, 80    // load immediate 80
-  BNE r10, r11, CMP_TRUE123
-  LLI r10, 0    // compare false path
+  LLI r9, 4    // load immediate 4
+  ADD r9, r2, r9    // binop +
+  LB r9, r9, 0    // deref
+  LLI r10, 70    // load immediate 70
+  BNE r9, r10, CMP_TRUE123
+  LLI r9, 0    // compare false path
   JMP CMP_END124
 CMP_TRUE123:
-  LLI r10, 1
+  LLI r9, 1
 CMP_END124:
-  OR r4, r4, r10    // logic || fold
-  BNE r4, r0, CMP_TRUE125
-  LLI r4, 0    // compare false path
+  OR r11, r11, r9    // logic || fold
+  BNE r11, r0, CMP_TRUE125
+  LLI r11, 0    // compare false path
   JMP CMP_END126
 CMP_TRUE125:
-  LLI r4, 1
+  LLI r11, 1
 CMP_END126:
-  LLI r12, 4    // load immediate 4
+  LLI r12, 5    // load immediate 5
   ADD r12, r2, r12    // binop +
   LB r12, r12, 0    // deref
-  LLI r3, 70    // load immediate 70
+  LLI r3, 83    // load immediate 83
   BNE r12, r3, CMP_TRUE127
   LLI r12, 0    // compare false path
   JMP CMP_END128
 CMP_TRUE127:
   LLI r12, 1
 CMP_END128:
-  OR r4, r4, r12    // logic || fold
-  BNE r4, r0, CMP_TRUE129
-  LLI r4, 0    // compare false path
+  OR r11, r11, r12    // logic || fold
+  BNE r11, r0, CMP_TRUE129
+  LLI r11, 0    // compare false path
   JMP CMP_END130
 CMP_TRUE129:
-  LLI r4, 1
+  LLI r11, 1
 CMP_END130:
-  LLI r5, 5    // load immediate 5
-  ADD r5, r2, r5    // binop +
-  LB r5, r5, 0    // deref
-  LLI r7, 83    // load immediate 83
-  BNE r5, r7, CMP_TRUE131
-  LLI r5, 0    // compare false path
-  JMP CMP_END132
-CMP_TRUE131:
-  LLI r5, 1
-CMP_END132:
-  OR r4, r4, r5    // logic || fold
-  BNE r4, r0, CMP_TRUE133
-  LLI r4, 0    // compare false path
-  JMP CMP_END134
-CMP_TRUE133:
-  LLI r4, 1
-CMP_END134:
-  BEQ r4, r0, ELSE111
+  BEQ r11, r0, ELSE107
   // emit call to initialize_filesystem with args []
   PUSH r2    // save caller temp
   PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
@@ -952,389 +919,446 @@ CMP_END134:
   // call return value in r1
   POP r1  
   POP r2    // restore caller temp
-  JMP IF_END112
-ELSE111:
-IF_END112:
-  // epilogue and return
-  ADDI r1, r0, 0  // ensure r1=0
-  POP r14
-  RET
+  JMP IF_END108
+ELSE107:
+IF_END108:
 
 .FUNC write_file:
   PUSH r14
-  LLI r2, filename_buf135    // init filename (buffer addr)
-  LLI r3, 101    // load immediate 101
-  LLI r4, 0    // load immediate 0
-  ADD r5, r2, r4    // filename[0] addr
-  SB r3, r5, 0    // init filename[0]
-  LLI r6, 120    // load immediate 120
-  LLI r7, 1    // load immediate 1
-  ADD r8, r2, r7    // filename[1] addr
-  SB r6, r8, 0    // init filename[1]
-  LLI r9, 97    // load immediate 97
-  LLI r10, 2    // load immediate 2
-  ADD r11, r2, r10    // filename[2] addr
-  SB r9, r11, 0    // init filename[2]
-  LLI r12, 109    // load immediate 109
-  LLI r5, 3    // load immediate 3
-  ADD r4, r2, r5    // filename[3] addr
-  SB r12, r4, 0    // init filename[3]
-  LLI r3, 112    // load immediate 112
-  LLI r8, 4    // load immediate 4
-  ADD r7, r2, r8    // filename[4] addr
-  SB r3, r7, 0    // init filename[4]
-  LLI r6, 108    // load immediate 108
-  LLI r11, 5    // load immediate 5
-  ADD r10, r2, r11    // filename[5] addr
-  SB r6, r10, 0    // init filename[5]
-  LLI r9, 101    // load immediate 101
-  LLI r4, 6    // load immediate 6
-  ADD r5, r2, r4    // filename[6] addr
-  SB r9, r5, 0    // init filename[6]
-  LLI r12, 46    // load immediate 46
-  LLI r7, 7    // load immediate 7
-  ADD r8, r2, r7    // filename[7] addr
-  SB r12, r8, 0    // init filename[7]
-  LLI r3, 116    // load immediate 116
-  LLI r10, 8    // load immediate 8
-  ADD r11, r2, r10    // filename[8] addr
-  SB r3, r11, 0    // init filename[8]
-  LLI r6, 120    // load immediate 120
-  LLI r5, 9    // load immediate 9
-  ADD r4, r2, r5    // filename[9] addr
-  SB r6, r4, 0    // init filename[9]
-  LLI r9, 116    // load immediate 116
-  LLI r8, 10    // load immediate 10
-  ADD r7, r2, r8    // filename[10] addr
-  SB r9, r7, 0    // init filename[10]
-  LLI r12, 0    // load immediate 0
-  LLI r11, 11    // load immediate 11
-  ADD r10, r2, r11    // filename[11] addr
-  SB r12, r10, 0    // init filename[11]
-  LLI r3, data_buf136    // init data (buffer addr)
-  LLI r4, 72    // load immediate 72
-  LLI r5, 0    // load immediate 0
-  ADD r6, r3, r5    // data[0] addr
-  SB r4, r6, 0    // init data[0]
-  LLI r7, 101    // load immediate 101
-  LLI r8, 1    // load immediate 1
-  ADD r9, r3, r8    // data[1] addr
-  SB r7, r9, 0    // init data[1]
-  LLI r10, 108    // load immediate 108
-  LLI r11, 2    // load immediate 2
-  ADD r12, r3, r11    // data[2] addr
-  SB r10, r12, 0    // init data[2]
-  LLI r6, 108    // load immediate 108
-  LLI r5, 3    // load immediate 3
-  ADD r4, r3, r5    // data[3] addr
-  SB r6, r4, 0    // init data[3]
-  LLI r9, 111    // load immediate 111
-  LLI r8, 4    // load immediate 4
-  ADD r7, r3, r8    // data[4] addr
-  SB r9, r7, 0    // init data[4]
-  LLI r12, 44    // load immediate 44
-  LLI r11, 5    // load immediate 5
-  ADD r10, r3, r11    // data[5] addr
-  SB r12, r10, 0    // init data[5]
-  LLI r4, 32    // load immediate 32
-  LLI r5, 6    // load immediate 6
-  ADD r6, r3, r5    // data[6] addr
-  SB r4, r6, 0    // init data[6]
-  LLI r7, 82    // load immediate 82
-  LLI r8, 7    // load immediate 7
-  ADD r9, r3, r8    // data[7] addr
-  SB r7, r9, 0    // init data[7]
-  LLI r10, 111    // load immediate 111
-  LLI r11, 8    // load immediate 8
-  ADD r12, r3, r11    // data[8] addr
-  SB r10, r12, 0    // init data[8]
-  LLI r6, 115    // load immediate 115
-  LLI r5, 9    // load immediate 9
-  ADD r4, r3, r5    // data[9] addr
-  SB r6, r4, 0    // init data[9]
-  LLI r9, 112    // load immediate 112
-  LLI r8, 10    // load immediate 10
-  ADD r7, r3, r8    // data[10] addr
-  SB r9, r7, 0    // init data[10]
-  LLI r12, 79    // load immediate 79
-  LLI r11, 11    // load immediate 11
-  ADD r10, r3, r11    // data[11] addr
-  SB r12, r10, 0    // init data[11]
-  LLI r4, 83    // load immediate 83
-  LLI r5, 12    // load immediate 12
-  ADD r6, r3, r5    // data[12] addr
-  SB r4, r6, 0    // init data[12]
-  LLI r7, 32    // load immediate 32
-  LLI r8, 13    // load immediate 13
-  ADD r9, r3, r8    // data[13] addr
-  SB r7, r9, 0    // init data[13]
-  LLI r10, 102    // load immediate 102
-  LLI r11, 14    // load immediate 14
-  ADD r12, r3, r11    // data[14] addr
-  SB r10, r12, 0    // init data[14]
-  LLI r6, 105    // load immediate 105
-  LLI r5, 15    // load immediate 15
-  ADD r4, r3, r5    // data[15] addr
-  SB r6, r4, 0    // init data[15]
-  LLI r9, 108    // load immediate 108
-  LLI r8, 16    // load immediate 16
-  ADD r7, r3, r8    // data[16] addr
-  SB r9, r7, 0    // init data[16]
-  LLI r12, 101    // load immediate 101
-  LLI r11, 17    // load immediate 17
-  ADD r10, r3, r11    // data[17] addr
-  SB r12, r10, 0    // init data[17]
-  LLI r4, 115    // load immediate 115
-  LLI r5, 18    // load immediate 18
-  ADD r6, r3, r5    // data[18] addr
-  SB r4, r6, 0    // init data[18]
-  LLI r7, 121    // load immediate 121
-  LLI r8, 19    // load immediate 19
-  ADD r9, r3, r8    // data[19] addr
-  SB r7, r9, 0    // init data[19]
-  LLI r10, 115    // load immediate 115
-  LLI r11, 20    // load immediate 20
-  ADD r12, r3, r11    // data[20] addr
-  SB r10, r12, 0    // init data[20]
-  LLI r6, 116    // load immediate 116
-  LLI r5, 21    // load immediate 21
-  ADD r4, r3, r5    // data[21] addr
-  SB r6, r4, 0    // init data[21]
-  LLI r9, 101    // load immediate 101
-  LLI r8, 22    // load immediate 22
-  ADD r7, r3, r8    // data[22] addr
-  SB r9, r7, 0    // init data[22]
-  LLI r12, 109    // load immediate 109
-  LLI r11, 23    // load immediate 23
-  ADD r10, r3, r11    // data[23] addr
-  SB r12, r10, 0    // init data[23]
-  LLI r4, 33    // load immediate 33
-  LLI r5, 24    // load immediate 24
-  ADD r6, r3, r5    // data[24] addr
-  SB r4, r6, 0    // init data[24]
-  LLI r7, 0    // load immediate 0
-  LLI r8, 25    // load immediate 25
-  ADD r9, r3, r8    // data[25] addr
-  SB r7, r9, 0    // init data[25]
-  LLI r10, 25    // init file_size
-  LLI r11, dir_entry_buf137    // init dir_entry (buffer addr)
-  LLI r12, 0    // init i
-WHILE138:
-  LLI r6, 32    // load immediate 32
-  BLT r12, r6, CMP_TRUE140
-  LLI r6, 0    // compare false path
-  JMP CMP_END141
-CMP_TRUE140:
-  LLI r6, 1
-CMP_END141:
-  BEQ r6, r0, WHILE_END139
-  ADD r5, r2, r12    // binop +
-  LB r5, r5, 0    // deref
-  ADD r4, r11, r12    // binop +
-  SB r5, r4, 0    // store 
-  ADDI r12, r12, 1    // assign i (addi fast path)
-  JMP WHILE138
-WHILE_END139:
-  SHRI r9, r10, 24    // binop >> (imm)
-  LLI r8, 255    // load immediate 255
-  AND r9, r9, r8    // binop &
-  LLI r7, 32    // load immediate 32
-  ADD r7, r11, r7    // binop +
-  SB r9, r7, 0    // store 
-  SHRI r6, r10, 16    // binop >> (imm)
-  LLI r4, 255    // load immediate 255
-  AND r6, r6, r4    // binop &
-  LLI r5, 33    // load immediate 33
-  ADD r5, r11, r5    // binop +
-  SB r6, r5, 0    // store 
-  SHRI r2, r10, 8    // binop >> (imm)
-  LLI r12, 255    // load immediate 255
-  AND r2, r2, r12    // binop &
-  LLI r8, 34    // load immediate 34
-  ADD r8, r11, r8    // binop +
-  SB r2, r8, 0    // store 
-  LLI r7, 255    // load immediate 255
-  AND r10, r10, r7    // binop &
-  LLI r9, 35    // load immediate 35
-  ADD r9, r11, r9    // binop +
-  SB r10, r9, 0    // store 
-  LLI r4, 2    // init data_block_index
-  SHRI r5, r4, 24    // binop >> (imm)
-  LLI r6, 255    // load immediate 255
-  AND r5, r5, r6    // binop &
-  LLI r12, 36    // load immediate 36
-  ADD r12, r11, r12    // binop +
-  SB r5, r12, 0    // store 
-  SHRI r8, r4, 16    // binop >> (imm)
-  LLI r2, 255    // load immediate 255
-  AND r8, r8, r2    // binop &
-  LLI r10, 37    // load immediate 37
-  ADD r10, r11, r10    // binop +
-  SB r8, r10, 0    // store 
-  SHRI r7, r4, 8    // binop >> (imm)
-  LLI r9, 255    // load immediate 255
-  AND r7, r7, r9    // binop &
-  LLI r6, 38    // load immediate 38
-  ADD r6, r11, r6    // binop +
-  SB r7, r6, 0    // store 
-  LLI r12, 255    // load immediate 255
-  AND r12, r4, r12    // binop &
-  LLI r5, 39    // load immediate 39
-  ADD r5, r11, r5    // binop +
-  SB r12, r5, 0    // store 
-  // emit call to write_block with args [{'type': 'const', 'value': 1}, {'type': 'var', 'name': 'dir_entry'}]
-  PUSH r3    // save caller temp
-  PUSH r4    // save caller temp
-  PUSH r11    // save caller temp
-  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  LLI r2, 1    // load immediate 1
-  PUSH r2    // stage reg arg 0
-  PUSH r11    // stage reg arg 1
-  POP r2    // load reg arg 1
-  POP r1    // load reg arg 0
-  CALL write_block
-  // call return value in r1
-  POP r1  
-  POP r11    // restore caller temp
-  POP r4    // restore caller temp
-  POP r3    // restore caller temp
-  // emit call to write_block with args [{'type': 'var', 'name': 'data_block_index'}, {'type': 'var', 'name': 'data'}]
-  PUSH r3    // save caller temp
-  PUSH r4    // save caller temp
-  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  PUSH r4    // stage reg arg 0
-  PUSH r3    // stage reg arg 1
-  POP r2    // load reg arg 1
-  POP r1    // load reg arg 0
-  CALL write_block
-  // call return value in r1
-  POP r1  
-  POP r4    // restore caller temp
-  POP r3    // restore caller temp
-  // epilogue and return
-  ADDI r1, r0, 0  // ensure r1=0
-  POP r14
-  RET
-
-.FUNC read_file:
-  PUSH r14
-  LLI r2, dir_entry_buf142    // init dir_entry (buffer addr)
-  // emit call to read_block with args [{'type': 'const', 'value': 1}, {'type': 'var', 'name': 'dir_entry'}]
+  LLI r3, 0    // zero init file_size
+  // emit call to string_length with args [{'type': 'var', 'name': 'data'}]
   PUSH r2    // save caller temp
-  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  LLI r3, 1    // load immediate 1
-  PUSH r3    // stage reg arg 0
-  PUSH r2    // stage reg arg 1
-  POP r2    // load reg arg 1
+  PUSH r3    // save caller temp
+  PUSH r2    // stage reg arg 0
   POP r1    // load reg arg 0
-  CALL read_block
+  CALL string_length
   // call return value in r1
-  POP r1  
+  POP r3    // restore caller temp
   POP r2    // restore caller temp
-  LLI r4, filename_buf143    // init filename (buffer addr)
+  ADDI r3, r1, 0    // move return value
+  LLI r4, dir_entry_buf131    // init dir_entry (buffer addr)
   LLI r5, 0    // init i
-WHILE144:
+WHILE132:
   LLI r6, 32    // load immediate 32
-  BLT r5, r6, CMP_TRUE146
+  BLT r5, r6, CMP_TRUE134
   LLI r6, 0    // compare false path
-  JMP CMP_END147
-CMP_TRUE146:
+  JMP CMP_END135
+CMP_TRUE134:
   LLI r6, 1
-CMP_END147:
-  BEQ r6, r0, WHILE_END145
-  ADD r7, r2, r5    // binop +
+CMP_END135:
+  BEQ r6, r0, WHILE_END133
+  ADD r7, r1, r5    // binop +
   LB r7, r7, 0    // deref
   ADD r8, r4, r5    // binop +
   SB r7, r8, 0    // store 
   ADDI r5, r5, 1    // assign i (addi fast path)
-  JMP WHILE144
-WHILE_END145:
-  LLI r9, 0    // load immediate 0
-  LLI r10, 32    // load immediate 32
-  ADD r10, r4, r10    // binop +
-  SB r9, r10, 0    // store 
+  JMP WHILE132
+WHILE_END133:
+  SHRI r9, r3, 24    // binop >> (imm)
+  LLI r10, 255    // load immediate 255
+  AND r9, r9, r10    // binop &
   LLI r11, 32    // load immediate 32
-  ADD r11, r2, r11    // binop +
-  LB r11, r11, 0    // deref
-  SHLI r11, r11, 24    // binop << (imm)
-  LLI r12, 33    // load immediate 33
-  ADD r12, r2, r12    // binop +
-  LB r12, r12, 0    // deref
-  SHLI r12, r12, 16    // binop << (imm)
-  OR r11, r11, r12    // binop |
-  LLI r3, 34    // load immediate 34
-  ADD r3, r2, r3    // binop +
-  LB r3, r3, 0    // deref
-  SHLI r3, r3, 8    // binop << (imm)
-  OR r11, r11, r3    // binop |
-  LLI r6, 35    // load immediate 35
-  ADD r6, r2, r6    // binop +
-  LB r6, r6, 0    // deref
-  OR r11, r11, r6    // binop |
-  LLI r8, 36    // load immediate 36
-  ADD r8, r2, r8    // binop +
-  LB r8, r8, 0    // deref
-  SHLI r8, r8, 24    // binop << (imm)
-  LLI r7, 37    // load immediate 37
-  ADD r7, r2, r7    // binop +
-  LB r7, r7, 0    // deref
-  SHLI r7, r7, 16    // binop << (imm)
-  OR r8, r8, r7    // binop |
-  LLI r5, 38    // load immediate 38
-  ADD r5, r2, r5    // binop +
-  LB r5, r5, 0    // deref
-  SHLI r5, r5, 8    // binop << (imm)
-  OR r8, r8, r5    // binop |
-  LLI r10, 39    // load immediate 39
-  ADD r10, r2, r10    // binop +
-  LB r10, r10, 0    // deref
-  OR r8, r8, r10    // binop |
-  LLI r9, data_buf148    // init data (buffer addr)
-  // emit call to read_block with args [{'type': 'var', 'name': 'data_block_index'}, {'type': 'var', 'name': 'data'}]
+  ADD r11, r4, r11    // binop +
+  SB r9, r11, 0    // store 
+  SHRI r12, r3, 16    // binop >> (imm)
+  LLI r6, 255    // load immediate 255
+  AND r12, r12, r6    // binop &
+  LLI r8, 33    // load immediate 33
+  ADD r8, r4, r8    // binop +
+  SB r12, r8, 0    // store 
+  SHRI r7, r3, 8    // binop >> (imm)
+  LLI r5, 255    // load immediate 255
+  AND r7, r7, r5    // binop &
+  LLI r10, 34    // load immediate 34
+  ADD r10, r4, r10    // binop +
+  SB r7, r10, 0    // store 
+  LLI r11, 255    // load immediate 255
+  AND r3, r3, r11    // binop &
+  LLI r9, 35    // load immediate 35
+  ADD r9, r4, r9    // binop +
+  SB r3, r9, 0    // store 
+  LLI r6, 2    // init data_block_index
+  SHRI r8, r6, 24    // binop >> (imm)
+  LLI r12, 255    // load immediate 255
+  AND r8, r8, r12    // binop &
+  LLI r5, 36    // load immediate 36
+  ADD r5, r4, r5    // binop +
+  SB r8, r5, 0    // store 
+  SHRI r10, r6, 16    // binop >> (imm)
+  LLI r7, 255    // load immediate 255
+  AND r10, r10, r7    // binop &
+  LLI r3, 37    // load immediate 37
+  ADD r3, r4, r3    // binop +
+  SB r10, r3, 0    // store 
+  SHRI r11, r6, 8    // binop >> (imm)
+  LLI r9, 255    // load immediate 255
+  AND r11, r11, r9    // binop &
+  LLI r12, 38    // load immediate 38
+  ADD r12, r4, r12    // binop +
+  SB r11, r12, 0    // store 
+  LLI r5, 255    // load immediate 255
+  AND r5, r6, r5    // binop &
+  LLI r8, 39    // load immediate 39
+  ADD r8, r4, r8    // binop +
+  SB r5, r8, 0    // store 
+  // inline call to write_block with args [{'type': 'const', 'value': 1}, {'type': 'var', 'name': 'dir_entry'}]
+  // begin inline expansion of write_block
+  LLI r7, 1    // load immediate 1
+  // emit call to bd_write_u32 with args [{'type': 'const', 'value': 1073741832}, {'type': 'var', 'name': 'blockID'}]
+  PUSH r2    // save caller temp
   PUSH r4    // save caller temp
-  PUSH r8    // save caller temp
-  PUSH r9    // save caller temp
+  PUSH r6    // save caller temp
+  PUSH r7    // save caller temp
   PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  PUSH r8    // stage reg arg 0
+  LLI r3, 1073741832    // load immediate 1073741832
+  PUSH r3    // stage reg arg 0
+  PUSH r7    // stage reg arg 1
+  POP r2    // load reg arg 1
+  POP r1    // load reg arg 0
+  CALL bd_write_u32
+  // call return value in r1
+  POP r1  
+  POP r7    // restore caller temp
+  POP r6    // restore caller temp
+  POP r4    // restore caller temp
+  POP r2    // restore caller temp
+  // emit call to bd_write_u32 with args [{'type': 'const', 'value': 1073741836}, {'type': 'var', 'name': 'data'}]
+  PUSH r2    // save caller temp
+  PUSH r4    // save caller temp
+  PUSH r6    // save caller temp
+  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
+  LLI r10, 1073741836    // load immediate 1073741836
+  PUSH r10    // stage reg arg 0
+  PUSH r4    // stage reg arg 1
+  POP r2    // load reg arg 1
+  POP r1    // load reg arg 0
+  CALL bd_write_u32
+  // call return value in r1
+  POP r1  
+  POP r6    // restore caller temp
+  POP r4    // restore caller temp
+  POP r2    // restore caller temp
+  // emit call to bd_write_u32 with args [{'type': 'const', 'value': 1073741840}, {'type': 'const', 'value': 1}]
+  PUSH r2    // save caller temp
+  PUSH r4    // save caller temp
+  PUSH r6    // save caller temp
+  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
+  LLI r9, 1073741840    // load immediate 1073741840
+  PUSH r9    // stage reg arg 0
+  LLI r12, 1    // load immediate 1
+  PUSH r12    // stage reg arg 1
+  POP r2    // load reg arg 1
+  POP r1    // load reg arg 0
+  CALL bd_write_u32
+  // call return value in r1
+  POP r1  
+  POP r6    // restore caller temp
+  POP r4    // restore caller temp
+  POP r2    // restore caller temp
+  // emit call to bd_write_u32 with args [{'type': 'const', 'value': 1073741828}, {'type': 'const', 'value': 2}]
+  PUSH r2    // save caller temp
+  PUSH r4    // save caller temp
+  PUSH r6    // save caller temp
+  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
+  LLI r11, 1073741828    // load immediate 1073741828
+  PUSH r11    // stage reg arg 0
+  LLI r8, 2    // load immediate 2
+  PUSH r8    // stage reg arg 1
+  POP r2    // load reg arg 1
+  POP r1    // load reg arg 0
+  CALL bd_write_u32
+  // call return value in r1
+  POP r1  
+  POP r6    // restore caller temp
+  POP r4    // restore caller temp
+  POP r2    // restore caller temp
+  LLI r5, 0    // load immediate 0
+  ADD r1, r5, r0
+  // inline function return (no RET emitted)
+  // end inline expansion of write_block
+  // inline call to write_block with args [{'type': 'var', 'name': 'data_block_index'}, {'type': 'var', 'name': 'data'}]
+  // begin inline expansion of write_block
+  LLI r3, 0    // load immediate 0
+  // emit call to bd_write_u32 with args [{'type': 'const', 'value': 1073741832}, {'type': 'var', 'name': 'blockID'}]
+  PUSH r3    // save caller temp
+  PUSH r4    // save caller temp
+  PUSH r6    // save caller temp
+  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
+  LLI r7, 1073741832    // load immediate 1073741832
+  PUSH r7    // stage reg arg 0
+  PUSH r6    // stage reg arg 1
+  POP r2    // load reg arg 1
+  POP r1    // load reg arg 0
+  CALL bd_write_u32
+  // call return value in r1
+  POP r1  
+  POP r6    // restore caller temp
+  POP r4    // restore caller temp
+  POP r3    // restore caller temp
+  // emit call to bd_write_u32 with args [{'type': 'const', 'value': 1073741836}, {'type': 'var', 'name': 'data'}]
+  PUSH r4    // save caller temp
+  PUSH r6    // save caller temp
+  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
+  LLI r10, 1073741836    // load immediate 1073741836
+  PUSH r10    // stage reg arg 0
+  LLI r9, 0    // load immediate 0
   PUSH r9    // stage reg arg 1
   POP r2    // load reg arg 1
   POP r1    // load reg arg 0
-  CALL read_block
+  CALL bd_write_u32
   // call return value in r1
   POP r1  
-  POP r9    // restore caller temp
-  POP r8    // restore caller temp
+  POP r6    // restore caller temp
   POP r4    // restore caller temp
-  // emit call to draw_string_to_display with args [{'type': 'var', 'name': 'filename'}, {'type': 'const', 'value': 10}, {'type': 'const', 'value': 30}, {'type': 'const', 'value': 63}]
+  // emit call to bd_write_u32 with args [{'type': 'const', 'value': 1073741840}, {'type': 'const', 'value': 1}]
   PUSH r4    // save caller temp
-  PUSH r9    // save caller temp
+  PUSH r6    // save caller temp
   PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  PUSH r4    // stage reg arg 0
-  LLI r12, 10    // load immediate 10
-  PUSH r12    // stage reg arg 1
-  LLI r3, 30    // load immediate 30
-  PUSH r3    // stage reg arg 2
-  LLI r6, 63    // load immediate 63
-  PUSH r6    // stage reg arg 3
-  POP r4    // load reg arg 3
-  POP r3    // load reg arg 2
-  POP r2    // load reg arg 1
-  POP r1    // load reg arg 0
-  CALL draw_string_to_display
-  // call return value in r1
-  POP r1  
-  POP r9    // restore caller temp
-  POP r4    // restore caller temp
-  // emit call to draw_string_to_display with args [{'type': 'var', 'name': 'data'}, {'type': 'const', 'value': 10}, {'type': 'const', 'value': 50}, {'type': 'const', 'value': 63}]
-  PUSH r9    // save caller temp
-  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  PUSH r9    // stage reg arg 0
-  LLI r11, 10    // load immediate 10
+  LLI r12, 1073741840    // load immediate 1073741840
+  PUSH r12    // stage reg arg 0
+  LLI r11, 1    // load immediate 1
   PUSH r11    // stage reg arg 1
-  LLI r7, 50    // load immediate 50
-  PUSH r7    // stage reg arg 2
-  LLI r5, 63    // load immediate 63
-  PUSH r5    // stage reg arg 3
+  POP r2    // load reg arg 1
+  POP r1    // load reg arg 0
+  CALL bd_write_u32
+  // call return value in r1
+  POP r1  
+  POP r6    // restore caller temp
+  POP r4    // restore caller temp
+  // emit call to bd_write_u32 with args [{'type': 'const', 'value': 1073741828}, {'type': 'const', 'value': 2}]
+  PUSH r4    // save caller temp
+  PUSH r6    // save caller temp
+  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
+  LLI r8, 1073741828    // load immediate 1073741828
+  PUSH r8    // stage reg arg 0
+  LLI r5, 2    // load immediate 2
+  PUSH r5    // stage reg arg 1
+  POP r2    // load reg arg 1
+  POP r1    // load reg arg 0
+  CALL bd_write_u32
+  // call return value in r1
+  POP r1  
+  POP r6    // restore caller temp
+  POP r4    // restore caller temp
+  LLI r2, 0    // load immediate 0
+  ADD r1, r2, r0
+  // inline function return (no RET emitted)
+  // end inline expansion of write_block
+
+.FUNC read_file:
+  PUSH r14
+  LLI r2, dir_entry_buf136    // init dir_entry (buffer addr)
+  // inline call to read_block with args [{'type': 'const', 'value': 1}, {'type': 'var', 'name': 'dir_entry'}]
+  // begin inline expansion of read_block
+  LLI r3, 1    // load immediate 1
+  // emit call to bd_write_u32 with args [{'type': 'const', 'value': 1073741832}, {'type': 'var', 'name': 'blockID'}]
+  PUSH r2    // save caller temp
+  PUSH r3    // save caller temp
+  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
+  LLI r4, 1073741832    // load immediate 1073741832
+  PUSH r4    // stage reg arg 0
+  PUSH r3    // stage reg arg 1
+  POP r2    // load reg arg 1
+  POP r1    // load reg arg 0
+  CALL bd_write_u32
+  // call return value in r1
+  POP r1  
+  POP r3    // restore caller temp
+  POP r2    // restore caller temp
+  // emit call to bd_write_u32 with args [{'type': 'const', 'value': 1073741836}, {'type': 'var', 'name': 'buffer'}]
+  PUSH r2    // save caller temp
+  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
+  LLI r5, 1073741836    // load immediate 1073741836
+  PUSH r5    // stage reg arg 0
+  PUSH r2    // stage reg arg 1
+  POP r2    // load reg arg 1
+  POP r1    // load reg arg 0
+  CALL bd_write_u32
+  // call return value in r1
+  POP r1  
+  POP r2    // restore caller temp
+  // emit call to bd_write_u32 with args [{'type': 'const', 'value': 1073741840}, {'type': 'const', 'value': 1}]
+  PUSH r2    // save caller temp
+  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
+  LLI r6, 1073741840    // load immediate 1073741840
+  PUSH r6    // stage reg arg 0
+  LLI r7, 1    // load immediate 1
+  PUSH r7    // stage reg arg 1
+  POP r2    // load reg arg 1
+  POP r1    // load reg arg 0
+  CALL bd_write_u32
+  // call return value in r1
+  POP r1  
+  POP r2    // restore caller temp
+  // emit call to bd_write_u32 with args [{'type': 'const', 'value': 1073741828}, {'type': 'const', 'value': 1}]
+  PUSH r2    // save caller temp
+  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
+  LLI r8, 1073741828    // load immediate 1073741828
+  PUSH r8    // stage reg arg 0
+  LLI r9, 1    // load immediate 1
+  PUSH r9    // stage reg arg 1
+  POP r2    // load reg arg 1
+  POP r1    // load reg arg 0
+  CALL bd_write_u32
+  // call return value in r1
+  POP r1  
+  POP r2    // restore caller temp
+  LLI r10, 0    // load immediate 0
+  ADD r1, r10, r0
+  // inline function return (no RET emitted)
+  // end inline expansion of read_block
+  LLI r11, filename_buf137    // init filename (buffer addr)
+  LLI r12, 0    // init i
+WHILE138:
+  LLI r4, 32    // load immediate 32
+  BLT r12, r4, CMP_TRUE140
+  LLI r4, 0    // compare false path
+  JMP CMP_END141
+CMP_TRUE140:
+  LLI r4, 1
+CMP_END141:
+  BEQ r4, r0, WHILE_END139
+  ADD r3, r2, r12    // binop +
+  LB r3, r3, 0    // deref
+  ADD r5, r11, r12    // binop +
+  SB r3, r5, 0    // store 
+  ADDI r12, r12, 1    // assign i (addi fast path)
+  JMP WHILE138
+WHILE_END139:
+  LLI r6, 0    // load immediate 0
+  LLI r7, 32    // load immediate 32
+  ADD r7, r11, r7    // binop +
+  SB r6, r7, 0    // store 
+  LLI r8, 32    // load immediate 32
+  ADD r8, r2, r8    // binop +
+  LB r8, r8, 0    // deref
+  SHLI r8, r8, 24    // binop << (imm)
+  LLI r9, 33    // load immediate 33
+  ADD r9, r2, r9    // binop +
+  LB r9, r9, 0    // deref
+  SHLI r9, r9, 16    // binop << (imm)
+  OR r8, r8, r9    // binop |
+  LLI r10, 34    // load immediate 34
+  ADD r10, r2, r10    // binop +
+  LB r10, r10, 0    // deref
+  SHLI r10, r10, 8    // binop << (imm)
+  OR r8, r8, r10    // binop |
+  LLI r4, 35    // load immediate 35
+  ADD r4, r2, r4    // binop +
+  LB r4, r4, 0    // deref
+  OR r8, r8, r4    // binop |
+  LLI r5, 36    // load immediate 36
+  ADD r5, r2, r5    // binop +
+  LB r5, r5, 0    // deref
+  SHLI r5, r5, 24    // binop << (imm)
+  LLI r3, 37    // load immediate 37
+  ADD r3, r2, r3    // binop +
+  LB r3, r3, 0    // deref
+  SHLI r3, r3, 16    // binop << (imm)
+  OR r5, r5, r3    // binop |
+  LLI r12, 38    // load immediate 38
+  ADD r12, r2, r12    // binop +
+  LB r12, r12, 0    // deref
+  SHLI r12, r12, 8    // binop << (imm)
+  OR r5, r5, r12    // binop |
+  LLI r7, 39    // load immediate 39
+  ADD r7, r2, r7    // binop +
+  LB r7, r7, 0    // deref
+  OR r5, r5, r7    // binop |
+  LLI r6, data_buf142    // init data (buffer addr)
+  // inline call to read_block with args [{'type': 'var', 'name': 'data_block_index'}, {'type': 'var', 'name': 'data'}]
+  // begin inline expansion of read_block
+  // emit call to bd_write_u32 with args [{'type': 'const', 'value': 1073741832}, {'type': 'var', 'name': 'blockID'}]
+  PUSH r2    // save caller temp
+  PUSH r5    // save caller temp
+  PUSH r6    // save caller temp
+  PUSH r11    // save caller temp
+  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
+  LLI r9, 1073741832    // load immediate 1073741832
+  PUSH r9    // stage reg arg 0
+  PUSH r5    // stage reg arg 1
+  POP r2    // load reg arg 1
+  POP r1    // load reg arg 0
+  CALL bd_write_u32
+  // call return value in r1
+  POP r1  
+  POP r11    // restore caller temp
+  POP r6    // restore caller temp
+  POP r5    // restore caller temp
+  POP r2    // restore caller temp
+  // emit call to bd_write_u32 with args [{'type': 'const', 'value': 1073741836}, {'type': 'var', 'name': 'buffer'}]
+  PUSH r2    // save caller temp
+  PUSH r5    // save caller temp
+  PUSH r6    // save caller temp
+  PUSH r11    // save caller temp
+  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
+  LLI r10, 1073741836    // load immediate 1073741836
+  PUSH r10    // stage reg arg 0
+  PUSH r6    // stage reg arg 1
+  POP r2    // load reg arg 1
+  POP r1    // load reg arg 0
+  CALL bd_write_u32
+  // call return value in r1
+  POP r1  
+  POP r11    // restore caller temp
+  POP r6    // restore caller temp
+  POP r5    // restore caller temp
+  POP r2    // restore caller temp
+  // emit call to bd_write_u32 with args [{'type': 'const', 'value': 1073741840}, {'type': 'const', 'value': 1}]
+  PUSH r2    // save caller temp
+  PUSH r5    // save caller temp
+  PUSH r6    // save caller temp
+  PUSH r11    // save caller temp
+  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
+  LLI r4, 1073741840    // load immediate 1073741840
+  PUSH r4    // stage reg arg 0
+  LLI r8, 1    // load immediate 1
+  PUSH r8    // stage reg arg 1
+  POP r2    // load reg arg 1
+  POP r1    // load reg arg 0
+  CALL bd_write_u32
+  // call return value in r1
+  POP r1  
+  POP r11    // restore caller temp
+  POP r6    // restore caller temp
+  POP r5    // restore caller temp
+  POP r2    // restore caller temp
+  // emit call to bd_write_u32 with args [{'type': 'const', 'value': 1073741828}, {'type': 'const', 'value': 1}]
+  PUSH r2    // save caller temp
+  PUSH r5    // save caller temp
+  PUSH r6    // save caller temp
+  PUSH r11    // save caller temp
+  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
+  LLI r3, 1073741828    // load immediate 1073741828
+  PUSH r3    // stage reg arg 0
+  LLI r12, 1    // load immediate 1
+  PUSH r12    // stage reg arg 1
+  POP r2    // load reg arg 1
+  POP r1    // load reg arg 0
+  CALL bd_write_u32
+  // call return value in r1
+  POP r1  
+  POP r11    // restore caller temp
+  POP r6    // restore caller temp
+  POP r5    // restore caller temp
+  POP r2    // restore caller temp
+  LLI r7, 0    // load immediate 0
+  ADD r1, r7, r0
+  // inline function return (no RET emitted)
+  // end inline expansion of read_block
+  // emit call to draw_string_to_display with args [{'type': 'var', 'name': 'filename'}, {'type': 'const', 'value': 10}, {'type': 'const', 'value': 30}, {'type': 'const', 'value': 63}]
+  PUSH r2    // save caller temp
+  PUSH r5    // save caller temp
+  PUSH r6    // save caller temp
+  PUSH r11    // save caller temp
+  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
+  PUSH r11    // stage reg arg 0
+  LLI r9, 10    // load immediate 10
+  PUSH r9    // stage reg arg 1
+  LLI r10, 30    // load immediate 30
+  PUSH r10    // stage reg arg 2
+  LLI r4, 63    // load immediate 63
+  PUSH r4    // stage reg arg 3
   POP r4    // load reg arg 3
   POP r3    // load reg arg 2
   POP r2    // load reg arg 1
@@ -1342,9 +1366,33 @@ WHILE_END145:
   CALL draw_string_to_display
   // call return value in r1
   POP r1  
-  POP r9    // restore caller temp
-  // epilogue and return
-  ADDI r1, r0, 0  // ensure r1=0
+  POP r11    // restore caller temp
+  POP r6    // restore caller temp
+  POP r5    // restore caller temp
+  POP r2    // restore caller temp
+  // emit call to draw_string_to_display with args [{'type': 'var', 'name': 'data'}, {'type': 'const', 'value': 10}, {'type': 'const', 'value': 50}, {'type': 'const', 'value': 63}]
+  PUSH r2    // save caller temp
+  PUSH r5    // save caller temp
+  PUSH r6    // save caller temp
+  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
+  PUSH r6    // stage reg arg 0
+  LLI r8, 10    // load immediate 10
+  PUSH r8    // stage reg arg 1
+  LLI r3, 50    // load immediate 50
+  PUSH r3    // stage reg arg 2
+  LLI r12, 63    // load immediate 63
+  PUSH r12    // stage reg arg 3
+  POP r4    // load reg arg 3
+  POP r3    // load reg arg 2
+  POP r2    // load reg arg 1
+  POP r1    // load reg arg 0
+  CALL draw_string_to_display
+  // call return value in r1
+  POP r1  
+  POP r6    // restore caller temp
+  POP r5    // restore caller temp
+  POP r2    // restore caller temp
+  ADD r1, r6, r0
   POP r14
   RET
 
@@ -1380,44 +1428,109 @@ WHILE_END145:
   POP r1  
   POP r6    // restore caller temp
   POP r2    // restore caller temp
-  // emit call to write_file with args []
+  // emit call to write_file with args [{'type': 'string_addr', 'label': 'str_0'}, {'type': 'string_addr', 'label': 'str_1'}]
   PUSH r2    // save caller temp
   PUSH r6    // save caller temp
   PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
+  LLI r9, str_0    // load immediate str_0
+  PUSH r9    // stage reg arg 0
+  LLI r10, str_1    // load immediate str_1
+  PUSH r10    // stage reg arg 1
+  POP r2    // load reg arg 1
+  POP r1    // load reg arg 0
   CALL write_file
   // call return value in r1
   POP r1  
   POP r6    // restore caller temp
   POP r2    // restore caller temp
-  LLI r9, device_info_buf149    // init device_info (buffer addr)
-  // emit call to read_block with args [{'type': 'const', 'value': 4294967295}, {'type': 'var', 'name': 'device_info'}]
+  LLI r11, device_info_buf143    // init device_info (buffer addr)
+  // inline call to read_block with args [{'type': 'const', 'value': 4294967295}, {'type': 'var', 'name': 'device_info'}]
+  // begin inline expansion of read_block
+  LLI r12, 4294967295    // load immediate 4294967295
+  // emit call to bd_write_u32 with args [{'type': 'const', 'value': 1073741832}, {'type': 'var', 'name': 'blockID'}]
   PUSH r2    // save caller temp
   PUSH r6    // save caller temp
-  PUSH r9    // save caller temp
+  PUSH r11    // save caller temp
+  PUSH r12    // save caller temp
   PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  LLI r10, 4294967295    // load immediate 4294967295
-  PUSH r10    // stage reg arg 0
+  LLI r5, 1073741832    // load immediate 1073741832
+  PUSH r5    // stage reg arg 0
+  PUSH r12    // stage reg arg 1
+  POP r2    // load reg arg 1
+  POP r1    // load reg arg 0
+  CALL bd_write_u32
+  // call return value in r1
+  POP r1  
+  POP r12    // restore caller temp
+  POP r11    // restore caller temp
+  POP r6    // restore caller temp
+  POP r2    // restore caller temp
+  // emit call to bd_write_u32 with args [{'type': 'const', 'value': 1073741836}, {'type': 'var', 'name': 'buffer'}]
+  PUSH r2    // save caller temp
+  PUSH r6    // save caller temp
+  PUSH r11    // save caller temp
+  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
+  LLI r3, 1073741836    // load immediate 1073741836
+  PUSH r3    // stage reg arg 0
+  PUSH r11    // stage reg arg 1
+  POP r2    // load reg arg 1
+  POP r1    // load reg arg 0
+  CALL bd_write_u32
+  // call return value in r1
+  POP r1  
+  POP r11    // restore caller temp
+  POP r6    // restore caller temp
+  POP r2    // restore caller temp
+  // emit call to bd_write_u32 with args [{'type': 'const', 'value': 1073741840}, {'type': 'const', 'value': 1}]
+  PUSH r2    // save caller temp
+  PUSH r6    // save caller temp
+  PUSH r11    // save caller temp
+  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
+  LLI r4, 1073741840    // load immediate 1073741840
+  PUSH r4    // stage reg arg 0
+  LLI r8, 1    // load immediate 1
+  PUSH r8    // stage reg arg 1
+  POP r2    // load reg arg 1
+  POP r1    // load reg arg 0
+  CALL bd_write_u32
+  // call return value in r1
+  POP r1  
+  POP r11    // restore caller temp
+  POP r6    // restore caller temp
+  POP r2    // restore caller temp
+  // emit call to bd_write_u32 with args [{'type': 'const', 'value': 1073741828}, {'type': 'const', 'value': 1}]
+  PUSH r2    // save caller temp
+  PUSH r6    // save caller temp
+  PUSH r11    // save caller temp
+  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
+  LLI r7, 1073741828    // load immediate 1073741828
+  PUSH r7    // stage reg arg 0
+  LLI r9, 1    // load immediate 1
   PUSH r9    // stage reg arg 1
   POP r2    // load reg arg 1
   POP r1    // load reg arg 0
-  CALL read_block
+  CALL bd_write_u32
   // call return value in r1
   POP r1  
-  POP r9    // restore caller temp
+  POP r11    // restore caller temp
   POP r6    // restore caller temp
   POP r2    // restore caller temp
+  LLI r10, 0    // load immediate 0
+  ADD r1, r10, r0
+  // inline function return (no RET emitted)
+  // end inline expansion of read_block
   // emit call to draw_string_to_display with args [{'type': 'var', 'name': 'device_info'}, {'type': 'const', 'value': 10}, {'type': 'const', 'value': 10}, {'type': 'const', 'value': 63}]
   PUSH r2    // save caller temp
   PUSH r6    // save caller temp
-  PUSH r9    // save caller temp
+  PUSH r11    // save caller temp
   PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  PUSH r9    // stage reg arg 0
-  LLI r11, 10    // load immediate 10
-  PUSH r11    // stage reg arg 1
+  PUSH r11    // stage reg arg 0
+  LLI r5, 10    // load immediate 10
+  PUSH r5    // stage reg arg 1
   LLI r12, 10    // load immediate 10
   PUSH r12    // stage reg arg 2
-  LLI r5, 63    // load immediate 63
-  PUSH r5    // stage reg arg 3
+  LLI r3, 63    // load immediate 63
+  PUSH r3    // stage reg arg 3
   POP r4    // load reg arg 3
   POP r3    // load reg arg 2
   POP r2    // load reg arg 1
@@ -1425,30 +1538,38 @@ WHILE_END145:
   CALL draw_string_to_display
   // call return value in r1
   POP r1  
-  POP r9    // restore caller temp
+  POP r11    // restore caller temp
   POP r6    // restore caller temp
   POP r2    // restore caller temp
-  // emit call to read_file with args []
+  LLI r4, 0    // zero init file_contents
+  // emit call to read_file with args [{'type': 'string_addr', 'label': 'str_0'}]
   PUSH r2    // save caller temp
+  PUSH r4    // save caller temp
   PUSH r6    // save caller temp
-  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
+  PUSH r11    // save caller temp
+  LLI r8, str_0    // load immediate str_0
+  PUSH r8    // stage reg arg 0
+  POP r1    // load reg arg 0
   CALL read_file
   // call return value in r1
-  POP r1  
+  POP r11    // restore caller temp
   POP r6    // restore caller temp
+  POP r4    // restore caller temp
   POP r2    // restore caller temp
-  // emit call to draw_string_to_display with args [{'type': 'string_addr', 'label': 'str_0'}, {'type': 'const', 'value': 10}, {'type': 'const', 'value': 70}, {'type': 'const', 'value': 63}]
+  ADDI r4, r1, 0    // move return value
+  // emit call to draw_string_to_display with args [{'type': 'var', 'name': 'file_contents'}, {'type': 'const', 'value': 10}, {'type': 'const', 'value': 70}, {'type': 'const', 'value': 63}]
   PUSH r2    // save caller temp
+  PUSH r4    // save caller temp
   PUSH r6    // save caller temp
+  PUSH r11    // save caller temp
   PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  LLI r3, str_0    // load immediate str_0
-  PUSH r3    // stage reg arg 0
-  LLI r4, 10    // load immediate 10
-  PUSH r4    // stage reg arg 1
-  LLI r8, 70    // load immediate 70
-  PUSH r8    // stage reg arg 2
-  LLI r7, 63    // load immediate 63
-  PUSH r7    // stage reg arg 3
+  PUSH r4    // stage reg arg 0
+  LLI r7, 10    // load immediate 10
+  PUSH r7    // stage reg arg 1
+  LLI r9, 70    // load immediate 70
+  PUSH r9    // stage reg arg 2
+  LLI r10, 63    // load immediate 63
+  PUSH r10    // stage reg arg 3
   POP r4    // load reg arg 3
   POP r3    // load reg arg 2
   POP r2    // load reg arg 1
@@ -1456,40 +1577,22 @@ WHILE_END145:
   CALL draw_string_to_display
   // call return value in r1
   POP r1  
+  POP r11    // restore caller temp
   POP r6    // restore caller temp
+  POP r4    // restore caller temp
   POP r2    // restore caller temp
-  // emit call to draw_string_to_display with args [{'type': 'string_addr', 'label': 'str_1'}, {'type': 'const', 'value': 10}, {'type': 'const', 'value': 90}, {'type': 'const', 'value': 12}]
+  // emit call to draw_string_to_display with args [{'type': 'string_addr', 'label': 'str_2'}, {'type': 'const', 'value': 10}, {'type': 'const', 'value': 90}, {'type': 'const', 'value': 12}]
   PUSH r2    // save caller temp
   PUSH r6    // save caller temp
-  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  LLI r10, str_1    // load immediate str_1
-  PUSH r10    // stage reg arg 0
-  LLI r9, 10    // load immediate 10
-  PUSH r9    // stage reg arg 1
-  LLI r11, 90    // load immediate 90
-  PUSH r11    // stage reg arg 2
-  LLI r12, 12    // load immediate 12
-  PUSH r12    // stage reg arg 3
-  POP r4    // load reg arg 3
-  POP r3    // load reg arg 2
-  POP r2    // load reg arg 1
-  POP r1    // load reg arg 0
-  CALL draw_string_to_display
-  // call return value in r1
-  POP r1  
-  POP r6    // restore caller temp
-  POP r2    // restore caller temp
-  // emit call to draw_string_to_display with args [{'type': 'string_addr', 'label': 'str_2'}, {'type': 'const', 'value': 10}, {'type': 'const', 'value': 110}, {'type': 'const', 'value': 48}]
-  PUSH r2    // save caller temp
-  PUSH r6    // save caller temp
+  PUSH r11    // save caller temp
   PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
   LLI r5, str_2    // load immediate str_2
   PUSH r5    // stage reg arg 0
-  LLI r3, 10    // load immediate 10
-  PUSH r3    // stage reg arg 1
-  LLI r4, 110    // load immediate 110
-  PUSH r4    // stage reg arg 2
-  LLI r8, 48    // load immediate 48
+  LLI r12, 10    // load immediate 10
+  PUSH r12    // stage reg arg 1
+  LLI r3, 90    // load immediate 90
+  PUSH r3    // stage reg arg 2
+  LLI r8, 12    // load immediate 12
   PUSH r8    // stage reg arg 3
   POP r4    // load reg arg 3
   POP r3    // load reg arg 2
@@ -1498,20 +1601,22 @@ WHILE_END145:
   CALL draw_string_to_display
   // call return value in r1
   POP r1  
+  POP r11    // restore caller temp
   POP r6    // restore caller temp
   POP r2    // restore caller temp
-  // emit call to draw_string_to_display with args [{'type': 'string_addr', 'label': 'str_3'}, {'type': 'const', 'value': 10}, {'type': 'const', 'value': 130}, {'type': 'const', 'value': 7}]
+  // emit call to draw_string_to_display with args [{'type': 'string_addr', 'label': 'str_3'}, {'type': 'const', 'value': 10}, {'type': 'const', 'value': 110}, {'type': 'const', 'value': 48}]
   PUSH r2    // save caller temp
   PUSH r6    // save caller temp
+  PUSH r11    // save caller temp
   PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  LLI r7, str_3    // load immediate str_3
-  PUSH r7    // stage reg arg 0
-  LLI r10, 10    // load immediate 10
-  PUSH r10    // stage reg arg 1
-  LLI r9, 130    // load immediate 130
+  LLI r4, str_3    // load immediate str_3
+  PUSH r4    // stage reg arg 0
+  LLI r7, 10    // load immediate 10
+  PUSH r7    // stage reg arg 1
+  LLI r9, 110    // load immediate 110
   PUSH r9    // stage reg arg 2
-  LLI r11, 7    // load immediate 7
-  PUSH r11    // stage reg arg 3
+  LLI r10, 48    // load immediate 48
+  PUSH r10    // stage reg arg 3
   POP r4    // load reg arg 3
   POP r3    // load reg arg 2
   POP r2    // load reg arg 1
@@ -1519,20 +1624,22 @@ WHILE_END145:
   CALL draw_string_to_display
   // call return value in r1
   POP r1  
+  POP r11    // restore caller temp
   POP r6    // restore caller temp
   POP r2    // restore caller temp
-  // emit call to draw_string_to_display with args [{'type': 'string_addr', 'label': 'str_4'}, {'type': 'const', 'value': 10}, {'type': 'const', 'value': 150}, {'type': 'const', 'value': 60}]
+  // emit call to draw_string_to_display with args [{'type': 'string_addr', 'label': 'str_4'}, {'type': 'const', 'value': 10}, {'type': 'const', 'value': 130}, {'type': 'const', 'value': 7}]
   PUSH r2    // save caller temp
   PUSH r6    // save caller temp
+  PUSH r11    // save caller temp
   PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  LLI r12, str_4    // load immediate str_4
-  PUSH r12    // stage reg arg 0
-  LLI r5, 10    // load immediate 10
-  PUSH r5    // stage reg arg 1
-  LLI r3, 150    // load immediate 150
+  LLI r5, str_4    // load immediate str_4
+  PUSH r5    // stage reg arg 0
+  LLI r12, 10    // load immediate 10
+  PUSH r12    // stage reg arg 1
+  LLI r3, 130    // load immediate 130
   PUSH r3    // stage reg arg 2
-  LLI r4, 60    // load immediate 60
-  PUSH r4    // stage reg arg 3
+  LLI r8, 7    // load immediate 7
+  PUSH r8    // stage reg arg 3
   POP r4    // load reg arg 3
   POP r3    // load reg arg 2
   POP r2    // load reg arg 1
@@ -1540,15 +1647,41 @@ WHILE_END145:
   CALL draw_string_to_display
   // call return value in r1
   POP r1  
+  POP r11    // restore caller temp
+  POP r6    // restore caller temp
+  POP r2    // restore caller temp
+  // emit call to draw_string_to_display with args [{'type': 'string_addr', 'label': 'str_5'}, {'type': 'const', 'value': 10}, {'type': 'const', 'value': 150}, {'type': 'const', 'value': 60}]
+  PUSH r2    // save caller temp
+  PUSH r6    // save caller temp
+  PUSH r11    // save caller temp
+  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
+  LLI r4, str_5    // load immediate str_5
+  PUSH r4    // stage reg arg 0
+  LLI r7, 10    // load immediate 10
+  PUSH r7    // stage reg arg 1
+  LLI r9, 150    // load immediate 150
+  PUSH r9    // stage reg arg 2
+  LLI r10, 60    // load immediate 60
+  PUSH r10    // stage reg arg 3
+  POP r4    // load reg arg 3
+  POP r3    // load reg arg 2
+  POP r2    // load reg arg 1
+  POP r1    // load reg arg 0
+  CALL draw_string_to_display
+  // call return value in r1
+  POP r1  
+  POP r11    // restore caller temp
   POP r6    // restore caller temp
   POP r2    // restore caller temp
   // emit call to screen_test with args []
   PUSH r2    // save caller temp
   PUSH r6    // save caller temp
+  PUSH r11    // save caller temp
   PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
   CALL screen_test
   // call return value in r1
   POP r1  
+  POP r11    // restore caller temp
   POP r6    // restore caller temp
   POP r2    // restore caller temp
   BREAK
@@ -1814,44 +1947,41 @@ font_address:
   .DATA 0x00000000
 
 str_0:
-  .STR "Hello, RospOS!"
+  .STR "example.txt"
 
 str_1:
-  .STR "Green RospOS"
+  .STR "Hello, RospOS filesystem!"
 
 str_2:
-  .STR "Red RospOS"
+  .STR "Green"
 
 str_3:
-  .STR "Blue RospOS"
+  .STR "Red RospOS"
 
 str_4:
+  .STR "Blue RospOS"
+
+str_5:
   .STR "Yellow RospOS"
 
-superblock_buf105:
+superblock_buf101:
   .SPACE 512 // lifted buffer
 
-superblock_buf110:
+superblock_buf106:
   .SPACE 512 // lifted buffer
 
-filename_buf135:
-  .SPACE 32 // lifted buffer
-
-data_buf136:
-  .SPACE 512 // lifted buffer
-
-dir_entry_buf137:
+dir_entry_buf131:
   .SPACE 64 // lifted buffer
 
-dir_entry_buf142:
+dir_entry_buf136:
   .SPACE 64 // lifted buffer
 
-filename_buf143:
+filename_buf137:
   .SPACE 33 // lifted buffer
 
-data_buf148:
+data_buf142:
   .SPACE 512 // lifted buffer
 
-device_info_buf149:
+device_info_buf143:
   .SPACE 512 // lifted buffer
 

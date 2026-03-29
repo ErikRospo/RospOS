@@ -1255,6 +1255,7 @@ translation_unit
                   0xFF
   external_decl
     function_def
+      inline
       type_specifier
         void
       declarator	write_block
@@ -1300,18 +1301,10 @@ translation_unit
               arg_list
                 0x40000004
                 2
-        while_stmt
-          equality
-            postfix
-              bd_read_u32
-              call_suffix
-                arg_list	0x40000004
-            neq
-            0
-          compound_stmt
         return_stmt	0
   external_decl
     function_def
+      inline
       type_specifier
         void
       declarator	read_block
@@ -1357,16 +1350,42 @@ translation_unit
               arg_list
                 0x40000004
                 1
+        return_stmt	0
+  external_decl
+    function_def
+      type_specifier
+        int
+      declarator	string_length
+      param_list
+        param
+          type_specifier
+            char
+            pointer
+          declarator	str
+      compound_stmt
+        declaration
+          type_specifier
+            int
+          init_declarator_list
+            init_declarator
+              declarator	length
+              0
         while_stmt
           equality
             postfix
-              bd_read_u32
-              call_suffix
-                arg_list	0x40000004
+              str
+              array_index	length
             neq
-            0
+            "\0"
           compound_stmt
-        return_stmt	0
+            expr_stmt
+              assignment
+                length
+                additive
+                  length
+                  plus
+                  1
+        return_stmt	length
   external_decl
     function_def
       type_specifier
@@ -1522,32 +1541,28 @@ translation_unit
       type_specifier
         void
       declarator	write_file
+      param_list
+        param
+          type_specifier
+            char
+            pointer
+          declarator	filename
+        param
+          type_specifier
+            char
+            pointer
+          declarator	data
       compound_stmt
-        declaration
-          type_specifier
-            char
-          init_declarator_list
-            init_declarator
-              declarator
-                filename
-                array	32
-              "example.txt"
-        declaration
-          type_specifier
-            char
-          init_declarator_list
-            init_declarator
-              declarator
-                data
-                array	512
-              "Hello, RospOS filesystem!"
         declaration
           type_specifier
             int
           init_declarator_list
             init_declarator
               declarator	file_size
-              25
+              postfix
+                string_length
+                call_suffix
+                  arg_list	data
         declaration
           type_specifier
             char
@@ -1686,8 +1701,15 @@ translation_unit
   external_decl
     function_def
       type_specifier
-        void
+        char
+        pointer
       declarator	read_file
+      param_list
+        param
+          type_specifier
+            char
+            pointer
+          declarator	filename
       compound_stmt
         declaration
           type_specifier
@@ -1831,6 +1853,7 @@ translation_unit
                 10
                 50
                 0x3F
+        return_stmt	data
   external_decl
     function_def
       inline
@@ -1898,6 +1921,9 @@ translation_unit
           postfix
             write_file
             call_suffix
+              arg_list
+                "example.txt"
+                "Hello, RospOS filesystem!"
         declaration
           type_specifier
             char
@@ -1922,16 +1948,23 @@ translation_unit
                 10
                 10
                 0x3F
-        expr_stmt
-          postfix
-            read_file
-            call_suffix
+        declaration
+          type_specifier
+            char
+            pointer
+          init_declarator_list
+            init_declarator
+              declarator	file_contents
+              postfix
+                read_file
+                call_suffix
+                  arg_list	"example.txt"
         expr_stmt
           postfix
             draw_string_to_display
             call_suffix
               arg_list
-                "Hello, RospOS!"
+                file_contents
                 10
                 70
                 0x3F
@@ -1940,7 +1973,7 @@ translation_unit
             draw_string_to_display
             call_suffix
               arg_list
-                "Green RospOS"
+                "Green"
                 10
                 90
                 0x0C
