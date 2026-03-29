@@ -4,7 +4,11 @@ int bd_read_u32(int addr)
     int b1 = __lb(addr + 1) & 0xFF;
     int b2 = __lb(addr + 2) & 0xFF;
     int b3 = __lb(addr + 3) & 0xFF;
-    return (b0 << 24) | (b1 << 16) | (b2 << 8) | b3;
+    int value = b0 << 24;
+    value = value | (b1 << 16);
+    value = value | (b2 << 8);
+    value = value | b3;
+    return value;
 }
 
 void bd_write_u32(int addr, int value)
