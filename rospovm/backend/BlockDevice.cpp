@@ -554,9 +554,6 @@ void execute_read_command()
     if (g_state.blockCount == 0 || g_state.blockCount > kMaxCommandBlockCount) {
         throw std::runtime_error("Invalid block count for READ command");
     }
-    if ((g_state.bufferAddr % kBlockSize) != 0U) {
-        throw std::runtime_error("Buffer address must be 512-byte aligned");
-    }
 
     for (uint32_t i = 0; i < g_state.blockCount; ++i) {
         const uint32_t id = g_state.blockId + i;
@@ -574,9 +571,6 @@ void execute_write_command()
 {
     if (g_state.blockCount == 0 || g_state.blockCount > kMaxCommandBlockCount) {
         throw std::runtime_error("Invalid block count for WRITE command");
-    }
-    if ((g_state.bufferAddr % kBlockSize) != 0U) {
-        throw std::runtime_error("Buffer address must be 512-byte aligned");
     }
 
     for (uint32_t i = 0; i < g_state.blockCount; ++i) {
@@ -625,9 +619,10 @@ void run_command_if_needed(uint32_t wroteOffset)
         }
     } catch (...) {
         set_error(true);
+        set_data_ready(false);
         g_state.status &= ~kStatusBusy;
         g_state.command = kCommandNone;
-        throw;
+        return;
     }
 
     g_state.status &= ~kStatusBusy;
