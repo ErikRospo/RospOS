@@ -4,15 +4,19 @@ opts=[]
 def optimize(ast):
     global opts
     logs = []
-    for opt in opts:
-        ast = opt(ast, logs)
+    # Multiple passes to allow optimizations that enable other optimizations (e.g. removing a jump may enable removal of unreachable code after it, or folding offset calcs may enable removal of now-redundant instructions). In practice, 2-3 passes should be sufficient for most cases, and we can always increase if needed.
+    # Very quickly diminishing returns after about 2 passes
+    # But it's quick enough that we can afford to be generous with the number of passes.
+    for _ in range(5): 
+        for opt in opts:
+            ast = opt(ast, logs)
     return ast, logs
 
 def _mark_optimized(node):
     if isinstance(node, Instruction):
         return node.copy_with(is_optimized=True)
     return node
-def opt_remove_unneeded_moves(ast, logs):
+def opt_40_remove_unneeded_moves(ast, logs):
     #   OR r10, r10, r11    // binop |
     #   ADDI r4, r10, 0    // assign lfsr
     # can be optimized to:
@@ -46,7 +50,7 @@ def opt_remove_unneeded_moves(ast, logs):
                         continue
         optimized_ast.append(instr)
     return optimized_ast
-def opt_remove_unneeded_jumps(ast, logs):
+def opt_30_remove_unneeded_jumps(ast, logs):
     # Remove jumps that are immediately followed by their target label
     optimized_ast = []
     i = 0
@@ -82,7 +86,7 @@ def _reg_from_imm(imm):
         return int(imm)
     except Exception:
         return None
-def opt_nop_removal(ast, logs):
+def opt_30_nop_removal(ast, logs):
     # E.g. ADDI r5, r5, 0
     optimized_ast = []
     for instr in ast:
@@ -101,7 +105,7 @@ def opt_nop_removal(ast, logs):
                 continue
         optimized_ast.append(instr)
     return optimized_ast
-def opt_push_pop(ast, logs):
+def opt_20_push_pop(ast, logs):
     # find sequences of push and pop instructions that cancel each other out and eliminate them
     # e.g.
     # PUSH r1
@@ -183,7 +187,7 @@ def _next_non_label_index(ast, idx):
     while idx < len(ast) and isinstance(ast[idx], LabelDecl):
         idx += 1
     return idx
-def opt_thread_jump_chains(ast, logs):
+def opt_30_thread_jump_chains(ast, logs):
     # If jmp A and A immediately jumps to B, rewrite to jmp B
     label_to_index = {}
     for idx, node in enumerate(ast):
@@ -217,7 +221,7 @@ def opt_thread_jump_chains(ast, logs):
             optimized_ast.append(instr)
 
     return optimized_ast
-def opt_remove_unreachable_after_jmp(ast, logs):
+def opt_30_remove_unreachable_after_jmp(ast, logs):
     # Remove straight-line code after an unconditional jmp until next label
     optimized_ast = []
     i = 0
@@ -248,7 +252,7 @@ def _find_defined_labels(ast):
         if isinstance(instr, LabelDecl):
             defined_labels.add(instr.name)
     return defined_labels
-def opt_remove_unused_labels(ast, logs):
+def opt_30_remove_unused_labels(ast, logs):
     used_labels = _find_used_labels(ast)
     defined_labels = _find_defined_labels(ast)
     unused_labels = defined_labels - used_labels
@@ -261,7 +265,7 @@ def opt_remove_unused_labels(ast, logs):
         optimized_ast.append(instr)
 
     return optimized_ast
-def opt_combine_safe_offset_calcs(ast,logs):
+def opt_30_combine_safe_offset_calcs(ast,logs):
     #   LLI r12, 3    // load immediate 3
     #   ADD r12, r1, r12    // binop +
     #   LLI r5, 255    // load immediate 255
@@ -409,11 +413,61 @@ def opt_combine_safe_offset_calcs(ast,logs):
         i += 1
 
     return optimized_ast
-    
+def opt_45_push_pop_to_move(ast, logs):
+    # Convert push followed by pop of a different register to a single ADDI instruction
+    # PUSH r1
+    # POP r2
+    # =>
+    # ADDI r2, r1, 0
+    optimized_ast = []
+    i = 0
+    while i < len(ast) - 1:
+        instr = ast[i]
+        next_instr = ast[i + 1]
+
+        if (
+            isinstance(instr, Instruction)
+            and instr.name == "push"
+            and instr.type == "p"
+            and isinstance(next_instr, Instruction)
+            and next_instr.name == "pop"
+            and next_instr.type == "p"
+        ):
+            push_reg = _reg_from_imm(instr.imm)
+            pop_reg = _reg_from_imm(next_instr.imm)
+
+            if push_reg is not None and pop_reg is not None:
+                if push_reg != pop_reg:
+                    new_instr = Instruction(
+                        name="addi",
+                        type="i",
+                        rd=pop_reg,
+                        rs1=push_reg,
+                        imm=ImmValue(0),
+                        is_optimized=True,
+                    )
+                    optimized_ast.append(new_instr)
+                    logs.append(
+                        f"Converted PUSH/POP to move at indices {i}-{i+1}: replaced '{instr}' and '{next_instr}' with '{new_instr}'"
+                    )
+                    i += 2
+                    continue
+                else:
+                    # If push and pop are the same register, we can eliminate both as they have no effect.
+                    # This *should* be caught by opt_00_push_pop, but we can also handle it here just in case.
+                    logs.append(
+                        f"Removed redundant PUSH/POP of same register at indices {i}-{i+1}: removed '{instr}' and '{next_instr}'"
+                    )
+                    i += 2
+                    continue
+        optimized_ast.append(instr)
+        i += 1
+
+    # Append the last instruction if it wasn't part of a pair
+    if i < len(ast):
+        optimized_ast.append(ast[i])
+
+    return optimized_ast
 # This is a bit of a hack to avoid having to manually maintain the list of optimizations,
 # but it should work fine as long as we don't have any non-optimization functions that start with "opt_".
-# The eval resolves the function name string into the actual function object, 
-# which we can then call in the optimize function. It feels wrong to use eval in any situation, but in this case, it
-# should be safe since we're only evaluating function names that are defined in this file,
-# and we have control over those function names.
-opts=[eval(_) for _ in dir() if _.startswith("opt_")] 
+opts=[globals()[_] for _ in sorted(dir()) if _.startswith("opt_")]
