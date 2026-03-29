@@ -85,7 +85,7 @@ run_headless: rospos/build/rospos.rosp vm_headless
 	rospovm/build/rospovm_headless $<
 
 benchmark:
-	$(PY) tools/benchmarking/run_all.py
+	$(PY) tools/benchmarking/run_all.py --repeat 100
 
 test:
 	$(PY) -m unittest discover -s tests -p "test_*.py" -v
