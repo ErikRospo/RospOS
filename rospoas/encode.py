@@ -53,11 +53,32 @@ def encode_ir(
     current_segment = None
     current_segment_data = None
     cursor = 0
+    current_address = 0
+    gap_pending = False
     # record layout of nodes per segment for post-encode diagnostics
     segment_node_map = {}
     # track cursors per segment for validation
     segment_cursor_map = {}
-    for node in ir_list:
+    segment_by_addr = {addr: data for addr, data in segments}
+
+    def _record_current_segment_usage():
+        if current_segment is not None:
+            segment_cursor_map[current_segment] = cursor
+
+    def _start_current_segment(addr: int):
+        nonlocal current_segment, current_segment_data, cursor, gap_pending
+        _record_current_segment_usage()
+        current_segment = addr
+        current_segment_data = segment_by_addr.get(addr)
+        if current_segment_data is None:
+            raise EncodeError(
+                f"No segment buffer found at address {hex(addr)} while encoding"
+            )
+        cursor = 0
+        gap_pending = False
+
+    for idx in range(len(ir_list)):
+        node = ir_list[idx]
         if isinstance(node, Directive) and node.name == "seg":
             seg_addr = None
             if node.imm is not None:
@@ -67,24 +88,48 @@ def encode_ir(
                     seg_addr = int(node.imm)
             else:
                 seg_addr = 0
-            # find matching segment buffer
-            # record previous segment usage before switching
-            if current_segment is not None:
-                segment_cursor_map[current_segment] = cursor
-
+            _record_current_segment_usage()
             current_segment = seg_addr
-            current_segment_data = next((d for a, d in segments if a == seg_addr), None)
+            current_segment_data = None
             cursor = 0
+            current_address = seg_addr
+            gap_pending = False
             continue
 
-        if current_segment_data is None:
-            raise EncodeError("No current segment while encoding")
-
         if isinstance(node, LabelDecl):
+            next_node = ir_list[idx + 1] if idx + 1 < len(ir_list) else None
+            if isinstance(next_node, Instruction):
+                align = (4 - (current_address % 4)) % 4
+                if align:
+                    if current_segment_data is None or gap_pending:
+                        _start_current_segment(current_address)
+                    cursor += align
+                    current_address += align
             # labels do not consume bytes
             continue
 
+        if isinstance(node, Directive) and node.name == "space":
+            if node.length is not None:
+                size = int(node.length)
+            elif isinstance(node.imm, ImmValue):
+                size = int(node.imm.value)
+            elif node.imm is not None:
+                size = int(node.imm)
+            else:
+                size = 0
+            if size < 0:
+                raise EncodeError("SPACE directive cannot reserve a negative length")
+            _record_current_segment_usage()
+            current_segment = None
+            current_segment_data = None
+            cursor = 0
+            current_address += size
+            gap_pending = True
+            continue
+
         if isinstance(node, Directive) and node.name == "data":
+            if current_segment_data is None or gap_pending:
+                _start_current_segment(current_address)
             data_value = node.imm
             if isinstance(data_value, bytes):
                 data_bytes = data_value
@@ -115,6 +160,7 @@ def encode_ir(
                 (cursor, len(data_bytes), "data")
             )
             cursor += len(data_bytes)
+            current_address += len(data_bytes)
             continue
 
         if isinstance(node, Instruction):
@@ -142,6 +188,17 @@ def encode_ir(
             rs1 = _reg_to_int(rs1)
             rs2 = _reg_to_int(rs2)
 
+            # Keep instruction addresses aligned exactly as layout did.
+            align = (4 - (current_address % 4)) % 4
+            if align:
+                if current_segment_data is None or gap_pending:
+                    _start_current_segment(current_address)
+                cursor += align
+                current_address += align
+
+            if current_segment_data is None or gap_pending:
+                _start_current_segment(current_address)
+
             # opcode construction: 4 bits type, 4 bits opcode, then up to 24 bits of operands/immediate
             imm = node.imm
             type_id = opcode_type_map[t_type]
@@ -151,7 +208,7 @@ def encode_ir(
             # resolve immediates to ints where applicable
             resolved_imm = None
             if imm is not None:
-                resolved_imm = _resolve_imm(imm, addresses, current_segment, cursor)
+                resolved_imm = _resolve_imm(imm, addresses, current_address, 0)
 
             try:
                 # Encode operands based on type
@@ -209,11 +266,11 @@ def encode_ir(
                 (cursor, 4, "instr")
             )
             cursor += 4
+            current_address += 4
             continue
 
     # Record final cursor for the last segment
-    if current_segment is not None:
-        segment_cursor_map[current_segment] = cursor
+    _record_current_segment_usage()
 
     # Post-encode diagnostics: check labels land on expected node types
     for name, addr in addresses.items():

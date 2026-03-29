@@ -38,8 +38,16 @@ def collect_debug_segments(ir_nodes):
     writers = {}
 
     current_segment = 0
-    current_cursor = 0
+    current_address = 0
+    gap_pending = False
     last_was_data = False
+
+    def ensure_writer():
+        nonlocal current_segment, gap_pending
+        if current_segment is None or gap_pending:
+            current_segment = current_address
+            gap_pending = False
+        return writers.setdefault(current_segment, DebugInfoWriter())
 
     for idx, node in enumerate(ir_nodes):
         if isinstance(node, Directive) and node.name == "seg":
@@ -47,22 +55,35 @@ def collect_debug_segments(ir_nodes):
             if seg_addr is None:
                 seg_addr = 0
             current_segment = seg_addr
-            current_cursor = 0
+            current_address = seg_addr
+            gap_pending = False
             last_was_data = False
-            writers.setdefault(current_segment, DebugInfoWriter())
             continue
 
         if isinstance(node, LabelDecl):
             next_node = ir_nodes[idx + 1] if idx + 1 < len(ir_nodes) else None
             if isinstance(next_node, IRInstruction):
-                align = (4 - (current_cursor % 4)) % 4
+                align = (4 - (current_address % 4)) % 4
                 if align:
-                    current_cursor += align
+                    ensure_writer()
+                    current_address += align
+            continue
+
+        if isinstance(node, Directive) and node.name == "space":
+            size = _imm_to_int(node.imm)
+            if size is None and node.length is not None:
+                size = int(node.length)
+            if size is None:
+                size = 0
+            current_address += int(size)
+            current_segment = None
+            gap_pending = True
+            last_was_data = False
             continue
 
         if isinstance(node, Directive) and node.name == "data":
-            writer = writers.setdefault(current_segment, DebugInfoWriter())
-            addr = current_segment + current_cursor
+            writer = ensure_writer()
+            addr = current_address
             writer.add_entry(
                 address=addr,
                 flags=_debug_flags_from_node(node),
@@ -78,32 +99,31 @@ def collect_debug_segments(ir_nodes):
                     size = (imm_int.bit_length() // 8) + 1
                 else:
                     size = 4
-            size = max(4, size)
-            current_cursor += size
+            current_address += int(size)
             last_was_data = True
             continue
 
         if isinstance(node, IRInstruction):
-            writer = writers.setdefault(current_segment, DebugInfoWriter())
+            writer = ensure_writer()
 
             if last_was_data:
-                align = (4 - (current_cursor % 4)) % 4
+                align = (4 - (current_address % 4)) % 4
                 if align:
-                    current_cursor += align
+                    current_address += align
             last_was_data = False
 
-            align = (4 - (current_cursor % 4)) % 4
+            align = (4 - (current_address % 4)) % 4
             if align:
-                current_cursor += align
+                current_address += align
 
-            addr = current_segment + current_cursor
+            addr = current_address
             writer.add_entry(
                 address=addr,
                 flags=_debug_flags_from_node(node),
                 src_info=getattr(node, "src", None),
                 original_text=_node_original_text(node),
             )
-            current_cursor += 4
+            current_address += 4
 
     return writers
 

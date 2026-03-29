@@ -547,8 +547,8 @@ class RospoasTransformer(Transformer):
         return self._attach_src(
             {
                 "type": "d",
-                "name": "data",
-                "imm": bytes(imm_v),
+                "name": "space",
+                "imm": imm_v,
                 "d": "space",
                 "len": imm_v,
             },

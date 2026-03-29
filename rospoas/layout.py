@@ -8,7 +8,7 @@ addresses and sizes to be used by the encoder stage.
 
 from typing import Dict, List, Tuple
 
-from errors import LayoutError, fmt_node
+from errors import LayoutError
 from ir import Directive, ImmValue, Instruction, LabelDecl, Segment
 
 
@@ -26,6 +26,16 @@ def _instr_size(node) -> int:
     return 0
 
 
+def _directive_len(node: Directive) -> int:
+    if node.length is not None:
+        return int(node.length)
+    if isinstance(node.imm, ImmValue):
+        return int(node.imm.value)
+    if node.imm is not None:
+        return int(node.imm)
+    return 0
+
+
 def layout_ir(ir_list: List) -> Tuple[Dict[str, int], List[Tuple[int, bytearray]]]:
     """Compute addresses for labels and allocate segments.
 
@@ -37,6 +47,21 @@ def layout_ir(ir_list: List) -> Tuple[Dict[str, int], List[Tuple[int, bytearray]
     current_segment_addr = 0
     current_segment_data = None
     current_address = 0
+    gap_pending = False
+
+    def _flush_segment():
+        nonlocal current_segment_data
+        if current_segment_data is not None:
+            segments.append((current_segment_addr, current_segment_data))
+            current_segment_data = None
+
+    def _ensure_segment():
+        nonlocal current_segment_addr, current_segment_data, gap_pending
+        if current_segment_data is None or gap_pending:
+            _flush_segment()
+            current_segment_addr = current_address
+            current_segment_data = bytearray()
+            gap_pending = False
 
     # Use index-based loop so we can peek next node for label alignment decisions
 
@@ -45,9 +70,7 @@ def layout_ir(ir_list: List) -> Tuple[Dict[str, int], List[Tuple[int, bytearray]
         node = ir_list[idx]
         # Segment directive
         if isinstance(node, Directive) and node.name == "seg":
-            # flush previous segment
-            if current_segment_data is not None:
-                segments.append((current_segment_addr, current_segment_data))
+            _flush_segment()
 
             # start new segment
             seg_addr = None
@@ -59,17 +82,12 @@ def layout_ir(ir_list: List) -> Tuple[Dict[str, int], List[Tuple[int, bytearray]
             else:
                 seg_addr = 0
 
-            current_segment_addr = seg_addr
-            current_segment_data = bytearray()
             current_address = seg_addr
+            current_segment_addr = seg_addr
+            current_segment_data = None
+            gap_pending = False
             last_was_data = False
             continue
-
-        # Ensure we have a segment
-        if current_segment_data is None:
-            current_segment_addr = 0
-            current_segment_data = bytearray()
-            current_address = 0
 
         # Label declaration
         if isinstance(node, LabelDecl):
@@ -81,6 +99,7 @@ def layout_ir(ir_list: List) -> Tuple[Dict[str, int], List[Tuple[int, bytearray]
                 # If previous node was data, always align to next 4-byte boundary
                 align = (4 - (current_address % 4)) % 4
                 if align:
+                    _ensure_segment()
                     current_segment_data.extend(b"\x00" * align)
                     current_address += align
             addresses[node.name] = current_address
@@ -89,9 +108,21 @@ def layout_ir(ir_list: List) -> Tuple[Dict[str, int], List[Tuple[int, bytearray]
         # Data directive
         if isinstance(node, Directive) and node.name == "data":
             size = _instr_size(node)
+            _ensure_segment()
             current_segment_data.extend(b"\x00" * size)
             current_address += size
             last_was_data = True
+            continue
+
+        # SPACE directive reserves address range without writing bytes
+        if isinstance(node, Directive) and node.name == "space":
+            size = _directive_len(node)
+            if size < 0:
+                raise LayoutError("SPACE directive cannot reserve a negative length")
+            _flush_segment()
+            current_address += size
+            gap_pending = True
+            last_was_data = False
             continue
 
         # Instruction: ensure 4-byte alignment before reserving instruction bytes
@@ -100,21 +131,23 @@ def layout_ir(ir_list: List) -> Tuple[Dict[str, int], List[Tuple[int, bytearray]
             if last_was_data:
                 align = (4 - (current_address % 4)) % 4
                 if align:
+                    _ensure_segment()
                     current_segment_data.extend(b"\x00" * align)
                     current_address += align
             last_was_data = False
             align = (4 - (current_address % 4)) % 4
             if align:
+                _ensure_segment()
                 current_segment_data.extend(b"\x00" * align)
                 current_address += align
+            _ensure_segment()
             current_segment_data.extend(b"\x00" * 4)
             current_address += 4
             continue
 
         # Unknown node: ignore
 
-    if current_segment_data is not None:
-        segments.append((current_segment_addr, current_segment_data))
+    _flush_segment()
 
     # Validate segments do not overlap
     if segments:
