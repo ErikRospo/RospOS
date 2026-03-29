@@ -22,9 +22,9 @@ find_package(ZLIB REQUIRED)
 find_package(KF6SyntaxHighlighting REQUIRED)
 
 set(ROSPOSVM_HIGHLIGHTING_DIR "${CMAKE_CURRENT_SOURCE_DIR}/highlighting")
-# VM Core Library
-# Static library containing the VM implementation (no GUI dependencies)
-add_library(rosposvm_lib STATIC
+
+# Common backend sources
+set(ROSPOSVM_BACKEND_SOURCES
     backend/RospOSVM.cpp
     backend/RospOSVM.h
     backend/InstructionDecoder.cpp
@@ -49,10 +49,23 @@ add_library(rosposvm_lib STATIC
     backend/Logger.h
 )
 
+# VM Core Library with state capture (for Qt GUI debugging)
+add_library(rosposvm_lib STATIC ${ROSPOSVM_BACKEND_SOURCES})
+
 target_include_directories(rosposvm_lib PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/backend
 )
 target_link_libraries(rosposvm_lib PUBLIC Qt6::Core Qt6::Gui Qt6::Widgets ZLIB::ZLIB KF6::SyntaxHighlighting)
+target_compile_definitions(rosposvm_lib PRIVATE ROSPOSVM_ENABLE_STATE_CAPTURE=1)
+
+# VM Core Library without state capture (for headless/minimal release builds)
+add_library(rosposvm_lib_release STATIC ${ROSPOSVM_BACKEND_SOURCES})
+
+target_include_directories(rosposvm_lib_release PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}/backend
+)
+target_link_libraries(rosposvm_lib_release PUBLIC Qt6::Core Qt6::Gui Qt6::Widgets ZLIB::ZLIB KF6::SyntaxHighlighting)
+target_compile_definitions(rosposvm_lib_release PRIVATE ROSPOSVM_ENABLE_STATE_CAPTURE=0)
     
 # Qt GUI Application
 add_executable(rospovm_qt
@@ -115,7 +128,7 @@ target_link_libraries(rospovm_qt PRIVATE
 )
 
 target_link_libraries(rospovm_minimal PRIVATE
-    rosposvm_lib
+    rosposvm_lib_release
     Qt6::Core
     Qt6::Gui
     Qt6::Widgets
@@ -123,7 +136,7 @@ target_link_libraries(rospovm_minimal PRIVATE
 )
 
 target_link_libraries(rospovm_headless PRIVATE
-    rosposvm_lib
+    rosposvm_lib_release
     Qt6::Core
 )
 

@@ -13,6 +13,12 @@
 #include "Display.h"
 #include "Binary.h"
 
+// Compile-time flag to enable/disable state capture (for debugging and step-backward)
+// Set to 1 for Qt GUI (needs full debugging), 0 for headless/minimal (performance)
+#ifndef ROSPOSVM_ENABLE_STATE_CAPTURE
+#define ROSPOSVM_ENABLE_STATE_CAPTURE 1
+#endif
+
 class RospOSVM
 {
 private:
@@ -34,11 +40,14 @@ private:
     };
 
     static constexpr size_t kMaxStateHistory = 32;
+    static constexpr bool kEnableStateCapture = (ROSPOSVM_ENABLE_STATE_CAPTURE != 0);
 
     RegisterFile regFile;
     uint32_t pc; // Program Counter
     Memory memory;
     std::shared_ptr<Binary> loadedBinary;  // Loaded binary with debug info
+    
+    // State capture only used when ROSPOSVM_ENABLE_STATE_CAPTURE is enabled
     std::deque<VMStateSnapshot> stateHistory;
     std::unique_ptr<VMStateSnapshot> currentSnapshot;
     bool applyingHistory = false;
@@ -71,7 +80,13 @@ public:
     void loadBinaryFromFile(const std::string& filename);
     void step();
     bool stepBackward();
-    bool canStepBackward() const { return !stateHistory.empty(); }
+    bool canStepBackward() const { 
+        if constexpr (kEnableStateCapture) {
+            return !stateHistory.empty();
+        } else {
+            return false;
+        }
+    }
     std::string getRegisterState() const;
 
     // Debugger interface

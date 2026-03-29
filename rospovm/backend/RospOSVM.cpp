@@ -80,60 +80,68 @@ void RospOSVM::recordMemoryAccess(uint32_t address, uint8_t size, bool isWrite)
 
 void RospOSVM::beginStateCapture()
 {
-    currentSnapshot = std::make_unique<VMStateSnapshot>();
-    currentSnapshot->pc = pc;
-    for (int i = 0; i < 16; ++i) {
-        currentSnapshot->registers[static_cast<size_t>(i)] = regFile[i].get();
+    if constexpr (kEnableStateCapture) {
+        currentSnapshot = std::make_unique<VMStateSnapshot>();
+        currentSnapshot->pc = pc;
+        for (int i = 0; i < 16; ++i) {
+            currentSnapshot->registers[static_cast<size_t>(i)] = regFile[i].get();
+        }
     }
 }
 
 void RospOSVM::commitStateCapture()
 {
-    if (!currentSnapshot) {
-        return;
-    }
+    if constexpr (kEnableStateCapture) {
+        if (!currentSnapshot) {
+            return;
+        }
 
-    stateHistory.push_back(std::move(*currentSnapshot));
-    currentSnapshot.reset();
+        stateHistory.push_back(std::move(*currentSnapshot));
+        currentSnapshot.reset();
 
-    while (stateHistory.size() > kMaxStateHistory) {
-        stateHistory.pop_front();
+        while (stateHistory.size() > kMaxStateHistory) {
+            stateHistory.pop_front();
+        }
     }
 }
 
 void RospOSVM::clearStateHistory()
 {
-    stateHistory.clear();
-    currentSnapshot.reset();
+    if constexpr (kEnableStateCapture) {
+        stateHistory.clear();
+        currentSnapshot.reset();
+    }
 }
 
 void RospOSVM::recordMemoryDeltaForByte(uint32_t address)
 {
-    if (!currentSnapshot || applyingHistory) {
-        return;
-    }
-
-    // MMIO/special ranges may have side effects or block on reads (e.g. TTY).
-    // Do not include them in reversible memory snapshots.
-    if (memory.isSpecialAddress(address)) {
-        return;
-    }
-
-    for (const MemoryByteDelta &delta : currentSnapshot->memoryDeltas) {
-        if (delta.address == address) {
+    if constexpr (kEnableStateCapture) {
+        if (!currentSnapshot || applyingHistory) {
             return;
         }
-    }
 
-    uint8_t previousValue = 0;
-    try {
-        previousValue = memory.readByte(address);
-    } catch (const std::exception &) {
-        // Non-readable regions cannot be reliably restored.
-        return;
-    }
+        // MMIO/special ranges may have side effects or block on reads (e.g. TTY).
+        // Do not include them in reversible memory snapshots.
+        if (memory.isSpecialAddress(address)) {
+            return;
+        }
 
-    currentSnapshot->memoryDeltas.push_back({address, previousValue});
+        for (const MemoryByteDelta &delta : currentSnapshot->memoryDeltas) {
+            if (delta.address == address) {
+                return;
+            }
+        }
+
+        uint8_t previousValue = 0;
+        try {
+            previousValue = memory.readByte(address);
+        } catch (const std::exception &) {
+            // Non-readable regions cannot be reliably restored.
+            return;
+        }
+
+        currentSnapshot->memoryDeltas.push_back({address, previousValue});
+    }
 }
 
 void RospOSVM::writeMemoryTrackedByte(uint32_t address, uint8_t value)
@@ -334,35 +342,39 @@ void RospOSVM::step()
 
 bool RospOSVM::stepBackward()
 {
-    if (stateHistory.empty()) {
-        return false;
+    if constexpr (!kEnableStateCapture) {
+        return false;  // Step-backward not available when state capture is disabled
+    } else {
+        if (stateHistory.empty()) {
+            return false;
+        }
+
+        const VMStateSnapshot snapshot = std::move(stateHistory.back());
+        stateHistory.pop_back();
+
+        applyingHistory = true;
+        for (auto it = snapshot.memoryDeltas.rbegin(); it != snapshot.memoryDeltas.rend(); ++it) {
+            memory.writeByte(it->address, it->previousValue);
+        }
+        applyingHistory = false;
+
+        pc = snapshot.pc;
+        for (int i = 1; i < 16; ++i) {
+            regFile[i].set(snapshot.registers[static_cast<size_t>(i)]);
+        }
+
+        if (debugMode)
+        {
+            std::ostringstream oss;
+            oss << "Step back applied. PC: " << std::hex << pc << std::dec << "\n";
+            oss << "Registers: " << getRegisterState();
+            Logger::instance().debug(QString::fromStdString(oss.str()));
+        }
+
+        clearLastMemoryAccess();
+
+        return true;
     }
-
-    const VMStateSnapshot snapshot = std::move(stateHistory.back());
-    stateHistory.pop_back();
-
-    applyingHistory = true;
-    for (auto it = snapshot.memoryDeltas.rbegin(); it != snapshot.memoryDeltas.rend(); ++it) {
-        memory.writeByte(it->address, it->previousValue);
-    }
-    applyingHistory = false;
-
-    pc = snapshot.pc;
-    for (int i = 1; i < 16; ++i) {
-        regFile[i].set(snapshot.registers[static_cast<size_t>(i)]);
-    }
-
-    if (debugMode)
-    {
-        std::ostringstream oss;
-        oss << "Step back applied. PC: " << std::hex << pc << std::dec << "\n";
-        oss << "Registers: " << getRegisterState();
-        Logger::instance().debug(QString::fromStdString(oss.str()));
-    }
-
-    clearLastMemoryAccess();
-
-    return true;
 }
 
 std::string RospOSVM::getRegisterState() const
