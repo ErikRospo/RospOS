@@ -11,7 +11,7 @@ import re
 import json
 from pathlib import Path
 from dataclasses import dataclass
-from typing import Dict, List, Tuple, Optional
+from typing import Any, Dict, List, Tuple, Optional
 
 
 @dataclass
@@ -112,45 +112,127 @@ class BuildAnalyzer:
         count = sum(1 for line in lines if re.match(r'^\s*Instruction\(', line))
         return count
 
-    def analyze_optimization_log(self) -> Dict[str, any]:
-        """Parse optimization log"""
+    def analyze_optimization_log(self) -> Dict[str, Any]:
+        """Parse optimization log and classify optimization events"""
         lines = self.read_file_lines('debug_opt_log.txt')
-        
+
         optimization_stats = {
+            'lines_parsed': 0,
+            'unknown_events': 0,
+            'event_counts': {},
+            'instruction_removals': {},
             'pop_push_removals': [],
+            'safe_offset_combinations': 0,
+            'label_removals': 0,
+            'rewrite_events': 0,
             'total_instructions_removed': 0,
         }
-        
+
+        def record_event(event_key: str, removed: int = 0, is_rewrite: bool = False):
+            optimization_stats['event_counts'][event_key] = optimization_stats['event_counts'].get(event_key, 0) + 1
+            if removed > 0:
+                optimization_stats['instruction_removals'][event_key] = (
+                    optimization_stats['instruction_removals'].get(event_key, 0) + removed
+                )
+                optimization_stats['total_instructions_removed'] += removed
+            if is_rewrite:
+                optimization_stats['rewrite_events'] += 1
+
         for line in lines:
+            line = line.strip()
+            if not line:
+                continue
+
+            optimization_stats['lines_parsed'] += 1
+
             # Parse: "Removed POP/PUSH cancellation block at indices 395-402 (len=8)"
             match = re.search(r'Removed POP/PUSH cancellation block.*\(len=(\d+)\)', line)
             if match:
                 length = int(match.group(1))
                 optimization_stats['pop_push_removals'].append(length)
-                optimization_stats['total_instructions_removed'] += length
-        
+                record_event('pop_push_cancellation', removed=length)
+                continue
+
+            if line.startswith('Combined safe offset calc'):
+                optimization_stats['safe_offset_combinations'] += 1
+                # This optimization removes the preceding LLI + ADD/SUB pair.
+                record_event('safe_offset_combination', removed=2, is_rewrite=True)
+                continue
+
+            if line.startswith('Removed unneeded move by combining'):
+                record_event('remove_unneeded_move', removed=1, is_rewrite=True)
+                continue
+
+            if line.startswith('Removed unneeded jmp pseudo before label'):
+                record_event('remove_unneeded_jump', removed=1)
+                continue
+
+            if line.startswith('Removed effective NOP instruction'):
+                record_event('remove_nop', removed=1)
+                continue
+
+            if line.startswith('Threaded jump at index'):
+                record_event('thread_jump_chain', is_rewrite=True)
+                continue
+
+            if line.startswith('Removed unreachable instruction'):
+                record_event('remove_unreachable_after_jump', removed=1)
+                continue
+
+            if line.startswith('Removed unused label'):
+                optimization_stats['label_removals'] += 1
+                record_event('remove_unused_label')
+                continue
+
+            if line.startswith('Converted PUSH/POP to move'):
+                # Two pseudo instructions become one ADDI move.
+                record_event('push_pop_to_move', removed=1, is_rewrite=True)
+                continue
+
+            if line.startswith('Removed redundant PUSH/POP of same register'):
+                record_event('remove_redundant_push_pop', removed=2)
+                continue
+
+            optimization_stats['unknown_events'] += 1
+
         return optimization_stats
 
-    def analyze_ir(self) -> Dict[str, any]:
+    def analyze_ir(self) -> Dict[str, Any]:
         """Analyze intermediate representation for instruction types"""
         lines = self.read_file_lines('rospos_ir.txt')
         instruction_types = {}
+        subtypes_by_type: Dict[str, Dict[str, int]] = {}
         total_instructions = 0
 
         for line in lines:
-            # Extract instruction type (p, r, i, l, j, b)
-            match = re.search(r"type='([^']+)'", line)
-            if match:
-                instr_type = match.group(1)
-                instruction_types[instr_type] = instruction_types.get(instr_type, 0) + 1
-                total_instructions += 1
+            if not line.lstrip().startswith('Instruction('):
+                continue
+
+            # Extract instruction type (p, r, i, l, j, b) and mnemonic subtype.
+            type_match = re.search(r"type='([^']+)'", line)
+            name_match = re.search(r"name='([^']+)'", line)
+            if not type_match:
+                continue
+
+            instr_type = type_match.group(1)
+            instruction_types[instr_type] = instruction_types.get(instr_type, 0) + 1
+            total_instructions += 1
+
+            if name_match:
+                instr_name = name_match.group(1)
+                if instr_type not in subtypes_by_type:
+                    subtypes_by_type[instr_type] = {}
+                subtypes_by_type[instr_type][instr_name] = (
+                    subtypes_by_type[instr_type].get(instr_name, 0) + 1
+                )
 
         return {
             'total': total_instructions,
             'by_type': instruction_types,
+            'subtypes_by_type': subtypes_by_type,
         }
 
-    def analyze_layout(self) -> Dict[str, any]:
+    def analyze_layout(self) -> Dict[str, Any]:
         """Parse memory layout"""
         lines = self.read_file_lines('rospos_layout.txt')
         layout = {
@@ -205,11 +287,16 @@ def print_section(title: str):
     print(f"{Colors.GRAY}{'-'*70}{Colors.END}")
 
 
-def print_metric(label: str, value: str, color: str = None):
+def print_metric(label: str, value: str, color: Optional[str] = None):
     """Print a metric line"""
     if color is None:
         color = Colors.END
     print(f"  {label:<40} {color}{value}{Colors.END}")
+
+
+def top_items(counts: Dict[str, int], limit: int = 5) -> List[Tuple[str, int]]:
+    """Return top items sorted by frequency (desc), then name (asc)."""
+    return sorted(counts.items(), key=lambda kv: (-kv[1], kv[0]))[:limit]
 
 
 def print_comparison(label: str, before: int, after: int, reduction: bool = True):
@@ -278,17 +365,56 @@ def print_optimization_stats(analyzer: BuildAnalyzer):
                     f"~{removed * 4} bytes (assuming 4B/instr)", Colors.GREEN)
 
     opt_stats = analyzer.analyze_optimization_log()
-    if opt_stats['pop_push_removals']:
+    if opt_stats['lines_parsed'] > 0:
         print()
-        print_metric(f"POP/PUSH cancellations found", f"{len(opt_stats['pop_push_removals'])}")
-        print_metric(f"Total instructions removed", 
-                    f"{opt_stats['total_instructions_removed']:,}", Colors.GREEN)
+        print_metric("Optimization log entries", f"{opt_stats['lines_parsed']:,}")
+        if opt_stats['unknown_events'] > 0:
+            print_metric("Optimization events recognized", f"{sum(opt_stats['event_counts'].values()):,}")
+            print_metric("Unrecognized log entries", f"{opt_stats['unknown_events']:,}", Colors.YELLOW)
+    else:
+        print(f"{Colors.YELLOW}No optimization log entries found or parsed.{Colors.END}")
+        return
+    event_labels = {
+        'pop_push_cancellation': 'POP/PUSH cancellation blocks',
+        'safe_offset_combination': 'Safe offset calc combinations',
+        'remove_unneeded_move': 'Unneeded moves removed',
+        'remove_unneeded_jump': 'Unneeded jumps removed',
+        'remove_nop': 'NOP-equivalent instructions removed',
+        'thread_jump_chain': 'Jump chains threaded',
+        'remove_unreachable_after_jump': 'Unreachable instructions removed',
+        'remove_unused_label': 'Unused labels removed',
+        'push_pop_to_move': 'PUSH/POP pairs converted to moves',
+        'remove_redundant_push_pop': 'Redundant PUSH/POP pairs removed',
+    }
 
-        largest = sorted(opt_stats['pop_push_removals'], reverse=True)[:5]
-        if largest:
-            print()
-            print(f"{Colors.GRAY}  Top removals: {', '.join(map(str, largest))} instructions{Colors.END}")
+    if opt_stats['event_counts']:
+        print()
+        for key, count in sorted(opt_stats['event_counts'].items(), key=lambda kv: kv[1], reverse=True):
+            label = event_labels.get(key, key.replace('_', ' '))
+            print_metric(f"  {label}", f"{count:,}")
 
+    if opt_stats['instruction_removals']:
+        print()
+        print(f"{Colors.GRAY}  Top optimization impacts (estimated removed instructions):{Colors.END}")
+        top_impact = sorted(
+            opt_stats['instruction_removals'].items(),
+            key=lambda kv: kv[1],
+            reverse=True,
+        )[:5]
+        for key, removed in top_impact:
+            count = opt_stats['event_counts'].get(key, 0)
+            avg = removed / count if count > 0 else 0.0
+            label = event_labels.get(key, key.replace('_', ' '))
+            print_metric(f"    {label}", f"{removed:,} total (avg {avg:.1f} removed/event)")
+
+
+    if opt_stats['label_removals'] > 0:
+        print_metric("Labels removed", f"{opt_stats['label_removals']:,}")
+
+    if opt_stats['rewrite_events'] > 0:
+        print_metric("Instruction rewrite events", f"{opt_stats['rewrite_events']:,}")
+
+    
 
 def print_memory_layout(analyzer: BuildAnalyzer):
     """Print memory layout analysis"""
@@ -331,6 +457,16 @@ def print_instruction_types(analyzer: BuildAnalyzer):
                 percentage = (count / ir_stats['total']) * 100
                 name = type_names.get(instr_type, f"Type {instr_type}")
                 print_metric(f"  {name}", f"{count:,} ({percentage:.1f}%)")
+
+                subtype_counts = ir_stats.get('subtypes_by_type', {}).get(instr_type, {})
+                if subtype_counts:
+                    for subtype, subtype_count in top_items(subtype_counts, limit=5):
+                        subtype_pct = (subtype_count / count) * 100 if count > 0 else 0
+                        print_metric(
+                            f"    {subtype}",
+                            f"{subtype_count:,} ({subtype_pct:.1f}% of {instr_type}-type)",Colors.GRAY
+                        )
+                    print()
 
 
 def print_summary(analyzer: BuildAnalyzer):
