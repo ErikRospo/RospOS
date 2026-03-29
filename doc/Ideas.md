@@ -4,10 +4,7 @@ Branches that have a register and a constant should be pseudo-op'd to be a LLI, 
 
 ## Application
 
-Make a different application based on the library, also writen in QT, that _just_ runs the program, without any of the editor/debugger features. It should have a simple interface that just allows the user to load a program, run it, enter input, and see the output. This would be useful for users who just want to run their programs without needing the full debugger interface.
-
 ROSPOVM could use some polishing and UX improvements:
-Keep window settings/geometry between sessions
 Allow for the user to customize the font and colors used in the editor and terminal
 Add a dark/light mode toggle
 Allow for the user to open and close different debug panels (e.g. register view, memory view, etc.) and have their visibility and layout settings be saved between sessions
