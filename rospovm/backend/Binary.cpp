@@ -12,6 +12,7 @@
 
 // Magic number for RospOS binary format
 const uint32_t ROSP_MAGIC = 0x50534F52;  // "ROSP" in ASCII
+static constexpr bool kEnableDebugInfoParsing = (ROSPOSVM_ENABLE_DEBUG_INFO != 0);
 
 static std::vector<uint8_t> decompress_gzip(const std::vector<uint8_t>& data) {
     z_stream stream = {};
@@ -104,6 +105,17 @@ Binary Binary::load_binary(const std::string& path)
             file.read(reinterpret_cast<char*>(&flags), sizeof(flags));
             file.read(reinterpret_cast<char*>(&addr), sizeof(addr));
             file.read(reinterpret_cast<char*>(&size), sizeof(size));
+
+            const bool isDebugSegment = (flags & SEGMENT_FLAG_DEBUG) != 0;
+            if (!kEnableDebugInfoParsing && isDebugSegment) {
+                file.seekg(static_cast<std::streamoff>(size), std::ios::cur);
+                if (!file) {
+                    throw std::runtime_error("Error skipping debug segment data from binary file");
+                }
+                std::cout << "Skipping debug segment at address 0x" << std::hex << addr 
+                          << std::dec << " with size " << size << " bytes" << std::endl;
+                continue;
+            }
 
             std::vector<uint8_t> data(size);
             file.read(reinterpret_cast<char*>(data.data()), size);

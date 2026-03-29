@@ -7,6 +7,12 @@
 #include <map>
 #include <memory>
 
+// Compile-time flag to enable/disable parsing debug segments when loading binaries.
+// Set to 1 for debug-capable builds, 0 for release-oriented builds.
+#ifndef ROSPOSVM_ENABLE_DEBUG_INFO
+#define ROSPOSVM_ENABLE_DEBUG_INFO 1
+#endif
+
 // Segment flags for Binary format V2.
 constexpr uint32_t SEGMENT_FLAG_LOADABLE = 0x00000001;
 constexpr uint32_t SEGMENT_FLAG_DEBUG = 0x00000002;

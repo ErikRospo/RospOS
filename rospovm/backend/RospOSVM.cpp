@@ -49,6 +49,56 @@ RospOSVM::RospOSVM(bool debugMode)
                            BlockDeviceReadHandler, BlockDeviceWriteHandler);
 }
 
+void RospOSVM::invalidateDebugCache()
+{
+    debugCacheBuilt = false;
+    debugEntryCache.clear();
+    debugSourceFileCache.clear();
+    registerAllocCache.clear();
+}
+
+void RospOSVM::buildDebugCache() const
+{
+    if (debugCacheBuilt) {
+        return;
+    }
+
+    debugEntryCache.clear();
+    debugSourceFileCache.clear();
+    registerAllocCache.clear();
+
+    if (!loadedBinary) {
+        debugCacheBuilt = true;
+        return;
+    }
+
+    for (const auto &debugPair : loadedBinary->debug_map) {
+        const std::shared_ptr<DebugInfo> &debugInfo = debugPair.second;
+        if (!debugInfo) {
+            continue;
+        }
+
+        for (const auto &entry : debugInfo->entries) {
+            debugEntryCache.emplace(entry.address, &entry);
+
+            auto fileIt = debugInfo->file_table.find(entry.file_id);
+            if (fileIt != debugInfo->file_table.end()) {
+                debugSourceFileCache.emplace(entry.address, fileIt->second);
+            }
+        }
+
+        for (const auto &addrAllocPair : debugInfo->register_allocations) {
+            const uint32_t address = addrAllocPair.first;
+            auto &byRegister = registerAllocCache[address];
+            for (const auto &alloc : addrAllocPair.second) {
+                byRegister.emplace(alloc.reg, &alloc);
+            }
+        }
+    }
+
+    debugCacheBuilt = true;
+}
+
 void RospOSVM::resetCpuState()
 {
     pc = 0;
@@ -56,6 +106,7 @@ void RospOSVM::resetCpuState()
         regFile[i].set(0);
     }
     regFile.sp().set(0x0FFFFFFF);
+    invalidateDebugCache();
     clearStateHistory();
     clearLastMemoryAccess();
 }
@@ -192,6 +243,8 @@ bool RospOSVM::getLastMemoryAccess(uint32_t &address, uint8_t &size, bool &isWri
 
 void RospOSVM::loadBinaryAtAddress(const std::vector<char> &binary, uint32_t address)
 {
+    loadedBinary.reset();
+    invalidateDebugCache();
     clearStateHistory();
     clearLastMemoryAccess();
     memory.loadBinary(binary, address);
@@ -205,6 +258,7 @@ void RospOSVM::loadBinaryFromFile(const std::string& filename)
     try {
         loadedBinary = std::make_shared<Binary>();
         *loadedBinary = loadedBinary->load_binary(filename);
+        invalidateDebugCache();
         
         // Load all loadable segments into memory
         for (const auto& segment : loadedBinary->segments) {
@@ -228,10 +282,12 @@ void RospOSVM::loadBinaryFromFile(const std::string& filename)
 
 const DebugEntry* RospOSVM::getDebugInfo(uint32_t address) const
 {
-    if (!loadedBinary) {
-        return nullptr;
+    buildDebugCache();
+    auto it = debugEntryCache.find(address);
+    if (it != debugEntryCache.end()) {
+        return it->second;
     }
-    return loadedBinary->get_debug_entry(address);
+    return nullptr;
 }
 
 std::string RospOSVM::formatSourceLocation(uint32_t address) const
@@ -241,19 +297,12 @@ std::string RospOSVM::formatSourceLocation(uint32_t address) const
         return "unknown";
     }
     
-    if (!loadedBinary || loadedBinary->debug_map.empty()) {
-        return "unknown";
-    }
-    
-    // Find the file path from the debug map
-    for (const auto& debug_pair : loadedBinary->debug_map) {
-        const auto& debug_info = debug_pair.second;
-        auto file_it = debug_info->file_table.find(entry->file_id);
-        if (file_it != debug_info->file_table.end()) {
-            std::ostringstream oss;
-            oss << file_it->second << ":" << entry->line;
-            return oss.str();
-        }
+    buildDebugCache();
+    auto fileIt = debugSourceFileCache.find(address);
+    if (fileIt != debugSourceFileCache.end()) {
+        std::ostringstream oss;
+        oss << fileIt->second << ":" << entry->line;
+        return oss.str();
     }
     
     std::ostringstream oss;
@@ -275,22 +324,16 @@ const RegisterAllocationInfo* RospOSVM::getRegisterAllocation(
     const std::string &regName
 ) const
 {
-    if (!loadedBinary) {
+    buildDebugCache();
+    auto addrIt = registerAllocCache.find(address);
+    if (addrIt == registerAllocCache.end()) {
         return nullptr;
     }
 
-    for (const auto &debugPair : loadedBinary->debug_map) {
-        const std::shared_ptr<DebugInfo> &debugInfo = debugPair.second;
-        auto addrIt = debugInfo->register_allocations.find(address);
-        if (addrIt == debugInfo->register_allocations.end()) {
-            continue;
-        }
-
-        for (const auto &alloc : addrIt->second) {
-            if (alloc.reg == regName) {
-                return &alloc;
-            }
-        }
+    const auto &allocByReg = addrIt->second;
+    auto regIt = allocByReg.find(regName);
+    if (regIt != allocByReg.end()) {
+        return regIt->second;
     }
 
     return nullptr;

@@ -56,7 +56,10 @@ target_include_directories(rosposvm_lib PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/backend
 )
 target_link_libraries(rosposvm_lib PUBLIC Qt6::Core Qt6::Gui Qt6::Widgets ZLIB::ZLIB KF6::SyntaxHighlighting)
-target_compile_definitions(rosposvm_lib PRIVATE ROSPOSVM_ENABLE_STATE_CAPTURE=1)
+target_compile_definitions(rosposvm_lib PRIVATE
+    ROSPOSVM_ENABLE_STATE_CAPTURE=1
+    ROSPOSVM_ENABLE_DEBUG_INFO=1
+)
 
 # VM Core Library without state capture (for headless/minimal release builds)
 add_library(rosposvm_lib_release STATIC ${ROSPOSVM_BACKEND_SOURCES})
@@ -65,7 +68,10 @@ target_include_directories(rosposvm_lib_release PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/backend
 )
 target_link_libraries(rosposvm_lib_release PUBLIC Qt6::Core Qt6::Gui Qt6::Widgets ZLIB::ZLIB KF6::SyntaxHighlighting)
-target_compile_definitions(rosposvm_lib_release PRIVATE ROSPOSVM_ENABLE_STATE_CAPTURE=0)
+target_compile_definitions(rosposvm_lib_release PRIVATE
+    ROSPOSVM_ENABLE_STATE_CAPTURE=0
+    ROSPOSVM_ENABLE_DEBUG_INFO=0
+)
     
 # Qt GUI Application
 add_executable(rospovm_qt

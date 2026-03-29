@@ -7,6 +7,7 @@
 #include <memory>
 #include <array>
 #include <deque>
+#include <unordered_map>
 
 #include "Register.h"
 #include "Memory.h"
@@ -53,6 +54,15 @@ private:
     bool applyingHistory = false;
     MemoryAccess lastMemoryAccess;
     bool hasLastMemoryAccess = false;
+
+    // Fast debug lookup caches (built lazily from loadedBinary->debug_map).
+    mutable bool debugCacheBuilt = false;
+    mutable std::unordered_map<uint32_t, const DebugEntry*> debugEntryCache;
+    mutable std::unordered_map<uint32_t, std::string> debugSourceFileCache;
+    mutable std::unordered_map<uint32_t, std::unordered_map<std::string, const RegisterAllocationInfo*>> registerAllocCache;
+
+    void invalidateDebugCache();
+    void buildDebugCache() const;
 
     void beginStateCapture();
     void commitStateCapture();
