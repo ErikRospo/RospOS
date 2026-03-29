@@ -1,17 +1,27 @@
 from ir import ImmLabel, ImmValue, Instruction, LabelDecl
-
+import time
 opts = []
 
 
 def optimize(ast):
     global opts
     logs = []
+    opt_pass_times = []
     # Multiple passes to allow optimizations that enable other optimizations (e.g. removing a jump may enable removal of unreachable code after it, or folding offset calcs may enable removal of now-redundant instructions). In practice, 2-3 passes should be sufficient for most cases, and we can always increase if needed.
     # Very quickly diminishing returns after about 2 passes
     # But it's quick enough that we can afford to be generous with the number of passes.
-    for _ in range(5):
+    previous_ast=None
+    ran_passes=0
+    for _ in range(10):  # Limit the number of passes to prevent infinite loops (Shouldn't be possible, but just in case)
+        t0 = time.perf_counter_ns()
+        previous_ast = ast
         for opt in opts:
             ast = opt(ast, logs)
+        if ast == previous_ast:
+            break
+        ran_passes += 1
+        opt_pass_times.append(time.perf_counter_ns() - t0)
+    logs.append(f"Optimization complete in {sum(opt_pass_times)/1e6:.2f} ms over {len(opts)} optimizations and {ran_passes} passes (individual pass times: {[f'{t/1e6:.2f} ms' for t in opt_pass_times]})")
     return ast, logs
 
 
