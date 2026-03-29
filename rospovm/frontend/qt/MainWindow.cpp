@@ -395,12 +395,16 @@ void MainWindow::onVMStateChanged()
 
 void MainWindow::onVMError(const QString &message)
 {
+    hasExecutionError = true;
+    lastExecutionError = message;
     statusLabel->setText(tr("Status: ") + message);
     debugPanel->setStatus(message);
 }
 
 void MainWindow::onExecutionStarted()
 {
+    hasExecutionError = false;
+    lastExecutionError.clear();
     statusLabel->setText(tr("Status: Running..."));
     debugPanel->setStatus("Running");
     stepAction->setEnabled(false);
@@ -411,8 +415,13 @@ void MainWindow::onExecutionStarted()
 
 void MainWindow::onExecutionStopped()
 {
-    statusLabel->setText(tr("Status: Stopped"));
-    debugPanel->setStatus("Stopped");
+    if (hasExecutionError && !lastExecutionError.isEmpty()) {
+        statusLabel->setText(tr("Status: Stopped (Error: %1)").arg(lastExecutionError));
+        debugPanel->setStatus(tr("Stopped (Error: %1)").arg(lastExecutionError));
+    } else {
+        statusLabel->setText(tr("Status: Stopped"));
+        debugPanel->setStatus("Stopped");
+    }
     stepAction->setEnabled(true);
     stepBackAction->setEnabled(vmController->canStepBackward());
     runAction->setEnabled(true);

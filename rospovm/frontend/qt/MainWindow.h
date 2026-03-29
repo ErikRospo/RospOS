@@ -4,6 +4,7 @@
 #include <QMainWindow>
 #include <QLabel>
 #include <QAction>
+#include <QString>
 #include <memory>
 
 class VMController;
@@ -64,6 +65,8 @@ private:
     QAction *pauseAction;
     QAction *resetAction;
     QLabel *statusLabel;
+    bool hasExecutionError = false;
+    QString lastExecutionError;
 };
 
 #endif // MAIN_WINDOW_H
