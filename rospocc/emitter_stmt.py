@@ -76,6 +76,38 @@ def _emit_decl(emitter, stmt: Dict[str, Any], out):
                 is_label=True,
                 comment="buffer addr",
             )
+        elif init.get("type") == "array_init_string":
+            size = int(init.get("size", 0))
+            lbl = emitter.gen_label(f"{name}_buf")
+            emitter.global_spaces.append({"name": lbl, "size": size})
+            emitter._alloc_var_reg(
+                name,
+                out,
+                init_value=lbl,
+                typ="char_ptr",
+                is_label=True,
+                comment="buffer addr",
+            )
+
+            # Initialize the lifted buffer bytes from the string literal.
+            # Include a trailing NUL like C string initialization.
+            init_bytes = (str(init.get("value", "")).encode("latin1", "replace") + b"\x00")[:size]
+            base_reg = emitter.var_regs.get(name)
+            if base_reg:
+                for idx, byte_val in enumerate(init_bytes):
+                    rval = emitter.alloc_reg()
+                    emitter._load_imm(rval, int(byte_val), out)
+
+                    off_reg = emitter.alloc_reg()
+                    emitter._load_imm(off_reg, idx, out)
+
+                    addr_reg = emitter.alloc_reg()
+                    out.write(f"  ADD {addr_reg}, {base_reg}, {off_reg}    // {name}[{idx}] addr\n")
+                    out.write(f"  SB {rval}, {addr_reg}, 0    // init {name}[{idx}]\n")
+
+                    emitter.release_expr_reg(addr_reg)
+                    emitter.release_expr_reg(off_reg)
+                    emitter.release_expr_reg(rval)
         elif init.get("type") == "call":
             r = emitter._alloc_var_reg(name, out, init_value=None, typ="int")
             emitter._emit_call(init, r, out)

@@ -85,34 +85,17 @@ def emit_call(emitter, call_expr: Dict, return_reg: Optional[str], out):
         if should_release:
             emitter.release_expr_reg(reg)
 
+    # Stage register-passed args first to avoid clobbering when a later arg
+    # lives in an ABI arg register overwritten by an earlier arg assignment.
     for i, a in enumerate(reg_args):
+        reg, should_release = _materialize_call_arg(emitter, a, out)
+        out.write(f"  PUSH {reg}    // stage reg arg {i}\n")
+        if should_release:
+            emitter.release_expr_reg(reg)
+
+    for i in range(len(reg_args) - 1, -1, -1):
         dest = abi.ARG_REGS[i]
-        if a.get("type") == "const":
-            emitter._load_imm(dest, int(a.get("value")), out)
-        elif a.get("type") == "string_addr":
-            emitter._load_imm(dest, a.get("label"), out)
-        elif a.get("type") == "var":
-            var_name = a.get("name")
-            r = emitter.var_regs.get(var_name)
-            if r:
-                out.write(f"  ADDI {dest}, {r}, 0    // move arg {i}\n")
-                emitter.consume_var_read(var_name)
-            else:
-                emitter._load_imm(dest, 0, out)
-        elif a.get("type") == "deref":
-            r = emitter.emit_expr(a, out)
-            if r:
-                out.write(f"  ADDI {dest}, {r}, 0    // move arg {i} from deref\n")
-                emitter.release_expr_reg(r)
-            else:
-                emitter._load_imm(dest, 0, out)
-        else:
-            r = emitter.emit_expr(a, out)
-            if r:
-                out.write(f"  ADDI {dest}, {r}, 0    // move arg {i} from expr\n")
-                emitter.release_expr_reg(r)
-            else:
-                out.write(f"  // unsupported arg type {a!r}\n")
+        out.write(f"  POP {dest}    // load reg arg {i}\n")
 
     out.write(f"  CALL {call_expr.get('name')}\n")
     out.write(f"  // call return value in {abi.RETURN_REG}\n")

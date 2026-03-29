@@ -45,6 +45,7 @@ class StatementTransformer:
                                 ident = find_identifier(part)
                                 if ident:
                                     name = ident
+                                array_len = None
                                 for i, token_node in enumerate(decl_children):
                                     if (
                                         isinstance(token_node, dict)
@@ -57,7 +58,6 @@ class StatementTransformer:
                                         assert len(c_child) > 0
                                         if "int" in c_child[0]:
                                             array_len = int(c_child[0]["int"])
-                                            init = {"type": "array", "size": array_len}
                                         elif "token" in c_child[0]:
                                             tok = c_child[0]["token"]
                                             if isinstance(tok, str) and re.fullmatch(
@@ -67,13 +67,15 @@ class StatementTransformer:
                                                     array_len = int(tok, 0)
                                                 except Exception:
                                                     array_len = int(tok)
-                                                init = {
-                                                    "type": "array",
-                                                    "size": array_len,
-                                                }
+                                        if array_len is not None:
+                                            init = {
+                                                "type": "array",
+                                                "size": array_len,
+                                            }
                                         break
-                                if init is not None:
-                                    break
+
+                                # Keep scanning init_declarator parts to allow
+                                # array initializers like: char buf[32] = "...";
                                 continue
                             if isinstance(part, dict) and part.get("node") is None:
                                 if "int" in part:
@@ -96,7 +98,13 @@ class StatementTransformer:
                                 and part["token"].startswith('"')
                             ):
                                 val = decode_string_token(part["token"])
-                                if len(val) == 1:
+                                if init and init.get("type") == "array":
+                                    init = {
+                                        "type": "array_init_string",
+                                        "size": int(init.get("size", 0)),
+                                        "value": val,
+                                    }
+                                elif len(val) == 1:
                                     init = {"type": "const", "value": ord(val)}
                                 else:
                                     label = self.ctx.get_or_create_string_label(val)
@@ -107,6 +115,12 @@ class StatementTransformer:
                                     init = expr_init
 
         if name:
+            if decl_type == "return":
+                ret_value = init
+                if ret_value is None:
+                    ret_value = {"type": "var", "name": name}
+                return [copy_line(decl_node, {"type": "return", "value": ret_value})]
+
             decl = copy_line(decl_node, {"type": "decl", "name": name, "init": init})
             if decl_type:
                 decl["decl_type"] = decl_type
@@ -196,6 +210,12 @@ class StatementTransformer:
                     expr = self.expr.from_node(child)
                     break
             if expr:
+                # Some parse trees represent `return(expr);` as a call to
+                # an identifier named `return`. Recover it into a return stmt.
+                if expr.get("type") == "call" and expr.get("name") == "return":
+                    args = expr.get("args", []) or []
+                    ret_value = args[0] if args else None
+                    return [copy_line(stmt_node, {"type": "return", "value": ret_value})]
                 if expr.get("type") == "call":
                     return [
                         copy_line(
