@@ -175,6 +175,44 @@ def _find_entry(entries: Sequence[IndexEntry], block_id: int) -> IndexEntry | No
     return entries[idx]
 
 
+def _use_color(mode: str) -> bool:
+    if mode == "always":
+        return True
+    if mode == "never":
+        return False
+    # mode == "auto"
+    return sys.stdout.isatty() and "NO_COLOR" not in __import__("os").environ
+
+
+def _color(text: str, code: str, enabled: bool) -> str:
+    if not enabled:
+        return text
+    return f"\033[{code}m{text}\033[0m"
+
+
+def _hexdump_c_lines(data: bytes, base_offset: int = 0, color: bool = False) -> List[str]:
+    lines: List[str] = []
+    for i in range(0, len(data), 16):
+        chunk = data[i : i + 16]
+        hex_cells = [f"{b:02x}" for b in chunk]
+
+        left = " ".join(hex_cells[:8])
+        right = " ".join(hex_cells[8:])
+        # Match hexdump -C style grouping around 8-byte boundary.
+        hex_part = f"{left:<23}  {right:<23}"
+
+        ascii_part = "".join(chr(b) if 32 <= b <= 126 else "." for b in chunk)
+        ascii_part = f"{ascii_part:<16}"
+
+        offset_text = _color(f"{base_offset + i:08x}", "36", color)
+        hex_text = _color(hex_part, "32", color)
+        ascii_text = _color(f"|{ascii_part}|", "33", color)
+        lines.append(f"{offset_text}  {hex_text}  {ascii_text}")
+
+    lines.append(_color(f"{base_offset + len(data):08x}", "36", color))
+    return lines
+
+
 def bin_to_rosb(args: argparse.Namespace) -> int:
     src = Path(args.input)
     dst = Path(args.output)
@@ -288,6 +326,140 @@ def rosb_to_bin(args: argparse.Namespace) -> int:
     return 0
 
 
+def rosb_list(args: argparse.Namespace) -> int:
+    src = Path(args.input)
+    color = _use_color(args.color)
+
+    key = lambda s: _color(s, "1;34", color)
+    warn = lambda s: _color(s, "1;33", color)
+    err = lambda s: _color(s, "1;31", color)
+    ok = lambda s: _color(s, "1;32", color)
+
+    with src.open("rb") as f:
+        f.seek(0, 2)
+        file_size = f.tell()
+        f.seek(0)
+        print(f"{key('file')}={src}")
+        print(f"{key('header')}:")
+
+        header = _read_header(f)
+        if header.magic != MAGIC:
+            print(err(f"Invalid ROSB magic: 0x{header.magic:08X}"))
+            raise ValueError("Invalid ROSB magic")
+        print(f"  magic=0x{header.magic:08X}")
+        if header.version != VERSION:
+            print(err(f"Unsupported ROSB version: {header.version}"))
+            raise ValueError(f"Unsupported ROSB version: {header.version}")
+        print(f"  version={header.version}")
+        print(f"  block_count={header.block_count}")
+        print(f"  file_size={file_size}")
+        print(f"  index_offset={header.index_offset}")
+        
+        # Read raw index first so we can show duplicate/unsorted details as stored on disk.
+        if header.index_offset >= file_size:
+            raise ValueError("Corrupt ROSB: index offset is outside file")
+
+        f.seek(header.index_offset)
+        count_raw = _read_exact(f, struct.calcsize(INDEX_COUNT_FMT))
+        (raw_index_count,) = struct.unpack(INDEX_COUNT_FMT, count_raw)
+
+        raw_entries: List[IndexEntry] = []
+        for _ in range(raw_index_count):
+            raw = _read_exact(f, INDEX_ENTRY_SIZE)
+            block_id, record_offset = struct.unpack(INDEX_ENTRY_FMT, raw)
+            raw_entries.append(
+                IndexEntry(block_id=block_id, record_offset=record_offset)
+            )
+
+        dedup_entries = _read_index(f, header, file_size)
+
+
+        unique_ids = {entry.block_id for entry in raw_entries}
+        print(f"{key('index')}:")
+        print(f"  raw_count={len(raw_entries)}")
+        print(f"  unique_block_ids={len(unique_ids)}")
+        print(f"  dedup_count={len(dedup_entries)}")
+        print(f"  sorted_by_block_id={raw_entries == sorted(raw_entries, key=lambda e: e.block_id)}")
+        print(f"  has_duplicate_ids={len(unique_ids) != len(raw_entries)}")
+
+        if header.block_count != len(raw_entries):
+            print(
+                f"  {warn('warning')}=header.block_count does not match raw index count "
+                f"({header.block_count} != {len(raw_entries)})"
+            )
+
+        if not raw_entries:
+            print("records: (none)")
+            return 0
+
+        print(f"{key('records')}:")
+        for idx, entry in enumerate(raw_entries):
+            record = _read_record_at(f, entry.record_offset)
+            payload_size = len(record.payload)
+            compressed = bool(record.flags & COMPRESS_FLAG)
+
+            issues: List[str] = []
+            decompressed_size: int | None = None
+
+            if compressed:
+                try:
+                    decompressed_size = len(gzip.decompress(record.payload))
+                    if decompressed_size != BLOCK_SIZE:
+                        issues.append("decompressed_size_invalid=true")
+                except (OSError, EOFError) as exc:
+                    issues.append(f"decompress_error={exc!s}")
+            else:
+                if payload_size != BLOCK_SIZE:
+                    issues.append("payload_size_invalid=true")
+
+            if record.block_id != entry.block_id:
+                issues.append("index_mismatch=true")
+
+            dump_data = b""
+            base_offset = 0
+            hexdump_source = ""
+            if args.show_data:
+                base_offset = entry.block_id * BLOCK_SIZE
+
+                if compressed:
+                    try:
+                        dump_data = _decode_block_payload(record)
+                        hexdump_source = "decompressed"
+                    except ValueError as exc:
+                        # Fall back to raw payload if decompression fails.
+                        dump_data = record.payload
+                        hexdump_source = "raw"
+                        issues.append(f"decompress_error={exc!s}")
+                else:
+                    dump_data = record.payload
+                    hexdump_source = "raw"
+
+            print(f"  [{idx}]")
+            print(f"    block_id={entry.block_id}")
+            print(f"    record_offset={entry.record_offset}")
+            print(f"    record_block_id={record.block_id}")
+            print(f"    flags=0x{record.flags:08X}")
+            print(f"    compressed={compressed}")
+            print(f"    payload_size={payload_size}")
+            if decompressed_size is not None:
+                print(f"    decompressed_size={decompressed_size}")
+            if args.show_data:
+                print(f"    hexdump_source={hexdump_source}")
+            if issues:
+                for issue in issues:
+                    print(f"    {warn(issue)}")
+            else:
+                print(f"    {ok('status=ok')}")
+
+            if args.show_data:
+                for dump_line in _hexdump_c_lines(
+                    dump_data, base_offset=base_offset, color=color
+                ):
+                    print(f"    {dump_line}")
+
+    return 0
+
+
 def make_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         description="Convert between flat .bin and ROSB block-device files"
@@ -340,6 +512,25 @@ def make_parser() -> argparse.ArgumentParser:
         help="Trim trailing zero bytes from exported BIN",
     )
     to_bin.set_defaults(func=rosb_to_bin)
+
+    list_info = sub.add_parser(
+        "ls",
+        aliases=["list", "info", "inspect"],
+        help="List ROSB metadata and per-record details",
+    )
+    list_info.add_argument(
+        "--show-data",
+        action="store_true",
+        help="Show hex dump of each record's payload (warning: may be large)",
+    )
+    list_info.add_argument(
+        "--color",
+        choices=("auto", "always", "never"),
+        default="auto",
+        help="Colorize output (default: auto)",
+    )
+    list_info.add_argument("input", help="Input .rosb file")
+    list_info.set_defaults(func=rosb_list)
 
     return parser
 
