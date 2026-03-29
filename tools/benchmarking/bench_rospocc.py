@@ -12,7 +12,16 @@ SCRIPT_DIR = Path(__file__).resolve().parent
 if str(SCRIPT_DIR) not in sys.path:
     sys.path.insert(0, str(SCRIPT_DIR))
 
-from common import DEFAULT_RESULTS_DIR, ROOT, format_summary, run_benchmark, summarize, write_results
+from common import (
+    DEFAULT_RESULTS_DIR,
+    ROOT,
+    add_time_per_line_metric,
+    count_effective_lines,
+    format_summary,
+    run_benchmark,
+    summarize,
+    write_results,
+)
 
 
 def main() -> int:
@@ -68,13 +77,26 @@ def main() -> int:
         timeout_s=None if args.timeout == 0 else args.timeout,
     )
     summary = summarize(results)
+    rosc_effective_lines = count_effective_lines(input_path)
+    add_time_per_line_metric(
+        summary,
+        metric_name="mean_ms_per_line_rosc",
+        line_count=rosc_effective_lines,
+    )
     print("Summary:", format_summary(summary))
+    print(
+        "Per-line metric:",
+        f"mean_ms_per_line_rosc={summary['mean_ms_per_line_rosc']:.6f}"
+        if summary["mean_ms_per_line_rosc"] is not None
+        else "mean_ms_per_line_rosc=None",
+    )
 
     json_path, csv_path = write_results(
         benchmark_name="rospocc",
         command=command,
         metadata={
             "input": str(input_path),
+            "rosc_effective_lines": rosc_effective_lines,
             "output": str(output_path),
             "repeat": args.repeat,
             "warmup": args.warmup,
@@ -82,6 +104,7 @@ def main() -> int:
         },
         results=results,
         output_dir=Path(args.results_dir),
+        summary=summary,
     )
     print(f"Wrote {json_path}")
     print(f"Wrote {csv_path}")

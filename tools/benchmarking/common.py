@@ -91,6 +91,69 @@ def summarize(results: list[IterationResult]) -> dict[str, Any]:
     return summary
 
 
+def _strip_comments_line(line: str, in_block_comment: bool) -> tuple[str, bool]:
+    i = 0
+    out: list[str] = []
+    n = len(line)
+
+    while i < n:
+        if in_block_comment:
+            end = line.find("*/", i)
+            if end == -1:
+                return "", True
+            i = end + 2
+            in_block_comment = False
+            continue
+
+        if line.startswith("//", i):
+            break
+
+        if line.startswith("/*", i):
+            in_block_comment = True
+            i += 2
+            continue
+
+        ch = line[i]
+        if ch in ('"', "'"):
+            quote = ch
+            out.append(ch)
+            i += 1
+            while i < n:
+                cur = line[i]
+                out.append(cur)
+                if cur == "\\" and i + 1 < n:
+                    out.append(line[i + 1])
+                    i += 2
+                    continue
+                i += 1
+                if cur == quote:
+                    break
+            continue
+
+        out.append(ch)
+        i += 1
+
+    return "".join(out), in_block_comment
+
+
+def count_effective_lines(path: Path) -> int:
+    """Count non-empty, non-comment lines using C/CPP-style comments."""
+    in_block_comment = False
+    count = 0
+    for line in path.read_text(encoding="utf-8").splitlines():
+        stripped, in_block_comment = _strip_comments_line(line, in_block_comment)
+        if stripped.strip():
+            count += 1
+    return count
+
+
+def add_time_per_line_metric(summary: dict[str, Any], *, metric_name: str, line_count: int) -> None:
+    if line_count <= 0:
+        summary[metric_name] = None
+        return
+    summary[metric_name] = summary["mean_ms"] / line_count
+
+
 def write_results(
     *,
     benchmark_name: str,
@@ -98,6 +161,7 @@ def write_results(
     metadata: dict[str, Any],
     results: list[IterationResult],
     output_dir: Path,
+    summary: dict[str, Any] | None = None,
 ) -> tuple[Path, Path]:
     output_dir.mkdir(parents=True, exist_ok=True)
     stamp = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -109,7 +173,7 @@ def write_results(
         "benchmark": benchmark_name,
         "command": command,
         "metadata": metadata,
-        "summary": summarize(results),
+        "summary": summary if summary is not None else summarize(results),
         "iterations": [r.__dict__ for r in results],
     }
     json_path.write_text(json.dumps(payload, indent=2), encoding="utf-8")

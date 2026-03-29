@@ -16,7 +16,7 @@ ROSPOVM_DEP := rospovm/build/Makefile $(shell find ./rospovm -type f -not -path 
 HTMLDOCS := $(DOCS:.md=.html)
 PDFDOCS := $(DOCS:.md=.pdf)
 
-.PHONY: all bm parse compile dump build clean doc format frontend frontend_cmake run vm_headless run_headless test report
+.PHONY: all bm parse compile dump build clean doc format frontend frontend_cmake run vm_headless run_headless test report benchmark everything
 
 all: build
 
@@ -84,6 +84,9 @@ vm_headless: rospovm/build/rospovm_headless
 run_headless: rospos/build/rospos.rosp vm_headless
 	rospovm/build/rospovm_headless $<
 
+benchmark:
+	$(PY) tools/benchmarking/run_all.py
+
 test:
 	$(PY) -m unittest discover -s tests -p "test_*.py" -v
 dump: rospos/build/rospos.rosp
@@ -100,4 +103,4 @@ clean:
 	rm -rf build/*.pdf
 	rm -rf rospos/font_bitmap.bin
 	
-everything: build doc report 
+everything: build doc benchmark report 

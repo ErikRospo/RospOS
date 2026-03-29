@@ -15,7 +15,7 @@ SCRIPT_DIR = Path(__file__).resolve().parent
 if str(SCRIPT_DIR) not in sys.path:
     sys.path.insert(0, str(SCRIPT_DIR))
 
-from common import DEFAULT_RESULTS_DIR, ROOT, format_summary, run_benchmark, summarize
+from common import DEFAULT_RESULTS_DIR, ROOT, format_summary, run_benchmark, summarize, add_time_per_line_metric, count_effective_lines
 
 
 def maybe_prepare(prepare: bool) -> None:
@@ -108,6 +108,28 @@ def main() -> int:
         timeout_s=timeout,
     )
 
+    rosc_effective_lines = count_effective_lines(rosc_in)
+    ros_effective_lines = count_effective_lines(ros_out)
+
+    rospocc_summary = summarize(rospocc_results)
+    add_time_per_line_metric(
+        rospocc_summary,
+        metric_name="mean_ms_per_line_rosc",
+        line_count=rosc_effective_lines,
+    )
+
+    rospoas_summary = summarize(rospoas_results)
+    add_time_per_line_metric(
+        rospoas_summary,
+        metric_name="mean_ms_per_line_rosc",
+        line_count=rosc_effective_lines,
+    )
+    add_time_per_line_metric(
+        rospoas_summary,
+        metric_name="mean_ms_per_line_ros",
+        line_count=ros_effective_lines,
+    )
+
     result_dir = Path(args.results_dir)
     result_dir.mkdir(parents=True, exist_ok=True)
     stamp = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -117,7 +139,9 @@ def main() -> int:
         "benchmark": "all",
         "metadata": {
             "input_rosc": str(rosc_in),
+            "rosc_effective_lines": rosc_effective_lines,
             "generated_ros": str(ros_out),
+            "ros_effective_lines": ros_effective_lines,
             "generated_rosp": str(rosp_out),
             "repeat": args.repeat,
             "warmup": args.warmup,
@@ -126,12 +150,12 @@ def main() -> int:
         "stages": {
             "rospocc": {
                 "command": rospocc_cmd,
-                "summary": summarize(rospocc_results),
+                "summary": rospocc_summary,
                 "iterations": [r.__dict__ for r in rospocc_results],
             },
             "rospoas": {
                 "command": rospoas_cmd,
-                "summary": summarize(rospoas_results),
+                "summary": rospoas_summary,
                 "iterations": [r.__dict__ for r in rospoas_results],
             },
             "rospovm_headless": {
@@ -145,7 +169,25 @@ def main() -> int:
 
     print("Stage summaries:")
     print("  rospocc        ", format_summary(payload["stages"]["rospocc"]["summary"]))
+    print(
+        "                 mean_ms_per_line_rosc=",
+        f"{payload['stages']['rospocc']['summary']['mean_ms_per_line_rosc']:.6f}"
+        if payload["stages"]["rospocc"]["summary"]["mean_ms_per_line_rosc"] is not None
+        else "None",
+    )
     print("  rospoas        ", format_summary(payload["stages"]["rospoas"]["summary"]))
+    print(
+        "                 mean_ms_per_line_rosc=",
+        f"{payload['stages']['rospoas']['summary']['mean_ms_per_line_rosc']:.6f}"
+        if payload["stages"]["rospoas"]["summary"]["mean_ms_per_line_rosc"] is not None
+        else "None",
+    )
+    print(
+        "                 mean_ms_per_line_ros=",
+        f"{payload['stages']['rospoas']['summary']['mean_ms_per_line_ros']:.6f}"
+        if payload["stages"]["rospoas"]["summary"]["mean_ms_per_line_ros"] is not None
+        else "None",
+    )
     print("  rospovm_headless", format_summary(payload["stages"]["rospovm_headless"]["summary"]))
     print(f"Wrote {out_path}")
     return 0
