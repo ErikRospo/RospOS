@@ -261,6 +261,155 @@ def opt_remove_unused_labels(ast, logs):
         optimized_ast.append(instr)
 
     return optimized_ast
+def opt_combine_safe_offset_calcs(ast,logs):
+    #   LLI r12, 3    // load immediate 3
+    #   ADD r12, r1, r12    // binop +
+    #   LLI r5, 255    // load immediate 255
+    #   AND r2, r2, r5    // binop &
+    #   SB r2, r12, 0    // intrinsic __sb
+    # Because the AND instruction doesn't affect the offset calculation in r12,
+    # we can safely combine the offset calculation with the store instruction,
+    # eliminating the need for r12 and the AND instruction.
+    # That is, we can optimize this to:
+    # LLI r5, 255    // load immediate 255
+    # AND r2, r2, r5    // binop &
+    #  SB r2, r1, 3    // intrinsic __sb with offset 
+    # Conditions:
+    # - The offset calculation (e.g. ADD r12, r1, r12) must be a simple addition of a register and an immediate. (or subtraction)
+    # - The register used for the offset calculation (r12) must not be used in any way between the offset calculation and the store instruction,
+        # except for being the destination of the offset calculation and being used as the address register in the store instruction.
+    # - The instruction that uses the offset must be either a load or store instruction
+    # - The immediate value used in the offset calculation must be a constant that can be directly encoded in the store instruction's offset field
+    optimized_ast = []
+    i = 0
+
+    def _is_lli_imm(instr):
+        return (
+            isinstance(instr, Instruction)
+            and instr.type == "p"
+            and instr.name == "lli"
+            and instr.rd is not None
+            and _reg_from_imm(instr.imm) is not None
+        )
+
+    def _is_control_flow(instr):
+        return isinstance(instr, Instruction) and instr.type in {"b", "j"}
+
+    def _is_load_or_store(instr):
+        return (
+            isinstance(instr, Instruction)
+            and instr.type == "l"
+        )
+
+    def _uses_reg(instr, reg):
+        if not isinstance(instr, Instruction):
+            return False
+        return instr.rd == reg or instr.rs1 == reg or instr.rs2 == reg
+
+    def _encodable_l_imm(value):
+        # L-type immediates share encoding constraints with I/B/J in maps.validate_immediate_for_type.
+        return -32768 <= value <= 65535
+
+    while i < len(ast):
+        lli = ast[i]
+
+        # We only fold the canonical two-instruction address compute:
+        #   LLI tmp, k
+        #   ADD/SUB tmp, base, tmp
+        if not _is_lli_imm(lli) or i + 1 >= len(ast):
+            optimized_ast.append(lli)
+            i += 1
+            continue
+
+        calc = ast[i + 1]
+        if not (
+            isinstance(calc, Instruction)
+            and calc.type == "r"
+            and calc.name in {"add", "sub"}
+            and calc.rd == lli.rd
+        ):
+            optimized_ast.append(lli)
+            i += 1
+            continue
+
+        tmp_reg = lli.rd
+        imm_value = _reg_from_imm(lli.imm)
+        if imm_value is None:
+            optimized_ast.append(lli)
+            i += 1
+            continue
+
+        base_reg = None
+        offset_delta = None
+
+        if calc.name == "add":
+            if calc.rs1 == tmp_reg and calc.rs2 is not None:
+                base_reg = calc.rs2
+                offset_delta = imm_value
+            elif calc.rs2 == tmp_reg and calc.rs1 is not None:
+                base_reg = calc.rs1
+                offset_delta = imm_value
+        elif calc.name == "sub":
+            # SUB tmp, base, tmp => base + (-imm)
+            if calc.rs2 == tmp_reg and calc.rs1 is not None:
+                base_reg = calc.rs1
+                offset_delta = -imm_value
+
+        if base_reg is None or offset_delta is None:
+            optimized_ast.append(lli)
+            i += 1
+            continue
+
+        # Scan forward until we hit a matching load/store that consumes tmp_reg as address.
+        # Abort on control flow, labels/directives, or any other use/def of tmp_reg.
+        j = i + 2
+        folded = False
+        while j < len(ast):
+            node = ast[j]
+
+            if isinstance(node, LabelDecl) or not isinstance(node, Instruction):
+                break
+            if _is_control_flow(node):
+                break
+
+            if _is_load_or_store(node) and node.rs1 == tmp_reg:
+                existing_offset = _reg_from_imm(node.imm)
+                if existing_offset is None:
+                    break
+
+                combined_offset = existing_offset + offset_delta
+                if not _encodable_l_imm(combined_offset):
+                    break
+
+                # Keep instructions between calc and load/store unchanged,
+                # drop lli/calc, and rewrite base+offset directly in load/store.
+                optimized_ast.extend(ast[i + 2 : j])
+                new_node = node.copy_with(
+                    rs1=base_reg,
+                    imm=ImmValue(combined_offset),
+                    is_optimized=True,
+                )
+                optimized_ast.append(new_node)
+                logs.append(
+                    f"Combined safe offset calc at indices {i}-{j}: removed '{lli}' and '{calc}', rewrote '{node}' to '{new_node}'"
+                )
+                i = j + 1
+                folded = True
+                break
+
+            if _uses_reg(node, tmp_reg):
+                break
+
+            j += 1
+
+        if folded:
+            continue
+
+        optimized_ast.append(lli)
+        i += 1
+
+    return optimized_ast
+    
 # This is a bit of a hack to avoid having to manually maintain the list of optimizations,
 # but it should work fine as long as we don't have any non-optimization functions that start with "opt_".
 # The eval resolves the function name string into the actual function object, 
