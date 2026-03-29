@@ -37,7 +37,9 @@ ROSPOVM_SRC := $(sort $(shell find rospovm -type f -not -path "rospovm/build/*")
 
 .DEFAULT_GOAL := build
 
-.PHONY: all help bm parse compile dump build clean doc format frontend frontend_cmake run vm_headless run_headless test report benchmark everything frontend_minimal run_minimal
+.PHONY: all help bm parse compile dump build clean doc format frontend \
+		frontend_cmake run vm_headless run_headless test report \
+		benchmark everything frontend_minimal run_minimal
 
 all: build
 
