@@ -49,7 +49,9 @@ int: "int"
 char: "char"
 bool: "bool"
 
-type_specifier: (void | int | char | bool | NAME | ("struct" NAME)) pointer*
+// Keep type syntax LALR-friendly by requiring explicit type forms.
+// Bare NAME as a type is intentionally disallowed.
+type_specifier: (void | int | char | bool | ("struct" NAME)) pointer*
 
 compound_stmt: "{" statement* "}"
 

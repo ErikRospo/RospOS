@@ -57,9 +57,9 @@ with open(out_dir / preprocessed_name, "w") as f:
 
 
 def parse_code(code):
-    # Use Earley parser to avoid LALR reduce/reduce conflicts
-    # Enable propagate_positions to preserve line information
-    parser = Lark(grammar, parser="earley", debug=False, propagate_positions=True)
+    # Use LALR for significantly faster parsing.
+    # Enable propagate_positions to preserve line information.
+    parser = Lark(grammar, parser="lalr", debug=False, propagate_positions=True)
     return parser.parse(code)
 
 
