@@ -12,7 +12,7 @@ FONT_SRC := tools/font8x8_basic_data.h
 
 DIR_ROSPOS_BUILD := rospos/build
 DIR_ROSPOVM_BUILD := rospovm/build
-DIR_DOCS_BUILD := build
+DIR_DOCS_BUILD := build/
 
 ROS_SOURCE := rospos/main.rosc
 ROS_ASM := $(DIR_ROSPOS_BUILD)/rospos.ros
@@ -24,8 +24,8 @@ ROSP_COMBINED := $(DIR_ROSPOS_BUILD)/rospos_c.rosp
 ROSP_VARIANTS := $(ROSP_FULL) $(ROSP_DEBC) $(ROSP_BINC) $(ROSP_COMBINED)
 
 DOCS := Design.md Ideas.md Log.md
-HTMLDOCS := $(addprefix $(DIR_DOCS_BUILD)/,$(DOCS:.md=.html))
-PDFDOCS := $(addprefix $(DIR_DOCS_BUILD)/,$(DOCS:.md=.pdf))
+HTMLDOCS := $(addprefix $(DIR_DOCS_BUILD),$(DOCS:.md=.html))
+PDFDOCS := $(addprefix $(DIR_DOCS_BUILD),$(DOCS:.md=.pdf))
 
 ROSPOAS_COMMON_ARGS := --optimize --bin-version 2 --rospocc-mapping --segment-debug
 ROSPOAS_VERBOSE_ARG := $(if $(VERBOSE),--verbose,)
@@ -83,8 +83,11 @@ $(DIR_ROSPOVM_BUILD)/Makefile: rospovm/CMakeLists.txt $(ROSPOVM_SRC) | $(DIR_ROS
 	$(CMAKE) -S rospovm -B $(DIR_ROSPOVM_BUILD)
 
 define make_vm_target
-$(DIR_ROSPOVM_BUILD)/$1: $(DIR_ROSPOVM_BUILD)/Makefile $(ROSPOVM_SRC)
+$(DIR_ROSPOVM_BUILD)/.$1.stamp: $(DIR_ROSPOVM_BUILD)/Makefile $(ROSPOVM_SRC)
 	$(CMAKE) --build $(DIR_ROSPOVM_BUILD) --target $1 -j $(NPROC)
+	@touch $$@
+
+$(DIR_ROSPOVM_BUILD)/$1: $(DIR_ROSPOVM_BUILD)/.$1.stamp
 endef
 
 $(eval $(call make_vm_target,rospovm_qt))
