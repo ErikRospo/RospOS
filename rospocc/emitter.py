@@ -385,7 +385,6 @@ class Emitter:
                 )
             self.register_allocator.deallocate(reg)
             self.reg_free.append(reg)
-            self.reg_free.sort(key=lambda r: abi.TEMP_REGS.index(r))
 
     def is_var_reg(self, reg: str) -> bool:
         return reg in self.var_regs.values()
