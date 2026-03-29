@@ -5,13 +5,12 @@ from __future__ import annotations
 
 import argparse
 import json
-from pathlib import Path
 import platform
 import subprocess
 import sys
 import time
 from datetime import datetime
-
+from pathlib import Path
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 if str(SCRIPT_DIR) not in sys.path:
@@ -88,10 +87,20 @@ def main() -> int:
     start_ts_unix = time.time()
 
     parser = argparse.ArgumentParser(description="Run full benchmark suite.")
-    parser.add_argument("--input-rosc", default="tools/benchmarking/programs/static_test.rosc", help="Input .rosc program")
-    parser.add_argument("--repeat", type=int, default=20, help="Measured iterations per stage")
-    parser.add_argument("--warmup", type=int, default=3, help="Warmup iterations per stage")
-    parser.add_argument("--timeout", type=int, default=0, help="Timeout per run in seconds (0 disables)")
+    parser.add_argument(
+        "--input-rosc",
+        default="tools/benchmarking/programs/static_test.rosc",
+        help="Input .rosc program",
+    )
+    parser.add_argument(
+        "--repeat", type=int, default=20, help="Measured iterations per stage"
+    )
+    parser.add_argument(
+        "--warmup", type=int, default=3, help="Warmup iterations per stage"
+    )
+    parser.add_argument(
+        "--timeout", type=int, default=0, help="Timeout per run in seconds (0 disables)"
+    )
     parser.add_argument(
         "--prepare",
         action="store_true",
@@ -208,7 +217,7 @@ def main() -> int:
 
     known_steps = [steps for steps in vm_steps if steps is not None]
     unique_steps = sorted(set(known_steps))
-    end_ts_unix = time.time() 
+    end_ts_unix = time.time()
     # Assume the rest of the code is inconsequential to the total runtime
     total_runtime_s = end_ts_unix - start_ts_unix
 
@@ -262,29 +271,46 @@ def main() -> int:
     print("  rospocc        ", format_summary(payload["stages"]["rospocc"]["summary"]))
     print(
         "                 mean_ms_per_line_rosc=",
-        f"{payload['stages']['rospocc']['summary']['mean_ms_per_line_rosc']:.6f}"
-        if payload["stages"]["rospocc"]["summary"]["mean_ms_per_line_rosc"] is not None
-        else "None",
+        (
+            f"{payload['stages']['rospocc']['summary']['mean_ms_per_line_rosc']:.6f}"
+            if payload["stages"]["rospocc"]["summary"]["mean_ms_per_line_rosc"]
+            is not None
+            else "None"
+        ),
     )
     print("  rospoas        ", format_summary(payload["stages"]["rospoas"]["summary"]))
     print(
         "                 mean_ms_per_line_rosc=",
-        f"{payload['stages']['rospoas']['summary']['mean_ms_per_line_rosc']:.6f}"
-        if payload["stages"]["rospoas"]["summary"]["mean_ms_per_line_rosc"] is not None
-        else "None",
+        (
+            f"{payload['stages']['rospoas']['summary']['mean_ms_per_line_rosc']:.6f}"
+            if payload["stages"]["rospoas"]["summary"]["mean_ms_per_line_rosc"]
+            is not None
+            else "None"
+        ),
     )
     print(
         "                 mean_ms_per_line_ros=",
-        f"{payload['stages']['rospoas']['summary']['mean_ms_per_line_ros']:.6f}"
-        if payload["stages"]["rospoas"]["summary"]["mean_ms_per_line_ros"] is not None
-        else "None",
+        (
+            f"{payload['stages']['rospoas']['summary']['mean_ms_per_line_ros']:.6f}"
+            if payload["stages"]["rospoas"]["summary"]["mean_ms_per_line_ros"]
+            is not None
+            else "None"
+        ),
     )
-    print("  rospovm_headless", format_summary(payload["stages"]["rospovm_headless"]["summary"]))
+    print(
+        "  rospovm_headless",
+        format_summary(payload["stages"]["rospovm_headless"]["summary"]),
+    )
     print(
         "                 mean_instructions_per_second=",
-        f"{payload['stages']['rospovm_headless']['summary']['mean_instructions_per_second']:.3f}"
-        if payload["stages"]["rospovm_headless"]["summary"]["mean_instructions_per_second"] is not None
-        else "None",
+        (
+            f"{payload['stages']['rospovm_headless']['summary']['mean_instructions_per_second']:.3f}"
+            if payload["stages"]["rospovm_headless"]["summary"][
+                "mean_instructions_per_second"
+            ]
+            is not None
+            else "None"
+        ),
     )
     print(f"Wrote {repo_relative(out_path)}")
     return 0

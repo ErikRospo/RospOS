@@ -164,15 +164,15 @@ def _write_ir_list(path, ir_list: list[Any]) -> None:
 def _write_ir_assembly(path, ir_list: list[Any]) -> None:
     with open(path, "w", encoding="utf-8") as handle:
         previous_kind = None
-        previous_node=None
+        previous_node = None
         for node in ir_list:
             line = _ir_node_to_assembly(node)
             if line is None:
                 continue
             current_kind = _ir_node_kind(node)
-            if (
-                previous_kind in {"label", "directive"}
-                or (isinstance(previous_node, IRInstruction) and previous_node.name.upper() in {"JMP"})
+            if previous_kind in {"label", "directive"} or (
+                isinstance(previous_node, IRInstruction)
+                and previous_node.name.upper() in {"JMP"}
             ):
                 handle.write("\n")
             handle.write(line + "\n")

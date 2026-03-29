@@ -4,9 +4,8 @@
 from __future__ import annotations
 
 import argparse
-from pathlib import Path
 import sys
-
+from pathlib import Path
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 if str(SCRIPT_DIR) not in sys.path:
@@ -25,8 +24,14 @@ from common import (
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Benchmark rospocc parser performance.")
-    parser.add_argument("--input", default="tools/benchmarking/programs/static_test.rosc", help="Input .rosc file")
+    parser = argparse.ArgumentParser(
+        description="Benchmark rospocc parser performance."
+    )
+    parser.add_argument(
+        "--input",
+        default="tools/benchmarking/programs/static_test.rosc",
+        help="Input .rosc file",
+    )
     parser.add_argument(
         "--output",
         default="rospos/build/bench/bench.ros",
@@ -34,7 +39,9 @@ def main() -> int:
     )
     parser.add_argument("--repeat", type=int, default=20, help="Measured iterations")
     parser.add_argument("--warmup", type=int, default=3, help="Warmup iterations")
-    parser.add_argument("--timeout", type=int, default=0, help="Timeout per run in seconds (0 disables)")
+    parser.add_argument(
+        "--timeout", type=int, default=0, help="Timeout per run in seconds (0 disables)"
+    )
     parser.add_argument(
         "--python",
         default="rospoas/venv/bin/python",
@@ -86,9 +93,11 @@ def main() -> int:
     print("Summary:", format_summary(summary))
     print(
         "Per-line metric:",
-        f"mean_ms_per_line_rosc={summary['mean_ms_per_line_rosc']:.6f}"
-        if summary["mean_ms_per_line_rosc"] is not None
-        else "mean_ms_per_line_rosc=None",
+        (
+            f"mean_ms_per_line_rosc={summary['mean_ms_per_line_rosc']:.6f}"
+            if summary["mean_ms_per_line_rosc"] is not None
+            else "mean_ms_per_line_rosc=None"
+        ),
     )
 
     json_path, csv_path = write_results(

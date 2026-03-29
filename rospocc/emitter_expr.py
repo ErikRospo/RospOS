@@ -28,14 +28,14 @@ def _emit_const(emitter, expr: Dict[str, Any], out) -> str:
 
 def _emit_var(emitter, expr: Dict[str, Any], out) -> str:
     name = expr.get("name")
-    
+
     # Check if this is an inline constant - substitute its value directly
     if name in emitter.inline_constants:
         const_value = emitter.inline_constants[name]
         reg = emitter.alloc_reg()
         emitter._load_imm(reg, const_value, out)
         return reg
-    
+
     r = emitter.var_regs.get(name)
     if r:
         emitter.consume_var_read(name)
@@ -216,7 +216,9 @@ def _emit_binop(emitter, expr: Dict[str, Any], out) -> str:
         )
         imm = int(right.get("value", 0))
         instr = "SHLI" if op == "lshift" else "SHRI"
-        out.write(f"  {instr} {rd}, {rl}, {imm}    // binop {'<<' if op == 'lshift' else '>>'} (imm)\n")
+        out.write(
+            f"  {instr} {rd}, {rl}, {imm}    // binop {'<<' if op == 'lshift' else '>>'} (imm)\n"
+        )
         if rd != rl:
             emitter.release_expr_reg(rl)
         return rd
@@ -327,7 +329,9 @@ def _emit_unop(emitter, expr: Dict[str, Any], out) -> str:
         r_operand = emitter.emit_expr(operand, out)
         rd = (
             r_operand
-            if r_operand and r_operand in abi.TEMP_REGS and not emitter.is_var_reg(r_operand)
+            if r_operand
+            and r_operand in abi.TEMP_REGS
+            and not emitter.is_var_reg(r_operand)
             else emitter.alloc_reg()
         )
         nt_label = emitter.gen_label("UNOP_NOT_TRUE")

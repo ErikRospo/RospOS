@@ -79,7 +79,9 @@ def _read_exact(f: BinaryIO, n: int) -> bytes:
 def _read_header(f: BinaryIO) -> Header:
     raw = _read_exact(f, HEADER_SIZE)
     magic, version, block_count, index_offset = struct.unpack(HEADER_FMT, raw)
-    return Header(magic=magic, version=version, block_count=block_count, index_offset=index_offset)
+    return Header(
+        magic=magic, version=version, block_count=block_count, index_offset=index_offset
+    )
 
 
 def _write_header(f: BinaryIO, block_count: int, index_offset: int) -> None:
@@ -99,7 +101,9 @@ def _read_index(f: BinaryIO, header: Header, file_size: int) -> List[IndexEntry]
         raw = _read_exact(f, INDEX_ENTRY_SIZE)
         block_id, record_offset = struct.unpack(INDEX_ENTRY_FMT, raw)
         if record_offset + RECORD_HEADER_SIZE > file_size:
-            raise ValueError(f"Invalid record offset {record_offset} for block {block_id}")
+            raise ValueError(
+                f"Invalid record offset {record_offset} for block {block_id}"
+            )
         entries.append(IndexEntry(block_id=block_id, record_offset=record_offset))
 
     entries.sort(key=lambda e: e.block_id)
@@ -129,7 +133,9 @@ def _decode_block_payload(record: BlockRecord) -> bytes:
         try:
             data = gzip.decompress(record.payload)
         except (OSError, EOFError) as exc:
-            raise ValueError(f"Failed to decompress block {record.block_id}: {exc}") from exc
+            raise ValueError(
+                f"Failed to decompress block {record.block_id}: {exc}"
+            ) from exc
     else:
         data = record.payload
 
@@ -142,7 +148,9 @@ def _decode_block_payload(record: BlockRecord) -> bytes:
 
 def _encode_block_payload(block: bytes, mode: str) -> Tuple[int, bytes]:
     if len(block) != BLOCK_SIZE:
-        raise ValueError(f"Internal error: block size is {len(block)}, expected {BLOCK_SIZE}")
+        raise ValueError(
+            f"Internal error: block size is {len(block)}, expected {BLOCK_SIZE}"
+        )
 
     if mode == "never":
         return 0, block
@@ -152,7 +160,9 @@ def _encode_block_payload(block: bytes, mode: str) -> Tuple[int, bytes]:
     if mode == "always":
         return COMPRESS_FLAG, compressed
 
-    if len(compressed) < len(block): # If mode==auto, only compress if strictly saves space
+    if len(compressed) < len(
+        block
+    ):  # If mode==auto, only compress if strictly saves space
         return COMPRESS_FLAG, compressed
     return 0, block
 
@@ -176,7 +186,7 @@ def bin_to_rosb(args: argparse.Namespace) -> int:
     for i in range(block_count):
         block_id = args.start_block_id + i
         start = i * BLOCK_SIZE
-        chunk = data[start:start + BLOCK_SIZE]
+        chunk = data[start : start + BLOCK_SIZE]
         if len(chunk) < BLOCK_SIZE:
             chunk = chunk + bytes(BLOCK_SIZE - len(chunk))
         flags, payload = _encode_block_payload(chunk, args.compress)
@@ -190,7 +200,9 @@ def bin_to_rosb(args: argparse.Namespace) -> int:
             record_offset = f.tell()
             f.write(struct.pack(RECORD_HEADER_FMT, block_id, flags, len(payload)))
             f.write(payload)
-            index_entries.append(IndexEntry(block_id=block_id, record_offset=record_offset))
+            index_entries.append(
+                IndexEntry(block_id=block_id, record_offset=record_offset)
+            )
 
         index_offset = f.tell()
         f.write(struct.pack(INDEX_COUNT_FMT, len(index_entries)))
@@ -236,7 +248,11 @@ def rosb_to_bin(args: argparse.Namespace) -> int:
 
         if args.block_count is None:
             max_block_id = entries[-1].block_id
-            block_count = (max_block_id - start_block_id + 1) if max_block_id >= start_block_id else 0
+            block_count = (
+                (max_block_id - start_block_id + 1)
+                if max_block_id >= start_block_id
+                else 0
+            )
         else:
             block_count = args.block_count
 
@@ -273,10 +289,16 @@ def rosb_to_bin(args: argparse.Namespace) -> int:
 
 
 def make_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description="Convert between flat .bin and ROSB block-device files")
+    parser = argparse.ArgumentParser(
+        description="Convert between flat .bin and ROSB block-device files"
+    )
     sub = parser.add_subparsers(dest="command", required=True)
 
-    to_rosb = sub.add_parser("br",aliases=["bin-to-rosb","bin2rosb"], help="Convert a flat .bin image to ROSB")
+    to_rosb = sub.add_parser(
+        "br",
+        aliases=["bin-to-rosb", "bin2rosb"],
+        help="Convert a flat .bin image to ROSB",
+    )
     to_rosb.add_argument("input", help="Input .bin file")
     to_rosb.add_argument("output", help="Output .rosb file")
     to_rosb.add_argument(
@@ -293,7 +315,11 @@ def make_parser() -> argparse.ArgumentParser:
     )
     to_rosb.set_defaults(func=bin_to_rosb)
 
-    to_bin = sub.add_parser("rb", aliases=["rosb-to-bin","rosb2bin"], help="Convert ROSB to a flat .bin image")
+    to_bin = sub.add_parser(
+        "rb",
+        aliases=["rosb-to-bin", "rosb2bin"],
+        help="Convert ROSB to a flat .bin image",
+    )
     to_bin.add_argument("input", help="Input .rosb file")
     to_bin.add_argument("output", help="Output .bin file")
     to_bin.add_argument(

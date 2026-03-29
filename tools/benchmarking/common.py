@@ -14,7 +14,6 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
-
 ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_RESULTS_DIR = ROOT / "tools" / "benchmarking" / "results"
 
@@ -122,11 +121,15 @@ def run_vm_benchmark(
     results: list[IterationResult] = []
     step_counts: list[int | None] = []
     for i in range(1, repeat + 1):
-        elapsed_ms, out, err = run_command_with_output(command, cwd=cwd, timeout_s=timeout_s)
+        elapsed_ms, out, err = run_command_with_output(
+            command, cwd=cwd, timeout_s=timeout_s
+        )
         steps = extract_headless_steps(out, err)
         step_counts.append(steps)
         steps_str = str(steps) if steps is not None else "unknown"
-        print(f"[{name}] iteration {i}/{repeat}: {elapsed_ms:.3f} ms (steps={steps_str})")
+        print(
+            f"[{name}] iteration {i}/{repeat}: {elapsed_ms:.3f} ms (steps={steps_str})"
+        )
         results.append(IterationResult(iteration=i, duration_ms=elapsed_ms))
 
     return results, step_counts
@@ -201,7 +204,9 @@ def count_effective_lines(path: Path) -> int:
     return count
 
 
-def add_time_per_line_metric(summary: dict[str, Any], *, metric_name: str, line_count: int) -> None:
+def add_time_per_line_metric(
+    summary: dict[str, Any], *, metric_name: str, line_count: int
+) -> None:
     if line_count <= 0:
         summary[metric_name] = None
         return

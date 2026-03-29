@@ -56,7 +56,9 @@ def build_all_byte_values() -> list[Swatch]:
     return swatches
 
 
-def draw_palette(swatches: list[Swatch], columns: int, cell_size: int, show_labels: bool, title: str) -> None:
+def draw_palette(
+    swatches: list[Swatch], columns: int, cell_size: int, show_labels: bool, title: str
+) -> None:
     rows = (len(swatches) + columns - 1) // columns
     label_height = 18 if show_labels else 0
 

@@ -27,7 +27,9 @@ def _borrow_scratch_reg(emitter, out, avoid=None):
         return reg, True
 
     # Should not be reachable with current ABI, but keep a safe fallback.
-    print("Warning: no temp registers available to borrow for intrinsic; using r13 as fallback")
+    print(
+        "Warning: no temp registers available to borrow for intrinsic; using r13 as fallback"
+    )
     return "r13", False
 
 
@@ -37,8 +39,11 @@ def _release_scratch_reg(emitter, out, reg: str, spilled: bool):
     else:
         emitter.free_reg(reg)
 
+
 def intrinsic_break(emitter, args, out, return_reg=None):
     out.write("  BREAK    // intrinsic __break\n")
+
+
 def intrinsic_lb(emitter, args, out, return_reg=None):
     a = args[0] if args else None
     raddr = None

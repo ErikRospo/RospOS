@@ -4,9 +4,8 @@
 from __future__ import annotations
 
 import argparse
-from pathlib import Path
 import sys
-
+from pathlib import Path
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 if str(SCRIPT_DIR) not in sys.path:
@@ -37,7 +36,9 @@ def mode_flags(mode: str) -> list[str]:
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Benchmark rospoas assembler performance.")
+    parser = argparse.ArgumentParser(
+        description="Benchmark rospoas assembler performance."
+    )
     parser.add_argument(
         "--input",
         default="tools/benchmarking/programs/static_test.ros",
@@ -55,7 +56,9 @@ def main() -> int:
     )
     parser.add_argument("--repeat", type=int, default=20, help="Measured iterations")
     parser.add_argument("--warmup", type=int, default=3, help="Warmup iterations")
-    parser.add_argument("--timeout", type=int, default=0, help="Timeout per run in seconds (0 disables)")
+    parser.add_argument(
+        "--timeout", type=int, default=0, help="Timeout per run in seconds (0 disables)"
+    )
     parser.add_argument(
         "--python",
         default="rospoas/venv/bin/python",
@@ -90,7 +93,9 @@ def main() -> int:
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
     if args.prepare or not input_path.exists():
-        print(f"Generating benchmark input {input_path} from {source_rosc_path} with rospocc...")
+        print(
+            f"Generating benchmark input {input_path} from {source_rosc_path} with rospocc..."
+        )
         input_path.parent.mkdir(parents=True, exist_ok=True)
         prep_command = [
             str(ROOT / args.python),

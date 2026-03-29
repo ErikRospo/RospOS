@@ -26,7 +26,7 @@ def _emit_return(emitter, stmt: Dict[str, Any], out):
         if reg != abi.RETURN_REG:
             out.write(f"  ADD {abi.RETURN_REG}, {reg}, {abi.SPECIAL_REGS['zero']}\n")
         emitter.release_expr_reg(reg)
-    
+
     # If we're inside an inline function context, don't emit RET
     # Just set the return value and continue
     if emitter._in_inline_context:
@@ -91,7 +91,9 @@ def _emit_decl(emitter, stmt: Dict[str, Any], out):
 
             # Initialize the lifted buffer bytes from the string literal.
             # Include a trailing NUL like C string initialization.
-            init_bytes = (str(init.get("value", "")).encode("latin1", "replace") + b"\x00")[:size]
+            init_bytes = (
+                str(init.get("value", "")).encode("latin1", "replace") + b"\x00"
+            )[:size]
             base_reg = emitter.var_regs.get(name)
             if base_reg:
                 for idx, byte_val in enumerate(init_bytes):
@@ -102,7 +104,9 @@ def _emit_decl(emitter, stmt: Dict[str, Any], out):
                     emitter._load_imm(off_reg, idx, out)
 
                     addr_reg = emitter.alloc_reg()
-                    out.write(f"  ADD {addr_reg}, {base_reg}, {off_reg}    // {name}[{idx}] addr\n")
+                    out.write(
+                        f"  ADD {addr_reg}, {base_reg}, {off_reg}    // {name}[{idx}] addr\n"
+                    )
                     out.write(f"  SB {rval}, {addr_reg}, 0    // init {name}[{idx}]\n")
 
                     emitter.release_expr_reg(addr_reg)
@@ -133,8 +137,12 @@ def _emit_decl(emitter, stmt: Dict[str, Any], out):
                 if rinit in abi.TEMP_REGS and not emitter.is_var_reg(rinit):
                     emitter.var_regs[name] = rinit
                     emitter.var_types[name] = "int"
-                    if hasattr(emitter, "register_allocator") and hasattr(out, "get_current_output_line"):
-                        emitter.register_allocator.set_output_line(out.get_current_output_line())
+                    if hasattr(emitter, "register_allocator") and hasattr(
+                        out, "get_current_output_line"
+                    ):
+                        emitter.register_allocator.set_output_line(
+                            out.get_current_output_line()
+                        )
                         emitter.register_allocator.allocate(
                             register=rinit,
                             variable_name=name,
@@ -144,7 +152,9 @@ def _emit_decl(emitter, stmt: Dict[str, Any], out):
                         )
                 else:
                     dest = emitter._alloc_var_reg(name, out, init_value=None, typ="int")
-                    out.write(f"  ADDI {dest}, {rinit}, 0    // init {name} from expr\n")
+                    out.write(
+                        f"  ADDI {dest}, {rinit}, 0    // init {name} from expr\n"
+                    )
                     emitter.release_expr_reg(rinit)
         # Reclaim any variables that are now dead (all reads consumed)
         emitter.reclaim_dead_var_regs()
@@ -263,11 +273,7 @@ def _emit_assign(emitter, stmt: Dict[str, Any], out):
     #   x = x +/- const  -> ADDI x, x, +/-const
     #   x = x << const   -> SHLI x, x, const
     #   x = x >> const   -> SHRI x, x, const
-    if (
-        isinstance(val, dict)
-        and val.get("type") == "binop"
-        and target_name is not None
-    ):
+    if isinstance(val, dict) and val.get("type") == "binop" and target_name is not None:
         op = val.get("op")
         left = val.get("left")
         right = val.get("right")
@@ -324,11 +330,7 @@ def _emit_assign(emitter, stmt: Dict[str, Any], out):
 
     # If the RHS is a binop and both operands are the same as the target, force temp
     force_temp = False
-    if (
-        isinstance(val, dict)
-        and val.get("type") == "binop"
-        and target_name is not None
-    ):
+    if isinstance(val, dict) and val.get("type") == "binop" and target_name is not None:
         left = val.get("left")
         right = val.get("right")
         if (

@@ -217,7 +217,9 @@ class TranslationUnitTransformer:
                     and isinstance(primary.get("token"), str)
                     and primary["token"] in ("__embed", "__blob")
                 ):
-                    print(f"Found potential embed call: {primary['token']} at line {node.get('_line')}")
+                    print(
+                        f"Found potential embed call: {primary['token']} at line {node.get('_line')}"
+                    )
                     for suffix in children[1:]:
                         if not (
                             isinstance(suffix, dict)
@@ -319,7 +321,7 @@ class TranslationUnitTransformer:
         t_pointer_count = 0
         init_list = None
         is_inline = False
-        
+
         for child in children:
             # Check for inline keyword (token with value "inline")
             if isinstance(child, dict) and child.get("token") == "inline":
@@ -342,7 +344,10 @@ class TranslationUnitTransformer:
             init_node = None
 
             for decl_child in decl_children:
-                if isinstance(decl_child, dict) and decl_child.get("node") == "declarator":
+                if (
+                    isinstance(decl_child, dict)
+                    and decl_child.get("node") == "declarator"
+                ):
                     declarator_node = decl_child
                     ident = find_identifier(decl_child)
                     if ident:
@@ -390,7 +395,7 @@ class TranslationUnitTransformer:
                         global_entry["inline"] = True
                     self.ctx.tu["globals"].append(global_entry)
                     continue
-            
+
             # Handle inline constant variables (int, char, etc.)
             if is_inline and total_pointer_count == 0:
                 const_value = self._extract_const_value(init_node)
@@ -405,12 +410,12 @@ class TranslationUnitTransformer:
                     self.ctx.tu["globals"].append(global_entry)
                     continue
         return []
-    
+
     def _extract_const_value(self, node):
         """Extract a compile-time constant value from an expression node."""
         if not isinstance(node, dict):
             return None
-        
+
         # Check for simple numeric constant
         if "token" in node:
             token = node.get("token")
@@ -420,11 +425,11 @@ class TranslationUnitTransformer:
                     return int(token, 0)
                 except ValueError:
                     pass
-        
+
         # Recursively check children
         for child in node.get("children", []):
             value = self._extract_const_value(child)
             if value is not None:
                 return value
-        
+
         return None

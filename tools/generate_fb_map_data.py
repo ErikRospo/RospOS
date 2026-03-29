@@ -2,7 +2,6 @@ import argparse
 import re
 from pathlib import Path
 
-
 GLYPH_WIDTH = 8
 GLYPH_HEIGHT = 8
 TABLE_GLYPHS = 128
@@ -127,8 +126,8 @@ def main():
     input_path = Path(args.input)
     output_path = Path(args.output)
 
-    font_by_codepoint, descriptions_by_codepoint = extract_font8x8_basic_and_descriptions(
-        input_path
+    font_by_codepoint, descriptions_by_codepoint = (
+        extract_font8x8_basic_and_descriptions(input_path)
     )
 
     output_path.parent.mkdir(parents=True, exist_ok=True)

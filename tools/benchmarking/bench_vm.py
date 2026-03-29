@@ -4,10 +4,9 @@
 from __future__ import annotations
 
 import argparse
-from pathlib import Path
 import subprocess
 import sys
-
+from pathlib import Path
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 if str(SCRIPT_DIR) not in sys.path:
@@ -25,8 +24,12 @@ from common import (
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Benchmark rospovm headless runtime performance.")
-    parser.add_argument("--binary", default="rospos/build/rospos.rosp", help="Input .rosp binary")
+    parser = argparse.ArgumentParser(
+        description="Benchmark rospovm headless runtime performance."
+    )
+    parser.add_argument(
+        "--binary", default="rospos/build/rospos.rosp", help="Input .rosp binary"
+    )
     parser.add_argument(
         "--vm",
         default="rospovm/build/rospovm_headless",
@@ -34,7 +37,9 @@ def main() -> int:
     )
     parser.add_argument("--repeat", type=int, default=20, help="Measured iterations")
     parser.add_argument("--warmup", type=int, default=3, help="Warmup iterations")
-    parser.add_argument("--timeout", type=int, default=0, help="Timeout per run in seconds (0 disables)")
+    parser.add_argument(
+        "--timeout", type=int, default=0, help="Timeout per run in seconds (0 disables)"
+    )
     parser.add_argument(
         "--prepare",
         action="store_true",
@@ -51,7 +56,9 @@ def main() -> int:
     vm_path = ROOT / args.vm
 
     if args.prepare and (not binary_path.exists() or not vm_path.exists()):
-        print("Missing benchmark input artifacts, running `make compile vm_headless`...")
+        print(
+            "Missing benchmark input artifacts, running `make compile vm_headless`..."
+        )
         subprocess.run(["make", "compile", "vm_headless"], cwd=str(ROOT), check=True)
 
     command = [str(vm_path), str(binary_path)]
@@ -77,9 +84,11 @@ def main() -> int:
     print("Summary:", format_summary(summary))
     print(
         "         mean_instructions_per_second=",
-        f"{summary['mean_instructions_per_second']:.3f}"
-        if summary["mean_instructions_per_second"] is not None
-        else "None",
+        (
+            f"{summary['mean_instructions_per_second']:.3f}"
+            if summary["mean_instructions_per_second"] is not None
+            else "None"
+        ),
     )
 
     known_steps = [steps for steps in vm_steps if steps is not None]

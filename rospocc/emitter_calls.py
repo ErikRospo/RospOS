@@ -122,26 +122,26 @@ def _emit_inline_call(emitter, func_name: str, args, return_reg: Optional[str], 
     if not inline_fn:
         out.write(f"  // ERROR: inline function '{func_name}' not found\n")
         return
-    
+
     # Save the current variable state
     saved_var_regs = dict(emitter.var_regs)
     saved_var_types = dict(emitter.var_types)
-    
+
     # Create a scope for inline variables
     emitter.enter_var_scope()
-    
+
     # Map parameters to their argument values
     params = inline_fn.get("params", []) or []
     param_types = inline_fn.get("param_types", {}) or {}
-    
+
     out.write(f"  // begin inline expansion of {func_name}\n")
-    
+
     # Handle parameter argument mapping
     for i, param_name in enumerate(params):
         if i < len(args):
             arg = args[i]
             arg_type = arg.get("type")
-            
+
             # Allocate a register for this parameter
             if arg_type == "const":
                 param_reg = emitter.alloc_reg()
@@ -167,33 +167,37 @@ def _emit_inline_call(emitter, func_name: str, args, return_reg: Optional[str], 
                     param_reg = emitter.alloc_reg()
                     emitter._load_imm(param_reg, 0, out)
                 emitter.var_regs[param_name] = param_reg
-            
+
             # Set parameter type hints
             if param_name in param_types:
                 emitter.var_types[param_name] = param_types[param_name]
             else:
                 emitter.var_types[param_name] = "int"
-    
+
     # Track the return value in a local variable
     return_value_reg = return_reg if return_reg else abi.RETURN_REG
     emitter.had_return = False
     emitter._in_inline_context = True
-    
+
     # Emit the function body
     for stmt in inline_fn.get("body", []):
         emitter.emit_statement(stmt, out)
-    
+
     # Restore return state
     if not emitter.had_return and not (inline_fn.get("return_type") == "void"):
         # No explicit return, ensure return register has a value
         if return_value_reg != abi.RETURN_REG:
-            out.write(f"  ADDI {return_value_reg}, {abi.RETURN_REG}, 0    // implicit return\n")
+            out.write(
+                f"  ADDI {return_value_reg}, {abi.RETURN_REG}, 0    // implicit return\n"
+            )
     elif return_value_reg != abi.RETURN_REG and emitter.had_return:
         # Move return value to target register if needed
-        out.write(f"  ADDI {return_value_reg}, {abi.RETURN_REG}, 0    // move inline return value\n")
-    
-    emitter.had_return = True # Sure, outer context, we definitely had a return.
-    
+        out.write(
+            f"  ADDI {return_value_reg}, {abi.RETURN_REG}, 0    // move inline return value\n"
+        )
+
+    emitter.had_return = True  # Sure, outer context, we definitely had a return.
+
     # Exit scope and restore variable state
     emitter.exit_var_scope()
     emitter.var_regs = saved_var_regs

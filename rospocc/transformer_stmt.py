@@ -215,7 +215,9 @@ class StatementTransformer:
                 if expr.get("type") == "call" and expr.get("name") == "return":
                     args = expr.get("args", []) or []
                     ret_value = args[0] if args else None
-                    return [copy_line(stmt_node, {"type": "return", "value": ret_value})]
+                    return [
+                        copy_line(stmt_node, {"type": "return", "value": ret_value})
+                    ]
                 if expr.get("type") == "call":
                     return [
                         copy_line(

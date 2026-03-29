@@ -131,7 +131,7 @@ class Emitter:
                 value = g.get("value")
                 self.inline_constants[name] = value
                 self.var_types[name] = g.get("type", "int")
-        
+
         for fn in ast.get("functions", []):
             name = fn.get("name")
             return_type = fn.get("return_type")
@@ -140,7 +140,7 @@ class Emitter:
             # Collect inline functions for inlining at call sites
             if fn.get("inline"):
                 self.inline_functions[name] = fn
-        
+
         # Collect struct type definitions
         for typ in ast.get("types", []):
             if typ.get("kind") == "struct":
@@ -185,12 +185,18 @@ class Emitter:
                     reg = candidate
                     break
 
-            print(f"Register pressure: no free registers, spilling {reg} for temp allocation")
+            print(
+                f"Register pressure: no free registers, spilling {reg} for temp allocation"
+            )
             if reg is not None and self.tracked_writer is not None and track_as_temp:
                 self.tracked_writer.write(
                     f"  PUSH {reg}    // spill live temp for reg pressure\n"
                 )
-                aliases = [name for name, mapped_reg in self.var_regs.items() if mapped_reg == reg]
+                aliases = [
+                    name
+                    for name, mapped_reg in self.var_regs.items()
+                    if mapped_reg == reg
+                ]
                 if aliases:
                     self._spilled_var_aliases.setdefault(reg, []).append(list(aliases))
                     for name in aliases:
@@ -205,7 +211,9 @@ class Emitter:
                     }
                 )
                 self._spill_depth[reg] = self._spill_depth.get(reg, 0) + 1
-                self._borrowed_temp_depth[reg] = self._borrowed_temp_depth.get(reg, 0) + 1
+                self._borrowed_temp_depth[reg] = (
+                    self._borrowed_temp_depth.get(reg, 0) + 1
+                )
                 borrowed_spill = True
             elif track_as_temp:
                 raise RuntimeError(
@@ -248,7 +256,9 @@ class Emitter:
                     self.var_regs[name] = r
 
         def _discard_stale_spill_tops():
-            while self._spill_stack and self._spill_stack[-1].get("restored_early", False):
+            while self._spill_stack and self._spill_stack[-1].get(
+                "restored_early", False
+            ):
                 stale = self._spill_stack.pop()
                 stale_reg = stale.get("reg")
                 self.tracked_writer.write(
@@ -259,7 +269,9 @@ class Emitter:
         spill_depth = self._spill_depth.get(reg, 0)
         if spill_depth > 0:
             if self.tracked_writer is None:
-                raise RuntimeError("Cannot restore spilled register without tracked_writer")
+                raise RuntimeError(
+                    "Cannot restore spilled register without tracked_writer"
+                )
 
             # Find the most recent spill slot for this register.
             target_idx = None
@@ -283,7 +295,9 @@ class Emitter:
                     _discard_stale_spill_tops()
                 else:
                     self._spill_stack.pop()
-                    self.tracked_writer.write(f"  POP {reg}    // restore spilled temp\n")
+                    self.tracked_writer.write(
+                        f"  POP {reg}    // restore spilled temp\n"
+                    )
                     _restore_aliases(reg, entry.get("aliases", []))
                     _dec_spill_depth(reg)
                 # Keep legacy alias stack roughly in sync.
@@ -423,7 +437,9 @@ class Emitter:
     def _ensure_var_reg(self, name: str, out) -> str:
         return ensure_var_reg(self, name, out)
 
-    def _count_expr_var_reads(self, expr: Optional[Dict[str, Any]], counts: Dict[str, int]):
+    def _count_expr_var_reads(
+        self, expr: Optional[Dict[str, Any]], counts: Dict[str, int]
+    ):
         if not isinstance(expr, dict):
             return
 
@@ -466,7 +482,9 @@ class Emitter:
                     self._count_expr_var_reads(target.get("base"), counts)
             self._count_expr_var_reads(expr.get("value"), counts)
 
-    def _count_stmt_var_reads(self, stmt: Optional[Dict[str, Any]], counts: Dict[str, int]):
+    def _count_stmt_var_reads(
+        self, stmt: Optional[Dict[str, Any]], counts: Dict[str, int]
+    ):
         if not isinstance(stmt, dict):
             return
 
@@ -547,7 +565,9 @@ class Emitter:
         if self._borrowed_temp_depth.get(reg, 0) > 0:
             return
 
-        aliases = [name for name, mapped_reg in self.var_regs.items() if mapped_reg == reg]
+        aliases = [
+            name for name, mapped_reg in self.var_regs.items() if mapped_reg == reg
+        ]
         if not aliases:
             return
 
@@ -627,7 +647,12 @@ class Emitter:
         scope = self._var_scope_stack.pop()
         for name, info in reversed(list(scope.items())):
             reg = self.var_regs.get(name)
-            if reg and reg in abi.TEMP_REGS and self._spill_depth.get(reg, 0) == 0 and self._borrowed_temp_depth.get(reg, 0) == 0:
+            if (
+                reg
+                and reg in abi.TEMP_REGS
+                and self._spill_depth.get(reg, 0) == 0
+                and self._borrowed_temp_depth.get(reg, 0) == 0
+            ):
                 del self.var_regs[name]
                 self.free_reg(reg)
             else:
@@ -650,8 +675,10 @@ class Emitter:
 
     def _intrinsic_sb(self, args, out, return_reg=None):
         intrinsic_sb(self, args, out, return_reg=return_reg)
+
     def _intrinsic_break(self, args, out, return_reg=None):
         intrinsic_break(self, args, out, return_reg=return_reg)
+
     def emit_translation_unit(self, ast: Dict[str, Any], out_path: str):
         out_file = Path(out_path)
         out_file.parent.mkdir(parents=True, exist_ok=True)
@@ -708,9 +735,11 @@ class Emitter:
         if g.get("kind") == "inline_const":
             name = g.get("name")
             value = g.get("value")
-            out.write(f"// Inline constant '{name}' = {value} (substituted at compile time)\n")
+            out.write(
+                f"// Inline constant '{name}' = {value} (substituted at compile time)\n"
+            )
             return
-        
+
         # Starter supports simple string/global labels
         if g.get("kind") == "string":
             lbl = g.get("name") or self.gen_label("str")
@@ -731,7 +760,7 @@ class Emitter:
                 return
 
             for word in range(0, len(blob_bytes), 4):
-                byte = blob_bytes[word:word+4]
+                byte = blob_bytes[word : word + 4]
                 out.write(f"  .DATA 0x{int.from_bytes(byte, 'little'):08X}\n")
             out.write("\n")
         else:
@@ -740,10 +769,12 @@ class Emitter:
 
     def emit_function_def(self, fn: Dict[str, Any], out):
         name = fn.get("name", "fn")
-        
+
         # Skip inline functions - they will be inlined at call sites
         if fn.get("inline"):
-            out.write(f"// Inline function definition '{name}' skipped (will be inlined at call sites)\n\n")
+            out.write(
+                f"// Inline function definition '{name}' skipped (will be inlined at call sites)\n\n"
+            )
             return
 
         # Set source context for function definition
@@ -810,7 +841,9 @@ class Emitter:
 
             stack_slot = (i - reg_param_count) + 1
             stack_offset = stack_slot * 4
-            out.write(f"  LW {r}, {abi.SP_REG}, {stack_offset}    // load stack arg {p}\n")
+            out.write(
+                f"  LW {r}, {abi.SP_REG}, {stack_offset}    // load stack arg {p}\n"
+            )
 
         # import any parameter type hints (e.g., pointer params)
         for pname, ptype in (fn.get("param_types", {}) or {}).items():

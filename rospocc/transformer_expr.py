@@ -122,7 +122,9 @@ class ExpressionTransformer:
             return self._fold_left_token_binops(node.get("children", []), {"|": "or"})
 
         if node_type == "logic_and":
-            return self._fold_left_token_binops(node.get("children", []), {"&&": "land"})
+            return self._fold_left_token_binops(
+                node.get("children", []), {"&&": "land"}
+            )
 
         if node_type == "logic_or":
             return self._fold_left_token_binops(node.get("children", []), {"||": "lor"})
