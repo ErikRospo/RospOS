@@ -1080,98 +1080,84 @@ WHILE_END160:
 // Inline function 'add' skipped (will be inlined at call sites)
 .FUNC main:
   PUSH r14
-  // emit call to draw_rectangle with args [{'type': 'const', 'value': 20}, {'type': 'const', 'value': 100}, {'type': 'const', 'value': 30}, {'type': 'const', 'value': 20}, {'type': 'const', 'value': 63}, {'type': 'const', 'value': 12}]
-  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  LLI r2, 12    // load immediate 12
-  PUSH r2    // pass overflow arg on stack
-  LLI r3, 63    // load immediate 63
-  PUSH r3    // pass overflow arg on stack
-  LLI r1, 20    // load immediate 20
-  LLI r2, 100    // load immediate 100
-  LLI r3, 30    // load immediate 30
-  LLI r4, 20    // load immediate 20
-  CALL draw_rectangle
-  // call return value in r1
-  ADDI r15, r15, 8    // discard overflow arg slots
-  POP r1  
-  LLI r4, 0    // zero init r1
+  LLI r2, 0    // zero init r1
   // inline call to add with args [{'type': 'const', 'value': 15}, {'type': 'const', 'value': 25}]
   // begin inline expansion of add
-  LLI r5, 15    // load immediate 15
-  LLI r6, 25    // load immediate 25
-  ADD r7, r5, r6    // binop +
-  ADD r1, r7, r0
+  LLI r3, 15    // load immediate 15
+  LLI r4, 25    // load immediate 25
+  ADD r5, r3, r4    // binop +
+  ADD r1, r5, r0
   // inline function return (no RET emitted)
-  ADDI r4, r1, 0    // move inline return value
+  ADDI r2, r1, 0    // move inline return value
   // end inline expansion of add
-  LLI r8, 50    // init r2
-  LLI r9, 0    // zero init r3
+  LLI r6, 50    // init r2
+  LLI r7, 0    // zero init r3
   // inline call to add with args [{'type': 'var', 'name': 'r1'}, {'type': 'var', 'name': 'r2'}]
   // begin inline expansion of add
-  ADD r10, r4, r8    // binop +
-  ADD r1, r10, r0
+  ADD r8, r2, r6    // binop +
+  ADD r1, r8, r0
   // inline function return (no RET emitted)
-  ADDI r9, r1, 0    // move inline return value
+  ADDI r7, r1, 0    // move inline return value
   // end inline expansion of add
   // emit call to initialize_filesystem with args []
-  PUSH r4    // save caller temp
-  PUSH r8    // save caller temp
+  PUSH r2    // save caller temp
+  PUSH r6    // save caller temp
   PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
   CALL initialize_filesystem
   // call return value in r1
   POP r1  
-  POP r8    // restore caller temp
-  POP r4    // restore caller temp
+  POP r6    // restore caller temp
+  POP r2    // restore caller temp
   // emit call to write_file with args []
-  PUSH r4    // save caller temp
-  PUSH r8    // save caller temp
+  PUSH r2    // save caller temp
+  PUSH r6    // save caller temp
   PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
   CALL write_file
   // call return value in r1
   POP r1  
-  POP r8    // restore caller temp
-  POP r4    // restore caller temp
-  LLI r11, device_info_buf164    // init device_info (buffer addr)
+  POP r6    // restore caller temp
+  POP r2    // restore caller temp
+  LLI r9, device_info_buf164    // init device_info (buffer addr)
   // emit call to read_block with args [{'type': 'const', 'value': 4294967295}, {'type': 'var', 'name': 'device_info'}]
-  PUSH r4    // save caller temp
-  PUSH r8    // save caller temp
-  PUSH r11    // save caller temp
+  PUSH r2    // save caller temp
+  PUSH r6    // save caller temp
+  PUSH r9    // save caller temp
   PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
   LLI r1, 4294967295    // load immediate 4294967295
-  ADDI r2, r11, 0    // move arg 1
+  ADDI r2, r9, 0    // move arg 1
   CALL read_block
   // call return value in r1
   POP r1  
-  POP r11    // restore caller temp
-  POP r8    // restore caller temp
-  POP r4    // restore caller temp
+  POP r9    // restore caller temp
+  POP r6    // restore caller temp
+  POP r2    // restore caller temp
   // emit call to draw_string_to_display with args [{'type': 'var', 'name': 'device_info'}, {'type': 'const', 'value': 10}, {'type': 'const', 'value': 10}, {'type': 'const', 'value': 63}]
-  PUSH r4    // save caller temp
-  PUSH r8    // save caller temp
-  PUSH r11    // save caller temp
+  PUSH r2    // save caller temp
+  PUSH r6    // save caller temp
+  PUSH r9    // save caller temp
   PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  ADDI r1, r11, 0    // move arg 0
+  ADDI r1, r9, 0    // move arg 0
   LLI r2, 10    // load immediate 10
   LLI r3, 10    // load immediate 10
   LLI r4, 63    // load immediate 63
   CALL draw_string_to_display
   // call return value in r1
   POP r1  
-  POP r11    // restore caller temp
-  POP r8    // restore caller temp
-  POP r4    // restore caller temp
+  POP r9    // restore caller temp
+  POP r6    // restore caller temp
+  POP r2    // restore caller temp
   // emit call to read_file with args []
-  PUSH r4    // save caller temp
-  PUSH r8    // save caller temp
+  PUSH r2    // save caller temp
+  PUSH r6    // save caller temp
   PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
   CALL read_file
   // call return value in r1
   POP r1  
-  POP r8    // restore caller temp
-  POP r4    // restore caller temp
+  POP r6    // restore caller temp
+  POP r2    // restore caller temp
   // emit call to draw_string_to_display with args [{'type': 'string_addr', 'label': 'str_0'}, {'type': 'const', 'value': 10}, {'type': 'const', 'value': 70}, {'type': 'const', 'value': 63}]
-  PUSH r4    // save caller temp
-  PUSH r8    // save caller temp
+  PUSH r2    // save caller temp
+  PUSH r6    // save caller temp
   PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
   LLI r1, str_0    // load immediate str_0
   LLI r2, 10    // load immediate 10
@@ -1180,11 +1166,11 @@ WHILE_END160:
   CALL draw_string_to_display
   // call return value in r1
   POP r1  
-  POP r8    // restore caller temp
-  POP r4    // restore caller temp
+  POP r6    // restore caller temp
+  POP r2    // restore caller temp
   // emit call to draw_string_to_display with args [{'type': 'string_addr', 'label': 'str_1'}, {'type': 'const', 'value': 10}, {'type': 'const', 'value': 90}, {'type': 'const', 'value': 12}]
-  PUSH r4    // save caller temp
-  PUSH r8    // save caller temp
+  PUSH r2    // save caller temp
+  PUSH r6    // save caller temp
   PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
   LLI r1, str_1    // load immediate str_1
   LLI r2, 10    // load immediate 10
@@ -1193,11 +1179,11 @@ WHILE_END160:
   CALL draw_string_to_display
   // call return value in r1
   POP r1  
-  POP r8    // restore caller temp
-  POP r4    // restore caller temp
+  POP r6    // restore caller temp
+  POP r2    // restore caller temp
   // emit call to draw_string_to_display with args [{'type': 'string_addr', 'label': 'str_2'}, {'type': 'const', 'value': 10}, {'type': 'const', 'value': 110}, {'type': 'const', 'value': 48}]
-  PUSH r4    // save caller temp
-  PUSH r8    // save caller temp
+  PUSH r2    // save caller temp
+  PUSH r6    // save caller temp
   PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
   LLI r1, str_2    // load immediate str_2
   LLI r2, 10    // load immediate 10
@@ -1206,11 +1192,11 @@ WHILE_END160:
   CALL draw_string_to_display
   // call return value in r1
   POP r1  
-  POP r8    // restore caller temp
-  POP r4    // restore caller temp
+  POP r6    // restore caller temp
+  POP r2    // restore caller temp
   // emit call to draw_string_to_display with args [{'type': 'string_addr', 'label': 'str_3'}, {'type': 'const', 'value': 10}, {'type': 'const', 'value': 130}, {'type': 'const', 'value': 7}]
-  PUSH r4    // save caller temp
-  PUSH r8    // save caller temp
+  PUSH r2    // save caller temp
+  PUSH r6    // save caller temp
   PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
   LLI r1, str_3    // load immediate str_3
   LLI r2, 10    // load immediate 10
@@ -1219,11 +1205,11 @@ WHILE_END160:
   CALL draw_string_to_display
   // call return value in r1
   POP r1  
-  POP r8    // restore caller temp
-  POP r4    // restore caller temp
+  POP r6    // restore caller temp
+  POP r2    // restore caller temp
   // emit call to draw_string_to_display with args [{'type': 'string_addr', 'label': 'str_4'}, {'type': 'const', 'value': 10}, {'type': 'const', 'value': 150}, {'type': 'const', 'value': 60}]
-  PUSH r4    // save caller temp
-  PUSH r8    // save caller temp
+  PUSH r2    // save caller temp
+  PUSH r6    // save caller temp
   PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
   LLI r1, str_4    // load immediate str_4
   LLI r2, 10    // load immediate 10
@@ -1232,8 +1218,26 @@ WHILE_END160:
   CALL draw_string_to_display
   // call return value in r1
   POP r1  
-  POP r8    // restore caller temp
-  POP r4    // restore caller temp
+  POP r6    // restore caller temp
+  POP r2    // restore caller temp
+  // emit call to clear_display with args []
+  PUSH r2    // save caller temp
+  PUSH r6    // save caller temp
+  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
+  CALL clear_display
+  // call return value in r1
+  POP r1  
+  POP r6    // restore caller temp
+  POP r2    // restore caller temp
+  // emit call to screen_test with args []
+  PUSH r2    // save caller temp
+  PUSH r6    // save caller temp
+  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
+  CALL screen_test
+  // call return value in r1
+  POP r1  
+  POP r6    // restore caller temp
+  POP r2    // restore caller temp
 
 
 // Globals
