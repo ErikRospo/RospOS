@@ -26,6 +26,7 @@
 #include <QInputDialog>
 #include <QFileInfo>
 #include <QDateTime>
+#include <QSettings>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent),
@@ -35,7 +36,10 @@ MainWindow::MainWindow(QWidget *parent)
       registerView(new RegisterView(this)),
       memoryView(new MemoryView(this)),
       displayWidget(new VMDisplay(this)),
-      ttyWidget(new TTYWidget(this))
+    ttyWidget(new TTYWidget(this)),
+    horizontalSplitter(nullptr),
+    verticalSplitter(nullptr),
+    rightSidebarSplitter(nullptr)
 {
     setWindowTitle("RospOS VM Debugger");
     setGeometry(100, 100, 1600, 1000);
@@ -45,12 +49,61 @@ MainWindow::MainWindow(QWidget *parent)
     createCentralWidget();
     createStatusBar();
     setupConnections();
+    restoreWindowSettings();
 }
 
 MainWindow::~MainWindow()
 {
     TTYSetWriteCallback(nullptr);
     TTYSetReadRequestCallback(nullptr);
+}
+
+void MainWindow::closeEvent(QCloseEvent *event)
+{
+    saveWindowSettings();
+    QMainWindow::closeEvent(event);
+}
+
+void MainWindow::restoreWindowSettings()
+{
+    QSettings settings("RospOS", "RospOSVMFullQt");
+    const QByteArray geometry = settings.value("window/geometry").toByteArray();
+    const QByteArray state = settings.value("window/state").toByteArray();
+    const QByteArray horizontalState = settings.value("window/splitterHorizontal").toByteArray();
+    const QByteArray verticalState = settings.value("window/splitterVertical").toByteArray();
+    const QByteArray rightSidebarState = settings.value("window/splitterRightSidebar").toByteArray();
+
+    if (!geometry.isEmpty()) {
+        restoreGeometry(geometry);
+    }
+    if (!state.isEmpty()) {
+        restoreState(state);
+    }
+    if (horizontalSplitter != nullptr && !horizontalState.isEmpty()) {
+        horizontalSplitter->restoreState(horizontalState);
+    }
+    if (verticalSplitter != nullptr && !verticalState.isEmpty()) {
+        verticalSplitter->restoreState(verticalState);
+    }
+    if (rightSidebarSplitter != nullptr && !rightSidebarState.isEmpty()) {
+        rightSidebarSplitter->restoreState(rightSidebarState);
+    }
+}
+
+void MainWindow::saveWindowSettings() const
+{
+    QSettings settings("RospOS", "RospOSVMFullQt");
+    settings.setValue("window/geometry", saveGeometry());
+    settings.setValue("window/state", saveState());
+    if (horizontalSplitter != nullptr) {
+        settings.setValue("window/splitterHorizontal", horizontalSplitter->saveState());
+    }
+    if (verticalSplitter != nullptr) {
+        settings.setValue("window/splitterVertical", verticalSplitter->saveState());
+    }
+    if (rightSidebarSplitter != nullptr) {
+        settings.setValue("window/splitterRightSidebar", rightSidebarSplitter->saveState());
+    }
 }
 
 void MainWindow::loadBinaryFile(const QString &filePath)
@@ -196,11 +249,11 @@ void MainWindow::createCentralWidget()
     mainLayout->setSpacing(0);
 
     // Main vertical splitter (top content vs tty)
-    QSplitter *verticalSplitter = new QSplitter(Qt::Vertical);
+    verticalSplitter = new QSplitter(Qt::Vertical);
     verticalSplitter->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
     // Top horizontal splitter (debug panel | code | sidebar)
-    QSplitter *horizontalSplitter = new QSplitter(Qt::Horizontal);
+    horizontalSplitter = new QSplitter(Qt::Horizontal);
     horizontalSplitter->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
     // Left sidebar: Debug control panel
@@ -213,9 +266,9 @@ void MainWindow::createCentralWidget()
     horizontalSplitter->addWidget(codeView);
 
     // Right sidebar: Register, Memory, Display
-    QSplitter *rightSidebar = new QSplitter(Qt::Vertical);
-    rightSidebar->addWidget(registerView);
-    rightSidebar->addWidget(memoryView);
+    rightSidebarSplitter = new QSplitter(Qt::Vertical);
+    rightSidebarSplitter->addWidget(registerView);
+    rightSidebarSplitter->addWidget(memoryView);
 
     QScrollArea *displayScrollArea = new QScrollArea(this);
     displayScrollArea->setWidget(displayWidget);
@@ -223,15 +276,15 @@ void MainWindow::createCentralWidget()
     displayScrollArea->setAlignment(Qt::AlignTop | Qt::AlignLeft);
     displayScrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
     displayScrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
-    rightSidebar->addWidget(displayScrollArea);
+    rightSidebarSplitter->addWidget(displayScrollArea);
 
-    rightSidebar->setMaximumWidth(350);
-    rightSidebar->setMinimumWidth(250);
-    rightSidebar->setCollapsible(0, false);
-    rightSidebar->setCollapsible(1, false);
-    rightSidebar->setCollapsible(2, false);
+    rightSidebarSplitter->setMaximumWidth(350);
+    rightSidebarSplitter->setMinimumWidth(250);
+    rightSidebarSplitter->setCollapsible(0, false);
+    rightSidebarSplitter->setCollapsible(1, false);
+    rightSidebarSplitter->setCollapsible(2, false);
 
-    horizontalSplitter->addWidget(rightSidebar);
+    horizontalSplitter->addWidget(rightSidebarSplitter);
 
     // Set splitter sizes (left panel, code view, right sidebar)
     horizontalSplitter->setSizes({250, 800, 300});
@@ -253,11 +306,21 @@ void MainWindow::createCentralWidget()
     verticalSplitter->setCollapsible(0, false);
     verticalSplitter->setCollapsible(1, false);
 
-    QTimer::singleShot(0, this, [horizontalSplitter, rightSidebar, verticalSplitter]() {
-        horizontalSplitter->setSizes({250, 800, 300});
-        rightSidebar->setSizes({1, 1, 1});
-        verticalSplitter->setSizes({800, 200});
-    });
+    QSettings settings("RospOS", "RospOSVMFullQt");
+    const bool hasSavedHorizontal = settings.contains("window/splitterHorizontal");
+    const bool hasSavedVertical = settings.contains("window/splitterVertical");
+    const bool hasSavedRightSidebar = settings.contains("window/splitterRightSidebar");
+
+    if (!hasSavedHorizontal || !hasSavedVertical || !hasSavedRightSidebar) {
+        QTimer::singleShot(0, this, [this]() {
+            if (!horizontalSplitter || !rightSidebarSplitter || !verticalSplitter) {
+                return;
+            }
+            horizontalSplitter->setSizes({250, 800, 300});
+            rightSidebarSplitter->setSizes({1, 1, 1});
+            verticalSplitter->setSizes({800, 200});
+        });
+    }
 
     mainLayout->addWidget(verticalSplitter);
 

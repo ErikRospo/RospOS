@@ -5,6 +5,7 @@
 #include <QLabel>
 #include <QAction>
 #include <QString>
+#include <QCloseEvent>
 #include <memory>
 
 class VMController;
@@ -15,6 +16,7 @@ class MemoryView;
 class VMDisplay;
 class LogView;
 class TTYWidget;
+class QSplitter;
 
 class MainWindow : public QMainWindow
 {
@@ -46,6 +48,11 @@ private:
     void createCentralWidget();
     void createStatusBar();
     void setupConnections();
+    void restoreWindowSettings();
+    void saveWindowSettings() const;
+
+protected:
+    void closeEvent(QCloseEvent *event) override;
 
     // Member variables
     std::unique_ptr<VMController> vmController;
@@ -56,6 +63,9 @@ private:
     VMDisplay *displayWidget;
     TTYWidget *ttyWidget;
     LogView *logView;
+    QSplitter *horizontalSplitter;
+    QSplitter *verticalSplitter;
+    QSplitter *rightSidebarSplitter;
 
     // UI Controls
     QAction *loadButton;
