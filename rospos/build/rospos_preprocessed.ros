@@ -244,72 +244,68 @@ CMP_END40:
   JMP IF_END38
 ELSE37:
 IF_END38:
-  LLI r8, 0    // load immediate 0
-  LLI r9, 1    // load immediate 1
-  SUB r8, r8, r9    // binop -
+  LLI r8, -1    // init sx
   BLT r1, r3, CMP_TRUE43
-  LLI r10, 0    // compare false path
+  LLI r9, 0    // compare false path
   JMP CMP_END44
 CMP_TRUE43:
-  LLI r10, 1
+  LLI r9, 1
 CMP_END44:
-  BEQ r10, r0, ELSE41
-  LLI r11, 1    // load immediate 1
-  ADDI r8, r11, 0    // assign sx
+  BEQ r9, r0, ELSE41
+  LLI r10, 1    // load immediate 1
+  ADDI r8, r10, 0    // assign sx
   JMP IF_END42
 ELSE41:
 IF_END42:
-  SUB r12, r2, r4    // binop -
-  LLI r6, 0    // load immediate 0
-  BLT r12, r6, CMP_TRUE47
-  LLI r6, 0    // compare false path
+  SUB r11, r2, r4    // binop -
+  LLI r12, 0    // load immediate 0
+  BLT r11, r12, CMP_TRUE47
+  LLI r12, 0    // compare false path
   JMP CMP_END48
 CMP_TRUE47:
-  LLI r6, 1
+  LLI r12, 1
 CMP_END48:
-  BEQ r6, r0, ELSE45
-  LLI r7, 0    // load immediate 0
-  SUB r7, r7, r12    // binop -
-  ADDI r12, r7, 0    // assign dy
+  BEQ r12, r0, ELSE45
+  LLI r6, 0    // load immediate 0
+  SUB r6, r6, r11    // binop -
+  ADDI r11, r6, 0    // assign dy
   JMP IF_END46
 ELSE45:
 IF_END46:
-  LLI r9, 0    // load immediate 0
-  SUB r9, r9, r12    // binop -
-  ADDI r12, r9, 0    // assign dy
-  LLI r10, 0    // load immediate 0
-  LLI r11, 1    // load immediate 1
-  SUB r10, r10, r11    // binop -
+  LLI r7, 0    // load immediate 0
+  SUB r7, r7, r11    // binop -
+  ADDI r11, r7, 0    // assign dy
+  LLI r9, -1    // init sy
   BLT r2, r4, CMP_TRUE51
-  LLI r6, 0    // compare false path
+  LLI r10, 0    // compare false path
   JMP CMP_END52
 CMP_TRUE51:
-  LLI r6, 1
+  LLI r10, 1
 CMP_END52:
-  BEQ r6, r0, ELSE49
-  LLI r7, 1    // load immediate 1
-  ADDI r10, r7, 0    // assign sy
+  BEQ r10, r0, ELSE49
+  LLI r12, 1    // load immediate 1
+  ADDI r9, r12, 0    // assign sy
   JMP IF_END50
 ELSE49:
 IF_END50:
-  ADD r9, r5, r12    // binop +
-  LLI r11, 1    // init exit_condition
+  ADD r6, r5, r11    // binop +
+  LLI r7, 1    // init exit_condition
 WHILE53:
-  BEQ r11, r0, WHILE_END54
-  LLI r6, 256    // load immediate 256
-  MUL r6, r2, r6    // binop *
-  ADD r6, r6, r1    // binop +
-  LLI r7, 536870912    // load immediate 536870912
-  ADD r7, r7, r6    // binop +
+  BEQ r7, r0, WHILE_END54
+  LLI r10, 256    // load immediate 256
+  MUL r10, r2, r10    // binop *
+  ADD r10, r10, r1    // binop +
+  LLI r12, 536870912    // load immediate 536870912
+  ADD r12, r12, r10    // binop +
   PUSH r2    // spill live temp for intrinsic scratch
   LLI r2, 63    // val const for __sb
-  SB r2, r7, 0    // intrinsic __sb
+  SB r2, r12, 0    // intrinsic __sb
   POP r2    // restore spilled temp
   BEQ r1, r3, CMP_TRUE57
-  LLI r7, 0    // compare false path
+  LLI r12, 0    // compare false path
   JMP CMP_END58
 CMP_TRUE57:
-  LLI r7, 1
+  LLI r12, 1
 CMP_END58:
   PUSH r2    // spill live temp for reg pressure
   BEQ r2, r4, CMP_TRUE59
@@ -318,23 +314,23 @@ CMP_END58:
 CMP_TRUE59:
   LLI r2, 1
 CMP_END60:
-  AND r7, r7, r2    // logic && fold
-  BNE r7, r0, CMP_TRUE61
-  LLI r7, 0    // compare false path
+  AND r12, r12, r2    // logic && fold
+  BNE r12, r0, CMP_TRUE61
+  LLI r12, 0    // compare false path
   JMP CMP_END62
 CMP_TRUE61:
-  LLI r7, 1
+  LLI r12, 1
 CMP_END62:
   POP r2    // restore spilled temp
-  BEQ r7, r0, ELSE55
-  LLI r7, 0    // load immediate 0
-  ADDI r11, r7, 0    // assign exit_condition
+  BEQ r12, r0, ELSE55
+  LLI r12, 0    // load immediate 0
+  ADDI r7, r12, 0    // assign exit_condition
   JMP IF_END56
 ELSE55:
 IF_END56:
-  ADD r7, r9, r9    // binop +
+  ADD r12, r6, r6    // binop +
   PUSH r2    // spill live temp for reg pressure
-  BGE r7, r12, CMP_TRUE65
+  BGE r12, r11, CMP_TRUE65
   LLI r2, 0    // compare false path
   JMP CMP_END66
 CMP_TRUE65:
@@ -343,8 +339,8 @@ CMP_END66:
   BEQ r2, r0, ELSE63
   POP r2    // restore spilled temp
   PUSH r2    // spill live temp for reg pressure
-  ADD r2, r9, r12    // binop +
-  ADDI r9, r2, 0    // assign err
+  ADD r2, r6, r11    // binop +
+  ADDI r6, r2, 0    // assign err
   POP r2    // restore spilled temp
   PUSH r2    // spill live temp for reg pressure
   ADD r2, r1, r8    // binop +
@@ -354,7 +350,7 @@ CMP_END66:
 ELSE63:
 IF_END64:
   PUSH r2    // spill live temp for reg pressure
-  BGE r5, r7, CMP_TRUE69
+  BGE r5, r12, CMP_TRUE69
   LLI r2, 0    // compare false path
   JMP CMP_END70
 CMP_TRUE69:
@@ -363,11 +359,11 @@ CMP_END70:
   BEQ r2, r0, ELSE67
   POP r2    // restore spilled temp
   PUSH r2    // spill live temp for reg pressure
-  ADD r2, r9, r5    // binop +
-  ADDI r9, r2, 0    // assign err
+  ADD r2, r6, r5    // binop +
+  ADDI r6, r2, 0    // assign err
   POP r2    // restore spilled temp
   PUSH r3    // spill live temp for reg pressure
-  ADD r3, r2, r10    // binop +
+  ADD r3, r2, r9    // binop +
   ADDI r2, r3, 0    // assign y1
   POP r3    // restore spilled temp
   JMP IF_END68
@@ -375,8 +371,8 @@ ELSE67:
 IF_END68:
   JMP WHILE53
 WHILE_END54:
-  LLI r7, 0    // load immediate 0
-  ADD r1, r7, r0
+  LLI r12, 0    // load immediate 0
+  ADD r1, r12, r0
   POP r14
   RET
 

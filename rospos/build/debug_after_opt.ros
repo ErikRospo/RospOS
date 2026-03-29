@@ -265,79 +265,75 @@ CMP_END40:
   SUB r5, r7, r5
 ELSE37:
 
-  LLI r8, 0
-  LLI r9, 1
-  SUB r8, r8, r9
+  LLI r8, -1
   BLT r1, r3, CMP_TRUE43
-  LLI r10, 0
+  LLI r9, 0
   JMP CMP_END44
 
 CMP_TRUE43:
 
-  LLI r10, 1
+  LLI r9, 1
 CMP_END44:
 
-  BEQ r10, r0, ELSE41
-  LLI r11, 1
-  ADDI r8, r11, 0
+  BEQ r9, r0, ELSE41
+  LLI r10, 1
+  ADDI r8, r10, 0
 ELSE41:
 
-  SUB r12, r2, r4
-  LLI r6, 0
-  BLT r12, r6, CMP_TRUE47
-  LLI r6, 0
+  SUB r11, r2, r4
+  LLI r12, 0
+  BLT r11, r12, CMP_TRUE47
+  LLI r12, 0
   JMP CMP_END48
 
 CMP_TRUE47:
 
-  LLI r6, 1
+  LLI r12, 1
 CMP_END48:
 
-  BEQ r6, r0, ELSE45
-  LLI r7, 0
-  SUB r12, r7, r12
+  BEQ r12, r0, ELSE45
+  LLI r6, 0
+  SUB r11, r6, r11
 ELSE45:
 
-  LLI r9, 0
-  SUB r12, r9, r12
-  LLI r10, 0
-  LLI r11, 1
-  SUB r10, r10, r11
+  LLI r7, 0
+  SUB r11, r7, r11
+  LLI r9, -1
   BLT r2, r4, CMP_TRUE51
-  LLI r6, 0
+  LLI r10, 0
   JMP CMP_END52
 
 CMP_TRUE51:
 
-  LLI r6, 1
+  LLI r10, 1
 CMP_END52:
 
-  BEQ r6, r0, ELSE49
-  LLI r7, 1
-  ADDI r10, r7, 0
+  BEQ r10, r0, ELSE49
+  LLI r12, 1
+  ADDI r9, r12, 0
 ELSE49:
 
-  ADD r9, r5, r12
-  LLI r11, 1
+  ADD r6, r5, r11
+  LLI r7, 1
 WHILE53:
 
-  BEQ r11, r0, WHILE_END54
-  LLI r6, 256
-  MUL r6, r2, r6
-  ADD r6, r6, r1
-  LLI r7, 536870912
-  ADD r7, r7, r6
+  BEQ r7, r0, WHILE_END54
+  LLI r10, 256
+  MUL r10, r2, r10
+  ADD r10, r10, r1
+  LLI r12, 536870912
+  ADD r12, r12, r10
   PUSH r2
   LLI r2, 63
-  SB r2, r7, 0
+  SB r2, r12, 0
   POP r2
   BEQ r1, r3, CMP_TRUE57
-  LLI r7, 0
+  LLI r12, 0
   JMP CMP_END58
 
 CMP_TRUE57:
 
-  LLI r7, 1
+  LLI r12, 1
 CMP_END58:
 
   PUSH r2
@@ -350,25 +346,25 @@ CMP_TRUE59:
   LLI r2, 1
 CMP_END60:
 
-  AND r7, r7, r2
-  BNE r7, r0, CMP_TRUE61
-  LLI r7, 0
+  AND r12, r12, r2
+  BNE r12, r0, CMP_TRUE61
+  LLI r12, 0
   JMP CMP_END62
 
 CMP_TRUE61:
 
-  LLI r7, 1
+  LLI r12, 1
 CMP_END62:
 
   POP r2
-  BEQ r7, r0, ELSE55
-  LLI r7, 0
-  ADDI r11, r7, 0
+  BEQ r12, r0, ELSE55
+  LLI r12, 0
+  ADDI r7, r12, 0
 ELSE55:
 
-  ADD r7, r9, r9
+  ADD r12, r6, r6
   PUSH r2
-  BGE r7, r12, CMP_TRUE65
+  BGE r12, r11, CMP_TRUE65
   LLI r2, 0
   JMP CMP_END66
 
@@ -378,13 +374,13 @@ CMP_TRUE65:
 CMP_END66:
 
   BEQ r2, r0, ELSE63
-  ADD r9, r9, r12
+  ADD r6, r6, r11
   ADD r1, r1, r8
   POP r2
 ELSE63:
 
   PUSH r2
-  BGE r5, r7, CMP_TRUE69
+  BGE r5, r12, CMP_TRUE69
   LLI r2, 0
   JMP CMP_END70
 
@@ -394,10 +390,10 @@ CMP_TRUE69:
 CMP_END70:
 
   BEQ r2, r0, ELSE67
-  ADD r9, r9, r5
+  ADD r6, r6, r5
   POP r2
   PUSH r3
-  ADD r2, r2, r10
+  ADD r2, r2, r9
   POP r3
 ELSE67:
 
@@ -405,8 +401,8 @@ ELSE67:
 
 WHILE_END54:
 
-  LLI r7, 0
-  ADD r1, r7, r0
+  LLI r12, 0
+  ADD r1, r12, r0
   POP r14
   JALR r0, r14, 0
   PUSH r14
