@@ -25,10 +25,10 @@ from __future__ import annotations
 
 import argparse
 import bisect
+import gzip
 import math
 import struct
 import sys
-import zlib
 from dataclasses import dataclass
 from pathlib import Path
 from typing import BinaryIO, List, Sequence, Tuple
@@ -127,8 +127,8 @@ def _read_record_at(f: BinaryIO, record_offset: int) -> BlockRecord:
 def _decode_block_payload(record: BlockRecord) -> bytes:
     if record.flags & COMPRESS_FLAG:
         try:
-            data = zlib.decompress(record.payload)
-        except zlib.error as exc:
+            data = gzip.decompress(record.payload)
+        except (OSError, EOFError) as exc:
             raise ValueError(f"Failed to decompress block {record.block_id}: {exc}") from exc
     else:
         data = record.payload
@@ -147,7 +147,7 @@ def _encode_block_payload(block: bytes, mode: str) -> Tuple[int, bytes]:
     if mode == "never":
         return 0, block
 
-    compressed = zlib.compress(block)
+    compressed = gzip.compress(block)
 
     if mode == "always":
         return COMPRESS_FLAG, compressed

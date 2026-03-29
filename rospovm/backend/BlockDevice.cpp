@@ -174,36 +174,64 @@ void ensure_backing_file_exists(const std::string &path)
 
 std::vector<uint8_t> compress_buffer(const std::vector<uint8_t> &input)
 {
-    uLongf compressedSize = compressBound(static_cast<uLong>(input.size()));
-    std::vector<uint8_t> compressed(static_cast<size_t>(compressedSize));
-
-    const int rc = compress2(
-        compressed.data(),
-        &compressedSize,
-        input.data(),
-        static_cast<uLong>(input.size()),
-        Z_BEST_SPEED
+    z_stream stream{};
+    const int initRc = deflateInit2(
+        &stream,
+        Z_BEST_SPEED,
+        Z_DEFLATED,
+        MAX_WBITS + 16, // gzip stream
+        8,
+        Z_DEFAULT_STRATEGY
     );
-    if (rc != Z_OK) {
+    if (initRc != Z_OK) {
+        throw std::runtime_error("Failed to initialize gzip compressor");
+    }
+
+    std::vector<uint8_t> compressed(compressBound(static_cast<uLong>(input.size())));
+    stream.next_in = const_cast<Bytef *>(reinterpret_cast<const Bytef *>(input.data()));
+    stream.avail_in = static_cast<uInt>(input.size());
+    stream.next_out = reinterpret_cast<Bytef *>(compressed.data());
+    stream.avail_out = static_cast<uInt>(compressed.size());
+
+    const int rc = deflate(&stream, Z_FINISH);
+    if (rc != Z_STREAM_END) {
+        deflateEnd(&stream);
         throw std::runtime_error("Failed to compress block payload");
     }
 
-    compressed.resize(static_cast<size_t>(compressedSize));
+    const int endRc = deflateEnd(&stream);
+    if (endRc != Z_OK) {
+        throw std::runtime_error("Failed to finalize gzip compressor");
+    }
+
+    compressed.resize(static_cast<size_t>(stream.total_out));
     return compressed;
 }
 
 std::vector<uint8_t> decompress_buffer(const std::vector<uint8_t> &input)
 {
+    z_stream stream{};
+    const int initRc = inflateInit2(&stream, MAX_WBITS + 16); // gzip stream
+    if (initRc != Z_OK) {
+        throw std::runtime_error("Failed to initialize gzip decompressor");
+    }
+
     std::vector<uint8_t> output(kBlockSize);
-    uLongf outputSize = static_cast<uLongf>(output.size());
-    const int rc = uncompress(
-        output.data(),
-        &outputSize,
-        input.data(),
-        static_cast<uLong>(input.size())
-    );
-    if (rc != Z_OK || outputSize != kBlockSize) {
+    stream.next_in = const_cast<Bytef *>(reinterpret_cast<const Bytef *>(input.data()));
+    stream.avail_in = static_cast<uInt>(input.size());
+    stream.next_out = reinterpret_cast<Bytef *>(output.data());
+    stream.avail_out = static_cast<uInt>(output.size());
+
+    const int rc = inflate(&stream, Z_FINISH);
+    const bool ok = (rc == Z_STREAM_END) && (stream.total_out == kBlockSize);
+    if (!ok) {
+        inflateEnd(&stream);
         throw std::runtime_error("Failed to decompress block payload");
+    }
+
+    const int endRc = inflateEnd(&stream);
+    if (endRc != Z_OK) {
+        throw std::runtime_error("Failed to finalize gzip decompressor");
     }
     return output;
 }
