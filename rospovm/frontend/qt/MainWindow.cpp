@@ -101,6 +101,10 @@ void MainWindow::createMenuBar()
 
     debugMenu->addSeparator();
 
+    QAction *restartAction = debugMenu->addAction(tr("&Restart"));
+    restartAction->setShortcut(Qt::CTRL | Qt::Key_R);
+    connect(restartAction, &QAction::triggered, this, &MainWindow::onRestart);
+
     QAction *resetAction = debugMenu->addAction(tr("&Reset"));
     resetAction->setShortcut(Qt::CTRL | Qt::Key_Backspace);
     connect(resetAction, &QAction::triggered, this, &MainWindow::onReset);
@@ -162,10 +166,16 @@ void MainWindow::createToolBar()
     connect(pauseAction, &QAction::triggered, this, &MainWindow::onPause);
     pauseAction->setEnabled(false);
 
+    restartAction = toolBar->addAction(tr("Restart"));
+    restartAction->setIcon(style()->standardIcon(QStyle::SP_BrowserReload));
+    restartAction->setShortcut(Qt::CTRL | Qt::Key_R);
+    restartAction->setToolTip(tr("Reload the current binary without clearing memory (Ctrl + R)"));
+    connect(restartAction, &QAction::triggered, this, &MainWindow::onRestart);
+
     resetAction = toolBar->addAction(tr("Reset"));
-    resetAction->setIcon(style()->standardIcon(QStyle::SP_BrowserReload));
+    resetAction->setIcon(style()->standardIcon(QStyle::SP_DialogResetButton));
     resetAction->setShortcut(Qt::CTRL | Qt::Key_Backspace);
-    resetAction->setToolTip(tr("Reset the VM (Ctrl + Backspace)"));
+    resetAction->setToolTip(tr("Hard reset the VM and clear loaded state (Ctrl + Backspace)"));
     connect(resetAction, &QAction::triggered, this, &MainWindow::onReset);
 }
 
@@ -371,10 +381,20 @@ void MainWindow::onPause()
     vmController->pause();
 }
 
+void MainWindow::onRestart()
+{
+    if (vmController->restart()) {
+        statusLabel->setText(tr("Status: VM Restarted (binary reloaded)"));
+    } else {
+        statusLabel->setText(tr("Status: Restart failed"));
+    }
+    onVMStateChanged();
+}
+
 void MainWindow::onReset()
 {
     vmController->reset();
-    statusLabel->setText(tr("Status: VM Reset"));
+    statusLabel->setText(tr("Status: VM Reset (hard)"));
     onVMStateChanged();
 }
 

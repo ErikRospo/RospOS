@@ -26,6 +26,7 @@ public:
     void stepBackward();
     void run();
     void pause();
+    bool restart();
     void reset();
     void setExecutionSpeedLevel(int level);
     bool canStepBackward() const;
@@ -98,6 +99,7 @@ private:
     int speedLevel = 4;
     QElapsedTimer throughputTimer;
     double pendingBurstSteps = 0.0;
+    QString loadedBinaryPath;
     uint32_t codeStartAddress = 0x10000;
     uint32_t codeEndAddress = 0x20000;
 };

@@ -66,6 +66,7 @@ private:
 public:
     bool debugMode;
     RospOSVM(bool debugMode);
+    void resetCpuState();
     void loadBinaryAtAddress(const std::vector<char> &binary, uint32_t address);
     void loadBinaryFromFile(const std::string& filename);
     void step();

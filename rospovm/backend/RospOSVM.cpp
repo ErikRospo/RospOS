@@ -49,6 +49,17 @@ RospOSVM::RospOSVM(bool debugMode)
                            BlockDeviceReadHandler, BlockDeviceWriteHandler);
 }
 
+void RospOSVM::resetCpuState()
+{
+    pc = 0;
+    for (int i = 1; i < 16; ++i) {
+        regFile[i].set(0);
+    }
+    regFile.sp().set(0x0FFFFFFF);
+    clearStateHistory();
+    clearLastMemoryAccess();
+}
+
 void RospOSVM::clearLastMemoryAccess()
 {
     hasLastMemoryAccess = false;
@@ -178,8 +189,7 @@ void RospOSVM::loadBinaryAtAddress(const std::vector<char> &binary, uint32_t add
 
 void RospOSVM::loadBinaryFromFile(const std::string& filename)
 {
-    clearStateHistory();
-    clearLastMemoryAccess();
+    resetCpuState();
 
     // Load the binary file using Binary::load_binary
     try {

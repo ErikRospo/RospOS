@@ -106,6 +106,7 @@ bool VMController::loadBinaryFile(const QString &filePath)
         
         // Use the new loadBinaryFromFile method which loads debug info
         vm->loadBinaryFromFile(path);
+        loadedBinaryPath = filePath;
         
         emit stateChanged();
         emit error(QString("Binary loaded successfully"));
@@ -165,6 +166,31 @@ void VMController::pause()
     emit executionStopped();
 }
 
+bool VMController::restart()
+{
+    executionTimer.stop();
+    running = false;
+    pendingBurstSteps = 0.0;
+    throughputTimer.invalidate();
+
+    if (loadedBinaryPath.isEmpty()) {
+        emit error(QString("No binary loaded to restart"));
+        emit executionStopped();
+        return false;
+    }
+
+    try {
+        vm->loadBinaryFromFile(loadedBinaryPath.toStdString());
+        emit stateChanged();
+        emit executionStopped();
+        return true;
+    } catch (const std::exception &e) {
+        emit error(QString("Failed to restart binary: %1").arg(e.what()));
+        emit executionStopped();
+        return false;
+    }
+}
+
 void VMController::reset()
 {
     executionTimer.stop();
@@ -172,6 +198,7 @@ void VMController::reset()
     running = false;
     pendingBurstSteps = 0.0;
     throughputTimer.invalidate();
+    loadedBinaryPath.clear();
     emit stateChanged();
     emit executionStopped();
 }

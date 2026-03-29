@@ -32,6 +32,7 @@ private slots:
     void onStepBack();
     void onRun();
     void onPause();
+    void onRestart();
     void onReset();
     void onVMStateChanged();
     void onVMError(const QString &message);
@@ -63,6 +64,7 @@ private:
     QAction *stepBackAction;
     QAction *runAction;
     QAction *pauseAction;
+    QAction *restartAction;
     QAction *resetAction;
     QLabel *statusLabel;
     bool hasExecutionError = false;
