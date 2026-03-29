@@ -4,7 +4,9 @@
 
 #include <algorithm>
 #include <array>
+#include <cerrno>
 #include <chrono>
+#include <cstdio>
 #include <cstdint>
 #include <fstream>
 #include <mutex>
@@ -81,6 +83,9 @@ struct BlockDeviceState {
 
 BlockDeviceState g_state;
 std::mutex g_mutex;
+
+BlockRecordMeta read_record_meta_at_offset(const BlockDeviceState &state, uint64_t recordOffset);
+std::vector<uint8_t> read_payload_for_block(const BlockDeviceState &state, const BlockRecordMeta &meta);
 
 template <typename Stream>
 uint32_t read_u32(Stream &stream)
@@ -249,30 +254,81 @@ void ensure_sorted_unique_index(std::vector<BlockIndexEntry> &entries)
 
 void rewrite_index_section(BlockDeviceState &state)
 {
-    std::fstream io(state.backingFilePath, std::ios::binary | std::ios::in | std::ios::out);
-    if (!io) {
-        throw std::runtime_error("Failed to open block-device file for index update");
+    const std::string tempPath = state.backingFilePath + ".tmp";
+
+    std::fstream out(tempPath, std::ios::binary | std::ios::trunc | std::ios::in | std::ios::out);
+    if (!out) {
+        throw std::runtime_error("Failed to create compacted block-device file");
     }
 
-    io.seekp(0, std::ios::end);
-    if (!io) {
-        throw std::runtime_error("Failed to seek end while writing block index");
-    }
+    write_header(out, 0, kHeaderSize);
 
-    const std::streampos indexPos = io.tellp();
-    if (indexPos < 0) {
-        throw std::runtime_error("Failed to get block-index write position");
-    }
-    state.indexOffset = static_cast<uint64_t>(indexPos);
+    std::vector<BlockIndexEntry> compactedIndex;
+    compactedIndex.reserve(state.blockIndex.size());
 
-    write_u32(io, static_cast<uint32_t>(state.blockIndex.size()));
     for (const BlockIndexEntry &entry : state.blockIndex) {
-        write_u32(io, entry.blockId);
-        write_u64(io, entry.recordOffset);
+        const BlockRecordMeta meta = read_record_meta_at_offset(state, entry.recordOffset);
+        const std::vector<uint8_t> payload = read_payload_for_block(state, meta);
+
+        out.seekp(0, std::ios::end);
+        if (!out) {
+            throw std::runtime_error("Failed to seek while compacting block-device file");
+        }
+
+        const std::streampos recordStartPos = out.tellp();
+        if (recordStartPos < 0) {
+            throw std::runtime_error("Failed to determine compacted record offset");
+        }
+        const uint64_t recordOffset = static_cast<uint64_t>(recordStartPos);
+
+        write_u32(out, entry.blockId);
+        write_u32(out, meta.flags);
+        write_u32(out, meta.storedSize);
+        out.write(reinterpret_cast<const char *>(payload.data()), static_cast<std::streamsize>(payload.size()));
+        if (!out) {
+            throw std::runtime_error("Failed to write compacted block payload");
+        }
+
+        compactedIndex.push_back(BlockIndexEntry{entry.blockId, recordOffset});
     }
 
-    state.persistedBlockCount = static_cast<uint32_t>(state.blockIndex.size());
-    write_header(io, state.persistedBlockCount, state.indexOffset);
+    out.seekp(0, std::ios::end);
+    if (!out) {
+        throw std::runtime_error("Failed to seek while writing compacted block index");
+    }
+
+    const std::streampos indexPos = out.tellp();
+    if (indexPos < 0) {
+        throw std::runtime_error("Failed to determine compacted block-index offset");
+    }
+
+    write_u32(out, static_cast<uint32_t>(compactedIndex.size()));
+    for (const BlockIndexEntry &entry : compactedIndex) {
+        write_u32(out, entry.blockId);
+        write_u64(out, entry.recordOffset);
+    }
+
+    const uint64_t compactedIndexOffset = static_cast<uint64_t>(indexPos);
+    const uint32_t compactedCount = static_cast<uint32_t>(compactedIndex.size());
+    write_header(out, compactedCount, compactedIndexOffset);
+    out.flush();
+    if (!out) {
+        throw std::runtime_error("Failed to flush compacted block-device file");
+    }
+
+    out.close();
+
+    if (std::remove(state.backingFilePath.c_str()) != 0 && errno != ENOENT) {
+        throw std::runtime_error("Failed to replace block-device file during compaction");
+    }
+
+    if (std::rename(tempPath.c_str(), state.backingFilePath.c_str()) != 0) {
+        throw std::runtime_error("Failed to activate compacted block-device file");
+    }
+
+    state.blockIndex = std::move(compactedIndex);
+    state.persistedBlockCount = compactedCount;
+    state.indexOffset = compactedIndexOffset;
 }
 
 void load_index(BlockDeviceState &state, std::ifstream &in, uint32_t declaredCount)
@@ -506,7 +562,7 @@ void upsert_block_index_entry(BlockDeviceState &state, uint32_t blockId, uint64_
     state.persistedBlockCount = static_cast<uint32_t>(state.blockIndex.size());
 }
 
-void persist_block(uint32_t blockId, const std::array<uint8_t, kBlockSize> &block)
+void persist_block(uint32_t blockId, const std::array<uint8_t, kBlockSize> &block, bool compactAfterWrite)
 {
     std::vector<uint8_t> raw(block.begin(), block.end());
     std::vector<uint8_t> compressed = compress_buffer(raw);
@@ -545,10 +601,12 @@ void persist_block(uint32_t blockId, const std::array<uint8_t, kBlockSize> &bloc
 
     upsert_block_index_entry(g_state, blockId, recordOffset);
 
-    if (g_state.fileVersion == kBlockDeviceVersion) {
-        rewrite_index_section(g_state);
-    } else {
+    if (g_state.fileVersion != kBlockDeviceVersion) {
         throw std::runtime_error("Unsupported block-device file version for persistence");
+    }
+
+    if (compactAfterWrite) {
+        rewrite_index_section(g_state);
     }
 }
 
@@ -612,7 +670,13 @@ void execute_write_command()
         for (uint32_t j = 0; j < kBlockSize; ++j) {
             block[j] = g_state.memory->readByte(baseAddr + j);
         }
-        persist_block(id, block);
+        persist_block(id, block, false);
+    }
+
+    if (g_state.fileVersion == kBlockDeviceVersion) {
+        rewrite_index_section(g_state);
+    } else {
+        throw std::runtime_error("Unsupported block-device file version for persistence");
     }
 
     set_data_ready(false);
