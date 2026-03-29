@@ -11,7 +11,7 @@
 
 namespace {
 
-constexpr uint32_t kSourceLineSearchRadius = 10;
+constexpr uint32_t kSourceLineSearchRadius = 32;
 
 QString normalizeSourceLine(const QString &line)
 {
@@ -65,12 +65,19 @@ bool tryResolveNearbySourceLine(
         return normalizedSource == normalizedExpected;
     };
 
+    bool found = false;
+    uint32_t bestLine = 0;
+    uint32_t bestDistance = 0;
+
     for (uint32_t offset = 0; offset <= kSourceLineSearchRadius; ++offset) {
         if (centerLine > offset) {
             const uint32_t upLine = centerLine - offset;
             if (lineMatches(upLine)) {
-                resolvedLine = upLine;
-                return true;
+                if (!found || offset < bestDistance) {
+                    found = true;
+                    bestLine = upLine;
+                    bestDistance = offset;
+                }
             }
         }
 
@@ -80,12 +87,20 @@ bool tryResolveNearbySourceLine(
 
         const uint32_t downLine = centerLine + offset;
         if (downLine <= lineCount && lineMatches(downLine)) {
-            resolvedLine = downLine;
-            return true;
+            if (!found || offset < bestDistance) {
+                found = true;
+                bestLine = downLine;
+                bestDistance = offset;
+            }
         }
     }
 
-    return false;
+    if (!found) {
+        return false;
+    }
+
+    resolvedLine = bestLine;
+    return true;
 }
 
 } // namespace

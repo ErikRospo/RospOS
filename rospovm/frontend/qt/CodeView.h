@@ -62,8 +62,8 @@ private:
     QMap<uint32_t, int> addressToLine;  // Maps code address to line number
     QMap<int, uint32_t> lineToAddress;  // Reverse map for hover lookups
 
-    const int NUM_INSTRUCTIONS = 128;
-    const int INSTRUCTIONS_BEFORE_PC = 32;  // Show 32 instructions before PC
+    const int NUM_INSTRUCTIONS = 256;
+    const int INSTRUCTIONS_BEFORE_PC = 64;  // Show 64 instructions before PC
 };
 
 #endif // CODE_VIEW_H
