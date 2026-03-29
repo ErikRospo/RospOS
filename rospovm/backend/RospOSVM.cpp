@@ -1,6 +1,7 @@
 #include "RospOSVM.h"
 
 #include <cstdint>
+#include <cstdlib>
 #include <fstream>
 #include <iomanip>
 #include <iostream>
@@ -13,6 +14,7 @@
 #include "InstructionDecoder.h"
 #include "Logger.h"
 #include "Memory.h"
+#include "BlockDevice.h"
 #include "Shutdown.h"
 #include "TTY.h"
 
@@ -34,6 +36,17 @@ RospOSVM::RospOSVM(bool debugMode)
     memory.addSpecialRange("DISP", 0x20000000, 0x2000FFFF, 
                            SpecialMemoryRange::Type::MMIO, true, true,
                            VMDisplay::displayReadHandler, VMDisplay::displayWriteHandler);
+
+    // Setup Block Device MMIO range
+    const char *blockDevicePath = std::getenv("ROSPOS_BLOCK_DEVICE_FILE");
+    std::string resolvedBlockDevicePath =
+        (blockDevicePath != nullptr && blockDevicePath[0] != '\0')
+        ? std::string(blockDevicePath)
+        : std::string("rospos.blockdev");
+    BlockDeviceInitialize(&memory, resolvedBlockDevicePath);
+    memory.addSpecialRange("BLK ", 0x40000000, 0x400000FF,
+                           SpecialMemoryRange::Type::MMIO, true, true,
+                           BlockDeviceReadHandler, BlockDeviceWriteHandler);
 }
 
 void RospOSVM::clearLastMemoryAccess()

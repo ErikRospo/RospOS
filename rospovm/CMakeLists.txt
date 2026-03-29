@@ -41,6 +41,8 @@ add_library(rosposvm_lib STATIC
     backend/DebugParser.h
     backend/Display.cpp
     backend/Display.h
+    backend/BlockDevice.cpp
+    backend/BlockDevice.h
     backend/Shutdown.cpp
     backend/Shutdown.h
     backend/Logger.cpp
