@@ -7,6 +7,67 @@ class ExpressionTransformer:
     def __init__(self, ctx):
         self.ctx = ctx
 
+    @staticmethod
+    def _is_const(expr):
+        return isinstance(expr, dict) and expr.get("type") == "const"
+
+    def _fold_binop(self, op, left, right):
+        if not (self._is_const(left) and self._is_const(right)):
+            return {"type": "binop", "op": op, "left": left, "right": right}
+
+        lv = int(left.get("value", 0))
+        rv = int(right.get("value", 0))
+
+        try:
+            if op == "plus":
+                return {"type": "const", "value": lv + rv}
+            if op == "minus":
+                return {"type": "const", "value": lv - rv}
+            if op == "mult":
+                return {"type": "const", "value": lv * rv}
+            if op == "div":
+                if rv == 0:
+                    return {"type": "binop", "op": op, "left": left, "right": right}
+                return {"type": "const", "value": lv // rv}
+            if op == "mod":
+                if rv == 0:
+                    return {"type": "binop", "op": op, "left": left, "right": right}
+                return {"type": "const", "value": lv % rv}
+            if op == "and":
+                return {"type": "const", "value": lv & rv}
+            if op == "or":
+                return {"type": "const", "value": lv | rv}
+            if op == "xor":
+                return {"type": "const", "value": lv ^ rv}
+            if op == "lshift":
+                if rv < 0:
+                    return {"type": "binop", "op": op, "left": left, "right": right}
+                return {"type": "const", "value": lv << rv}
+            if op == "rshift":
+                if rv < 0:
+                    return {"type": "binop", "op": op, "left": left, "right": right}
+                return {"type": "const", "value": lv >> rv}
+            if op == "lt":
+                return {"type": "const", "value": 1 if lv < rv else 0}
+            if op == "lte":
+                return {"type": "const", "value": 1 if lv <= rv else 0}
+            if op == "gt":
+                return {"type": "const", "value": 1 if lv > rv else 0}
+            if op == "gte":
+                return {"type": "const", "value": 1 if lv >= rv else 0}
+            if op == "eq":
+                return {"type": "const", "value": 1 if lv == rv else 0}
+            if op == "neq":
+                return {"type": "const", "value": 1 if lv != rv else 0}
+            if op == "land":
+                return {"type": "const", "value": 1 if (lv != 0 and rv != 0) else 0}
+            if op == "lor":
+                return {"type": "const", "value": 1 if (lv != 0 or rv != 0) else 0}
+        except Exception:
+            pass
+
+        return {"type": "binop", "op": op, "left": left, "right": right}
+
     def _fold_left_binops(self, children):
         if not children:
             return None
@@ -24,12 +85,7 @@ class ExpressionTransformer:
             if op_name is None or left is None or right is None:
                 i += 2
                 continue
-            left = {
-                "type": "binop",
-                "op": op_name,
-                "left": left,
-                "right": right,
-            }
+            left = self._fold_binop(op_name, left, right)
             i += 2
 
         return left
@@ -69,12 +125,7 @@ class ExpressionTransformer:
             if op_name is None:
                 continue
 
-            left = {
-                "type": "binop",
-                "op": op_name,
-                "left": left,
-                "right": expr,
-            }
+            left = self._fold_binop(op_name, left, expr)
             pending_op = None
 
         return left
@@ -169,21 +220,15 @@ class ExpressionTransformer:
                 elif first["node"] == "uminus":
                     inner = self.from_node(children[1])
                     if inner:
-                        return {
-                            "type": "binop",
-                            "op": "minus",
-                            "left": {"type": "const", "value": 0},
-                            "right": inner,
-                        }
+                        return self._fold_binop(
+                            "minus", {"type": "const", "value": 0}, inner
+                        )
                 elif first["node"] == "uplus":
                     inner = self.from_node(children[1])
                     if inner:
-                        return {
-                            "type": "binop",
-                            "op": "plus",
-                            "left": {"type": "const", "value": 0},
-                            "right": inner,
-                        }
+                        return self._fold_binop(
+                            "plus", {"type": "const", "value": 0}, inner
+                        )
                 elif first["node"] == "not":
                     inner = self.from_node(children[1])
                     if inner:
@@ -191,12 +236,9 @@ class ExpressionTransformer:
                 elif first["node"] == "bitnot":
                     inner = self.from_node(children[1])
                     if inner:
-                        return {
-                            "type": "binop",
-                            "op": "xor",
-                            "left": {"type": "const", "value": 0xFFFF_FFFF},
-                            "right": inner,
-                        }
+                        return self._fold_binop(
+                            "xor", {"type": "const", "value": 0xFFFF_FFFF}, inner
+                        )
 
             return self.from_node(children[-1])
 
@@ -276,12 +318,7 @@ class ExpressionTransformer:
                     if result is not None and index_expr is not None:
                         result = {
                             "type": "deref",
-                            "expr": {
-                                "type": "binop",
-                                "op": "plus",
-                                "left": result,
-                                "right": index_expr,
-                            },
+                            "expr": self._fold_binop("plus", result, index_expr),
                         }
                     continue
 
