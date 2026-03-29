@@ -743,7 +743,7 @@ class Emitter:
         
         # Skip inline functions - they will be inlined at call sites
         if fn.get("inline"):
-            out.write(f"// Inline function '{name}' skipped (will be inlined at call sites)\n")
+            out.write(f"// Inline function definition '{name}' skipped (will be inlined at call sites)\n\n")
             return
 
         # Set source context for function definition
@@ -827,7 +827,8 @@ class Emitter:
                 self.emit_statement(stmt, out)
         finally:
             self.exit_var_scope()
-
+        if name == "main":
+            out.write(f"  BREAK")
         # If no return was emitted in the body, emit epilogue and return 0
         if not self.had_return:
             # Clear source context for epilogue
@@ -837,12 +838,8 @@ class Emitter:
             out.write(
                 f"  ADDI {abi.RETURN_REG}, {abi.SPECIAL_REGS['zero']}, 0  // ensure r1=0\n"
             )
-            # Use BREAK for main function, RET for others
-            if name == "main":
-                out.write(f"  BREAK    // exit from main\n\n")
-            else:
-                out.write(f"  POP {abi.LINK_REG}\n")
-                out.write(f"  RET\n\n")
+            out.write(f"  POP {abi.LINK_REG}\n")
+            out.write(f"  RET\n\n")
         else:
             # already emitted return(s); do not append another epilogue/RET
             out.write("\n")
