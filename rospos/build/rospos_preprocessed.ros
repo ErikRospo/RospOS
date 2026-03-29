@@ -651,31 +651,22 @@ WHILE_END111:
   POP r14
   RET
 
-.FUNC add:
-  PUSH r14
-  ADD r2, r1, r2    // binop +
-  ADD r1, r2, r0
-  POP r14
-  RET
-
+// Inline function 'add' skipped (will be inlined at call sites)
 .FUNC old_main:
   PUSH r14
   LLI r2, 5    // init x
   LLI r3, 10    // init y
   LLI r4, 0    // zero init result
-  // emit call to add with args [{'type': 'var', 'name': 'x'}, {'type': 'var', 'name': 'y'}]
+  // inline call to add with args [{'type': 'var', 'name': 'x'}, {'type': 'var', 'name': 'y'}]
+  // begin inline expansion of add
+  ADD r5, r2, r3    // binop +
+  ADD r1, r5, r0
+  // inline function return (no RET emitted)
+  ADDI r4, r1, 0    // move inline return value
+  // end inline expansion of add
+  // emit call to print_string with args [{'type': 'string_addr', 'label': 'str_0'}]
   PUSH r2    // save caller temp
   PUSH r3    // save caller temp
-  PUSH r4    // save caller temp
-  ADDI r1, r2, 0    // move arg 0
-  ADDI r2, r3, 0    // move arg 1
-  CALL add
-  // call return value in r1
-  POP r4    // restore caller temp
-  POP r3    // restore caller temp
-  POP r2    // restore caller temp
-  ADDI r4, r1, 0    // move return value
-  // emit call to print_string with args [{'type': 'string_addr', 'label': 'str_0'}]
   PUSH r4    // save caller temp
   PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
   LLI r1, str_0    // load immediate str_0
@@ -683,7 +674,11 @@ WHILE_END111:
   // call return value in r1
   POP r1  
   POP r4    // restore caller temp
+  POP r3    // restore caller temp
+  POP r2    // restore caller temp
   // emit call to printi with args [{'type': 'var', 'name': 'result'}]
+  PUSH r2    // save caller temp
+  PUSH r3    // save caller temp
   PUSH r4    // save caller temp
   PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
   ADDI r1, r4, 0    // move arg 0
@@ -691,35 +686,43 @@ WHILE_END111:
   // call return value in r1
   POP r1  
   POP r4    // restore caller temp
-  LLI r5, p1_struct112    // init p1 (struct Point addr)
-  LLI r6, s_struct113    // init s (struct Size addr)
-  LLI r7, 10    // load immediate 10
-  SW r7, r5, 0    // store p1.x
-  LLI r8, 20    // load immediate 20
-  SW r8, r5, 4    // store p1.y
-  LLI r9, 640    // load immediate 640
-  SW r9, r6, 0    // store s.width
-  LLI r10, 480    // load immediate 480
-  SW r10, r6, 4    // store s.height
-  LLI r11, 0    // zero init sum
+  POP r3    // restore caller temp
+  POP r2    // restore caller temp
+  LLI r6, p1_struct112    // init p1 (struct Point addr)
+  LLI r7, s_struct113    // init s (struct Size addr)
+  LLI r8, 10    // load immediate 10
+  SW r8, r6, 0    // store p1.x
+  LLI r9, 20    // load immediate 20
+  SW r9, r6, 4    // store p1.y
+  LLI r10, 640    // load immediate 640
+  SW r10, r7, 0    // store s.width
+  LLI r11, 480    // load immediate 480
+  SW r11, r7, 4    // store s.height
+  LLI r12, 0    // zero init sum
   // emit call to add_coords with args [{'type': 'var', 'name': 'p1'}]
-  PUSH r5    // save caller temp
+  PUSH r2    // save caller temp
+  PUSH r3    // save caller temp
   PUSH r6    // save caller temp
-  PUSH r11    // save caller temp
-  ADDI r1, r5, 0    // move arg 0
+  PUSH r7    // save caller temp
+  PUSH r12    // save caller temp
+  ADDI r1, r6, 0    // move arg 0
   CALL add_coords
   // call return value in r1
-  POP r11    // restore caller temp
+  POP r12    // restore caller temp
+  POP r7    // restore caller temp
   POP r6    // restore caller temp
-  POP r5    // restore caller temp
-  ADDI r11, r1, 0    // move return value
-  LW r12, r6, 0    // load s.width
-  LW r2, r6, 4    // load s.height
-  MUL r12, r12, r2    // binop *
+  POP r3    // restore caller temp
+  POP r2    // restore caller temp
+  ADDI r12, r1, 0    // move return value
+  LW r5, r7, 0    // load s.width
+  LW r4, r7, 4    // load s.height
+  MUL r5, r5, r4    // binop *
   // emit call to print_string with args [{'type': 'string_addr', 'label': 'str_1'}]
+  PUSH r2    // save caller temp
+  PUSH r3    // save caller temp
   PUSH r5    // save caller temp
   PUSH r6    // save caller temp
-  PUSH r11    // save caller temp
+  PUSH r7    // save caller temp
   PUSH r12    // save caller temp
   PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
   LLI r1, str_1    // load immediate str_1
@@ -727,38 +730,17 @@ WHILE_END111:
   // call return value in r1
   POP r1  
   POP r12    // restore caller temp
-  POP r11    // restore caller temp
+  POP r7    // restore caller temp
   POP r6    // restore caller temp
   POP r5    // restore caller temp
+  POP r3    // restore caller temp
+  POP r2    // restore caller temp
   // emit call to printi with args [{'type': 'var', 'name': 'sum'}]
+  PUSH r2    // save caller temp
+  PUSH r3    // save caller temp
   PUSH r5    // save caller temp
   PUSH r6    // save caller temp
-  PUSH r11    // save caller temp
-  PUSH r12    // save caller temp
-  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  ADDI r1, r11, 0    // move arg 0
-  CALL printi
-  // call return value in r1
-  POP r1  
-  POP r12    // restore caller temp
-  POP r11    // restore caller temp
-  POP r6    // restore caller temp
-  POP r5    // restore caller temp
-  // emit call to print_string with args [{'type': 'string_addr', 'label': 'str_2'}]
-  PUSH r5    // save caller temp
-  PUSH r6    // save caller temp
-  PUSH r12    // save caller temp
-  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  LLI r1, str_2    // load immediate str_2
-  CALL print_string
-  // call return value in r1
-  POP r1  
-  POP r12    // restore caller temp
-  POP r6    // restore caller temp
-  POP r5    // restore caller temp
-  // emit call to printi with args [{'type': 'var', 'name': 'area'}]
-  PUSH r5    // save caller temp
-  PUSH r6    // save caller temp
+  PUSH r7    // save caller temp
   PUSH r12    // save caller temp
   PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
   ADDI r1, r12, 0    // move arg 0
@@ -766,12 +748,43 @@ WHILE_END111:
   // call return value in r1
   POP r1  
   POP r12    // restore caller temp
+  POP r7    // restore caller temp
   POP r6    // restore caller temp
   POP r5    // restore caller temp
-  // epilogue and return
-  ADDI r1, r0, 0  // ensure r1=0
-  POP r14
-  RET
+  POP r3    // restore caller temp
+  POP r2    // restore caller temp
+  // emit call to print_string with args [{'type': 'string_addr', 'label': 'str_2'}]
+  PUSH r2    // save caller temp
+  PUSH r3    // save caller temp
+  PUSH r5    // save caller temp
+  PUSH r6    // save caller temp
+  PUSH r7    // save caller temp
+  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
+  LLI r1, str_2    // load immediate str_2
+  CALL print_string
+  // call return value in r1
+  POP r1  
+  POP r7    // restore caller temp
+  POP r6    // restore caller temp
+  POP r5    // restore caller temp
+  POP r3    // restore caller temp
+  POP r2    // restore caller temp
+  // emit call to printi with args [{'type': 'var', 'name': 'area'}]
+  PUSH r2    // save caller temp
+  PUSH r3    // save caller temp
+  PUSH r5    // save caller temp
+  PUSH r6    // save caller temp
+  PUSH r7    // save caller temp
+  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
+  ADDI r1, r5, 0    // move arg 0
+  CALL printi
+  // call return value in r1
+  POP r1  
+  POP r7    // restore caller temp
+  POP r6    // restore caller temp
+  POP r5    // restore caller temp
+  POP r3    // restore caller temp
+  POP r2    // restore caller temp
 
 .FUNC main:
   PUSH r14
@@ -834,9 +847,25 @@ WHILE_END111:
   // call return value in r1
   ADDI r15, r15, 8    // discard overflow arg slots
   POP r1  
-  // epilogue and return
-  ADDI r1, r0, 0  // ensure r1=0
-  BREAK    // exit from main
+  LLI r4, 0    // zero init r1
+  // inline call to add with args [{'type': 'const', 'value': 15}, {'type': 'const', 'value': 25}]
+  // begin inline expansion of add
+  LLI r5, 15    // load immediate 15
+  LLI r6, 25    // load immediate 25
+  ADD r7, r5, r6    // binop +
+  ADD r1, r7, r0
+  // inline function return (no RET emitted)
+  ADDI r4, r1, 0    // move inline return value
+  // end inline expansion of add
+  LLI r8, 50    // init r2
+  LLI r9, 0    // zero init r3
+  // inline call to add with args [{'type': 'var', 'name': 'r1'}, {'type': 'var', 'name': 'r2'}]
+  // begin inline expansion of add
+  ADD r10, r4, r8    // binop +
+  ADD r1, r10, r0
+  // inline function return (no RET emitted)
+  ADDI r9, r1, 0    // move inline return value
+  // end inline expansion of add
 
 
 // Globals

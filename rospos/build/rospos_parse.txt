@@ -3147,35 +3147,6 @@ program
   codeline
     directiveuse
       func
-        label	add:
-  codeline
-    instruction
-      push
-        register	r14
-  codeline
-    instruction
-      rinstructuse
-        add
-        register	r2
-        register	r1
-        register	r2
-  codeline
-    instruction
-      rinstructuse
-        add
-        register	r1
-        register	r2
-        register	r0
-  codeline
-    instruction
-      pop
-        register	r14
-  codeline
-    instruction
-      retpseudo
-  codeline
-    directiveuse
-      func
         label	old_main:
   codeline
     instruction
@@ -3198,47 +3169,18 @@ program
         imm	0
   codeline
     instruction
-      push
+      rinstructuse
+        add
+        register	r5
         register	r2
-  codeline
-    instruction
-      push
         register	r3
   codeline
     instruction
-      push
-        register	r4
-  codeline
-    instruction
-      iinstructuse
-        addi
+      rinstructuse
+        add
         register	r1
-        register	r2
-        imm	0
-  codeline
-    instruction
-      iinstructuse
-        addi
-        register	r2
-        register	r3
-        imm	0
-  codeline
-    instruction
-      callpseudo
-        imm
-          labeluse	add
-  codeline
-    instruction
-      pop
-        register	r4
-  codeline
-    instruction
-      pop
-        register	r3
-  codeline
-    instruction
-      pop
-        register	r2
+        register	r5
+        register	r0
   codeline
     instruction
       iinstructuse
@@ -3246,6 +3188,14 @@ program
         register	r4
         register	r1
         imm	0
+  codeline
+    instruction
+      push
+        register	r2
+  codeline
+    instruction
+      push
+        register	r3
   codeline
     instruction
       push
@@ -3273,6 +3223,22 @@ program
     instruction
       pop
         register	r4
+  codeline
+    instruction
+      pop
+        register	r3
+  codeline
+    instruction
+      pop
+        register	r2
+  codeline
+    instruction
+      push
+        register	r2
+  codeline
+    instruction
+      push
+        register	r3
   codeline
     instruction
       push
@@ -3303,73 +3269,85 @@ program
         register	r4
   codeline
     instruction
+      pop
+        register	r3
+  codeline
+    instruction
+      pop
+        register	r2
+  codeline
+    instruction
       lli
-        register	r5
+        register	r6
         imm
           labeluse	p1_struct112
   codeline
     instruction
       lli
-        register	r6
+        register	r7
         imm
           labeluse	s_struct113
   codeline
     instruction
       lli
-        register	r7
+        register	r8
         imm	10
   codeline
     instruction
       lsinstructuse
         sw
-        register	r7
-        register	r5
+        register	r8
+        register	r6
         imm	0
   codeline
     instruction
       lli
-        register	r8
+        register	r9
         imm	20
   codeline
     instruction
       lsinstructuse
         sw
-        register	r8
-        register	r5
+        register	r9
+        register	r6
         imm	4
   codeline
     instruction
       lli
-        register	r9
+        register	r10
         imm	640
   codeline
     instruction
       lsinstructuse
         sw
-        register	r9
-        register	r6
+        register	r10
+        register	r7
         imm	0
   codeline
     instruction
       lli
-        register	r10
+        register	r11
         imm	480
   codeline
     instruction
       lsinstructuse
         sw
-        register	r10
-        register	r6
+        register	r11
+        register	r7
         imm	4
   codeline
     instruction
       lli
-        register	r11
+        register	r12
         imm	0
   codeline
     instruction
       push
-        register	r5
+        register	r2
+  codeline
+    instruction
+      push
+        register	r3
   codeline
     instruction
       push
@@ -3377,13 +3355,17 @@ program
   codeline
     instruction
       push
-        register	r11
+        register	r7
+  codeline
+    instruction
+      push
+        register	r12
   codeline
     instruction
       iinstructuse
         addi
         register	r1
-        register	r5
+        register	r6
         imm	0
   codeline
     instruction
@@ -3393,7 +3375,11 @@ program
   codeline
     instruction
       pop
-        register	r11
+        register	r12
+  codeline
+    instruction
+      pop
+        register	r7
   codeline
     instruction
       pop
@@ -3401,35 +3387,47 @@ program
   codeline
     instruction
       pop
-        register	r5
+        register	r3
+  codeline
+    instruction
+      pop
+        register	r2
   codeline
     instruction
       iinstructuse
         addi
-        register	r11
+        register	r12
         register	r1
         imm	0
   codeline
     instruction
       lsinstructuse
         lw
-        register	r12
-        register	r6
+        register	r5
+        register	r7
         imm	0
   codeline
     instruction
       lsinstructuse
         lw
-        register	r2
-        register	r6
+        register	r4
+        register	r7
         imm	4
   codeline
     instruction
       rinstructuse
         mul
-        register	r12
-        register	r12
+        register	r5
+        register	r5
+        register	r4
+  codeline
+    instruction
+      push
         register	r2
+  codeline
+    instruction
+      push
+        register	r3
   codeline
     instruction
       push
@@ -3441,7 +3439,7 @@ program
   codeline
     instruction
       push
-        register	r11
+        register	r7
   codeline
     instruction
       push
@@ -3472,7 +3470,7 @@ program
   codeline
     instruction
       pop
-        register	r11
+        register	r7
   codeline
     instruction
       pop
@@ -3483,6 +3481,22 @@ program
         register	r5
   codeline
     instruction
+      pop
+        register	r3
+  codeline
+    instruction
+      pop
+        register	r2
+  codeline
+    instruction
+      push
+        register	r2
+  codeline
+    instruction
+      push
+        register	r3
+  codeline
+    instruction
       push
         register	r5
   codeline
@@ -3492,7 +3506,7 @@ program
   codeline
     instruction
       push
-        register	r11
+        register	r7
   codeline
     instruction
       push
@@ -3506,7 +3520,7 @@ program
       iinstructuse
         addi
         register	r1
-        register	r11
+        register	r12
         imm	0
   codeline
     instruction
@@ -3524,7 +3538,7 @@ program
   codeline
     instruction
       pop
-        register	r11
+        register	r7
   codeline
     instruction
       pop
@@ -3535,6 +3549,22 @@ program
         register	r5
   codeline
     instruction
+      pop
+        register	r3
+  codeline
+    instruction
+      pop
+        register	r2
+  codeline
+    instruction
+      push
+        register	r2
+  codeline
+    instruction
+      push
+        register	r3
+  codeline
+    instruction
       push
         register	r5
   codeline
@@ -3544,7 +3574,7 @@ program
   codeline
     instruction
       push
-        register	r12
+        register	r7
   codeline
     instruction
       push
@@ -3567,7 +3597,7 @@ program
   codeline
     instruction
       pop
-        register	r12
+        register	r7
   codeline
     instruction
       pop
@@ -3578,6 +3608,22 @@ program
         register	r5
   codeline
     instruction
+      pop
+        register	r3
+  codeline
+    instruction
+      pop
+        register	r2
+  codeline
+    instruction
+      push
+        register	r2
+  codeline
+    instruction
+      push
+        register	r3
+  codeline
+    instruction
       push
         register	r5
   codeline
@@ -3587,7 +3633,7 @@ program
   codeline
     instruction
       push
-        register	r12
+        register	r7
   codeline
     instruction
       push
@@ -3597,7 +3643,7 @@ program
       iinstructuse
         addi
         register	r1
-        register	r12
+        register	r5
         imm	0
   codeline
     instruction
@@ -3611,7 +3657,7 @@ program
   codeline
     instruction
       pop
-        register	r12
+        register	r7
   codeline
     instruction
       pop
@@ -3622,18 +3668,12 @@ program
         register	r5
   codeline
     instruction
-      iinstructuse
-        addi
-        register	r1
-        register	r0
-        imm	0
+      pop
+        register	r3
   codeline
     instruction
       pop
-        register	r14
-  codeline
-    instruction
-      retpseudo
+        register	r2
   codeline
     directiveuse
       func
@@ -3872,15 +3912,71 @@ program
         register	r1
   codeline
     instruction
-      iinstructuse
-        addi
-        register	r1
-        register	r0
+      lli
+        register	r4
         imm	0
   codeline
     instruction
-      systeminstructuse
-        break
+      lli
+        register	r5
+        imm	15
+  codeline
+    instruction
+      lli
+        register	r6
+        imm	25
+  codeline
+    instruction
+      rinstructuse
+        add
+        register	r7
+        register	r5
+        register	r6
+  codeline
+    instruction
+      rinstructuse
+        add
+        register	r1
+        register	r7
+        register	r0
+  codeline
+    instruction
+      iinstructuse
+        addi
+        register	r4
+        register	r1
+        imm	0
+  codeline
+    instruction
+      lli
+        register	r8
+        imm	50
+  codeline
+    instruction
+      lli
+        register	r9
+        imm	0
+  codeline
+    instruction
+      rinstructuse
+        add
+        register	r10
+        register	r4
+        register	r8
+  codeline
+    instruction
+      rinstructuse
+        add
+        register	r1
+        register	r10
+        register	r0
+  codeline
+    instruction
+      iinstructuse
+        addi
+        register	r9
+        register	r1
+        imm	0
   codeline
     label	font_address:
   codeline

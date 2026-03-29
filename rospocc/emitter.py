@@ -42,6 +42,10 @@ class Emitter:
         self.struct_types = {}
         # collected global space directives for lifted large buffers
         self.global_spaces = []
+        # inline functions: name -> function definition
+        self.inline_functions = {}
+        # inline constants: name -> constant value
+        self.inline_constants = {}
         # intrinsic handlers: name -> callable(args, out)
         self.intrinsics = {
             "__lb": self._intrinsic_lb,
@@ -73,6 +77,10 @@ class Emitter:
         self._protected_var_depth = {}
         # Stack of block scopes used to release block-local declarations safely.
         self._var_scope_stack = []
+        # Flag to indicate we're inside an inline function expansion
+        self._in_inline_context = False
+        # Target register for inline function return value
+        self._inline_return_target = None
 
     def _get_source_text(self, line_num: int) -> str:
         """Get the source text for a given line number (1-indexed)."""
@@ -117,11 +125,22 @@ class Emitter:
             if g.get("kind") == "blob":
                 self.global_types[g.get("name")] = "char_ptr"
                 self.global_value_inits[g.get("name")] = g.get("name")
+            if g.get("kind") == "inline_const":
+                # Store inline constants for lookup during expression evaluation
+                name = g.get("name")
+                value = g.get("value")
+                self.inline_constants[name] = value
+                self.var_types[name] = g.get("type", "int")
+        
         for fn in ast.get("functions", []):
             name = fn.get("name")
             return_type = fn.get("return_type")
             if name and return_type:
                 self.func_return_types[name] = return_type
+            # Collect inline functions for inlining at call sites
+            if fn.get("inline"):
+                self.inline_functions[name] = fn
+        
         # Collect struct type definitions
         for typ in ast.get("types", []):
             if typ.get("kind") == "struct":
@@ -685,6 +704,13 @@ class Emitter:
         return str(regalloc_path)
 
     def emit_global_declaration(self, g: Dict[str, Any], out):
+        # Skip inline constants - they are substituted at compile time
+        if g.get("kind") == "inline_const":
+            name = g.get("name")
+            value = g.get("value")
+            out.write(f"// Inline constant '{name}' = {value} (substituted at compile time)\n")
+            return
+        
         # Starter supports simple string/global labels
         if g.get("kind") == "string":
             lbl = g.get("name") or self.gen_label("str")
@@ -714,6 +740,11 @@ class Emitter:
 
     def emit_function_def(self, fn: Dict[str, Any], out):
         name = fn.get("name", "fn")
+        
+        # Skip inline functions - they will be inlined at call sites
+        if fn.get("inline"):
+            out.write(f"// Inline function '{name}' skipped (will be inlined at call sites)\n")
+            return
 
         # Set source context for function definition
         self._set_source_context(fn, out)

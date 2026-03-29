@@ -49,8 +49,12 @@ class TranslationUnitTransformer:
         param_types = {}
         return_type = None
         body_node = None
+        is_inline = False
 
         for child in children:
+            # Check for inline keyword (token with value "inline")
+            if isinstance(child, dict) and child.get("token") == "inline":
+                is_inline = True
             if isinstance(child, dict) and child.get("node") == "type_specifier":
                 print("type_specifier children:", child.get("children", []))
                 for type_child in child.get("children", []):
@@ -74,6 +78,8 @@ class TranslationUnitTransformer:
             fn["param_types"] = param_types
         if return_type:
             fn["return_type"] = return_type
+        if is_inline:
+            fn["inline"] = True
         fn["_line"] = node.get("_line")
         self.ctx.tu["functions"].append(fn)
         return [None]
@@ -312,7 +318,12 @@ class TranslationUnitTransformer:
         t_spec = None
         t_pointer_count = 0
         init_list = None
+        is_inline = False
+        
         for child in children:
+            # Check for inline keyword (token with value "inline")
+            if isinstance(child, dict) and child.get("token") == "inline":
+                is_inline = True
             if isinstance(child, dict) and child.get("node") == "type_specifier":
                 t_spec, t_pointer_count = self._parse_type_specifier(child)
             if isinstance(child, dict) and child.get("node") == "init_declarator_list":
@@ -366,6 +377,7 @@ class TranslationUnitTransformer:
                         "value": blob_bytes,
                         "size": len(blob_bytes),
                         "source_path": str(path_obj),
+                        "inline": is_inline,
                     }
                 )
                 continue
@@ -373,7 +385,46 @@ class TranslationUnitTransformer:
             if t_spec == "char" and total_pointer_count == 0:
                 str_value = self._extract_string_literal(init_node)
                 if str_value is not None:
-                    self.ctx.tu["globals"].append(
-                        {"kind": "string", "name": name, "value": str_value}
-                    )
+                    global_entry = {"kind": "string", "name": name, "value": str_value}
+                    if is_inline:
+                        global_entry["inline"] = True
+                    self.ctx.tu["globals"].append(global_entry)
+                    continue
+            
+            # Handle inline constant variables (int, char, etc.)
+            if is_inline and total_pointer_count == 0:
+                const_value = self._extract_const_value(init_node)
+                if const_value is not None:
+                    global_entry = {
+                        "kind": "inline_const",
+                        "name": name,
+                        "value": const_value,
+                        "type": t_spec,
+                        "inline": True,
+                    }
+                    self.ctx.tu["globals"].append(global_entry)
+                    continue
         return []
+    
+    def _extract_const_value(self, node):
+        """Extract a compile-time constant value from an expression node."""
+        if not isinstance(node, dict):
+            return None
+        
+        # Check for simple numeric constant
+        if "token" in node:
+            token = node.get("token")
+            if isinstance(token, str):
+                # Try to parse as integer
+                try:
+                    return int(token, 0)
+                except ValueError:
+                    pass
+        
+        # Recursively check children
+        for child in node.get("children", []):
+            value = self._extract_const_value(child)
+            if value is not None:
+                return value
+        
+        return None

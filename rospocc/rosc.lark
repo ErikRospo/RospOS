@@ -30,12 +30,13 @@ external_decl: function_def | declaration | struct_decl
 struct_decl: "typedef"? "struct" NAME? "{" struct_member* "}" NAME? ";"
 struct_member: type_specifier init_declarator_list? ";"
 
-function_def: type_specifier declarator "(" param_list? ")" compound_stmt
+INLINE: "inline"
+function_def: INLINE? type_specifier declarator "(" param_list? ")" compound_stmt
 
 param_list: param ("," param)*
 param: type_specifier declarator?
 
-declaration: ("typedef" )? type_specifier init_declarator_list? ";"
+declaration: ("typedef" )? INLINE? type_specifier init_declarator_list? ";"
 init_declarator_list: init_declarator ("," init_declarator)*
 init_declarator: declarator ("=" expr)?
 

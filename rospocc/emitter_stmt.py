@@ -26,8 +26,14 @@ def _emit_return(emitter, stmt: Dict[str, Any], out):
         if reg != abi.RETURN_REG:
             out.write(f"  ADD {abi.RETURN_REG}, {reg}, {abi.SPECIAL_REGS['zero']}\n")
         emitter.release_expr_reg(reg)
-    out.write(f"  POP {abi.LINK_REG}\n")
-    out.write("  RET\n")
+    
+    # If we're inside an inline function context, don't emit RET
+    # Just set the return value and continue
+    if emitter._in_inline_context:
+        out.write(f"  // inline function return (no RET emitted)\n")
+    else:
+        out.write(f"  POP {abi.LINK_REG}\n")
+        out.write("  RET\n")
     emitter.had_return = True
 
 
