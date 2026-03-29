@@ -1,23 +1,20 @@
 #include "BlockDevice.h"
 
+#include "BlockDeviceBacking.h"
 #include "Memory.h"
 
-#include <algorithm>
 #include <array>
-#include <cerrno>
 #include <chrono>
-#include <cstdio>
 #include <cstdint>
-#include <fstream>
 #include <mutex>
 #include <random>
 #include <stdexcept>
 #include <string>
-#include <unordered_map>
-#include <vector>
-#include <zlib.h>
+#include <iostream>
 
 namespace {
+
+using BlockDeviceBacking::BlockDeviceState;
 
 constexpr uint32_t kMmioBase = 0x40000000;
 constexpr uint32_t kMmioSize = 0x100;
@@ -36,365 +33,15 @@ constexpr uint32_t kCommandNone = 0x00;
 constexpr uint32_t kCommandRead = 0x01;
 constexpr uint32_t kCommandWrite = 0x02;
 
-constexpr uint32_t kBlockFlagCompressed = 1U << 0;
-
 constexpr uint32_t kSpecialTimeBlockId = 0xFFFFFFFDU;
 constexpr uint32_t kSpecialRngBlockId = 0xFFFFFFFEU;
 constexpr uint32_t kSpecialInfoBlockId = 0xFFFFFFFFU;
 
-constexpr uint32_t kBlockDeviceMagic = 0x42534F52; // "ROSB"
-constexpr uint32_t kBlockDeviceVersion = 1;
-
-constexpr uint32_t kBlockSize = 512;
 constexpr uint32_t kMaxCommandBlockCount = 128;
-constexpr uint32_t kRecordHeaderSize = 12;
-
-constexpr uint32_t kHeaderSize = 20; // magic + version + block_count + index_offset(u64)
-
-struct BlockRecordMeta {
-    uint32_t flags = 0;
-    uint32_t storedSize = 0;
-    uint64_t payloadOffset = 0;
-};
-
-struct BlockIndexEntry {
-    uint32_t blockId = 0;
-    uint64_t recordOffset = 0;
-};
-
-struct BlockDeviceState {
-    Memory *memory = nullptr;
-    std::string backingFilePath;
-
-    uint32_t status = 0;
-    uint32_t command = 0;
-    uint32_t blockId = 0;
-    uint32_t bufferAddr = 0;
-    uint32_t blockCount = 1;
-
-    uint32_t fileVersion = kBlockDeviceVersion;
-    uint32_t persistedBlockCount = 0;
-    uint64_t indexOffset = kHeaderSize;
-    std::vector<BlockIndexEntry> blockIndex; // Sorted by blockId
-
-    std::mt19937 rng{std::random_device{}()};
-    bool initialized = false;
-};
+constexpr uint64_t kHeaderSize = 20;
 
 BlockDeviceState g_state;
 std::mutex g_mutex;
-
-BlockRecordMeta read_record_meta_at_offset(const BlockDeviceState &state, uint64_t recordOffset);
-std::vector<uint8_t> read_payload_for_block(const BlockDeviceState &state, const BlockRecordMeta &meta);
-
-template <typename Stream>
-uint32_t read_u32(Stream &stream)
-{
-    uint32_t value = 0;
-    stream.read(reinterpret_cast<char *>(&value), sizeof(value));
-    if (!stream) {
-        throw std::runtime_error("Failed to read 32-bit value from block device file");
-    }
-    return value;
-}
-
-template <typename Stream>
-uint64_t read_u64(Stream &stream)
-{
-    uint64_t value = 0;
-    stream.read(reinterpret_cast<char *>(&value), sizeof(value));
-    if (!stream) {
-        throw std::runtime_error("Failed to read 64-bit value from block device file");
-    }
-    return value;
-}
-
-template <typename Stream>
-void write_u32(Stream &stream, uint32_t value)
-{
-    stream.write(reinterpret_cast<const char *>(&value), sizeof(value));
-    if (!stream) {
-        throw std::runtime_error("Failed to write 32-bit value to block device file");
-    }
-}
-
-template <typename Stream>
-void write_u64(Stream &stream, uint64_t value)
-{
-    stream.write(reinterpret_cast<const char *>(&value), sizeof(value));
-    if (!stream) {
-        throw std::runtime_error("Failed to write 64-bit value to block device file");
-    }
-}
-
-uint64_t get_file_size(std::ifstream &in)
-{
-    in.seekg(0, std::ios::end);
-    if (!in) {
-        throw std::runtime_error("Failed to seek to end of block device file");
-    }
-    const std::streampos endPos = in.tellg();
-    if (endPos < 0) {
-        throw std::runtime_error("Failed to determine block device file size");
-    }
-    in.seekg(0, std::ios::beg);
-    if (!in) {
-        throw std::runtime_error("Failed to seek to start of block device file");
-    }
-    return static_cast<uint64_t>(endPos);
-}
-
-void write_header(std::fstream &file, uint32_t blockCount, uint64_t indexOffset)
-{
-    file.seekp(0, std::ios::beg);
-    if (!file) {
-        throw std::runtime_error("Failed to seek while writing block-device header");
-    }
-
-    write_u32(file, kBlockDeviceMagic);
-    write_u32(file, kBlockDeviceVersion);
-    write_u32(file, blockCount);
-    write_u64(file, indexOffset);
-}
-
-void create_empty_backing_file(const std::string &path)
-{
-    std::fstream out(path, std::ios::binary | std::ios::trunc | std::ios::in | std::ios::out);
-    if (!out) {
-        throw std::runtime_error("Failed to create block-device backing file: " + path);
-    }
-
-    write_header(out, 0, kHeaderSize);
-    // Empty index section starts immediately after header.
-    write_u32(out, 0);
-}
-
-void ensure_backing_file_exists(const std::string &path)
-{
-    std::ifstream in(path, std::ios::binary);
-    if (!in.good()) {
-        create_empty_backing_file(path);
-    }
-}
-
-std::vector<uint8_t> compress_buffer(const std::vector<uint8_t> &input)
-{
-    z_stream stream{};
-    const int initRc = deflateInit2(
-        &stream,
-        Z_BEST_SPEED,
-        Z_DEFLATED,
-        MAX_WBITS + 16, // gzip stream
-        8,
-        Z_DEFAULT_STRATEGY
-    );
-    if (initRc != Z_OK) {
-        throw std::runtime_error("Failed to initialize gzip compressor");
-    }
-
-    std::vector<uint8_t> compressed(compressBound(static_cast<uLong>(input.size())));
-    stream.next_in = const_cast<Bytef *>(reinterpret_cast<const Bytef *>(input.data()));
-    stream.avail_in = static_cast<uInt>(input.size());
-    stream.next_out = reinterpret_cast<Bytef *>(compressed.data());
-    stream.avail_out = static_cast<uInt>(compressed.size());
-
-    const int rc = deflate(&stream, Z_FINISH);
-    if (rc != Z_STREAM_END) {
-        deflateEnd(&stream);
-        throw std::runtime_error("Failed to compress block payload");
-    }
-
-    const int endRc = deflateEnd(&stream);
-    if (endRc != Z_OK) {
-        throw std::runtime_error("Failed to finalize gzip compressor");
-    }
-
-    compressed.resize(static_cast<size_t>(stream.total_out));
-    return compressed;
-}
-
-std::vector<uint8_t> decompress_buffer(const std::vector<uint8_t> &input)
-{
-    z_stream stream{};
-    const int initRc = inflateInit2(&stream, MAX_WBITS + 16); // gzip stream
-    if (initRc != Z_OK) {
-        throw std::runtime_error("Failed to initialize gzip decompressor");
-    }
-
-    std::vector<uint8_t> output(kBlockSize);
-    stream.next_in = const_cast<Bytef *>(reinterpret_cast<const Bytef *>(input.data()));
-    stream.avail_in = static_cast<uInt>(input.size());
-    stream.next_out = reinterpret_cast<Bytef *>(output.data());
-    stream.avail_out = static_cast<uInt>(output.size());
-
-    const int rc = inflate(&stream, Z_FINISH);
-    const bool ok = (rc == Z_STREAM_END) && (stream.total_out == kBlockSize);
-    if (!ok) {
-        inflateEnd(&stream);
-        throw std::runtime_error("Failed to decompress block payload");
-    }
-
-    const int endRc = inflateEnd(&stream);
-    if (endRc != Z_OK) {
-        throw std::runtime_error("Failed to finalize gzip decompressor");
-    }
-    return output;
-}
-
-void ensure_sorted_unique_index(std::vector<BlockIndexEntry> &entries)
-{
-    std::sort(entries.begin(), entries.end(), [](const BlockIndexEntry &a, const BlockIndexEntry &b) {
-        return a.blockId < b.blockId;
-    });
-
-    entries.erase(std::unique(entries.begin(), entries.end(), [](const BlockIndexEntry &a, const BlockIndexEntry &b) {
-        return a.blockId == b.blockId;
-    }), entries.end());
-}
-
-void rewrite_index_section(BlockDeviceState &state)
-{
-    const std::string tempPath = state.backingFilePath + ".tmp";
-
-    std::fstream out(tempPath, std::ios::binary | std::ios::trunc | std::ios::in | std::ios::out);
-    if (!out) {
-        throw std::runtime_error("Failed to create compacted block-device file");
-    }
-
-    write_header(out, 0, kHeaderSize);
-
-    std::vector<BlockIndexEntry> compactedIndex;
-    compactedIndex.reserve(state.blockIndex.size());
-
-    for (const BlockIndexEntry &entry : state.blockIndex) {
-        const BlockRecordMeta meta = read_record_meta_at_offset(state, entry.recordOffset);
-        const std::vector<uint8_t> payload = read_payload_for_block(state, meta);
-
-        out.seekp(0, std::ios::end);
-        if (!out) {
-            throw std::runtime_error("Failed to seek while compacting block-device file");
-        }
-
-        const std::streampos recordStartPos = out.tellp();
-        if (recordStartPos < 0) {
-            throw std::runtime_error("Failed to determine compacted record offset");
-        }
-        const uint64_t recordOffset = static_cast<uint64_t>(recordStartPos);
-
-        write_u32(out, entry.blockId);
-        write_u32(out, meta.flags);
-        write_u32(out, meta.storedSize);
-        out.write(reinterpret_cast<const char *>(payload.data()), static_cast<std::streamsize>(payload.size()));
-        if (!out) {
-            throw std::runtime_error("Failed to write compacted block payload");
-        }
-
-        compactedIndex.push_back(BlockIndexEntry{entry.blockId, recordOffset});
-    }
-
-    out.seekp(0, std::ios::end);
-    if (!out) {
-        throw std::runtime_error("Failed to seek while writing compacted block index");
-    }
-
-    const std::streampos indexPos = out.tellp();
-    if (indexPos < 0) {
-        throw std::runtime_error("Failed to determine compacted block-index offset");
-    }
-
-    write_u32(out, static_cast<uint32_t>(compactedIndex.size()));
-    for (const BlockIndexEntry &entry : compactedIndex) {
-        write_u32(out, entry.blockId);
-        write_u64(out, entry.recordOffset);
-    }
-
-    const uint64_t compactedIndexOffset = static_cast<uint64_t>(indexPos);
-    const uint32_t compactedCount = static_cast<uint32_t>(compactedIndex.size());
-    write_header(out, compactedCount, compactedIndexOffset);
-    out.flush();
-    if (!out) {
-        throw std::runtime_error("Failed to flush compacted block-device file");
-    }
-
-    out.close();
-
-    if (std::remove(state.backingFilePath.c_str()) != 0 && errno != ENOENT) {
-        throw std::runtime_error("Failed to replace block-device file during compaction");
-    }
-
-    if (std::rename(tempPath.c_str(), state.backingFilePath.c_str()) != 0) {
-        throw std::runtime_error("Failed to activate compacted block-device file");
-    }
-
-    state.blockIndex = std::move(compactedIndex);
-    state.persistedBlockCount = compactedCount;
-    state.indexOffset = compactedIndexOffset;
-}
-
-void load_index(BlockDeviceState &state, std::ifstream &in, uint32_t declaredCount)
-{
-    const uint64_t indexOffset = read_u64(in);
-    const uint64_t fileSize = get_file_size(in);
-
-    if (indexOffset >= fileSize) {
-        throw std::runtime_error("Invalid block index offset");
-    }
-
-    in.seekg(static_cast<std::streamoff>(indexOffset), std::ios::beg);
-    if (!in) {
-        throw std::runtime_error("Failed to seek to block index");
-    }
-
-    const uint32_t indexCount = read_u32(in);
-
-    std::vector<BlockIndexEntry> entries;
-    entries.reserve(indexCount);
-
-    for (uint32_t i = 0; i < indexCount; ++i) {
-        const uint32_t blockId = read_u32(in);
-        const uint64_t recordOffset = read_u64(in);
-        if (recordOffset + kRecordHeaderSize > fileSize) {
-            throw std::runtime_error("Invalid record offset in block index");
-        }
-        entries.push_back(BlockIndexEntry{blockId, recordOffset});
-    }
-
-    const size_t sizeBeforeNormalize = entries.size();
-    ensure_sorted_unique_index(entries);
-
-    state.blockIndex = std::move(entries);
-    state.persistedBlockCount = static_cast<uint32_t>(state.blockIndex.size());
-    state.indexOffset = indexOffset;
-
-    if (declaredCount != state.persistedBlockCount || sizeBeforeNormalize != state.blockIndex.size()) {
-        rewrite_index_section(state);
-    }
-}
-
-void load_index_from_file(BlockDeviceState &state)
-{
-    std::ifstream in(state.backingFilePath, std::ios::binary);
-    if (!in) {
-        throw std::runtime_error("Failed to open block-device file: " + state.backingFilePath);
-    }
-
-    const uint32_t magic = read_u32(in);
-    const uint32_t version = read_u32(in);
-    const uint32_t declaredCount = read_u32(in);
-
-    if (magic != kBlockDeviceMagic) {
-        throw std::runtime_error("Invalid block-device file magic (expected ROSB)");
-    }
-
-    state.fileVersion = version;
-
-    if (version == kBlockDeviceVersion) {
-        load_index(state, in, declaredCount);
-        return;
-    }
-
-    throw std::runtime_error("Unsupported block-device file version: " + std::to_string(version));
-}
 
 uint8_t read_reg_byte(uint32_t regValue, uint32_t byteIndex)
 {
@@ -413,201 +60,6 @@ void write_reg_byte(uint32_t &regValue, uint32_t byteIndex, uint8_t byte)
     const uint32_t shift = (3U - byteIndex) * 8U;
     regValue &= ~(0xFFU << shift);
     regValue |= static_cast<uint32_t>(byte) << shift;
-}
-
-std::vector<BlockIndexEntry>::const_iterator find_block_index_entry(const BlockDeviceState &state, uint32_t blockId)
-{
-    return std::lower_bound(
-        state.blockIndex.begin(),
-        state.blockIndex.end(),
-        blockId,
-        [](const BlockIndexEntry &entry, uint32_t id) {
-            return entry.blockId < id;
-        }
-    );
-}
-
-BlockRecordMeta read_record_meta_at_offset(const BlockDeviceState &state, uint64_t recordOffset)
-{
-    std::ifstream in(state.backingFilePath, std::ios::binary);
-    if (!in) {
-        throw std::runtime_error("Failed to open block-device file for record read");
-    }
-
-    in.seekg(static_cast<std::streamoff>(recordOffset), std::ios::beg);
-    if (!in) {
-        throw std::runtime_error("Failed to seek to block record");
-    }
-
-    const uint32_t ignoredBlockId = read_u32(in);
-    (void)ignoredBlockId;
-
-    const uint32_t flags = read_u32(in);
-    const uint32_t storedSize = read_u32(in);
-    if (storedSize == 0) {
-        throw std::runtime_error("Corrupt block record payload size");
-    }
-
-    return BlockRecordMeta{
-        flags,
-        storedSize,
-        recordOffset + kRecordHeaderSize
-    };
-}
-
-std::vector<uint8_t> read_payload_for_block(const BlockDeviceState &state, const BlockRecordMeta &meta)
-{
-    std::ifstream in(state.backingFilePath, std::ios::binary);
-    if (!in) {
-        throw std::runtime_error("Failed to open block-device file for payload read");
-    }
-
-    in.seekg(static_cast<std::streamoff>(meta.payloadOffset), std::ios::beg);
-    if (!in) {
-        throw std::runtime_error("Failed to seek to block payload");
-    }
-
-    std::vector<uint8_t> payload(meta.storedSize);
-    in.read(reinterpret_cast<char *>(payload.data()), static_cast<std::streamsize>(payload.size()));
-    if (!in) {
-        throw std::runtime_error("Failed to read block payload");
-    }
-    return payload;
-}
-
-std::array<uint8_t, kBlockSize> read_block(uint32_t blockId)
-{
-    std::array<uint8_t, kBlockSize> block{};
-
-    if (blockId == kSpecialTimeBlockId) {
-        const auto nowMs = std::chrono::duration_cast<std::chrono::milliseconds>(
-            std::chrono::system_clock::now().time_since_epoch()
-        ).count();
-        const uint64_t stamp = static_cast<uint64_t>(nowMs);
-        for (size_t i = 0; i < sizeof(stamp); ++i) {
-            block[i] = static_cast<uint8_t>((stamp >> (i * 8U)) & 0xFFU);
-        }
-        return block;
-    }
-
-    if (blockId == kSpecialRngBlockId) {
-        std::uniform_int_distribution<uint32_t> dist(0, 0xFFFFFFFFU);
-        for (uint32_t i = 0; i < kBlockSize; i += 4) {
-            const uint32_t value = dist(g_state.rng);
-            block[i + 0] = static_cast<uint8_t>(value & 0xFFU);
-            block[i + 1] = static_cast<uint8_t>((value >> 8U) & 0xFFU);
-            block[i + 2] = static_cast<uint8_t>((value >> 16U) & 0xFFU);
-            block[i + 3] = static_cast<uint8_t>((value >> 24U) & 0xFFU);
-        }
-        return block;
-    }
-
-    if (blockId == kSpecialInfoBlockId) {
-        const char *tag = "ROSPOS-BLOCK-DEVICE";
-        for (size_t i = 0; tag[i] != '\0' && i < block.size(); ++i) {
-            block[i] = static_cast<uint8_t>(tag[i]);
-        }
-        block[block.size() - 1] = 0; // Ensure null-termination
-        const uint32_t persisted = g_state.persistedBlockCount;
-        block[32] = static_cast<uint8_t>(persisted & 0xFFU);
-        block[33] = static_cast<uint8_t>((persisted >> 8U) & 0xFFU);
-        block[34] = static_cast<uint8_t>((persisted >> 16U) & 0xFFU);
-        block[35] = static_cast<uint8_t>((persisted >> 24U) & 0xFFU);
-        return block;
-    }
-
-    const auto it = find_block_index_entry(g_state, blockId);
-    if (it == g_state.blockIndex.end() || it->blockId != blockId) {
-        return block;
-    }
-
-    const BlockRecordMeta meta = read_record_meta_at_offset(g_state, it->recordOffset);
-    const std::vector<uint8_t> payload = read_payload_for_block(g_state, meta);
-    std::vector<uint8_t> data;
-
-    if ((meta.flags & kBlockFlagCompressed) != 0U) {
-        data = decompress_buffer(payload);
-    } else {
-        if (payload.size() != kBlockSize) {
-            throw std::runtime_error("Uncompressed block payload has invalid size");
-        }
-        data = payload;
-    }
-
-    for (uint32_t i = 0; i < kBlockSize; ++i) {
-        block[i] = data[i];
-    }
-
-    return block;
-}
-
-void upsert_block_index_entry(BlockDeviceState &state, uint32_t blockId, uint64_t recordOffset)
-{
-    const auto it = std::lower_bound(
-        state.blockIndex.begin(),
-        state.blockIndex.end(),
-        blockId,
-        [](const BlockIndexEntry &entry, uint32_t id) {
-            return entry.blockId < id;
-        }
-    );
-
-    if (it != state.blockIndex.end() && it->blockId == blockId) {
-        const size_t idx = static_cast<size_t>(std::distance(state.blockIndex.begin(), it));
-        state.blockIndex[idx].recordOffset = recordOffset;
-    } else {
-        state.blockIndex.insert(it, BlockIndexEntry{blockId, recordOffset});
-    }
-
-    state.persistedBlockCount = static_cast<uint32_t>(state.blockIndex.size());
-}
-
-void persist_block(uint32_t blockId, const std::array<uint8_t, kBlockSize> &block, bool compactAfterWrite)
-{
-    std::vector<uint8_t> raw(block.begin(), block.end());
-    std::vector<uint8_t> compressed = compress_buffer(raw);
-
-    uint32_t flags = 0;
-    const std::vector<uint8_t> *payload = &raw;
-    if (compressed.size() < raw.size()) {
-        flags |= kBlockFlagCompressed;
-        payload = &compressed;
-    }
-
-    std::ofstream out(g_state.backingFilePath, std::ios::binary | std::ios::app);
-    if (!out) {
-        throw std::runtime_error("Failed to open block-device file for append");
-    }
-
-    out.seekp(0, std::ios::end);
-    if (!out) {
-        throw std::runtime_error("Failed to seek block-device file end");
-    }
-    const std::streampos recordStartPos = out.tellp();
-    if (recordStartPos < 0) {
-        throw std::runtime_error("Failed to get block-device file append position");
-    }
-    const uint64_t recordOffset = static_cast<uint64_t>(recordStartPos);
-
-    const uint32_t storedSize = static_cast<uint32_t>(payload->size());
-    write_u32(out, blockId);
-    write_u32(out, flags);
-    write_u32(out, storedSize);
-    out.write(reinterpret_cast<const char *>(payload->data()), static_cast<std::streamsize>(payload->size()));
-    if (!out) {
-        throw std::runtime_error("Failed to write block payload");
-    }
-    out.flush();
-
-    upsert_block_index_entry(g_state, blockId, recordOffset);
-
-    if (g_state.fileVersion != kBlockDeviceVersion) {
-        throw std::runtime_error("Unsupported block-device file version for persistence");
-    }
-
-    if (compactAfterWrite) {
-        rewrite_index_section(g_state);
-    }
 }
 
 void set_error(bool set)
@@ -635,6 +87,62 @@ bool is_special_read_only(uint32_t blockId)
            blockId == kSpecialInfoBlockId;
 }
 
+bool try_read_special_block(uint32_t blockId, std::array<uint8_t, BlockDeviceBacking::kBlockSize> &block)
+{
+    if (blockId == kSpecialTimeBlockId) {
+        std::cout << "Reading special TIME block" << std::endl;
+        const auto nowMs = std::chrono::duration_cast<std::chrono::milliseconds>(
+            std::chrono::system_clock::now().time_since_epoch()
+        ).count();
+        const uint64_t stamp = static_cast<uint64_t>(nowMs);
+        for (size_t i = 0; i < sizeof(stamp); ++i) {
+            block[i] = static_cast<uint8_t>((stamp >> (i * 8U)) & 0xFFU);
+        }
+        return true;
+    }
+
+    if (blockId == kSpecialRngBlockId) {
+        std::cout << "Reading special RNG block" << std::endl;
+        std::uniform_int_distribution<uint32_t> dist(0, 0xFFFFFFFFU);
+        for (uint32_t i = 0; i < BlockDeviceBacking::kBlockSize; i += 4) {
+            const uint32_t value = dist(g_state.rng);
+            block[i + 0] = static_cast<uint8_t>(value & 0xFFU);
+            block[i + 1] = static_cast<uint8_t>((value >> 8U) & 0xFFU);
+            block[i + 2] = static_cast<uint8_t>((value >> 16U) & 0xFFU);
+            block[i + 3] = static_cast<uint8_t>((value >> 24U) & 0xFFU);
+        }
+        return true;
+    }
+
+    if (blockId == kSpecialInfoBlockId) {
+        std::cout << "Reading special INFO block" << std::endl;
+        const char *tag = "ROSPOS-BLOCK-DEVICE";
+        for (size_t i = 0; tag[i] != '\0' && i < block.size(); ++i) {
+            block[i] = static_cast<uint8_t>(tag[i]);
+        }
+        block[block.size() - 1] = 0;
+        const uint32_t persisted = g_state.persistedBlockCount;
+        block[32] = static_cast<uint8_t>(persisted & 0xFFU);
+        block[33] = static_cast<uint8_t>((persisted >> 8U) & 0xFFU);
+        block[34] = static_cast<uint8_t>((persisted >> 16U) & 0xFFU);
+        block[35] = static_cast<uint8_t>((persisted >> 24U) & 0xFFU);
+        return true;
+    }
+
+    return false;
+}
+
+std::array<uint8_t, BlockDeviceBacking::kBlockSize> read_block(uint32_t blockId)
+{
+    std::array<uint8_t, BlockDeviceBacking::kBlockSize> block{};
+    if (try_read_special_block(blockId, block)) {
+        return block;
+    }
+
+    (void)BlockDeviceBacking::read_persisted_block(g_state, blockId, block);
+    return block;
+}
+
 void execute_read_command()
 {
     if (g_state.blockCount == 0 || g_state.blockCount > kMaxCommandBlockCount) {
@@ -643,9 +151,9 @@ void execute_read_command()
 
     for (uint32_t i = 0; i < g_state.blockCount; ++i) {
         const uint32_t id = g_state.blockId + i;
-        const uint32_t baseAddr = g_state.bufferAddr + (i * kBlockSize);
-        const std::array<uint8_t, kBlockSize> block = read_block(id);
-        for (uint32_t j = 0; j < kBlockSize; ++j) {
+        const uint32_t baseAddr = g_state.bufferAddr + (i * BlockDeviceBacking::kBlockSize);
+        const auto block = read_block(id);
+        for (uint32_t j = 0; j < BlockDeviceBacking::kBlockSize; ++j) {
             g_state.memory->writeByte(baseAddr + j, block[j]);
         }
     }
@@ -665,16 +173,16 @@ void execute_write_command()
             throw std::runtime_error("Attempted write to read-only special block");
         }
 
-        const uint32_t baseAddr = g_state.bufferAddr + (i * kBlockSize);
-        std::array<uint8_t, kBlockSize> block{};
-        for (uint32_t j = 0; j < kBlockSize; ++j) {
+        const uint32_t baseAddr = g_state.bufferAddr + (i * BlockDeviceBacking::kBlockSize);
+        std::array<uint8_t, BlockDeviceBacking::kBlockSize> block{};
+        for (uint32_t j = 0; j < BlockDeviceBacking::kBlockSize; ++j) {
             block[j] = g_state.memory->readByte(baseAddr + j);
         }
-        persist_block(id, block, false);
+        BlockDeviceBacking::persist_block(g_state, id, block, false);
     }
 
-    if (g_state.fileVersion == kBlockDeviceVersion) {
-        rewrite_index_section(g_state);
+    if (g_state.fileVersion == BlockDeviceBacking::kBlockDeviceVersion) {
+        BlockDeviceBacking::rewrite_index_section(g_state);
     } else {
         throw std::runtime_error("Unsupported block-device file version for persistence");
     }
@@ -758,13 +266,13 @@ void BlockDeviceInitialize(Memory *memory, const std::string &backingFilePath)
     g_state.blockId = 0;
     g_state.bufferAddr = 0;
     g_state.blockCount = 1;
-    g_state.fileVersion = kBlockDeviceVersion;
+    g_state.fileVersion = BlockDeviceBacking::kBlockDeviceVersion;
     g_state.persistedBlockCount = 0;
     g_state.indexOffset = kHeaderSize;
     g_state.blockIndex.clear();
 
-    ensure_backing_file_exists(g_state.backingFilePath);
-    load_index_from_file(g_state);
+    BlockDeviceBacking::ensure_backing_file_exists(g_state.backingFilePath);
+    BlockDeviceBacking::load_index_from_file(g_state);
 
     g_state.initialized = true;
 }

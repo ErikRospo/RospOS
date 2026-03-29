@@ -43,6 +43,8 @@ set(ROSPOSVM_BACKEND_SOURCES
     backend/Display.h
     backend/BlockDevice.cpp
     backend/BlockDevice.h
+    backend/BlockDeviceBacking.cpp
+    backend/BlockDeviceBacking.h
     backend/Shutdown.cpp
     backend/Shutdown.h
     backend/Logger.cpp
