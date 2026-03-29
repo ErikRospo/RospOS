@@ -13,30 +13,6 @@ inline void print_char(char c)
     __sb(tty_addr, c);
 }
 
-void printi(int num)
-{
-    char buffer[12]; // Enough for 32-bit int
-    int i = 0;
-    if (num < 0)
-    {
-        print_char('-');
-        num = -num;
-    }
-    while (num > 0)
-    {
-        buffer[i++] = '0' + (num % 10);
-        num /= 10;
-    }
-    buffer[i] = '\0';
-    // Reverse the string
-    for (int j = 0; j < i / 2; j++)
-    {
-        char temp = buffer[j];
-        buffer[j] = buffer[i - j - 1];
-        buffer[i - j - 1] = temp;
-    }
-    print_string(buffer);
-}
 
 inline char read_char()
 {

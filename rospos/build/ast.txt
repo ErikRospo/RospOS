@@ -68,142 +68,6 @@ translation_unit
                 c
   external_decl
     function_def
-      type_specifier
-        void
-      declarator	printi
-      param_list
-        param
-          type_specifier
-            int
-          declarator	num
-      compound_stmt
-        declaration
-          type_specifier
-            char
-          init_declarator_list
-            init_declarator
-              declarator
-                buffer
-                array	12
-        declaration
-          type_specifier
-            int
-          init_declarator_list
-            init_declarator
-              declarator	i
-              0
-        if_stmt
-          relational
-            num
-            lt
-            0
-          compound_stmt
-            expr_stmt
-              postfix
-                print_char
-                call_suffix
-                  arg_list	"-"
-            expr_stmt
-              assignment
-                num
-                unary
-                  uminus
-                  num
-        while_stmt
-          relational
-            num
-            gt
-            0
-          compound_stmt
-            expr_stmt
-              assignment
-                postfix
-                  buffer
-                  array_index
-                    postfix
-                      i
-                      post_inc
-                additive
-                  "0"
-                  plus
-                  multiplicative
-                    num
-                    mod
-                    10
-            expr_stmt
-              assignment
-                num
-                multiplicative
-                  num
-                  div
-                  10
-        expr_stmt
-          assignment
-            postfix
-              buffer
-              array_index	i
-            "\0"
-        for_stmt
-          declaration
-            type_specifier
-              int
-            init_declarator_list
-              init_declarator
-                declarator	j
-                0
-          relational
-            j
-            lt
-            multiplicative
-              i
-              div
-              2
-          postfix
-            j
-            post_inc
-          compound_stmt
-            declaration
-              type_specifier
-                char
-              init_declarator_list
-                init_declarator
-                  declarator	temp
-                  postfix
-                    buffer
-                    array_index	j
-            expr_stmt
-              assignment
-                postfix
-                  buffer
-                  array_index	j
-                postfix
-                  buffer
-                  array_index
-                    additive
-                      i
-                      minus
-                      j
-                      minus
-                      1
-            expr_stmt
-              assignment
-                postfix
-                  buffer
-                  array_index
-                    additive
-                      i
-                      minus
-                      j
-                      minus
-                      1
-                temp
-        expr_stmt
-          postfix
-            print_string
-            call_suffix
-              arg_list	buffer
-  external_decl
-    function_def
       inline
       type_specifier
         char
@@ -1114,6 +978,172 @@ translation_unit
   external_decl
     function_def
       type_specifier
+        int
+      declarator	bd_read_u32
+      param_list
+        param
+          type_specifier
+            int
+          declarator	addr
+      compound_stmt
+        declaration
+          type_specifier
+            int
+          init_declarator_list
+            init_declarator
+              declarator	b0
+              bit_and
+                postfix
+                  __lb
+                  call_suffix
+                    arg_list
+                      additive
+                        addr
+                        plus
+                        0
+                0xFF
+        declaration
+          type_specifier
+            int
+          init_declarator_list
+            init_declarator
+              declarator	b1
+              bit_and
+                postfix
+                  __lb
+                  call_suffix
+                    arg_list
+                      additive
+                        addr
+                        plus
+                        1
+                0xFF
+        declaration
+          type_specifier
+            int
+          init_declarator_list
+            init_declarator
+              declarator	b2
+              bit_and
+                postfix
+                  __lb
+                  call_suffix
+                    arg_list
+                      additive
+                        addr
+                        plus
+                        2
+                0xFF
+        declaration
+          type_specifier
+            int
+          init_declarator_list
+            init_declarator
+              declarator	b3
+              bit_and
+                postfix
+                  __lb
+                  call_suffix
+                    arg_list
+                      additive
+                        addr
+                        plus
+                        3
+                0xFF
+        expr_stmt
+          bit_or
+            postfix
+              return
+              call_suffix
+                arg_list
+                  shift
+                    b0
+                    lshift
+                    24
+            shift
+              b1
+              lshift
+              16
+            shift
+              b2
+              lshift
+              8
+            b3
+  external_decl
+    function_def
+      type_specifier
+        void
+      declarator	bd_write_u32
+      param_list
+        param
+          type_specifier
+            int
+          declarator	addr
+        param
+          type_specifier
+            int
+          declarator	value
+      compound_stmt
+        expr_stmt
+          postfix
+            __sb
+            call_suffix
+              arg_list
+                additive
+                  addr
+                  plus
+                  0
+                bit_and
+                  shift
+                    value
+                    rshift
+                    24
+                  0xFF
+        expr_stmt
+          postfix
+            __sb
+            call_suffix
+              arg_list
+                additive
+                  addr
+                  plus
+                  1
+                bit_and
+                  shift
+                    value
+                    rshift
+                    16
+                  0xFF
+        expr_stmt
+          postfix
+            __sb
+            call_suffix
+              arg_list
+                additive
+                  addr
+                  plus
+                  2
+                bit_and
+                  shift
+                    value
+                    rshift
+                    8
+                  0xFF
+        expr_stmt
+          postfix
+            __sb
+            call_suffix
+              arg_list
+                additive
+                  addr
+                  plus
+                  3
+                bit_and
+                  value
+                  0xFF
+  external_decl
+    function_def
+      type_specifier
         void
       declarator	write_block
       param_list
@@ -1129,14 +1159,14 @@ translation_unit
       compound_stmt
         expr_stmt
           postfix
-            __sb
+            bd_write_u32
             call_suffix
               arg_list
                 0x40000008
                 blockID
         expr_stmt
           postfix
-            __sb
+            bd_write_u32
             call_suffix
               arg_list
                 0x4000000C
@@ -1146,15 +1176,22 @@ translation_unit
                   data
         expr_stmt
           postfix
-            __sb
+            bd_write_u32
+            call_suffix
+              arg_list
+                0x40000010
+                1
+        expr_stmt
+          postfix
+            bd_write_u32
             call_suffix
               arg_list
                 0x40000004
-                1
+                2
         while_stmt
           equality
             postfix
-              __lb
+              bd_read_u32
               call_suffix
                 arg_list	0x40000004
             neq
@@ -1179,14 +1216,14 @@ translation_unit
       compound_stmt
         expr_stmt
           postfix
-            __sb
+            bd_write_u32
             call_suffix
               arg_list
                 0x40000008
                 blockID
         expr_stmt
           postfix
-            __sb
+            bd_write_u32
             call_suffix
               arg_list
                 0x4000000C
@@ -1196,15 +1233,22 @@ translation_unit
                   buffer
         expr_stmt
           postfix
-            __sb
+            bd_write_u32
+            call_suffix
+              arg_list
+                0x40000010
+                1
+        expr_stmt
+          postfix
+            bd_write_u32
             call_suffix
               arg_list
                 0x40000004
-                2
+                1
         while_stmt
           equality
             postfix
-              __lb
+              bd_read_u32
               call_suffix
                 arg_list	0x40000004
             neq

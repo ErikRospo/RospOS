@@ -13,30 +13,6 @@ inline void print_char(char c)
     __sb(tty_addr, c);
 }
 
-void printi(int num)
-{
-    char buffer[12]; // Enough for 32-bit int
-    int i = 0;
-    if (num < 0)
-    {
-        print_char("-");
-        num = -num;
-    }
-    while (num > 0)
-    {
-        buffer[i++] = "0" + (num % 10);
-        num = num / 10;
-    }
-    buffer[i] = "\0";
-    // Reverse the string
-    for (int j = 0; j < i / 2; j++)
-    {
-        char temp = buffer[j];
-        buffer[j] = buffer[i - j - 1];
-        buffer[i - j - 1] = temp;
-    }
-    print_string(buffer);
-}
 
 inline char read_char()
 {
@@ -223,24 +199,42 @@ void screen_test()
     }
 }
 
+int bd_read_u32(int addr)
+{
+    int b0 = __lb(addr + 0) & 0xFF;
+    int b1 = __lb(addr + 1) & 0xFF;
+    int b2 = __lb(addr + 2) & 0xFF;
+    int b3 = __lb(addr + 3) & 0xFF;
+    return (b0 << 24) | (b1 << 16) | (b2 << 8) | b3;
+}
+
+void bd_write_u32(int addr, int value)
+{
+    __sb(addr + 0, (value >> 24) & 0xFF);
+    __sb(addr + 1, (value >> 16) & 0xFF);
+    __sb(addr + 2, (value >> 8) & 0xFF);
+    __sb(addr + 3, value & 0xFF);
+}
+
 void write_block(int blockID, char *data)
 {
-    __sb(0x40000008, blockID);
-    __sb(0x4000000C, (int)data);
-    __sb(0x40000004, 1); // Write command
-    while (__lb(0x40000004) != 0) {
-
+    bd_write_u32(0x40000008, blockID); // Block ID
+    bd_write_u32(0x4000000C, (int)data); // Buffer Addr
+    bd_write_u32(0x40000010, 1); // Block Count
+    bd_write_u32(0x40000004, 2); // Write command
+    while (bd_read_u32(0x40000004) != 0) {
     } // Wait for completion
     return 0;
 }
+
 void read_block(int blockID, char *buffer)
 {
-    __sb(0x40000008, blockID); // Set block ID
-    __sb(0x4000000C, (int)buffer); // Set buffer address pointer
-    __sb(0x40000004, 2); // Set command to read
-    while (__lb(0x40000004) != 0) { //when the command register is 0, the operation is complete
-
-    } // Wait for completion
+    bd_write_u32(0x40000008, blockID); // Block ID
+    bd_write_u32(0x4000000C, (int)buffer); // Buffer Addr
+    bd_write_u32(0x40000010, 1); // Block Count
+    bd_write_u32(0x40000004, 1); // Read command
+    while (bd_read_u32(0x40000004) != 0) { // Command clears when complete
+    }
     return 0;
 }
 //Basic filesystem for RospOS.
