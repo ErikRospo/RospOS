@@ -3,63 +3,26 @@ TESTS!
 
 Branches that have a register and a constant should be pseudo-op'd to be a LLI, then a branch. 
 
+## Application
+
+Make a different application based on the library, also writen in QT, that *just* runs the program, without any of the editor/debugger features. It should have a simple interface that just allows the user to load a program, run it, enter input, and see the output. This would be useful for users who just want to run their programs without needing the full debugger interface.
+
+ROSPOVM could use some polishing and UX improvements:
+  Keep window settings/geometry between sessions
+  Allow for the user to customize the font and colors used in the editor and terminal
+  Add a dark/light mode toggle
+  Allow for the user to open and close different debug panels (e.g. register view, memory view, etc.) and have their visibility and layout settings be saved between sessions
+    ^ For this, also allow the user to save multiple layout presets
+  
 
 ## Ideas:
 
-Maybe replace/integrate editor with https://github.com/KDE/syntax-highlighting for better syntax highlighting. This would also allow us to leverage the existing C syntax highlighting, which would be beneficial since rosc is a subset of C.
-
 Evaluate simple constant expressions at compile time, esp for LLI. (e.g. 256-8 should be evaluated to 248 at compile time)
 
-Function call pushes/moves may not necessarily be safe. In this example, they are safe. 
-```c
-void main()
-{
-    int x = 5;
-    int y = 10;
-    int result = add(x, y);
-...
-```
-
-```
-.FUNC main:
-  PUSH r14
-  LLI r2, 5    // init x
-  LLI r3, 10    // init y
-  LLI r4, 0    // zero init result
-  // emit call to add with args [{'type': 'var', 'name': 'x'}, {'type': 'var', 'name': 'y'}]
-  PUSH r2    // save caller temp
-  PUSH r3    // save caller temp
-  PUSH r4    // save caller temp
-  ADDI r1, r2, 0    // move arg 0
-  ADDI r2, r3, 0    // move arg 1
-  CALL add
-  // call return value in r1
-  POP r4    // restore caller temp
-  POP r3    // restore caller temp
-  POP r2    // restore caller temp
-  ADDI r4, r1, 0    // move return value
-```
-
-However, if `x` and `y` were allocated to different registers, the move could clobber one of the values before the call, which would lead to incorrect behavior. For example, if `x` was allocated to `r2` and `y` was allocated to `r3`, and we did the following:
-
-```
-  LLI r2, 5    // init x
-  LLI r3, 10    // init y
-  ...
-  ADDI r2, r3, 0    // move arg 1 (THIS CLOBBERS r2, which holds x, before the call to add)
-  ADDI r1, r2, 0    // move arg 0 (this now moves the value of y instead of x, which is incorrect)
-  CALL add // this now adds y and y instead of x and y, which is incorrect
-```
 ## Optimizations
-
-### Inlining
-Inlining small functions (e.g. add) can reduce function call overhead and enable further optimizations, especially given how expensive function calls tend to be on a simple architecture like this. We can set a threshold for function size (e.g. 5 instructions) and inline any functions that are below that threshold, or anything with the `inline` keyword, or a single call site. Function calls generate around 4 instructions per register that is allocated at the time of the call, 2 for the push, 2 for the pop.
 
 
 ### Peephole optimizations
-#### LLI + arith/logical op
-LLI followed by arith/logical op with the same register should be pseudo-op'd to a single instruction (e.g. LLI r1, 5 followed by ADD r1, r1, r2 should be converted to ADDI r1, r2, 5), if possible.
-
 
 #### Unneeded generated instructions
 
@@ -90,31 +53,9 @@ WHILE_END2:
 ```
 
 
-```
-
-.FUNC main:
-  PUSH r14
-  LLI r2, 5    // init x
-  LLI r3, 10    // init y
-  LLI r4, 0    // zero init result
-  PUSH r2    // save caller temp
-  PUSH r3    // save caller temp
-  PUSH r4    // save caller temp
-  LLI r1, str_7    // load immediate str_7
-  CALL print_string
-  //These duplicate lines can be optimized out.
-  POP r4    // restore caller temp
-  POP r3    // restore caller temp
-  POP r2    // restore caller temp
-  PUSH r2    // save caller temp
-  PUSH r3    // save caller temp
-  PUSH r4    // save caller temp
-```
-
 
 ### Other optimizations
 - Remove redundant loads/stores (e.g. if a value is already in a register, don't load it again from memory)
-- Remove redundant moves (e.g. if a value is already in a register, don't move it to another register unnecessarily)
 - Constant folding (e.g. if an expression can be evaluated at compile time, do so and replace it with the result)
   - This also also be integrated with the constant expression evaluation mentioned above for LLI.
 - Very simple dead code elimination
@@ -124,10 +65,6 @@ WHILE_END2:
 
 ## Tooling:
 
-### VSCode extension
-VSCode extension for ros assembly? Syntax highlighting, error checking, etc. 
-rosc is just a subset of C, so VSCode's C features just sort of work by default.
- 
 ### Error handling
 
 Better error handling in rospoas/rospocc, with more informative error messages and line numbers.
