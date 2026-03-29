@@ -9,6 +9,7 @@ from pathlib import Path
 import platform
 import subprocess
 import sys
+import time
 from datetime import datetime
 
 
@@ -61,6 +62,21 @@ def detect_cpu() -> str | None:
     return None
 
 
+def detect_git_commit() -> str | None:
+    """Best-effort git commit hash detection for benchmark metadata."""
+    result = subprocess.run(
+        ["git", "rev-parse", "HEAD"],
+        cwd=str(ROOT),
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    if result.returncode != 0:
+        return None
+    commit_hash = result.stdout.strip()
+    return commit_hash or None
+
+
 def maybe_prepare(prepare: bool) -> None:
     if not prepare:
         return
@@ -69,6 +85,8 @@ def maybe_prepare(prepare: bool) -> None:
 
 
 def main() -> int:
+    start_ts_unix = time.time()
+
     parser = argparse.ArgumentParser(description="Run full benchmark suite.")
     parser.add_argument("--input-rosc", default="tools/benchmarking/programs/static_test.rosc", help="Input .rosc program")
     parser.add_argument("--repeat", type=int, default=20, help="Measured iterations per stage")
@@ -190,6 +208,9 @@ def main() -> int:
 
     known_steps = [steps for steps in vm_steps if steps is not None]
     unique_steps = sorted(set(known_steps))
+    end_ts_unix = time.time() 
+    # Assume the rest of the code is inconsequential to the total runtime
+    total_runtime_s = end_ts_unix - start_ts_unix
 
     result_dir = Path(args.results_dir)
     if not result_dir.is_absolute():
@@ -209,6 +230,10 @@ def main() -> int:
             "repeat": args.repeat,
             "warmup": args.warmup,
             "timeout_s": args.timeout,
+            "git_commit_hash": detect_git_commit(),
+            "start_ts_unix": start_ts_unix,
+            "end_ts_unix": end_ts_unix,
+            "total_runtime_s": total_runtime_s,
             "cpu": detect_cpu(),
             "vm_detected_steps_unique": unique_steps,
             "vm_detected_steps_missing_count": len(vm_steps) - len(known_steps),
