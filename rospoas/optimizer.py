@@ -280,6 +280,74 @@ def _find_defined_labels(ast):
     return defined_labels
 
 
+def opt_35_redundant_reload_to_move(ast, logs):
+    # Example:
+    #   LB r3, r1, 0
+    #   BEQ r3, r0, L
+    #   LB r4, r1, 0
+    # =>
+    #   LB r3, r1, 0
+    #   BEQ r3, r0, L
+    #   ADDI r4, r3, 0
+    optimized_ast = []
+    i = 0
+    while i < len(ast):
+        if i + 2 >= len(ast):
+            optimized_ast.append(ast[i])
+            i += 1
+            continue
+
+        a = ast[i]
+        mid = ast[i + 1]
+        b = ast[i + 2]
+
+        is_load_a = (
+            isinstance(a, Instruction)
+            and a.type == "l"
+            and a.name in {"lb", "lbu", "lh", "lhu", "lw"}
+            and a.rd is not None
+            and a.rs1 is not None
+            and _reg_from_imm(a.imm) is not None
+        )
+        is_load_b = (
+            isinstance(b, Instruction)
+            and b.type == "l"
+            and b.name == getattr(a, "name", None)
+            and b.rd is not None
+            and b.rs1 == getattr(a, "rs1", None)
+            and _reg_from_imm(b.imm) == _reg_from_imm(getattr(a, "imm", None))
+        )
+        is_safe_mid = (
+            isinstance(mid, Instruction)
+            and mid.type == "b"
+        )
+
+        if is_load_a and is_load_b and is_safe_mid:
+            replacement = Instruction(
+                type="i",
+                name="addi",
+                rd=b.rd,
+                rs1=a.rd,
+                imm=ImmValue(0),
+                src=b.src,
+                is_optimized=True,
+                is_from_rospocc=b.is_from_rospocc,
+                is_pseudo_expanded=b.is_pseudo_expanded,
+                expansion_depth=b.expansion_depth,
+            )
+            optimized_ast.extend([a, mid, replacement])
+            logs.append(
+                f"Replaced redundant reload '{b}' at index {i+2} with '{replacement}'"
+            )
+            i += 3
+            continue
+
+        optimized_ast.append(a)
+        i += 1
+
+    return optimized_ast
+
+
 def opt_30_remove_unused_labels(ast, logs):
     used_labels = _find_used_labels(ast)
     defined_labels = _find_defined_labels(ast)
