@@ -1,128 +1,26 @@
-#include "VMController.h"
+#include "VMControllerCore.h"
+
 #include "InstructionDecoder.h"
-#include "Binary.h"
 #include "Shutdown.h"
-#include <QFile>
-#include <QDebug>
+
 #include <QElapsedTimer>
-#include <QTextStream>
-#include <QRegularExpression>
-#include <fstream>
+#include <QFile>
 
-namespace {
-
-constexpr uint32_t kSourceLineSearchRadius = 32;
-
-QString normalizeSourceLine(const QString &line)
-{
-    QString normalized = line;
-    normalized.replace('\t', ' ');
-    normalized.replace(QRegularExpression(" +"), " ");
-    return normalized.simplified();
-}
-
-bool tryResolveNearbySourceLine(
-    const QString &sourceFilePath,
-    uint32_t suggestedLine,
-    const QString &expectedLineContent,
-    uint32_t &resolvedLine
-)
-{
-    const QString normalizedExpected = normalizeSourceLine(expectedLineContent);
-    if (normalizedExpected.isEmpty()) {
-        return false;
-    }
-
-    QFile sourceFile(sourceFilePath);
-    if (!sourceFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        return false;
-    }
-
-    QTextStream stream(&sourceFile);
-    QStringList lines;
-    while (!stream.atEnd()) {
-        lines.append(stream.readLine());
-    }
-
-    if (lines.isEmpty()) {
-        return false;
-    }
-
-    const uint32_t lineCount = static_cast<uint32_t>(lines.size());
-    uint32_t centerLine = suggestedLine;
-    if (centerLine == 0) {
-        centerLine = 1;
-    } else if (centerLine > lineCount) {
-        centerLine = lineCount;
-    }
-
-    const auto lineMatches = [&](uint32_t oneBasedLine) -> bool {
-        if (oneBasedLine == 0 || oneBasedLine > lineCount) {
-            return false;
-        }
-        const QString sourceLine = lines.at(static_cast<int>(oneBasedLine - 1));
-        const QString normalizedSource = normalizeSourceLine(sourceLine);
-        return normalizedSource == normalizedExpected;
-    };
-
-    bool found = false;
-    uint32_t bestLine = 0;
-    uint32_t bestDistance = 0;
-
-    for (uint32_t offset = 0; offset <= kSourceLineSearchRadius; ++offset) {
-        if (centerLine > offset) {
-            const uint32_t upLine = centerLine - offset;
-            if (lineMatches(upLine)) {
-                if (!found || offset < bestDistance) {
-                    found = true;
-                    bestLine = upLine;
-                    bestDistance = offset;
-                }
-            }
-        }
-
-        if (offset == 0) {
-            continue;
-        }
-
-        const uint32_t downLine = centerLine + offset;
-        if (downLine <= lineCount && lineMatches(downLine)) {
-            if (!found || offset < bestDistance) {
-                found = true;
-                bestLine = downLine;
-                bestDistance = offset;
-            }
-        }
-    }
-
-    if (!found) {
-        return false;
-    }
-
-    resolvedLine = bestLine;
-    return true;
-}
-
-} // namespace
-
-VMController::VMController(QObject *parent)
-    : QObject(parent), vm(std::make_unique<RospOSVM>(true)), running(false)
+VMControllerCore::VMControllerCore(QObject *parent)
+    : QObject(parent), vm(std::make_unique<RospOSVM>(false)), running(false)
 {
     executionTimer.setSingleShot(true);
-    connect(&executionTimer, &QTimer::timeout, this, &VMController::onExecutionTick);
+    connect(&executionTimer, &QTimer::timeout, this, &VMControllerCore::onExecutionTick);
 }
 
-VMController::~VMController() = default;
+VMControllerCore::~VMControllerCore() = default;
 
-bool VMController::loadBinaryFile(const QString &filePath)
+bool VMControllerCore::loadBinaryFile(const QString &filePath)
 {
     try {
-        std::string path = filePath.toStdString();
-        
-        // Use the new loadBinaryFromFile method which loads debug info
-        vm->loadBinaryFromFile(path);
+        vm->loadBinaryFromFile(filePath.toStdString());
         loadedBinaryPath = filePath;
-        
+
         emit stateChanged();
         emit error(QString("Binary loaded successfully"));
         return true;
@@ -132,7 +30,7 @@ bool VMController::loadBinaryFile(const QString &filePath)
     }
 }
 
-void VMController::step()
+void VMControllerCore::step()
 {
     try {
         vm->step();
@@ -144,7 +42,7 @@ void VMController::step()
     }
 }
 
-void VMController::stepBackward()
+void VMControllerCore::stepBackward()
 {
     try {
         if (!vm->stepBackward()) {
@@ -159,7 +57,7 @@ void VMController::stepBackward()
     }
 }
 
-void VMController::run()
+void VMControllerCore::run()
 {
     if (running) {
         return;
@@ -172,7 +70,7 @@ void VMController::run()
     scheduleNextExecutionTick();
 }
 
-void VMController::pause()
+void VMControllerCore::pause()
 {
     executionTimer.stop();
     running = false;
@@ -181,7 +79,7 @@ void VMController::pause()
     emit executionStopped();
 }
 
-bool VMController::restart()
+bool VMControllerCore::restart()
 {
     executionTimer.stop();
     running = false;
@@ -206,10 +104,10 @@ bool VMController::restart()
     }
 }
 
-void VMController::reset()
+void VMControllerCore::reset()
 {
     executionTimer.stop();
-    vm = std::make_unique<RospOSVM>(true);
+    vm = std::make_unique<RospOSVM>(false);
     running = false;
     pendingBurstSteps = 0.0;
     throughputTimer.invalidate();
@@ -218,7 +116,7 @@ void VMController::reset()
     emit executionStopped();
 }
 
-void VMController::setExecutionSpeedLevel(int level)
+void VMControllerCore::setExecutionSpeedLevel(int level)
 {
     if (level < 0) {
         level = 0;
@@ -235,15 +133,14 @@ void VMController::setExecutionSpeedLevel(int level)
     }
 }
 
-bool VMController::canStepBackward() const
+bool VMControllerCore::canStepBackward() const
 {
     return vm->canStepBackward();
 }
 
-int VMController::executionIntervalMs() const
+int VMControllerCore::executionIntervalMs() const
 {
     if (usesBurstExecutor()) {
-        // Burst-mode speeds are paced by instruction quotas, not per-instruction delay.
         return (speedLevel == 10) ? 0 : 8;
     }
 
@@ -267,12 +164,12 @@ int VMController::executionIntervalMs() const
     }
 }
 
-bool VMController::usesBurstExecutor() const
+bool VMControllerCore::usesBurstExecutor() const
 {
     return speedLevel >= 7;
 }
 
-int VMController::targetInstructionsPerSecond() const
+int VMControllerCore::targetInstructionsPerSecond() const
 {
     switch (speedLevel) {
     case 0:
@@ -302,7 +199,7 @@ int VMController::targetInstructionsPerSecond() const
     }
 }
 
-void VMController::scheduleNextExecutionTick()
+void VMControllerCore::scheduleNextExecutionTick()
 {
     if (!running) {
         return;
@@ -311,7 +208,7 @@ void VMController::scheduleNextExecutionTick()
     executionTimer.start(executionIntervalMs());
 }
 
-void VMController::onExecutionTick()
+void VMControllerCore::onExecutionTick()
 {
     if (!running) {
         return;
@@ -365,7 +262,7 @@ void VMController::onExecutionTick()
                     emit executionStopped();
                     return;
                 }
-                if (burstTimer.elapsed() >= 8) { // Limit bursts to ~8ms to keep UI responsive
+                if (burstTimer.elapsed() >= 8) {
                     if (speedLevel != 10 && i + 1 < stepsToRun) {
                         pendingBurstSteps += static_cast<double>(stepsToRun - (i + 1));
                     }
@@ -389,12 +286,12 @@ void VMController::onExecutionTick()
     }
 }
 
-uint32_t VMController::getProgramCounter() const
+uint32_t VMControllerCore::getProgramCounter() const
 {
     return vm->getProgramCounter();
 }
 
-uint32_t VMController::getRegister(int index) const
+uint32_t VMControllerCore::getRegister(int index) const
 {
     try {
         return vm->getRegister(index);
@@ -403,7 +300,7 @@ uint32_t VMController::getRegister(int index) const
     }
 }
 
-QString VMController::getRegisterName(int index) const
+QString VMControllerCore::getRegisterName(int index) const
 {
     static const char *names[] = {
         "R0", "R1", "R2", "R3", "R4", "R5", "R6", "R7",
@@ -416,78 +313,7 @@ QString VMController::getRegisterName(int index) const
     return QString("R%1").arg(index);
 }
 
-QString VMController::getRegisterAllocationTooltip(int index) const
-{
-    try {
-        const uint32_t pc = vm->getProgramCounter();
-        const RegisterAllocationInfo *alloc = vm->getRegisterAllocation(pc, index);
-        if (!alloc) {
-            return QString();
-        }
-
-        QString kind = QString::fromStdString(alloc->var_kind);
-        if (kind.isEmpty()) {
-            kind = "local";
-        }
-        QString text = QString("%1 (%2)")
-                           .arg(QString::fromStdString(alloc->variable_name), kind);
-
-        const QString type = QString::fromStdString(alloc->variable_type);
-        if (!type.isEmpty()) {
-            text += QString("\nType: %1").arg(type);
-        }
-
-        const QString origin = QString::fromStdString(alloc->origin);
-        if (!origin.isEmpty()) {
-            text += QString("\nOrigin: %1").arg(origin);
-        }
-
-        if (kind == "temp") {
-            text += "\nTemporary calculation";
-        }
-
-        return text;
-    } catch (...) {
-        return QString();
-    }
-}
-
-QString VMController::getRegisterAllocationTooltipAt(uint32_t address, int index) const
-{
-    try {
-        const RegisterAllocationInfo *alloc = vm->getRegisterAllocation(address, index);
-        if (!alloc) {
-            return QString();
-        }
-
-        QString kind = QString::fromStdString(alloc->var_kind);
-        if (kind.isEmpty()) {
-            kind = "local";
-        }
-        QString text = QString("%1 (%2)")
-                           .arg(QString::fromStdString(alloc->variable_name), kind);
-
-        const QString type = QString::fromStdString(alloc->variable_type);
-        if (!type.isEmpty()) {
-            text += QString("\nType: %1").arg(type);
-        }
-
-        const QString origin = QString::fromStdString(alloc->origin);
-        if (!origin.isEmpty()) {
-            text += QString("\nOrigin: %1").arg(origin);
-        }
-
-        if (kind == "temp") {
-            text += "\nTemporary calculation";
-        }
-
-        return text;
-    } catch (...) {
-        return QString();
-    }
-}
-
-uint32_t VMController::readMemory(uint32_t address) const
+uint32_t VMControllerCore::readMemory(uint32_t address) const
 {
     try {
         return vm->readMemory(address);
@@ -496,7 +322,7 @@ uint32_t VMController::readMemory(uint32_t address) const
     }
 }
 
-uint8_t VMController::readMemoryByte(uint32_t address) const
+uint8_t VMControllerCore::readMemoryByte(uint32_t address) const
 {
     try {
         return vm->readMemoryByte(address);
@@ -505,7 +331,7 @@ uint8_t VMController::readMemoryByte(uint32_t address) const
     }
 }
 
-uint8_t VMController::readMemoryByteForInspector(uint32_t address) const
+uint8_t VMControllerCore::readMemoryByteForInspector(uint32_t address) const
 {
     try {
         return vm->readMemoryByteForInspector(address);
@@ -514,7 +340,7 @@ uint8_t VMController::readMemoryByteForInspector(uint32_t address) const
     }
 }
 
-bool VMController::exportMemoryRangeToBinary(uint32_t startAddress, uint32_t endAddress, const QString &filePath, QString *errorMessage) const
+bool VMControllerCore::exportMemoryRangeToBinary(uint32_t startAddress, uint32_t endAddress, const QString &filePath, QString *errorMessage) const
 {
     if (endAddress < startAddress) {
         if (errorMessage) {
@@ -571,7 +397,7 @@ bool VMController::exportMemoryRangeToBinary(uint32_t startAddress, uint32_t end
     return true;
 }
 
-void VMController::writeMemory(uint32_t address, uint32_t value)
+void VMControllerCore::writeMemory(uint32_t address, uint32_t value)
 {
     try {
         vm->writeMemory(address, value);
@@ -579,7 +405,7 @@ void VMController::writeMemory(uint32_t address, uint32_t value)
     }
 }
 
-bool VMController::getLastMemoryAccess(uint32_t &address, uint8_t &size, bool &isWrite) const
+bool VMControllerCore::getLastMemoryAccess(uint32_t &address, uint8_t &size, bool &isWrite) const
 {
     try {
         return vm->getLastMemoryAccess(address, size, isWrite);
@@ -588,7 +414,7 @@ bool VMController::getLastMemoryAccess(uint32_t &address, uint8_t &size, bool &i
     }
 }
 
-bool VMController::getPredictedMemoryAccess(uint32_t &address, uint8_t &size, bool &isWrite) const
+bool VMControllerCore::getPredictedMemoryAccess(uint32_t &address, uint8_t &size, bool &isWrite) const
 {
     try {
         const uint32_t pc = vm->getProgramCounter();
@@ -606,29 +432,29 @@ bool VMController::getPredictedMemoryAccess(uint32_t &address, uint8_t &size, bo
 
         switch (subOp)
         {
-        case 0x0: // LB
-        case 0x1: // LBU
+        case 0x0:
+        case 0x1:
             size = 1;
             isWrite = false;
             return true;
-        case 0x2: // LH
-        case 0x3: // LHU
+        case 0x2:
+        case 0x3:
             size = 2;
             isWrite = false;
             return true;
-        case 0x4: // LW
+        case 0x4:
             size = 4;
             isWrite = false;
             return true;
-        case 0x5: // SB
+        case 0x5:
             size = 1;
             isWrite = true;
             return true;
-        case 0x6: // SH
+        case 0x6:
             size = 2;
             isWrite = true;
             return true;
-        case 0x7: // SW
+        case 0x7:
             size = 4;
             isWrite = true;
             return true;
@@ -640,15 +466,14 @@ bool VMController::getPredictedMemoryAccess(uint32_t &address, uint8_t &size, bo
     }
 }
 
-QString VMController::disassembleInstruction(uint32_t instruction)
+QString VMControllerCore::disassembleInstruction(uint32_t instruction)
 {
-    // Call the C function directly
     RegisterFile regFile;
     std::string disasm = decodeInstruction(instruction, regFile);
     return QString::fromStdString(disasm);
 }
 
-std::vector<uint32_t> VMController::getCodeRange(uint32_t start, uint32_t length) const
+std::vector<uint32_t> VMControllerCore::getCodeRange(uint32_t start, uint32_t length) const
 {
     std::vector<uint32_t> instructions;
     try {
@@ -659,62 +484,4 @@ std::vector<uint32_t> VMController::getCodeRange(uint32_t start, uint32_t length
     } catch (...) {
     }
     return instructions;
-}
-
-QString VMController::getCurrentSourceLocation() const
-{
-    return getSourceLocation(vm->getProgramCounter());
-}
-
-QString VMController::getCurrentOriginalInstruction() const
-{
-    std::string text = vm->getOriginalInstruction(vm->getProgramCounter());
-    return QString::fromStdString(text);
-}
-
-QString VMController::getSourceLocation(uint32_t address) const
-{
-    QString filePath;
-    uint32_t line = 0;
-    if (getSourceReference(address, filePath, line)) {
-        return QString("%1:%2").arg(filePath).arg(line);
-    }
-
-    std::string location = vm->formatSourceLocation(address);
-    return QString::fromStdString(location);
-}
-
-bool VMController::getSourceReference(uint32_t address, QString &filePath, uint32_t &line) const
-{
-    const DebugEntry *entry = vm->getDebugInfo(address);
-    if (!entry) {
-        return false;
-    }
-
-    std::shared_ptr<Binary> loadedBinary = vm->getLoadedBinary();
-    if (!loadedBinary || loadedBinary->debug_map.empty()) {
-        return false;
-    }
-
-    for (const auto &debugPair : loadedBinary->debug_map) {
-        const auto &debugInfo = debugPair.second;
-        auto fileIt = debugInfo->file_table.find(entry->file_id);
-        if (fileIt != debugInfo->file_table.end()) {
-            filePath = QString::fromStdString(fileIt->second);
-            line = entry->line;
-
-            uint32_t resolvedLine = 0;
-            if (tryResolveNearbySourceLine(
-                    filePath,
-                    line,
-                    QString::fromStdString(entry->original_text),
-                    resolvedLine)) {
-                line = resolvedLine;
-            }
-
-            return true;
-        }
-    }
-
-    return false;
 }
