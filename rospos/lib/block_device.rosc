@@ -19,24 +19,26 @@ void bd_write_u32(int addr, int value)
     __sb(addr + 3, value & 0xFF);
 }
 
-void write_block(int blockID, char *data)
+inline void write_block(int blockID, char *data)
 {
     bd_write_u32(0x40000008, blockID); // Block ID
     bd_write_u32(0x4000000C, (int)data); // Buffer Addr
     bd_write_u32(0x40000010, 1); // Block Count
     bd_write_u32(0x40000004, 2); // Write command
-    while (bd_read_u32(0x40000004) != 0) {
-    } // Wait for completion
+    // The operation could be asynchronous...
+    // if this wasn't a VM that we can ensure that it completes immediately
+    // from the virtual CPU's perspective. In a real implementation, we'd
+    // need to poll the block device status register to ensure the operation
+    // completes before returning.
     return;
 }
 
-void read_block(int blockID, char *buffer)
+inline void read_block(int blockID, char *buffer)
 {
     bd_write_u32(0x40000008, blockID); // Block ID
     bd_write_u32(0x4000000C, (int)buffer); // Buffer Addr
     bd_write_u32(0x40000010, 1); // Block Count
     bd_write_u32(0x40000004, 1); // Read command
-    while (bd_read_u32(0x40000004) != 0) { // Command clears when complete
-    }
+    // Same note about asynchronous operation applies here as in write_block.
     return;
 }

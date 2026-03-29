@@ -1,4 +1,5 @@
 #include <block_device.rosc>
+#include <stdlib.rosc>
 //Basic filesystem for RospOS.
 
 // Block device layout:
@@ -41,11 +42,8 @@ void ensure_filesystem_initialized()
         initialize_filesystem();
     }
 }
-void write_file(){
-    // For simplicity, this example only supports writing a single file with a fixed name and size
-    char filename[32] = "example.txt";
-    char data[512] = "Hello, RospOS filesystem!";
-    int file_size = 25; // Length of the string above
+void write_file(char *filename, char *data){
+    int file_size = string_length(data);
 
     // Create directory entry for the file
     char dir_entry[64];
@@ -69,7 +67,7 @@ void write_file(){
     // Write file data to block 2
     write_block(data_block_index, data);
 }
-void read_file(){
+char* read_file(char *filename){
     // Read directory entry from block 1
     char dir_entry[64];
     read_block(1, dir_entry);
@@ -91,4 +89,5 @@ void read_file(){
     // For demonstration, we can print the file contents to the display
     draw_string_to_display(filename, 10, 30, 0x3F);
     draw_string_to_display(data, 10, 50, 0x3F);
+    return data;
 }

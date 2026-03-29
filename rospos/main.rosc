@@ -17,13 +17,13 @@ void main()
     
     
     initialize_filesystem();
-    write_file();
+    write_file("example.txt", "Hello, RospOS filesystem!");
     char device_info[512];
     read_block(0xFFFFFFFF, device_info); // Read from the special block to get device info
     draw_string_to_display(device_info, 10, 10, 0x3F);
-    read_file();
-    draw_string_to_display("Hello, RospOS!", 10, 70, 0x3F);
-    draw_string_to_display("Green RospOS", 10, 90 , 0x0C);
+    char *file_contents = read_file("example.txt");
+    draw_string_to_display(file_contents, 10, 70, 0x3F);
+    draw_string_to_display("Green", 10, 90 , 0x0C);
     draw_string_to_display("Red RospOS", 10, 110 , 0x30);
     draw_string_to_display("Blue RospOS", 10, 130 , 0x07);
     draw_string_to_display("Yellow RospOS", 10, 150 , 0x3C);
