@@ -90,7 +90,6 @@ bool is_special_read_only(uint32_t blockId)
 bool try_read_special_block(uint32_t blockId, std::array<uint8_t, BlockDeviceBacking::kBlockSize> &block)
 {
     if (blockId == kSpecialTimeBlockId) {
-        std::cout << "Reading special TIME block" << std::endl;
         const auto nowMs = std::chrono::duration_cast<std::chrono::milliseconds>(
             std::chrono::system_clock::now().time_since_epoch()
         ).count();
@@ -102,7 +101,6 @@ bool try_read_special_block(uint32_t blockId, std::array<uint8_t, BlockDeviceBac
     }
 
     if (blockId == kSpecialRngBlockId) {
-        std::cout << "Reading special RNG block" << std::endl;
         std::uniform_int_distribution<uint32_t> dist(0, 0xFFFFFFFFU);
         for (uint32_t i = 0; i < BlockDeviceBacking::kBlockSize; i += 4) {
             const uint32_t value = dist(g_state.rng);
@@ -115,7 +113,6 @@ bool try_read_special_block(uint32_t blockId, std::array<uint8_t, BlockDeviceBac
     }
 
     if (blockId == kSpecialInfoBlockId) {
-        std::cout << "Reading special INFO block" << std::endl;
         const char *tag = "ROSPOS-BLOCK-DEVICE";
         for (size_t i = 0; tag[i] != '\0' && i < block.size(); ++i) {
             block[i] = static_cast<uint8_t>(tag[i]);
