@@ -32,6 +32,7 @@ void initialize_filesystem()
         superblock[i] = 0;
     };
     write_block(0, superblock);
+    return 0;
 }
 void ensure_filesystem_initialized()
 {
@@ -41,31 +42,56 @@ void ensure_filesystem_initialized()
     {
         initialize_filesystem();
     }
+    return 0;
 }
 void write_file(char *filename, char *data){
-    int file_size = string_length(data);
-
-    // Create directory entry for the file
-    char dir_entry[64];
+    // Build a full 512-byte directory block so writes never read past our buffer.
+    char scratch_block[512];
+    for (int i = 0; i < 512; i++)
+    {
+        scratch_block[i] = 0;
+    }
     for (int i = 0; i < 32; i++)
     {
-        dir_entry[i] = filename[i];
+        scratch_block[i] = filename[i];
     }
-    dir_entry[32] = (file_size >> 24) & 0xFF;
-    dir_entry[33] = (file_size >> 16) & 0xFF;
-    dir_entry[34] = (file_size >> 8) & 0xFF;
-    dir_entry[35] = file_size & 0xFF;
-    int data_block_index = 2; // Start of file data blocks
-    dir_entry[36] = (data_block_index >> 24) & 0xFF;
-    dir_entry[37] = (data_block_index >> 16) & 0xFF;
-    dir_entry[38] = (data_block_index >> 8) & 0xFF;
-    dir_entry[39] = data_block_index & 0xFF;
 
-    // Write directory entry to block 1
-    write_block(1, dir_entry);
+    int file_size = string_length(data);
+    int scratch_block_index = 2; // Start of file data blocks
 
-    // Write file data to block 2
-    write_block(data_block_index, data);
+    scratch_block[32] = (file_size >> 24) & 0xFF;
+    scratch_block[33] = (file_size >> 16) & 0xFF;
+    scratch_block[34] = (file_size >> 8) & 0xFF;
+    scratch_block[35] = file_size & 0xFF;
+    scratch_block[36] = (scratch_block_index >> 24) & 0xFF;
+    scratch_block[37] = (scratch_block_index >> 16) & 0xFF;
+    scratch_block[38] = (scratch_block_index >> 8) & 0xFF;
+    scratch_block[39] = scratch_block_index & 0xFF;
+
+    // Submit write command directly to avoid inline write_block arg lowering issues.
+    bd_write_u32(0x40000008, 1);
+    bd_write_u32(0x4000000C, (int)scratch_block);
+    bd_write_u32(0x40000010, 1);
+    bd_write_u32(0x40000004, 2);
+
+    for (int i = 0; i < 512; i++)
+    {
+        scratch_block[i] = 0;
+    }
+    for (int i = 0; i < 511; i++)
+    {
+        scratch_block[i] = data[i];
+        if (data[i] == '\0')
+        {
+            break;
+        }
+    }
+
+    bd_write_u32(0x40000008, scratch_block_index);
+    bd_write_u32(0x4000000C, (int)scratch_block);
+    bd_write_u32(0x40000010, 1);
+    bd_write_u32(0x40000004, 2);
+    return 0;
 }
 char* read_file(char *filename){
     // Read directory entry from block 1
