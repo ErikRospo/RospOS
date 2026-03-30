@@ -190,7 +190,9 @@ def _color(text: str, code: str, enabled: bool) -> str:
     return f"\033[{code}m{text}\033[0m"
 
 
-def _hexdump_c_lines(data: bytes, base_offset: int = 0, color: bool = False) -> List[str]:
+def _hexdump_c_lines(
+    data: bytes, base_offset: int = 0, color: bool = False
+) -> List[str]:
     lines: List[str] = []
     for i in range(0, len(data), 16):
         chunk = data[i : i + 16]
@@ -354,7 +356,7 @@ def rosb_list(args: argparse.Namespace) -> int:
         print(f"  block_count={header.block_count}")
         print(f"  file_size={file_size}")
         print(f"  index_offset={header.index_offset}")
-        
+
         # Read raw index first so we can show duplicate/unsorted details as stored on disk.
         if header.index_offset >= file_size:
             raise ValueError("Corrupt ROSB: index offset is outside file")
@@ -373,13 +375,14 @@ def rosb_list(args: argparse.Namespace) -> int:
 
         dedup_entries = _read_index(f, header, file_size)
 
-
         unique_ids = {entry.block_id for entry in raw_entries}
         print(f"{key('index')}:")
         print(f"  raw_count={len(raw_entries)}")
         print(f"  unique_block_ids={len(unique_ids)}")
         print(f"  dedup_count={len(dedup_entries)}")
-        print(f"  sorted_by_block_id={raw_entries == sorted(raw_entries, key=lambda e: e.block_id)}")
+        print(
+            f"  sorted_by_block_id={raw_entries == sorted(raw_entries, key=lambda e: e.block_id)}"
+        )
         print(f"  has_duplicate_ids={len(unique_ids) != len(raw_entries)}")
 
         if header.block_count != len(raw_entries):

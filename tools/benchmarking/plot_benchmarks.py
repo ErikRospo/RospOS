@@ -153,9 +153,7 @@ def print_summary(points: list[RunPoint]) -> None:
         if f is None or l is None:
             continue
         delta = improvement_percent(f, l, spec.higher_is_better)
-        print(
-            f"  {spec.label}: {f:.6g} -> {l:.6g} ({format_delta(delta)})"
-        )
+        print(f"  {spec.label}: {f:.6g} -> {l:.6g} ({format_delta(delta)})")
 
 
 def save_plot(points: list[RunPoint], output_path: Path, title: str) -> None:

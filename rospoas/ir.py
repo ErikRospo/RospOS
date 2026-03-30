@@ -58,6 +58,7 @@ class Instruction:
 
     def copy_with(self, **kwargs) -> "Instruction":
         return replace(self, **kwargs)
+
     def __repr__(self) -> str:
         imm_repr = f", imm={self.imm}" if self.imm is not None else ""
         rd_repr = f", rd={self.rd}" if self.rd is not None else ""
@@ -65,19 +66,21 @@ class Instruction:
         rs2_repr = f", rs2={self.rs2}" if self.rs2 is not None else ""
         compact_src = None
         if self.src is not None:
-            compact_src = {k: self.src[k] for k in ['file', 'line'] if k in self.src}
+            compact_src = {k: self.src[k] for k in ["file", "line"] if k in self.src}
         if compact_src:
             imm_repr += f", src={compact_src}"
         return f"Instruction(type='{self.type}', name='{self.name}'{rd_repr}{rs1_repr}{rs2_repr}{imm_repr})"
+
 
 @dataclass
 class LabelDecl:
     name: str
     src: Optional[dict] = None
+
     def __repr__(self) -> str:
         compact_src = None
         if self.src is not None:
-            compact_src = {k: self.src[k] for k in ['file', 'line'] if k in self.src}
+            compact_src = {k: self.src[k] for k in ["file", "line"] if k in self.src}
         src_repr = f", src={compact_src}" if compact_src else ""
         return f"LabelDecl(name='{self.name}'{src_repr})"
 
@@ -92,12 +95,13 @@ class Directive:
     is_from_rospocc: bool = False
     is_optimized: bool = False
     expansion_depth: int = 0
+
     def __repr__(self) -> str:
         imm_repr = f", imm={self.imm}" if self.imm is not None else ""
         length_repr = f", length={self.length}" if self.length is not None else ""
         compact_src = None
         if self.src is not None:
-            compact_src = {k: self.src[k] for k in ['file', 'line'] if k in self.src}
+            compact_src = {k: self.src[k] for k in ["file", "line"] if k in self.src}
         src_repr = f", src={compact_src}" if compact_src else ""
         return f"Directive(name='{self.name}'{imm_repr}{length_repr}{src_repr})"
 

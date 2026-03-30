@@ -1,5 +1,7 @@
-from ir import ImmLabel, ImmValue, Instruction, LabelDecl
 import time
+
+from ir import ImmLabel, ImmValue, Instruction, LabelDecl
+
 opts = []
 
 
@@ -10,9 +12,11 @@ def optimize(ast):
     # Multiple passes to allow optimizations that enable other optimizations (e.g. removing a jump may enable removal of unreachable code after it, or folding offset calcs may enable removal of now-redundant instructions). In practice, 2-3 passes should be sufficient for most cases, and we can always increase if needed.
     # Very quickly diminishing returns after about 2 passes
     # But it's quick enough that we can afford to be generous with the number of passes.
-    previous_ast=None
-    ran_passes=0
-    for _ in range(10):  # Limit the number of passes to prevent infinite loops (Shouldn't be possible, but just in case)
+    previous_ast = None
+    ran_passes = 0
+    for _ in range(
+        10
+    ):  # Limit the number of passes to prevent infinite loops (Shouldn't be possible, but just in case)
         t0 = time.perf_counter_ns()
         previous_ast = ast
         for opt in opts:
@@ -21,7 +25,9 @@ def optimize(ast):
             break
         ran_passes += 1
         opt_pass_times.append(time.perf_counter_ns() - t0)
-    logs.append(f"Optimization complete in {sum(opt_pass_times)/1e6:.2f} ms over {len(opts)} optimizations and {ran_passes} passes (individual pass times: {[f'{t/1e6:.2f} ms' for t in opt_pass_times]})")
+    logs.append(
+        f"Optimization complete in {sum(opt_pass_times)/1e6:.2f} ms over {len(opts)} optimizations and {ran_passes} passes (individual pass times: {[f'{t/1e6:.2f} ms' for t in opt_pass_times]})"
+    )
     return ast, logs
 
 
@@ -128,6 +134,7 @@ def opt_30_nop_removal(ast, logs):
         optimized_ast.append(instr)
     return optimized_ast
 
+
 def opt_30_condition_against_zero(ast, logs):
     #   LLI rX, 0
     #   BEQ/BNE a, rX, label
@@ -183,6 +190,8 @@ def opt_30_condition_against_zero(ast, logs):
         i += 1
 
     return optimized_ast
+
+
 def opt_20_push_pop(ast, logs):
     # find sequences of push and pop instructions that cancel each other out and eliminate them
     # e.g.
@@ -381,10 +390,7 @@ def opt_35_redundant_reload_to_move(ast, logs):
             and b.rs1 == getattr(a, "rs1", None)
             and _reg_from_imm(b.imm) == _reg_from_imm(getattr(a, "imm", None))
         )
-        is_safe_mid = (
-            isinstance(mid, Instruction)
-            and mid.type == "b"
-        )
+        is_safe_mid = isinstance(mid, Instruction) and mid.type == "b"
 
         if is_load_a and is_load_b and is_safe_mid:
             replacement = Instruction(
