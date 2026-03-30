@@ -105,6 +105,9 @@ $(DIR_DOCS_BUILD)/%.html: doc/%.md | $(DIR_DOCS_BUILD)
 $(DIR_DOCS_BUILD)/%.pdf: doc/%.md | $(DIR_DOCS_BUILD)
 	$(PANDOC) $< --filter pandoc-include -V links-as-notes=true -o $@
 
+rosbdump.txt: $(ROSP_FULL)
+	$(PY) tools/rosb_tool.py inspect rospos.blockdev --show-data > rospbdump.txt
+rbdump: rosbdump.txt
 doc: $(HTMLDOCS) $(PDFDOCS)
 
 bm: rospos/font_bitmap.bin
@@ -151,5 +154,8 @@ clean:
 	rm -f $(HTMLDOCS)
 	rm -f $(PDFDOCS)
 	rm -f rospos/font_bitmap.bin
+	rm -f rosbdump.txt
+	rm -f $(ROS_ASM)
+	rm -f $(ROSP_VARIANTS)
 
 everything: build doc benchmark benchmark_plot report
