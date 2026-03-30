@@ -93,7 +93,7 @@ void write_file(char *filename, char *data){
     bd_write_u32(0x40000004, 2);
     return 0;
 }
-char* read_file(char *filename){
+void read_file(char *filename, char *buffer){
     // Read directory entry from block 1
     char dir_entry[64];
     read_block(1, dir_entry);
@@ -109,11 +109,6 @@ char* read_file(char *filename){
     int data_block_index = (dir_entry[36] << 24) | (dir_entry[37] << 16) | (dir_entry[38] << 8) | dir_entry[39];
 
     // Read file data from the specified data block
-    char data[512];
-    read_block(data_block_index, data);
-
-    // For demonstration, we can print the file contents to the display
-    draw_string_to_display(filename, 10, 30, 0x3F);
-    draw_string_to_display(data, 10, 50, 0x3F);
-    return data;
+    read_block(data_block_index, buffer);
+    return 0;
 }
