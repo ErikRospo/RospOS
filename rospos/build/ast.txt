@@ -885,7 +885,7 @@ translation_unit
     function_def
       type_specifier
         void
-      declarator	screen_test
+      declarator	lfsr_test
       compound_stmt
         declaration
           type_specifier
@@ -1071,6 +1071,153 @@ translation_unit
                   remaining
                   minus
                   1
+  external_decl
+    function_def
+      type_specifier
+        void
+      declarator	palette_test
+      param_list
+        param
+          type_specifier
+            int
+          declarator	x
+        param
+          type_specifier
+            int
+          declarator	y
+        param
+          type_specifier
+            int
+          declarator	square_size
+      compound_stmt
+        for_stmt
+          declaration
+            type_specifier
+              int
+            init_declarator_list
+              init_declarator
+                declarator	i
+                0
+          relational
+            i
+            lt
+            64
+          postfix
+            i
+            post_inc
+          compound_stmt
+            declaration
+              type_specifier
+                int
+              init_declarator_list
+                init_declarator
+                  declarator	color
+                  i
+            declaration
+              type_specifier
+                int
+              init_declarator_list
+                init_declarator
+                  declarator	row
+                  multiplicative
+                    i
+                    mod
+                    16
+            declaration
+              type_specifier
+                int
+              init_declarator_list
+                init_declarator
+                  declarator	col
+                  multiplicative
+                    i
+                    div
+                    16
+            for_stmt
+              declaration
+                type_specifier
+                  int
+                init_declarator_list
+                  init_declarator
+                    declarator	j
+                    0
+              relational
+                j
+                lt
+                square_size
+              postfix
+                j
+                post_inc
+              compound_stmt
+                for_stmt
+                  declaration
+                    type_specifier
+                      int
+                    init_declarator_list
+                      init_declarator
+                        declarator	k
+                        0
+                  relational
+                    k
+                    lt
+                    square_size
+                  postfix
+                    k
+                    post_inc
+                  compound_stmt
+                    declaration
+                      type_specifier
+                        int
+                      init_declarator_list
+                        init_declarator
+                          declarator	px
+                          additive
+                            x
+                            plus
+                            multiplicative
+                              col
+                              mult
+                              square_size
+                            plus
+                            k
+                    declaration
+                      type_specifier
+                        int
+                      init_declarator_list
+                        init_declarator
+                          declarator	py
+                          additive
+                            y
+                            plus
+                            multiplicative
+                              row
+                              mult
+                              square_size
+                            plus
+                            j
+                    declaration
+                      type_specifier
+                        int
+                      init_declarator_list
+                        init_declarator
+                          declarator	index
+                          additive
+                            multiplicative
+                              py
+                              mult
+                              256
+                            plus
+                            px
+                    expr_stmt
+                      postfix
+                        __sb
+                        call_suffix
+                          arg_list
+                            additive
+                              0x20000000
+                              plus
+                              index
+                            color
   external_decl
     function_def
       type_specifier
@@ -1829,8 +1976,7 @@ translation_unit
   external_decl
     function_def
       type_specifier
-        char
-        pointer
+        void
       declarator	read_file
       param_list
         param
@@ -1838,6 +1984,11 @@ translation_unit
             char
             pointer
           declarator	filename
+        param
+          type_specifier
+            char
+            pointer
+          declarator	buffer
       compound_stmt
         declaration
           type_specifier
@@ -1948,40 +2099,14 @@ translation_unit
                 postfix
                   dir_entry
                   array_index	39
-        declaration
-          type_specifier
-            char
-          init_declarator_list
-            init_declarator
-              declarator
-                data
-                array	512
         expr_stmt
           postfix
             read_block
             call_suffix
               arg_list
                 data_block_index
-                data
-        expr_stmt
-          postfix
-            draw_string_to_display
-            call_suffix
-              arg_list
-                filename
-                10
-                30
-                0x3F
-        expr_stmt
-          postfix
-            draw_string_to_display
-            call_suffix
-              arg_list
-                data
-                10
-                50
-                0x3F
-        return_stmt	data
+                buffer
+        return_stmt	0
   external_decl
     function_def
       inline
@@ -2050,8 +2175,8 @@ translation_unit
             write_file
             call_suffix
               arg_list
-                "example.txt"
-                "Hello, RospOS filesystem!"
+                "example.txt\0"
+                "Hello, RospOS filesystem!\0"
         declaration
           type_specifier
             char
@@ -2079,14 +2204,18 @@ translation_unit
         declaration
           type_specifier
             char
-            pointer
           init_declarator_list
             init_declarator
-              declarator	file_contents
-              postfix
-                read_file
-                call_suffix
-                  arg_list	"example.txt"
+              declarator
+                file_contents
+                array	512
+        expr_stmt
+          postfix
+            read_file
+            call_suffix
+              arg_list
+                "example.txt\0"
+                file_contents
         expr_stmt
           postfix
             draw_string_to_display
@@ -2110,7 +2239,7 @@ translation_unit
             draw_string_to_display
             call_suffix
               arg_list
-                "Red RospOS"
+                "Red"
                 10
                 110
                 0x30
@@ -2119,7 +2248,7 @@ translation_unit
             draw_string_to_display
             call_suffix
               arg_list
-                "Blue RospOS"
+                "Blue"
                 10
                 130
                 0x07
@@ -2128,11 +2257,15 @@ translation_unit
             draw_string_to_display
             call_suffix
               arg_list
-                "Yellow RospOS"
+                "Yellow"
                 10
                 150
                 0x3C
         expr_stmt
           postfix
-            screen_test
+            palette_test
             call_suffix
+              arg_list
+                10
+                170
+                8
