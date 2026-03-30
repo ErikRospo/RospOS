@@ -195,6 +195,13 @@ class BuildAnalyzer:
             if line.startswith("Removed redundant PUSH/POP of same register"):
                 record_event("remove_redundant_push_pop", removed=2)
                 continue
+            if line.startswith("Optimized condition-against-zero"):
+                # This optimization rewrites a branch comparing against zero into a more efficient form.
+                record_event("condition_against_zero", is_rewrite=True, removed=1)
+                continue
+            if line.startswith("Optimization complete in"):
+                # Summary line, can be ignored for event counting.
+                continue
 
             optimization_stats["unknown_events"] += 1
 
@@ -406,6 +413,7 @@ def print_optimization_stats(analyzer: BuildAnalyzer):
         "remove_unused_label": "Unused labels removed",
         "push_pop_to_move": "PUSH/POP pairs converted to moves",
         "remove_redundant_push_pop": "Redundant PUSH/POP pairs removed",
+        "condition_against_zero": "Condition-against-zero optimizations",
     }
 
     if opt_stats["event_counts"]:
