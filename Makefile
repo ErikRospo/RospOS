@@ -97,12 +97,12 @@ $(eval $(call make_vm_target,rospovm_qt))
 $(eval $(call make_vm_target,rospovm_headless))
 $(eval $(call make_vm_target,rospovm_minimal))
 
-$(DIR_DOCS_BUILD)/%.html: doc/%.md | $(DIR_DOCS_BUILD)
+$(DIR_DOCS_BUILD)%.html: doc/%.md | $(DIR_DOCS_BUILD)
 	$(PANDOC) $< --filter pandoc-include -s -o $@
 	# Widen generated Pandoc layout for improved readability on wide displays.
 	sed -i 's/max-width: 36em;/max-width: 64em;/g' $@
 
-$(DIR_DOCS_BUILD)/%.pdf: doc/%.md | $(DIR_DOCS_BUILD)
+$(DIR_DOCS_BUILD)%.pdf: doc/%.md | $(DIR_DOCS_BUILD)
 	$(PANDOC) $< --filter pandoc-include -V links-as-notes=true -o $@
 
 rosbdump.txt: $(ROSP_FULL)
