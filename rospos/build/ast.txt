@@ -1472,6 +1472,7 @@ translation_unit
               arg_list
                 0
                 superblock
+        return_stmt	0
   external_decl
     function_def
       type_specifier
@@ -1536,6 +1537,7 @@ translation_unit
               postfix
                 initialize_filesystem
                 call_suffix
+        return_stmt	0
   external_decl
     function_def
       type_specifier
@@ -1555,22 +1557,34 @@ translation_unit
       compound_stmt
         declaration
           type_specifier
-            int
-          init_declarator_list
-            init_declarator
-              declarator	file_size
-              postfix
-                string_length
-                call_suffix
-                  arg_list	data
-        declaration
-          type_specifier
             char
           init_declarator_list
             init_declarator
               declarator
-                dir_entry
-                array	64
+                scratch_block
+                array	512
+        for_stmt
+          declaration
+            type_specifier
+              int
+            init_declarator_list
+              init_declarator
+                declarator	i
+                0
+          relational
+            i
+            lt
+            512
+          postfix
+            i
+            post_inc
+          compound_stmt
+            expr_stmt
+              assignment
+                postfix
+                  scratch_block
+                  array_index	i
+                0
         for_stmt
           declaration
             type_specifier
@@ -1590,15 +1604,32 @@ translation_unit
             expr_stmt
               assignment
                 postfix
-                  dir_entry
+                  scratch_block
                   array_index	i
                 postfix
                   filename
                   array_index	i
+        declaration
+          type_specifier
+            int
+          init_declarator_list
+            init_declarator
+              declarator	file_size
+              postfix
+                string_length
+                call_suffix
+                  arg_list	data
+        declaration
+          type_specifier
+            int
+          init_declarator_list
+            init_declarator
+              declarator	scratch_block_index
+              2
         expr_stmt
           assignment
             postfix
-              dir_entry
+              scratch_block
               array_index	32
             bit_and
               shift
@@ -1609,7 +1640,7 @@ translation_unit
         expr_stmt
           assignment
             postfix
-              dir_entry
+              scratch_block
               array_index	33
             bit_and
               shift
@@ -1620,7 +1651,7 @@ translation_unit
         expr_stmt
           assignment
             postfix
-              dir_entry
+              scratch_block
               array_index	34
             bit_and
               shift
@@ -1631,73 +1662,170 @@ translation_unit
         expr_stmt
           assignment
             postfix
-              dir_entry
+              scratch_block
               array_index	35
             bit_and
               file_size
               0xFF
-        declaration
-          type_specifier
-            int
-          init_declarator_list
-            init_declarator
-              declarator	data_block_index
-              2
         expr_stmt
           assignment
             postfix
-              dir_entry
+              scratch_block
               array_index	36
             bit_and
               shift
-                data_block_index
+                scratch_block_index
                 rshift
                 24
               0xFF
         expr_stmt
           assignment
             postfix
-              dir_entry
+              scratch_block
               array_index	37
             bit_and
               shift
-                data_block_index
+                scratch_block_index
                 rshift
                 16
               0xFF
         expr_stmt
           assignment
             postfix
-              dir_entry
+              scratch_block
               array_index	38
             bit_and
               shift
-                data_block_index
+                scratch_block_index
                 rshift
                 8
               0xFF
         expr_stmt
           assignment
             postfix
-              dir_entry
+              scratch_block
               array_index	39
             bit_and
-              data_block_index
+              scratch_block_index
               0xFF
         expr_stmt
           postfix
-            write_block
+            bd_write_u32
             call_suffix
               arg_list
+                0x40000008
                 1
-                dir_entry
         expr_stmt
           postfix
-            write_block
+            bd_write_u32
             call_suffix
               arg_list
-                data_block_index
-                data
+                0x4000000C
+                cast
+                  type_specifier
+                    int
+                  scratch_block
+        expr_stmt
+          postfix
+            bd_write_u32
+            call_suffix
+              arg_list
+                0x40000010
+                1
+        expr_stmt
+          postfix
+            bd_write_u32
+            call_suffix
+              arg_list
+                0x40000004
+                2
+        for_stmt
+          declaration
+            type_specifier
+              int
+            init_declarator_list
+              init_declarator
+                declarator	i
+                0
+          relational
+            i
+            lt
+            512
+          postfix
+            i
+            post_inc
+          compound_stmt
+            expr_stmt
+              assignment
+                postfix
+                  scratch_block
+                  array_index	i
+                0
+        for_stmt
+          declaration
+            type_specifier
+              int
+            init_declarator_list
+              init_declarator
+                declarator	i
+                0
+          relational
+            i
+            lt
+            511
+          postfix
+            i
+            post_inc
+          compound_stmt
+            expr_stmt
+              assignment
+                postfix
+                  scratch_block
+                  array_index	i
+                postfix
+                  data
+                  array_index	i
+            if_stmt
+              equality
+                postfix
+                  data
+                  array_index	i
+                eq
+                "\0"
+              compound_stmt
+                expr_stmt	break
+        expr_stmt
+          postfix
+            bd_write_u32
+            call_suffix
+              arg_list
+                0x40000008
+                scratch_block_index
+        expr_stmt
+          postfix
+            bd_write_u32
+            call_suffix
+              arg_list
+                0x4000000C
+                cast
+                  type_specifier
+                    int
+                  scratch_block
+        expr_stmt
+          postfix
+            bd_write_u32
+            call_suffix
+              arg_list
+                0x40000010
+                1
+        expr_stmt
+          postfix
+            bd_write_u32
+            call_suffix
+              arg_list
+                0x40000004
+                2
+        return_stmt	0
   external_decl
     function_def
       type_specifier

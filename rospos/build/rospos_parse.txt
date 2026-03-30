@@ -3664,6 +3664,25 @@ program
         register	r9
         register	r0
   codeline
+    instruction
+      lli
+        register	r10
+        imm	0
+  codeline
+    instruction
+      rinstructuse
+        add
+        register	r1
+        register	r10
+        register	r0
+  codeline
+    instruction
+      pop
+        register	r14
+  codeline
+    instruction
+      retpseudo
+  codeline
     directiveuse
       func
         label	ensure_filesystem_initialized:
@@ -4395,6 +4414,25 @@ program
   codeline
     label	IF_END108:
   codeline
+    instruction
+      lli
+        register	r4
+        imm	0
+  codeline
+    instruction
+      rinstructuse
+        add
+        register	r1
+        register	r4
+        register	r0
+  codeline
+    instruction
+      pop
+        register	r14
+  codeline
+    instruction
+      retpseudo
+  codeline
     directiveuse
       func
         label	write_file:
@@ -4406,6 +4444,181 @@ program
     instruction
       lli
         register	r3
+        imm
+          labeluse	scratch_block_buf131
+  codeline
+    instruction
+      lli
+        register	r4
+        imm	0
+  codeline
+    label	WHILE132:
+  codeline
+    instruction
+      lli
+        register	r5
+        imm	512
+  codeline
+    instruction
+      binstructuse
+        blt
+        register	r4
+        register	r5
+        imm
+          labeluse	CMP_TRUE134
+  codeline
+    instruction
+      lli
+        register	r5
+        imm	0
+  codeline
+    instruction
+      jmpseudo
+        imm
+          labeluse	CMP_END135
+  codeline
+    label	CMP_TRUE134:
+  codeline
+    instruction
+      lli
+        register	r5
+        imm	1
+  codeline
+    label	CMP_END135:
+  codeline
+    instruction
+      binstructuse
+        beq
+        register	r5
+        register	r0
+        imm
+          labeluse	WHILE_END133
+  codeline
+    instruction
+      lli
+        register	r6
+        imm	0
+  codeline
+    instruction
+      rinstructuse
+        add
+        register	r7
+        register	r3
+        register	r4
+  codeline
+    instruction
+      lsinstructuse
+        sb
+        register	r6
+        register	r7
+        imm	0
+  codeline
+    instruction
+      iinstructuse
+        addi
+        register	r4
+        register	r4
+        imm	1
+  codeline
+    instruction
+      jmpseudo
+        imm
+          labeluse	WHILE132
+  codeline
+    label	WHILE_END133:
+  codeline
+    instruction
+      lli
+        register	r8
+        imm	0
+  codeline
+    label	WHILE136:
+  codeline
+    instruction
+      lli
+        register	r9
+        imm	32
+  codeline
+    instruction
+      binstructuse
+        blt
+        register	r8
+        register	r9
+        imm
+          labeluse	CMP_TRUE138
+  codeline
+    instruction
+      lli
+        register	r9
+        imm	0
+  codeline
+    instruction
+      jmpseudo
+        imm
+          labeluse	CMP_END139
+  codeline
+    label	CMP_TRUE138:
+  codeline
+    instruction
+      lli
+        register	r9
+        imm	1
+  codeline
+    label	CMP_END139:
+  codeline
+    instruction
+      binstructuse
+        beq
+        register	r9
+        register	r0
+        imm
+          labeluse	WHILE_END137
+  codeline
+    instruction
+      rinstructuse
+        add
+        register	r10
+        register	r1
+        register	r8
+  codeline
+    instruction
+      lsinstructuse
+        lb
+        register	r10
+        register	r10
+        imm	0
+  codeline
+    instruction
+      rinstructuse
+        add
+        register	r11
+        register	r3
+        register	r8
+  codeline
+    instruction
+      lsinstructuse
+        sb
+        register	r10
+        register	r11
+        imm	0
+  codeline
+    instruction
+      iinstructuse
+        addi
+        register	r8
+        register	r8
+        imm	1
+  codeline
+    instruction
+      jmpseudo
+        imm
+          labeluse	WHILE136
+  codeline
+    label	WHILE_END137:
+  codeline
+    instruction
+      lli
+        register	r12
         imm	0
   codeline
     instruction
@@ -4415,6 +4628,18 @@ program
     instruction
       push
         register	r3
+  codeline
+    instruction
+      push
+        register	r4
+  codeline
+    instruction
+      push
+        register	r8
+  codeline
+    instruction
+      push
+        register	r12
   codeline
     instruction
       push
@@ -4431,6 +4656,18 @@ program
   codeline
     instruction
       pop
+        register	r12
+  codeline
+    instruction
+      pop
+        register	r8
+  codeline
+    instruction
+      pop
+        register	r4
+  codeline
+    instruction
+      pop
         register	r3
   codeline
     instruction
@@ -4440,69 +4677,749 @@ program
     instruction
       iinstructuse
         addi
-        register	r3
+        register	r12
         register	r1
         imm	0
   codeline
     instruction
       lli
-        register	r4
-        imm
-          labeluse	dir_entry_buf131
+        register	r5
+        imm	2
   codeline
     instruction
-      lli
-        register	r5
-        imm	0
-  codeline
-    label	WHILE132:
+      iinstructuse
+        shri
+        register	r7
+        register	r12
+        imm	24
   codeline
     instruction
       lli
         register	r6
+        imm	255
+  codeline
+    instruction
+      rinstructuse
+        and
+        register	r7
+        register	r7
+        register	r6
+  codeline
+    instruction
+      lli
+        register	r9
         imm	32
   codeline
     instruction
-      binstructuse
-        blt
-        register	r5
-        register	r6
-        imm
-          labeluse	CMP_TRUE134
+      rinstructuse
+        add
+        register	r9
+        register	r3
+        register	r9
+  codeline
+    instruction
+      lsinstructuse
+        sb
+        register	r7
+        register	r9
+        imm	0
+  codeline
+    instruction
+      iinstructuse
+        shri
+        register	r11
+        register	r12
+        imm	16
   codeline
     instruction
       lli
+        register	r10
+        imm	255
+  codeline
+    instruction
+      rinstructuse
+        and
+        register	r11
+        register	r11
+        register	r10
+  codeline
+    instruction
+      lli
+        register	r6
+        imm	33
+  codeline
+    instruction
+      rinstructuse
+        add
+        register	r6
+        register	r3
+        register	r6
+  codeline
+    instruction
+      lsinstructuse
+        sb
+        register	r11
         register	r6
         imm	0
   codeline
     instruction
-      jmpseudo
-        imm
-          labeluse	CMP_END135
+      iinstructuse
+        shri
+        register	r9
+        register	r12
+        imm	8
   codeline
-    label	CMP_TRUE134:
+    instruction
+      lli
+        register	r7
+        imm	255
+  codeline
+    instruction
+      rinstructuse
+        and
+        register	r9
+        register	r9
+        register	r7
+  codeline
+    instruction
+      lli
+        register	r10
+        imm	34
+  codeline
+    instruction
+      rinstructuse
+        add
+        register	r10
+        register	r3
+        register	r10
+  codeline
+    instruction
+      lsinstructuse
+        sb
+        register	r9
+        register	r10
+        imm	0
   codeline
     instruction
       lli
         register	r6
-        imm	1
-  codeline
-    label	CMP_END135:
+        imm	255
   codeline
     instruction
-      binstructuse
-        beq
+      rinstructuse
+        and
+        register	r12
+        register	r12
         register	r6
-        register	r0
-        imm
-          labeluse	WHILE_END133
+  codeline
+    instruction
+      lli
+        register	r11
+        imm	35
+  codeline
+    instruction
+      rinstructuse
+        add
+        register	r11
+        register	r3
+        register	r11
+  codeline
+    instruction
+      lsinstructuse
+        sb
+        register	r12
+        register	r11
+        imm	0
+  codeline
+    instruction
+      iinstructuse
+        shri
+        register	r7
+        register	r5
+        imm	24
+  codeline
+    instruction
+      lli
+        register	r10
+        imm	255
+  codeline
+    instruction
+      rinstructuse
+        and
+        register	r7
+        register	r7
+        register	r10
+  codeline
+    instruction
+      lli
+        register	r9
+        imm	36
+  codeline
+    instruction
+      rinstructuse
+        add
+        register	r9
+        register	r3
+        register	r9
+  codeline
+    instruction
+      lsinstructuse
+        sb
+        register	r7
+        register	r9
+        imm	0
+  codeline
+    instruction
+      iinstructuse
+        shri
+        register	r12
+        register	r5
+        imm	16
+  codeline
+    instruction
+      lli
+        register	r6
+        imm	255
+  codeline
+    instruction
+      rinstructuse
+        and
+        register	r12
+        register	r12
+        register	r6
+  codeline
+    instruction
+      lli
+        register	r11
+        imm	37
+  codeline
+    instruction
+      rinstructuse
+        add
+        register	r11
+        register	r3
+        register	r11
+  codeline
+    instruction
+      lsinstructuse
+        sb
+        register	r12
+        register	r11
+        imm	0
+  codeline
+    instruction
+      iinstructuse
+        shri
+        register	r10
+        register	r5
+        imm	8
+  codeline
+    instruction
+      lli
+        register	r9
+        imm	255
+  codeline
+    instruction
+      rinstructuse
+        and
+        register	r10
+        register	r10
+        register	r9
+  codeline
+    instruction
+      lli
+        register	r7
+        imm	38
   codeline
     instruction
       rinstructuse
         add
         register	r7
-        register	r1
+        register	r3
+        register	r7
+  codeline
+    instruction
+      lsinstructuse
+        sb
+        register	r10
+        register	r7
+        imm	0
+  codeline
+    instruction
+      lli
+        register	r6
+        imm	255
+  codeline
+    instruction
+      rinstructuse
+        and
+        register	r6
         register	r5
+        register	r6
+  codeline
+    instruction
+      lli
+        register	r11
+        imm	39
+  codeline
+    instruction
+      rinstructuse
+        add
+        register	r11
+        register	r3
+        register	r11
+  codeline
+    instruction
+      lsinstructuse
+        sb
+        register	r6
+        register	r11
+        imm	0
+  codeline
+    instruction
+      push
+        register	r2
+  codeline
+    instruction
+      push
+        register	r3
+  codeline
+    instruction
+      push
+        register	r4
+  codeline
+    instruction
+      push
+        register	r5
+  codeline
+    instruction
+      push
+        register	r8
+  codeline
+    instruction
+      push
+        register	r1
+  codeline
+    instruction
+      lli
+        register	r12
+        imm	1073741832
+  codeline
+    instruction
+      push
+        register	r12
+  codeline
+    instruction
+      lli
+        register	r9
+        imm	1
+  codeline
+    instruction
+      push
+        register	r9
+  codeline
+    instruction
+      pop
+        register	r2
+  codeline
+    instruction
+      pop
+        register	r1
+  codeline
+    instruction
+      callpseudo
+        imm
+          labeluse	bd_write_u32
+  codeline
+    instruction
+      pop
+        register	r1
+  codeline
+    instruction
+      pop
+        register	r8
+  codeline
+    instruction
+      pop
+        register	r5
+  codeline
+    instruction
+      pop
+        register	r4
+  codeline
+    instruction
+      pop
+        register	r3
+  codeline
+    instruction
+      pop
+        register	r2
+  codeline
+    instruction
+      push
+        register	r2
+  codeline
+    instruction
+      push
+        register	r3
+  codeline
+    instruction
+      push
+        register	r4
+  codeline
+    instruction
+      push
+        register	r5
+  codeline
+    instruction
+      push
+        register	r8
+  codeline
+    instruction
+      push
+        register	r1
+  codeline
+    instruction
+      lli
+        register	r7
+        imm	1073741836
+  codeline
+    instruction
+      push
+        register	r7
+  codeline
+    instruction
+      push
+        register	r3
+  codeline
+    instruction
+      pop
+        register	r2
+  codeline
+    instruction
+      pop
+        register	r1
+  codeline
+    instruction
+      callpseudo
+        imm
+          labeluse	bd_write_u32
+  codeline
+    instruction
+      pop
+        register	r1
+  codeline
+    instruction
+      pop
+        register	r8
+  codeline
+    instruction
+      pop
+        register	r5
+  codeline
+    instruction
+      pop
+        register	r4
+  codeline
+    instruction
+      pop
+        register	r3
+  codeline
+    instruction
+      pop
+        register	r2
+  codeline
+    instruction
+      push
+        register	r2
+  codeline
+    instruction
+      push
+        register	r3
+  codeline
+    instruction
+      push
+        register	r4
+  codeline
+    instruction
+      push
+        register	r5
+  codeline
+    instruction
+      push
+        register	r8
+  codeline
+    instruction
+      push
+        register	r1
+  codeline
+    instruction
+      lli
+        register	r10
+        imm	1073741840
+  codeline
+    instruction
+      push
+        register	r10
+  codeline
+    instruction
+      lli
+        register	r11
+        imm	1
+  codeline
+    instruction
+      push
+        register	r11
+  codeline
+    instruction
+      pop
+        register	r2
+  codeline
+    instruction
+      pop
+        register	r1
+  codeline
+    instruction
+      callpseudo
+        imm
+          labeluse	bd_write_u32
+  codeline
+    instruction
+      pop
+        register	r1
+  codeline
+    instruction
+      pop
+        register	r8
+  codeline
+    instruction
+      pop
+        register	r5
+  codeline
+    instruction
+      pop
+        register	r4
+  codeline
+    instruction
+      pop
+        register	r3
+  codeline
+    instruction
+      pop
+        register	r2
+  codeline
+    instruction
+      push
+        register	r2
+  codeline
+    instruction
+      push
+        register	r3
+  codeline
+    instruction
+      push
+        register	r4
+  codeline
+    instruction
+      push
+        register	r5
+  codeline
+    instruction
+      push
+        register	r8
+  codeline
+    instruction
+      push
+        register	r1
+  codeline
+    instruction
+      lli
+        register	r6
+        imm	1073741828
+  codeline
+    instruction
+      push
+        register	r6
+  codeline
+    instruction
+      lli
+        register	r12
+        imm	2
+  codeline
+    instruction
+      push
+        register	r12
+  codeline
+    instruction
+      pop
+        register	r2
+  codeline
+    instruction
+      pop
+        register	r1
+  codeline
+    instruction
+      callpseudo
+        imm
+          labeluse	bd_write_u32
+  codeline
+    instruction
+      pop
+        register	r1
+  codeline
+    instruction
+      pop
+        register	r8
+  codeline
+    instruction
+      pop
+        register	r5
+  codeline
+    instruction
+      pop
+        register	r4
+  codeline
+    instruction
+      pop
+        register	r3
+  codeline
+    instruction
+      pop
+        register	r2
+  codeline
+    instruction
+      lli
+        register	r9
+        imm	0
+  codeline
+    label	WHILE140:
+  codeline
+    instruction
+      lli
+        register	r7
+        imm	512
+  codeline
+    instruction
+      binstructuse
+        blt
+        register	r9
+        register	r7
+        imm
+          labeluse	CMP_TRUE142
+  codeline
+    instruction
+      lli
+        register	r7
+        imm	0
+  codeline
+    instruction
+      jmpseudo
+        imm
+          labeluse	CMP_END143
+  codeline
+    label	CMP_TRUE142:
+  codeline
+    instruction
+      lli
+        register	r7
+        imm	1
+  codeline
+    label	CMP_END143:
+  codeline
+    instruction
+      binstructuse
+        beq
+        register	r7
+        register	r0
+        imm
+          labeluse	WHILE_END141
+  codeline
+    instruction
+      lli
+        register	r10
+        imm	0
+  codeline
+    instruction
+      rinstructuse
+        add
+        register	r11
+        register	r3
+        register	r9
+  codeline
+    instruction
+      lsinstructuse
+        sb
+        register	r10
+        register	r11
+        imm	0
+  codeline
+    instruction
+      iinstructuse
+        addi
+        register	r9
+        register	r9
+        imm	1
+  codeline
+    instruction
+      jmpseudo
+        imm
+          labeluse	WHILE140
+  codeline
+    label	WHILE_END141:
+  codeline
+    instruction
+      lli
+        register	r6
+        imm	0
+  codeline
+    label	WHILE144:
+  codeline
+    instruction
+      lli
+        register	r12
+        imm	511
+  codeline
+    instruction
+      binstructuse
+        blt
+        register	r6
+        register	r12
+        imm
+          labeluse	CMP_TRUE146
+  codeline
+    instruction
+      lli
+        register	r12
+        imm	0
+  codeline
+    instruction
+      jmpseudo
+        imm
+          labeluse	CMP_END147
+  codeline
+    label	CMP_TRUE146:
+  codeline
+    instruction
+      lli
+        register	r12
+        imm	1
+  codeline
+    label	CMP_END147:
+  codeline
+    instruction
+      binstructuse
+        beq
+        register	r12
+        register	r0
+        imm
+          labeluse	WHILE_END145
+  codeline
+    instruction
+      rinstructuse
+        add
+        register	r7
+        register	r2
+        register	r6
   codeline
     instruction
       lsinstructuse
@@ -4514,334 +5431,97 @@ program
     instruction
       rinstructuse
         add
-        register	r8
-        register	r4
-        register	r5
+        register	r11
+        register	r3
+        register	r6
   codeline
     instruction
       lsinstructuse
         sb
         register	r7
-        register	r8
+        register	r11
         imm	0
+  codeline
+    instruction
+      rinstructuse
+        add
+        register	r10
+        register	r2
+        register	r6
+  codeline
+    instruction
+      lsinstructuse
+        lb
+        register	r10
+        register	r10
+        imm	0
+  codeline
+    instruction
+      lli
+        register	r12
+        imm	0
+  codeline
+    instruction
+      binstructuse
+        beq
+        register	r10
+        register	r12
+        imm
+          labeluse	CMP_TRUE150
+  codeline
+    instruction
+      lli
+        register	r10
+        imm	0
+  codeline
+    instruction
+      jmpseudo
+        imm
+          labeluse	CMP_END151
+  codeline
+    label	CMP_TRUE150:
+  codeline
+    instruction
+      lli
+        register	r10
+        imm	1
+  codeline
+    label	CMP_END151:
+  codeline
+    instruction
+      binstructuse
+        beq
+        register	r10
+        register	r0
+        imm
+          labeluse	ELSE148
+  codeline
+    instruction
+      jmpseudo
+        imm
+          labeluse	IF_END149
+  codeline
+    label	ELSE148:
+  codeline
+    label	IF_END149:
   codeline
     instruction
       iinstructuse
         addi
-        register	r5
-        register	r5
+        register	r6
+        register	r6
         imm	1
   codeline
     instruction
       jmpseudo
         imm
-          labeluse	WHILE132
+          labeluse	WHILE144
   codeline
-    label	WHILE_END133:
-  codeline
-    instruction
-      iinstructuse
-        shri
-        register	r9
-        register	r3
-        imm	24
-  codeline
-    instruction
-      lli
-        register	r10
-        imm	255
-  codeline
-    instruction
-      rinstructuse
-        and
-        register	r9
-        register	r9
-        register	r10
-  codeline
-    instruction
-      lli
-        register	r11
-        imm	32
-  codeline
-    instruction
-      rinstructuse
-        add
-        register	r11
-        register	r4
-        register	r11
-  codeline
-    instruction
-      lsinstructuse
-        sb
-        register	r9
-        register	r11
-        imm	0
-  codeline
-    instruction
-      iinstructuse
-        shri
-        register	r12
-        register	r3
-        imm	16
-  codeline
-    instruction
-      lli
-        register	r6
-        imm	255
-  codeline
-    instruction
-      rinstructuse
-        and
-        register	r12
-        register	r12
-        register	r6
-  codeline
-    instruction
-      lli
-        register	r8
-        imm	33
-  codeline
-    instruction
-      rinstructuse
-        add
-        register	r8
-        register	r4
-        register	r8
-  codeline
-    instruction
-      lsinstructuse
-        sb
-        register	r12
-        register	r8
-        imm	0
-  codeline
-    instruction
-      iinstructuse
-        shri
-        register	r7
-        register	r3
-        imm	8
-  codeline
-    instruction
-      lli
-        register	r5
-        imm	255
-  codeline
-    instruction
-      rinstructuse
-        and
-        register	r7
-        register	r7
-        register	r5
-  codeline
-    instruction
-      lli
-        register	r10
-        imm	34
-  codeline
-    instruction
-      rinstructuse
-        add
-        register	r10
-        register	r4
-        register	r10
-  codeline
-    instruction
-      lsinstructuse
-        sb
-        register	r7
-        register	r10
-        imm	0
-  codeline
-    instruction
-      lli
-        register	r11
-        imm	255
-  codeline
-    instruction
-      rinstructuse
-        and
-        register	r3
-        register	r3
-        register	r11
-  codeline
-    instruction
-      lli
-        register	r9
-        imm	35
-  codeline
-    instruction
-      rinstructuse
-        add
-        register	r9
-        register	r4
-        register	r9
-  codeline
-    instruction
-      lsinstructuse
-        sb
-        register	r3
-        register	r9
-        imm	0
-  codeline
-    instruction
-      lli
-        register	r6
-        imm	2
-  codeline
-    instruction
-      iinstructuse
-        shri
-        register	r8
-        register	r6
-        imm	24
-  codeline
-    instruction
-      lli
-        register	r12
-        imm	255
-  codeline
-    instruction
-      rinstructuse
-        and
-        register	r8
-        register	r8
-        register	r12
-  codeline
-    instruction
-      lli
-        register	r5
-        imm	36
-  codeline
-    instruction
-      rinstructuse
-        add
-        register	r5
-        register	r4
-        register	r5
-  codeline
-    instruction
-      lsinstructuse
-        sb
-        register	r8
-        register	r5
-        imm	0
-  codeline
-    instruction
-      iinstructuse
-        shri
-        register	r10
-        register	r6
-        imm	16
-  codeline
-    instruction
-      lli
-        register	r7
-        imm	255
-  codeline
-    instruction
-      rinstructuse
-        and
-        register	r10
-        register	r10
-        register	r7
-  codeline
-    instruction
-      lli
-        register	r3
-        imm	37
-  codeline
-    instruction
-      rinstructuse
-        add
-        register	r3
-        register	r4
-        register	r3
-  codeline
-    instruction
-      lsinstructuse
-        sb
-        register	r10
-        register	r3
-        imm	0
-  codeline
-    instruction
-      iinstructuse
-        shri
-        register	r11
-        register	r6
-        imm	8
-  codeline
-    instruction
-      lli
-        register	r9
-        imm	255
-  codeline
-    instruction
-      rinstructuse
-        and
-        register	r11
-        register	r11
-        register	r9
-  codeline
-    instruction
-      lli
-        register	r12
-        imm	38
-  codeline
-    instruction
-      rinstructuse
-        add
-        register	r12
-        register	r4
-        register	r12
-  codeline
-    instruction
-      lsinstructuse
-        sb
-        register	r11
-        register	r12
-        imm	0
-  codeline
-    instruction
-      lli
-        register	r5
-        imm	255
-  codeline
-    instruction
-      rinstructuse
-        and
-        register	r5
-        register	r6
-        register	r5
-  codeline
-    instruction
-      lli
-        register	r8
-        imm	39
-  codeline
-    instruction
-      rinstructuse
-        add
-        register	r8
-        register	r4
-        register	r8
-  codeline
-    instruction
-      lsinstructuse
-        sb
-        register	r5
-        register	r8
-        imm	0
-  codeline
-    instruction
-      lli
-        register	r7
-        imm	1
+    label	WHILE_END145:
   codeline
     instruction
       push
-        register	r2
+        register	r3
   codeline
     instruction
       push
@@ -4849,11 +5529,15 @@ program
   codeline
     instruction
       push
-        register	r6
+        register	r5
   codeline
     instruction
       push
-        register	r7
+        register	r8
+  codeline
+    instruction
+      push
+        register	r9
   codeline
     instruction
       push
@@ -4861,262 +5545,69 @@ program
   codeline
     instruction
       lli
-        register	r3
+        register	r11
         imm	1073741832
   codeline
     instruction
       push
+        register	r11
+  codeline
+    instruction
+      push
+        register	r5
+  codeline
+    instruction
+      pop
+        register	r2
+  codeline
+    instruction
+      pop
+        register	r1
+  codeline
+    instruction
+      callpseudo
+        imm
+          labeluse	bd_write_u32
+  codeline
+    instruction
+      pop
+        register	r1
+  codeline
+    instruction
+      pop
+        register	r9
+  codeline
+    instruction
+      pop
+        register	r8
+  codeline
+    instruction
+      pop
+        register	r5
+  codeline
+    instruction
+      pop
+        register	r4
+  codeline
+    instruction
+      pop
         register	r3
   codeline
     instruction
       push
-        register	r7
-  codeline
-    instruction
-      pop
-        register	r2
-  codeline
-    instruction
-      pop
-        register	r1
-  codeline
-    instruction
-      callpseudo
-        imm
-          labeluse	bd_write_u32
-  codeline
-    instruction
-      pop
-        register	r1
-  codeline
-    instruction
-      pop
-        register	r7
-  codeline
-    instruction
-      pop
-        register	r6
-  codeline
-    instruction
-      pop
-        register	r4
-  codeline
-    instruction
-      pop
-        register	r2
-  codeline
-    instruction
-      push
-        register	r2
+        register	r3
   codeline
     instruction
       push
         register	r4
-  codeline
-    instruction
-      push
-        register	r6
-  codeline
-    instruction
-      push
-        register	r1
-  codeline
-    instruction
-      lli
-        register	r10
-        imm	1073741836
-  codeline
-    instruction
-      push
-        register	r10
-  codeline
-    instruction
-      push
-        register	r4
-  codeline
-    instruction
-      pop
-        register	r2
-  codeline
-    instruction
-      pop
-        register	r1
-  codeline
-    instruction
-      callpseudo
-        imm
-          labeluse	bd_write_u32
-  codeline
-    instruction
-      pop
-        register	r1
-  codeline
-    instruction
-      pop
-        register	r6
-  codeline
-    instruction
-      pop
-        register	r4
-  codeline
-    instruction
-      pop
-        register	r2
-  codeline
-    instruction
-      push
-        register	r2
-  codeline
-    instruction
-      push
-        register	r4
-  codeline
-    instruction
-      push
-        register	r6
-  codeline
-    instruction
-      push
-        register	r1
-  codeline
-    instruction
-      lli
-        register	r9
-        imm	1073741840
-  codeline
-    instruction
-      push
-        register	r9
-  codeline
-    instruction
-      lli
-        register	r12
-        imm	1
-  codeline
-    instruction
-      push
-        register	r12
-  codeline
-    instruction
-      pop
-        register	r2
-  codeline
-    instruction
-      pop
-        register	r1
-  codeline
-    instruction
-      callpseudo
-        imm
-          labeluse	bd_write_u32
-  codeline
-    instruction
-      pop
-        register	r1
-  codeline
-    instruction
-      pop
-        register	r6
-  codeline
-    instruction
-      pop
-        register	r4
-  codeline
-    instruction
-      pop
-        register	r2
-  codeline
-    instruction
-      push
-        register	r2
-  codeline
-    instruction
-      push
-        register	r4
-  codeline
-    instruction
-      push
-        register	r6
-  codeline
-    instruction
-      push
-        register	r1
-  codeline
-    instruction
-      lli
-        register	r11
-        imm	1073741828
-  codeline
-    instruction
-      push
-        register	r11
-  codeline
-    instruction
-      lli
-        register	r8
-        imm	2
   codeline
     instruction
       push
         register	r8
   codeline
     instruction
-      pop
-        register	r2
-  codeline
-    instruction
-      pop
-        register	r1
-  codeline
-    instruction
-      callpseudo
-        imm
-          labeluse	bd_write_u32
-  codeline
-    instruction
-      pop
-        register	r1
-  codeline
-    instruction
-      pop
-        register	r6
-  codeline
-    instruction
-      pop
-        register	r4
-  codeline
-    instruction
-      pop
-        register	r2
-  codeline
-    instruction
-      lli
-        register	r5
-        imm	0
-  codeline
-    instruction
-      rinstructuse
-        add
-        register	r1
-        register	r5
-        register	r0
-  codeline
-    instruction
-      lli
-        register	r3
-        imm	0
-  codeline
-    instruction
       push
-        register	r3
-  codeline
-    instruction
-      push
-        register	r4
-  codeline
-    instruction
-      push
-        register	r6
+        register	r9
   codeline
     instruction
       push
@@ -5125,74 +5616,15 @@ program
     instruction
       lli
         register	r7
-        imm	1073741832
-  codeline
-    instruction
-      push
-        register	r7
-  codeline
-    instruction
-      push
-        register	r6
-  codeline
-    instruction
-      pop
-        register	r2
-  codeline
-    instruction
-      pop
-        register	r1
-  codeline
-    instruction
-      callpseudo
-        imm
-          labeluse	bd_write_u32
-  codeline
-    instruction
-      pop
-        register	r1
-  codeline
-    instruction
-      pop
-        register	r6
-  codeline
-    instruction
-      pop
-        register	r4
-  codeline
-    instruction
-      pop
-        register	r3
-  codeline
-    instruction
-      push
-        register	r4
-  codeline
-    instruction
-      push
-        register	r6
-  codeline
-    instruction
-      push
-        register	r1
-  codeline
-    instruction
-      lli
-        register	r10
         imm	1073741836
   codeline
     instruction
       push
-        register	r10
-  codeline
-    instruction
-      lli
-        register	r9
-        imm	0
+        register	r7
   codeline
     instruction
       push
-        register	r9
+        register	r3
   codeline
     instruction
       pop
@@ -5213,19 +5645,31 @@ program
   codeline
     instruction
       pop
-        register	r6
+        register	r9
+  codeline
+    instruction
+      pop
+        register	r8
   codeline
     instruction
       pop
         register	r4
   codeline
     instruction
+      pop
+        register	r3
+  codeline
+    instruction
       push
         register	r4
   codeline
     instruction
       push
-        register	r6
+        register	r8
+  codeline
+    instruction
+      push
+        register	r9
   codeline
     instruction
       push
@@ -5242,12 +5686,12 @@ program
   codeline
     instruction
       lli
-        register	r11
+        register	r10
         imm	1
   codeline
     instruction
       push
-        register	r11
+        register	r10
   codeline
     instruction
       pop
@@ -5268,7 +5712,11 @@ program
   codeline
     instruction
       pop
-        register	r6
+        register	r9
+  codeline
+    instruction
+      pop
+        register	r8
   codeline
     instruction
       pop
@@ -5280,7 +5728,11 @@ program
   codeline
     instruction
       push
-        register	r6
+        register	r8
+  codeline
+    instruction
+      push
+        register	r9
   codeline
     instruction
       push
@@ -5288,21 +5740,21 @@ program
   codeline
     instruction
       lli
-        register	r8
+        register	r2
         imm	1073741828
   codeline
     instruction
       push
-        register	r8
+        register	r2
   codeline
     instruction
       lli
-        register	r5
+        register	r6
         imm	2
   codeline
     instruction
       push
-        register	r5
+        register	r6
   codeline
     instruction
       pop
@@ -5323,7 +5775,11 @@ program
   codeline
     instruction
       pop
-        register	r6
+        register	r9
+  codeline
+    instruction
+      pop
+        register	r8
   codeline
     instruction
       pop
@@ -5331,15 +5787,22 @@ program
   codeline
     instruction
       lli
-        register	r2
+        register	r11
         imm	0
   codeline
     instruction
       rinstructuse
         add
         register	r1
-        register	r2
+        register	r11
         register	r0
+  codeline
+    instruction
+      pop
+        register	r14
+  codeline
+    instruction
+      retpseudo
   codeline
     directiveuse
       func
@@ -5353,7 +5816,7 @@ program
       lli
         register	r2
         imm
-          labeluse	dir_entry_buf136
+          labeluse	dir_entry_buf152
   codeline
     instruction
       lli
@@ -5562,14 +6025,14 @@ program
       lli
         register	r11
         imm
-          labeluse	filename_buf137
+          labeluse	filename_buf153
   codeline
     instruction
       lli
         register	r12
         imm	0
   codeline
-    label	WHILE138:
+    label	WHILE154:
   codeline
     instruction
       lli
@@ -5582,7 +6045,7 @@ program
         register	r12
         register	r4
         imm
-          labeluse	CMP_TRUE140
+          labeluse	CMP_TRUE156
   codeline
     instruction
       lli
@@ -5592,16 +6055,16 @@ program
     instruction
       jmpseudo
         imm
-          labeluse	CMP_END141
+          labeluse	CMP_END157
   codeline
-    label	CMP_TRUE140:
+    label	CMP_TRUE156:
   codeline
     instruction
       lli
         register	r4
         imm	1
   codeline
-    label	CMP_END141:
+    label	CMP_END157:
   codeline
     instruction
       binstructuse
@@ -5609,7 +6072,7 @@ program
         register	r4
         register	r0
         imm
-          labeluse	WHILE_END139
+          labeluse	WHILE_END155
   codeline
     instruction
       rinstructuse
@@ -5649,9 +6112,9 @@ program
     instruction
       jmpseudo
         imm
-          labeluse	WHILE138
+          labeluse	WHILE154
   codeline
-    label	WHILE_END139:
+    label	WHILE_END155:
   codeline
     instruction
       lli
@@ -5917,7 +6380,7 @@ program
       lli
         register	r6
         imm
-          labeluse	data_buf142
+          labeluse	data_buf158
   codeline
     instruction
       push
@@ -6560,7 +7023,7 @@ program
       lli
         register	r11
         imm
-          labeluse	device_info_buf143
+          labeluse	device_info_buf159
   codeline
     instruction
       lli
@@ -8537,31 +9000,31 @@ program
       space
         imm	512
   codeline
-    label	dir_entry_buf131:
-  codeline
-    directiveuse
-      space
-        imm	64
-  codeline
-    label	dir_entry_buf136:
-  codeline
-    directiveuse
-      space
-        imm	64
-  codeline
-    label	filename_buf137:
-  codeline
-    directiveuse
-      space
-        imm	33
-  codeline
-    label	data_buf142:
+    label	scratch_block_buf131:
   codeline
     directiveuse
       space
         imm	512
   codeline
-    label	device_info_buf143:
+    label	dir_entry_buf152:
+  codeline
+    directiveuse
+      space
+        imm	64
+  codeline
+    label	filename_buf153:
+  codeline
+    directiveuse
+      space
+        imm	33
+  codeline
+    label	data_buf158:
+  codeline
+    directiveuse
+      space
+        imm	512
+  codeline
+    label	device_info_buf159:
   codeline
     directiveuse
       space

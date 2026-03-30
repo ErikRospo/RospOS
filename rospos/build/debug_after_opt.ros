@@ -751,6 +751,10 @@ WHILE_END103:
   POP r2
   LLI r9, 0
   ADD r1, r9, r0
+  LLI r10, 0
+  ADD r1, r10, r0
+  POP r14
+  JALR r0, r14, 0
   PUSH r14
   LLI r2, superblock_buf106
   LLI r3, 0
@@ -915,168 +919,267 @@ CMP_END130:
   POP r2
 ELSE107:
 
+  LLI r4, 0
+  ADD r1, r4, r0
+  POP r14
+  JALR r0, r14, 0
 write_file:
 
   PUSH r14
-  LLI r3, 0
-  PUSH r2
-  PUSH r3
-  ADDI r1, r2, 0
-  JMP string_length
-
-  POP r3
-  POP r2
-  ADDI r3, r1, 0
-  LLI r4, dir_entry_buf131
-  LLI r5, 0
+  LLI r3, scratch_block_buf131
+  LLI r4, 0
 WHILE132:
 
-  LLI r6, 32
-  BLT r5, r6, CMP_TRUE134
-  LLI r6, 0
+  LLI r5, 512
+  BLT r4, r5, CMP_TRUE134
+  LLI r5, 0
   JMP CMP_END135
 
 CMP_TRUE134:
 
-  LLI r6, 1
+  LLI r5, 1
 CMP_END135:
 
-  BEQ r6, r0, WHILE_END133
-  ADD r7, r1, r5
-  LB r7, r7, 0
-  ADD r8, r4, r5
-  SB r7, r8, 0
-  ADDI r5, r5, 1
+  BEQ r5, r0, WHILE_END133
+  LLI r6, 0
+  ADD r7, r3, r4
+  SB r6, r7, 0
+  ADDI r4, r4, 1
   JMP WHILE132
 
 WHILE_END133:
 
-  SHRI r9, r3, 24
-  LLI r10, 255
-  AND r9, r9, r10
-  SB r9, r4, 32
-  SHRI r12, r3, 16
-  LLI r6, 255
-  AND r12, r12, r6
-  SB r12, r4, 33
-  SHRI r7, r3, 8
-  LLI r5, 255
-  AND r7, r7, r5
-  SB r7, r4, 34
-  LLI r11, 255
-  AND r3, r3, r11
-  SB r3, r4, 35
-  LLI r6, 2
-  SHRI r8, r6, 24
-  LLI r12, 255
-  AND r8, r8, r12
-  SB r8, r4, 36
-  SHRI r10, r6, 16
-  LLI r7, 255
-  AND r10, r10, r7
-  SB r10, r4, 37
-  SHRI r11, r6, 8
-  LLI r9, 255
-  AND r11, r11, r9
-  SB r11, r4, 38
-  LLI r5, 255
-  AND r5, r6, r5
-  SB r5, r4, 39
-  LLI r7, 1
+  LLI r8, 0
+WHILE136:
+
+  LLI r9, 32
+  BLT r8, r9, CMP_TRUE138
+  LLI r9, 0
+  JMP CMP_END139
+
+CMP_TRUE138:
+
+  LLI r9, 1
+CMP_END139:
+
+  BEQ r9, r0, WHILE_END137
+  ADD r10, r1, r8
+  LB r10, r10, 0
+  ADD r11, r3, r8
+  SB r10, r11, 0
+  ADDI r8, r8, 1
+  JMP WHILE136
+
+WHILE_END137:
+
+  LLI r12, 0
   PUSH r2
-  PUSH r4
-  PUSH r6
-  PUSH r7
-  PUSH r1
-  LLI r3, 1073741832
-  PUSH r3
-  ADDI r2, r7, 0
-  POP r1
-  JMP bd_write_u32
-
-  POP r1
-  POP r7
-  POP r6
-  POP r4
-  POP r2
-  PUSH r2
-  PUSH r4
-  PUSH r6
-  PUSH r1
-  LLI r10, 1073741836
-  PUSH r10
-  ADDI r2, r4, 0
-  POP r1
-  JMP bd_write_u32
-
-  LLI r9, 1073741840
-  PUSH r9
-  LLI r12, 1
-  ADDI r2, r12, 0
-  POP r1
-  JMP bd_write_u32
-
-  LLI r11, 1073741828
-  PUSH r11
-  LLI r8, 2
-  ADDI r2, r8, 0
-  POP r1
-  JMP bd_write_u32
-
-  POP r1
-  POP r6
-  POP r4
-  POP r2
-  LLI r5, 0
-  ADD r1, r5, r0
-  LLI r3, 0
   PUSH r3
   PUSH r4
-  PUSH r6
-  PUSH r1
-  LLI r7, 1073741832
-  PUSH r7
-  ADDI r2, r6, 0
-  POP r1
-  JMP bd_write_u32
+  PUSH r8
+  PUSH r12
+  ADDI r1, r2, 0
+  JMP string_length
 
-  POP r1
-  POP r6
+  POP r12
+  POP r8
   POP r4
   POP r3
+  POP r2
+  ADDI r12, r1, 0
+  LLI r5, 2
+  SHRI r7, r12, 24
+  LLI r6, 255
+  AND r7, r7, r6
+  SB r7, r3, 32
+  SHRI r11, r12, 16
+  LLI r10, 255
+  AND r11, r11, r10
+  SB r11, r3, 33
+  SHRI r9, r12, 8
+  LLI r7, 255
+  AND r9, r9, r7
+  SB r9, r3, 34
+  LLI r6, 255
+  AND r12, r12, r6
+  SB r12, r3, 35
+  SHRI r7, r5, 24
+  LLI r10, 255
+  AND r7, r7, r10
+  SB r7, r3, 36
+  SHRI r12, r5, 16
+  LLI r6, 255
+  AND r12, r12, r6
+  SB r12, r3, 37
+  SHRI r10, r5, 8
+  LLI r9, 255
+  AND r10, r10, r9
+  SB r10, r3, 38
+  LLI r6, 255
+  AND r6, r5, r6
+  SB r6, r3, 39
+  PUSH r2
+  PUSH r3
   PUSH r4
-  PUSH r6
+  PUSH r5
+  PUSH r8
   PUSH r1
-  LLI r10, 1073741836
-  PUSH r10
-  LLI r9, 0
+  LLI r12, 1073741832
+  PUSH r12
+  LLI r9, 1
   ADDI r2, r9, 0
   POP r1
   JMP bd_write_u32
 
-  LLI r12, 1073741840
-  PUSH r12
+  LLI r7, 1073741836
+  PUSH r7
+  ADDI r2, r3, 0
+  POP r1
+  JMP bd_write_u32
+
+  LLI r10, 1073741840
+  PUSH r10
   LLI r11, 1
   ADDI r2, r11, 0
   POP r1
   JMP bd_write_u32
 
-  LLI r8, 1073741828
+  LLI r6, 1073741828
+  PUSH r6
+  LLI r12, 2
+  ADDI r2, r12, 0
+  POP r1
+  JMP bd_write_u32
+
+  POP r1
+  POP r8
+  POP r5
+  POP r4
+  POP r3
+  POP r2
+  LLI r9, 0
+WHILE140:
+
+  LLI r7, 512
+  BLT r9, r7, CMP_TRUE142
+  LLI r7, 0
+  JMP CMP_END143
+
+CMP_TRUE142:
+
+  LLI r7, 1
+CMP_END143:
+
+  BEQ r7, r0, WHILE_END141
+  LLI r10, 0
+  ADD r11, r3, r9
+  SB r10, r11, 0
+  ADDI r9, r9, 1
+  JMP WHILE140
+
+WHILE_END141:
+
+  LLI r6, 0
+WHILE144:
+
+  LLI r12, 511
+  BLT r6, r12, CMP_TRUE146
+  LLI r12, 0
+  JMP CMP_END147
+
+CMP_TRUE146:
+
+  LLI r12, 1
+CMP_END147:
+
+  BEQ r12, r0, WHILE_END145
+  ADD r7, r2, r6
+  LB r7, r7, 0
+  ADD r11, r3, r6
+  SB r7, r11, 0
+  ADD r10, r2, r6
+  LB r10, r10, 0
+  BEQ r10, r0, CMP_TRUE150
+  LLI r10, 0
+  JMP CMP_END151
+
+CMP_TRUE150:
+
+  LLI r10, 1
+CMP_END151:
+
+  BEQ r10, r0, ELSE148
+ELSE148:
+
+  ADDI r6, r6, 1
+  JMP WHILE144
+
+WHILE_END145:
+
+  PUSH r3
+  PUSH r4
+  PUSH r5
   PUSH r8
-  LLI r5, 2
+  PUSH r9
+  PUSH r1
+  LLI r11, 1073741832
+  PUSH r11
   ADDI r2, r5, 0
   POP r1
   JMP bd_write_u32
 
   POP r1
-  POP r6
+  POP r9
+  POP r8
+  POP r5
   POP r4
-  LLI r2, 0
-  ADD r1, r2, r0
+  POP r3
+  PUSH r3
+  PUSH r4
+  PUSH r8
+  PUSH r9
+  PUSH r1
+  LLI r7, 1073741836
+  PUSH r7
+  ADDI r2, r3, 0
+  POP r1
+  JMP bd_write_u32
+
+  POP r1
+  POP r9
+  POP r8
+  POP r4
+  POP r3
+  PUSH r4
+  PUSH r8
+  PUSH r9
+  PUSH r1
+  LLI r12, 1073741840
+  PUSH r12
+  LLI r10, 1
+  ADDI r2, r10, 0
+  POP r1
+  JMP bd_write_u32
+
+  LLI r2, 1073741828
+  PUSH r2
+  LLI r6, 2
+  ADDI r2, r6, 0
+  POP r1
+  JMP bd_write_u32
+
+  POP r1
+  POP r9
+  POP r8
+  POP r4
+  LLI r11, 0
+  ADD r1, r11, r0
+  POP r14
+  JALR r0, r14, 0
 read_file:
 
   PUSH r14
-  LLI r2, dir_entry_buf136
+  LLI r2, dir_entry_buf152
   LLI r3, 1
   PUSH r2
   PUSH r3
@@ -1114,29 +1217,29 @@ read_file:
   POP r2
   LLI r10, 0
   ADD r1, r10, r0
-  LLI r11, filename_buf137
+  LLI r11, filename_buf153
   LLI r12, 0
-WHILE138:
+WHILE154:
 
   LLI r4, 32
-  BLT r12, r4, CMP_TRUE140
+  BLT r12, r4, CMP_TRUE156
   LLI r4, 0
-  JMP CMP_END141
+  JMP CMP_END157
 
-CMP_TRUE140:
+CMP_TRUE156:
 
   LLI r4, 1
-CMP_END141:
+CMP_END157:
 
-  BEQ r4, r0, WHILE_END139
+  BEQ r4, r0, WHILE_END155
   ADD r3, r2, r12
   LB r3, r3, 0
   ADD r5, r11, r12
   SB r3, r5, 0
   ADDI r12, r12, 1
-  JMP WHILE138
+  JMP WHILE154
 
-WHILE_END139:
+WHILE_END155:
 
   LLI r6, 0
   SB r6, r11, 32
@@ -1160,7 +1263,7 @@ WHILE_END139:
   OR r5, r5, r12
   LB r7, r2, 39
   OR r5, r5, r7
-  LLI r6, data_buf142
+  LLI r6, data_buf158
   PUSH r2
   PUSH r5
   PUSH r6
@@ -1270,7 +1373,7 @@ main:
   POP r1
   POP r6
   POP r2
-  LLI r11, device_info_buf143
+  LLI r11, device_info_buf159
   LLI r12, 4294967295
   PUSH r2
   PUSH r6
@@ -1983,22 +2086,22 @@ superblock_buf106:
 
 .SPACE 512
 
-dir_entry_buf131:
-
-.SPACE 64
-
-dir_entry_buf136:
-
-.SPACE 64
-
-filename_buf137:
-
-.SPACE 33
-
-data_buf142:
+scratch_block_buf131:
 
 .SPACE 512
 
-device_info_buf143:
+dir_entry_buf152:
+
+.SPACE 64
+
+filename_buf153:
+
+.SPACE 33
+
+data_buf158:
+
+.SPACE 512
+
+device_info_buf159:
 
 .SPACE 512
