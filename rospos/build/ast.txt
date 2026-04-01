@@ -1732,6 +1732,13 @@ translation_unit
                   scratch_block
                   array_index	i
                 0
+        declaration
+          type_specifier
+            int
+          init_declarator_list
+            init_declarator
+              declarator	filename_done
+              0
         for_stmt
           declaration
             type_specifier
@@ -1748,14 +1755,43 @@ translation_unit
             i
             post_inc
           compound_stmt
-            expr_stmt
-              assignment
-                postfix
-                  scratch_block
-                  array_index	i
-                postfix
-                  filename
-                  array_index	i
+            if_stmt
+              unary
+                not
+                filename_done
+              compound_stmt
+                declaration
+                  type_specifier
+                    int
+                  init_declarator_list
+                    init_declarator
+                      declarator	ch
+                      postfix
+                        filename
+                        array_index	i
+                expr_stmt
+                  assignment
+                    postfix
+                      scratch_block
+                      array_index	i
+                    ch
+                if_stmt
+                  equality
+                    ch
+                    eq
+                    0
+                  compound_stmt
+                    expr_stmt
+                      assignment
+                        filename_done
+                        1
+              compound_stmt
+                expr_stmt
+                  assignment
+                    postfix
+                      scratch_block
+                      array_index	i
+                    0
         declaration
           type_specifier
             int
@@ -1908,6 +1944,13 @@ translation_unit
                   scratch_block
                   array_index	i
                 0
+        declaration
+          type_specifier
+            int
+          init_declarator_list
+            init_declarator
+              declarator	data_done
+              0
         for_stmt
           declaration
             type_specifier
@@ -1924,23 +1967,43 @@ translation_unit
             i
             post_inc
           compound_stmt
-            expr_stmt
-              assignment
-                postfix
-                  scratch_block
-                  array_index	i
-                postfix
-                  data
-                  array_index	i
             if_stmt
-              equality
-                postfix
-                  data
-                  array_index	i
-                eq
-                "\0"
+              unary
+                not
+                data_done
               compound_stmt
-                expr_stmt	break
+                declaration
+                  type_specifier
+                    int
+                  init_declarator_list
+                    init_declarator
+                      declarator	ch
+                      postfix
+                        data
+                        array_index	i
+                expr_stmt
+                  assignment
+                    postfix
+                      scratch_block
+                      array_index	i
+                    ch
+                if_stmt
+                  equality
+                    ch
+                    eq
+                    0
+                  compound_stmt
+                    expr_stmt
+                      assignment
+                        data_done
+                        1
+              compound_stmt
+                expr_stmt
+                  assignment
+                    postfix
+                      scratch_block
+                      array_index	i
+                    0
         expr_stmt
           postfix
             bd_write_u32
@@ -1997,7 +2060,7 @@ translation_unit
             init_declarator
               declarator
                 dir_entry
-                array	64
+                array	512
         expr_stmt
           postfix
             read_block
@@ -2007,12 +2070,18 @@ translation_unit
                 dir_entry
         declaration
           type_specifier
-            char
+            int
           init_declarator_list
             init_declarator
-              declarator
-                filename
-                array	33
+              declarator	match
+              1
+        declaration
+          type_specifier
+            int
+          init_declarator_list
+            init_declarator
+              declarator	compare_done
+              0
         for_stmt
           declaration
             type_specifier
@@ -2029,20 +2098,63 @@ translation_unit
             i
             post_inc
           compound_stmt
+            if_stmt
+              unary
+                not
+                compare_done
+              compound_stmt
+                declaration
+                  type_specifier
+                    int
+                  init_declarator_list
+                    init_declarator
+                      declarator	expected
+                      postfix
+                        filename
+                        array_index	i
+                declaration
+                  type_specifier
+                    int
+                  init_declarator_list
+                    init_declarator
+                      declarator	actual
+                      bit_and
+                        postfix
+                          dir_entry
+                          array_index	i
+                        0xFF
+                if_stmt
+                  equality
+                    expected
+                    neq
+                    actual
+                  compound_stmt
+                    expr_stmt
+                      assignment
+                        match
+                        0
+                if_stmt
+                  equality
+                    expected
+                    eq
+                    0
+                  compound_stmt
+                    expr_stmt
+                      assignment
+                        compare_done
+                        1
+        if_stmt
+          unary
+            not
+            match
+          compound_stmt
             expr_stmt
               assignment
                 postfix
-                  filename
-                  array_index	i
-                postfix
-                  dir_entry
-                  array_index	i
-        expr_stmt
-          assignment
-            postfix
-              filename
-              array_index	32
-            "\0"
+                  buffer
+                  array_index	0
+                "\0"
+            return_stmt	0
         declaration
           type_specifier
             int
@@ -2051,26 +2163,34 @@ translation_unit
               declarator	file_size
               bit_or
                 shift
-                  postfix
-                    dir_entry
-                    array_index	32
+                  bit_and
+                    postfix
+                      dir_entry
+                      array_index	32
+                    0xFF
                   lshift
                   24
                 shift
-                  postfix
-                    dir_entry
-                    array_index	33
+                  bit_and
+                    postfix
+                      dir_entry
+                      array_index	33
+                    0xFF
                   lshift
                   16
                 shift
-                  postfix
-                    dir_entry
-                    array_index	34
+                  bit_and
+                    postfix
+                      dir_entry
+                      array_index	34
+                    0xFF
                   lshift
                   8
-                postfix
-                  dir_entry
-                  array_index	35
+                bit_and
+                  postfix
+                    dir_entry
+                    array_index	35
+                  0xFF
         declaration
           type_specifier
             int
@@ -2079,26 +2199,34 @@ translation_unit
               declarator	data_block_index
               bit_or
                 shift
-                  postfix
-                    dir_entry
-                    array_index	36
+                  bit_and
+                    postfix
+                      dir_entry
+                      array_index	36
+                    0xFF
                   lshift
                   24
                 shift
-                  postfix
-                    dir_entry
-                    array_index	37
+                  bit_and
+                    postfix
+                      dir_entry
+                      array_index	37
+                    0xFF
                   lshift
                   16
                 shift
-                  postfix
-                    dir_entry
-                    array_index	38
+                  bit_and
+                    postfix
+                      dir_entry
+                      array_index	38
+                    0xFF
                   lshift
                   8
-                postfix
-                  dir_entry
-                  array_index	39
+                bit_and
+                  postfix
+                    dir_entry
+                    array_index	39
+                  0xFF
         expr_stmt
           postfix
             read_block
@@ -2106,6 +2234,25 @@ translation_unit
               arg_list
                 data_block_index
                 buffer
+        if_stmt
+          relational
+            file_size
+            lt
+            511
+          compound_stmt
+            expr_stmt
+              assignment
+                postfix
+                  buffer
+                  array_index	file_size
+                "\0"
+          compound_stmt
+            expr_stmt
+              assignment
+                postfix
+                  buffer
+                  array_index	511
+                "\0"
         return_stmt	0
   external_decl
     function_def
