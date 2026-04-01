@@ -32,7 +32,7 @@ void initialize_filesystem()
         superblock[i] = 0;
     };
     write_block(0, superblock);
-    return 0;
+    return;
 }
 void ensure_filesystem_initialized()
 {
@@ -42,7 +42,7 @@ void ensure_filesystem_initialized()
     {
         initialize_filesystem();
     }
-    return 0;
+    return;
 }
 void write_file(char *filename, char *data){
     // Build a full 512-byte directory block so writes never read past our buffer.
@@ -51,9 +51,22 @@ void write_file(char *filename, char *data){
     {
         scratch_block[i] = 0;
     }
+    int filename_done = 0;
     for (int i = 0; i < 32; i++)
     {
-        scratch_block[i] = filename[i];
+        if (!filename_done)
+        {
+            int ch = filename[i];
+            scratch_block[i] = ch;
+            if (ch == 0)
+            {
+                filename_done = 1;
+            }
+        }
+        else
+        {
+            scratch_block[i] = 0;
+        }
     }
 
     int file_size = string_length(data);
@@ -78,12 +91,21 @@ void write_file(char *filename, char *data){
     {
         scratch_block[i] = 0;
     }
+    int data_done = 0;
     for (int i = 0; i < 511; i++)
     {
-        scratch_block[i] = data[i];
-        if (data[i] == '\0')
+        if (!data_done)
         {
-            break;
+            int ch = data[i];
+            scratch_block[i] = ch;
+            if (ch == 0)
+            {
+                data_done = 1;
+            }
+        }
+        else
+        {
+            scratch_block[i] = 0;
         }
     }
 
@@ -91,24 +113,52 @@ void write_file(char *filename, char *data){
     bd_write_u32(0x4000000C, (int)scratch_block);
     bd_write_u32(0x40000010, 1);
     bd_write_u32(0x40000004, 2);
-    return 0;
+    return;
 }
 void read_file(char *filename, char *buffer){
     // Read directory entry from block 1
-    char dir_entry[64];
+    char dir_entry[512];
     read_block(1, dir_entry);
 
-    // Extract filename, file size, and data block index from directory entry
-    char filename[33];
+    // Verify this single directory entry matches the requested filename.
+    int match = 1;
+    int compare_done = 0;
     for (int i = 0; i < 32; i++)
     {
-        filename[i] = dir_entry[i];
+        if (!compare_done)
+        {
+            int expected = filename[i];
+            int actual = dir_entry[i] & 0xFF;
+            if (expected != actual)
+            {
+                match = 0;
+            }
+            if (expected == 0)
+            {
+                compare_done = 1;
+            }
+        }
     }
-    filename[32] = '\0'; // Null-terminate the filename
-    int file_size = (dir_entry[32] << 24) | (dir_entry[33] << 16) | (dir_entry[34] << 8) | dir_entry[35];
-    int data_block_index = (dir_entry[36] << 24) | (dir_entry[37] << 16) | (dir_entry[38] << 8) | dir_entry[39];
+
+    if (!match)
+    {
+        buffer[0] = '\0';
+        return;
+    }
+
+    int file_size = ((dir_entry[32] & 0xFF) << 24) | ((dir_entry[33] & 0xFF) << 16) | ((dir_entry[34] & 0xFF) << 8) | (dir_entry[35] & 0xFF);
+    int data_block_index = ((dir_entry[36] & 0xFF) << 24) | ((dir_entry[37] & 0xFF) << 16) | ((dir_entry[38] & 0xFF) << 8) | (dir_entry[39] & 0xFF);
 
     // Read file data from the specified data block
     read_block(data_block_index, buffer);
-    return 0;
+
+    if (file_size < 511)
+    {
+        buffer[file_size] = '\0';
+    }
+    else
+    {
+        buffer[511] = '\0';
+    }
+    return;
 }
