@@ -17,50 +17,50 @@
   PUSH r14
   LLI r3, 268435456    // init tty_addr
   LLI r4, 0    // init i
-WHILE1:
+read_string_3_WHILE1:
   LLI r5, 1    // load immediate 1
   SUB r5, r2, r5    // binop -
-  BLT r4, r5, CMP_TRUE3
+  BLT r4, r5, read_string_3_CMP_TRUE3
   LLI r5, 0    // compare false path
-  JMP CMP_END4
-CMP_TRUE3:
+  JMP read_string_3_CMP_END4
+read_string_3_CMP_TRUE3:
   LLI r5, 1
-CMP_END4:
-  BEQ r5, r0, WHILE_END2
+read_string_3_CMP_END4:
+  BEQ r5, r0, read_string_3_WHILE_END2
   LLI r6, 0    // zero init c
   LB r6, r3, 0    // intrinsic __lb -> return
   LLI r7, 10    // load immediate 10
-  BEQ r6, r7, CMP_TRUE7
+  BEQ r6, r7, read_string_3_CMP_TRUE7
   LLI r7, 0    // compare false path
-  JMP CMP_END8
-CMP_TRUE7:
+  JMP read_string_3_CMP_END8
+read_string_3_CMP_TRUE7:
   LLI r7, 1
-CMP_END8:
+read_string_3_CMP_END8:
   LLI r8, 13    // load immediate 13
-  BEQ r6, r8, CMP_TRUE9
+  BEQ r6, r8, read_string_3_CMP_TRUE9
   LLI r8, 0    // compare false path
-  JMP CMP_END10
-CMP_TRUE9:
+  JMP read_string_3_CMP_END10
+read_string_3_CMP_TRUE9:
   LLI r8, 1
-CMP_END10:
+read_string_3_CMP_END10:
   OR r7, r7, r8    // logic || fold
-  BNE r7, r0, CMP_TRUE11
+  BNE r7, r0, read_string_3_CMP_TRUE11
   LLI r7, 0    // compare false path
-  JMP CMP_END12
-CMP_TRUE11:
+  JMP read_string_3_CMP_END12
+read_string_3_CMP_TRUE11:
   LLI r7, 1
-CMP_END12:
-  BEQ r7, r0, ELSE5
-  JMP IF_END6
-ELSE5:
-IF_END6:
+read_string_3_CMP_END12:
+  BEQ r7, r0, read_string_3_ELSE5
+  JMP read_string_3_IF_END6
+read_string_3_ELSE5:
+read_string_3_IF_END6:
   LLI r9, 1    // load immediate 1
   ADD r9, r4, r9    // binop +
   ADDI r4, r9, 0    // assign-expr i
   ADD r10, r1, r4    // binop +
   SB r6, r10, 0    // store 
-  JMP WHILE1
-WHILE_END2:
+  JMP read_string_3_WHILE1
+read_string_3_WHILE_END2:
   LLI r11, 0    // load immediate 0
   ADD r4, r1, r4    // binop +
   SB r11, r4, 0    // store 
@@ -70,22 +70,22 @@ WHILE_END2:
 .FUNC clear_display:
   PUSH r14
   LLI r2, 0    // init i
-WHILE13:
+clear_display_4_WHILE1:
   LLI r3, 65536    // load immediate 65536
-  BLT r2, r3, CMP_TRUE15
+  BLT r2, r3, clear_display_4_CMP_TRUE3
   LLI r3, 0    // compare false path
-  JMP CMP_END16
-CMP_TRUE15:
+  JMP clear_display_4_CMP_END4
+clear_display_4_CMP_TRUE3:
   LLI r3, 1
-CMP_END16:
-  BEQ r3, r0, WHILE_END14
+clear_display_4_CMP_END4:
+  BEQ r3, r0, clear_display_4_WHILE_END2
   LLI r4, 536870912    // load immediate 536870912
   ADD r4, r4, r2    // binop +
   LLI r5, 0    // val const for __sb
   SB r5, r4, 0    // intrinsic __sb
   ADDI r2, r2, 1    // assign i (addi fast path)
-  JMP WHILE13
-WHILE_END14:
+  JMP clear_display_4_WHILE1
+clear_display_4_WHILE_END2:
   LLI r6, 0    // load immediate 0
   ADD r1, r6, r0
   POP r14
@@ -94,25 +94,25 @@ WHILE_END14:
 .FUNC clear_char_on_display:
   PUSH r14
   LLI r3, 0    // init row
-WHILE17:
+clear_char_on_display_5_WHILE1:
   LLI r4, 8    // load immediate 8
-  BLT r3, r4, CMP_TRUE19
+  BLT r3, r4, clear_char_on_display_5_CMP_TRUE3
   LLI r4, 0    // compare false path
-  JMP CMP_END20
-CMP_TRUE19:
+  JMP clear_char_on_display_5_CMP_END4
+clear_char_on_display_5_CMP_TRUE3:
   LLI r4, 1
-CMP_END20:
-  BEQ r4, r0, WHILE_END18
+clear_char_on_display_5_CMP_END4:
+  BEQ r4, r0, clear_char_on_display_5_WHILE_END2
   LLI r5, 0    // init col
-WHILE21:
+clear_char_on_display_5_WHILE5:
   LLI r6, 8    // load immediate 8
-  BLT r5, r6, CMP_TRUE23
+  BLT r5, r6, clear_char_on_display_5_CMP_TRUE7
   LLI r6, 0    // compare false path
-  JMP CMP_END24
-CMP_TRUE23:
+  JMP clear_char_on_display_5_CMP_END8
+clear_char_on_display_5_CMP_TRUE7:
   LLI r6, 1
-CMP_END24:
-  BEQ r6, r0, WHILE_END22
+clear_char_on_display_5_CMP_END8:
+  BEQ r6, r0, clear_char_on_display_5_WHILE_END6
   ADD r7, r1, r5    // binop +
   ADD r8, r2, r3    // binop +
   LLI r9, 256    // load immediate 256
@@ -123,11 +123,11 @@ CMP_END24:
   LLI r11, 0    // val const for __sb
   SB r11, r10, 0    // intrinsic __sb
   ADDI r5, r5, 1    // assign col (addi fast path)
-  JMP WHILE21
-WHILE_END22:
+  JMP clear_char_on_display_5_WHILE5
+clear_char_on_display_5_WHILE_END6:
   ADDI r3, r3, 1    // assign row (addi fast path)
-  JMP WHILE17
-WHILE_END18:
+  JMP clear_char_on_display_5_WHILE1
+clear_char_on_display_5_WHILE_END2:
   LLI r12, 0    // load immediate 0
   ADD r1, r12, r0
   POP r14
@@ -138,34 +138,34 @@ WHILE_END18:
   LLI r5, 8    // load immediate 8
   MUL r5, r1, r5    // binop *
   LLI r6, 0    // init row
-WHILE25:
+draw_char_to_display_6_WHILE1:
   LLI r7, 8    // load immediate 8
-  BLT r6, r7, CMP_TRUE27
+  BLT r6, r7, draw_char_to_display_6_CMP_TRUE3
   LLI r7, 0    // compare false path
-  JMP CMP_END28
-CMP_TRUE27:
+  JMP draw_char_to_display_6_CMP_END4
+draw_char_to_display_6_CMP_TRUE3:
   LLI r7, 1
-CMP_END28:
-  BEQ r7, r0, WHILE_END26
+draw_char_to_display_6_CMP_END4:
+  BEQ r7, r0, draw_char_to_display_6_WHILE_END2
   LLI r8, 0    // zero init glyph_row
   LLI r9, font_address    // init font_address (global symbol addr)
   ADD r10, r9, r5    // binop +
   ADD r10, r10, r6    // binop +
   LB r8, r10, 0    // intrinsic __lb -> return
   LLI r11, 0    // init col
-WHILE29:
+draw_char_to_display_6_WHILE5:
   LLI r12, 8    // load immediate 8
-  BLT r11, r12, CMP_TRUE31
+  BLT r11, r12, draw_char_to_display_6_CMP_TRUE7
   LLI r12, 0    // compare false path
-  JMP CMP_END32
-CMP_TRUE31:
+  JMP draw_char_to_display_6_CMP_END8
+draw_char_to_display_6_CMP_TRUE7:
   LLI r12, 1
-CMP_END32:
-  BEQ r12, r0, WHILE_END30
+draw_char_to_display_6_CMP_END8:
+  BEQ r12, r0, draw_char_to_display_6_WHILE_END6
   SHR r7, r8, r11    // binop >>
   LLI r10, 1    // load immediate 1
   AND r7, r7, r10    // binop &
-  BEQ r7, r0, ELSE33
+  BEQ r7, r0, draw_char_to_display_6_ELSE9
   ADD r12, r2, r11    // binop +
   ADD r10, r3, r6    // binop +
   PUSH r2    // spill live temp for reg pressure
@@ -179,15 +179,15 @@ CMP_END32:
   SB r4, r3, 0    // intrinsic __sb
   POP r3    // restore spilled temp
   ADDI r15, r15, 4    // discard stale spill slot for r2
-  JMP IF_END34
-ELSE33:
-IF_END34:
+  JMP draw_char_to_display_6_IF_END10
+draw_char_to_display_6_ELSE9:
+draw_char_to_display_6_IF_END10:
   ADDI r11, r11, 1    // assign col (addi fast path)
-  JMP WHILE29
-WHILE_END30:
+  JMP draw_char_to_display_6_WHILE5
+draw_char_to_display_6_WHILE_END6:
   ADDI r6, r6, 1    // assign row (addi fast path)
-  JMP WHILE25
-WHILE_END26:
+  JMP draw_char_to_display_6_WHILE1
+draw_char_to_display_6_WHILE_END2:
   LLI r2, 0    // load immediate 0
   ADD r1, r2, r0
   POP r14
@@ -195,9 +195,9 @@ WHILE_END26:
 
 .FUNC draw_string_to_display:
   PUSH r14
-WHILE35:
+draw_string_to_display_7_WHILE1:
   LB r5, r1, 0    // deref
-  BEQ r5, r0, WHILE_END36
+  BEQ r5, r0, draw_string_to_display_7_WHILE_END2
   // emit call to draw_char_to_display with args [{'type': 'deref', 'expr': {'type': 'var', 'name': 'str'}}, {'type': 'var', 'name': 'x'}, {'type': 'var', 'name': 'y'}, {'type': 'var', 'name': 'color'}]
   PUSH r2    // save caller temp
   PUSH r3    // save caller temp
@@ -220,8 +220,8 @@ WHILE35:
   POP r2    // restore caller temp
   ADDI r1, r1, 1    // assign str (addi fast path)
   ADDI r2, r2, 8    // assign x (addi fast path)
-  JMP WHILE35
-WHILE_END36:
+  JMP draw_string_to_display_7_WHILE1
+draw_string_to_display_7_WHILE_END2:
   LLI r7, 0    // load immediate 0
   ADD r1, r7, r0
   POP r14
@@ -231,67 +231,67 @@ WHILE_END36:
   PUSH r14
   SUB r5, r3, r1    // binop -
   LLI r6, 0    // load immediate 0
-  BLT r5, r6, CMP_TRUE39
+  BLT r5, r6, draw_line_8_CMP_TRUE3
   LLI r6, 0    // compare false path
-  JMP CMP_END40
-CMP_TRUE39:
+  JMP draw_line_8_CMP_END4
+draw_line_8_CMP_TRUE3:
   LLI r6, 1
-CMP_END40:
-  BEQ r6, r0, ELSE37
+draw_line_8_CMP_END4:
+  BEQ r6, r0, draw_line_8_ELSE1
   LLI r7, 0    // load immediate 0
   SUB r7, r7, r5    // binop -
   ADDI r5, r7, 0    // assign dx
-  JMP IF_END38
-ELSE37:
-IF_END38:
+  JMP draw_line_8_IF_END2
+draw_line_8_ELSE1:
+draw_line_8_IF_END2:
   LLI r8, -1    // init sx
-  BLT r1, r3, CMP_TRUE43
+  BLT r1, r3, draw_line_8_CMP_TRUE7
   LLI r9, 0    // compare false path
-  JMP CMP_END44
-CMP_TRUE43:
+  JMP draw_line_8_CMP_END8
+draw_line_8_CMP_TRUE7:
   LLI r9, 1
-CMP_END44:
-  BEQ r9, r0, ELSE41
+draw_line_8_CMP_END8:
+  BEQ r9, r0, draw_line_8_ELSE5
   LLI r10, 1    // load immediate 1
   ADDI r8, r10, 0    // assign sx
-  JMP IF_END42
-ELSE41:
-IF_END42:
+  JMP draw_line_8_IF_END6
+draw_line_8_ELSE5:
+draw_line_8_IF_END6:
   SUB r11, r2, r4    // binop -
   LLI r12, 0    // load immediate 0
-  BLT r11, r12, CMP_TRUE47
+  BLT r11, r12, draw_line_8_CMP_TRUE11
   LLI r12, 0    // compare false path
-  JMP CMP_END48
-CMP_TRUE47:
+  JMP draw_line_8_CMP_END12
+draw_line_8_CMP_TRUE11:
   LLI r12, 1
-CMP_END48:
-  BEQ r12, r0, ELSE45
+draw_line_8_CMP_END12:
+  BEQ r12, r0, draw_line_8_ELSE9
   LLI r6, 0    // load immediate 0
   SUB r6, r6, r11    // binop -
   ADDI r11, r6, 0    // assign dy
-  JMP IF_END46
-ELSE45:
-IF_END46:
+  JMP draw_line_8_IF_END10
+draw_line_8_ELSE9:
+draw_line_8_IF_END10:
   LLI r7, 0    // load immediate 0
   SUB r7, r7, r11    // binop -
   ADDI r11, r7, 0    // assign dy
   LLI r9, -1    // init sy
-  BLT r2, r4, CMP_TRUE51
+  BLT r2, r4, draw_line_8_CMP_TRUE15
   LLI r10, 0    // compare false path
-  JMP CMP_END52
-CMP_TRUE51:
+  JMP draw_line_8_CMP_END16
+draw_line_8_CMP_TRUE15:
   LLI r10, 1
-CMP_END52:
-  BEQ r10, r0, ELSE49
+draw_line_8_CMP_END16:
+  BEQ r10, r0, draw_line_8_ELSE13
   LLI r12, 1    // load immediate 1
   ADDI r9, r12, 0    // assign sy
-  JMP IF_END50
-ELSE49:
-IF_END50:
+  JMP draw_line_8_IF_END14
+draw_line_8_ELSE13:
+draw_line_8_IF_END14:
   ADD r6, r5, r11    // binop +
   LLI r7, 1    // init exit_condition
-WHILE53:
-  BEQ r7, r0, WHILE_END54
+draw_line_8_WHILE17:
+  BEQ r7, r0, draw_line_8_WHILE_END18
   LLI r10, 256    // load immediate 256
   MUL r10, r2, r10    // binop *
   ADD r10, r10, r1    // binop +
@@ -301,42 +301,42 @@ WHILE53:
   LLI r2, 63    // val const for __sb
   SB r2, r12, 0    // intrinsic __sb
   POP r2    // restore spilled temp
-  BEQ r1, r3, CMP_TRUE57
+  BEQ r1, r3, draw_line_8_CMP_TRUE21
   LLI r12, 0    // compare false path
-  JMP CMP_END58
-CMP_TRUE57:
+  JMP draw_line_8_CMP_END22
+draw_line_8_CMP_TRUE21:
   LLI r12, 1
-CMP_END58:
+draw_line_8_CMP_END22:
   PUSH r2    // spill live temp for reg pressure
-  BEQ r2, r4, CMP_TRUE59
+  BEQ r2, r4, draw_line_8_CMP_TRUE23
   LLI r2, 0    // compare false path
-  JMP CMP_END60
-CMP_TRUE59:
+  JMP draw_line_8_CMP_END24
+draw_line_8_CMP_TRUE23:
   LLI r2, 1
-CMP_END60:
+draw_line_8_CMP_END24:
   AND r12, r12, r2    // logic && fold
-  BNE r12, r0, CMP_TRUE61
+  BNE r12, r0, draw_line_8_CMP_TRUE25
   LLI r12, 0    // compare false path
-  JMP CMP_END62
-CMP_TRUE61:
+  JMP draw_line_8_CMP_END26
+draw_line_8_CMP_TRUE25:
   LLI r12, 1
-CMP_END62:
+draw_line_8_CMP_END26:
   POP r2    // restore spilled temp
-  BEQ r12, r0, ELSE55
+  BEQ r12, r0, draw_line_8_ELSE19
   LLI r12, 0    // load immediate 0
   ADDI r7, r12, 0    // assign exit_condition
-  JMP IF_END56
-ELSE55:
-IF_END56:
+  JMP draw_line_8_IF_END20
+draw_line_8_ELSE19:
+draw_line_8_IF_END20:
   ADD r12, r6, r6    // binop +
   PUSH r2    // spill live temp for reg pressure
-  BGE r12, r11, CMP_TRUE65
+  BGE r12, r11, draw_line_8_CMP_TRUE29
   LLI r2, 0    // compare false path
-  JMP CMP_END66
-CMP_TRUE65:
+  JMP draw_line_8_CMP_END30
+draw_line_8_CMP_TRUE29:
   LLI r2, 1
-CMP_END66:
-  BEQ r2, r0, ELSE63
+draw_line_8_CMP_END30:
+  BEQ r2, r0, draw_line_8_ELSE27
   POP r2    // restore spilled temp
   PUSH r2    // spill live temp for reg pressure
   ADD r2, r6, r11    // binop +
@@ -346,17 +346,17 @@ CMP_END66:
   ADD r2, r1, r8    // binop +
   ADDI r1, r2, 0    // assign x1
   POP r2    // restore spilled temp
-  JMP IF_END64
-ELSE63:
-IF_END64:
+  JMP draw_line_8_IF_END28
+draw_line_8_ELSE27:
+draw_line_8_IF_END28:
   PUSH r2    // spill live temp for reg pressure
-  BGE r5, r12, CMP_TRUE69
+  BGE r5, r12, draw_line_8_CMP_TRUE33
   LLI r2, 0    // compare false path
-  JMP CMP_END70
-CMP_TRUE69:
+  JMP draw_line_8_CMP_END34
+draw_line_8_CMP_TRUE33:
   LLI r2, 1
-CMP_END70:
-  BEQ r2, r0, ELSE67
+draw_line_8_CMP_END34:
+  BEQ r2, r0, draw_line_8_ELSE31
   POP r2    // restore spilled temp
   PUSH r2    // spill live temp for reg pressure
   ADD r2, r6, r5    // binop +
@@ -366,11 +366,11 @@ CMP_END70:
   ADD r3, r2, r9    // binop +
   ADDI r2, r3, 0    // assign y1
   POP r3    // restore spilled temp
-  JMP IF_END68
-ELSE67:
-IF_END68:
-  JMP WHILE53
-WHILE_END54:
+  JMP draw_line_8_IF_END32
+draw_line_8_ELSE31:
+draw_line_8_IF_END32:
+  JMP draw_line_8_WHILE17
+draw_line_8_WHILE_END18:
   LLI r12, 0    // load immediate 0
   ADD r1, r12, r0
   POP r14
@@ -381,101 +381,101 @@ WHILE_END54:
   LW r5, r15, 4    // load stack arg bc
   LW r6, r15, 8    // load stack arg fc
   LLI r7, 0    // init row
-WHILE71:
-  BLT r7, r4, CMP_TRUE73
+draw_rectangle_9_WHILE1:
+  BLT r7, r4, draw_rectangle_9_CMP_TRUE3
   LLI r8, 0    // compare false path
-  JMP CMP_END74
-CMP_TRUE73:
+  JMP draw_rectangle_9_CMP_END4
+draw_rectangle_9_CMP_TRUE3:
   LLI r8, 1
-CMP_END74:
-  BEQ r8, r0, WHILE_END72
+draw_rectangle_9_CMP_END4:
+  BEQ r8, r0, draw_rectangle_9_WHILE_END2
   LLI r9, 0    // init col
-WHILE75:
-  BLT r9, r3, CMP_TRUE77
+draw_rectangle_9_WHILE5:
+  BLT r9, r3, draw_rectangle_9_CMP_TRUE7
   LLI r10, 0    // compare false path
-  JMP CMP_END78
-CMP_TRUE77:
+  JMP draw_rectangle_9_CMP_END8
+draw_rectangle_9_CMP_TRUE7:
   LLI r10, 1
-CMP_END78:
-  BEQ r10, r0, WHILE_END76
+draw_rectangle_9_CMP_END8:
+  BEQ r10, r0, draw_rectangle_9_WHILE_END6
   ADD r11, r1, r9    // binop +
   ADD r12, r2, r7    // binop +
   LLI r8, 256    // load immediate 256
   MUL r8, r12, r8    // binop *
   ADD r8, r8, r11    // binop +
   LLI r10, 0    // load immediate 0
-  BEQ r7, r10, CMP_TRUE81
+  BEQ r7, r10, draw_rectangle_9_CMP_TRUE11
   LLI r10, 0    // compare false path
-  JMP CMP_END82
-CMP_TRUE81:
+  JMP draw_rectangle_9_CMP_END12
+draw_rectangle_9_CMP_TRUE11:
   LLI r10, 1
-CMP_END82:
+draw_rectangle_9_CMP_END12:
   PUSH r2    // spill live temp for reg pressure
   LLI r2, 1    // load immediate 1
   SUB r2, r4, r2    // binop -
-  BEQ r7, r2, CMP_TRUE83
+  BEQ r7, r2, draw_rectangle_9_CMP_TRUE13
   LLI r2, 0    // compare false path
-  JMP CMP_END84
-CMP_TRUE83:
+  JMP draw_rectangle_9_CMP_END14
+draw_rectangle_9_CMP_TRUE13:
   LLI r2, 1
-CMP_END84:
+draw_rectangle_9_CMP_END14:
   OR r10, r10, r2    // logic || fold
-  BNE r10, r0, CMP_TRUE85
+  BNE r10, r0, draw_rectangle_9_CMP_TRUE15
   LLI r10, 0    // compare false path
-  JMP CMP_END86
-CMP_TRUE85:
+  JMP draw_rectangle_9_CMP_END16
+draw_rectangle_9_CMP_TRUE15:
   LLI r10, 1
-CMP_END86:
+draw_rectangle_9_CMP_END16:
   POP r2    // restore spilled temp
   PUSH r2    // spill live temp for reg pressure
   LLI r2, 0    // load immediate 0
-  BEQ r9, r2, CMP_TRUE87
+  BEQ r9, r2, draw_rectangle_9_CMP_TRUE17
   LLI r2, 0    // compare false path
-  JMP CMP_END88
-CMP_TRUE87:
+  JMP draw_rectangle_9_CMP_END18
+draw_rectangle_9_CMP_TRUE17:
   LLI r2, 1
-CMP_END88:
+draw_rectangle_9_CMP_END18:
   OR r10, r10, r2    // logic || fold
-  BNE r10, r0, CMP_TRUE89
+  BNE r10, r0, draw_rectangle_9_CMP_TRUE19
   LLI r10, 0    // compare false path
-  JMP CMP_END90
-CMP_TRUE89:
+  JMP draw_rectangle_9_CMP_END20
+draw_rectangle_9_CMP_TRUE19:
   LLI r10, 1
-CMP_END90:
+draw_rectangle_9_CMP_END20:
   POP r2    // restore spilled temp
   PUSH r2    // spill live temp for reg pressure
   LLI r2, 1    // load immediate 1
   SUB r2, r3, r2    // binop -
-  BEQ r9, r2, CMP_TRUE91
+  BEQ r9, r2, draw_rectangle_9_CMP_TRUE21
   LLI r2, 0    // compare false path
-  JMP CMP_END92
-CMP_TRUE91:
+  JMP draw_rectangle_9_CMP_END22
+draw_rectangle_9_CMP_TRUE21:
   LLI r2, 1
-CMP_END92:
+draw_rectangle_9_CMP_END22:
   OR r10, r10, r2    // logic || fold
-  BNE r10, r0, CMP_TRUE93
+  BNE r10, r0, draw_rectangle_9_CMP_TRUE23
   LLI r10, 0    // compare false path
-  JMP CMP_END94
-CMP_TRUE93:
+  JMP draw_rectangle_9_CMP_END24
+draw_rectangle_9_CMP_TRUE23:
   LLI r10, 1
-CMP_END94:
+draw_rectangle_9_CMP_END24:
   POP r2    // restore spilled temp
-  BEQ r10, r0, ELSE79
+  BEQ r10, r0, draw_rectangle_9_ELSE9
   LLI r10, 536870912    // load immediate 536870912
   ADD r10, r10, r8    // binop +
   SB r5, r10, 0    // intrinsic __sb
-  JMP IF_END80
-ELSE79:
+  JMP draw_rectangle_9_IF_END10
+draw_rectangle_9_ELSE9:
   LLI r10, 536870912    // load immediate 536870912
   ADD r10, r10, r8    // binop +
   SB r6, r10, 0    // intrinsic __sb
-IF_END80:
+draw_rectangle_9_IF_END10:
   ADDI r9, r9, 1    // assign col (addi fast path)
-  JMP WHILE75
-WHILE_END76:
+  JMP draw_rectangle_9_WHILE5
+draw_rectangle_9_WHILE_END6:
   ADDI r7, r7, 1    // assign row (addi fast path)
-  JMP WHILE71
-WHILE_END72:
+  JMP draw_rectangle_9_WHILE1
+draw_rectangle_9_WHILE_END2:
   LLI r10, 0    // load immediate 0
   ADD r1, r10, r0
   POP r14
@@ -486,8 +486,8 @@ WHILE_END72:
   LLI r2, 536870912    // init addr
   LLI r3, 65536    // init remaining
   LLI r4, 3735928559    // init lfsr
-WHILE95:
-  BEQ r3, r0, WHILE_END96
+lfsr_test_10_WHILE1:
+  BEQ r3, r0, lfsr_test_10_WHILE_END2
   SB r4, r2, 0    // intrinsic __sb
   ADDI r2, r2, 1    // assign addr (addi fast path)
   SHRI r5, r4, 0    // binop >> (imm)
@@ -546,8 +546,8 @@ WHILE95:
   OR r11, r11, r10    // binop |
   ADDI r4, r11, 0    // assign lfsr
   ADDI r3, r3, -1    // assign remaining (addi fast path)
-  JMP WHILE95
-WHILE_END96:
+  JMP lfsr_test_10_WHILE1
+lfsr_test_10_WHILE_END2:
   // epilogue and return
   ADDI r1, r0, 0  // ensure r1=0
   POP r14
@@ -556,38 +556,38 @@ WHILE_END96:
 .FUNC palette_test:
   PUSH r14
   LLI r4, 0    // init i
-WHILE97:
+palette_test_11_WHILE1:
   LLI r5, 64    // load immediate 64
-  BLT r4, r5, CMP_TRUE99
+  BLT r4, r5, palette_test_11_CMP_TRUE3
   LLI r5, 0    // compare false path
-  JMP CMP_END100
-CMP_TRUE99:
+  JMP palette_test_11_CMP_END4
+palette_test_11_CMP_TRUE3:
   LLI r5, 1
-CMP_END100:
-  BEQ r5, r0, WHILE_END98
+palette_test_11_CMP_END4:
+  BEQ r5, r0, palette_test_11_WHILE_END2
   LLI r6, 0    // zero init color
   LLI r7, 16    // load immediate 16
   REM r7, r4, r7    // binop %
   LLI r8, 16    // load immediate 16
   DIV r8, r4, r8    // binop /
   LLI r9, 0    // init j
-WHILE101:
-  BLT r9, r3, CMP_TRUE103
+palette_test_11_WHILE5:
+  BLT r9, r3, palette_test_11_CMP_TRUE7
   LLI r10, 0    // compare false path
-  JMP CMP_END104
-CMP_TRUE103:
+  JMP palette_test_11_CMP_END8
+palette_test_11_CMP_TRUE7:
   LLI r10, 1
-CMP_END104:
-  BEQ r10, r0, WHILE_END102
+palette_test_11_CMP_END8:
+  BEQ r10, r0, palette_test_11_WHILE_END6
   LLI r11, 0    // init k
-WHILE105:
-  BLT r11, r3, CMP_TRUE107
+palette_test_11_WHILE9:
+  BLT r11, r3, palette_test_11_CMP_TRUE11
   LLI r12, 0    // compare false path
-  JMP CMP_END108
-CMP_TRUE107:
+  JMP palette_test_11_CMP_END12
+palette_test_11_CMP_TRUE11:
   LLI r12, 1
-CMP_END108:
-  BEQ r12, r0, WHILE_END106
+palette_test_11_CMP_END12:
+  BEQ r12, r0, palette_test_11_WHILE_END10
   MUL r5, r8, r3    // binop *
   ADD r5, r1, r5    // binop +
   ADD r5, r5, r11    // binop +
@@ -603,14 +603,14 @@ CMP_END108:
   SB r6, r2, 0    // intrinsic __sb
   POP r2    // restore spilled temp
   ADDI r11, r11, 1    // assign k (addi fast path)
-  JMP WHILE105
-WHILE_END106:
+  JMP palette_test_11_WHILE9
+palette_test_11_WHILE_END10:
   ADDI r9, r9, 1    // assign j (addi fast path)
-  JMP WHILE101
-WHILE_END102:
+  JMP palette_test_11_WHILE5
+palette_test_11_WHILE_END6:
   ADDI r4, r4, 1    // assign i (addi fast path)
-  JMP WHILE97
-WHILE_END98:
+  JMP palette_test_11_WHILE1
+palette_test_11_WHILE_END2:
   // epilogue and return
   ADDI r1, r0, 0  // ensure r1=0
   POP r14
@@ -692,27 +692,27 @@ WHILE_END98:
 .FUNC string_length:
   PUSH r14
   LLI r2, 0    // init length
-WHILE109:
+string_length_16_WHILE1:
   ADD r3, r1, r2    // binop +
   LB r3, r3, 0    // deref
   LLI r4, 0    // load immediate 0
-  BNE r3, r4, CMP_TRUE111
+  BNE r3, r4, string_length_16_CMP_TRUE3
   LLI r3, 0    // compare false path
-  JMP CMP_END112
-CMP_TRUE111:
+  JMP string_length_16_CMP_END4
+string_length_16_CMP_TRUE3:
   LLI r3, 1
-CMP_END112:
-  BEQ r3, r0, WHILE_END110
+string_length_16_CMP_END4:
+  BEQ r3, r0, string_length_16_WHILE_END2
   ADDI r2, r2, 1    // assign length (addi fast path)
-  JMP WHILE109
-WHILE_END110:
+  JMP string_length_16_WHILE1
+string_length_16_WHILE_END2:
   ADD r1, r2, r0
   POP r14
   RET
 
 .FUNC initialize_filesystem:
   PUSH r14
-  LLI r2, superblock_buf113    // init superblock (buffer addr)
+  LLI r2, initialize_filesystem_17_superblock_buf1    // init superblock (buffer addr)
   LLI r3, 82    // load immediate 82
   LLI r4, 0    // load immediate 0
   ADD r4, r2, r4    // binop +
@@ -742,21 +742,21 @@ WHILE_END110:
   ADD r5, r2, r5    // binop +
   SB r6, r5, 0    // store 
   LLI r8, 7    // init i
-WHILE114:
+initialize_filesystem_17_WHILE2:
   LLI r7, 512    // load immediate 512
-  BLT r8, r7, CMP_TRUE116
+  BLT r8, r7, initialize_filesystem_17_CMP_TRUE4
   LLI r7, 0    // compare false path
-  JMP CMP_END117
-CMP_TRUE116:
+  JMP initialize_filesystem_17_CMP_END5
+initialize_filesystem_17_CMP_TRUE4:
   LLI r7, 1
-CMP_END117:
-  BEQ r7, r0, WHILE_END115
+initialize_filesystem_17_CMP_END5:
+  BEQ r7, r0, initialize_filesystem_17_WHILE_END3
   LLI r10, 0    // load immediate 0
   ADD r9, r2, r8    // binop +
   SB r10, r9, 0    // store 
   ADDI r8, r8, 1    // assign i (addi fast path)
-  JMP WHILE114
-WHILE_END115:
+  JMP initialize_filesystem_17_WHILE2
+initialize_filesystem_17_WHILE_END3:
   // emit call to bd_write_u32 with args [{'type': 'const', 'value': 1073741832}, {'type': 'const', 'value': 0}]
   PUSH r2    // save caller temp
   PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
@@ -811,7 +811,7 @@ WHILE_END115:
 
 .FUNC ensure_filesystem_initialized:
   PUSH r14
-  LLI r2, superblock_buf118    // init superblock (buffer addr)
+  LLI r2, ensure_filesystem_initialized_18_superblock_buf1    // init superblock (buffer addr)
   // emit call to bd_write_u32 with args [{'type': 'const', 'value': 1073741832}, {'type': 'const', 'value': 0}]
   PUSH r2    // save caller temp
   PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
@@ -867,98 +867,98 @@ WHILE_END115:
   ADD r10, r2, r10    // binop +
   LB r10, r10, 0    // deref
   LLI r11, 82    // load immediate 82
-  BNE r10, r11, CMP_TRUE121
+  BNE r10, r11, ensure_filesystem_initialized_18_CMP_TRUE4
   LLI r10, 0    // compare false path
-  JMP CMP_END122
-CMP_TRUE121:
+  JMP ensure_filesystem_initialized_18_CMP_END5
+ensure_filesystem_initialized_18_CMP_TRUE4:
   LLI r10, 1
-CMP_END122:
+ensure_filesystem_initialized_18_CMP_END5:
   LLI r12, 1    // load immediate 1
   ADD r12, r2, r12    // binop +
   LB r12, r12, 0    // deref
   LLI r3, 79    // load immediate 79
-  BNE r12, r3, CMP_TRUE123
+  BNE r12, r3, ensure_filesystem_initialized_18_CMP_TRUE6
   LLI r12, 0    // compare false path
-  JMP CMP_END124
-CMP_TRUE123:
+  JMP ensure_filesystem_initialized_18_CMP_END7
+ensure_filesystem_initialized_18_CMP_TRUE6:
   LLI r12, 1
-CMP_END124:
+ensure_filesystem_initialized_18_CMP_END7:
   OR r10, r10, r12    // logic || fold
-  BNE r10, r0, CMP_TRUE125
+  BNE r10, r0, ensure_filesystem_initialized_18_CMP_TRUE8
   LLI r10, 0    // compare false path
-  JMP CMP_END126
-CMP_TRUE125:
+  JMP ensure_filesystem_initialized_18_CMP_END9
+ensure_filesystem_initialized_18_CMP_TRUE8:
   LLI r10, 1
-CMP_END126:
+ensure_filesystem_initialized_18_CMP_END9:
   LLI r4, 2    // load immediate 2
   ADD r4, r2, r4    // binop +
   LB r4, r4, 0    // deref
   LLI r5, 83    // load immediate 83
-  BNE r4, r5, CMP_TRUE127
+  BNE r4, r5, ensure_filesystem_initialized_18_CMP_TRUE10
   LLI r4, 0    // compare false path
-  JMP CMP_END128
-CMP_TRUE127:
+  JMP ensure_filesystem_initialized_18_CMP_END11
+ensure_filesystem_initialized_18_CMP_TRUE10:
   LLI r4, 1
-CMP_END128:
+ensure_filesystem_initialized_18_CMP_END11:
   OR r10, r10, r4    // logic || fold
-  BNE r10, r0, CMP_TRUE129
+  BNE r10, r0, ensure_filesystem_initialized_18_CMP_TRUE12
   LLI r10, 0    // compare false path
-  JMP CMP_END130
-CMP_TRUE129:
+  JMP ensure_filesystem_initialized_18_CMP_END13
+ensure_filesystem_initialized_18_CMP_TRUE12:
   LLI r10, 1
-CMP_END130:
+ensure_filesystem_initialized_18_CMP_END13:
   LLI r6, 3    // load immediate 3
   ADD r6, r2, r6    // binop +
   LB r6, r6, 0    // deref
   LLI r7, 80    // load immediate 80
-  BNE r6, r7, CMP_TRUE131
+  BNE r6, r7, ensure_filesystem_initialized_18_CMP_TRUE14
   LLI r6, 0    // compare false path
-  JMP CMP_END132
-CMP_TRUE131:
+  JMP ensure_filesystem_initialized_18_CMP_END15
+ensure_filesystem_initialized_18_CMP_TRUE14:
   LLI r6, 1
-CMP_END132:
+ensure_filesystem_initialized_18_CMP_END15:
   OR r10, r10, r6    // logic || fold
-  BNE r10, r0, CMP_TRUE133
+  BNE r10, r0, ensure_filesystem_initialized_18_CMP_TRUE16
   LLI r10, 0    // compare false path
-  JMP CMP_END134
-CMP_TRUE133:
+  JMP ensure_filesystem_initialized_18_CMP_END17
+ensure_filesystem_initialized_18_CMP_TRUE16:
   LLI r10, 1
-CMP_END134:
+ensure_filesystem_initialized_18_CMP_END17:
   LLI r8, 4    // load immediate 4
   ADD r8, r2, r8    // binop +
   LB r8, r8, 0    // deref
   LLI r9, 70    // load immediate 70
-  BNE r8, r9, CMP_TRUE135
+  BNE r8, r9, ensure_filesystem_initialized_18_CMP_TRUE18
   LLI r8, 0    // compare false path
-  JMP CMP_END136
-CMP_TRUE135:
+  JMP ensure_filesystem_initialized_18_CMP_END19
+ensure_filesystem_initialized_18_CMP_TRUE18:
   LLI r8, 1
-CMP_END136:
+ensure_filesystem_initialized_18_CMP_END19:
   OR r10, r10, r8    // logic || fold
-  BNE r10, r0, CMP_TRUE137
+  BNE r10, r0, ensure_filesystem_initialized_18_CMP_TRUE20
   LLI r10, 0    // compare false path
-  JMP CMP_END138
-CMP_TRUE137:
+  JMP ensure_filesystem_initialized_18_CMP_END21
+ensure_filesystem_initialized_18_CMP_TRUE20:
   LLI r10, 1
-CMP_END138:
+ensure_filesystem_initialized_18_CMP_END21:
   LLI r11, 5    // load immediate 5
   ADD r11, r2, r11    // binop +
   LB r11, r11, 0    // deref
   LLI r3, 83    // load immediate 83
-  BNE r11, r3, CMP_TRUE139
+  BNE r11, r3, ensure_filesystem_initialized_18_CMP_TRUE22
   LLI r11, 0    // compare false path
-  JMP CMP_END140
-CMP_TRUE139:
+  JMP ensure_filesystem_initialized_18_CMP_END23
+ensure_filesystem_initialized_18_CMP_TRUE22:
   LLI r11, 1
-CMP_END140:
+ensure_filesystem_initialized_18_CMP_END23:
   OR r10, r10, r11    // logic || fold
-  BNE r10, r0, CMP_TRUE141
+  BNE r10, r0, ensure_filesystem_initialized_18_CMP_TRUE24
   LLI r10, 0    // compare false path
-  JMP CMP_END142
-CMP_TRUE141:
+  JMP ensure_filesystem_initialized_18_CMP_END25
+ensure_filesystem_initialized_18_CMP_TRUE24:
   LLI r10, 1
-CMP_END142:
-  BEQ r10, r0, ELSE119
+ensure_filesystem_initialized_18_CMP_END25:
+  BEQ r10, r0, ensure_filesystem_initialized_18_ELSE2
   // emit call to initialize_filesystem with args []
   PUSH r2    // save caller temp
   PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
@@ -966,9 +966,9 @@ CMP_END142:
   // call return value in r1
   POP r1  
   POP r2    // restore caller temp
-  JMP IF_END120
-ELSE119:
-IF_END120:
+  JMP ensure_filesystem_initialized_18_IF_END3
+ensure_filesystem_initialized_18_ELSE2:
+ensure_filesystem_initialized_18_IF_END3:
   LLI r12, 0    // load immediate 0
   ADD r1, r12, r0
   POP r14
@@ -976,67 +976,67 @@ IF_END120:
 
 .FUNC write_file:
   PUSH r14
-  LLI r3, scratch_block_buf143    // init scratch_block (buffer addr)
+  LLI r3, write_file_19_scratch_block_buf1    // init scratch_block (buffer addr)
   LLI r4, 0    // init i
-WHILE144:
+write_file_19_WHILE2:
   LLI r5, 512    // load immediate 512
-  BLT r4, r5, CMP_TRUE146
+  BLT r4, r5, write_file_19_CMP_TRUE4
   LLI r5, 0    // compare false path
-  JMP CMP_END147
-CMP_TRUE146:
+  JMP write_file_19_CMP_END5
+write_file_19_CMP_TRUE4:
   LLI r5, 1
-CMP_END147:
-  BEQ r5, r0, WHILE_END145
+write_file_19_CMP_END5:
+  BEQ r5, r0, write_file_19_WHILE_END3
   LLI r6, 0    // load immediate 0
   ADD r7, r3, r4    // binop +
   SB r6, r7, 0    // store 
   ADDI r4, r4, 1    // assign i (addi fast path)
-  JMP WHILE144
-WHILE_END145:
+  JMP write_file_19_WHILE2
+write_file_19_WHILE_END3:
   LLI r8, 0    // init filename_done
   LLI r9, 0    // init i
-WHILE148:
+write_file_19_WHILE6:
   LLI r10, 32    // load immediate 32
-  BLT r9, r10, CMP_TRUE150
+  BLT r9, r10, write_file_19_CMP_TRUE8
   LLI r10, 0    // compare false path
-  JMP CMP_END151
-CMP_TRUE150:
+  JMP write_file_19_CMP_END9
+write_file_19_CMP_TRUE8:
   LLI r10, 1
-CMP_END151:
-  BEQ r10, r0, WHILE_END149
-  BEQ r8, r0, UNOP_NOT_TRUE154
+write_file_19_CMP_END9:
+  BEQ r10, r0, write_file_19_WHILE_END7
+  BEQ r8, r0, write_file_19_UNOP_NOT_TRUE12
   LLI r11, 0    // operand is nonzero -> false
-  JMP UNOP_NOT_END155
-UNOP_NOT_TRUE154:
+  JMP write_file_19_UNOP_NOT_END13
+write_file_19_UNOP_NOT_TRUE12:
   LLI r11, 1    // operand is zero -> true
-UNOP_NOT_END155:
-  BEQ r11, r0, ELSE152
+write_file_19_UNOP_NOT_END13:
+  BEQ r11, r0, write_file_19_ELSE10
   ADD r12, r1, r9    // binop +
   LB r12, r12, 0    // deref
   ADD r5, r3, r9    // binop +
   SB r12, r5, 0    // store 
   LLI r7, 0    // load immediate 0
-  BEQ r12, r7, CMP_TRUE158
+  BEQ r12, r7, write_file_19_CMP_TRUE16
   LLI r7, 0    // compare false path
-  JMP CMP_END159
-CMP_TRUE158:
+  JMP write_file_19_CMP_END17
+write_file_19_CMP_TRUE16:
   LLI r7, 1
-CMP_END159:
-  BEQ r7, r0, ELSE156
+write_file_19_CMP_END17:
+  BEQ r7, r0, write_file_19_ELSE14
   LLI r6, 1    // load immediate 1
   ADDI r8, r6, 0    // assign filename_done
-  JMP IF_END157
-ELSE156:
-IF_END157:
-  JMP IF_END153
-ELSE152:
+  JMP write_file_19_IF_END15
+write_file_19_ELSE14:
+write_file_19_IF_END15:
+  JMP write_file_19_IF_END11
+write_file_19_ELSE10:
   LLI r10, 0    // load immediate 0
   ADD r11, r3, r9    // binop +
   SB r10, r11, 0    // store 
-IF_END153:
+write_file_19_IF_END11:
   ADDI r9, r9, 1    // assign i (addi fast path)
-  JMP WHILE148
-WHILE_END149:
+  JMP write_file_19_WHILE6
+write_file_19_WHILE_END7:
   LLI r5, 0    // zero init file_size
   // emit call to string_length with args [{'type': 'var', 'name': 'data'}]
   PUSH r2    // save caller temp
@@ -1185,65 +1185,65 @@ WHILE_END149:
   POP r3    // restore caller temp
   POP r2    // restore caller temp
   LLI r11, 0    // init i
-WHILE160:
+write_file_19_WHILE18:
   LLI r6, 512    // load immediate 512
-  BLT r11, r6, CMP_TRUE162
+  BLT r11, r6, write_file_19_CMP_TRUE20
   LLI r6, 0    // compare false path
-  JMP CMP_END163
-CMP_TRUE162:
+  JMP write_file_19_CMP_END21
+write_file_19_CMP_TRUE20:
   LLI r6, 1
-CMP_END163:
-  BEQ r6, r0, WHILE_END161
+write_file_19_CMP_END21:
+  BEQ r6, r0, write_file_19_WHILE_END19
   LLI r8, 0    // load immediate 0
   ADD r10, r3, r11    // binop +
   SB r8, r10, 0    // store 
   ADDI r11, r11, 1    // assign i (addi fast path)
-  JMP WHILE160
-WHILE_END161:
+  JMP write_file_19_WHILE18
+write_file_19_WHILE_END19:
   LLI r12, 0    // init data_done
   LLI r5, 0    // init i
-WHILE164:
+write_file_19_WHILE22:
   LLI r6, 511    // load immediate 511
-  BLT r5, r6, CMP_TRUE166
+  BLT r5, r6, write_file_19_CMP_TRUE24
   LLI r6, 0    // compare false path
-  JMP CMP_END167
-CMP_TRUE166:
+  JMP write_file_19_CMP_END25
+write_file_19_CMP_TRUE24:
   LLI r6, 1
-CMP_END167:
-  BEQ r6, r0, WHILE_END165
-  BEQ r12, r0, UNOP_NOT_TRUE170
+write_file_19_CMP_END25:
+  BEQ r6, r0, write_file_19_WHILE_END23
+  BEQ r12, r0, write_file_19_UNOP_NOT_TRUE28
   LLI r10, 0    // operand is nonzero -> false
-  JMP UNOP_NOT_END171
-UNOP_NOT_TRUE170:
+  JMP write_file_19_UNOP_NOT_END29
+write_file_19_UNOP_NOT_TRUE28:
   LLI r10, 1    // operand is zero -> true
-UNOP_NOT_END171:
-  BEQ r10, r0, ELSE168
+write_file_19_UNOP_NOT_END29:
+  BEQ r10, r0, write_file_19_ELSE26
   ADD r8, r2, r5    // binop +
   LB r8, r8, 0    // deref
   ADD r6, r3, r5    // binop +
   SB r8, r6, 0    // store 
   LLI r10, 0    // load immediate 0
-  BEQ r8, r10, CMP_TRUE174
+  BEQ r8, r10, write_file_19_CMP_TRUE32
   LLI r10, 0    // compare false path
-  JMP CMP_END175
-CMP_TRUE174:
+  JMP write_file_19_CMP_END33
+write_file_19_CMP_TRUE32:
   LLI r10, 1
-CMP_END175:
-  BEQ r10, r0, ELSE172
+write_file_19_CMP_END33:
+  BEQ r10, r0, write_file_19_ELSE30
   LLI r6, 1    // load immediate 1
   ADDI r12, r6, 0    // assign data_done
-  JMP IF_END173
-ELSE172:
-IF_END173:
-  JMP IF_END169
-ELSE168:
+  JMP write_file_19_IF_END31
+write_file_19_ELSE30:
+write_file_19_IF_END31:
+  JMP write_file_19_IF_END27
+write_file_19_ELSE26:
   LLI r10, 0    // load immediate 0
   ADD r6, r3, r5    // binop +
   SB r10, r6, 0    // store 
-IF_END169:
+write_file_19_IF_END27:
   ADDI r5, r5, 1    // assign i (addi fast path)
-  JMP WHILE164
-WHILE_END165:
+  JMP write_file_19_WHILE22
+write_file_19_WHILE_END23:
   // emit call to bd_write_u32 with args [{'type': 'const', 'value': 1073741832}, {'type': 'var', 'name': 'scratch_block_index'}]
   PUSH r3    // save caller temp
   PUSH r4    // save caller temp
@@ -1323,7 +1323,7 @@ WHILE_END165:
 
 .FUNC read_file:
   PUSH r14
-  LLI r3, dir_entry_buf176    // init dir_entry (buffer addr)
+  LLI r3, read_file_20_dir_entry_buf1    // init dir_entry (buffer addr)
   // emit call to bd_write_u32 with args [{'type': 'const', 'value': 1073741832}, {'type': 'const', 'value': 1}]
   PUSH r2    // save caller temp
   PUSH r3    // save caller temp
@@ -1386,66 +1386,66 @@ WHILE_END165:
   LLI r11, 1    // init match
   LLI r12, 0    // init compare_done
   LLI r4, 0    // init i
-WHILE177:
+read_file_20_WHILE2:
   LLI r5, 32    // load immediate 32
-  BLT r4, r5, CMP_TRUE179
+  BLT r4, r5, read_file_20_CMP_TRUE4
   LLI r5, 0    // compare false path
-  JMP CMP_END180
-CMP_TRUE179:
+  JMP read_file_20_CMP_END5
+read_file_20_CMP_TRUE4:
   LLI r5, 1
-CMP_END180:
-  BEQ r5, r0, WHILE_END178
-  BEQ r12, r0, UNOP_NOT_TRUE183
+read_file_20_CMP_END5:
+  BEQ r5, r0, read_file_20_WHILE_END3
+  BEQ r12, r0, read_file_20_UNOP_NOT_TRUE8
   LLI r6, 0    // operand is nonzero -> false
-  JMP UNOP_NOT_END184
-UNOP_NOT_TRUE183:
+  JMP read_file_20_UNOP_NOT_END9
+read_file_20_UNOP_NOT_TRUE8:
   LLI r6, 1    // operand is zero -> true
-UNOP_NOT_END184:
-  BEQ r6, r0, ELSE181
+read_file_20_UNOP_NOT_END9:
+  BEQ r6, r0, read_file_20_ELSE6
   ADD r7, r1, r4    // binop +
   LB r7, r7, 0    // deref
   ADD r8, r3, r4    // binop +
   LB r8, r8, 0    // deref
   LLI r9, 255    // load immediate 255
   AND r8, r8, r9    // binop &
-  BNE r7, r8, CMP_TRUE187
+  BNE r7, r8, read_file_20_CMP_TRUE12
   LLI r10, 0    // compare false path
-  JMP CMP_END188
-CMP_TRUE187:
+  JMP read_file_20_CMP_END13
+read_file_20_CMP_TRUE12:
   LLI r10, 1
-CMP_END188:
-  BEQ r10, r0, ELSE185
+read_file_20_CMP_END13:
+  BEQ r10, r0, read_file_20_ELSE10
   LLI r5, 0    // load immediate 0
   ADDI r11, r5, 0    // assign match
-  JMP IF_END186
-ELSE185:
-IF_END186:
+  JMP read_file_20_IF_END11
+read_file_20_ELSE10:
+read_file_20_IF_END11:
   LLI r6, 0    // load immediate 0
-  BEQ r7, r6, CMP_TRUE191
+  BEQ r7, r6, read_file_20_CMP_TRUE16
   LLI r6, 0    // compare false path
-  JMP CMP_END192
-CMP_TRUE191:
+  JMP read_file_20_CMP_END17
+read_file_20_CMP_TRUE16:
   LLI r6, 1
-CMP_END192:
-  BEQ r6, r0, ELSE189
+read_file_20_CMP_END17:
+  BEQ r6, r0, read_file_20_ELSE14
   LLI r9, 1    // load immediate 1
   ADDI r12, r9, 0    // assign compare_done
-  JMP IF_END190
-ELSE189:
-IF_END190:
-  JMP IF_END182
-ELSE181:
-IF_END182:
+  JMP read_file_20_IF_END15
+read_file_20_ELSE14:
+read_file_20_IF_END15:
+  JMP read_file_20_IF_END7
+read_file_20_ELSE6:
+read_file_20_IF_END7:
   ADDI r4, r4, 1    // assign i (addi fast path)
-  JMP WHILE177
-WHILE_END178:
-  BEQ r11, r0, UNOP_NOT_TRUE195
+  JMP read_file_20_WHILE2
+read_file_20_WHILE_END3:
+  BEQ r11, r0, read_file_20_UNOP_NOT_TRUE20
   LLI r10, 0    // operand is nonzero -> false
-  JMP UNOP_NOT_END196
-UNOP_NOT_TRUE195:
+  JMP read_file_20_UNOP_NOT_END21
+read_file_20_UNOP_NOT_TRUE20:
   LLI r10, 1    // operand is zero -> true
-UNOP_NOT_END196:
-  BEQ r10, r0, ELSE193
+read_file_20_UNOP_NOT_END21:
+  BEQ r10, r0, read_file_20_ELSE18
   LLI r5, 0    // load immediate 0
   LLI r6, 0    // load immediate 0
   ADD r6, r2, r6    // binop +
@@ -1454,9 +1454,9 @@ UNOP_NOT_END196:
   ADD r1, r9, r0
   POP r14
   RET
-  JMP IF_END194
-ELSE193:
-IF_END194:
+  JMP read_file_20_IF_END19
+read_file_20_ELSE18:
+read_file_20_IF_END19:
   LLI r8, 32    // load immediate 32
   ADD r8, r3, r8    // binop +
   LB r8, r8, 0    // deref
@@ -1570,23 +1570,23 @@ IF_END194:
   POP r8    // restore caller temp
   POP r2    // restore caller temp
   LLI r9, 511    // load immediate 511
-  BLT r8, r9, CMP_TRUE199
+  BLT r8, r9, read_file_20_CMP_TRUE24
   LLI r9, 0    // compare false path
-  JMP CMP_END200
-CMP_TRUE199:
+  JMP read_file_20_CMP_END25
+read_file_20_CMP_TRUE24:
   LLI r9, 1
-CMP_END200:
-  BEQ r9, r0, ELSE197
+read_file_20_CMP_END25:
+  BEQ r9, r0, read_file_20_ELSE22
   LLI r3, 0    // load immediate 0
   ADD r7, r2, r8    // binop +
   SB r3, r7, 0    // store 
-  JMP IF_END198
-ELSE197:
+  JMP read_file_20_IF_END23
+read_file_20_ELSE22:
   LLI r11, 0    // load immediate 0
   LLI r12, 511    // load immediate 511
   ADD r12, r2, r12    // binop +
   SB r11, r12, 0    // store 
-IF_END198:
+read_file_20_IF_END23:
   LLI r4, 0    // load immediate 0
   ADD r1, r4, r0
   POP r14
@@ -1639,7 +1639,7 @@ IF_END198:
   POP r1  
   POP r6    // restore caller temp
   POP r2    // restore caller temp
-  LLI r11, device_info_buf201    // init device_info (buffer addr)
+  LLI r11, main_22_device_info_buf1    // init device_info (buffer addr)
   // inline call to read_block with args [{'type': 'const', 'value': 4294967295}, {'type': 'var', 'name': 'device_info'}]
   // begin inline expansion of read_block
   LLI r12, 4294967295    // load immediate 4294967295
@@ -1737,7 +1737,7 @@ IF_END198:
   POP r11    // restore caller temp
   POP r6    // restore caller temp
   POP r2    // restore caller temp
-  LLI r4, file_contents_buf202    // init file_contents (buffer addr)
+  LLI r4, main_22_file_contents_buf2    // init file_contents (buffer addr)
   // emit call to read_file with args [{'type': 'string_addr', 'label': 'str_0'}, {'type': 'var', 'name': 'file_contents'}]
   PUSH r2    // save caller temp
   PUSH r4    // save caller temp
@@ -2152,22 +2152,22 @@ str_4:
 str_5:
   .STR "Yellow"
 
-superblock_buf113:
+initialize_filesystem_17_superblock_buf1:
   .SPACE 512 // lifted buffer
 
-superblock_buf118:
+ensure_filesystem_initialized_18_superblock_buf1:
   .SPACE 512 // lifted buffer
 
-scratch_block_buf143:
+write_file_19_scratch_block_buf1:
   .SPACE 512 // lifted buffer
 
-dir_entry_buf176:
+read_file_20_dir_entry_buf1:
   .SPACE 512 // lifted buffer
 
-device_info_buf201:
+main_22_device_info_buf1:
   .SPACE 512 // lifted buffer
 
-file_contents_buf202:
+main_22_file_contents_buf2:
   .SPACE 512 // lifted buffer
 
 

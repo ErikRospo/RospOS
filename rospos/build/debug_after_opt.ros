@@ -6,62 +6,62 @@
 
   JMP main
 
-WHILE1:
+read_string_3_WHILE1:
 
   LLI r5, 1
   SUB r5, r2, r5
-  BLT r4, r5, CMP_TRUE3
+  BLT r4, r5, read_string_3_CMP_TRUE3
   LLI r5, 0
-  JMP CMP_END4
+  JMP read_string_3_CMP_END4
 
-CMP_TRUE3:
+read_string_3_CMP_TRUE3:
 
   LLI r5, 1
-CMP_END4:
+read_string_3_CMP_END4:
 
-  BEQ r5, r0, WHILE_END2
+  BEQ r5, r0, read_string_3_WHILE_END2
   LLI r6, 0
   LB r6, r3, 0
   LLI r7, 10
-  BEQ r6, r7, CMP_TRUE7
+  BEQ r6, r7, read_string_3_CMP_TRUE7
   LLI r7, 0
-  JMP CMP_END8
+  JMP read_string_3_CMP_END8
 
-CMP_TRUE7:
+read_string_3_CMP_TRUE7:
 
   LLI r7, 1
-CMP_END8:
+read_string_3_CMP_END8:
 
   LLI r8, 13
-  BEQ r6, r8, CMP_TRUE9
+  BEQ r6, r8, read_string_3_CMP_TRUE9
   LLI r8, 0
-  JMP CMP_END10
+  JMP read_string_3_CMP_END10
 
-CMP_TRUE9:
+read_string_3_CMP_TRUE9:
 
   LLI r8, 1
-CMP_END10:
+read_string_3_CMP_END10:
 
   OR r7, r7, r8
-  BNE r7, r0, CMP_TRUE11
+  BNE r7, r0, read_string_3_CMP_TRUE11
   LLI r7, 0
-  JMP CMP_END12
+  JMP read_string_3_CMP_END12
 
-CMP_TRUE11:
+read_string_3_CMP_TRUE11:
 
   LLI r7, 1
-CMP_END12:
+read_string_3_CMP_END12:
 
-  BEQ r7, r0, ELSE5
-ELSE5:
+  BEQ r7, r0, read_string_3_ELSE5
+read_string_3_ELSE5:
 
   LLI r9, 1
   ADD r4, r4, r9
   ADD r10, r1, r4
   SB r6, r10, 0
-  JMP WHILE1
+  JMP read_string_3_WHILE1
 
-WHILE_END2:
+read_string_3_WHILE_END2:
 
   LLI r11, 0
   ADD r4, r1, r4
@@ -70,27 +70,27 @@ WHILE_END2:
   JALR r0, r14, 0
   PUSH r14
   LLI r2, 0
-WHILE13:
+clear_display_4_WHILE1:
 
   LLI r3, 65536
-  BLT r2, r3, CMP_TRUE15
+  BLT r2, r3, clear_display_4_CMP_TRUE3
   LLI r3, 0
-  JMP CMP_END16
+  JMP clear_display_4_CMP_END4
 
-CMP_TRUE15:
+clear_display_4_CMP_TRUE3:
 
   LLI r3, 1
-CMP_END16:
+clear_display_4_CMP_END4:
 
-  BEQ r3, r0, WHILE_END14
+  BEQ r3, r0, clear_display_4_WHILE_END2
   LLI r4, 536870912
   ADD r4, r4, r2
   LLI r5, 0
   SB r5, r4, 0
   ADDI r2, r2, 1
-  JMP WHILE13
+  JMP clear_display_4_WHILE1
 
-WHILE_END14:
+clear_display_4_WHILE_END2:
 
   LLI r6, 0
   ADD r1, r6, r0
@@ -98,33 +98,33 @@ WHILE_END14:
   JALR r0, r14, 0
   PUSH r14
   LLI r3, 0
-WHILE17:
+clear_char_on_display_5_WHILE1:
 
   LLI r4, 8
-  BLT r3, r4, CMP_TRUE19
+  BLT r3, r4, clear_char_on_display_5_CMP_TRUE3
   LLI r4, 0
-  JMP CMP_END20
+  JMP clear_char_on_display_5_CMP_END4
 
-CMP_TRUE19:
+clear_char_on_display_5_CMP_TRUE3:
 
   LLI r4, 1
-CMP_END20:
+clear_char_on_display_5_CMP_END4:
 
-  BEQ r4, r0, WHILE_END18
+  BEQ r4, r0, clear_char_on_display_5_WHILE_END2
   LLI r5, 0
-WHILE21:
+clear_char_on_display_5_WHILE5:
 
   LLI r6, 8
-  BLT r5, r6, CMP_TRUE23
+  BLT r5, r6, clear_char_on_display_5_CMP_TRUE7
   LLI r6, 0
-  JMP CMP_END24
+  JMP clear_char_on_display_5_CMP_END8
 
-CMP_TRUE23:
+clear_char_on_display_5_CMP_TRUE7:
 
   LLI r6, 1
-CMP_END24:
+clear_char_on_display_5_CMP_END8:
 
-  BEQ r6, r0, WHILE_END22
+  BEQ r6, r0, clear_char_on_display_5_WHILE_END6
   ADD r7, r1, r5
   ADD r8, r2, r3
   LLI r9, 256
@@ -135,14 +135,14 @@ CMP_END24:
   LLI r11, 0
   SB r11, r10, 0
   ADDI r5, r5, 1
-  JMP WHILE21
+  JMP clear_char_on_display_5_WHILE5
 
-WHILE_END22:
+clear_char_on_display_5_WHILE_END6:
 
   ADDI r3, r3, 1
-  JMP WHILE17
+  JMP clear_char_on_display_5_WHILE1
 
-WHILE_END18:
+clear_char_on_display_5_WHILE_END2:
 
   LLI r12, 0
   ADD r1, r12, r0
@@ -154,42 +154,42 @@ draw_char_to_display:
   LLI r5, 8
   MUL r5, r1, r5
   LLI r6, 0
-WHILE25:
+draw_char_to_display_6_WHILE1:
 
   LLI r7, 8
-  BLT r6, r7, CMP_TRUE27
+  BLT r6, r7, draw_char_to_display_6_CMP_TRUE3
   LLI r7, 0
-  JMP CMP_END28
+  JMP draw_char_to_display_6_CMP_END4
 
-CMP_TRUE27:
+draw_char_to_display_6_CMP_TRUE3:
 
   LLI r7, 1
-CMP_END28:
+draw_char_to_display_6_CMP_END4:
 
-  BEQ r7, r0, WHILE_END26
+  BEQ r7, r0, draw_char_to_display_6_WHILE_END2
   LLI r8, 0
   LLI r9, font_address
   ADD r10, r9, r5
   ADD r10, r10, r6
   LB r8, r10, 0
   LLI r11, 0
-WHILE29:
+draw_char_to_display_6_WHILE5:
 
   LLI r12, 8
-  BLT r11, r12, CMP_TRUE31
+  BLT r11, r12, draw_char_to_display_6_CMP_TRUE7
   LLI r12, 0
-  JMP CMP_END32
+  JMP draw_char_to_display_6_CMP_END8
 
-CMP_TRUE31:
+draw_char_to_display_6_CMP_TRUE7:
 
   LLI r12, 1
-CMP_END32:
+draw_char_to_display_6_CMP_END8:
 
-  BEQ r12, r0, WHILE_END30
+  BEQ r12, r0, draw_char_to_display_6_WHILE_END6
   SHR r7, r8, r11
   LLI r10, 1
   AND r7, r7, r10
-  BEQ r7, r0, ELSE33
+  BEQ r7, r0, draw_char_to_display_6_ELSE9
   ADD r12, r2, r11
   ADD r10, r3, r6
   PUSH r2
@@ -203,17 +203,17 @@ CMP_END32:
   SB r4, r3, 0
   POP r3
   ADDI r15, r15, 4
-ELSE33:
+draw_char_to_display_6_ELSE9:
 
   ADDI r11, r11, 1
-  JMP WHILE29
+  JMP draw_char_to_display_6_WHILE5
 
-WHILE_END30:
+draw_char_to_display_6_WHILE_END6:
 
   ADDI r6, r6, 1
-  JMP WHILE25
+  JMP draw_char_to_display_6_WHILE1
 
-WHILE_END26:
+draw_char_to_display_6_WHILE_END2:
 
   LLI r2, 0
   ADD r1, r2, r0
@@ -222,10 +222,10 @@ WHILE_END26:
 draw_string_to_display:
 
   PUSH r14
-WHILE35:
+draw_string_to_display_7_WHILE1:
 
   LB r5, r1, 0
-  BEQ r5, r0, WHILE_END36
+  BEQ r5, r0, draw_string_to_display_7_WHILE_END2
   PUSH r2
   PUSH r3
   PUSH r4
@@ -240,9 +240,9 @@ WHILE35:
   POP r2
   ADDI r1, r1, 1
   ADDI r2, r2, 8
-  JMP WHILE35
+  JMP draw_string_to_display_7_WHILE1
 
-WHILE_END36:
+draw_string_to_display_7_WHILE_END2:
 
   LLI r7, 0
   ADD r1, r7, r0
@@ -251,73 +251,73 @@ WHILE_END36:
   PUSH r14
   SUB r5, r3, r1
   LLI r6, 0
-  BLT r5, r6, CMP_TRUE39
+  BLT r5, r6, draw_line_8_CMP_TRUE3
   LLI r6, 0
-  JMP CMP_END40
+  JMP draw_line_8_CMP_END4
 
-CMP_TRUE39:
+draw_line_8_CMP_TRUE3:
 
   LLI r6, 1
-CMP_END40:
+draw_line_8_CMP_END4:
 
-  BEQ r6, r0, ELSE37
+  BEQ r6, r0, draw_line_8_ELSE1
   LLI r7, 0
   SUB r5, r7, r5
-ELSE37:
+draw_line_8_ELSE1:
 
   LLI r8, -1
-  BLT r1, r3, CMP_TRUE43
+  BLT r1, r3, draw_line_8_CMP_TRUE7
   LLI r9, 0
-  JMP CMP_END44
+  JMP draw_line_8_CMP_END8
 
-CMP_TRUE43:
+draw_line_8_CMP_TRUE7:
 
   LLI r9, 1
-CMP_END44:
+draw_line_8_CMP_END8:
 
-  BEQ r9, r0, ELSE41
+  BEQ r9, r0, draw_line_8_ELSE5
   LLI r10, 1
   ADDI r8, r10, 0
-ELSE41:
+draw_line_8_ELSE5:
 
   SUB r11, r2, r4
   LLI r12, 0
-  BLT r11, r12, CMP_TRUE47
+  BLT r11, r12, draw_line_8_CMP_TRUE11
   LLI r12, 0
-  JMP CMP_END48
+  JMP draw_line_8_CMP_END12
 
-CMP_TRUE47:
+draw_line_8_CMP_TRUE11:
 
   LLI r12, 1
-CMP_END48:
+draw_line_8_CMP_END12:
 
-  BEQ r12, r0, ELSE45
+  BEQ r12, r0, draw_line_8_ELSE9
   LLI r6, 0
   SUB r11, r6, r11
-ELSE45:
+draw_line_8_ELSE9:
 
   LLI r7, 0
   SUB r11, r7, r11
   LLI r9, -1
-  BLT r2, r4, CMP_TRUE51
+  BLT r2, r4, draw_line_8_CMP_TRUE15
   LLI r10, 0
-  JMP CMP_END52
+  JMP draw_line_8_CMP_END16
 
-CMP_TRUE51:
+draw_line_8_CMP_TRUE15:
 
   LLI r10, 1
-CMP_END52:
+draw_line_8_CMP_END16:
 
-  BEQ r10, r0, ELSE49
+  BEQ r10, r0, draw_line_8_ELSE13
   LLI r12, 1
   ADDI r9, r12, 0
-ELSE49:
+draw_line_8_ELSE13:
 
   ADD r6, r5, r11
   LLI r7, 1
-WHILE53:
+draw_line_8_WHILE17:
 
-  BEQ r7, r0, WHILE_END54
+  BEQ r7, r0, draw_line_8_WHILE_END18
   LLI r10, 256
   MUL r10, r2, r10
   ADD r10, r10, r1
@@ -327,79 +327,79 @@ WHILE53:
   LLI r2, 63
   SB r2, r12, 0
   POP r2
-  BEQ r1, r3, CMP_TRUE57
+  BEQ r1, r3, draw_line_8_CMP_TRUE21
   LLI r12, 0
-  JMP CMP_END58
+  JMP draw_line_8_CMP_END22
 
-CMP_TRUE57:
+draw_line_8_CMP_TRUE21:
 
   LLI r12, 1
-CMP_END58:
+draw_line_8_CMP_END22:
 
   PUSH r2
-  BEQ r2, r4, CMP_TRUE59
+  BEQ r2, r4, draw_line_8_CMP_TRUE23
   LLI r2, 0
-  JMP CMP_END60
+  JMP draw_line_8_CMP_END24
 
-CMP_TRUE59:
+draw_line_8_CMP_TRUE23:
 
   LLI r2, 1
-CMP_END60:
+draw_line_8_CMP_END24:
 
   AND r12, r12, r2
-  BNE r12, r0, CMP_TRUE61
+  BNE r12, r0, draw_line_8_CMP_TRUE25
   LLI r12, 0
-  JMP CMP_END62
+  JMP draw_line_8_CMP_END26
 
-CMP_TRUE61:
+draw_line_8_CMP_TRUE25:
 
   LLI r12, 1
-CMP_END62:
+draw_line_8_CMP_END26:
 
   POP r2
-  BEQ r12, r0, ELSE55
+  BEQ r12, r0, draw_line_8_ELSE19
   LLI r12, 0
   ADDI r7, r12, 0
-ELSE55:
+draw_line_8_ELSE19:
 
   ADD r12, r6, r6
   PUSH r2
-  BGE r12, r11, CMP_TRUE65
+  BGE r12, r11, draw_line_8_CMP_TRUE29
   LLI r2, 0
-  JMP CMP_END66
+  JMP draw_line_8_CMP_END30
 
-CMP_TRUE65:
+draw_line_8_CMP_TRUE29:
 
   LLI r2, 1
-CMP_END66:
+draw_line_8_CMP_END30:
 
-  BEQ r2, r0, ELSE63
+  BEQ r2, r0, draw_line_8_ELSE27
   ADD r6, r6, r11
   ADD r1, r1, r8
   POP r2
-ELSE63:
+draw_line_8_ELSE27:
 
   PUSH r2
-  BGE r5, r12, CMP_TRUE69
+  BGE r5, r12, draw_line_8_CMP_TRUE33
   LLI r2, 0
-  JMP CMP_END70
+  JMP draw_line_8_CMP_END34
 
-CMP_TRUE69:
+draw_line_8_CMP_TRUE33:
 
   LLI r2, 1
-CMP_END70:
+draw_line_8_CMP_END34:
 
-  BEQ r2, r0, ELSE67
+  BEQ r2, r0, draw_line_8_ELSE31
   ADD r6, r6, r5
   POP r2
   PUSH r3
   ADD r2, r2, r9
   POP r3
-ELSE67:
+draw_line_8_ELSE31:
 
-  JMP WHILE53
+  JMP draw_line_8_WHILE17
 
-WHILE_END54:
+draw_line_8_WHILE_END18:
 
   LLI r12, 0
   ADD r1, r12, r0
@@ -409,130 +409,130 @@ WHILE_END54:
   LW r5, r15, 4
   LW r6, r15, 8
   LLI r7, 0
-WHILE71:
+draw_rectangle_9_WHILE1:
 
-  BLT r7, r4, CMP_TRUE73
+  BLT r7, r4, draw_rectangle_9_CMP_TRUE3
   LLI r8, 0
-  JMP CMP_END74
+  JMP draw_rectangle_9_CMP_END4
 
-CMP_TRUE73:
+draw_rectangle_9_CMP_TRUE3:
 
   LLI r8, 1
-CMP_END74:
+draw_rectangle_9_CMP_END4:
 
-  BEQ r8, r0, WHILE_END72
+  BEQ r8, r0, draw_rectangle_9_WHILE_END2
   LLI r9, 0
-WHILE75:
+draw_rectangle_9_WHILE5:
 
-  BLT r9, r3, CMP_TRUE77
+  BLT r9, r3, draw_rectangle_9_CMP_TRUE7
   LLI r10, 0
-  JMP CMP_END78
+  JMP draw_rectangle_9_CMP_END8
 
-CMP_TRUE77:
+draw_rectangle_9_CMP_TRUE7:
 
   LLI r10, 1
-CMP_END78:
+draw_rectangle_9_CMP_END8:
 
-  BEQ r10, r0, WHILE_END76
+  BEQ r10, r0, draw_rectangle_9_WHILE_END6
   ADD r11, r1, r9
   ADD r12, r2, r7
   LLI r8, 256
   MUL r8, r12, r8
   ADD r8, r8, r11
-  BEQ r7, r0, CMP_TRUE81
+  BEQ r7, r0, draw_rectangle_9_CMP_TRUE11
   LLI r10, 0
-  JMP CMP_END82
+  JMP draw_rectangle_9_CMP_END12
 
-CMP_TRUE81:
+draw_rectangle_9_CMP_TRUE11:
 
   LLI r10, 1
-CMP_END82:
+draw_rectangle_9_CMP_END12:
 
   PUSH r2
   LLI r2, 1
   SUB r2, r4, r2
-  BEQ r7, r2, CMP_TRUE83
+  BEQ r7, r2, draw_rectangle_9_CMP_TRUE13
   LLI r2, 0
-  JMP CMP_END84
+  JMP draw_rectangle_9_CMP_END14
 
-CMP_TRUE83:
+draw_rectangle_9_CMP_TRUE13:
 
   LLI r2, 1
-CMP_END84:
+draw_rectangle_9_CMP_END14:
 
   OR r10, r10, r2
-  BNE r10, r0, CMP_TRUE85
+  BNE r10, r0, draw_rectangle_9_CMP_TRUE15
   LLI r10, 0
-  JMP CMP_END86
+  JMP draw_rectangle_9_CMP_END16
 
-CMP_TRUE85:
+draw_rectangle_9_CMP_TRUE15:
 
   LLI r10, 1
-CMP_END86:
+draw_rectangle_9_CMP_END16:
 
-  BEQ r9, r0, CMP_TRUE87
+  BEQ r9, r0, draw_rectangle_9_CMP_TRUE17
   LLI r2, 0
-  JMP CMP_END88
+  JMP draw_rectangle_9_CMP_END18
 
-CMP_TRUE87:
+draw_rectangle_9_CMP_TRUE17:
 
   LLI r2, 1
-CMP_END88:
+draw_rectangle_9_CMP_END18:
 
   OR r10, r10, r2
-  BNE r10, r0, CMP_TRUE89
+  BNE r10, r0, draw_rectangle_9_CMP_TRUE19
   LLI r10, 0
-  JMP CMP_END90
+  JMP draw_rectangle_9_CMP_END20
 
-CMP_TRUE89:
+draw_rectangle_9_CMP_TRUE19:
 
   LLI r10, 1
-CMP_END90:
+draw_rectangle_9_CMP_END20:
 
   LLI r2, 1
   SUB r2, r3, r2
-  BEQ r9, r2, CMP_TRUE91
+  BEQ r9, r2, draw_rectangle_9_CMP_TRUE21
   LLI r2, 0
-  JMP CMP_END92
+  JMP draw_rectangle_9_CMP_END22
 
-CMP_TRUE91:
+draw_rectangle_9_CMP_TRUE21:
 
   LLI r2, 1
-CMP_END92:
+draw_rectangle_9_CMP_END22:
 
   OR r10, r10, r2
-  BNE r10, r0, CMP_TRUE93
+  BNE r10, r0, draw_rectangle_9_CMP_TRUE23
   LLI r10, 0
-  JMP CMP_END94
+  JMP draw_rectangle_9_CMP_END24
 
-CMP_TRUE93:
+draw_rectangle_9_CMP_TRUE23:
 
   LLI r10, 1
-CMP_END94:
+draw_rectangle_9_CMP_END24:
 
   POP r2
-  BEQ r10, r0, ELSE79
+  BEQ r10, r0, draw_rectangle_9_ELSE9
   LLI r10, 536870912
   ADD r10, r10, r8
   SB r5, r10, 0
-  JMP IF_END80
+  JMP draw_rectangle_9_IF_END10
 
-ELSE79:
+draw_rectangle_9_ELSE9:
 
   LLI r10, 536870912
   ADD r10, r10, r8
   SB r6, r10, 0
-IF_END80:
+draw_rectangle_9_IF_END10:
 
   ADDI r9, r9, 1
-  JMP WHILE75
+  JMP draw_rectangle_9_WHILE5
 
-WHILE_END76:
+draw_rectangle_9_WHILE_END6:
 
   ADDI r7, r7, 1
-  JMP WHILE71
+  JMP draw_rectangle_9_WHILE1
 
-WHILE_END72:
+draw_rectangle_9_WHILE_END2:
 
   LLI r10, 0
   ADD r1, r10, r0
@@ -542,9 +542,9 @@ WHILE_END72:
   LLI r2, 536870912
   LLI r3, 65536
   LLI r4, 3735928559
-WHILE95:
+lfsr_test_10_WHILE1:
 
-  BEQ r3, r0, WHILE_END96
+  BEQ r3, r0, lfsr_test_10_WHILE_END2
   SB r4, r2, 0
   ADDI r2, r2, 1
   SHRI r5, r4, 0
@@ -596,59 +596,59 @@ WHILE95:
   SHLI r10, r5, 15
   OR r4, r11, r10
   ADDI r3, r3, -1
-  JMP WHILE95
+  JMP lfsr_test_10_WHILE1
 
-WHILE_END96:
+lfsr_test_10_WHILE_END2:
 
   ADDI r1, r0, 0
   POP r14
   JALR r0, r14, 0
   PUSH r14
   LLI r4, 0
-WHILE97:
+palette_test_11_WHILE1:
 
   LLI r5, 64
-  BLT r4, r5, CMP_TRUE99
+  BLT r4, r5, palette_test_11_CMP_TRUE3
   LLI r5, 0
-  JMP CMP_END100
+  JMP palette_test_11_CMP_END4
 
-CMP_TRUE99:
+palette_test_11_CMP_TRUE3:
 
   LLI r5, 1
-CMP_END100:
+palette_test_11_CMP_END4:
 
-  BEQ r5, r0, WHILE_END98
+  BEQ r5, r0, palette_test_11_WHILE_END2
   LLI r6, 0
   LLI r7, 16
   REM r7, r4, r7
   LLI r8, 16
   DIV r8, r4, r8
   LLI r9, 0
-WHILE101:
+palette_test_11_WHILE5:
 
-  BLT r9, r3, CMP_TRUE103
+  BLT r9, r3, palette_test_11_CMP_TRUE7
   LLI r10, 0
-  JMP CMP_END104
+  JMP palette_test_11_CMP_END8
 
-CMP_TRUE103:
+palette_test_11_CMP_TRUE7:
 
   LLI r10, 1
-CMP_END104:
+palette_test_11_CMP_END8:
 
-  BEQ r10, r0, WHILE_END102
+  BEQ r10, r0, palette_test_11_WHILE_END6
   LLI r11, 0
-WHILE105:
+palette_test_11_WHILE9:
 
-  BLT r11, r3, CMP_TRUE107
+  BLT r11, r3, palette_test_11_CMP_TRUE11
   LLI r12, 0
-  JMP CMP_END108
+  JMP palette_test_11_CMP_END12
 
-CMP_TRUE107:
+palette_test_11_CMP_TRUE11:
 
   LLI r12, 1
-CMP_END108:
+palette_test_11_CMP_END12:
 
-  BEQ r12, r0, WHILE_END106
+  BEQ r12, r0, palette_test_11_WHILE_END10
   MUL r5, r8, r3
   ADD r5, r1, r5
   ADD r5, r5, r11
@@ -664,19 +664,19 @@ CMP_END108:
   SB r6, r2, 0
   POP r2
   ADDI r11, r11, 1
-  JMP WHILE105
+  JMP palette_test_11_WHILE9
 
-WHILE_END106:
+palette_test_11_WHILE_END10:
 
   ADDI r9, r9, 1
-  JMP WHILE101
+  JMP palette_test_11_WHILE5
 
-WHILE_END102:
+palette_test_11_WHILE_END6:
 
   ADDI r4, r4, 1
-  JMP WHILE97
+  JMP palette_test_11_WHILE1
 
-WHILE_END98:
+palette_test_11_WHILE_END2:
 
   ADDI r1, r0, 0
   POP r14
@@ -728,24 +728,24 @@ string_length:
 
   PUSH r14
   LLI r2, 0
-WHILE109:
+string_length_16_WHILE1:
 
   ADD r3, r1, r2
   LB r3, r3, 0
-  BNE r3, r0, CMP_TRUE111
+  BNE r3, r0, string_length_16_CMP_TRUE3
   LLI r3, 0
-  JMP CMP_END112
+  JMP string_length_16_CMP_END4
 
-CMP_TRUE111:
+string_length_16_CMP_TRUE3:
 
   LLI r3, 1
-CMP_END112:
+string_length_16_CMP_END4:
 
-  BEQ r3, r0, WHILE_END110
+  BEQ r3, r0, string_length_16_WHILE_END2
   ADDI r2, r2, 1
-  JMP WHILE109
+  JMP string_length_16_WHILE1
 
-WHILE_END110:
+string_length_16_WHILE_END2:
 
   ADD r1, r2, r0
   POP r14
@@ -753,7 +753,7 @@ WHILE_END110:
 initialize_filesystem:
 
   PUSH r14
-  LLI r2, superblock_buf113
+  LLI r2, initialize_filesystem_17_superblock_buf1
   LLI r3, 82
   SB r3, r2, 0
   LLI r5, 79
@@ -769,26 +769,26 @@ initialize_filesystem:
   LLI r6, 1
   SB r6, r2, 6
   LLI r8, 7
-WHILE114:
+initialize_filesystem_17_WHILE2:
 
   LLI r7, 512
-  BLT r8, r7, CMP_TRUE116
+  BLT r8, r7, initialize_filesystem_17_CMP_TRUE4
   LLI r7, 0
-  JMP CMP_END117
+  JMP initialize_filesystem_17_CMP_END5
 
-CMP_TRUE116:
+initialize_filesystem_17_CMP_TRUE4:
 
   LLI r7, 1
-CMP_END117:
+initialize_filesystem_17_CMP_END5:
 
-  BEQ r7, r0, WHILE_END115
+  BEQ r7, r0, initialize_filesystem_17_WHILE_END3
   LLI r10, 0
   ADD r9, r2, r8
   SB r10, r9, 0
   ADDI r8, r8, 1
-  JMP WHILE114
+  JMP initialize_filesystem_17_WHILE2
 
-WHILE_END115:
+initialize_filesystem_17_WHILE_END3:
 
   PUSH r2
   PUSH r1
@@ -826,7 +826,7 @@ WHILE_END115:
   POP r14
   JALR r0, r14, 0
   PUSH r14
-  LLI r2, superblock_buf118
+  LLI r2, ensure_filesystem_initialized_18_superblock_buf1
   PUSH r2
   PUSH r1
   LLI r3, 1073741832
@@ -858,128 +858,128 @@ WHILE_END115:
   POP r2
   LB r10, r2, 0
   LLI r11, 82
-  BNE r10, r11, CMP_TRUE121
+  BNE r10, r11, ensure_filesystem_initialized_18_CMP_TRUE4
   LLI r10, 0
-  JMP CMP_END122
+  JMP ensure_filesystem_initialized_18_CMP_END5
 
-CMP_TRUE121:
+ensure_filesystem_initialized_18_CMP_TRUE4:
 
   LLI r10, 1
-CMP_END122:
+ensure_filesystem_initialized_18_CMP_END5:
 
   LB r12, r2, 1
   LLI r3, 79
-  BNE r12, r3, CMP_TRUE123
+  BNE r12, r3, ensure_filesystem_initialized_18_CMP_TRUE6
   LLI r12, 0
-  JMP CMP_END124
+  JMP ensure_filesystem_initialized_18_CMP_END7
 
-CMP_TRUE123:
+ensure_filesystem_initialized_18_CMP_TRUE6:
 
   LLI r12, 1
-CMP_END124:
+ensure_filesystem_initialized_18_CMP_END7:
 
   OR r10, r10, r12
-  BNE r10, r0, CMP_TRUE125
+  BNE r10, r0, ensure_filesystem_initialized_18_CMP_TRUE8
   LLI r10, 0
-  JMP CMP_END126
+  JMP ensure_filesystem_initialized_18_CMP_END9
 
-CMP_TRUE125:
+ensure_filesystem_initialized_18_CMP_TRUE8:
 
   LLI r10, 1
-CMP_END126:
+ensure_filesystem_initialized_18_CMP_END9:
 
   LB r4, r2, 2
   LLI r5, 83
-  BNE r4, r5, CMP_TRUE127
+  BNE r4, r5, ensure_filesystem_initialized_18_CMP_TRUE10
   LLI r4, 0
-  JMP CMP_END128
+  JMP ensure_filesystem_initialized_18_CMP_END11
 
-CMP_TRUE127:
+ensure_filesystem_initialized_18_CMP_TRUE10:
 
   LLI r4, 1
-CMP_END128:
+ensure_filesystem_initialized_18_CMP_END11:
 
   OR r10, r10, r4
-  BNE r10, r0, CMP_TRUE129
+  BNE r10, r0, ensure_filesystem_initialized_18_CMP_TRUE12
   LLI r10, 0
-  JMP CMP_END130
+  JMP ensure_filesystem_initialized_18_CMP_END13
 
-CMP_TRUE129:
+ensure_filesystem_initialized_18_CMP_TRUE12:
 
   LLI r10, 1
-CMP_END130:
+ensure_filesystem_initialized_18_CMP_END13:
 
   LB r6, r2, 3
   LLI r7, 80
-  BNE r6, r7, CMP_TRUE131
+  BNE r6, r7, ensure_filesystem_initialized_18_CMP_TRUE14
   LLI r6, 0
-  JMP CMP_END132
+  JMP ensure_filesystem_initialized_18_CMP_END15
 
-CMP_TRUE131:
+ensure_filesystem_initialized_18_CMP_TRUE14:
 
   LLI r6, 1
-CMP_END132:
+ensure_filesystem_initialized_18_CMP_END15:
 
   OR r10, r10, r6
-  BNE r10, r0, CMP_TRUE133
+  BNE r10, r0, ensure_filesystem_initialized_18_CMP_TRUE16
   LLI r10, 0
-  JMP CMP_END134
+  JMP ensure_filesystem_initialized_18_CMP_END17
 
-CMP_TRUE133:
+ensure_filesystem_initialized_18_CMP_TRUE16:
 
   LLI r10, 1
-CMP_END134:
+ensure_filesystem_initialized_18_CMP_END17:
 
   LB r8, r2, 4
   LLI r9, 70
-  BNE r8, r9, CMP_TRUE135
+  BNE r8, r9, ensure_filesystem_initialized_18_CMP_TRUE18
   LLI r8, 0
-  JMP CMP_END136
+  JMP ensure_filesystem_initialized_18_CMP_END19
 
-CMP_TRUE135:
+ensure_filesystem_initialized_18_CMP_TRUE18:
 
   LLI r8, 1
-CMP_END136:
+ensure_filesystem_initialized_18_CMP_END19:
 
   OR r10, r10, r8
-  BNE r10, r0, CMP_TRUE137
+  BNE r10, r0, ensure_filesystem_initialized_18_CMP_TRUE20
   LLI r10, 0
-  JMP CMP_END138
+  JMP ensure_filesystem_initialized_18_CMP_END21
 
-CMP_TRUE137:
+ensure_filesystem_initialized_18_CMP_TRUE20:
 
   LLI r10, 1
-CMP_END138:
+ensure_filesystem_initialized_18_CMP_END21:
 
   LB r11, r2, 5
   LLI r3, 83
-  BNE r11, r3, CMP_TRUE139
+  BNE r11, r3, ensure_filesystem_initialized_18_CMP_TRUE22
   LLI r11, 0
-  JMP CMP_END140
+  JMP ensure_filesystem_initialized_18_CMP_END23
 
-CMP_TRUE139:
+ensure_filesystem_initialized_18_CMP_TRUE22:
 
   LLI r11, 1
-CMP_END140:
+ensure_filesystem_initialized_18_CMP_END23:
 
   OR r10, r10, r11
-  BNE r10, r0, CMP_TRUE141
+  BNE r10, r0, ensure_filesystem_initialized_18_CMP_TRUE24
   LLI r10, 0
-  JMP CMP_END142
+  JMP ensure_filesystem_initialized_18_CMP_END25
 
-CMP_TRUE141:
+ensure_filesystem_initialized_18_CMP_TRUE24:
 
   LLI r10, 1
-CMP_END142:
+ensure_filesystem_initialized_18_CMP_END25:
 
-  BEQ r10, r0, ELSE119
+  BEQ r10, r0, ensure_filesystem_initialized_18_ELSE2
   PUSH r2
   PUSH r1
   JMP initialize_filesystem
 
   POP r1
   POP r2
-ELSE119:
+ensure_filesystem_initialized_18_ELSE2:
 
   LLI r12, 0
   ADD r1, r12, r0
@@ -988,85 +988,85 @@ ELSE119:
 write_file:
 
   PUSH r14
-  LLI r3, scratch_block_buf143
+  LLI r3, write_file_19_scratch_block_buf1
   LLI r4, 0
-WHILE144:
+write_file_19_WHILE2:
 
   LLI r5, 512
-  BLT r4, r5, CMP_TRUE146
+  BLT r4, r5, write_file_19_CMP_TRUE4
   LLI r5, 0
-  JMP CMP_END147
+  JMP write_file_19_CMP_END5
 
-CMP_TRUE146:
+write_file_19_CMP_TRUE4:
 
   LLI r5, 1
-CMP_END147:
+write_file_19_CMP_END5:
 
-  BEQ r5, r0, WHILE_END145
+  BEQ r5, r0, write_file_19_WHILE_END3
   LLI r6, 0
   ADD r7, r3, r4
   SB r6, r7, 0
   ADDI r4, r4, 1
-  JMP WHILE144
+  JMP write_file_19_WHILE2
 
-WHILE_END145:
+write_file_19_WHILE_END3:
 
   LLI r8, 0
   LLI r9, 0
-WHILE148:
+write_file_19_WHILE6:
 
   LLI r10, 32
-  BLT r9, r10, CMP_TRUE150
+  BLT r9, r10, write_file_19_CMP_TRUE8
   LLI r10, 0
-  JMP CMP_END151
+  JMP write_file_19_CMP_END9
 
-CMP_TRUE150:
+write_file_19_CMP_TRUE8:
 
   LLI r10, 1
-CMP_END151:
+write_file_19_CMP_END9:
 
-  BEQ r10, r0, WHILE_END149
-  BEQ r8, r0, UNOP_NOT_TRUE154
+  BEQ r10, r0, write_file_19_WHILE_END7
+  BEQ r8, r0, write_file_19_UNOP_NOT_TRUE12
   LLI r11, 0
-  JMP UNOP_NOT_END155
+  JMP write_file_19_UNOP_NOT_END13
 
-UNOP_NOT_TRUE154:
+write_file_19_UNOP_NOT_TRUE12:
 
   LLI r11, 1
-UNOP_NOT_END155:
+write_file_19_UNOP_NOT_END13:
 
-  BEQ r11, r0, ELSE152
+  BEQ r11, r0, write_file_19_ELSE10
   ADD r12, r1, r9
   LB r12, r12, 0
   ADD r5, r3, r9
   SB r12, r5, 0
-  BEQ r12, r0, CMP_TRUE158
+  BEQ r12, r0, write_file_19_CMP_TRUE16
   LLI r7, 0
-  JMP CMP_END159
+  JMP write_file_19_CMP_END17
 
-CMP_TRUE158:
+write_file_19_CMP_TRUE16:
 
   LLI r7, 1
-CMP_END159:
+write_file_19_CMP_END17:
 
-  BEQ r7, r0, ELSE156
+  BEQ r7, r0, write_file_19_ELSE14
   LLI r6, 1
   ADDI r8, r6, 0
-ELSE156:
+write_file_19_ELSE14:
 
-  JMP IF_END153
+  JMP write_file_19_IF_END11
 
-ELSE152:
+write_file_19_ELSE10:
 
   LLI r10, 0
   ADD r11, r3, r9
   SB r10, r11, 0
-IF_END153:
+write_file_19_IF_END11:
 
   ADDI r9, r9, 1
-  JMP WHILE148
+  JMP write_file_19_WHILE6
 
-WHILE_END149:
+write_file_19_WHILE_END7:
 
   LLI r5, 0
   PUSH r2
@@ -1154,83 +1154,83 @@ WHILE_END149:
   POP r3
   POP r2
   LLI r11, 0
-WHILE160:
+write_file_19_WHILE18:
 
   LLI r6, 512
-  BLT r11, r6, CMP_TRUE162
+  BLT r11, r6, write_file_19_CMP_TRUE20
   LLI r6, 0
-  JMP CMP_END163
+  JMP write_file_19_CMP_END21
 
-CMP_TRUE162:
+write_file_19_CMP_TRUE20:
 
   LLI r6, 1
-CMP_END163:
+write_file_19_CMP_END21:
 
-  BEQ r6, r0, WHILE_END161
+  BEQ r6, r0, write_file_19_WHILE_END19
   LLI r8, 0
   ADD r10, r3, r11
   SB r8, r10, 0
   ADDI r11, r11, 1
-  JMP WHILE160
+  JMP write_file_19_WHILE18
 
-WHILE_END161:
+write_file_19_WHILE_END19:
 
   LLI r12, 0
   LLI r5, 0
-WHILE164:
+write_file_19_WHILE22:
 
   LLI r6, 511
-  BLT r5, r6, CMP_TRUE166
+  BLT r5, r6, write_file_19_CMP_TRUE24
   LLI r6, 0
-  JMP CMP_END167
+  JMP write_file_19_CMP_END25
 
-CMP_TRUE166:
+write_file_19_CMP_TRUE24:
 
   LLI r6, 1
-CMP_END167:
+write_file_19_CMP_END25:
 
-  BEQ r6, r0, WHILE_END165
-  BEQ r12, r0, UNOP_NOT_TRUE170
+  BEQ r6, r0, write_file_19_WHILE_END23
+  BEQ r12, r0, write_file_19_UNOP_NOT_TRUE28
   LLI r10, 0
-  JMP UNOP_NOT_END171
+  JMP write_file_19_UNOP_NOT_END29
 
-UNOP_NOT_TRUE170:
+write_file_19_UNOP_NOT_TRUE28:
 
   LLI r10, 1
-UNOP_NOT_END171:
+write_file_19_UNOP_NOT_END29:
 
-  BEQ r10, r0, ELSE168
+  BEQ r10, r0, write_file_19_ELSE26
   ADD r8, r2, r5
   LB r8, r8, 0
   ADD r6, r3, r5
   SB r8, r6, 0
-  BEQ r8, r0, CMP_TRUE174
+  BEQ r8, r0, write_file_19_CMP_TRUE32
   LLI r10, 0
-  JMP CMP_END175
+  JMP write_file_19_CMP_END33
 
-CMP_TRUE174:
+write_file_19_CMP_TRUE32:
 
   LLI r10, 1
-CMP_END175:
+write_file_19_CMP_END33:
 
-  BEQ r10, r0, ELSE172
+  BEQ r10, r0, write_file_19_ELSE30
   LLI r6, 1
   ADDI r12, r6, 0
-ELSE172:
+write_file_19_ELSE30:
 
-  JMP IF_END169
+  JMP write_file_19_IF_END27
 
-ELSE168:
+write_file_19_ELSE26:
 
   LLI r10, 0
   ADD r6, r3, r5
   SB r10, r6, 0
-IF_END169:
+write_file_19_IF_END27:
 
   ADDI r5, r5, 1
-  JMP WHILE164
+  JMP write_file_19_WHILE22
 
-WHILE_END165:
+write_file_19_WHILE_END23:
 
   PUSH r3
   PUSH r4
@@ -1294,7 +1294,7 @@ WHILE_END165:
 read_file:
 
   PUSH r14
-  LLI r3, dir_entry_buf176
+  LLI r3, read_file_20_dir_entry_buf1
   PUSH r2
   PUSH r3
   PUSH r1
@@ -1331,87 +1331,87 @@ read_file:
   LLI r11, 1
   LLI r12, 0
   LLI r4, 0
-WHILE177:
+read_file_20_WHILE2:
 
   LLI r5, 32
-  BLT r4, r5, CMP_TRUE179
+  BLT r4, r5, read_file_20_CMP_TRUE4
   LLI r5, 0
-  JMP CMP_END180
+  JMP read_file_20_CMP_END5
 
-CMP_TRUE179:
+read_file_20_CMP_TRUE4:
 
   LLI r5, 1
-CMP_END180:
+read_file_20_CMP_END5:
 
-  BEQ r5, r0, WHILE_END178
-  BEQ r12, r0, UNOP_NOT_TRUE183
+  BEQ r5, r0, read_file_20_WHILE_END3
+  BEQ r12, r0, read_file_20_UNOP_NOT_TRUE8
   LLI r6, 0
-  JMP UNOP_NOT_END184
+  JMP read_file_20_UNOP_NOT_END9
 
-UNOP_NOT_TRUE183:
+read_file_20_UNOP_NOT_TRUE8:
 
   LLI r6, 1
-UNOP_NOT_END184:
+read_file_20_UNOP_NOT_END9:
 
-  BEQ r6, r0, ELSE181
+  BEQ r6, r0, read_file_20_ELSE6
   ADD r7, r1, r4
   LB r7, r7, 0
   ADD r8, r3, r4
   LB r8, r8, 0
   LLI r9, 255
   AND r8, r8, r9
-  BNE r7, r8, CMP_TRUE187
+  BNE r7, r8, read_file_20_CMP_TRUE12
   LLI r10, 0
-  JMP CMP_END188
+  JMP read_file_20_CMP_END13
 
-CMP_TRUE187:
+read_file_20_CMP_TRUE12:
 
   LLI r10, 1
-CMP_END188:
+read_file_20_CMP_END13:
 
-  BEQ r10, r0, ELSE185
+  BEQ r10, r0, read_file_20_ELSE10
   LLI r5, 0
   ADDI r11, r5, 0
-ELSE185:
+read_file_20_ELSE10:
 
-  BEQ r7, r0, CMP_TRUE191
+  BEQ r7, r0, read_file_20_CMP_TRUE16
   LLI r6, 0
-  JMP CMP_END192
+  JMP read_file_20_CMP_END17
 
-CMP_TRUE191:
+read_file_20_CMP_TRUE16:
 
   LLI r6, 1
-CMP_END192:
+read_file_20_CMP_END17:
 
-  BEQ r6, r0, ELSE189
+  BEQ r6, r0, read_file_20_ELSE14
   LLI r9, 1
   ADDI r12, r9, 0
-ELSE189:
+read_file_20_ELSE14:
 
-ELSE181:
+read_file_20_ELSE6:
 
   ADDI r4, r4, 1
-  JMP WHILE177
+  JMP read_file_20_WHILE2
 
-WHILE_END178:
+read_file_20_WHILE_END3:
 
-  BEQ r11, r0, UNOP_NOT_TRUE195
+  BEQ r11, r0, read_file_20_UNOP_NOT_TRUE20
   LLI r10, 0
-  JMP UNOP_NOT_END196
+  JMP read_file_20_UNOP_NOT_END21
 
-UNOP_NOT_TRUE195:
+read_file_20_UNOP_NOT_TRUE20:
 
   LLI r10, 1
-UNOP_NOT_END196:
+read_file_20_UNOP_NOT_END21:
 
-  BEQ r10, r0, ELSE193
+  BEQ r10, r0, read_file_20_ELSE18
   LLI r5, 0
   SB r5, r2, 0
   LLI r9, 0
   ADD r1, r9, r0
   POP r14
   JALR r0, r14, 0
-ELSE193:
+read_file_20_ELSE18:
 
   LB r8, r3, 32
   LLI r7, 255
@@ -1488,26 +1488,26 @@ ELSE193:
   POP r8
   POP r2
   LLI r9, 511
-  BLT r8, r9, CMP_TRUE199
+  BLT r8, r9, read_file_20_CMP_TRUE24
   LLI r9, 0
-  JMP CMP_END200
+  JMP read_file_20_CMP_END25
 
-CMP_TRUE199:
+read_file_20_CMP_TRUE24:
 
   LLI r9, 1
-CMP_END200:
+read_file_20_CMP_END25:
 
-  BEQ r9, r0, ELSE197
+  BEQ r9, r0, read_file_20_ELSE22
   LLI r3, 0
   ADD r7, r2, r8
   SB r3, r7, 0
-  JMP IF_END198
+  JMP read_file_20_IF_END23
 
-ELSE197:
+read_file_20_ELSE22:
 
   LLI r11, 0
   SB r11, r2, 511
-IF_END198:
+read_file_20_IF_END23:
 
   LLI r4, 0
   ADD r1, r4, r0
@@ -1540,7 +1540,7 @@ main:
   POP r1
   POP r6
   POP r2
-  LLI r11, device_info_buf201
+  LLI r11, main_22_device_info_buf1
   LLI r12, 4294967295
   PUSH r2
   PUSH r6
@@ -1608,7 +1608,7 @@ main:
   POP r11
   POP r6
   POP r2
-  LLI r4, file_contents_buf202
+  LLI r4, main_22_file_contents_buf2
   PUSH r2
   PUSH r4
   PUSH r6
@@ -2246,26 +2246,26 @@ str_5:
 
 .DATA 0x59 0x65 0x6C 0x6C 0x6F 0x77 0x00
 
-superblock_buf113:
+initialize_filesystem_17_superblock_buf1:
 
 .SPACE 512
 
-superblock_buf118:
+ensure_filesystem_initialized_18_superblock_buf1:
 
 .SPACE 512
 
-scratch_block_buf143:
+write_file_19_scratch_block_buf1:
 
 .SPACE 512
 
-dir_entry_buf176:
+read_file_20_dir_entry_buf1:
 
 .SPACE 512
 
-device_info_buf201:
+main_22_device_info_buf1:
 
 .SPACE 512
 
-file_contents_buf202:
+main_22_file_contents_buf2:
 
 .SPACE 512
