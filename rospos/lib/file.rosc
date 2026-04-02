@@ -31,13 +31,20 @@ void initialize_filesystem()
     {
         superblock[i] = 0;
     };
-    write_block(0, superblock);
+    // Write superblock to block 0
+    bd_write_u32(0x40000008, 0); // Block ID
+    bd_write_u32(0x4000000C, (int)superblock);
+    bd_write_u32(0x40000010, 1); // Block Count
+    bd_write_u32(0x40000004, 2); // Write command
     return;
 }
 void ensure_filesystem_initialized()
 {
     char superblock[512];
-    read_block(0, superblock);
+    bd_write_u32(0x40000008, 0); // Block ID
+    bd_write_u32(0x4000000C, (int)superblock);
+    bd_write_u32(0x40000010, 1); // Block Count
+    bd_write_u32(0x40000004, 1); // Read command
     if (superblock[0] != 'R' || superblock[1] != 'O' || superblock[2] != 'S' || superblock[3] != 'P' || superblock[4] != 'F' || superblock[5] != 'S')
     {
         initialize_filesystem();
@@ -118,7 +125,10 @@ void write_file(char *filename, char *data){
 void read_file(char *filename, char *buffer){
     // Read directory entry from block 1
     char dir_entry[512];
-    read_block(1, dir_entry);
+    bd_write_u32(0x40000008, 1);
+    bd_write_u32(0x4000000C, (int)dir_entry);
+    bd_write_u32(0x40000010, 1);
+    bd_write_u32(0x40000004, 1);
 
     // Verify this single directory entry matches the requested filename.
     int match = 1;
@@ -150,7 +160,10 @@ void read_file(char *filename, char *buffer){
     int data_block_index = ((dir_entry[36] & 0xFF) << 24) | ((dir_entry[37] & 0xFF) << 16) | ((dir_entry[38] & 0xFF) << 8) | (dir_entry[39] & 0xFF);
 
     // Read file data from the specified data block
-    read_block(data_block_index, buffer);
+    bd_write_u32(0x40000008, data_block_index);
+    bd_write_u32(0x4000000C, (int)buffer);
+    bd_write_u32(0x40000010, 1);
+    bd_write_u32(0x40000004, 1);
 
     if (file_size < 511)
     {
