@@ -1,3 +1,7 @@
+import io
+import os
+import re
+from concurrent.futures import ProcessPoolExecutor
 from pathlib import Path
 from typing import Any, Dict, Optional
 
@@ -7,7 +11,7 @@ from emitter_expr import emit_expr as emit_expression
 from emitter_intrinsics import intrinsic_break, intrinsic_lb, intrinsic_sb
 from emitter_registers import alloc_var_reg, ensure_var_reg, load_imm
 from emitter_stmt import emit_statement as emit_statement_impl
-from register_allocator import RegisterAllocator
+from register_allocator import RegAllocation, RegisterAllocator
 from tracked_writer import TrackedWriter
 
 
@@ -25,9 +29,13 @@ def _escape_ros_string(value: str) -> str:
 
 class Emitter:
     def __init__(
-        self, source_file: Optional[str] = None, source_lines: Optional[list] = None
+        self,
+        source_file: Optional[str] = None,
+        source_lines: Optional[list] = None,
+        label_namespace: str = "",
     ):
         self.label_counter = 0
+        self.label_namespace = label_namespace
         self.reg_free = list(abi.TEMP_REGS)
         self.var_regs = {}
         # track simple type hints: var name -> 'char_ptr' | 'int_ptr' | 'int' | 'char' | struct type name
@@ -165,7 +173,7 @@ class Emitter:
 
     def gen_label(self, prefix="L") -> str:
         self.label_counter += 1
-        return f"{prefix}{self.label_counter}"
+        return f"{self.label_namespace}{prefix}{self.label_counter}"
 
     def alloc_reg(self, track_as_temp: bool = True) -> str:
         borrowed_spill = False
@@ -704,9 +712,36 @@ class Emitter:
             out.write(".DATA 0x00000000\n\n")
             out.write(".SEG 0x00000000\n\n")
             out.write(f"  JMP main\n\n")
-            # Functions
-            for fn in ast.get("functions", []):
-                self.emit_function_def(fn, out)
+            # Functions are independent, so render them in parallel and splice
+            # the resulting chunks back into the file in source order.
+            function_results = _emit_functions_parallel(self, ast.get("functions", []))
+            base_mappings = list(out.get_mappings())
+            merged_mappings = list(base_mappings)
+            for result in function_results:
+                line_offset = out.get_current_output_line() - 1
+                for mapping in result["mappings"]:
+                    merged_mappings.append(
+                        {
+                            **mapping,
+                            "output_line": mapping["output_line"] + line_offset,
+                        }
+                    )
+                for allocation in result["allocations"]:
+                    self.register_allocator.allocations.append(
+                        RegAllocation(
+                            output_line=allocation["output_line"] + line_offset,
+                            register=allocation["register"],
+                            variable_name=allocation["variable_name"],
+                            variable_type=allocation["variable_type"],
+                            var_kind=allocation["var_kind"],
+                            origin=allocation.get("origin"),
+                            action=allocation.get("action", "allocate"),
+                        )
+                    )
+                for space in result["global_spaces"]:
+                    self.global_spaces.append(space)
+                f.write(result["text"])
+                out.current_output_line += result["line_count"]
             out.write("\n// Globals\n\n")
             # Globals (very small handling)
             for g in ast.get("globals", []):
@@ -720,6 +755,9 @@ class Emitter:
                 out.write(f"  .SPACE {size} // lifted buffer\n\n")
             out.write("\n")
             out.flush()
+            merged_mappings.extend(out.get_mappings()[len(base_mappings) :])
+            merged_mappings.sort(key=lambda item: item["output_line"])
+            out.mappings = merged_mappings
             # Export register allocations for debug info
             self.export_register_allocations(out_path)
 
@@ -923,3 +961,96 @@ def emit_translation_unit(
     if e.tracked_writer:
         return e.tracked_writer.get_mappings()
     return []
+
+
+def _sanitize_label_namespace(name: Optional[str], index: int) -> str:
+    raw = str(name or "fn")
+    safe = re.sub(r"[^0-9A-Za-z_]+", "_", raw).strip("_") or "fn"
+    return f"{safe}_{index}_"
+
+
+def _snapshot_emitter_state(template: Emitter) -> Dict[str, Any]:
+    return {
+        "source_file": template.source_file,
+        "source_lines": list(template.source_lines),
+        "global_types": dict(template.global_types),
+        "global_value_inits": dict(template.global_value_inits),
+        "func_return_types": dict(template.func_return_types),
+        "struct_types": dict(template.struct_types),
+        "inline_functions": dict(template.inline_functions),
+        "inline_constants": dict(template.inline_constants),
+        "global_spaces": list(template.global_spaces),
+    }
+
+
+def _clone_emitter_for_function(template_state: Dict[str, Any], label_namespace: str) -> Emitter:
+    clone = Emitter(
+        source_file=template_state.get("source_file"),
+        source_lines=list(template_state.get("source_lines", [])),
+        label_namespace=label_namespace,
+    )
+    clone.global_types = dict(template_state.get("global_types", {}))
+    clone.global_value_inits = dict(template_state.get("global_value_inits", {}))
+    clone.func_return_types = dict(template_state.get("func_return_types", {}))
+    clone.struct_types = dict(template_state.get("struct_types", {}))
+    clone.inline_functions = dict(template_state.get("inline_functions", {}))
+    clone.inline_constants = dict(template_state.get("inline_constants", {}))
+    clone.global_spaces = list(template_state.get("global_spaces", []))
+    return clone
+
+
+def _emit_single_function_chunk(payload: Dict[str, Any]) -> Dict[str, Any]:
+    emitter = _clone_emitter_for_function(
+        payload["template"], payload["label_namespace"]
+    )
+    function = payload["function"]
+    buffer = io.StringIO()
+    writer = TrackedWriter(buffer, emitter.source_file or "<memory>")
+    emitter.tracked_writer = writer
+    emitter.emit_function_def(function, writer)
+    writer.flush()
+    mappings = writer.get_mappings()
+    return {
+        "index": payload["index"],
+        "text": buffer.getvalue(),
+        "line_count": len(mappings),
+        "mappings": mappings,
+        "allocations": emitter.register_allocator.export_allocations(),
+        "global_spaces": list(emitter.global_spaces),
+    }
+
+
+def _emit_functions_parallel(template: Emitter, functions: list[Dict[str, Any]]):
+    ordered_functions = list(functions)
+    if not ordered_functions:
+        return []
+
+    template_state = _snapshot_emitter_state(template)
+    job_payloads = []
+    for index, function in enumerate(ordered_functions):
+        job_payloads.append(
+            {
+                "index": index,
+                "function": function,
+                "label_namespace": _sanitize_label_namespace(
+                    function.get("name"), index
+                ),
+                "template": template_state,
+            }
+        )
+
+    use_parallel = len(job_payloads) > 1 and (os.cpu_count() or 1) > 1
+    if not use_parallel:
+        results = [_emit_single_function_chunk(payload) for payload in job_payloads]
+    else:
+        try:
+            with ProcessPoolExecutor(
+                max_workers=min(len(job_payloads), os.cpu_count() or 1)
+            ) as executor:
+                results = list(executor.map(_emit_single_function_chunk, job_payloads))
+        except Exception:
+            # Fallback to the serial path if a worker environment is unavailable.
+            results = [_emit_single_function_chunk(payload) for payload in job_payloads]
+
+    results.sort(key=lambda item: item["index"])
+    return results
