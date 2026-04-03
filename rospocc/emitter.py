@@ -251,6 +251,8 @@ class Emitter:
         return reg
 
     def free_reg(self, reg: str):
+        writer = self.tracked_writer
+
         def _dec_spill_depth(r: str):
             depth = self._spill_depth.get(r, 0)
             if depth <= 1:
@@ -264,19 +266,21 @@ class Emitter:
                     self.var_regs[name] = r
 
         def _discard_stale_spill_tops():
+            if writer is None:
+                return
             while self._spill_stack and self._spill_stack[-1].get(
                 "restored_early", False
             ):
                 stale = self._spill_stack.pop()
                 stale_reg = stale.get("reg")
-                self.tracked_writer.write(
+                writer.write(
                     f"  ADDI {abi.SP_REG}, {abi.SP_REG}, 4    // discard stale spill slot for {stale_reg}\n"
                 )
                 _dec_spill_depth(stale_reg)
 
         spill_depth = self._spill_depth.get(reg, 0)
         if spill_depth > 0:
-            if self.tracked_writer is None:
+            if writer is None:
                 raise RuntimeError(
                     "Cannot restore spilled register without tracked_writer"
                 )
@@ -290,7 +294,7 @@ class Emitter:
 
             if target_idx is None:
                 # Fallback for legacy state mismatch.
-                self.tracked_writer.write(f"  POP {reg}    // restore spilled temp\n")
+                writer.write(f"  POP {reg}    // restore spilled temp\n")
                 _dec_spill_depth(reg)
                 return
 
@@ -303,7 +307,7 @@ class Emitter:
                     _discard_stale_spill_tops()
                 else:
                     self._spill_stack.pop()
-                    self.tracked_writer.write(
+                    writer.write(
                         f"  POP {reg}    // restore spilled temp\n"
                     )
                     _restore_aliases(reg, entry.get("aliases", []))
@@ -343,18 +347,18 @@ class Emitter:
                 # Unwind top entries (reverse order), restore target, then re-spill unwound entries.
                 for e in reversed(above_entries):
                     e_reg = e.get("reg")
-                    self.tracked_writer.write(
+                    writer.write(
                         f"  POP {e_reg}    // unwind spill stack for restoring {reg}\n"
                     )
 
-                self.tracked_writer.write(f"  POP {reg}    // restore spilled temp\n")
+                writer.write(f"  POP {reg}    // restore spilled temp\n")
                 target_entry = self._spill_stack[target_idx]
                 _restore_aliases(reg, target_entry.get("aliases", []))
                 _dec_spill_depth(reg)
 
                 for e in above_entries:
                     e_reg = e.get("reg")
-                    self.tracked_writer.write(
+                    writer.write(
                         f"  PUSH {e_reg}    // rewind spill stack after restoring {reg}\n"
                     )
 
@@ -375,7 +379,7 @@ class Emitter:
             # Unsafe to unwind: restore value from stack slot without disturbing top spill order.
             slots_from_top = top_idx - target_idx
             byte_off = slots_from_top * 4
-            self.tracked_writer.write(
+            writer.write(
                 f"  LW {reg}, {abi.SP_REG}, {byte_off}    // restore spilled temp from stack slot\n"
             )
             target_entry = self._spill_stack[target_idx]
@@ -1039,7 +1043,19 @@ def _emit_functions_parallel(template: Emitter, functions: list[Dict[str, Any]])
             }
         )
 
-    use_parallel = len(job_payloads) > 1 and (os.cpu_count() or 1) > 1
+    # Process startup/serialization overhead can dominate small translation units.
+    # Keep parallel emission for larger function counts only.
+    min_parallel_funcs = 8
+    try:
+        min_parallel_funcs = max(
+            2, int(os.getenv("ROSPOCC_PARALLEL_MIN_FUNCS", "8"))
+        )
+    except (TypeError, ValueError):
+        min_parallel_funcs = 8
+
+    use_parallel = (
+        len(job_payloads) >= min_parallel_funcs and (os.cpu_count() or 1) > 1
+    )
     if not use_parallel:
         results = [_emit_single_function_chunk(payload) for payload in job_payloads]
     else:
