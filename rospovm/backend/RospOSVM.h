@@ -8,6 +8,7 @@
 #include <array>
 #include <deque>
 #include <unordered_map>
+#include <unordered_set>
 
 #include "Register.h"
 #include "Memory.h"
@@ -38,6 +39,7 @@ private:
         uint32_t pc;
         std::array<uint32_t, 16> registers;
         std::vector<MemoryByteDelta> memoryDeltas;
+        std::unordered_set<uint32_t> touchedAddresses;
     };
 
     static constexpr size_t kMaxStateHistory = 32;

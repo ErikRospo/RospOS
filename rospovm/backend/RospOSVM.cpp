@@ -134,6 +134,8 @@ void RospOSVM::beginStateCapture()
     if constexpr (kEnableStateCapture) {
         currentSnapshot = std::make_unique<VMStateSnapshot>();
         currentSnapshot->pc = pc;
+        currentSnapshot->memoryDeltas.reserve(16);
+        currentSnapshot->touchedAddresses.reserve(16);
         for (int i = 0; i < 16; ++i) {
             currentSnapshot->registers[static_cast<size_t>(i)] = regFile.unchecked(i).get();
         }
@@ -177,10 +179,9 @@ void RospOSVM::recordMemoryDeltaForByte(uint32_t address)
             return;
         }
 
-        for (const MemoryByteDelta &delta : currentSnapshot->memoryDeltas) {
-            if (delta.address == address) {
-                return;
-            }
+        const auto insertResult = currentSnapshot->touchedAddresses.insert(address);
+        if (!insertResult.second) {
+            return;
         }
 
         uint8_t previousValue = 0;
@@ -188,6 +189,7 @@ void RospOSVM::recordMemoryDeltaForByte(uint32_t address)
             previousValue = memory.readByte(address);
         } catch (const std::exception &) {
             // Non-readable regions cannot be reliably restored.
+            currentSnapshot->touchedAddresses.erase(address);
             return;
         }
 
