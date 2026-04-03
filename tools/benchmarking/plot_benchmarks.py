@@ -158,7 +158,6 @@ def print_summary(points: list[RunPoint]) -> None:
 
 def save_plot(points: list[RunPoint], output_path: Path, title: str) -> None:
     try:
-        import matplotlib.dates as mdates
         import matplotlib.pyplot as plt
     except ModuleNotFoundError as exc:
         raise RuntimeError(
@@ -188,17 +187,20 @@ def save_plot(points: list[RunPoint], output_path: Path, title: str) -> None:
     else:
         flat_axes = [axes]
 
-    x_values = [p.timestamp for p in points]
+    # Use evenly spaced run indices while preserving chronological ordering.
+    x_values = list(range(1, len(points) + 1))
+    x_labels = [f"Run #{i}" for i in x_values]
 
     for idx, spec in enumerate(available_specs):
         ax = flat_axes[idx]
         y_values = [p.metrics.get(spec.key, float("nan")) for p in points]
         ax.plot(x_values, y_values, marker="o", linewidth=1.8)
         ax.set_title(spec.label)
-        ax.set_xlabel("Time")
+        ax.set_xlabel("Run")
         ax.set_ylabel("Value")
         ax.grid(True, linestyle="--", alpha=0.35)
-        ax.xaxis.set_major_formatter(mdates.DateFormatter("%m-%d %H:%M"))
+        ax.set_xticks(x_values)
+        ax.set_xticklabels(x_labels, rotation=45, ha="right")
 
         finite_values = [v for v in y_values if math.isfinite(v)]
         if len(finite_values) >= 2:
