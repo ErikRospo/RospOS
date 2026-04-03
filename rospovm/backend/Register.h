@@ -28,11 +28,12 @@ public:
 class RegisterFile
 {
 private:
+    static constexpr int kRegisterCount = 16;
     Register registers[16];
     
     // Validate register index bounds
     static void validateIndex(int index) {
-        if (index < 0 || index >= 16) {
+        if (index < 0 || index >= kRegisterCount) {
             throw std::out_of_range("Register index out of range");
         }
     }
@@ -40,6 +41,15 @@ private:
 public:
     RegisterFile() {
         registers[0].setReadOnly(true);  // R0 is always zero
+    }
+
+    // Fast path for hot VM decode/execute loops where indices are ISA-decoded (0..15).
+    Register& unchecked(int index) noexcept {
+        return registers[index];
+    }
+
+    const Register& unchecked(int index) const noexcept {
+        return registers[index];
     }
     
     Register& getRegister(int index) {

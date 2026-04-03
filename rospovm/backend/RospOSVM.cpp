@@ -24,7 +24,7 @@ RospOSVM::RospOSVM(bool debugMode)
 {
         pc = 0;                           // Set after loading binary reset vector
     regFile.sp().set(0x0FFFFFFF);     // Top of RAM
-    regFile[0].setReadOnly(true);     // R0 is always zero
+    regFile.unchecked(0).setReadOnly(true);     // R0 is always zero
 
     // Setup TTY MMIO range
     memory.addSpecialRange("TTY ", 0x10000000, 0x100001FF, 
@@ -103,7 +103,7 @@ void RospOSVM::resetCpuState()
 {
     pc = 0;
     for (int i = 1; i < 16; ++i) {
-        regFile[i].set(0);
+        regFile.unchecked(i).set(0);
     }
     regFile.sp().set(0x0FFFFFFF);
     invalidateDebugCache();
@@ -135,7 +135,7 @@ void RospOSVM::beginStateCapture()
         currentSnapshot = std::make_unique<VMStateSnapshot>();
         currentSnapshot->pc = pc;
         for (int i = 0; i < 16; ++i) {
-            currentSnapshot->registers[static_cast<size_t>(i)] = regFile[i].get();
+            currentSnapshot->registers[static_cast<size_t>(i)] = regFile.unchecked(i).get();
         }
     }
 }
@@ -348,9 +348,11 @@ const RegisterAllocationInfo* RospOSVM::getRegisterAllocation(
         return nullptr;
     }
 
-    std::ostringstream regName;
-    regName << "r" << regIndex;
-    return getRegisterAllocation(address, regName.str());
+    static const std::array<std::string, 16> kRegisterNames = {
+        "r0", "r1", "r2", "r3", "r4", "r5", "r6", "r7",
+        "r8", "r9", "r10", "r11", "r12", "r13", "r14", "r15"
+    };
+    return getRegisterAllocation(address, kRegisterNames[static_cast<size_t>(regIndex)]);
 }
 
 void RospOSVM::step()
@@ -405,7 +407,7 @@ bool RospOSVM::stepBackward()
 
         pc = snapshot.pc;
         for (int i = 1; i < 16; ++i) {
-            regFile[i].set(snapshot.registers[static_cast<size_t>(i)]);
+            regFile.unchecked(i).set(snapshot.registers[static_cast<size_t>(i)]);
         }
 
         if (debugMode)
@@ -427,7 +429,7 @@ std::string RospOSVM::getRegisterState() const
     std::ostringstream state;
     for (int i = 0; i < 16; ++i)
     {
-        state << "R" << i << ": " << std::hex << std::setw(8) << std::setfill('0') << regFile[i].get() << " ";
+        state << "R" << i << ": " << std::hex << std::setw(8) << std::setfill('0') << regFile.unchecked(i).get() << " ";
     }
     return state.str();
 }
@@ -475,92 +477,95 @@ void RospOSVM::rTypeInstruction(uint32_t instruction)
     |-------|-------|-------|-------|-------|---------------|
     | opcode| sub-op|   rd  |  rs1  |  rs2  |   unused      | */
     uint32_t sub_op = (instruction >> 24) & 0x0F;
-    uint32_t rd = (instruction >> 20) & 0x0F;
-    uint32_t rs1 = (instruction >> 16) & 0x0F;
-    uint32_t rs2 = (instruction >> 12) & 0x0F;
+    const int rd = static_cast<int>((instruction >> 20) & 0x0F);
+    const int rs1 = static_cast<int>((instruction >> 16) & 0x0F);
+    const int rs2 = static_cast<int>((instruction >> 12) & 0x0F);
+    Register &dst = regFile.unchecked(rd);
+    const uint32_t rs1Val = regFile.unchecked(rs1).get();
+    const uint32_t rs2Val = regFile.unchecked(rs2).get();
     switch (sub_op)
     {
     case 0x0: // ADD
-        regFile[rd].set(regFile[rs1].get() + regFile[rs2].get());
+        dst.set(rs1Val + rs2Val);
         break;
     case 0x1: // SUB
-        regFile[rd].set(regFile[rs1].get() - regFile[rs2].get());
+        dst.set(rs1Val - rs2Val);
         break;
     case 0x2: // AND
-        regFile[rd].set(regFile[rs1].get() & regFile[rs2].get());
+        dst.set(rs1Val & rs2Val);
         break;
     case 0x3: // OR
-        regFile[rd].set(regFile[rs1].get() | regFile[rs2].get());
+        dst.set(rs1Val | rs2Val);
         break;
     case 0x4: // XOR
-        regFile[rd].set(regFile[rs1].get() ^ regFile[rs2].get());
+        dst.set(rs1Val ^ rs2Val);
         break;
     case 0x5: // MUL (lower 32 bits)
-        regFile[rd].set(regFile[rs1].get() * regFile[rs2].get());
+        dst.set(rs1Val * rs2Val);
         break;
     case 0x6: // MULH
     {
-        uint64_t result = static_cast<uint64_t>(regFile[rs1].get()) * static_cast<uint64_t>(regFile[rs2].get());
-        regFile[rd].set(static_cast<uint32_t>(result >> 32));
+        const uint64_t result = static_cast<uint64_t>(rs1Val) * static_cast<uint64_t>(rs2Val);
+        dst.set(static_cast<uint32_t>(result >> 32));
     }
     break;
     case 0x7: // NEG
-        regFile[rd].set(-regFile[rs1].get());
+        dst.set(-rs1Val);
         break;
     case 0x8: // NOT
-        regFile[rd].set(~regFile[rs1].get());
+        dst.set(~rs1Val);
         break;
     case 0x9: // SHL
-        regFile[rd].set(regFile[rs1].get() << (regFile[rs2].get() & 0x1F));
+        dst.set(rs1Val << (rs2Val & 0x1F));
         break;
     case 0xA: // SHR
-        regFile[rd].set(regFile[rs1].get() >> (regFile[rs2].get() & 0x1F));
+        dst.set(rs1Val >> (rs2Val & 0x1F));
         break;
     case 0xB: // SAR
-        regFile[rd].set(static_cast<int32_t>(regFile[rs1].get()) >> (regFile[rs2].get() & 0x1F));
+        dst.set(static_cast<uint32_t>(static_cast<int32_t>(rs1Val) >> (rs2Val & 0x1F)));
         break;
     case 0xC: // DIV
-        if (regFile[rs2].get() == 0)
+        if (rs2Val == 0)
         {
             Logger::instance().error("Division by zero error in DIV instruction.");
-            regFile[rd].set(0xFFFFFFFF);
+            dst.set(0xFFFFFFFF);
         }
         else
         {
-            regFile[rd].set(static_cast<int32_t>(regFile[rs1].get()) / static_cast<int32_t>(regFile[rs2].get()));
+            dst.set(static_cast<uint32_t>(static_cast<int32_t>(rs1Val) / static_cast<int32_t>(rs2Val)));
         }
         break;
     case 0xD: // DIVU
-        if (regFile[rs2].get() == 0)
+        if (rs2Val == 0)
         {
             Logger::instance().error("Division by zero error in DIVU instruction.");
-            regFile[rd].set(0xFFFFFFFF);
+            dst.set(0xFFFFFFFF);
         }
         else
         {
-            regFile[rd].set(regFile[rs1].get() / regFile[rs2].get());
+            dst.set(rs1Val / rs2Val);
         }
         break;
     case 0xE: // REM
-        if (regFile[rs2].get() == 0)
+        if (rs2Val == 0)
         {
             Logger::instance().error("Division by zero error in REM instruction.");
-            regFile[rd].set(0xFFFFFFFF);
+            dst.set(0xFFFFFFFF);
         }
         else
         {
-            regFile[rd].set(static_cast<int32_t>(regFile[rs1].get()) % static_cast<int32_t>(regFile[rs2].get()));
+            dst.set(static_cast<uint32_t>(static_cast<int32_t>(rs1Val) % static_cast<int32_t>(rs2Val)));
         }
         break;
     case 0xF: // REMU
-        if (regFile[rs2].get() == 0)
+        if (rs2Val == 0)
         {
             Logger::instance().error("Division by zero error in REMU instruction.");
-            regFile[rd].set(0xFFFFFFFF);
+            dst.set(0xFFFFFFFF);
         }
         else
         {
-            regFile[rd].set(regFile[rs1].get() % regFile[rs2].get());
+            dst.set(rs1Val % rs2Val);
         }
         break;
     default:
@@ -575,34 +580,36 @@ void RospOSVM::iArithTypeInstruction(uint32_t instruction)
     |-------|-------|-------|-------|----------------|
     | opcode| sub-op|   rd  |  rs1  |   immediate    | */
     uint32_t sub_op = (instruction >> 24) & 0x0F;
-    uint32_t rd = (instruction >> 20) & 0x0F;
-    uint32_t rs1 = (instruction >> 16) & 0x0F;
+    const int rd = static_cast<int>((instruction >> 20) & 0x0F);
+    const int rs1 = static_cast<int>((instruction >> 16) & 0x0F);
     int32_t r_imm = static_cast<int32_t>(instruction & 0xFFFF);
-    int32_t zero_ext_imm = static_cast<uint16_t>(instruction & 0xFFFF);
-    int32_t sign_ext_imm = (r_imm & 0x8000) ? (r_imm | 0xFFFF0000) : r_imm;
+    const uint32_t zero_ext_imm = static_cast<uint16_t>(instruction & 0xFFFF);
+    const int32_t sign_ext_imm = (r_imm & 0x8000) ? (r_imm | 0xFFFF0000) : r_imm;
+    Register &dst = regFile.unchecked(rd);
+    const uint32_t rs1Val = regFile.unchecked(rs1).get();
 
     switch (sub_op)
     {
     case 0x0: // ADDI
-        regFile[rd].set(regFile[rs1].get() + sign_ext_imm);
+        dst.set(static_cast<uint32_t>(static_cast<int32_t>(rs1Val) + sign_ext_imm));
         break;
     case 0x1: // ANDI
-        regFile[rd].set(regFile[rs1].get() & zero_ext_imm);
+        dst.set(rs1Val & zero_ext_imm);
         break;
     case 0x2: // ORI
-        regFile[rd].set(regFile[rs1].get() | zero_ext_imm);
+        dst.set(rs1Val | zero_ext_imm);
         break;
     case 0x3: // XORI
-        regFile[rd].set(regFile[rs1].get() ^ zero_ext_imm);
+        dst.set(rs1Val ^ zero_ext_imm);
         break;
     case 0x4: // SHLI
-        regFile[rd].set(regFile[rs1].get() << (zero_ext_imm & 0x1F));
+        dst.set(rs1Val << (zero_ext_imm & 0x1F));
         break;
     case 0x5: // SHRI
-        regFile[rd].set(regFile[rs1].get() >> (zero_ext_imm & 0x1F));
+        dst.set(rs1Val >> (zero_ext_imm & 0x1F));
         break;
     case 0x6: // SARI
-        regFile[rd].set(static_cast<int32_t>(regFile[rs1].get()) >> (zero_ext_imm & 0x1F));
+        dst.set(static_cast<uint32_t>(static_cast<int32_t>(rs1Val) >> (zero_ext_imm & 0x1F)));
         break;
     default:
         Logger::instance().error(QString("Unknown I-type sub-opcode: %1").arg(sub_op));
@@ -617,44 +624,45 @@ void RospOSVM::iTypeLSInstruction(uint32_t instruction)
     | opcode| sub-op|   rd  |  rs   | immediate (16-bit offset)|
     */
     uint32_t sub_op = (instruction >> 24) & 0x0F;
-    uint32_t rd = (instruction >> 20) & 0x0F;
-    uint32_t rs = (instruction >> 16) & 0x0F;
-    int32_t r_imm = static_cast<int32_t>(instruction & 0xFFFF);
-    int32_t sign_ext_imm = (r_imm & 0x8000) ? (r_imm | 0xFFFF0000) : r_imm;
-    uint32_t addr = regFile[rs].get() + sign_ext_imm;
+    const int rd = static_cast<int>((instruction >> 20) & 0x0F);
+    const int rs = static_cast<int>((instruction >> 16) & 0x0F);
+    const int32_t r_imm = static_cast<int32_t>(instruction & 0xFFFF);
+    const int32_t sign_ext_imm = (r_imm & 0x8000) ? (r_imm | 0xFFFF0000) : r_imm;
+    const uint32_t addr = regFile.unchecked(rs).get() + static_cast<uint32_t>(sign_ext_imm);
+    Register &dst = regFile.unchecked(rd);
     switch (sub_op)
     {
     case 0x0: // LB
         recordMemoryAccess(addr, 1, false);
-        regFile[rd].set(static_cast<int8_t>(memory.readByte(addr)));
+        dst.set(static_cast<uint32_t>(static_cast<int32_t>(static_cast<int8_t>(memory.readByte(addr)))));
         break;
     case 0x1: // LBU
         recordMemoryAccess(addr, 1, false);
-        regFile[rd].set(static_cast<uint8_t>(memory.readByte(addr)));
+        dst.set(static_cast<uint32_t>(static_cast<uint8_t>(memory.readByte(addr))));
         break;
     case 0x2: // LH
         recordMemoryAccess(addr, 2, false);
-        regFile[rd].set(static_cast<int16_t>(memory.readHalf(addr)));
+        dst.set(static_cast<uint32_t>(static_cast<int32_t>(static_cast<int16_t>(memory.readHalf(addr)))));
         break;
     case 0x3: // LHU
         recordMemoryAccess(addr, 2, false);
-        regFile[rd].set(static_cast<uint16_t>(memory.readHalf(addr)));
+        dst.set(static_cast<uint32_t>(static_cast<uint16_t>(memory.readHalf(addr))));
         break;
     case 0x4: // LW
         recordMemoryAccess(addr, 4, false);
-        regFile[rd].set(static_cast<uint32_t>(memory.readWord(addr)));
+        dst.set(static_cast<uint32_t>(memory.readWord(addr)));
         break;
     case 0x5: // SB
         recordMemoryAccess(addr, 1, true);
-        writeMemoryTrackedByte(addr, static_cast<uint8_t>(regFile[rd].get() & 0xFF));
+        writeMemoryTrackedByte(addr, static_cast<uint8_t>(dst.get() & 0xFF));
         break;
     case 0x6: // SH
         recordMemoryAccess(addr, 2, true);
-        writeMemoryTrackedHalf(addr, static_cast<uint16_t>(regFile[rd].get() & 0xFFFF));
+        writeMemoryTrackedHalf(addr, static_cast<uint16_t>(dst.get() & 0xFFFF));
         break;
     case 0x7: // SW
         recordMemoryAccess(addr, 4, true);
-        writeMemoryTrackedWord(addr, static_cast<uint32_t>(regFile[rd].get()));
+        writeMemoryTrackedWord(addr, dst.get());
         break;
     default:
         Logger::instance().error(QString("Unknown Load/Store sub-opcode: %1").arg(sub_op));
@@ -669,10 +677,12 @@ bool RospOSVM::bTypeInstruction(uint32_t instruction)
     | opcode| sub-op|  rs1  |  rs2  | immediate (16-bit offset)|
     */
     uint32_t sub_op = (instruction >> 24) & 0x0F;
-    uint32_t rs1 = (instruction >> 20) & 0x0F;
-    uint32_t rs2 = (instruction >> 16) & 0x0F;
-    int32_t r_imm = static_cast<int32_t>(instruction & 0xFFFF);
-    int32_t sign_ext_imm = (r_imm & 0x8000) ? (r_imm | 0xFFFF0000) : r_imm;
+    const int rs1 = static_cast<int>((instruction >> 20) & 0x0F);
+    const int rs2 = static_cast<int>((instruction >> 16) & 0x0F);
+    const int32_t r_imm = static_cast<int32_t>(instruction & 0xFFFF);
+    const int32_t sign_ext_imm = (r_imm & 0x8000) ? (r_imm | 0xFFFF0000) : r_imm;
+    const uint32_t rs1Val = regFile.unchecked(rs1).get();
+    const uint32_t rs2Val = regFile.unchecked(rs2).get();
 
     // Shift as unsigned to avoid UB when immediate is negative.
     const uint32_t branchOffset = static_cast<uint32_t>(sign_ext_imm) << 2;
@@ -681,22 +691,22 @@ bool RospOSVM::bTypeInstruction(uint32_t instruction)
     switch (sub_op)
     {
     case 0x0: // BEQ
-        takeBranch = (regFile[rs1].get() == regFile[rs2].get());
+        takeBranch = (rs1Val == rs2Val);
         break;
     case 0x1: // BNE
-        takeBranch = (regFile[rs1].get() != regFile[rs2].get());
+        takeBranch = (rs1Val != rs2Val);
         break;
     case 0x2: // BLT
-        takeBranch = (static_cast<int32_t>(regFile[rs1].get()) < static_cast<int32_t>(regFile[rs2].get()));
+        takeBranch = (static_cast<int32_t>(rs1Val) < static_cast<int32_t>(rs2Val));
         break;
     case 0x3: // BGE
-        takeBranch = (static_cast<int32_t>(regFile[rs1].get()) >= static_cast<int32_t>(regFile[rs2].get()));
+        takeBranch = (static_cast<int32_t>(rs1Val) >= static_cast<int32_t>(rs2Val));
         break;
     case 0x4: // BLTU
-        takeBranch = (regFile[rs1].get() < regFile[rs2].get());
+        takeBranch = (rs1Val < rs2Val);
         break;
     case 0x5: // BGEU
-        takeBranch = (regFile[rs1].get() >= regFile[rs2].get());
+        takeBranch = (rs1Val >= rs2Val);
         break;
     default:
         Logger::instance().error(QString("Unknown B-type sub-opcode: %1").arg(sub_op));
@@ -715,22 +725,23 @@ void RospOSVM::jTypeInstruction(uint32_t instruction)
     |-------|-------|-------|-------|--------------------------|
     | opcode| sub-op|   rd  |  rs   | immediate (16-bit offset)|
     */
-    int32_t sub_op = (instruction >> 24) & 0x0F;
-    int32_t rd = (instruction >> 20) & 0x0F;
-    int32_t rs = (instruction >> 16) & 0x0F;
-    int32_t r_imm = static_cast<int32_t>(instruction & 0xFFFF);
-    int32_t sign_ext_imm = (r_imm & 0x8000) ? (r_imm | 0xFFFF0000) : r_imm;
+    const int32_t sub_op = static_cast<int32_t>((instruction >> 24) & 0x0F);
+    const int rd = static_cast<int>((instruction >> 20) & 0x0F);
+    const int rs = static_cast<int>((instruction >> 16) & 0x0F);
+    const int32_t r_imm = static_cast<int32_t>(instruction & 0xFFFF);
+    const int32_t sign_ext_imm = (r_imm & 0x8000) ? (r_imm | 0xFFFF0000) : r_imm;
+    Register &dst = regFile.unchecked(rd);
     switch (sub_op)
     {
     case 0x0: // JAL
-        regFile[rd].set(pc + 4);
+        dst.set(pc + 4);
         pc += static_cast<uint32_t>(sign_ext_imm) << 2;
         break;
     case 0x1: // JALR
     {
-        uint32_t temp = pc + 4;
-        pc = (regFile[rs].get() + (static_cast<uint32_t>(sign_ext_imm) << 2)) & ~1u;
-        regFile[rd].set(temp);
+        const uint32_t temp = pc + 4;
+        pc = (regFile.unchecked(rs).get() + (static_cast<uint32_t>(sign_ext_imm) << 2)) & ~1u;
+        dst.set(temp);
     }
     break;
     }
