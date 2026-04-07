@@ -99,6 +99,57 @@ void RospOSVM::buildDebugCache() const
     debugCacheBuilt = true;
 }
 
+RospOSVM::DecodedInstruction RospOSVM::decodeInstructionFields(uint32_t rawInstruction)
+{
+    DecodedInstruction decoded;
+    decoded.raw = rawInstruction;
+    decoded.opcode = static_cast<uint8_t>((rawInstruction >> 28) & 0x0F);
+    decoded.subOp = static_cast<uint8_t>((rawInstruction >> 24) & 0x0F);
+    decoded.rd = static_cast<uint8_t>((rawInstruction >> 20) & 0x0F);
+    decoded.rs1 = static_cast<uint8_t>((rawInstruction >> 16) & 0x0F);
+    decoded.rs2 = static_cast<uint8_t>((rawInstruction >> 12) & 0x0F);
+
+    const uint16_t imm16 = static_cast<uint16_t>(rawInstruction & 0xFFFF);
+    decoded.zeroExtImm = static_cast<uint32_t>(imm16);
+    decoded.signExtImm = static_cast<int32_t>(static_cast<int16_t>(imm16));
+    return decoded;
+}
+
+const RospOSVM::DecodedInstruction& RospOSVM::fetchDecodedInstruction(uint32_t instructionAddress)
+{
+    const uint32_t rawInstruction = memory.readWord(instructionAddress);
+    auto it = decodedInstructionCache.find(instructionAddress);
+    if (it != decodedInstructionCache.end() && it->second.raw == rawInstruction) {
+        return it->second;
+    }
+
+    auto [insertedIt, _] = decodedInstructionCache.insert_or_assign(
+        instructionAddress,
+        decodeInstructionFields(rawInstruction)
+    );
+    return insertedIt->second;
+}
+
+uint32_t RospOSVM::executeBasicBlock()
+{
+    // Keep steps bounded so long-running loops still yield control regularly.
+    static constexpr uint32_t kMaxInstructionsPerFastStep = 64;
+
+    uint32_t executedInstructions = 0;
+    clearLastMemoryAccess();
+    for (uint32_t i = 0; i < kMaxInstructionsPerFastStep; ++i) {
+        const DecodedInstruction &decoded = fetchDecodedInstruction(pc);
+        executeInstruction(decoded);
+        ++executedInstructions;
+
+        if (decoded.opcode == 0x3 || decoded.opcode == 0x4 || decoded.opcode == 0x5) {
+            break;
+        }
+    }
+
+    return executedInstructions;
+}
+
 void RospOSVM::resetCpuState()
 {
     pc = 0;
@@ -107,6 +158,7 @@ void RospOSVM::resetCpuState()
     }
     regFile.sp().set(0x0FFFFFFF);
     invalidateDebugCache();
+    decodedInstructionCache.clear();
     clearStateHistory();
     clearLastMemoryAccess();
 }
@@ -247,6 +299,7 @@ void RospOSVM::loadBinaryAtAddress(const std::vector<char> &binary, uint32_t add
 {
     loadedBinary.reset();
     invalidateDebugCache();
+    decodedInstructionCache.clear();
     clearStateHistory();
     clearLastMemoryAccess();
     memory.loadBinary(binary, address);
@@ -357,22 +410,28 @@ const RegisterAllocationInfo* RospOSVM::getRegisterAllocation(
     return getRegisterAllocation(address, kRegisterNames[static_cast<size_t>(regIndex)]);
 }
 
-void RospOSVM::step()
+uint32_t RospOSVM::step()
 {
+    if constexpr (!kEnableStateCapture) {
+        if (!debugMode) {
+            return executeBasicBlock();
+        }
+    }
+
     beginStateCapture();
     clearLastMemoryAccess();
     try {
-        uint32_t instruction = memory.readWord(pc);
+        const DecodedInstruction &decoded = fetchDecodedInstruction(pc);
         if (debugMode)
         {
             std::ostringstream oss;
             oss << "PC: " << std::hex << pc << std::dec << " ";
-            oss << "I: " << decodeInstruction(instruction, regFile) << "\n";
-            oss << "RI: " << std::hex << std::setw(8) << std::setfill('0') << instruction << std::dec << "\n";
+            oss << "I: " << decodeInstruction(decoded.raw, regFile) << "\n";
+            oss << "RI: " << std::hex << std::setw(8) << std::setfill('0') << decoded.raw << std::dec << "\n";
             oss << "Registers: " << getRegisterState();
             Logger::instance().debug(QString::fromStdString(oss.str()));
         }
-        executeInstruction(instruction);
+        executeInstruction(decoded);
         commitStateCapture();
         if (debugMode)
         {
@@ -383,6 +442,7 @@ void RospOSVM::step()
             oss << "----------------------------------------";
             Logger::instance().debug(QString::fromStdString(oss.str()));
         }
+        return 1;
     } catch (...) {
         currentSnapshot.reset();
         throw;
@@ -436,9 +496,9 @@ std::string RospOSVM::getRegisterState() const
     return state.str();
 }
 
-void RospOSVM::executeInstruction(uint32_t instruction)
+void RospOSVM::executeInstruction(const DecodedInstruction &instruction)
 {
-    uint32_t opcode = (instruction >> 28) & 0x0F;
+    const uint32_t opcode = instruction.opcode;
     bool pcModified = false;
     
     switch (opcode) {
@@ -472,16 +532,16 @@ void RospOSVM::executeInstruction(uint32_t instruction)
         pc += 4;  // Move to next instruction
     }
 }
-void RospOSVM::rTypeInstruction(uint32_t instruction)
+void RospOSVM::rTypeInstruction(const DecodedInstruction &instruction)
 {
     /*
     | 31-28 | 27-24 | 23-20 | 19-16 | 15-12 | 11-0          |
     |-------|-------|-------|-------|-------|---------------|
     | opcode| sub-op|   rd  |  rs1  |  rs2  |   unused      | */
-    uint32_t sub_op = (instruction >> 24) & 0x0F;
-    const int rd = static_cast<int>((instruction >> 20) & 0x0F);
-    const int rs1 = static_cast<int>((instruction >> 16) & 0x0F);
-    const int rs2 = static_cast<int>((instruction >> 12) & 0x0F);
+    const uint32_t sub_op = instruction.subOp;
+    const int rd = static_cast<int>(instruction.rd);
+    const int rs1 = static_cast<int>(instruction.rs1);
+    const int rs2 = static_cast<int>(instruction.rs2);
     Register &dst = regFile.unchecked(rd);
     const uint32_t rs1Val = regFile.unchecked(rs1).get();
     const uint32_t rs2Val = regFile.unchecked(rs2).get();
@@ -575,18 +635,17 @@ void RospOSVM::rTypeInstruction(uint32_t instruction)
         break;
     }
 }
-void RospOSVM::iArithTypeInstruction(uint32_t instruction)
+void RospOSVM::iArithTypeInstruction(const DecodedInstruction &instruction)
 {
     /*
     | 31-28 | 27-24 | 23-20 | 19-16 | 15-0           |
     |-------|-------|-------|-------|----------------|
     | opcode| sub-op|   rd  |  rs1  |   immediate    | */
-    uint32_t sub_op = (instruction >> 24) & 0x0F;
-    const int rd = static_cast<int>((instruction >> 20) & 0x0F);
-    const int rs1 = static_cast<int>((instruction >> 16) & 0x0F);
-    int32_t r_imm = static_cast<int32_t>(instruction & 0xFFFF);
-    const uint32_t zero_ext_imm = static_cast<uint16_t>(instruction & 0xFFFF);
-    const int32_t sign_ext_imm = (r_imm & 0x8000) ? (r_imm | 0xFFFF0000) : r_imm;
+    const uint32_t sub_op = instruction.subOp;
+    const int rd = static_cast<int>(instruction.rd);
+    const int rs1 = static_cast<int>(instruction.rs1);
+    const uint32_t zero_ext_imm = instruction.zeroExtImm;
+    const int32_t sign_ext_imm = instruction.signExtImm;
     Register &dst = regFile.unchecked(rd);
     const uint32_t rs1Val = regFile.unchecked(rs1).get();
 
@@ -618,18 +677,17 @@ void RospOSVM::iArithTypeInstruction(uint32_t instruction)
         break;
     }
 }
-void RospOSVM::iTypeLSInstruction(uint32_t instruction)
+void RospOSVM::iTypeLSInstruction(const DecodedInstruction &instruction)
 {
     /*
     | 31-28 | 27-24 | 23-20 | 19-16 | 15-0                     |
     |-------|-------|-------|-------|--------------------------|
     | opcode| sub-op|   rd  |  rs   | immediate (16-bit offset)|
     */
-    uint32_t sub_op = (instruction >> 24) & 0x0F;
-    const int rd = static_cast<int>((instruction >> 20) & 0x0F);
-    const int rs = static_cast<int>((instruction >> 16) & 0x0F);
-    const int32_t r_imm = static_cast<int32_t>(instruction & 0xFFFF);
-    const int32_t sign_ext_imm = (r_imm & 0x8000) ? (r_imm | 0xFFFF0000) : r_imm;
+    const uint32_t sub_op = instruction.subOp;
+    const int rd = static_cast<int>(instruction.rd);
+    const int rs = static_cast<int>(instruction.rs1);
+    const int32_t sign_ext_imm = instruction.signExtImm;
     const uint32_t addr = regFile.unchecked(rs).get() + static_cast<uint32_t>(sign_ext_imm);
     Register &dst = regFile.unchecked(rd);
     switch (sub_op)
@@ -671,18 +729,17 @@ void RospOSVM::iTypeLSInstruction(uint32_t instruction)
         break;
     }
 }
-bool RospOSVM::bTypeInstruction(uint32_t instruction)
+bool RospOSVM::bTypeInstruction(const DecodedInstruction &instruction)
 {
     /*
     | 31-28 | 27-24 | 23-20 | 19-16 | 15-0                     |
     |-------|-------|-------|-------|--------------------------|
     | opcode| sub-op|  rs1  |  rs2  | immediate (16-bit offset)|
     */
-    uint32_t sub_op = (instruction >> 24) & 0x0F;
-    const int rs1 = static_cast<int>((instruction >> 20) & 0x0F);
-    const int rs2 = static_cast<int>((instruction >> 16) & 0x0F);
-    const int32_t r_imm = static_cast<int32_t>(instruction & 0xFFFF);
-    const int32_t sign_ext_imm = (r_imm & 0x8000) ? (r_imm | 0xFFFF0000) : r_imm;
+    const uint32_t sub_op = instruction.subOp;
+    const int rs1 = static_cast<int>(instruction.rd);
+    const int rs2 = static_cast<int>(instruction.rs1);
+    const int32_t sign_ext_imm = instruction.signExtImm;
     const uint32_t rs1Val = regFile.unchecked(rs1).get();
     const uint32_t rs2Val = regFile.unchecked(rs2).get();
 
@@ -720,18 +777,17 @@ bool RospOSVM::bTypeInstruction(uint32_t instruction)
     }
     return takeBranch;
 }
-void RospOSVM::jTypeInstruction(uint32_t instruction)
+void RospOSVM::jTypeInstruction(const DecodedInstruction &instruction)
 {
     /*
     | 31-28 | 27-24 | 23-20 | 19-16 | 15-0                     |
     |-------|-------|-------|-------|--------------------------|
     | opcode| sub-op|   rd  |  rs   | immediate (16-bit offset)|
     */
-    const int32_t sub_op = static_cast<int32_t>((instruction >> 24) & 0x0F);
-    const int rd = static_cast<int>((instruction >> 20) & 0x0F);
-    const int rs = static_cast<int>((instruction >> 16) & 0x0F);
-    const int32_t r_imm = static_cast<int32_t>(instruction & 0xFFFF);
-    const int32_t sign_ext_imm = (r_imm & 0x8000) ? (r_imm | 0xFFFF0000) : r_imm;
+    const int32_t sub_op = static_cast<int32_t>(instruction.subOp);
+    const int rd = static_cast<int>(instruction.rd);
+    const int rs = static_cast<int>(instruction.rs1);
+    const int32_t sign_ext_imm = instruction.signExtImm;
     Register &dst = regFile.unchecked(rd);
     switch (sub_op)
     {
@@ -748,14 +804,14 @@ void RospOSVM::jTypeInstruction(uint32_t instruction)
     break;
     }
 }
-void RospOSVM::sTypeInstruction(uint32_t instruction)
+void RospOSVM::sTypeInstruction(const DecodedInstruction &instruction)
 {
     /*
     | 31-28 | 27-24 | 23-0                             |
     |-------|-------|----------------------------------|
     | opcode| sub-op|   unused                         |
     */
-    uint32_t sub_op = (instruction >> 24) & 0x0F;
+    const uint32_t sub_op = instruction.subOp;
     switch (sub_op)
     {
     case 0x0: // ECALL
