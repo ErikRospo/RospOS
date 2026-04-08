@@ -1222,14 +1222,6 @@ translation_unit
       compound_stmt
         declaration
           type_specifier
-            char
-          init_declarator_list
-            init_declarator
-              declarator
-                buffer
-                array	512
-        declaration
-          type_specifier
             int
           init_declarator_list
             init_declarator
@@ -1267,7 +1259,7 @@ translation_unit
                     cast
                       type_specifier
                         int
-                      buffer
+                      addr
             expr_stmt
               postfix
                 bd_write_u32
@@ -1282,38 +1274,13 @@ translation_unit
                   arg_list
                     0x40000004
                     1
-            for_stmt
-              declaration
-                type_specifier
-                  int
-                init_declarator_list
-                  init_declarator
-                    declarator	i
-                    0
-              relational
-                i
-                lt
-                512
-              postfix
-                i
-                post_inc
-              compound_stmt
-                expr_stmt
-                  postfix
-                    __sb
-                    call_suffix
-                      arg_list
-                        addr
-                        postfix
-                          buffer
-                          array_index	i
-                expr_stmt
-                  assignment
-                    addr
-                    additive
-                      addr
-                      plus
-                      1
+            expr_stmt
+              assignment
+                addr
+                additive
+                  addr
+                  plus
+                  0x200
         return_stmt	0
   external_decl
     function_def
