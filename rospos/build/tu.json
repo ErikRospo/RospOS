@@ -2667,6 +2667,209 @@
       "_line": 203
     },
     {
+      "name": "rand_block_test",
+      "params": [],
+      "body": [
+        {
+          "type": "decl",
+          "name": "buffer",
+          "init": {
+            "type": "array",
+            "size": 512
+          },
+          "_line": 223,
+          "decl_type": "char"
+        },
+        {
+          "type": "decl",
+          "name": "addr",
+          "init": {
+            "type": "const",
+            "value": 536870912
+          },
+          "_line": 224,
+          "decl_type": "int"
+        },
+        {
+          "type": "decl",
+          "name": "remaining",
+          "init": {
+            "type": "const",
+            "value": 65536
+          },
+          "_line": 225,
+          "decl_type": "int"
+        },
+        {
+          "type": "decl",
+          "name": "blockID",
+          "init": {
+            "type": "const",
+            "value": 4294967294
+          },
+          "_line": 226,
+          "decl_type": "int"
+        },
+        {
+          "type": "while",
+          "cond": {
+            "type": "var",
+            "name": "remaining"
+          },
+          "body": [
+            {
+              "type": "call_stmt",
+              "name": "read_block",
+              "args": [
+                {
+                  "type": "var",
+                  "name": "blockID"
+                },
+                {
+                  "type": "var",
+                  "name": "buffer"
+                }
+              ],
+              "_line": 229
+            },
+            {
+              "type": "decl",
+              "name": "i",
+              "init": {
+                "type": "const",
+                "value": 0
+              },
+              "_line": 230,
+              "decl_type": "int"
+            },
+            {
+              "type": "while",
+              "cond": {
+                "type": "binop",
+                "op": "lt",
+                "left": {
+                  "type": "var",
+                  "name": "i"
+                },
+                "right": {
+                  "type": "const",
+                  "value": 512
+                }
+              },
+              "body": [
+                {
+                  "type": "call_stmt",
+                  "name": "__sb",
+                  "args": [
+                    {
+                      "type": "var",
+                      "name": "addr"
+                    },
+                    {
+                      "type": "deref",
+                      "expr": {
+                        "type": "binop",
+                        "op": "plus",
+                        "left": {
+                          "type": "var",
+                          "name": "buffer"
+                        },
+                        "right": {
+                          "type": "var",
+                          "name": "i"
+                        }
+                      }
+                    }
+                  ],
+                  "_line": 232
+                },
+                {
+                  "type": "assign",
+                  "target": "addr",
+                  "value": {
+                    "type": "binop",
+                    "op": "plus",
+                    "left": {
+                      "type": "var",
+                      "name": "addr"
+                    },
+                    "right": {
+                      "type": "const",
+                      "value": 1
+                    }
+                  },
+                  "_line": 233
+                },
+                {
+                  "type": "assign",
+                  "target": "i",
+                  "value": {
+                    "type": "binop",
+                    "op": "plus",
+                    "left": {
+                      "type": "var",
+                      "name": "i"
+                    },
+                    "right": {
+                      "type": "const",
+                      "value": 1
+                    }
+                  },
+                  "_line": 230
+                }
+              ],
+              "_line": 230
+            },
+            {
+              "type": "assign",
+              "target": "blockID",
+              "value": {
+                "type": "binop",
+                "op": "minus",
+                "left": {
+                  "type": "var",
+                  "name": "blockID"
+                },
+                "right": {
+                  "type": "const",
+                  "value": 1
+                }
+              },
+              "_line": 235
+            },
+            {
+              "type": "assign",
+              "target": "remaining",
+              "value": {
+                "type": "binop",
+                "op": "minus",
+                "left": {
+                  "type": "var",
+                  "name": "remaining"
+                },
+                "right": {
+                  "type": "const",
+                  "value": 512
+                }
+              },
+              "_line": 236
+            }
+          ],
+          "_line": 227
+        },
+        {
+          "type": "return",
+          "value": {
+            "type": "const",
+            "value": 0
+          },
+          "_line": 238
+        }
+      ],
+      "return_type": "void",
+      "_line": 222
+    },
+    {
       "name": "bd_read_u32",
       "params": [
         "addr"
@@ -2701,7 +2904,7 @@
               "value": 255
             }
           },
-          "_line": 224,
+          "_line": 242,
           "decl_type": "int"
         },
         {
@@ -2733,7 +2936,7 @@
               "value": 255
             }
           },
-          "_line": 225,
+          "_line": 243,
           "decl_type": "int"
         },
         {
@@ -2765,7 +2968,7 @@
               "value": 255
             }
           },
-          "_line": 226,
+          "_line": 244,
           "decl_type": "int"
         },
         {
@@ -2797,7 +3000,7 @@
               "value": 255
             }
           },
-          "_line": 227,
+          "_line": 245,
           "decl_type": "int"
         },
         {
@@ -2815,7 +3018,7 @@
               "value": 24
             }
           },
-          "_line": 228,
+          "_line": 246,
           "decl_type": "int"
         },
         {
@@ -2841,7 +3044,7 @@
               }
             }
           },
-          "_line": 229
+          "_line": 247
         },
         {
           "type": "assign",
@@ -2866,7 +3069,7 @@
               }
             }
           },
-          "_line": 230
+          "_line": 248
         },
         {
           "type": "assign",
@@ -2883,7 +3086,7 @@
               "name": "b3"
             }
           },
-          "_line": 231
+          "_line": 249
         },
         {
           "type": "return",
@@ -2891,14 +3094,14 @@
             "type": "var",
             "name": "value"
           },
-          "_line": 232
+          "_line": 250
         }
       ],
       "param_types": {
         "addr": "int"
       },
       "return_type": "int",
-      "_line": 222
+      "_line": 240
     },
     {
       "name": "bd_write_u32",
@@ -2944,7 +3147,7 @@
               }
             }
           ],
-          "_line": 237
+          "_line": 255
         },
         {
           "type": "call_stmt",
@@ -2983,7 +3186,7 @@
               }
             }
           ],
-          "_line": 238
+          "_line": 256
         },
         {
           "type": "call_stmt",
@@ -3022,7 +3225,7 @@
               }
             }
           ],
-          "_line": 239
+          "_line": 257
         },
         {
           "type": "call_stmt",
@@ -3053,7 +3256,7 @@
               }
             }
           ],
-          "_line": 240
+          "_line": 258
         }
       ],
       "param_types": {
@@ -3061,7 +3264,7 @@
         "value": "int"
       },
       "return_type": "void",
-      "_line": 235
+      "_line": 253
     },
     {
       "name": "write_block",
@@ -3083,7 +3286,7 @@
               "name": "blockID"
             }
           ],
-          "_line": 245
+          "_line": 263
         },
         {
           "type": "call_stmt",
@@ -3098,7 +3301,7 @@
               "name": "data"
             }
           ],
-          "_line": 246
+          "_line": 264
         },
         {
           "type": "call_stmt",
@@ -3113,7 +3316,7 @@
               "value": 1
             }
           ],
-          "_line": 247
+          "_line": 265
         },
         {
           "type": "call_stmt",
@@ -3128,7 +3331,7 @@
               "value": 2
             }
           ],
-          "_line": 248
+          "_line": 266
         },
         {
           "type": "return",
@@ -3136,7 +3339,7 @@
             "type": "const",
             "value": 0
           },
-          "_line": 254
+          "_line": 272
         }
       ],
       "param_types": {
@@ -3145,7 +3348,7 @@
       },
       "return_type": "void",
       "inline": true,
-      "_line": 243
+      "_line": 261
     },
     {
       "name": "read_block",
@@ -3167,7 +3370,7 @@
               "name": "blockID"
             }
           ],
-          "_line": 259
+          "_line": 277
         },
         {
           "type": "call_stmt",
@@ -3182,7 +3385,7 @@
               "name": "buffer"
             }
           ],
-          "_line": 260
+          "_line": 278
         },
         {
           "type": "call_stmt",
@@ -3197,7 +3400,7 @@
               "value": 1
             }
           ],
-          "_line": 261
+          "_line": 279
         },
         {
           "type": "call_stmt",
@@ -3212,7 +3415,7 @@
               "value": 1
             }
           ],
-          "_line": 262
+          "_line": 280
         },
         {
           "type": "return",
@@ -3220,7 +3423,7 @@
             "type": "const",
             "value": 0
           },
-          "_line": 264
+          "_line": 282
         }
       ],
       "param_types": {
@@ -3229,7 +3432,7 @@
       },
       "return_type": "void",
       "inline": true,
-      "_line": 257
+      "_line": 275
     },
     {
       "name": "string_length",
@@ -3244,7 +3447,7 @@
             "type": "const",
             "value": 0
           },
-          "_line": 267,
+          "_line": 285,
           "decl_type": "int"
         },
         {
@@ -3288,10 +3491,10 @@
                   "value": 1
                 }
               },
-              "_line": 270
+              "_line": 288
             }
           ],
-          "_line": 268
+          "_line": 286
         },
         {
           "type": "return",
@@ -3299,14 +3502,14 @@
             "type": "var",
             "name": "length"
           },
-          "_line": 272
+          "_line": 290
         }
       ],
       "param_types": {
         "str": "char_ptr"
       },
       "return_type": "int",
-      "_line": 266
+      "_line": 284
     },
     {
       "name": "initialize_filesystem",
@@ -3319,7 +3522,7 @@
             "type": "array",
             "size": 512
           },
-          "_line": 291,
+          "_line": 309,
           "decl_type": "char"
         },
         {
@@ -3343,7 +3546,7 @@
             "type": "const",
             "value": 82
           },
-          "_line": 293
+          "_line": 311
         },
         {
           "type": "assign",
@@ -3366,7 +3569,7 @@
             "type": "const",
             "value": 79
           },
-          "_line": 294
+          "_line": 312
         },
         {
           "type": "assign",
@@ -3389,7 +3592,7 @@
             "type": "const",
             "value": 83
           },
-          "_line": 295
+          "_line": 313
         },
         {
           "type": "assign",
@@ -3412,7 +3615,7 @@
             "type": "const",
             "value": 80
           },
-          "_line": 296
+          "_line": 314
         },
         {
           "type": "assign",
@@ -3435,7 +3638,7 @@
             "type": "const",
             "value": 70
           },
-          "_line": 297
+          "_line": 315
         },
         {
           "type": "assign",
@@ -3458,7 +3661,7 @@
             "type": "const",
             "value": 83
           },
-          "_line": 298
+          "_line": 316
         },
         {
           "type": "assign",
@@ -3481,7 +3684,7 @@
             "type": "const",
             "value": 1
           },
-          "_line": 299
+          "_line": 317
         },
         {
           "type": "decl",
@@ -3490,7 +3693,7 @@
             "type": "const",
             "value": 7
           },
-          "_line": 301,
+          "_line": 319,
           "decl_type": "int"
         },
         {
@@ -3529,7 +3732,7 @@
                 "type": "const",
                 "value": 0
               },
-              "_line": 303
+              "_line": 321
             },
             {
               "type": "assign",
@@ -3546,10 +3749,10 @@
                   "value": 1
                 }
               },
-              "_line": 301
+              "_line": 319
             }
           ],
-          "_line": 301
+          "_line": 319
         },
         {
           "type": "call_stmt",
@@ -3564,7 +3767,7 @@
               "value": 0
             }
           ],
-          "_line": 306
+          "_line": 324
         },
         {
           "type": "call_stmt",
@@ -3579,7 +3782,7 @@
               "name": "superblock"
             }
           ],
-          "_line": 307
+          "_line": 325
         },
         {
           "type": "call_stmt",
@@ -3594,7 +3797,7 @@
               "value": 1
             }
           ],
-          "_line": 308
+          "_line": 326
         },
         {
           "type": "call_stmt",
@@ -3609,7 +3812,7 @@
               "value": 2
             }
           ],
-          "_line": 309
+          "_line": 327
         },
         {
           "type": "return",
@@ -3617,11 +3820,11 @@
             "type": "const",
             "value": 0
           },
-          "_line": 310
+          "_line": 328
         }
       ],
       "return_type": "void",
-      "_line": 289
+      "_line": 307
     },
     {
       "name": "ensure_filesystem_initialized",
@@ -3634,7 +3837,7 @@
             "type": "array",
             "size": 512
           },
-          "_line": 314,
+          "_line": 332,
           "decl_type": "char"
         },
         {
@@ -3650,7 +3853,7 @@
               "value": 0
             }
           ],
-          "_line": 315
+          "_line": 333
         },
         {
           "type": "call_stmt",
@@ -3665,7 +3868,7 @@
               "name": "superblock"
             }
           ],
-          "_line": 316
+          "_line": 334
         },
         {
           "type": "call_stmt",
@@ -3680,7 +3883,7 @@
               "value": 1
             }
           ],
-          "_line": 317
+          "_line": 335
         },
         {
           "type": "call_stmt",
@@ -3695,7 +3898,7 @@
               "value": 1
             }
           ],
-          "_line": 318
+          "_line": 336
         },
         {
           "type": "if",
@@ -3862,11 +4065,11 @@
               "type": "call_stmt",
               "name": "initialize_filesystem",
               "args": [],
-              "_line": 321
+              "_line": 339
             }
           ],
           "else": [],
-          "_line": 319
+          "_line": 337
         },
         {
           "type": "return",
@@ -3874,11 +4077,11 @@
             "type": "const",
             "value": 0
           },
-          "_line": 323
+          "_line": 341
         }
       ],
       "return_type": "void",
-      "_line": 312
+      "_line": 330
     },
     {
       "name": "write_file",
@@ -3894,7 +4097,7 @@
             "type": "array",
             "size": 512
           },
-          "_line": 327,
+          "_line": 345,
           "decl_type": "char"
         },
         {
@@ -3904,7 +4107,7 @@
             "type": "const",
             "value": 0
           },
-          "_line": 328,
+          "_line": 346,
           "decl_type": "int"
         },
         {
@@ -3943,7 +4146,7 @@
                 "type": "const",
                 "value": 0
               },
-              "_line": 330
+              "_line": 348
             },
             {
               "type": "assign",
@@ -3960,10 +4163,10 @@
                   "value": 1
                 }
               },
-              "_line": 328
+              "_line": 346
             }
           ],
-          "_line": 328
+          "_line": 346
         },
         {
           "type": "decl",
@@ -3972,7 +4175,7 @@
             "type": "const",
             "value": 0
           },
-          "_line": 332,
+          "_line": 350,
           "decl_type": "int"
         },
         {
@@ -3982,7 +4185,7 @@
             "type": "const",
             "value": 0
           },
-          "_line": 333,
+          "_line": 351,
           "decl_type": "int"
         },
         {
@@ -4029,7 +4232,7 @@
                       }
                     }
                   },
-                  "_line": 337,
+                  "_line": 355,
                   "decl_type": "int"
                 },
                 {
@@ -4053,7 +4256,7 @@
                     "type": "var",
                     "name": "ch"
                   },
-                  "_line": 338
+                  "_line": 356
                 },
                 {
                   "type": "if",
@@ -4077,11 +4280,11 @@
                         "type": "const",
                         "value": 1
                       },
-                      "_line": 341
+                      "_line": 359
                     }
                   ],
                   "else": [],
-                  "_line": 339
+                  "_line": 357
                 }
               ],
               "else": [
@@ -4106,10 +4309,10 @@
                     "type": "const",
                     "value": 0
                   },
-                  "_line": 346
+                  "_line": 364
                 }
               ],
-              "_line": 335
+              "_line": 353
             },
             {
               "type": "assign",
@@ -4126,10 +4329,10 @@
                   "value": 1
                 }
               },
-              "_line": 333
+              "_line": 351
             }
           ],
-          "_line": 333
+          "_line": 351
         },
         {
           "type": "decl",
@@ -4144,7 +4347,7 @@
               }
             ]
           },
-          "_line": 350,
+          "_line": 368,
           "decl_type": "int"
         },
         {
@@ -4154,7 +4357,7 @@
             "type": "const",
             "value": 2
           },
-          "_line": 351,
+          "_line": 369,
           "decl_type": "int"
         },
         {
@@ -4194,7 +4397,7 @@
               "value": 255
             }
           },
-          "_line": 353
+          "_line": 371
         },
         {
           "type": "assign",
@@ -4233,7 +4436,7 @@
               "value": 255
             }
           },
-          "_line": 354
+          "_line": 372
         },
         {
           "type": "assign",
@@ -4272,7 +4475,7 @@
               "value": 255
             }
           },
-          "_line": 355
+          "_line": 373
         },
         {
           "type": "assign",
@@ -4303,7 +4506,7 @@
               "value": 255
             }
           },
-          "_line": 356
+          "_line": 374
         },
         {
           "type": "assign",
@@ -4342,7 +4545,7 @@
               "value": 255
             }
           },
-          "_line": 357
+          "_line": 375
         },
         {
           "type": "assign",
@@ -4381,7 +4584,7 @@
               "value": 255
             }
           },
-          "_line": 358
+          "_line": 376
         },
         {
           "type": "assign",
@@ -4420,7 +4623,7 @@
               "value": 255
             }
           },
-          "_line": 359
+          "_line": 377
         },
         {
           "type": "assign",
@@ -4451,7 +4654,7 @@
               "value": 255
             }
           },
-          "_line": 360
+          "_line": 378
         },
         {
           "type": "call_stmt",
@@ -4466,7 +4669,7 @@
               "value": 1
             }
           ],
-          "_line": 363
+          "_line": 381
         },
         {
           "type": "call_stmt",
@@ -4481,7 +4684,7 @@
               "name": "scratch_block"
             }
           ],
-          "_line": 364
+          "_line": 382
         },
         {
           "type": "call_stmt",
@@ -4496,7 +4699,7 @@
               "value": 1
             }
           ],
-          "_line": 365
+          "_line": 383
         },
         {
           "type": "call_stmt",
@@ -4511,7 +4714,7 @@
               "value": 2
             }
           ],
-          "_line": 366
+          "_line": 384
         },
         {
           "type": "decl",
@@ -4520,7 +4723,7 @@
             "type": "const",
             "value": 0
           },
-          "_line": 368,
+          "_line": 386,
           "decl_type": "int"
         },
         {
@@ -4559,7 +4762,7 @@
                 "type": "const",
                 "value": 0
               },
-              "_line": 370
+              "_line": 388
             },
             {
               "type": "assign",
@@ -4576,10 +4779,10 @@
                   "value": 1
                 }
               },
-              "_line": 368
+              "_line": 386
             }
           ],
-          "_line": 368
+          "_line": 386
         },
         {
           "type": "decl",
@@ -4588,7 +4791,7 @@
             "type": "const",
             "value": 0
           },
-          "_line": 372,
+          "_line": 390,
           "decl_type": "int"
         },
         {
@@ -4598,7 +4801,7 @@
             "type": "const",
             "value": 0
           },
-          "_line": 373,
+          "_line": 391,
           "decl_type": "int"
         },
         {
@@ -4645,7 +4848,7 @@
                       }
                     }
                   },
-                  "_line": 377,
+                  "_line": 395,
                   "decl_type": "int"
                 },
                 {
@@ -4669,7 +4872,7 @@
                     "type": "var",
                     "name": "ch"
                   },
-                  "_line": 378
+                  "_line": 396
                 },
                 {
                   "type": "if",
@@ -4693,11 +4896,11 @@
                         "type": "const",
                         "value": 1
                       },
-                      "_line": 381
+                      "_line": 399
                     }
                   ],
                   "else": [],
-                  "_line": 379
+                  "_line": 397
                 }
               ],
               "else": [
@@ -4722,10 +4925,10 @@
                     "type": "const",
                     "value": 0
                   },
-                  "_line": 386
+                  "_line": 404
                 }
               ],
-              "_line": 375
+              "_line": 393
             },
             {
               "type": "assign",
@@ -4742,10 +4945,10 @@
                   "value": 1
                 }
               },
-              "_line": 373
+              "_line": 391
             }
           ],
-          "_line": 373
+          "_line": 391
         },
         {
           "type": "call_stmt",
@@ -4760,7 +4963,7 @@
               "name": "scratch_block_index"
             }
           ],
-          "_line": 390
+          "_line": 408
         },
         {
           "type": "call_stmt",
@@ -4775,7 +4978,7 @@
               "name": "scratch_block"
             }
           ],
-          "_line": 391
+          "_line": 409
         },
         {
           "type": "call_stmt",
@@ -4790,7 +4993,7 @@
               "value": 1
             }
           ],
-          "_line": 392
+          "_line": 410
         },
         {
           "type": "call_stmt",
@@ -4805,7 +5008,7 @@
               "value": 2
             }
           ],
-          "_line": 393
+          "_line": 411
         },
         {
           "type": "return",
@@ -4813,7 +5016,7 @@
             "type": "const",
             "value": 0
           },
-          "_line": 394
+          "_line": 412
         }
       ],
       "param_types": {
@@ -4821,7 +5024,7 @@
         "data": "char_ptr"
       },
       "return_type": "void",
-      "_line": 325
+      "_line": 343
     },
     {
       "name": "read_file",
@@ -4837,7 +5040,7 @@
             "type": "array",
             "size": 512
           },
-          "_line": 398,
+          "_line": 416,
           "decl_type": "char"
         },
         {
@@ -4853,7 +5056,7 @@
               "value": 1
             }
           ],
-          "_line": 399
+          "_line": 417
         },
         {
           "type": "call_stmt",
@@ -4868,7 +5071,7 @@
               "name": "dir_entry"
             }
           ],
-          "_line": 400
+          "_line": 418
         },
         {
           "type": "call_stmt",
@@ -4883,7 +5086,7 @@
               "value": 1
             }
           ],
-          "_line": 401
+          "_line": 419
         },
         {
           "type": "call_stmt",
@@ -4898,7 +5101,7 @@
               "value": 1
             }
           ],
-          "_line": 402
+          "_line": 420
         },
         {
           "type": "decl",
@@ -4907,7 +5110,7 @@
             "type": "const",
             "value": 1
           },
-          "_line": 405,
+          "_line": 423,
           "decl_type": "int"
         },
         {
@@ -4917,7 +5120,7 @@
             "type": "const",
             "value": 0
           },
-          "_line": 406,
+          "_line": 424,
           "decl_type": "int"
         },
         {
@@ -4927,7 +5130,7 @@
             "type": "const",
             "value": 0
           },
-          "_line": 407,
+          "_line": 425,
           "decl_type": "int"
         },
         {
@@ -4974,7 +5177,7 @@
                       }
                     }
                   },
-                  "_line": 411,
+                  "_line": 429,
                   "decl_type": "int"
                 },
                 {
@@ -5003,7 +5206,7 @@
                       "value": 255
                     }
                   },
-                  "_line": 412,
+                  "_line": 430,
                   "decl_type": "int"
                 },
                 {
@@ -5028,11 +5231,11 @@
                         "type": "const",
                         "value": 0
                       },
-                      "_line": 415
+                      "_line": 433
                     }
                   ],
                   "else": [],
-                  "_line": 413
+                  "_line": 431
                 },
                 {
                   "type": "if",
@@ -5056,15 +5259,15 @@
                         "type": "const",
                         "value": 1
                       },
-                      "_line": 419
+                      "_line": 437
                     }
                   ],
                   "else": [],
-                  "_line": 417
+                  "_line": 435
                 }
               ],
               "else": [],
-              "_line": 409
+              "_line": 427
             },
             {
               "type": "assign",
@@ -5081,10 +5284,10 @@
                   "value": 1
                 }
               },
-              "_line": 407
+              "_line": 425
             }
           ],
-          "_line": 407
+          "_line": 425
         },
         {
           "type": "if",
@@ -5118,7 +5321,7 @@
                 "type": "const",
                 "value": 0
               },
-              "_line": 426
+              "_line": 444
             },
             {
               "type": "return",
@@ -5126,11 +5329,11 @@
                 "type": "const",
                 "value": 0
               },
-              "_line": 427
+              "_line": 445
             }
           ],
           "else": [],
-          "_line": 424
+          "_line": 442
         },
         {
           "type": "decl",
@@ -5263,7 +5466,7 @@
               }
             }
           },
-          "_line": 430,
+          "_line": 448,
           "decl_type": "int"
         },
         {
@@ -5397,7 +5600,7 @@
               }
             }
           },
-          "_line": 431,
+          "_line": 449,
           "decl_type": "int"
         },
         {
@@ -5413,7 +5616,7 @@
               "name": "data_block_index"
             }
           ],
-          "_line": 434
+          "_line": 452
         },
         {
           "type": "call_stmt",
@@ -5428,7 +5631,7 @@
               "name": "buffer"
             }
           ],
-          "_line": 435
+          "_line": 453
         },
         {
           "type": "call_stmt",
@@ -5443,7 +5646,7 @@
               "value": 1
             }
           ],
-          "_line": 436
+          "_line": 454
         },
         {
           "type": "call_stmt",
@@ -5458,7 +5661,7 @@
               "value": 1
             }
           ],
-          "_line": 437
+          "_line": 455
         },
         {
           "type": "if",
@@ -5496,7 +5699,7 @@
                 "type": "const",
                 "value": 0
               },
-              "_line": 441
+              "_line": 459
             }
           ],
           "else": [
@@ -5521,10 +5724,10 @@
                 "type": "const",
                 "value": 0
               },
-              "_line": 445
+              "_line": 463
             }
           ],
-          "_line": 439
+          "_line": 457
         },
         {
           "type": "return",
@@ -5532,7 +5735,7 @@
             "type": "const",
             "value": 0
           },
-          "_line": 447
+          "_line": 465
         }
       ],
       "param_types": {
@@ -5540,7 +5743,7 @@
         "buffer": "char_ptr"
       },
       "return_type": "void",
-      "_line": 396
+      "_line": 414
     },
     {
       "name": "add",
@@ -5563,7 +5766,7 @@
               "name": "b"
             }
           },
-          "_line": 453
+          "_line": 471
         }
       ],
       "param_types": {
@@ -5572,7 +5775,7 @@
       },
       "return_type": "int",
       "inline": true,
-      "_line": 451
+      "_line": 469
     },
     {
       "name": "main",
@@ -5595,7 +5798,7 @@
               }
             ]
           },
-          "_line": 459,
+          "_line": 477,
           "decl_type": "int"
         },
         {
@@ -5605,7 +5808,7 @@
             "type": "const",
             "value": 50
           },
-          "_line": 460,
+          "_line": 478,
           "decl_type": "int"
         },
         {
@@ -5625,14 +5828,14 @@
               }
             ]
           },
-          "_line": 461,
+          "_line": 479,
           "decl_type": "int"
         },
         {
           "type": "call_stmt",
           "name": "initialize_filesystem",
           "args": [],
-          "_line": 464
+          "_line": 482
         },
         {
           "type": "call_stmt",
@@ -5647,7 +5850,7 @@
               "label": "str_1"
             }
           ],
-          "_line": 465
+          "_line": 483
         },
         {
           "type": "decl",
@@ -5656,7 +5859,7 @@
             "type": "array",
             "size": 512
           },
-          "_line": 466,
+          "_line": 484,
           "decl_type": "char"
         },
         {
@@ -5672,7 +5875,7 @@
               "name": "device_info"
             }
           ],
-          "_line": 467
+          "_line": 485
         },
         {
           "type": "call_stmt",
@@ -5695,7 +5898,7 @@
               "value": 63
             }
           ],
-          "_line": 468
+          "_line": 486
         },
         {
           "type": "decl",
@@ -5704,7 +5907,7 @@
             "type": "array",
             "size": 512
           },
-          "_line": 469,
+          "_line": 487,
           "decl_type": "char"
         },
         {
@@ -5720,7 +5923,7 @@
               "name": "file_contents"
             }
           ],
-          "_line": 470
+          "_line": 488
         },
         {
           "type": "call_stmt",
@@ -5743,7 +5946,7 @@
               "value": 63
             }
           ],
-          "_line": 471
+          "_line": 489
         },
         {
           "type": "call_stmt",
@@ -5766,7 +5969,7 @@
               "value": 12
             }
           ],
-          "_line": 472
+          "_line": 490
         },
         {
           "type": "call_stmt",
@@ -5789,7 +5992,7 @@
               "value": 48
             }
           ],
-          "_line": 473
+          "_line": 491
         },
         {
           "type": "call_stmt",
@@ -5812,7 +6015,7 @@
               "value": 7
             }
           ],
-          "_line": 474
+          "_line": 492
         },
         {
           "type": "call_stmt",
@@ -5835,36 +6038,29 @@
               "value": 60
             }
           ],
-          "_line": 475
+          "_line": 493
         },
         {
           "type": "call_stmt",
-          "name": "palette_test",
-          "args": [
-            {
-              "type": "const",
-              "value": 0
-            },
-            {
-              "type": "const",
-              "value": 0
-            },
-            {
-              "type": "const",
-              "value": 16
-            }
-          ],
-          "_line": 476
+          "name": "rand_block_test",
+          "args": [],
+          "_line": 494
         },
         {
           "type": "call_stmt",
           "name": "lfsr_test",
           "args": [],
-          "_line": 477
+          "_line": 495
+        },
+        {
+          "type": "call_stmt",
+          "name": "clear_display",
+          "args": [],
+          "_line": 496
         }
       ],
       "return_type": "void",
-      "_line": 457
+      "_line": 475
     }
   ],
   "types": []

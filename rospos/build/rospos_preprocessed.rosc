@@ -219,6 +219,24 @@ void palette_test(int x, int y, int square_size){
     }
 }
 
+void rand_block_test(){
+    char buffer[512];
+    int addr = 0x20000000;
+    int remaining = 0x00010000;
+    int blockID=0xFFFFFFFE;
+    while (remaining)
+    {
+        read_block(blockID, buffer);
+        for (int i = 0; i < 512; i++)
+        {
+            __sb(addr, buffer[i]);
+            addr = addr + 1;
+        }
+        blockID = blockID - 1;
+        remaining = remaining - 512;
+    }
+    return 0;
+}
 int bd_read_u32(int addr)
 {
     int b0 = __lb(addr + 0) & 0xFF;
@@ -473,6 +491,7 @@ void main()
     draw_string_to_display("Red", 10, 32 , 0x30);
     draw_string_to_display("Blue", 10, 40 , 0x07);
     draw_string_to_display("Yellow", 10, 48 , 0x3C);
-    palette_test(0, 0, 16);
+    rand_block_test();
     lfsr_test();
+    clear_display();
 }

@@ -1217,6 +1217,98 @@ translation_unit
   external_decl
     function_def
       type_specifier
+        void
+      declarator	rand_block_test
+      compound_stmt
+        declaration
+          type_specifier
+            char
+          init_declarator_list
+            init_declarator
+              declarator
+                buffer
+                array	512
+        declaration
+          type_specifier
+            int
+          init_declarator_list
+            init_declarator
+              declarator	addr
+              0x20000000
+        declaration
+          type_specifier
+            int
+          init_declarator_list
+            init_declarator
+              declarator	remaining
+              0x00010000
+        declaration
+          type_specifier
+            int
+          init_declarator_list
+            init_declarator
+              declarator	blockID
+              0xFFFFFFFE
+        while_stmt
+          remaining
+          compound_stmt
+            expr_stmt
+              postfix
+                read_block
+                call_suffix
+                  arg_list
+                    blockID
+                    buffer
+            for_stmt
+              declaration
+                type_specifier
+                  int
+                init_declarator_list
+                  init_declarator
+                    declarator	i
+                    0
+              relational
+                i
+                lt
+                512
+              postfix
+                i
+                post_inc
+              compound_stmt
+                expr_stmt
+                  postfix
+                    __sb
+                    call_suffix
+                      arg_list
+                        addr
+                        postfix
+                          buffer
+                          array_index	i
+                expr_stmt
+                  assignment
+                    addr
+                    additive
+                      addr
+                      plus
+                      1
+            expr_stmt
+              assignment
+                blockID
+                additive
+                  blockID
+                  minus
+                  1
+            expr_stmt
+              assignment
+                remaining
+                additive
+                  remaining
+                  minus
+                  512
+        return_stmt	0
+  external_decl
+    function_def
+      type_specifier
         int
       declarator	bd_read_u32
       param_list
@@ -2502,13 +2594,13 @@ translation_unit
                 0x3C
         expr_stmt
           postfix
-            palette_test
+            rand_block_test
             call_suffix
-              arg_list
-                0
-                0
-                16
         expr_stmt
           postfix
             lfsr_test
+            call_suffix
+        expr_stmt
+          postfix
+            clear_display
             call_suffix
