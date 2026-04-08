@@ -101,8 +101,8 @@ bool tryResolveNearbySourceLine(
 
 } // namespace
 
-VMController::VMController(QObject *parent, ExecutionBackend backend)
-    : VMControllerCore(parent, backend)
+VMController::VMController(QObject *parent)
+    : VMControllerCore(parent)
 {
 }
 

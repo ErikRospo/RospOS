@@ -1,7 +1,6 @@
 #include "RospOSVM.h"
 #include "Logger.h"
 #include "Shutdown.h"
-#include "ExecutionBackend.h"
 
 #include <cstdint>
 #include <iostream>
@@ -12,7 +11,7 @@ namespace {
 
 void printUsage(const char *argv0)
 {
-    std::cerr << "Usage: " << argv0 << " <program.rosp> [--max-steps N] [--debug] [--backend interpreter|jit]\n";
+    std::cerr << "Usage: " << argv0 << " <program.rosp> [--max-steps N] [--debug]\n";
 }
 
 } // namespace
@@ -27,7 +26,6 @@ int main(int argc, char *argv[])
     std::string binaryPath;
     uint64_t maxSteps = 10000000ULL;
     bool debugMode = false;
-    ExecutionBackend backend = ExecutionBackend::Interpreter;
 
     for (int i = 1; i < argc; ++i) {
         const std::string arg(argv[i]);
@@ -44,20 +42,6 @@ int main(int argc, char *argv[])
             }
         } else if (arg == "--debug") {
             debugMode = true;
-        } else if (arg == "--jit") {
-            backend = ExecutionBackend::Jit;
-        } else if (arg == "--interpreter") {
-            backend = ExecutionBackend::Interpreter;
-        } else if (arg == "--backend") {
-            if (i + 1 >= argc) {
-                std::cerr << "Missing value for --backend\n";
-                return 2;
-            }
-            const std::string value(argv[++i]);
-            if (!parseExecutionBackend(value, backend)) {
-                std::cerr << "Invalid backend value: " << value << " (expected interpreter|jit)\n";
-                return 2;
-            }
         } else if (!arg.empty() && arg[0] == '-') {
             std::cerr << "Unknown option: " << arg << "\n";
             printUsage(argv[0]);
@@ -80,7 +64,7 @@ int main(int argc, char *argv[])
     Logger::instance().setLogLevel(debugMode ? Logger::DEBUG : Logger::INFO);
 
     try {
-        RospOSVM vm(debugMode, backend);
+        RospOSVM vm(debugMode);
         vm.loadBinaryFromFile(binaryPath);
 
         uint64_t steps = 0;

@@ -6,8 +6,8 @@
 #include <QElapsedTimer>
 #include <QFile>
 
-VMControllerCore::VMControllerCore(QObject *parent, ExecutionBackend backend)
-    : QObject(parent), vm(std::make_unique<RospOSVM>(false, backend)), backendMode(backend), running(false)
+VMControllerCore::VMControllerCore(QObject *parent)
+    : QObject(parent), vm(std::make_unique<RospOSVM>(false)), running(false)
 {
     executionTimer.setSingleShot(true);
     connect(&executionTimer, &QTimer::timeout, this, &VMControllerCore::onExecutionTick);
@@ -107,7 +107,7 @@ bool VMControllerCore::restart()
 void VMControllerCore::reset()
 {
     executionTimer.stop();
-    vm = std::make_unique<RospOSVM>(false, backendMode);
+    vm = std::make_unique<RospOSVM>(false);
     running = false;
     pendingBurstSteps = 0.0;
     throughputTimer.invalidate();

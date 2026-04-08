@@ -8,8 +8,6 @@
 #include <QCloseEvent>
 #include <memory>
 
-#include "ExecutionBackend.h"
-
 class VMController;
 class CodeView;
 class DebugControlPanel;
@@ -25,7 +23,7 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    MainWindow(QWidget *parent = nullptr, ExecutionBackend backend = ExecutionBackend::Interpreter);
+    MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
     void loadBinaryFile(const QString &filePath);
 

@@ -5,12 +5,11 @@
 #include <cstdint>
 
 #include "VMControllerCore.h"
-#include "ExecutionBackend.h"
 
 class VMController : public VMControllerCore
 {
 public:
-    explicit VMController(QObject *parent = nullptr, ExecutionBackend backend = ExecutionBackend::Interpreter);
+    explicit VMController(QObject *parent = nullptr);
     ~VMController() override;
 
     QString getRegisterAllocationTooltip(int index) const;

@@ -10,16 +10,13 @@
 #include <vector>
 
 #include "RospOSVM.h"
-#include "ExecutionBackend.h"
 
 class VMControllerCore : public QObject
 {
     Q_OBJECT
 
 public:
-    explicit VMControllerCore(
-        QObject *parent = nullptr,
-        ExecutionBackend backend = ExecutionBackend::Interpreter);
+    explicit VMControllerCore(QObject *parent = nullptr);
     ~VMControllerCore() override;
 
     bool loadBinaryFile(const QString &filePath);
@@ -67,7 +64,6 @@ private:
     int targetInstructionsPerSecond() const;
 
     std::unique_ptr<RospOSVM> vm;
-    ExecutionBackend backendMode = ExecutionBackend::Interpreter;
     QTimer executionTimer;
     bool running;
     int speedLevel = 4;
