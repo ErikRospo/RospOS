@@ -19,8 +19,9 @@
 #include "Shutdown.h"
 #include "TTY.h"
 
-RospOSVM::RospOSVM(bool debugMode) 
+RospOSVM::RospOSVM(bool debugMode, ExecutionBackend backend)
         : memory(1ULL << 32),  // Initialize 4GB memory
+            backendMode(backend),
             debugMode(debugMode)
 {
         pc = 0;                           // Set after loading binary reset vector

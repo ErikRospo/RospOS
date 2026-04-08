@@ -2,6 +2,7 @@
 #include "TTY.h"
 #include "TTYWidget.h"
 #include "VMControllerCore.h"
+#include "ExecutionBackend.h"
 
 #include <QApplication>
 #include <QFileDialog>
@@ -13,12 +14,15 @@
 #include <QVBoxLayout>
 #include <QWidget>
 
+#include <iostream>
+#include <string>
+
 class MinimalWindow : public QWidget
 {
 public:
-	MinimalWindow()
+	explicit MinimalWindow(ExecutionBackend backend)
 		: QWidget(nullptr),
-		  controller(new VMControllerCore(this)),
+		  controller(new VMControllerCore(this, backend)),
 		  display(new VMDisplay(this)),
 		  tty(new TTYWidget(this)),
 		  status(new QLabel("Status: Ready", this))
@@ -120,13 +124,42 @@ private:
 int main(int argc, char *argv[])
 {
 	QApplication app(argc, argv);
-	MinimalWindow window;
+	ExecutionBackend backend = ExecutionBackend::Interpreter;
+	QString binaryPath;
 
-	if (argc > 1) {
-		const QString filePath = QString::fromUtf8(argv[argc - 1]);
-		if (filePath.endsWith(".rosp", Qt::CaseInsensitive)) {
-			window.loadBinaryFile(filePath);
+	for (int i = 1; i < argc; ++i) {
+		const QString arg = QString::fromUtf8(argv[i]);
+		if (arg == "--jit") {
+			backend = ExecutionBackend::Jit;
+			continue;
 		}
+		if (arg == "--interpreter") {
+			backend = ExecutionBackend::Interpreter;
+			continue;
+		}
+		if (arg == "--backend") {
+			if (i + 1 >= argc) {
+				std::cerr << "Missing value for --backend (expected interpreter|jit)\n";
+				return 2;
+			}
+
+			const std::string value = QString::fromUtf8(argv[++i]).toLower().toStdString();
+			if (!parseExecutionBackend(value, backend)) {
+				std::cerr << "Invalid backend: " << value << " (expected interpreter|jit)\n";
+				return 2;
+			}
+			continue;
+		}
+
+		if (arg.endsWith(".rosp", Qt::CaseInsensitive)) {
+			binaryPath = arg;
+		}
+	}
+
+	MinimalWindow window(backend);
+
+	if (!binaryPath.isEmpty()) {
+		window.loadBinaryFile(binaryPath);
 	}
 
 	window.show();

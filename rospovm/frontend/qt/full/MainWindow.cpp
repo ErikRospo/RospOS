@@ -28,9 +28,9 @@
 #include <QDateTime>
 #include <QSettings>
 
-MainWindow::MainWindow(QWidget *parent)
+MainWindow::MainWindow(QWidget *parent, ExecutionBackend backend)
     : QMainWindow(parent),
-      vmController(std::make_unique<VMController>(this)),
+    vmController(std::make_unique<VMController>(this, backend)),
       codeView(new CodeView(this)),
       debugPanel(new DebugControlPanel(this)),
       registerView(new RegisterView(this)),

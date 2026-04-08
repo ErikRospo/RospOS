@@ -25,30 +25,33 @@ set(ROSPOSVM_HIGHLIGHTING_DIR "${CMAKE_CURRENT_SOURCE_DIR}/highlighting")
 
 # Common backend sources
 set(ROSPOSVM_BACKEND_SOURCES
-    backend/RospOSVM.cpp
-    backend/RospOSVM.h
-    backend/InstructionDecoder.cpp
-    backend/InstructionDecoder.h
-    backend/Register.cpp
-    backend/Register.h
-    backend/Memory.cpp
-    backend/Memory.h
-    backend/TTY.cpp
-    backend/TTY.h
-    backend/Binary.cpp
-    backend/Binary.h
-    backend/DebugParser.cpp
-    backend/DebugParser.h
-    backend/Display.cpp
-    backend/Display.h
-    backend/BlockDevice.cpp
-    backend/BlockDevice.h
-    backend/BlockDeviceBacking.cpp
-    backend/BlockDeviceBacking.h
-    backend/Shutdown.cpp
-    backend/Shutdown.h
-    backend/Logger.cpp
-    backend/Logger.h
+    backend/interpreter/RospOSVM.cpp
+    backend/interpreter/RospOSVM.h
+    backend/interpreter/InstructionDecoder.cpp
+    backend/interpreter/InstructionDecoder.h
+    backend/jit/JitCompiler.cpp
+    backend/jit/JitCompiler.h
+    backend/shared/Register.cpp
+    backend/shared/Register.h
+    backend/shared/Memory.cpp
+    backend/shared/Memory.h
+    backend/shared/TTY.cpp
+    backend/shared/TTY.h
+    backend/shared/Binary.cpp
+    backend/shared/Binary.h
+    backend/shared/DebugParser.cpp
+    backend/shared/DebugParser.h
+    backend/shared/Display.cpp
+    backend/shared/Display.h
+    backend/shared/BlockDevice.cpp
+    backend/shared/BlockDevice.h
+    backend/shared/BlockDeviceBacking.cpp
+    backend/shared/BlockDeviceBacking.h
+    backend/shared/Shutdown.cpp
+    backend/shared/Shutdown.h
+    backend/shared/Logger.cpp
+    backend/shared/Logger.h
+    backend/shared/ExecutionBackend.h
 )
 
 # VM Core Library with state capture (for Qt GUI debugging)
@@ -56,6 +59,9 @@ add_library(rosposvm_lib STATIC ${ROSPOSVM_BACKEND_SOURCES})
 
 target_include_directories(rosposvm_lib PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/backend
+    ${CMAKE_CURRENT_SOURCE_DIR}/backend/shared
+    ${CMAKE_CURRENT_SOURCE_DIR}/backend/interpreter
+    ${CMAKE_CURRENT_SOURCE_DIR}/backend/jit
 )
 target_link_libraries(rosposvm_lib PUBLIC Qt6::Core Qt6::Gui Qt6::Widgets ZLIB::ZLIB KF6::SyntaxHighlighting)
 target_compile_definitions(rosposvm_lib PRIVATE
@@ -68,6 +74,9 @@ add_library(rosposvm_lib_release STATIC ${ROSPOSVM_BACKEND_SOURCES})
 
 target_include_directories(rosposvm_lib_release PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/backend
+    ${CMAKE_CURRENT_SOURCE_DIR}/backend/shared
+    ${CMAKE_CURRENT_SOURCE_DIR}/backend/interpreter
+    ${CMAKE_CURRENT_SOURCE_DIR}/backend/jit
 )
 target_link_libraries(rosposvm_lib_release PUBLIC Qt6::Core Qt6::Gui Qt6::Widgets ZLIB::ZLIB KF6::SyntaxHighlighting)
 target_compile_definitions(rosposvm_lib_release PRIVATE
@@ -114,16 +123,25 @@ target_include_directories(rospovm_qt PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/frontend/qt/shared
     ${CMAKE_CURRENT_SOURCE_DIR}/frontend/qt/full
     ${CMAKE_CURRENT_SOURCE_DIR}/backend
+    ${CMAKE_CURRENT_SOURCE_DIR}/backend/shared
+    ${CMAKE_CURRENT_SOURCE_DIR}/backend/interpreter
+    ${CMAKE_CURRENT_SOURCE_DIR}/backend/jit
 )
 target_include_directories(rospovm_minimal PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/frontend/qt/shared
     ${CMAKE_CURRENT_SOURCE_DIR}/frontend/qt/minimal
     ${CMAKE_CURRENT_SOURCE_DIR}/backend
+    ${CMAKE_CURRENT_SOURCE_DIR}/backend/shared
+    ${CMAKE_CURRENT_SOURCE_DIR}/backend/interpreter
+    ${CMAKE_CURRENT_SOURCE_DIR}/backend/jit
 )
 
 target_include_directories(rospovm_headless PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/frontend/headless
     ${CMAKE_CURRENT_SOURCE_DIR}/backend
+    ${CMAKE_CURRENT_SOURCE_DIR}/backend/shared
+    ${CMAKE_CURRENT_SOURCE_DIR}/backend/interpreter
+    ${CMAKE_CURRENT_SOURCE_DIR}/backend/jit
 )
 
 target_link_libraries(rospovm_qt PRIVATE

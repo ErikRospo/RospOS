@@ -14,6 +14,7 @@
 #include "Memory.h"
 #include "Display.h"
 #include "Binary.h"
+#include "ExecutionBackend.h"
 
 // Compile-time flag to enable/disable state capture (for debugging and step-backward)
 // Set to 1 for Qt GUI (needs full debugging), 0 for headless/minimal (performance)
@@ -56,6 +57,7 @@ private:
     bool applyingHistory = false;
     MemoryAccess lastMemoryAccess;
     bool hasLastMemoryAccess = false;
+    ExecutionBackend backendMode = ExecutionBackend::Interpreter;
 
     // Fast debug lookup caches (built lazily from loadedBinary->debug_map).
     mutable bool debugCacheBuilt = false;
@@ -93,7 +95,7 @@ private:
 
 public:
     bool debugMode;
-    RospOSVM(bool debugMode);
+    RospOSVM(bool debugMode, ExecutionBackend backend = ExecutionBackend::Interpreter);
     void resetCpuState();
     void loadBinaryAtAddress(const std::vector<char> &binary, uint32_t address);
     void loadBinaryFromFile(const std::string& filename);
@@ -108,6 +110,7 @@ public:
         }
     }
     std::string getRegisterState() const;
+    ExecutionBackend getBackendMode() const { return backendMode; }
 
     // Debugger interface
     uint32_t getProgramCounter() const { return pc; }
