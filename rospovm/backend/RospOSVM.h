@@ -75,6 +75,13 @@ private:
     void writeMemoryTrackedByte(uint32_t address, uint8_t value);
     void writeMemoryTrackedHalf(uint32_t address, uint16_t value);
     void writeMemoryTrackedWord(uint32_t address, uint32_t value);
+
+    inline void writeRegisterHot(int regIndex, uint32_t value) noexcept
+    {
+        if (regIndex != 0) {
+            regFile.unchecked(regIndex).setUnchecked(value);
+        }
+    }
     
     void rTypeInstruction(uint32_t instruction);
     void iArithTypeInstruction(uint32_t instruction);
@@ -91,6 +98,7 @@ public:
     void loadBinaryAtAddress(const std::vector<char> &binary, uint32_t address);
     void loadBinaryFromFile(const std::string& filename);
     void step();
+    uint64_t runSteps(uint64_t maxSteps, uint32_t timeBudgetMicros = 0);
     bool stepBackward();
     bool canStepBackward() const { 
         if constexpr (kEnableStateCapture) {

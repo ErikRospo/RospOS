@@ -14,6 +14,9 @@ public:
     Register() = default;
     
     uint32_t get() const { return value; }
+
+    // Hot-path setter that bypasses read-only checks. Callers must guarantee safety.
+    void setUnchecked(uint32_t val) noexcept { value = val; }
     
     void set(uint32_t val) {
         if (!read_only) {

@@ -2,6 +2,7 @@
 
 #include <cstdint>
 #include <cstdlib>
+#include <chrono>
 #include <fstream>
 #include <iomanip>
 #include <iostream>
@@ -222,13 +223,21 @@ void RospOSVM::writeMemoryTrackedWord(uint32_t address, uint32_t value)
 void RospOSVM::writeMemory(uint32_t address, uint32_t value)
 {
     recordMemoryAccess(address, 4, true);
-    writeMemoryTrackedWord(address, value);
+    if constexpr (kEnableStateCapture) {
+        writeMemoryTrackedWord(address, value);
+    } else {
+        memory.writeWord(address, value);
+    }
 }
 
 void RospOSVM::writeMemoryByte(uint32_t address, uint8_t value)
 {
     recordMemoryAccess(address, 1, true);
-    writeMemoryTrackedByte(address, value);
+    if constexpr (kEnableStateCapture) {
+        writeMemoryTrackedByte(address, value);
+    } else {
+        memory.writeByte(address, value);
+    }
 }
 
 bool RospOSVM::getLastMemoryAccess(uint32_t &address, uint8_t &size, bool &isWrite) const
@@ -389,6 +398,43 @@ void RospOSVM::step()
     }
 }
 
+uint64_t RospOSVM::runSteps(uint64_t maxSteps, uint32_t timeBudgetMicros)
+{
+    if (maxSteps == 0) {
+        return 0;
+    }
+
+    if (debugMode) {
+        uint64_t executed = 0;
+        for (; executed < maxSteps && !shouldShutdown(); ++executed) {
+            step();
+        }
+        return executed;
+    }
+
+    const bool hasBudget = (timeBudgetMicros != 0);
+    std::chrono::steady_clock::time_point deadline{};
+    if (hasBudget) {
+        deadline = std::chrono::steady_clock::now() + std::chrono::microseconds(timeBudgetMicros);
+    }
+
+    uint64_t executed = 0;
+    while (executed < maxSteps && !shouldShutdown()) {
+        clearLastMemoryAccess();
+        const uint32_t instruction = memory.readWord(pc);
+        executeInstruction(instruction);
+        ++executed;
+
+        if (hasBudget && (executed & 0x3F) == 0) {
+            if (std::chrono::steady_clock::now() >= deadline) {
+                break;
+            }
+        }
+    }
+
+    return executed;
+}
+
 bool RospOSVM::stepBackward()
 {
     if constexpr (!kEnableStateCapture) {
@@ -409,7 +455,7 @@ bool RospOSVM::stepBackward()
 
         pc = snapshot.pc;
         for (int i = 1; i < 16; ++i) {
-            regFile.unchecked(i).set(snapshot.registers[static_cast<size_t>(i)]);
+            regFile.unchecked(i).setUnchecked(snapshot.registers[static_cast<size_t>(i)]);
         }
 
         if (debugMode)
@@ -482,97 +528,103 @@ void RospOSVM::rTypeInstruction(uint32_t instruction)
     const int rd = static_cast<int>((instruction >> 20) & 0x0F);
     const int rs1 = static_cast<int>((instruction >> 16) & 0x0F);
     const int rs2 = static_cast<int>((instruction >> 12) & 0x0F);
-    Register &dst = regFile.unchecked(rd);
     const uint32_t rs1Val = regFile.unchecked(rs1).get();
     const uint32_t rs2Val = regFile.unchecked(rs2).get();
+    uint32_t result = 0;
+    bool validResult = true;
     switch (sub_op)
     {
     case 0x0: // ADD
-        dst.set(rs1Val + rs2Val);
+        result = rs1Val + rs2Val;
         break;
     case 0x1: // SUB
-        dst.set(rs1Val - rs2Val);
+        result = rs1Val - rs2Val;
         break;
     case 0x2: // AND
-        dst.set(rs1Val & rs2Val);
+        result = rs1Val & rs2Val;
         break;
     case 0x3: // OR
-        dst.set(rs1Val | rs2Val);
+        result = rs1Val | rs2Val;
         break;
     case 0x4: // XOR
-        dst.set(rs1Val ^ rs2Val);
+        result = rs1Val ^ rs2Val;
         break;
     case 0x5: // MUL (lower 32 bits)
-        dst.set(rs1Val * rs2Val);
+        result = rs1Val * rs2Val;
         break;
     case 0x6: // MULH
     {
         const uint64_t result = static_cast<uint64_t>(rs1Val) * static_cast<uint64_t>(rs2Val);
-        dst.set(static_cast<uint32_t>(result >> 32));
+        writeRegisterHot(rd, static_cast<uint32_t>(result >> 32));
     }
     break;
     case 0x7: // NEG
-        dst.set(-rs1Val);
+        result = static_cast<uint32_t>(-static_cast<int32_t>(rs1Val));
         break;
     case 0x8: // NOT
-        dst.set(~rs1Val);
+        result = ~rs1Val;
         break;
     case 0x9: // SHL
-        dst.set(rs1Val << (rs2Val & 0x1F));
+        result = rs1Val << (rs2Val & 0x1F);
         break;
     case 0xA: // SHR
-        dst.set(rs1Val >> (rs2Val & 0x1F));
+        result = rs1Val >> (rs2Val & 0x1F);
         break;
     case 0xB: // SAR
-        dst.set(static_cast<uint32_t>(static_cast<int32_t>(rs1Val) >> (rs2Val & 0x1F)));
+        result = static_cast<uint32_t>(static_cast<int32_t>(rs1Val) >> (rs2Val & 0x1F));
         break;
     case 0xC: // DIV
         if (rs2Val == 0)
         {
             Logger::instance().error("Division by zero error in DIV instruction.");
-            dst.set(0xFFFFFFFF);
+            result = 0xFFFFFFFF;
         }
         else
         {
-            dst.set(static_cast<uint32_t>(static_cast<int32_t>(rs1Val) / static_cast<int32_t>(rs2Val)));
+            result = static_cast<uint32_t>(static_cast<int32_t>(rs1Val) / static_cast<int32_t>(rs2Val));
         }
         break;
     case 0xD: // DIVU
         if (rs2Val == 0)
         {
             Logger::instance().error("Division by zero error in DIVU instruction.");
-            dst.set(0xFFFFFFFF);
+            result = 0xFFFFFFFF;
         }
         else
         {
-            dst.set(rs1Val / rs2Val);
+            result = rs1Val / rs2Val;
         }
         break;
     case 0xE: // REM
         if (rs2Val == 0)
         {
             Logger::instance().error("Division by zero error in REM instruction.");
-            dst.set(0xFFFFFFFF);
+            result = 0xFFFFFFFF;
         }
         else
         {
-            dst.set(static_cast<uint32_t>(static_cast<int32_t>(rs1Val) % static_cast<int32_t>(rs2Val)));
+            result = static_cast<uint32_t>(static_cast<int32_t>(rs1Val) % static_cast<int32_t>(rs2Val));
         }
         break;
     case 0xF: // REMU
         if (rs2Val == 0)
         {
             Logger::instance().error("Division by zero error in REMU instruction.");
-            dst.set(0xFFFFFFFF);
+            result = 0xFFFFFFFF;
         }
         else
         {
-            dst.set(rs1Val % rs2Val);
+            result = rs1Val % rs2Val;
         }
         break;
     default:
+        validResult = false;
         Logger::instance().error(QString("Unknown R-type sub-opcode: %1").arg(sub_op));
         break;
+    }
+
+    if (validResult && sub_op != 0x6) {
+        writeRegisterHot(rd, result);
     }
 }
 void RospOSVM::iArithTypeInstruction(uint32_t instruction)
@@ -587,35 +639,41 @@ void RospOSVM::iArithTypeInstruction(uint32_t instruction)
     int32_t r_imm = static_cast<int32_t>(instruction & 0xFFFF);
     const uint32_t zero_ext_imm = static_cast<uint16_t>(instruction & 0xFFFF);
     const int32_t sign_ext_imm = (r_imm & 0x8000) ? (r_imm | 0xFFFF0000) : r_imm;
-    Register &dst = regFile.unchecked(rd);
     const uint32_t rs1Val = regFile.unchecked(rs1).get();
+    uint32_t result = 0;
+    bool validResult = true;
 
     switch (sub_op)
     {
     case 0x0: // ADDI
-        dst.set(static_cast<uint32_t>(static_cast<int32_t>(rs1Val) + sign_ext_imm));
+        result = static_cast<uint32_t>(static_cast<int32_t>(rs1Val) + sign_ext_imm);
         break;
     case 0x1: // ANDI
-        dst.set(rs1Val & zero_ext_imm);
+        result = rs1Val & zero_ext_imm;
         break;
     case 0x2: // ORI
-        dst.set(rs1Val | zero_ext_imm);
+        result = rs1Val | zero_ext_imm;
         break;
     case 0x3: // XORI
-        dst.set(rs1Val ^ zero_ext_imm);
+        result = rs1Val ^ zero_ext_imm;
         break;
     case 0x4: // SHLI
-        dst.set(rs1Val << (zero_ext_imm & 0x1F));
+        result = rs1Val << (zero_ext_imm & 0x1F);
         break;
     case 0x5: // SHRI
-        dst.set(rs1Val >> (zero_ext_imm & 0x1F));
+        result = rs1Val >> (zero_ext_imm & 0x1F);
         break;
     case 0x6: // SARI
-        dst.set(static_cast<uint32_t>(static_cast<int32_t>(rs1Val) >> (zero_ext_imm & 0x1F)));
+        result = static_cast<uint32_t>(static_cast<int32_t>(rs1Val) >> (zero_ext_imm & 0x1F));
         break;
     default:
+        validResult = false;
         Logger::instance().error(QString("Unknown I-type sub-opcode: %1").arg(sub_op));
         break;
+    }
+
+    if (validResult) {
+        writeRegisterHot(rd, result);
     }
 }
 void RospOSVM::iTypeLSInstruction(uint32_t instruction)
@@ -631,40 +689,52 @@ void RospOSVM::iTypeLSInstruction(uint32_t instruction)
     const int32_t r_imm = static_cast<int32_t>(instruction & 0xFFFF);
     const int32_t sign_ext_imm = (r_imm & 0x8000) ? (r_imm | 0xFFFF0000) : r_imm;
     const uint32_t addr = regFile.unchecked(rs).get() + static_cast<uint32_t>(sign_ext_imm);
-    Register &dst = regFile.unchecked(rd);
+    const uint32_t rdValue = regFile.unchecked(rd).get();
     switch (sub_op)
     {
     case 0x0: // LB
         recordMemoryAccess(addr, 1, false);
-        dst.set(static_cast<uint32_t>(static_cast<int32_t>(static_cast<int8_t>(memory.readByte(addr)))));
+        writeRegisterHot(rd, static_cast<uint32_t>(static_cast<int32_t>(static_cast<int8_t>(memory.readByte(addr)))));
         break;
     case 0x1: // LBU
         recordMemoryAccess(addr, 1, false);
-        dst.set(static_cast<uint32_t>(static_cast<uint8_t>(memory.readByte(addr))));
+        writeRegisterHot(rd, static_cast<uint32_t>(static_cast<uint8_t>(memory.readByte(addr))));
         break;
     case 0x2: // LH
         recordMemoryAccess(addr, 2, false);
-        dst.set(static_cast<uint32_t>(static_cast<int32_t>(static_cast<int16_t>(memory.readHalf(addr)))));
+        writeRegisterHot(rd, static_cast<uint32_t>(static_cast<int32_t>(static_cast<int16_t>(memory.readHalf(addr)))));
         break;
     case 0x3: // LHU
         recordMemoryAccess(addr, 2, false);
-        dst.set(static_cast<uint32_t>(static_cast<uint16_t>(memory.readHalf(addr))));
+        writeRegisterHot(rd, static_cast<uint32_t>(static_cast<uint16_t>(memory.readHalf(addr))));
         break;
     case 0x4: // LW
         recordMemoryAccess(addr, 4, false);
-        dst.set(static_cast<uint32_t>(memory.readWord(addr)));
+        writeRegisterHot(rd, static_cast<uint32_t>(memory.readWord(addr)));
         break;
     case 0x5: // SB
         recordMemoryAccess(addr, 1, true);
-        writeMemoryTrackedByte(addr, static_cast<uint8_t>(dst.get() & 0xFF));
+        if constexpr (kEnableStateCapture) {
+            writeMemoryTrackedByte(addr, static_cast<uint8_t>(rdValue & 0xFF));
+        } else {
+            memory.writeByte(addr, static_cast<uint8_t>(rdValue & 0xFF));
+        }
         break;
     case 0x6: // SH
         recordMemoryAccess(addr, 2, true);
-        writeMemoryTrackedHalf(addr, static_cast<uint16_t>(dst.get() & 0xFFFF));
+        if constexpr (kEnableStateCapture) {
+            writeMemoryTrackedHalf(addr, static_cast<uint16_t>(rdValue & 0xFFFF));
+        } else {
+            memory.writeHalf(addr, static_cast<uint16_t>(rdValue & 0xFFFF));
+        }
         break;
     case 0x7: // SW
         recordMemoryAccess(addr, 4, true);
-        writeMemoryTrackedWord(addr, dst.get());
+        if constexpr (kEnableStateCapture) {
+            writeMemoryTrackedWord(addr, rdValue);
+        } else {
+            memory.writeWord(addr, rdValue);
+        }
         break;
     default:
         Logger::instance().error(QString("Unknown Load/Store sub-opcode: %1").arg(sub_op));
@@ -732,18 +802,17 @@ void RospOSVM::jTypeInstruction(uint32_t instruction)
     const int rs = static_cast<int>((instruction >> 16) & 0x0F);
     const int32_t r_imm = static_cast<int32_t>(instruction & 0xFFFF);
     const int32_t sign_ext_imm = (r_imm & 0x8000) ? (r_imm | 0xFFFF0000) : r_imm;
-    Register &dst = regFile.unchecked(rd);
     switch (sub_op)
     {
     case 0x0: // JAL
-        dst.set(pc + 4);
+        writeRegisterHot(rd, pc + 4);
         pc += static_cast<uint32_t>(sign_ext_imm) << 2;
         break;
     case 0x1: // JALR
     {
         const uint32_t temp = pc + 4;
         pc = (regFile.unchecked(rs).get() + (static_cast<uint32_t>(sign_ext_imm) << 2)) & ~1u;
-        dst.set(temp);
+        writeRegisterHot(rd, temp);
     }
     break;
     }

@@ -252,22 +252,16 @@ void VMControllerCore::onExecutionTick()
                 }
             }
 
-            QElapsedTimer burstTimer;
-            burstTimer.start();
-            for (int i = 0; i < stepsToRun; ++i) {
-                vm->step();
-                if (shouldShutdown()) {
-                    running = false;
-                    emit stateChanged();
-                    emit executionStopped();
-                    return;
-                }
-                if (burstTimer.elapsed() >= 8) {
-                    if (speedLevel != 10 && i + 1 < stepsToRun) {
-                        pendingBurstSteps += static_cast<double>(stepsToRun - (i + 1));
-                    }
-                    break;
-                }
+            const uint64_t executed = vm->runSteps(static_cast<uint64_t>(stepsToRun), 8000);
+            if (speedLevel != 10 && executed < static_cast<uint64_t>(stepsToRun)) {
+                pendingBurstSteps += static_cast<double>(stepsToRun - static_cast<int>(executed));
+            }
+
+            if (shouldShutdown()) {
+                running = false;
+                emit stateChanged();
+                emit executionStopped();
+                return;
             }
             emit stateChanged();
         } else {

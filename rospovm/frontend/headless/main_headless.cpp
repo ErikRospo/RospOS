@@ -68,6 +68,7 @@ int main(int argc, char *argv[])
         vm.loadBinaryFromFile(binaryPath);
 
         uint64_t steps = 0;
+        constexpr uint64_t kHeadlessBatchSize = 4096;
         while (!shouldShutdown()) {
             if (steps >= maxSteps) {
                 Logger::instance().error(
@@ -76,8 +77,14 @@ int main(int argc, char *argv[])
                 return 124;
             }
 
-            vm.step();
-            ++steps;
+            const uint64_t remaining = maxSteps - steps;
+            const uint64_t batch = (remaining < kHeadlessBatchSize) ? remaining : kHeadlessBatchSize;
+            const uint64_t executed = vm.runSteps(batch);
+            steps += executed;
+
+            if (executed == 0) {
+                break;
+            }
         }
 
         Logger::instance().info(
