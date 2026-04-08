@@ -165,22 +165,23 @@ draw_char_to_display_6_CMP_END8:
   SHR r7, r8, r11    // binop >>
   LLI r10, 1    // load immediate 1
   AND r7, r7, r10    // binop &
+  ADD r12, r3, r6    // binop +
+  LLI r10, 256    // load immediate 256
+  MUL r12, r12, r10    // binop *
+  ADD r12, r12, r2    // binop +
+  ADD r12, r12, r11    // binop +
   BEQ r7, r0, draw_char_to_display_6_ELSE9
-  ADD r12, r2, r11    // binop +
-  ADD r10, r3, r6    // binop +
-  PUSH r2    // spill live temp for reg pressure
-  LLI r2, 256    // load immediate 256
-  MUL r2, r10, r2    // binop *
-  ADD r2, r2, r12    // binop +
-  PUSH r3    // spill live temp for reg pressure
-  LLI r3, 536870912    // load immediate 536870912
-  ADD r3, r3, r2    // binop +
-  LW r2, r15, 4    // restore spilled temp from stack slot
-  SB r4, r3, 0    // intrinsic __sb
-  POP r3    // restore spilled temp
-  ADDI r15, r15, 4    // discard stale spill slot for r2
+  LLI r10, 536870912    // load immediate 536870912
+  ADD r10, r10, r12    // binop +
+  SB r4, r10, 0    // intrinsic __sb
   JMP draw_char_to_display_6_IF_END10
 draw_char_to_display_6_ELSE9:
+  LLI r10, 536870912    // load immediate 536870912
+  ADD r10, r10, r12    // binop +
+  PUSH r2    // spill live temp for intrinsic scratch
+  LLI r2, 0    // val const for __sb
+  SB r2, r10, 0    // intrinsic __sb
+  POP r2    // restore spilled temp
 draw_char_to_display_6_IF_END10:
   ADDI r11, r11, 1    // assign col (addi fast path)
   JMP draw_char_to_display_6_WHILE5
@@ -188,8 +189,8 @@ draw_char_to_display_6_WHILE_END6:
   ADDI r6, r6, 1    // assign row (addi fast path)
   JMP draw_char_to_display_6_WHILE1
 draw_char_to_display_6_WHILE_END2:
-  LLI r2, 0    // load immediate 0
-  ADD r1, r2, r0
+  LLI r10, 0    // load immediate 0
+  ADD r1, r10, r0
   POP r14
   RET
 
@@ -307,72 +308,71 @@ draw_line_8_WHILE17:
 draw_line_8_CMP_TRUE21:
   LLI r12, 1
 draw_line_8_CMP_END22:
-  PUSH r2    // spill live temp for reg pressure
-  BEQ r2, r4, draw_line_8_CMP_TRUE23
+  PUSH r3    // borrow scratch reg for spill label addr
+  LLI r3, draw_line_8_spill23    // spill slot addr
+  SW r2, r3, 0    // spill live variable(s) for reg pressure
+  POP r3    // restore scratch reg for spill label addr
+  BEQ r2, r4, draw_line_8_CMP_TRUE24
   LLI r2, 0    // compare false path
-  JMP draw_line_8_CMP_END24
-draw_line_8_CMP_TRUE23:
+  JMP draw_line_8_CMP_END25
+draw_line_8_CMP_TRUE24:
   LLI r2, 1
-draw_line_8_CMP_END24:
+draw_line_8_CMP_END25:
   AND r12, r12, r2    // logic && fold
-  BNE r12, r0, draw_line_8_CMP_TRUE25
+  BNE r12, r0, draw_line_8_CMP_TRUE26
   LLI r12, 0    // compare false path
-  JMP draw_line_8_CMP_END26
-draw_line_8_CMP_TRUE25:
+  JMP draw_line_8_CMP_END27
+draw_line_8_CMP_TRUE26:
   LLI r12, 1
-draw_line_8_CMP_END26:
-  POP r2    // restore spilled temp
+draw_line_8_CMP_END27:
   BEQ r12, r0, draw_line_8_ELSE19
-  LLI r12, 0    // load immediate 0
-  ADDI r7, r12, 0    // assign exit_condition
+  LLI r2, 0    // load immediate 0
+  ADDI r7, r2, 0    // assign exit_condition
   JMP draw_line_8_IF_END20
 draw_line_8_ELSE19:
 draw_line_8_IF_END20:
   ADD r12, r6, r6    // binop +
-  PUSH r2    // spill live temp for reg pressure
-  BGE r12, r11, draw_line_8_CMP_TRUE29
+  BGE r12, r11, draw_line_8_CMP_TRUE30
   LLI r2, 0    // compare false path
-  JMP draw_line_8_CMP_END30
-draw_line_8_CMP_TRUE29:
+  JMP draw_line_8_CMP_END31
+draw_line_8_CMP_TRUE30:
   LLI r2, 1
-draw_line_8_CMP_END30:
-  BEQ r2, r0, draw_line_8_ELSE27
-  POP r2    // restore spilled temp
-  PUSH r2    // spill live temp for reg pressure
+draw_line_8_CMP_END31:
+  BEQ r2, r0, draw_line_8_ELSE28
   ADD r2, r6, r11    // binop +
   ADDI r6, r2, 0    // assign err
-  POP r2    // restore spilled temp
-  PUSH r2    // spill live temp for reg pressure
   ADD r2, r1, r8    // binop +
   ADDI r1, r2, 0    // assign x1
-  POP r2    // restore spilled temp
-  JMP draw_line_8_IF_END28
-draw_line_8_ELSE27:
-draw_line_8_IF_END28:
-  PUSH r2    // spill live temp for reg pressure
-  BGE r5, r12, draw_line_8_CMP_TRUE33
+  JMP draw_line_8_IF_END29
+draw_line_8_ELSE28:
+draw_line_8_IF_END29:
+  BGE r5, r12, draw_line_8_CMP_TRUE34
   LLI r2, 0    // compare false path
-  JMP draw_line_8_CMP_END34
-draw_line_8_CMP_TRUE33:
+  JMP draw_line_8_CMP_END35
+draw_line_8_CMP_TRUE34:
   LLI r2, 1
-draw_line_8_CMP_END34:
-  BEQ r2, r0, draw_line_8_ELSE31
-  POP r2    // restore spilled temp
-  PUSH r2    // spill live temp for reg pressure
+draw_line_8_CMP_END35:
+  BEQ r2, r0, draw_line_8_ELSE32
   ADD r2, r6, r5    // binop +
   ADDI r6, r2, 0    // assign err
-  POP r2    // restore spilled temp
-  PUSH r3    // spill live temp for reg pressure
-  ADD r3, r2, r9    // binop +
-  ADDI r2, r3, 0    // assign y1
-  POP r3    // restore spilled temp
-  JMP draw_line_8_IF_END32
-draw_line_8_ELSE31:
-draw_line_8_IF_END32:
+  LLI r2, draw_line_8_spill23    // spill slot addr
+  LW r2, r2, 0    // restore spilled var y1
+  PUSH r3    // borrow scratch reg for spill label addr
+  LLI r3, draw_line_8_spill36    // spill slot addr
+  SW r2, r3, 0    // spill live variable(s) for reg pressure
+  POP r3    // restore scratch reg for spill label addr
+  ADD r2, r2, r9    // binop +
+  PUSH r3    // borrow scratch reg for spill label addr
+  LLI r3, draw_line_8_spill36    // spill slot addr
+  SW r2, r3, 0    // assign spilled y1
+  POP r3    // restore scratch reg for spill label addr
+  JMP draw_line_8_IF_END33
+draw_line_8_ELSE32:
+draw_line_8_IF_END33:
   JMP draw_line_8_WHILE17
 draw_line_8_WHILE_END18:
-  LLI r12, 0    // load immediate 0
-  ADD r1, r12, r0
+  LLI r2, 0    // load immediate 0
+  ADD r1, r2, r0
   POP r14
   RET
 
@@ -410,60 +410,58 @@ draw_rectangle_9_CMP_END8:
 draw_rectangle_9_CMP_TRUE11:
   LLI r10, 1
 draw_rectangle_9_CMP_END12:
-  PUSH r2    // spill live temp for reg pressure
+  PUSH r3    // borrow scratch reg for spill label addr
+  LLI r3, draw_rectangle_9_spill13    // spill slot addr
+  SW r2, r3, 0    // spill live variable(s) for reg pressure
+  POP r3    // restore scratch reg for spill label addr
   LLI r2, 1    // load immediate 1
   SUB r2, r4, r2    // binop -
-  BEQ r7, r2, draw_rectangle_9_CMP_TRUE13
+  BEQ r7, r2, draw_rectangle_9_CMP_TRUE14
   LLI r2, 0    // compare false path
-  JMP draw_rectangle_9_CMP_END14
-draw_rectangle_9_CMP_TRUE13:
+  JMP draw_rectangle_9_CMP_END15
+draw_rectangle_9_CMP_TRUE14:
   LLI r2, 1
-draw_rectangle_9_CMP_END14:
+draw_rectangle_9_CMP_END15:
   OR r10, r10, r2    // logic || fold
-  BNE r10, r0, draw_rectangle_9_CMP_TRUE15
+  BNE r10, r0, draw_rectangle_9_CMP_TRUE16
   LLI r10, 0    // compare false path
-  JMP draw_rectangle_9_CMP_END16
-draw_rectangle_9_CMP_TRUE15:
+  JMP draw_rectangle_9_CMP_END17
+draw_rectangle_9_CMP_TRUE16:
   LLI r10, 1
-draw_rectangle_9_CMP_END16:
-  POP r2    // restore spilled temp
-  PUSH r2    // spill live temp for reg pressure
+draw_rectangle_9_CMP_END17:
   LLI r2, 0    // load immediate 0
-  BEQ r9, r2, draw_rectangle_9_CMP_TRUE17
+  BEQ r9, r2, draw_rectangle_9_CMP_TRUE18
   LLI r2, 0    // compare false path
-  JMP draw_rectangle_9_CMP_END18
-draw_rectangle_9_CMP_TRUE17:
+  JMP draw_rectangle_9_CMP_END19
+draw_rectangle_9_CMP_TRUE18:
   LLI r2, 1
-draw_rectangle_9_CMP_END18:
+draw_rectangle_9_CMP_END19:
   OR r10, r10, r2    // logic || fold
-  BNE r10, r0, draw_rectangle_9_CMP_TRUE19
+  BNE r10, r0, draw_rectangle_9_CMP_TRUE20
   LLI r10, 0    // compare false path
-  JMP draw_rectangle_9_CMP_END20
-draw_rectangle_9_CMP_TRUE19:
+  JMP draw_rectangle_9_CMP_END21
+draw_rectangle_9_CMP_TRUE20:
   LLI r10, 1
-draw_rectangle_9_CMP_END20:
-  POP r2    // restore spilled temp
-  PUSH r2    // spill live temp for reg pressure
+draw_rectangle_9_CMP_END21:
   LLI r2, 1    // load immediate 1
   SUB r2, r3, r2    // binop -
-  BEQ r9, r2, draw_rectangle_9_CMP_TRUE21
+  BEQ r9, r2, draw_rectangle_9_CMP_TRUE22
   LLI r2, 0    // compare false path
-  JMP draw_rectangle_9_CMP_END22
-draw_rectangle_9_CMP_TRUE21:
+  JMP draw_rectangle_9_CMP_END23
+draw_rectangle_9_CMP_TRUE22:
   LLI r2, 1
-draw_rectangle_9_CMP_END22:
+draw_rectangle_9_CMP_END23:
   OR r10, r10, r2    // logic || fold
-  BNE r10, r0, draw_rectangle_9_CMP_TRUE23
+  BNE r10, r0, draw_rectangle_9_CMP_TRUE24
   LLI r10, 0    // compare false path
-  JMP draw_rectangle_9_CMP_END24
-draw_rectangle_9_CMP_TRUE23:
+  JMP draw_rectangle_9_CMP_END25
+draw_rectangle_9_CMP_TRUE24:
   LLI r10, 1
-draw_rectangle_9_CMP_END24:
-  POP r2    // restore spilled temp
+draw_rectangle_9_CMP_END25:
   BEQ r10, r0, draw_rectangle_9_ELSE9
-  LLI r10, 536870912    // load immediate 536870912
-  ADD r10, r10, r8    // binop +
-  SB r5, r10, 0    // intrinsic __sb
+  LLI r2, 536870912    // load immediate 536870912
+  ADD r2, r2, r8    // binop +
+  SB r5, r2, 0    // intrinsic __sb
   JMP draw_rectangle_9_IF_END10
 draw_rectangle_9_ELSE9:
   LLI r10, 536870912    // load immediate 536870912
@@ -476,8 +474,8 @@ draw_rectangle_9_WHILE_END6:
   ADDI r7, r7, 1    // assign row (addi fast path)
   JMP draw_rectangle_9_WHILE1
 draw_rectangle_9_WHILE_END2:
-  LLI r10, 0    // load immediate 0
-  ADD r1, r10, r0
+  LLI r2, 0    // load immediate 0
+  ADD r1, r2, r0
   POP r14
   RET
 
@@ -597,11 +595,13 @@ palette_test_11_CMP_END12:
   LLI r12, 256    // load immediate 256
   MUL r12, r10, r12    // binop *
   ADD r12, r12, r5    // binop +
-  PUSH r2    // spill live temp for reg pressure
+  PUSH r3    // borrow scratch reg for spill label addr
+  LLI r3, palette_test_11_spill13    // spill slot addr
+  SW r2, r3, 0    // spill live variable(s) for reg pressure
+  POP r3    // restore scratch reg for spill label addr
   LLI r2, 536870912    // load immediate 536870912
   ADD r2, r2, r12    // binop +
   SB r6, r2, 0    // intrinsic __sb
-  POP r2    // restore spilled temp
   ADDI r11, r11, 1    // assign k (addi fast path)
   JMP palette_test_11_WHILE9
 palette_test_11_WHILE_END10:
@@ -1758,6 +1758,16 @@ read_file_20_IF_END23:
   CALL draw_string_to_display
   // call return value in r1
   POP r1  
+  // emit call to palette_test with args []
+  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
+  CALL palette_test
+  // call return value in r1
+  POP r1  
+  // emit call to lfsr_test with args []
+  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
+  CALL lfsr_test
+  // call return value in r1
+  POP r1  
   BREAK
 
 // Globals
@@ -2037,6 +2047,18 @@ str_4:
 
 str_5:
   .STR "Yellow"
+
+draw_line_8_spill23:
+  .SPACE 4 // lifted buffer
+
+draw_line_8_spill36:
+  .SPACE 4 // lifted buffer
+
+draw_rectangle_9_spill13:
+  .SPACE 4 // lifted buffer
+
+palette_test_11_spill13:
+  .SPACE 4 // lifted buffer
 
 initialize_filesystem_17_superblock_buf1:
   .SPACE 512 // lifted buffer

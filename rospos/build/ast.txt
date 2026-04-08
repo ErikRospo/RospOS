@@ -397,42 +397,27 @@ translation_unit
                           rshift
                           col
                         1
-                if_stmt
-                  bit
-                  compound_stmt
-                    declaration
-                      type_specifier
-                        int
-                      init_declarator_list
-                        init_declarator
-                          declarator	px
-                          additive
-                            x
-                            plus
-                            col
-                    declaration
-                      type_specifier
-                        int
-                      init_declarator_list
-                        init_declarator
-                          declarator	py
+                declaration
+                  type_specifier
+                    int
+                  init_declarator_list
+                    init_declarator
+                      declarator	index
+                      additive
+                        multiplicative
                           additive
                             y
                             plus
                             row
-                    declaration
-                      type_specifier
-                        int
-                      init_declarator_list
-                        init_declarator
-                          declarator	index
-                          additive
-                            multiplicative
-                              py
-                              mult
-                              256
-                            plus
-                            px
+                          mult
+                          256
+                        plus
+                        x
+                        plus
+                        col
+                if_stmt
+                  bit
+                  compound_stmt
                     expr_stmt
                       postfix
                         __sb
@@ -443,6 +428,17 @@ translation_unit
                               plus
                               index
                             color
+                  compound_stmt
+                    expr_stmt
+                      postfix
+                        __sb
+                        call_suffix
+                          arg_list
+                            additive
+                              0x20000000
+                              plus
+                              index
+                            0x00
                 expr_stmt
                   assignment
                     col
@@ -2504,3 +2500,11 @@ translation_unit
                 10
                 48
                 0x3C
+        expr_stmt
+          postfix
+            palette_test
+            call_suffix
+        expr_stmt
+          postfix
+            lfsr_test
+            call_suffix

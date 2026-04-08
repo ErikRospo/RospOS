@@ -779,74 +779,54 @@
                   "decl_type": "int"
                 },
                 {
+                  "type": "decl",
+                  "name": "index",
+                  "init": {
+                    "type": "binop",
+                    "op": "plus",
+                    "left": {
+                      "type": "binop",
+                      "op": "plus",
+                      "left": {
+                        "type": "binop",
+                        "op": "mult",
+                        "left": {
+                          "type": "binop",
+                          "op": "plus",
+                          "left": {
+                            "type": "var",
+                            "name": "y"
+                          },
+                          "right": {
+                            "type": "var",
+                            "name": "row"
+                          }
+                        },
+                        "right": {
+                          "type": "const",
+                          "value": 256
+                        }
+                      },
+                      "right": {
+                        "type": "var",
+                        "name": "x"
+                      }
+                    },
+                    "right": {
+                      "type": "var",
+                      "name": "col"
+                    }
+                  },
+                  "_line": 83,
+                  "decl_type": "int"
+                },
+                {
                   "type": "if",
                   "cond": {
                     "type": "var",
                     "name": "bit"
                   },
                   "then": [
-                    {
-                      "type": "decl",
-                      "name": "px",
-                      "init": {
-                        "type": "binop",
-                        "op": "plus",
-                        "left": {
-                          "type": "var",
-                          "name": "x"
-                        },
-                        "right": {
-                          "type": "var",
-                          "name": "col"
-                        }
-                      },
-                      "_line": 85,
-                      "decl_type": "int"
-                    },
-                    {
-                      "type": "decl",
-                      "name": "py",
-                      "init": {
-                        "type": "binop",
-                        "op": "plus",
-                        "left": {
-                          "type": "var",
-                          "name": "y"
-                        },
-                        "right": {
-                          "type": "var",
-                          "name": "row"
-                        }
-                      },
-                      "_line": 86,
-                      "decl_type": "int"
-                    },
-                    {
-                      "type": "decl",
-                      "name": "index",
-                      "init": {
-                        "type": "binop",
-                        "op": "plus",
-                        "left": {
-                          "type": "binop",
-                          "op": "mult",
-                          "left": {
-                            "type": "var",
-                            "name": "py"
-                          },
-                          "right": {
-                            "type": "const",
-                            "value": 256
-                          }
-                        },
-                        "right": {
-                          "type": "var",
-                          "name": "px"
-                        }
-                      },
-                      "_line": 87,
-                      "decl_type": "int"
-                    },
                     {
                       "type": "call_stmt",
                       "name": "__sb",
@@ -868,11 +848,35 @@
                           "name": "color"
                         }
                       ],
+                      "_line": 86
+                    }
+                  ],
+                  "else": [
+                    {
+                      "type": "call_stmt",
+                      "name": "__sb",
+                      "args": [
+                        {
+                          "type": "binop",
+                          "op": "plus",
+                          "left": {
+                            "type": "const",
+                            "value": 536870912
+                          },
+                          "right": {
+                            "type": "var",
+                            "name": "index"
+                          }
+                        },
+                        {
+                          "type": "const",
+                          "value": 0
+                        }
+                      ],
                       "_line": 88
                     }
                   ],
-                  "else": [],
-                  "_line": 83
+                  "_line": 84
                 },
                 {
                   "type": "assign",
@@ -5832,6 +5836,18 @@
             }
           ],
           "_line": 475
+        },
+        {
+          "type": "call_stmt",
+          "name": "palette_test",
+          "args": [],
+          "_line": 476
+        },
+        {
+          "type": "call_stmt",
+          "name": "lfsr_test",
+          "args": [],
+          "_line": 477
         }
       ],
       "return_type": "void",
