@@ -78,8 +78,9 @@ class Emitter:
         self._spill_stack = []
         # Pinned regs are protected from spill while their current value is needed.
         self._pinned_regs = {}
-        # Per-function look-ahead: variable -> remaining read count.
-        self._remaining_var_reads = {}
+        # CFG-aware statement liveness: live-after sets plus per-statement read counts.
+        self._stmt_live_after = {}
+        self._statement_stack = []
         # Control-flow aware liveness guards.
         self._control_flow_depth = 0
         self._protected_var_depth = {}
@@ -538,6 +539,176 @@ class Emitter:
             for arg in stmt.get("args", []) or []:
                 self._count_expr_var_reads(arg, counts)
 
+    def _count_stmt_self_var_reads(
+        self, stmt: Optional[Dict[str, Any]], counts: Dict[str, int]
+    ):
+        if not isinstance(stmt, dict):
+            return
+
+        st = stmt.get("type")
+        if st == "decl":
+            self._count_expr_var_reads(stmt.get("init"), counts)
+            return
+
+        if st == "assign":
+            target = stmt.get("target")
+            if isinstance(target, dict):
+                target_type = target.get("type")
+                if target_type == "deref":
+                    self._count_expr_var_reads(target.get("expr"), counts)
+                elif target_type == "member_access":
+                    self._count_expr_var_reads(target.get("base"), counts)
+            self._count_expr_var_reads(stmt.get("value"), counts)
+            return
+
+        if st == "return":
+            self._count_expr_var_reads(stmt.get("value"), counts)
+            return
+
+        if st == "call_stmt":
+            for arg in stmt.get("args", []) or []:
+                self._count_expr_var_reads(arg, counts)
+            return
+
+        if st in ("if", "while"):
+            self._count_expr_var_reads(stmt.get("cond"), counts)
+
+    def _count_stmt_self_var_reads_set(self, stmt: Optional[Dict[str, Any]]) -> Dict[str, int]:
+        counts: Dict[str, int] = {}
+        self._count_stmt_self_var_reads(stmt, counts)
+        return counts
+
+    def _collect_expr_vars(self, expr: Optional[Dict[str, Any]], names: set[str]):
+        if not isinstance(expr, dict):
+            return
+
+        et = expr.get("type")
+        if et == "var":
+            name = expr.get("name")
+            if isinstance(name, str):
+                names.add(name)
+            return
+
+        if et == "binop":
+            self._collect_expr_vars(expr.get("left"), names)
+            self._collect_expr_vars(expr.get("right"), names)
+            return
+
+        if et == "unop":
+            self._collect_expr_vars(expr.get("operand"), names)
+            return
+
+        if et in ("deref", "addr_of"):
+            self._collect_expr_vars(expr.get("expr"), names)
+            return
+
+        if et == "member_access":
+            self._collect_expr_vars(expr.get("base"), names)
+            return
+
+        if et == "call":
+            for arg in expr.get("args", []) or []:
+                self._collect_expr_vars(arg, names)
+            return
+
+        if et == "assign":
+            target = expr.get("target")
+            if isinstance(target, dict):
+                target_type = target.get("type")
+                if target_type == "deref":
+                    self._collect_expr_vars(target.get("expr"), names)
+                elif target_type == "member_access":
+                    self._collect_expr_vars(target.get("base"), names)
+            self._collect_expr_vars(expr.get("value"), names)
+
+    def _collect_stmt_defs(self, stmt: Optional[Dict[str, Any]]) -> set[str]:
+        names: set[str] = set()
+        if not isinstance(stmt, dict):
+            return names
+
+        st = stmt.get("type")
+        if st == "decl":
+            name = stmt.get("name")
+            if isinstance(name, str):
+                names.add(name)
+            return names
+
+        if st == "assign":
+            target = stmt.get("target")
+            if isinstance(target, dict) and target.get("type") == "var":
+                name = target.get("name")
+                if isinstance(name, str):
+                    names.add(name)
+            elif isinstance(target, str):
+                names.add(target)
+        return names
+
+    def _analyze_stmt_liveness(
+        self, stmt: Optional[Dict[str, Any]], live_out: set[str]
+    ) -> set[str]:
+        if not isinstance(stmt, dict):
+            return set(live_out)
+
+        stmt_id = id(stmt)
+        live_out_set = set(live_out)
+        self._stmt_live_after[stmt_id] = live_out_set
+        st = stmt.get("type")
+
+        if st == "if":
+            cond_names: set[str] = set()
+            self._collect_expr_vars(stmt.get("cond"), cond_names)
+            then_live_in = self._analyze_stmt_list_liveness(
+                stmt.get("then", []) or [], live_out_set
+            )
+            else_live_in = self._analyze_stmt_list_liveness(
+                stmt.get("else", []) or [], live_out_set
+            )
+            return cond_names | then_live_in | else_live_in
+
+        if st == "while":
+            cond_names: set[str] = set()
+            self._collect_expr_vars(stmt.get("cond"), cond_names)
+            loop_live = set(live_out_set) | cond_names
+            while True:
+                body_live_in = self._analyze_stmt_list_liveness(
+                    stmt.get("body", []) or [], loop_live
+                )
+                new_loop_live = cond_names | body_live_in | live_out_set
+                if new_loop_live == loop_live:
+                    break
+                loop_live = new_loop_live
+            self._analyze_stmt_list_liveness(stmt.get("body", []) or [], loop_live)
+            return loop_live
+
+        uses: set[str] = set()
+        if st == "decl":
+            self._collect_expr_vars(stmt.get("init"), uses)
+        elif st == "assign":
+            target = stmt.get("target")
+            if isinstance(target, dict):
+                target_type = target.get("type")
+                if target_type == "deref":
+                    self._collect_expr_vars(target.get("expr"), uses)
+                elif target_type == "member_access":
+                    self._collect_expr_vars(target.get("base"), uses)
+            self._collect_expr_vars(stmt.get("value"), uses)
+        elif st == "return":
+            self._collect_expr_vars(stmt.get("value"), uses)
+        elif st == "call_stmt":
+            for arg in stmt.get("args", []) or []:
+                self._collect_expr_vars(arg, uses)
+
+        defs = self._collect_stmt_defs(stmt)
+        return uses | (live_out_set - defs)
+
+    def _analyze_stmt_list_liveness(
+        self, stmts: list[Dict[str, Any]], live_out: set[str]
+    ) -> set[str]:
+        current = set(live_out)
+        for stmt in reversed(stmts):
+            current = self._analyze_stmt_liveness(stmt, current)
+        return current
+
     def get_expr_read_vars(self, expr: Optional[Dict[str, Any]]) -> set[str]:
         counts: Dict[str, int] = {}
         self._count_expr_var_reads(expr, counts)
@@ -564,18 +735,41 @@ class Emitter:
             self._control_flow_depth -= 1
 
     def prepare_function_liveness(self, fn: Dict[str, Any]):
-        counts: Dict[str, int] = {}
-        for stmt in fn.get("body", []) or []:
-            self._count_stmt_var_reads(stmt, counts)
-        self._remaining_var_reads = counts
+        self._stmt_live_after = {}
+        self._statement_stack = []
+        self._analyze_stmt_list_liveness(fn.get("body", []) or [], set())
 
-    def _try_release_reg_aliases_if_dead(self, reg: str):
+    def _push_statement_frame(self, stmt: Dict[str, Any]):
+        stmt_id = id(stmt)
+        self._statement_stack.append(
+            {
+                "stmt_id": stmt_id,
+                "live_after": set(self._stmt_live_after.get(stmt_id, set())),
+                "remaining_reads": self._count_stmt_self_var_reads_set(stmt),
+            }
+        )
+
+    def _pop_statement_frame(self):
+        if self._statement_stack:
+            self._statement_stack.pop()
+
+    def _current_statement_frame(self):
+        if not self._statement_stack:
+            return None
+        return self._statement_stack[-1]
+
+    def _try_release_reg_aliases_if_dead(self, reg: str, live_after: Optional[set[str]] = None):
         if self._pinned_regs.get(reg, 0) > 0:
             return
         if self._spill_depth.get(reg, 0) > 0:
             return
         if self._borrowed_temp_depth.get(reg, 0) > 0:
             return
+
+        frame = self._current_statement_frame()
+        if live_after is None and frame is not None:
+            live_after = frame.get("live_after", set())
+        live_after = live_after or set()
 
         aliases = [
             name for name, mapped_reg in self.var_regs.items() if mapped_reg == reg
@@ -584,9 +778,11 @@ class Emitter:
             return
 
         for name in aliases:
-            if self._remaining_var_reads.get(name, 0) > 0:
+            if frame is not None and frame.get("remaining_reads", {}).get(name, 0) > 0:
                 return
             if self._protected_var_depth.get(name, 0) > 0:
+                return
+            if name in live_after:
                 return
 
         for name in aliases:
@@ -594,18 +790,29 @@ class Emitter:
         self.free_reg(reg)
 
     def reclaim_dead_var_regs(self):
+        frame = self._current_statement_frame()
+        if frame is None:
+            return
+
+        live_after: set[str] = set(frame.get("live_after", set()))
         for reg in list(dict.fromkeys(self.var_regs.values())):
-            self._try_release_reg_aliases_if_dead(reg)
+            self._try_release_reg_aliases_if_dead(reg, live_after=live_after)
 
     def consume_var_read(self, name: Optional[str]):
         if not isinstance(name, str):
             return
-        if name not in self._remaining_var_reads:
+        frame = self._current_statement_frame()
+        if frame is None:
             return
-        remaining = self._remaining_var_reads.get(name, 0)
+        remaining_reads = frame.get("remaining_reads", {})
+        if name not in remaining_reads:
+            return
+        remaining = remaining_reads.get(name, 0)
         if remaining > 0:
-            self._remaining_var_reads[name] = remaining - 1
+            remaining_reads[name] = remaining - 1
         if self._protected_var_depth.get(name, 0) > 0:
+            return
+        if name in frame.get("live_after", set()):
             return
         reg = self.var_regs.get(name)
         if reg:
@@ -834,6 +1041,8 @@ class Emitter:
         self._spilled_var_aliases = {}
         self._spill_stack = []
         self._pinned_regs = {}
+        self._stmt_live_after = {}
+        self._statement_stack = []
         self._control_flow_depth = 0
         self._protected_var_depth = {}
         self._var_scope_stack = []
@@ -920,8 +1129,12 @@ class Emitter:
             out.write("\n")
 
     def emit_statement(self, stmt: Dict[str, Any], out):
-        emit_statement_impl(self, stmt, out)
-        self.reclaim_dead_var_regs()
+        self._push_statement_frame(stmt)
+        try:
+            emit_statement_impl(self, stmt, out)
+            self.reclaim_dead_var_regs()
+        finally:
+            self._pop_statement_frame()
 
     def emit_expr(self, expr: Optional[Dict[str, Any]], out) -> str:
         return emit_expression(self, expr, out)

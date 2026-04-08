@@ -75,3 +75,7 @@ How do we optimize the compiler itself? The current implementation barely works,
   - Incremental compilation (only recompile files that have changed since the last compilation)
   - Caching intermediate results (e.g. the AST or the generated code for a function) so that if the same function is compiled again with the same source code, we can reuse the cached result instead of recompiling it from scratch.
   - This would require changing how includes are handled, as we would need to track dependencies between files and invalidate the cache when a file changes. But it could significantly speed up compilation for larger projects where only a few files are changed at a time.
+
+
+## Other ideas:
+- Some kind of floating point support. Hell, maybe even just fixed point support. If we do go with floating point, it'd obviously be a software IEEE 754 implementation, but it could still be useful for certain applications. Fixed point would be simpler and faster, but less flexible. Either way, it would be a nice addition to the instruction set and could open up new possibilities for applications that require more complex numerical computations, like the calculator. 

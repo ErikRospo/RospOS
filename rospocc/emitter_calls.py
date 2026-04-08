@@ -126,81 +126,90 @@ def _emit_inline_call(emitter, func_name: str, args, return_reg: Optional[str], 
     # Save the current variable state
     saved_var_regs = dict(emitter.var_regs)
     saved_var_types = dict(emitter.var_types)
+    saved_stmt_live_after = dict(getattr(emitter, "_stmt_live_after", {}))
+    saved_statement_stack = list(getattr(emitter, "_statement_stack", []))
+    saved_control_flow_depth = getattr(emitter, "_control_flow_depth", 0)
+    saved_protected_var_depth = dict(getattr(emitter, "_protected_var_depth", {}))
 
     # Create a scope for inline variables
     emitter.enter_var_scope()
+    emitter.prepare_function_liveness(inline_fn)
+    try:
+        # Map parameters to their argument values
+        params = inline_fn.get("params", []) or []
+        param_types = inline_fn.get("param_types", {}) or {}
 
-    # Map parameters to their argument values
-    params = inline_fn.get("params", []) or []
-    param_types = inline_fn.get("param_types", {}) or {}
+        out.write(f"  // begin inline expansion of {func_name}\n")
 
-    out.write(f"  // begin inline expansion of {func_name}\n")
+        # Handle parameter argument mapping
+        for i, param_name in enumerate(params):
+            if i < len(args):
+                arg = args[i]
+                arg_type = arg.get("type")
 
-    # Handle parameter argument mapping
-    for i, param_name in enumerate(params):
-        if i < len(args):
-            arg = args[i]
-            arg_type = arg.get("type")
-
-            # Allocate a register for this parameter
-            if arg_type == "const":
-                param_reg = emitter.alloc_reg()
-                emitter._load_imm(param_reg, int(arg.get("value")), out)
-                emitter.var_regs[param_name] = param_reg
-            elif arg_type == "string_addr":
-                param_reg = emitter.alloc_reg()
-                emitter._load_imm(param_reg, arg.get("label"), out)
-                emitter.var_regs[param_name] = param_reg
-            elif arg_type == "var":
-                var_name = arg.get("name")
-                if var_name in emitter.var_regs:
-                    # Reuse the existing register for this variable
-                    emitter.var_regs[param_name] = emitter.var_regs[var_name]
-                else:
+                # Allocate a register for this parameter
+                if arg_type == "const":
                     param_reg = emitter.alloc_reg()
-                    emitter._load_imm(param_reg, 0, out)
+                    emitter._load_imm(param_reg, int(arg.get("value")), out)
                     emitter.var_regs[param_name] = param_reg
-            else:
-                # For complex expressions, evaluate and load into register
-                param_reg = emitter.emit_expr(arg, out)
-                if not param_reg:
+                elif arg_type == "string_addr":
                     param_reg = emitter.alloc_reg()
-                    emitter._load_imm(param_reg, 0, out)
-                emitter.var_regs[param_name] = param_reg
+                    emitter._load_imm(param_reg, arg.get("label"), out)
+                    emitter.var_regs[param_name] = param_reg
+                elif arg_type == "var":
+                    var_name = arg.get("name")
+                    if var_name in emitter.var_regs:
+                        # Reuse the existing register for this variable
+                        emitter.var_regs[param_name] = emitter.var_regs[var_name]
+                    else:
+                        param_reg = emitter.alloc_reg()
+                        emitter._load_imm(param_reg, 0, out)
+                        emitter.var_regs[param_name] = param_reg
+                else:
+                    # For complex expressions, evaluate and load into register
+                    param_reg = emitter.emit_expr(arg, out)
+                    if not param_reg:
+                        param_reg = emitter.alloc_reg()
+                        emitter._load_imm(param_reg, 0, out)
+                    emitter.var_regs[param_name] = param_reg
 
-            # Set parameter type hints
-            if param_name in param_types:
-                emitter.var_types[param_name] = param_types[param_name]
-            else:
-                emitter.var_types[param_name] = "int"
+                # Set parameter type hints
+                if param_name in param_types:
+                    emitter.var_types[param_name] = param_types[param_name]
+                else:
+                    emitter.var_types[param_name] = "int"
 
-    # Track the return value in a local variable
-    return_value_reg = return_reg if return_reg else abi.RETURN_REG
-    emitter.had_return = False
-    emitter._in_inline_context = True
+        # Track the return value in a local variable
+        return_value_reg = return_reg if return_reg else abi.RETURN_REG
+        emitter.had_return = False
+        emitter._in_inline_context = True
 
-    # Emit the function body
-    for stmt in inline_fn.get("body", []):
-        emitter.emit_statement(stmt, out)
+        # Emit the function body
+        for stmt in inline_fn.get("body", []):
+            emitter.emit_statement(stmt, out)
 
-    # Restore return state
-    if not emitter.had_return and not (inline_fn.get("return_type") == "void"):
-        # No explicit return, ensure return register has a value
-        if return_value_reg != abi.RETURN_REG:
+        # Restore return state
+        if not emitter.had_return and not (inline_fn.get("return_type") == "void"):
+            # No explicit return, ensure return register has a value
+            if return_value_reg != abi.RETURN_REG:
+                out.write(
+                    f"  ADDI {return_value_reg}, {abi.RETURN_REG}, 0    // implicit return\n"
+                )
+        elif return_value_reg != abi.RETURN_REG and emitter.had_return:
+            # Move return value to target register if needed
             out.write(
-                f"  ADDI {return_value_reg}, {abi.RETURN_REG}, 0    // implicit return\n"
+                f"  ADDI {return_value_reg}, {abi.RETURN_REG}, 0    // move inline return value\n"
             )
-    elif return_value_reg != abi.RETURN_REG and emitter.had_return:
-        # Move return value to target register if needed
-        out.write(
-            f"  ADDI {return_value_reg}, {abi.RETURN_REG}, 0    // move inline return value\n"
-        )
 
-    emitter.had_return = True  # Sure, outer context, we definitely had a return.
-
-    # Exit scope and restore variable state
-    emitter.exit_var_scope()
-    emitter.var_regs = saved_var_regs
-    emitter.var_types = saved_var_types
-    emitter._in_inline_context = False
-    out.write(f"  // end inline expansion of {func_name}\n")
+        emitter.had_return = True  # Sure, outer context, we definitely had a return.
+        out.write(f"  // end inline expansion of {func_name}\n")
+    finally:
+        # Exit scope and restore variable/state analysis context.
+        emitter.exit_var_scope()
+        emitter.var_regs = saved_var_regs
+        emitter.var_types = saved_var_types
+        emitter._stmt_live_after = saved_stmt_live_after
+        emitter._statement_stack = saved_statement_stack
+        emitter._control_flow_depth = saved_control_flow_depth
+        emitter._protected_var_depth = saved_protected_var_depth
+        emitter._in_inline_context = False
