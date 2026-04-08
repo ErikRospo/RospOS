@@ -1758,8 +1758,17 @@ read_file_20_IF_END23:
   CALL draw_string_to_display
   // call return value in r1
   POP r1  
-  // emit call to palette_test with args []
+  // emit call to palette_test with args [{'type': 'const', 'value': 0}, {'type': 'const', 'value': 0}, {'type': 'const', 'value': 16}]
   PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
+  LLI r11, 0    // load immediate 0
+  PUSH r11    // stage reg arg 0
+  LLI r12, 0    // load immediate 0
+  PUSH r12    // stage reg arg 1
+  LLI r10, 16    // load immediate 16
+  PUSH r10    // stage reg arg 2
+  POP r3    // load reg arg 2
+  POP r2    // load reg arg 1
+  POP r1    // load reg arg 0
   CALL palette_test
   // call return value in r1
   POP r1  

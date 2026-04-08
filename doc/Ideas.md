@@ -46,6 +46,26 @@ WHILE_END2:
   RET
 ```
 
+
+```
+  LLI r11, 0
+  PUSH r11
+  LLI r12, 0
+  PUSH r12
+  LLI r10, 16
+  ADDI r3, r10, 0
+  POP r2
+  POP r1
+  JMP palette_test
+```
+This is after the optimizer, but this still feels very redundant. This can just be optimized to 3 straight LLIs then a call.
+```
+  LLI r1, 0
+  LLI r2, 0
+  LLI r3, 16
+  CALL palette_test
+```
+
 ### Other optimizations
 
 - Remove redundant loads/stores (e.g. if a value is already in a register, don't load it again from memory)
