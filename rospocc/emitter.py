@@ -78,6 +78,9 @@ class Emitter:
         self._spill_stack = []
         # Pinned regs are protected from spill while their current value is needed.
         self._pinned_regs = {}
+        # Spill slots for live variables preserved across temporary pressure.
+        self._var_spill_labels = {}
+        self._spill_label_aliases = {}
         # CFG-aware statement liveness: live-after sets plus per-statement read counts.
         self._stmt_live_after = {}
         self._statement_stack = []
@@ -183,55 +186,51 @@ class Emitter:
 
         if not self.reg_free:
             reg = None
-            if track_as_temp:
-                for candidate in abi.TEMP_REGS:
-                    if self._pinned_regs.get(candidate, 0) > 0:
-                        continue
-                    if self._spill_depth.get(candidate, 0) > 0:
-                        continue
-                    if self._borrowed_temp_depth.get(candidate, 0) > 0:
-                        continue
-                    reg = candidate
-                    break
+            for candidate in abi.TEMP_REGS:
+                if self._pinned_regs.get(candidate, 0) > 0:
+                    continue
+                if self._spill_depth.get(candidate, 0) > 0:
+                    continue
+                if self._borrowed_temp_depth.get(candidate, 0) > 0:
+                    continue
+                reg = candidate
+                break
 
-            print(
-                f"Register pressure: no free registers, spilling {reg} for temp allocation"
-            )
-            if reg is not None and self.tracked_writer is not None and track_as_temp:
-                self.tracked_writer.write(
-                    f"  PUSH {reg}    // spill live temp for reg pressure\n"
-                )
-                aliases = [
-                    name
-                    for name, mapped_reg in self.var_regs.items()
-                    if mapped_reg == reg
-                ]
-                if aliases:
-                    self._spilled_var_aliases.setdefault(reg, []).append(list(aliases))
-                    for name in aliases:
-                        del self.var_regs[name]
-                else:
-                    self._spilled_var_aliases.setdefault(reg, []).append([])
-                self._spill_stack.append(
-                    {
-                        "reg": reg,
-                        "aliases": list(aliases),
-                        "restored_early": False,
-                    }
-                )
-                self._spill_depth[reg] = self._spill_depth.get(reg, 0) + 1
-                self._borrowed_temp_depth[reg] = (
-                    self._borrowed_temp_depth.get(reg, 0) + 1
-                )
-                borrowed_spill = True
-            elif track_as_temp:
+            if reg is None:
                 raise RuntimeError(
-                    "Out of registers for temporary expression evaluation; no spill-safe candidate available"
+                    "Out of registers; register pressure exceeded the available spill-safe set"
                 )
+
+            aliases = [
+                name for name, mapped_reg in self.var_regs.items() if mapped_reg == reg
+            ]
+
+            if aliases:
+                print(
+                    f"Register pressure: spilling live variable register {reg} to static slot"
+                )
+                self._spill_live_var_reg_to_slot(reg, aliases)
             else:
-                raise RuntimeError(
-                    "Out of registers for variable allocation; consider reducing simultaneously-live variables"
+                print(
+                    f"Register pressure: no free registers, spilling {reg} for temp allocation"
                 )
+                if self.tracked_writer is not None:
+                    self.tracked_writer.write(
+                        f"  PUSH {reg}    // spill live temp for reg pressure\n"
+                    )
+                    self._spilled_var_aliases.setdefault(reg, []).append([])
+                    self._spill_stack.append(
+                        {
+                            "reg": reg,
+                            "aliases": [],
+                            "restored_early": False,
+                        }
+                    )
+                    self._spill_depth[reg] = self._spill_depth.get(reg, 0) + 1
+                    self._borrowed_temp_depth[reg] = (
+                        self._borrowed_temp_depth.get(reg, 0) + 1
+                    )
+                    borrowed_spill = True
         else:
             reg = self.reg_free.pop(0)
 
@@ -250,6 +249,89 @@ class Emitter:
                 origin=self.current_context_origin,
             )
         return reg
+
+    def _spill_live_var_reg_to_slot(self, reg: str, aliases: list[str]):
+        if not aliases:
+            return
+        if self.tracked_writer is None:
+            raise RuntimeError("Cannot spill live variable register without writer")
+
+        spill_label = self.gen_label("spill")
+        self.global_spaces.append({"name": spill_label, "size": 4})
+        self._store_reg_to_spill_label(
+            reg,
+            spill_label,
+            self.tracked_writer,
+            "spill live variable(s) for reg pressure",
+        )
+        self._spill_label_aliases[spill_label] = list(aliases)
+        for name in aliases:
+            self._var_spill_labels[name] = spill_label
+            self.var_regs.pop(name, None)
+        self.register_allocator.set_output_line(
+            self.tracked_writer.get_current_output_line()
+        )
+        self.register_allocator.deallocate(reg)
+
+    def _restore_spilled_var_reg(self, name: str, out) -> str:
+        spill_label = self._var_spill_labels.get(name)
+        if not spill_label:
+            return ""
+
+        aliases = list(self._spill_label_aliases.get(spill_label, [name]))
+        reg = self.alloc_reg(track_as_temp=False)
+        self._load_reg_from_spill_label(reg, spill_label, out, f"restore spilled var {name}")
+        for alias in aliases:
+            self.var_regs[alias] = reg
+            self._var_spill_labels.pop(alias, None)
+        self._spill_label_aliases.pop(spill_label, None)
+        if self.tracked_writer is not None:
+            self.register_allocator.set_output_line(
+                self.tracked_writer.get_current_output_line()
+            )
+            for alias in aliases:
+                self.register_allocator.allocate(
+                    register=reg,
+                    variable_name=alias,
+                    variable_type=self.var_types.get(alias, "int"),
+                    var_kind="local",
+                    origin=self.current_context_origin,
+                )
+        return reg
+
+    def _borrow_spill_addr_reg(self, out, avoid: set[str]):
+        for candidate in list(self.reg_free):
+            if candidate in avoid:
+                continue
+            self.reg_free.remove(candidate)
+            return candidate, False
+
+        for candidate in abi.TEMP_REGS:
+            if candidate in avoid:
+                continue
+            out.write(f"  PUSH {candidate}    // borrow scratch reg for spill label addr\n")
+            return candidate, True
+
+        raise RuntimeError("No register available to materialize spill label address")
+
+    def _release_spill_addr_reg(self, out, reg: str, was_borrowed: bool):
+        if was_borrowed:
+            out.write(f"  POP {reg}    // restore scratch reg for spill label addr\n")
+            return
+        if reg not in self.reg_free:
+            self.reg_free.append(reg)
+
+    def _store_reg_to_spill_label(self, src_reg: str, spill_label: str, out, comment: str):
+        addr_reg, borrowed = self._borrow_spill_addr_reg(out, {src_reg})
+        try:
+            out.write(f"  LLI {addr_reg}, {spill_label}    // spill slot addr\n")
+            out.write(f"  SW {src_reg}, {addr_reg}, 0    // {comment}\n")
+        finally:
+            self._release_spill_addr_reg(out, addr_reg, borrowed)
+
+    def _load_reg_from_spill_label(self, dst_reg: str, spill_label: str, out, comment: str):
+        out.write(f"  LLI {dst_reg}, {spill_label}    // spill slot addr\n")
+        out.write(f"  LW {dst_reg}, {dst_reg}, 0    // {comment}\n")
 
     def free_reg(self, reg: str):
         writer = self.tracked_writer
@@ -857,6 +939,7 @@ class Emitter:
             "had_prev": had_prev,
             "prev_reg": self.var_regs.get(name),
             "prev_type": self.var_types.get(name),
+            "prev_spill_label": self._var_spill_labels.get(name),
         }
 
     def exit_var_scope(self):
@@ -865,6 +948,16 @@ class Emitter:
 
         scope = self._var_scope_stack.pop()
         for name, info in reversed(list(scope.items())):
+            current_spill_label = self._var_spill_labels.pop(name, None)
+            if current_spill_label:
+                aliases = self._spill_label_aliases.get(current_spill_label, [])
+                if name in aliases:
+                    aliases = [alias for alias in aliases if alias != name]
+                if aliases:
+                    self._spill_label_aliases[current_spill_label] = aliases
+                else:
+                    self._spill_label_aliases.pop(current_spill_label, None)
+
             reg = self.var_regs.get(name)
             if (
                 reg
@@ -886,6 +979,9 @@ class Emitter:
                     self.var_types[name] = prev_type
                 else:
                     self.var_types.pop(name, None)
+                prev_spill_label = info.get("prev_spill_label")
+                if prev_spill_label is not None:
+                    self._var_spill_labels[name] = prev_spill_label
             elif name in self.var_types:
                 self.var_types.pop(name, None)
 
@@ -1041,6 +1137,8 @@ class Emitter:
         self._spilled_var_aliases = {}
         self._spill_stack = []
         self._pinned_regs = {}
+        self._var_spill_labels = {}
+        self._spill_label_aliases = {}
         self._stmt_live_after = {}
         self._statement_stack = []
         self._control_flow_depth = 0

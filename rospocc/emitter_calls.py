@@ -25,6 +25,11 @@ def _materialize_call_arg(emitter, arg, out):
         if reg:
             emitter.consume_var_read(var_name)
             return reg, False
+        if var_name in getattr(emitter, "_var_spill_labels", {}):
+            reg = emitter._restore_spilled_var_reg(var_name, out)
+            if reg:
+                emitter.consume_var_read(var_name)
+                return reg, False
         reg = emitter.alloc_reg()
         emitter._load_imm(reg, 0, out)
         return reg, True
@@ -161,6 +166,14 @@ def _emit_inline_call(emitter, func_name: str, args, return_reg: Optional[str], 
                     if var_name in emitter.var_regs:
                         # Reuse the existing register for this variable
                         emitter.var_regs[param_name] = emitter.var_regs[var_name]
+                    elif var_name in getattr(emitter, "_var_spill_labels", {}):
+                        restored_reg = emitter._restore_spilled_var_reg(var_name, out)
+                        if restored_reg:
+                            emitter.var_regs[param_name] = restored_reg
+                        else:
+                            param_reg = emitter.alloc_reg()
+                            emitter._load_imm(param_reg, 0, out)
+                            emitter.var_regs[param_name] = param_reg
                     else:
                         param_reg = emitter.alloc_reg()
                         emitter._load_imm(param_reg, 0, out)

@@ -1,14 +1,14 @@
 char buffer[256];
-char buffer_update_queue[32];
+char buffer_update_queue[64];
 char buffer_update_queue_ptr = 0;
+
 void render_buffer(){
-    for (int i = 0; i < 256; i++)
+    for (int i = 0; i < buffer_update_queue_ptr; i++)
     {
-        char ch = buffer[i];
-        if (ch !=0){
-            draw_char_to_display(ch, 10 + (i % 16) * 8, 10 + (i / 16) * 16, 0x3F);
-        }
+        int index = buffer_update_queue[i];
+        draw_char_to_display(buffer[index], (index % 16) * 8, (index / 16) * 8, 0x3F);
     }
+    buffer_update_queue_ptr = 0;
 }
 
 void clear_buffer(){
@@ -18,11 +18,21 @@ void clear_buffer(){
     }
 }
 
-void write_to_buffer(char *str){
+void write_to_buffer(char *str, int index){
     int i = 0;
-    while (str[i] != 0 && i < 256)
+    
+    while (str[i] != 0 && index + i < 256)
     {
-        buffer[i] = str[i];
+        buffer[index + i] = str[i];
+        buffer_update_queue[buffer_update_queue_ptr++] = index + i;
         i++;
+    }
+}
+
+void write_char_to_buffer(char ch){
+    for (int i = 0; i < 256; i++)
+    {
+            buffer[i] = ch;
+            break;
     }
 }

@@ -45,6 +45,10 @@ def ensure_var_reg(emitter, name: str, out) -> str:
     r = emitter.var_regs.get(name)
     if r:
         return r
+    if name in getattr(emitter, "_var_spill_labels", {}):
+        restored = emitter._restore_spilled_var_reg(name, out)
+        if restored:
+            return restored
     r = emitter.alloc_reg(track_as_temp=False)
     emitter.var_regs[name] = r
     out.write(f"  LLI {r}, 0    // implicit init {name}\n")

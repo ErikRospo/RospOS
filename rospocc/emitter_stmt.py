@@ -191,6 +191,8 @@ def _emit_assign_member_access(emitter, target: Dict[str, Any], rval: str, out):
                 out.write(f"  // ERROR: member {member_name} not found\n")
             else:
                 base_reg = emitter.var_regs.get(base_name)
+                if not base_reg and base_name in getattr(emitter, "_var_spill_labels", {}):
+                    base_reg = emitter._restore_spilled_var_reg(base_name, out)
                 if member_offset < 2**16:
                     out.write(
                         f"  SW {rval}, {base_reg}, {member_offset}    // store {base_name}.{member_name}\n"
@@ -371,22 +373,42 @@ def _emit_assign(emitter, stmt: Dict[str, Any], out):
     elif isinstance(target, dict) and target.get("type") == "var":
         name = target.get("name")
         dest = emitter.var_regs.get(name)
+        spill_label = getattr(emitter, "_var_spill_labels", {}).get(name)
         if dest:
             out.write(f"  ADDI {dest}, {rval}, 0    // assign {name}\n")
+            if spill_label:
+                emitter._store_reg_to_spill_label(
+                    dest, spill_label, out, f"sync spilled {name}"
+                )
         else:
-            emitter.var_regs[name] = rval
-            if name not in emitter.var_types:
-                emitter.var_types[name] = "int"
-            rval = None
+            if spill_label:
+                emitter._store_reg_to_spill_label(
+                    rval, spill_label, out, f"assign spilled {name}"
+                )
+            else:
+                emitter.var_regs[name] = rval
+                if name not in emitter.var_types:
+                    emitter.var_types[name] = "int"
+                rval = None
     elif isinstance(target, str):
         dest = emitter.var_regs.get(target)
+        spill_label = getattr(emitter, "_var_spill_labels", {}).get(target)
         if dest:
             out.write(f"  ADDI {dest}, {rval}, 0    // assign {target}\n")
+            if spill_label:
+                emitter._store_reg_to_spill_label(
+                    dest, spill_label, out, f"sync spilled {target}"
+                )
         else:
-            emitter.var_regs[target] = rval
-            if target not in emitter.var_types:
-                emitter.var_types[target] = "int"
-            rval = None
+            if spill_label:
+                emitter._store_reg_to_spill_label(
+                    rval, spill_label, out, f"assign spilled {target}"
+                )
+            else:
+                emitter.var_regs[target] = rval
+                if target not in emitter.var_types:
+                    emitter.var_types[target] = "int"
+                rval = None
     else:
         out.write(f"  // assign to unsupported target {target!r}\n")
 

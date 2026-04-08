@@ -44,12 +44,12 @@ void draw_char_to_display(int ch, int x, int y, int color)
         while (col < 8)
         {
             int bit = (glyph_row >> col) & 1;
+            int index = ((y+row) * 256) + x+col;
             if (bit)
             {
-                int px = x + col;
-                int py = y + row;
-                int index = (py * 256) + px;
                 __sb(0x20000000 + index, color);
+            }else{
+                __sb(0x20000000 + index, 0x00);
             }
             col = col + 1;
         }

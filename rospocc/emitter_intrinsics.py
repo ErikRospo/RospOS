@@ -70,9 +70,13 @@ def intrinsic_lb(emitter, args, out, return_reg=None):
         out.write(f"  LLI {r}, {val}    // init {name}\n")
         raddr = r
     elif a.get("type") == "var":
-        raddr = emitter.var_regs.get(a.get("name"))
+        vname = a.get("name")
+        raddr = emitter.var_regs.get(vname)
         if not raddr:
-            raddr = emitter._ensure_var_reg(a.get("name"), out)
+            if vname in getattr(emitter, "_var_spill_labels", {}):
+                raddr = emitter._restore_spilled_var_reg(vname, out)
+            if not raddr:
+                raddr = emitter._ensure_var_reg(vname, out)
     else:
         raddr = emitter.emit_expr(a, out)
 
@@ -102,9 +106,13 @@ def intrinsic_sb(emitter, args, out, return_reg=None):
             f"  LLI {raddr}, {int(a_addr.get('value'))}    // addr const for __sb\n"
         )
     elif a_addr.get("type") == "var":
-        raddr = emitter.var_regs.get(a_addr.get("name"))
+        vname = a_addr.get("name")
+        raddr = emitter.var_regs.get(vname)
         if not raddr:
-            raddr = emitter._ensure_var_reg(a_addr.get("name"), out)
+            if vname in getattr(emitter, "_var_spill_labels", {}):
+                raddr = emitter._restore_spilled_var_reg(vname, out)
+            if not raddr:
+                raddr = emitter._ensure_var_reg(vname, out)
     else:
         raddr = emitter.emit_expr(a_addr, out)
         release_addr_expr = True
@@ -121,7 +129,10 @@ def intrinsic_sb(emitter, args, out, return_reg=None):
         if emitter.var_types.get(vname) == "char_ptr":
             rptr = emitter.var_regs.get(vname)
             if not rptr:
-                rptr = emitter._ensure_var_reg(vname, out)
+                if vname in getattr(emitter, "_var_spill_labels", {}):
+                    rptr = emitter._restore_spilled_var_reg(vname, out)
+                if not rptr:
+                    rptr = emitter._ensure_var_reg(vname, out)
             r_avoid = [raddr] if raddr else []
             rval, spilled = _borrow_scratch_reg(emitter, out, avoid=r_avoid)
             borrowed_val = (rval, spilled)
@@ -129,7 +140,10 @@ def intrinsic_sb(emitter, args, out, return_reg=None):
         else:
             rval = emitter.var_regs.get(vname)
             if not rval:
-                rval = emitter._ensure_var_reg(vname, out)
+                if vname in getattr(emitter, "_var_spill_labels", {}):
+                    rval = emitter._restore_spilled_var_reg(vname, out)
+                if not rval:
+                    rval = emitter._ensure_var_reg(vname, out)
     else:
         rval = emitter.emit_expr(a_val, out)
         release_val_expr = True
