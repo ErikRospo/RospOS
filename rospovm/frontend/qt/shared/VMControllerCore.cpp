@@ -6,6 +6,13 @@
 #include <QElapsedTimer>
 #include <QFile>
 
+namespace {
+constexpr int kSpeedLevelMin = 0;
+constexpr int kSpeedLevelMax = 14;
+constexpr int kSpeedLevelUnlimited = kSpeedLevelMax;
+constexpr int kBurstThresholdLevel = 7;
+}
+
 VMControllerCore::VMControllerCore(QObject *parent)
     : QObject(parent), vm(std::make_unique<RospOSVM>(false)), running(false)
 {
@@ -118,10 +125,10 @@ void VMControllerCore::reset()
 
 void VMControllerCore::setExecutionSpeedLevel(int level)
 {
-    if (level < 0) {
-        level = 0;
-    } else if (level > 10) {
-        level = 10;
+    if (level < kSpeedLevelMin) {
+        level = kSpeedLevelMin;
+    } else if (level > kSpeedLevelMax) {
+        level = kSpeedLevelMax;
     }
 
     speedLevel = level;
@@ -141,7 +148,7 @@ bool VMControllerCore::canStepBackward() const
 int VMControllerCore::executionIntervalMs() const
 {
     if (usesBurstExecutor()) {
-        return (speedLevel == 10) ? 0 : 8;
+        return (speedLevel == kSpeedLevelUnlimited) ? 0 : 8;
     }
 
     switch (speedLevel) {
@@ -166,7 +173,7 @@ int VMControllerCore::executionIntervalMs() const
 
 bool VMControllerCore::usesBurstExecutor() const
 {
-    return speedLevel >= 7;
+    return speedLevel >= kBurstThresholdLevel;
 }
 
 int VMControllerCore::targetInstructionsPerSecond() const
@@ -193,6 +200,14 @@ int VMControllerCore::targetInstructionsPerSecond() const
     case 9:
         return 2500;
     case 10:
+        return 5000;
+    case 11:
+        return 10000;
+    case 12:
+        return 20000;
+    case 13:
+        return 50000;
+    case kSpeedLevelUnlimited:
         return 0;
     default:
         return 10;
@@ -225,7 +240,7 @@ void VMControllerCore::onExecutionTick()
             constexpr int kMaxBurstInstructions = 2500;
             int stepsToRun = kMaxBurstInstructions;
 
-            if (speedLevel != 10) {
+            if (speedLevel != kSpeedLevelUnlimited) {
                 const int targetIps = targetInstructionsPerSecond();
                 if (!throughputTimer.isValid()) {
                     throughputTimer.start();
@@ -253,7 +268,7 @@ void VMControllerCore::onExecutionTick()
             }
 
             const uint64_t executed = vm->runSteps(static_cast<uint64_t>(stepsToRun), 8000);
-            if (speedLevel != 10 && executed < static_cast<uint64_t>(stepsToRun)) {
+            if (speedLevel != kSpeedLevelUnlimited && executed < static_cast<uint64_t>(stepsToRun)) {
                 pendingBurstSteps += static_cast<double>(stepsToRun - static_cast<int>(executed));
             }
 

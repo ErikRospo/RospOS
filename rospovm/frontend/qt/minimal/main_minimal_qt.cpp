@@ -34,7 +34,7 @@ public:
 
 		QSlider *speedSlider = new QSlider(Qt::Horizontal, this);
 		speedSlider->setMinimum(0);
-		speedSlider->setMaximum(10);
+		speedSlider->setMaximum(14);
 		speedSlider->setValue(4);
 
 		QHBoxLayout *controls = new QHBoxLayout();

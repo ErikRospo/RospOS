@@ -35,6 +35,14 @@ QString speedLabelForLevel(int level)
     case 9:
         return QObject::tr("2500/s");
     case 10:
+        return QObject::tr("5000/s");
+    case 11:
+        return QObject::tr("10000/s");
+    case 12:
+        return QObject::tr("20000/s");
+    case 13:
+        return QObject::tr("50000/s");
+    case 14:
         return QObject::tr("Max");
     default:
         return QObject::tr("?");
@@ -89,7 +97,7 @@ void DebugControlPanel::createUI()
     
     speedSlider = new QSlider(Qt::Horizontal);
     speedSlider->setMinimum(0);
-    speedSlider->setMaximum(10);
+    speedSlider->setMaximum(14);
     speedSlider->setValue(currentSpeed);
     speedSlider->setTickPosition(QSlider::TicksBelow);
     speedSlider->setTickInterval(1);
