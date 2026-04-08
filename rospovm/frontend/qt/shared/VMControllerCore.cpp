@@ -30,17 +30,15 @@ bool VMControllerCore::loadBinaryFile(const QString &filePath)
     }
 }
 
-uint32_t VMControllerCore::step()
+void VMControllerCore::step()
 {
     try {
-        const uint32_t executedInstructions = vm->step();
+        vm->step();
         emit stateChanged();
-        return executedInstructions;
     } catch (const std::exception &e) {
         emit error(QString("Execution error: %1").arg(e.what()));
         emit executionStopped();
         running = false;
-        return 0;
     }
 }
 
@@ -225,7 +223,7 @@ void VMControllerCore::onExecutionTick()
     try {
         if (usesBurstExecutor()) {
             constexpr int kMaxBurstInstructions = 2500;
-            int instructionsToRun = kMaxBurstInstructions;
+            int stepsToRun = kMaxBurstInstructions;
 
             if (speedLevel != 10) {
                 const int targetIps = targetInstructionsPerSecond();
@@ -239,26 +237,25 @@ void VMControllerCore::onExecutionTick()
                 }
 
                 pendingBurstSteps += (static_cast<double>(targetIps) * static_cast<double>(elapsedMs)) / 1000.0;
-                instructionsToRun = static_cast<int>(pendingBurstSteps);
-                if (instructionsToRun <= 0) {
+                stepsToRun = static_cast<int>(pendingBurstSteps);
+                if (stepsToRun <= 0) {
                     if (running) {
                         scheduleNextExecutionTick();
                     }
                     return;
                 }
 
-                pendingBurstSteps -= static_cast<double>(instructionsToRun);
-                if (instructionsToRun > kMaxBurstInstructions) {
-                    pendingBurstSteps += static_cast<double>(instructionsToRun - kMaxBurstInstructions);
-                    instructionsToRun = kMaxBurstInstructions;
+                pendingBurstSteps -= static_cast<double>(stepsToRun);
+                if (stepsToRun > kMaxBurstInstructions) {
+                    pendingBurstSteps += static_cast<double>(stepsToRun - kMaxBurstInstructions);
+                    stepsToRun = kMaxBurstInstructions;
                 }
             }
 
             QElapsedTimer burstTimer;
             burstTimer.start();
-            int executedInBurst = 0;
-            while (executedInBurst < instructionsToRun) {
-                executedInBurst += static_cast<int>(vm->step());
+            for (int i = 0; i < stepsToRun; ++i) {
+                vm->step();
                 if (shouldShutdown()) {
                     running = false;
                     emit stateChanged();
@@ -266,8 +263,8 @@ void VMControllerCore::onExecutionTick()
                     return;
                 }
                 if (burstTimer.elapsed() >= 8) {
-                    if (speedLevel != 10 && executedInBurst < instructionsToRun) {
-                        pendingBurstSteps += static_cast<double>(instructionsToRun - executedInBurst);
+                    if (speedLevel != 10 && i + 1 < stepsToRun) {
+                        pendingBurstSteps += static_cast<double>(stepsToRun - (i + 1));
                     }
                     break;
                 }

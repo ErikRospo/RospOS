@@ -67,20 +67,21 @@ int main(int argc, char *argv[])
         RospOSVM vm(debugMode);
         vm.loadBinaryFromFile(binaryPath);
 
-        uint64_t executedInstructions = 0;
+        uint64_t steps = 0;
         while (!shouldShutdown()) {
-            if (executedInstructions >= maxSteps) {
+            if (steps >= maxSteps) {
                 Logger::instance().error(
                     QString::fromStdString("Step limit reached before shutdown: " + std::to_string(maxSteps))
                 );
                 return 124;
             }
 
-            executedInstructions += vm.step();
+            vm.step();
+            ++steps;
         }
 
         Logger::instance().info(
-            QString::fromStdString("Headless run completed in " + std::to_string(executedInstructions) + " steps")
+            QString::fromStdString("Headless run completed in " + std::to_string(steps) + " steps")
         );
         return 0;
     } catch (const std::exception &e) {

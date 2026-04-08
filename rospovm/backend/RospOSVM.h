@@ -42,17 +42,6 @@ private:
         std::unordered_set<uint32_t> touchedAddresses;
     };
 
-    struct DecodedInstruction {
-        uint32_t raw = 0;
-        uint8_t opcode = 0;
-        uint8_t subOp = 0;
-        uint8_t rd = 0;
-        uint8_t rs1 = 0;
-        uint8_t rs2 = 0;
-        uint32_t zeroExtImm = 0;
-        int32_t signExtImm = 0;
-    };
-
     static constexpr size_t kMaxStateHistory = 32;
     static constexpr bool kEnableStateCapture = (ROSPOSVM_ENABLE_STATE_CAPTURE != 0);
 
@@ -74,13 +63,8 @@ private:
     mutable std::unordered_map<uint32_t, std::string> debugSourceFileCache;
     mutable std::unordered_map<uint32_t, std::unordered_map<std::string, const RegisterAllocationInfo*>> registerAllocCache;
 
-    std::unordered_map<uint32_t, DecodedInstruction> decodedInstructionCache;
-
     void invalidateDebugCache();
     void buildDebugCache() const;
-    static DecodedInstruction decodeInstructionFields(uint32_t rawInstruction);
-    const DecodedInstruction& fetchDecodedInstruction(uint32_t instructionAddress);
-    uint32_t executeBasicBlock();
 
     void beginStateCapture();
     void commitStateCapture();
@@ -92,13 +76,13 @@ private:
     void writeMemoryTrackedHalf(uint32_t address, uint16_t value);
     void writeMemoryTrackedWord(uint32_t address, uint32_t value);
     
-    void rTypeInstruction(const DecodedInstruction &instruction);
-    void iArithTypeInstruction(const DecodedInstruction &instruction);
-    void iTypeLSInstruction(const DecodedInstruction &instruction);
-    bool bTypeInstruction(const DecodedInstruction &instruction);
-    void jTypeInstruction(const DecodedInstruction &instruction);
-    void sTypeInstruction(const DecodedInstruction &instruction);
-    void executeInstruction(const DecodedInstruction &instruction);
+    void rTypeInstruction(uint32_t instruction);
+    void iArithTypeInstruction(uint32_t instruction);
+    void iTypeLSInstruction(uint32_t instruction);
+    bool bTypeInstruction(uint32_t instruction);
+    void jTypeInstruction(uint32_t instruction);
+    void sTypeInstruction(uint32_t instruction);
+    void executeInstruction(uint32_t instruction);
 
 public:
     bool debugMode;
@@ -106,7 +90,7 @@ public:
     void resetCpuState();
     void loadBinaryAtAddress(const std::vector<char> &binary, uint32_t address);
     void loadBinaryFromFile(const std::string& filename);
-    uint32_t step();
+    void step();
     bool stepBackward();
     bool canStepBackward() const { 
         if constexpr (kEnableStateCapture) {

@@ -21,7 +21,7 @@ public:
 
     bool loadBinaryFile(const QString &filePath);
 
-    uint32_t step();
+    void step();
     void stepBackward();
     void run();
     void pause();
