@@ -226,9 +226,12 @@ void rand_block_test(){
     {
         bd_write_u32(0x40000008, 0xFFFFFFFE); //Special RNG block
         bd_write_u32(0x4000000C, (int)addr); // Set the DMA address *to the display MMIO address*
+        // This means the random data will be written directly to the display's framebuffer, which is a neat way to visualize the randomness.
+        // This works because the block device uses DMA to write data, so it can write directly to the display's framebuffer without needing CPU intervention.
+        // Despite the framebuffer not being a "normal" memory address, the block device's DMA uses the same write pathway as normal stores and loads
+        // So it can write to MMIO addresses just fine. 
         bd_write_u32(0x40000010, 1); // Read 1 block
         bd_write_u32(0x40000004, 1); // Trigger the read
-        
         addr = addr + 0x200; // Move to the next block (512 bytes)
     }
     return 0;
@@ -488,6 +491,4 @@ void main()
     draw_string_to_display("Blue", 10, 40 , 0x07);
     draw_string_to_display("Yellow", 10, 48 , 0x3C);
     rand_block_test();
-    lfsr_test();
-    clear_display();
 }

@@ -1842,16 +1842,6 @@ read_file_21_IF_END23:
   CALL rand_block_test
   // call return value in r1
   POP r1  
-  // emit call to lfsr_test with args []
-  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  CALL lfsr_test
-  // call return value in r1
-  POP r1  
-  // emit call to clear_display with args []
-  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  CALL clear_display
-  // call return value in r1
-  POP r1  
   BREAK
 
 // Globals
