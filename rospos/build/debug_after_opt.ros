@@ -705,78 +705,81 @@ rand_block_test:
   PUSH r14
   LLI r2, rand_block_test_12_buffer_buf1
   LLI r3, 536870912
-  LLI r4, 65536
-  LLI r5, 4294967294
+  LLI r4, 536936448
 rand_block_test_12_WHILE2:
 
-  BEQ r4, r0, rand_block_test_12_WHILE_END3
+  BLT r3, r4, rand_block_test_12_CMP_TRUE4
+  LLI r5, 0
+  JMP rand_block_test_12_CMP_END5
+
+rand_block_test_12_CMP_TRUE4:
+
+  LLI r5, 1
+rand_block_test_12_CMP_END5:
+
+  BEQ r5, r0, rand_block_test_12_WHILE_END3
   PUSH r2
   PUSH r3
   PUSH r4
-  PUSH r5
   PUSH r1
   LLI r6, 1073741832
   PUSH r6
-  ADDI r2, r5, 0
+  LLI r7, 4294967294
+  ADDI r2, r7, 0
   POP r1
   JMP bd_write_u32
 
-  LLI r7, 1073741836
-  ADDI r1, r7, 0
+  LLI r8, 1073741836
+  ADDI r1, r8, 0
   JMP bd_write_u32
 
-  LLI r8, 1073741840
-  PUSH r8
-  LLI r9, 1
-  ADDI r2, r9, 0
+  LLI r9, 1073741840
+  PUSH r9
+  LLI r10, 1
+  ADDI r2, r10, 0
   POP r1
   JMP bd_write_u32
 
-  LLI r10, 1073741828
-  PUSH r10
-  LLI r11, 1
-  ADDI r2, r11, 0
+  LLI r11, 1073741828
+  PUSH r11
+  LLI r12, 1
+  ADDI r2, r12, 0
   POP r1
   JMP bd_write_u32
 
   POP r1
-  POP r5
   POP r4
   POP r3
   POP r2
-  LLI r12, 0
-  ADD r1, r12, r0
+  LLI r5, 0
+rand_block_test_12_WHILE6:
+
+  LLI r6, 512
+  BLT r5, r6, rand_block_test_12_CMP_TRUE8
   LLI r6, 0
-rand_block_test_12_WHILE4:
+  JMP rand_block_test_12_CMP_END9
 
-  LLI r7, 512
-  BLT r6, r7, rand_block_test_12_CMP_TRUE6
-  LLI r7, 0
-  JMP rand_block_test_12_CMP_END7
+rand_block_test_12_CMP_TRUE8:
 
-rand_block_test_12_CMP_TRUE6:
+  LLI r6, 1
+rand_block_test_12_CMP_END9:
 
-  LLI r7, 1
-rand_block_test_12_CMP_END7:
-
-  BEQ r7, r0, rand_block_test_12_WHILE_END5
-  ADD r8, r2, r6
-  LB r8, r8, 0
-  SB r8, r3, 0
+  BEQ r6, r0, rand_block_test_12_WHILE_END7
+  ADD r7, r2, r5
+  LB r7, r7, 0
+  SB r7, r3, 0
   ADDI r3, r3, 1
-  ADDI r6, r6, 1
-  JMP rand_block_test_12_WHILE4
+  ADDI r5, r5, 1
+  JMP rand_block_test_12_WHILE6
 
-rand_block_test_12_WHILE_END5:
+rand_block_test_12_WHILE_END7:
 
-  ADDI r5, r5, -1
-  ADDI r4, r4, -512
   JMP rand_block_test_12_WHILE2
 
 rand_block_test_12_WHILE_END3:
 
-  LLI r9, 0
-  ADD r1, r9, r0
+  LLI r8, 0
+  ADD r1, r8, r0
   POP r14
   JALR r0, r14, 0
   PUSH r14

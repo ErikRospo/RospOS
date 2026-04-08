@@ -222,18 +222,19 @@ void palette_test(int x, int y, int square_size){
 void rand_block_test(){
     char buffer[512];
     int addr = 0x20000000;
-    int remaining = 0x00010000;
-    int blockID=0xFFFFFFFE;
-    while (remaining)
+    int end_addr = 0x20000000 + 0x00010000;
+    while (addr < end_addr)
     {
-        read_block(blockID, buffer);
+        bd_write_u32(0x40000008, 0xFFFFFFFE); //Special RNG block
+        bd_write_u32(0x4000000C, (int)buffer); //Our buffer address
+        bd_write_u32(0x40000010, 1); // Read 1 block
+        bd_write_u32(0x40000004, 1); // Trigger the read
+        
         for (int i = 0; i < 512; i++)
         {
             __sb(addr, buffer[i]);
             addr = addr + 1;
         }
-        blockID = blockID - 1;
-        remaining = remaining - 512;
     }
     return 0;
 }

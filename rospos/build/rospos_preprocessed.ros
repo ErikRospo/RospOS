@@ -620,27 +620,29 @@ palette_test_11_WHILE_END2:
   PUSH r14
   LLI r2, rand_block_test_12_buffer_buf1    // init buffer (buffer addr)
   LLI r3, 536870912    // init addr
-  LLI r4, 65536    // init remaining
-  LLI r5, 4294967294    // init blockID
+  LLI r4, 536936448    // init end_addr
 rand_block_test_12_WHILE2:
-  BEQ r4, r0, rand_block_test_12_WHILE_END3
-  // inline call to read_block with args [{'type': 'var', 'name': 'blockID'}, {'type': 'var', 'name': 'buffer'}]
-  // begin inline expansion of read_block
-  // emit call to bd_write_u32 with args [{'type': 'const', 'value': 1073741832}, {'type': 'var', 'name': 'blockID'}]
+  BLT r3, r4, rand_block_test_12_CMP_TRUE4
+  LLI r5, 0    // compare false path
+  JMP rand_block_test_12_CMP_END5
+rand_block_test_12_CMP_TRUE4:
+  LLI r5, 1
+rand_block_test_12_CMP_END5:
+  BEQ r5, r0, rand_block_test_12_WHILE_END3
+  // emit call to bd_write_u32 with args [{'type': 'const', 'value': 1073741832}, {'type': 'const', 'value': 4294967294}]
   PUSH r2    // save caller temp
   PUSH r3    // save caller temp
   PUSH r4    // save caller temp
-  PUSH r5    // save caller temp
   PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
   LLI r6, 1073741832    // load immediate 1073741832
   PUSH r6    // stage reg arg 0
-  PUSH r5    // stage reg arg 1
+  LLI r7, 4294967294    // load immediate 4294967294
+  PUSH r7    // stage reg arg 1
   POP r2    // load reg arg 1
   POP r1    // load reg arg 0
   CALL bd_write_u32
   // call return value in r1
   POP r1  
-  POP r5    // restore caller temp
   POP r4    // restore caller temp
   POP r3    // restore caller temp
   POP r2    // restore caller temp
@@ -648,17 +650,15 @@ rand_block_test_12_WHILE2:
   PUSH r2    // save caller temp
   PUSH r3    // save caller temp
   PUSH r4    // save caller temp
-  PUSH r5    // save caller temp
   PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  LLI r7, 1073741836    // load immediate 1073741836
-  PUSH r7    // stage reg arg 0
+  LLI r8, 1073741836    // load immediate 1073741836
+  PUSH r8    // stage reg arg 0
   PUSH r2    // stage reg arg 1
   POP r2    // load reg arg 1
   POP r1    // load reg arg 0
   CALL bd_write_u32
   // call return value in r1
   POP r1  
-  POP r5    // restore caller temp
   POP r4    // restore caller temp
   POP r3    // restore caller temp
   POP r2    // restore caller temp
@@ -666,18 +666,16 @@ rand_block_test_12_WHILE2:
   PUSH r2    // save caller temp
   PUSH r3    // save caller temp
   PUSH r4    // save caller temp
-  PUSH r5    // save caller temp
   PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  LLI r8, 1073741840    // load immediate 1073741840
-  PUSH r8    // stage reg arg 0
-  LLI r9, 1    // load immediate 1
-  PUSH r9    // stage reg arg 1
+  LLI r9, 1073741840    // load immediate 1073741840
+  PUSH r9    // stage reg arg 0
+  LLI r10, 1    // load immediate 1
+  PUSH r10    // stage reg arg 1
   POP r2    // load reg arg 1
   POP r1    // load reg arg 0
   CALL bd_write_u32
   // call return value in r1
   POP r1  
-  POP r5    // restore caller temp
   POP r4    // restore caller temp
   POP r3    // restore caller temp
   POP r2    // restore caller temp
@@ -685,48 +683,40 @@ rand_block_test_12_WHILE2:
   PUSH r2    // save caller temp
   PUSH r3    // save caller temp
   PUSH r4    // save caller temp
-  PUSH r5    // save caller temp
   PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  LLI r10, 1073741828    // load immediate 1073741828
-  PUSH r10    // stage reg arg 0
-  LLI r11, 1    // load immediate 1
-  PUSH r11    // stage reg arg 1
+  LLI r11, 1073741828    // load immediate 1073741828
+  PUSH r11    // stage reg arg 0
+  LLI r12, 1    // load immediate 1
+  PUSH r12    // stage reg arg 1
   POP r2    // load reg arg 1
   POP r1    // load reg arg 0
   CALL bd_write_u32
   // call return value in r1
   POP r1  
-  POP r5    // restore caller temp
   POP r4    // restore caller temp
   POP r3    // restore caller temp
   POP r2    // restore caller temp
-  LLI r12, 0    // load immediate 0
-  ADD r1, r12, r0
-  // inline function return (no RET emitted)
-  // end inline expansion of read_block
-  LLI r6, 0    // init i
-rand_block_test_12_WHILE4:
-  LLI r7, 512    // load immediate 512
-  BLT r6, r7, rand_block_test_12_CMP_TRUE6
-  LLI r7, 0    // compare false path
-  JMP rand_block_test_12_CMP_END7
-rand_block_test_12_CMP_TRUE6:
-  LLI r7, 1
-rand_block_test_12_CMP_END7:
-  BEQ r7, r0, rand_block_test_12_WHILE_END5
-  ADD r8, r2, r6    // binop +
-  LB r8, r8, 0    // deref
-  SB r8, r3, 0    // intrinsic __sb
+  LLI r5, 0    // init i
+rand_block_test_12_WHILE6:
+  LLI r6, 512    // load immediate 512
+  BLT r5, r6, rand_block_test_12_CMP_TRUE8
+  LLI r6, 0    // compare false path
+  JMP rand_block_test_12_CMP_END9
+rand_block_test_12_CMP_TRUE8:
+  LLI r6, 1
+rand_block_test_12_CMP_END9:
+  BEQ r6, r0, rand_block_test_12_WHILE_END7
+  ADD r7, r2, r5    // binop +
+  LB r7, r7, 0    // deref
+  SB r7, r3, 0    // intrinsic __sb
   ADDI r3, r3, 1    // assign addr (addi fast path)
-  ADDI r6, r6, 1    // assign i (addi fast path)
-  JMP rand_block_test_12_WHILE4
-rand_block_test_12_WHILE_END5:
-  ADDI r5, r5, -1    // assign blockID (addi fast path)
-  ADDI r4, r4, -512    // assign remaining (addi fast path)
+  ADDI r5, r5, 1    // assign i (addi fast path)
+  JMP rand_block_test_12_WHILE6
+rand_block_test_12_WHILE_END7:
   JMP rand_block_test_12_WHILE2
 rand_block_test_12_WHILE_END3:
-  LLI r9, 0    // load immediate 0
-  ADD r1, r9, r0
+  LLI r8, 0    // load immediate 0
+  ADD r1, r8, r0
   POP r14
   RET
 

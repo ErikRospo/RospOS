@@ -3089,19 +3089,41 @@ program
     instruction
       lli
         register	r4
-        imm	65536
-  codeline
-    instruction
-      lli
-        register	r5
-        imm	4294967294
+        imm	536936448
   codeline
     label	rand_block_test_12_WHILE2:
   codeline
     instruction
       binstructuse
-        beq
+        blt
+        register	r3
         register	r4
+        imm
+          labeluse	rand_block_test_12_CMP_TRUE4
+  codeline
+    instruction
+      lli
+        register	r5
+        imm	0
+  codeline
+    instruction
+      jmpseudo
+        imm
+          labeluse	rand_block_test_12_CMP_END5
+  codeline
+    label	rand_block_test_12_CMP_TRUE4:
+  codeline
+    instruction
+      lli
+        register	r5
+        imm	1
+  codeline
+    label	rand_block_test_12_CMP_END5:
+  codeline
+    instruction
+      binstructuse
+        beq
+        register	r5
         register	r0
         imm
           labeluse	rand_block_test_12_WHILE_END3
@@ -3120,10 +3142,6 @@ program
   codeline
     instruction
       push
-        register	r5
-  codeline
-    instruction
-      push
         register	r1
   codeline
     instruction
@@ -3136,8 +3154,13 @@ program
         register	r6
   codeline
     instruction
+      lli
+        register	r7
+        imm	4294967294
+  codeline
+    instruction
       push
-        register	r5
+        register	r7
   codeline
     instruction
       pop
@@ -3158,10 +3181,6 @@ program
   codeline
     instruction
       pop
-        register	r5
-  codeline
-    instruction
-      pop
         register	r4
   codeline
     instruction
@@ -3183,10 +3202,6 @@ program
     instruction
       push
         register	r4
-  codeline
-    instruction
-      push
-        register	r5
   codeline
     instruction
       push
@@ -3194,12 +3209,12 @@ program
   codeline
     instruction
       lli
-        register	r7
+        register	r8
         imm	1073741836
   codeline
     instruction
       push
-        register	r7
+        register	r8
   codeline
     instruction
       push
@@ -3224,10 +3239,6 @@ program
   codeline
     instruction
       pop
-        register	r5
-  codeline
-    instruction
-      pop
         register	r4
   codeline
     instruction
@@ -3249,10 +3260,6 @@ program
     instruction
       push
         register	r4
-  codeline
-    instruction
-      push
-        register	r5
   codeline
     instruction
       push
@@ -3260,21 +3267,21 @@ program
   codeline
     instruction
       lli
-        register	r8
+        register	r9
         imm	1073741840
   codeline
     instruction
       push
-        register	r8
+        register	r9
   codeline
     instruction
       lli
-        register	r9
+        register	r10
         imm	1
   codeline
     instruction
       push
-        register	r9
+        register	r10
   codeline
     instruction
       pop
@@ -3295,10 +3302,6 @@ program
   codeline
     instruction
       pop
-        register	r5
-  codeline
-    instruction
-      pop
         register	r4
   codeline
     instruction
@@ -3320,10 +3323,6 @@ program
     instruction
       push
         register	r4
-  codeline
-    instruction
-      push
-        register	r5
   codeline
     instruction
       push
@@ -3331,21 +3330,21 @@ program
   codeline
     instruction
       lli
-        register	r10
+        register	r11
         imm	1073741828
   codeline
     instruction
       push
-        register	r10
+        register	r11
   codeline
     instruction
       lli
-        register	r11
+        register	r12
         imm	1
   codeline
     instruction
       push
-        register	r11
+        register	r12
   codeline
     instruction
       pop
@@ -3366,10 +3365,6 @@ program
   codeline
     instruction
       pop
-        register	r5
-  codeline
-    instruction
-      pop
         register	r4
   codeline
     instruction
@@ -3382,81 +3377,69 @@ program
   codeline
     instruction
       lli
-        register	r12
+        register	r5
         imm	0
   codeline
-    instruction
-      rinstructuse
-        add
-        register	r1
-        register	r12
-        register	r0
+    label	rand_block_test_12_WHILE6:
   codeline
     instruction
       lli
         register	r6
-        imm	0
-  codeline
-    label	rand_block_test_12_WHILE4:
-  codeline
-    instruction
-      lli
-        register	r7
         imm	512
   codeline
     instruction
       binstructuse
         blt
+        register	r5
         register	r6
-        register	r7
         imm
-          labeluse	rand_block_test_12_CMP_TRUE6
+          labeluse	rand_block_test_12_CMP_TRUE8
   codeline
     instruction
       lli
-        register	r7
+        register	r6
         imm	0
   codeline
     instruction
       jmpseudo
         imm
-          labeluse	rand_block_test_12_CMP_END7
+          labeluse	rand_block_test_12_CMP_END9
   codeline
-    label	rand_block_test_12_CMP_TRUE6:
+    label	rand_block_test_12_CMP_TRUE8:
   codeline
     instruction
       lli
-        register	r7
+        register	r6
         imm	1
   codeline
-    label	rand_block_test_12_CMP_END7:
+    label	rand_block_test_12_CMP_END9:
   codeline
     instruction
       binstructuse
         beq
-        register	r7
+        register	r6
         register	r0
         imm
-          labeluse	rand_block_test_12_WHILE_END5
+          labeluse	rand_block_test_12_WHILE_END7
   codeline
     instruction
       rinstructuse
         add
-        register	r8
+        register	r7
         register	r2
-        register	r6
+        register	r5
   codeline
     instruction
       lsinstructuse
         lb
-        register	r8
-        register	r8
+        register	r7
+        register	r7
         imm	0
   codeline
     instruction
       lsinstructuse
         sb
-        register	r8
+        register	r7
         register	r3
         imm	0
   codeline
@@ -3470,30 +3453,16 @@ program
     instruction
       iinstructuse
         addi
-        register	r6
-        register	r6
+        register	r5
+        register	r5
         imm	1
   codeline
     instruction
       jmpseudo
         imm
-          labeluse	rand_block_test_12_WHILE4
+          labeluse	rand_block_test_12_WHILE6
   codeline
-    label	rand_block_test_12_WHILE_END5:
-  codeline
-    instruction
-      iinstructuse
-        addi
-        register	r5
-        register	r5
-        imm	-1
-  codeline
-    instruction
-      iinstructuse
-        addi
-        register	r4
-        register	r4
-        imm	-512
+    label	rand_block_test_12_WHILE_END7:
   codeline
     instruction
       jmpseudo
@@ -3504,14 +3473,14 @@ program
   codeline
     instruction
       lli
-        register	r9
+        register	r8
         imm	0
   codeline
     instruction
       rinstructuse
         add
         register	r1
-        register	r9
+        register	r8
         register	r0
   codeline
     instruction

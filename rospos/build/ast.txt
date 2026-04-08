@@ -1240,25 +1240,48 @@ translation_unit
             int
           init_declarator_list
             init_declarator
-              declarator	remaining
-              0x00010000
-        declaration
-          type_specifier
-            int
-          init_declarator_list
-            init_declarator
-              declarator	blockID
-              0xFFFFFFFE
+              declarator	end_addr
+              additive
+                0x20000000
+                plus
+                0x00010000
         while_stmt
-          remaining
+          relational
+            addr
+            lt
+            end_addr
           compound_stmt
             expr_stmt
               postfix
-                read_block
+                bd_write_u32
                 call_suffix
                   arg_list
-                    blockID
-                    buffer
+                    0x40000008
+                    0xFFFFFFFE
+            expr_stmt
+              postfix
+                bd_write_u32
+                call_suffix
+                  arg_list
+                    0x4000000C
+                    cast
+                      type_specifier
+                        int
+                      buffer
+            expr_stmt
+              postfix
+                bd_write_u32
+                call_suffix
+                  arg_list
+                    0x40000010
+                    1
+            expr_stmt
+              postfix
+                bd_write_u32
+                call_suffix
+                  arg_list
+                    0x40000004
+                    1
             for_stmt
               declaration
                 type_specifier
@@ -1291,20 +1314,6 @@ translation_unit
                       addr
                       plus
                       1
-            expr_stmt
-              assignment
-                blockID
-                additive
-                  blockID
-                  minus
-                  1
-            expr_stmt
-              assignment
-                remaining
-                additive
-                  remaining
-                  minus
-                  512
         return_stmt	0
   external_decl
     function_def
