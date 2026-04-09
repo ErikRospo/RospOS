@@ -220,19 +220,21 @@ void palette_test(int x, int y, int square_size){
 }
 
 void rand_block_test(){
-    int addr = 0x20000000;
-    int end_addr = 0x20000000 + 0x00010000;
-    while (addr < end_addr)
+    int offset=0;
+    while (offset < 0x20000)
     {
         bd_write_u32(0x40000008, 0xFFFFFFFE); //Special RNG block
-        bd_write_u32(0x4000000C, (int)addr); // Set the DMA address *to the display MMIO address*
+        __sb(0x4000000C, 0x20);
+        __sb(0x4000000D, (offset>>16) & 0xFF);
+        __sb(0x4000000E, (offset >> 8) & 0xFF);
+        __sb(0x4000000F, 0);
         // This means the random data will be written directly to the display's framebuffer, which is a neat way to visualize the randomness.
         // This works because the block device uses DMA to write data, so it can write directly to the display's framebuffer without needing CPU intervention.
         // Despite the framebuffer not being a "normal" memory address, the block device's DMA uses the same write pathway as normal stores and loads
         // So it can write to MMIO addresses just fine. 
         bd_write_u32(0x40000010, 1); // Read 1 block
         bd_write_u32(0x40000004, 1); // Trigger the read
-        addr = addr + 0x200; // Move to the next block (512 bytes)
+        offset = offset + 0x200; // Move to the next block (512 bytes)
     }
     return 0;
 }
@@ -464,6 +466,50 @@ void read_file(char *filename, char *buffer){
     return 0;
 }
 
+char buffer[256];
+char buffer_update_queue[64];
+char buffer_update_queue_ptr = 0;
+
+void update_buffer(){
+    for (int i = 0; i < buffer_update_queue_ptr; i++)
+    {
+        int index = buffer_update_queue[i];
+        draw_char_to_display(buffer[index], (index % 16) * 8, (index / 16) * 8, 0x3F);
+    }
+    buffer_update_queue_ptr = 0;
+}
+void refresh_display(){
+    for (int i = 0; i < 256; i++)
+    {
+        draw_char_to_display(buffer[i], (i % 16) * 8, (i / 16) * 8, 0x3F);
+    }
+}
+
+
+void clear_buffer(){
+    for (int i = 0; i < 256; i++)
+    {
+        buffer[i] = 0;
+    }
+}
+
+void write_to_buffer(char *str, int index){
+    int i = 0;
+    
+    while (str[i] != 0 && index + i < 256)
+    {
+        buffer[index + i] = str[i];
+        buffer_update_queue[buffer_update_queue_ptr++] = index + i;
+        i = i + 1;
+    }
+}
+
+void fast_flush(){
+    if (buffer_update_queue_ptr > 16)
+    {
+        update_buffer();
+    }
+}
 
 inline int add(int a, int b)
 {
@@ -491,4 +537,12 @@ void main()
     draw_string_to_display("Blue", 10, 40 , 0x07);
     draw_string_to_display("Yellow", 10, 48 , 0x3C);
     rand_block_test();
+    clear_display();
+    write_to_buffer("Hello, RospOS Terminal!\0", 0);
+    update_buffer();
+    write_to_buffer("This is a simple terminal implementation.\0", 32);
+    update_buffer();
+    write_to_buffer("It uses a buffer to store characters\0",64);
+    write_to_buffer("and only updates the display when necessary.\0", 96);
+    update_buffer();
 }

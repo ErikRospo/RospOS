@@ -1225,23 +1225,13 @@ translation_unit
             int
           init_declarator_list
             init_declarator
-              declarator	addr
-              0x20000000
-        declaration
-          type_specifier
-            int
-          init_declarator_list
-            init_declarator
-              declarator	end_addr
-              additive
-                0x20000000
-                plus
-                0x00010000
+              declarator	offset
+              0
         while_stmt
           relational
-            addr
+            offset
             lt
-            end_addr
+            0x20000
           compound_stmt
             expr_stmt
               postfix
@@ -1252,14 +1242,42 @@ translation_unit
                     0xFFFFFFFE
             expr_stmt
               postfix
-                bd_write_u32
+                __sb
                 call_suffix
                   arg_list
                     0x4000000C
-                    cast
-                      type_specifier
-                        int
-                      addr
+                    0x20
+            expr_stmt
+              postfix
+                __sb
+                call_suffix
+                  arg_list
+                    0x4000000D
+                    bit_and
+                      shift
+                        offset
+                        rshift
+                        16
+                      0xFF
+            expr_stmt
+              postfix
+                __sb
+                call_suffix
+                  arg_list
+                    0x4000000E
+                    bit_and
+                      shift
+                        offset
+                        rshift
+                        8
+                      0xFF
+            expr_stmt
+              postfix
+                __sb
+                call_suffix
+                  arg_list
+                    0x4000000F
+                    0
             expr_stmt
               postfix
                 bd_write_u32
@@ -1276,9 +1294,9 @@ translation_unit
                     1
             expr_stmt
               assignment
-                addr
+                offset
                 additive
-                  addr
+                  offset
                   plus
                   0x200
         return_stmt	0
@@ -2415,6 +2433,249 @@ translation_unit
                 "\0"
         return_stmt	0
   external_decl
+    declaration
+      type_specifier
+        char
+      init_declarator_list
+        init_declarator
+          declarator
+            buffer
+            array	256
+  external_decl
+    declaration
+      type_specifier
+        char
+      init_declarator_list
+        init_declarator
+          declarator
+            buffer_update_queue
+            array	64
+  external_decl
+    declaration
+      type_specifier
+        char
+      init_declarator_list
+        init_declarator
+          declarator	buffer_update_queue_ptr
+          0
+  external_decl
+    function_def
+      type_specifier
+        void
+      declarator	update_buffer
+      compound_stmt
+        for_stmt
+          declaration
+            type_specifier
+              int
+            init_declarator_list
+              init_declarator
+                declarator	i
+                0
+          relational
+            i
+            lt
+            buffer_update_queue_ptr
+          postfix
+            i
+            post_inc
+          compound_stmt
+            declaration
+              type_specifier
+                int
+              init_declarator_list
+                init_declarator
+                  declarator	index
+                  postfix
+                    buffer_update_queue
+                    array_index	i
+            expr_stmt
+              postfix
+                draw_char_to_display
+                call_suffix
+                  arg_list
+                    postfix
+                      buffer
+                      array_index	index
+                    multiplicative
+                      multiplicative
+                        index
+                        mod
+                        16
+                      mult
+                      8
+                    multiplicative
+                      multiplicative
+                        index
+                        div
+                        16
+                      mult
+                      8
+                    0x3F
+        expr_stmt
+          assignment
+            buffer_update_queue_ptr
+            0
+  external_decl
+    function_def
+      type_specifier
+        void
+      declarator	refresh_display
+      compound_stmt
+        for_stmt
+          declaration
+            type_specifier
+              int
+            init_declarator_list
+              init_declarator
+                declarator	i
+                0
+          relational
+            i
+            lt
+            256
+          postfix
+            i
+            post_inc
+          compound_stmt
+            expr_stmt
+              postfix
+                draw_char_to_display
+                call_suffix
+                  arg_list
+                    postfix
+                      buffer
+                      array_index	i
+                    multiplicative
+                      multiplicative
+                        i
+                        mod
+                        16
+                      mult
+                      8
+                    multiplicative
+                      multiplicative
+                        i
+                        div
+                        16
+                      mult
+                      8
+                    0x3F
+  external_decl
+    function_def
+      type_specifier
+        void
+      declarator	clear_buffer
+      compound_stmt
+        for_stmt
+          declaration
+            type_specifier
+              int
+            init_declarator_list
+              init_declarator
+                declarator	i
+                0
+          relational
+            i
+            lt
+            256
+          postfix
+            i
+            post_inc
+          compound_stmt
+            expr_stmt
+              assignment
+                postfix
+                  buffer
+                  array_index	i
+                0
+  external_decl
+    function_def
+      type_specifier
+        void
+      declarator	write_to_buffer
+      param_list
+        param
+          type_specifier
+            char
+            pointer
+          declarator	str
+        param
+          type_specifier
+            int
+          declarator	index
+      compound_stmt
+        declaration
+          type_specifier
+            int
+          init_declarator_list
+            init_declarator
+              declarator	i
+              0
+        while_stmt
+          logic_and
+            equality
+              postfix
+                str
+                array_index	i
+              neq
+              0
+            relational
+              additive
+                index
+                plus
+                i
+              lt
+              256
+          compound_stmt
+            expr_stmt
+              assignment
+                postfix
+                  buffer
+                  array_index
+                    additive
+                      index
+                      plus
+                      i
+                postfix
+                  str
+                  array_index	i
+            expr_stmt
+              assignment
+                postfix
+                  buffer_update_queue
+                  array_index
+                    postfix
+                      buffer_update_queue_ptr
+                      post_inc
+                additive
+                  index
+                  plus
+                  i
+            expr_stmt
+              assignment
+                i
+                additive
+                  i
+                  plus
+                  1
+  external_decl
+    function_def
+      type_specifier
+        void
+      declarator	fast_flush
+      compound_stmt
+        if_stmt
+          relational
+            buffer_update_queue_ptr
+            gt
+            16
+          compound_stmt
+            expr_stmt
+              postfix
+                update_buffer
+                call_suffix
+  external_decl
     function_def
       inline
       type_specifier
@@ -2571,4 +2832,48 @@ translation_unit
         expr_stmt
           postfix
             rand_block_test
+            call_suffix
+        expr_stmt
+          postfix
+            clear_display
+            call_suffix
+        expr_stmt
+          postfix
+            write_to_buffer
+            call_suffix
+              arg_list
+                "Hello, RospOS Terminal!\0"
+                0
+        expr_stmt
+          postfix
+            update_buffer
+            call_suffix
+        expr_stmt
+          postfix
+            write_to_buffer
+            call_suffix
+              arg_list
+                "This is a simple terminal implementation.\0"
+                32
+        expr_stmt
+          postfix
+            update_buffer
+            call_suffix
+        expr_stmt
+          postfix
+            write_to_buffer
+            call_suffix
+              arg_list
+                "It uses a buffer to store characters\0"
+                64
+        expr_stmt
+          postfix
+            write_to_buffer
+            call_suffix
+              arg_list
+                "and only updates the display when necessary.\0"
+                96
+        expr_stmt
+          postfix
+            update_buffer
             call_suffix
