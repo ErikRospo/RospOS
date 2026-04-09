@@ -142,3 +142,12 @@ void draw_rectangle(int x, int y, int width, int height, int bc, int fc)
     };
     return;
 }
+
+void fast_clear_display(){
+    int i = 0;
+    while (i < 0x10000)
+    {
+        __sw(0x20000000 + i, 0);
+        i = i + 4;
+    }
+}
