@@ -3,6 +3,7 @@
 #include <screen_test.rosc>
 #include <rand_draw_test.rosc>
 #include <file.rosc>
+#include <terminal.rosc>
 
 inline int add(int a, int b)
 {
@@ -30,4 +31,12 @@ void main()
     draw_string_to_display("Blue", 10, 40 , 0x07);
     draw_string_to_display("Yellow", 10, 48 , 0x3C);
     rand_block_test();
+    clear_display();
+    write_to_buffer("Hello, RospOS Terminal!\0", 0);
+    update_buffer();
+    write_to_buffer("This is a simple terminal implementation.\0", 32);
+    update_buffer();
+    write_to_buffer("It uses a buffer to store characters\0",64);
+    write_to_buffer("and only updates the display when necessary.\0", 96);
+    update_buffer();
 }
