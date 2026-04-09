@@ -44,6 +44,13 @@ class Emitter:
         self.global_types = {}
         # global symbol -> label/immediate value to materialize when referenced in code
         self.global_value_inits = {}
+        # address-only globals (arrays, string literals, lifted blobs)
+        self.global_address_labels = {}
+        # storage-backed globals (scalar/pointer variables)
+        self.global_storage_labels = {}
+        self.global_storage_types = {}
+        self.global_storage_sizes = {}
+        self.global_storage_inits = {}
         # function return type hints collected from translation unit
         self.func_return_types = {}
         # struct type definitions: name -> {members: [...], size: int}
@@ -134,9 +141,24 @@ class Emitter:
             if g.get("kind") == "string":
                 self.global_types[g.get("name")] = "char_ptr"
                 self.global_value_inits[g.get("name")] = g.get("name")
+                self.global_address_labels[g.get("name")] = g.get("name")
             if g.get("kind") == "blob":
                 self.global_types[g.get("name")] = "char_ptr"
                 self.global_value_inits[g.get("name")] = g.get("name")
+                self.global_address_labels[g.get("name")] = g.get("name")
+            if g.get("kind") == "global_array":
+                name = g.get("name")
+                self.global_types[name] = g.get("type", "char_ptr")
+                self.global_value_inits[name] = name
+                self.global_address_labels[name] = name
+            if g.get("kind") == "global_var":
+                name = g.get("name")
+                storage_type = g.get("type", "int")
+                self.global_types[name] = storage_type
+                self.global_storage_labels[name] = name
+                self.global_storage_types[name] = storage_type
+                self.global_storage_sizes[name] = int(g.get("size", 4))
+                self.global_storage_inits[name] = g.get("value", 0)
             if g.get("kind") == "inline_const":
                 # Store inline constants for lookup during expression evaluation
                 name = g.get("name")
@@ -174,6 +196,45 @@ class Emitter:
             size = int(sp.get("size", 0))
             out.write(f"{lbl}:\n")
             out.write(f"  .SPACE {size} // lifted buffer\n\n")
+
+    def _is_global_storage_var(self, name: str) -> bool:
+        return name in self.global_storage_labels
+
+    def _is_global_address_symbol(self, name: str) -> bool:
+        return name in self.global_address_labels
+
+    def _global_scalar_access_instr(self, name: str) -> str:
+        return "LB" if self.global_storage_types.get(name) == "char" else "LW"
+
+    def _global_scalar_store_instr(self, name: str) -> str:
+        return "SB" if self.global_storage_types.get(name) == "char" else "SW"
+
+    def _emit_global_address(self, name: str, out, reg: Optional[str] = None) -> str:
+        target = reg or self.alloc_reg()
+        self._load_imm(target, self.global_address_labels[name], out)
+        return target
+
+    def _emit_global_load(self, name: str, out) -> str:
+        rd = self.alloc_reg()
+        self._load_imm(rd, self.global_storage_labels[name], out) 
+        load_instr = self._global_scalar_access_instr(name)
+        # It's fine to use LX rd, rd, 0 even though it clobbers the address
+        # since the address isn't needed after the load and this saves an extra register allocation
+        out.write(f"  {load_instr} {rd}, {rd}, 0    // load global {name}\n")
+        return rd
+
+    def _emit_global_store(self, name: str, value_reg: str, out):
+        self.pin_reg(value_reg)
+        addr_reg = self.alloc_reg()
+        try:
+            self._load_imm(addr_reg, self.global_storage_labels[name], out)
+            store_instr = self._global_scalar_store_instr(name)
+            out.write(
+                f"  {store_instr} {value_reg}, {addr_reg}, 0    // store global {name}\n"
+            )
+        finally:
+            self.release_expr_reg(addr_reg)
+            self.unpin_reg(value_reg)
 
     def gen_label(self, prefix="L") -> str:
         self.label_counter += 1
@@ -1085,29 +1146,61 @@ class Emitter:
             )
             return
 
-        # Starter supports simple string/global labels
-        if g.get("kind") == "string":
+        def _emit_data_bytes(lbl: str, data_bytes: bytes):
+            out.write(f"{lbl}:\n")
+            if not data_bytes:
+                out.write("  .SPACE 0\n\n")
+                return
+
+            for word in range(0, len(data_bytes), 4):
+                byte = data_bytes[word : word + 4]
+                width = max(2, len(byte) * 2)
+                out.write(
+                    f"  .DATA 0x{int.from_bytes(byte, 'little'):0{width}X}\n"
+                )
+            out.write("\n")
+
+        kind = g.get("kind")
+        if kind == "string":
             lbl = g.get("name") or self.gen_label("str")
             s = _escape_ros_string(str(g.get("value", "")))
             out.write(f"{lbl}:\n")
             out.write(f'  .STR "{s}"\n\n')
-        elif g.get("kind") == "blob":
+        elif kind == "blob":
             lbl = g.get("name") or self.gen_label("blob")
             raw = g.get("value", b"")
-            if isinstance(raw, str):
-                blob_bytes = raw.encode("latin1")
+            blob_bytes = raw.encode("latin1") if isinstance(raw, str) else bytes(raw)
+            _emit_data_bytes(lbl, blob_bytes)
+        elif kind == "global_array":
+            lbl = g.get("name") or self.gen_label("garr")
+            raw = g.get("value", b"")
+            data_bytes = raw.encode("latin1") if isinstance(raw, str) else bytes(raw)
+            size = int(g.get("size", len(data_bytes)))
+            if len(data_bytes) < size:
+                data_bytes = data_bytes + (b"\x00" * (size - len(data_bytes)))
             else:
-                blob_bytes = bytes(raw)
-
+                data_bytes = data_bytes[:size]
+            if not data_bytes or all(byte == 0 for byte in data_bytes):
+                out.write(f"{lbl}:\n")
+                out.write(f"  .SPACE {size}\n\n")
+            else:
+                _emit_data_bytes(lbl, data_bytes)
+        elif kind == "global_var":
+            lbl = g.get("name") or self.gen_label("gvar")
+            size = int(g.get("size", 4))
+            value = g.get("value", 0)
             out.write(f"{lbl}:\n")
-            if not blob_bytes:
-                out.write("  .SPACE 0\n\n")
+            if isinstance(value, dict) and value.get("type") == "string_addr":
+                out.write(f"  .DATA {value.get('label')}\n\n")
                 return
 
-            for word in range(0, len(blob_bytes), 4):
-                byte = blob_bytes[word : word + 4]
-                out.write(f"  .DATA 0x{int.from_bytes(byte, 'little'):08X}\n")
-            out.write("\n")
+            scalar_value = int(value) if not isinstance(value, dict) else 0
+            if size <= 1:
+                data_value = scalar_value & 0xFF
+                out.write(f"  .DATA 0x{data_value:02X}\n\n")
+            else:
+                data_value = scalar_value & 0xFFFFFFFF
+                out.write(f"  .DATA 0x{data_value:08X}\n\n")
         else:
             # unknown global; emit a commented placeholder
             out.write(f"// global: {g!r}\n")
@@ -1290,6 +1383,11 @@ def _snapshot_emitter_state(template: Emitter) -> Dict[str, Any]:
         "source_lines": list(template.source_lines),
         "global_types": dict(template.global_types),
         "global_value_inits": dict(template.global_value_inits),
+        "global_address_labels": dict(template.global_address_labels),
+        "global_storage_labels": dict(template.global_storage_labels),
+        "global_storage_types": dict(template.global_storage_types),
+        "global_storage_sizes": dict(template.global_storage_sizes),
+        "global_storage_inits": dict(template.global_storage_inits),
         "func_return_types": dict(template.func_return_types),
         "struct_types": dict(template.struct_types),
         "inline_functions": dict(template.inline_functions),
@@ -1306,6 +1404,11 @@ def _clone_emitter_for_function(template_state: Dict[str, Any], label_namespace:
     )
     clone.global_types = dict(template_state.get("global_types", {}))
     clone.global_value_inits = dict(template_state.get("global_value_inits", {}))
+    clone.global_address_labels = dict(template_state.get("global_address_labels", {}))
+    clone.global_storage_labels = dict(template_state.get("global_storage_labels", {}))
+    clone.global_storage_types = dict(template_state.get("global_storage_types", {}))
+    clone.global_storage_sizes = dict(template_state.get("global_storage_sizes", {}))
+    clone.global_storage_inits = dict(template_state.get("global_storage_inits", {}))
     clone.func_return_types = dict(template_state.get("func_return_types", {}))
     clone.struct_types = dict(template_state.get("struct_types", {}))
     clone.inline_functions = dict(template_state.get("inline_functions", {}))

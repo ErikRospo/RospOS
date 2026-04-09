@@ -271,11 +271,20 @@ def _emit_assign(emitter, stmt: Dict[str, Any], out):
     elif isinstance(target, str):
         target_name = target
 
+    target_is_global = bool(
+        target_name and getattr(emitter, "_is_global_storage_var", lambda _name: False)(target_name)
+    )
+
     # Fast path:
     #   x = x +/- const  -> ADDI x, x, +/-const
     #   x = x << const   -> SHLI x, x, const
     #   x = x >> const   -> SHRI x, x, const
-    if isinstance(val, dict) and val.get("type") == "binop" and target_name is not None:
+    if (
+        not target_is_global
+        and isinstance(val, dict)
+        and val.get("type") == "binop"
+        and target_name is not None
+    ):
         op = val.get("op")
         left = val.get("left")
         right = val.get("right")
@@ -372,43 +381,55 @@ def _emit_assign(emitter, stmt: Dict[str, Any], out):
         emitter.release_expr_reg(raddr)
     elif isinstance(target, dict) and target.get("type") == "var":
         name = target.get("name")
-        dest = emitter.var_regs.get(name)
-        spill_label = getattr(emitter, "_var_spill_labels", {}).get(name)
-        if dest:
-            out.write(f"  ADDI {dest}, {rval}, 0    // assign {name}\n")
-            if spill_label:
-                emitter._store_reg_to_spill_label(
-                    dest, spill_label, out, f"sync spilled {name}"
-                )
+        if getattr(emitter, "_is_global_storage_var", lambda _name: False)(name):
+            emitter._emit_global_store(name, rval, out)
+            rval = None
+        elif getattr(emitter, "_is_global_address_symbol", lambda _name: False)(name):
+            out.write(f"  // ERROR: cannot assign through address-only global {name}\n")
         else:
-            if spill_label:
-                emitter._store_reg_to_spill_label(
-                    rval, spill_label, out, f"assign spilled {name}"
-                )
+            dest = emitter.var_regs.get(name)
+            spill_label = getattr(emitter, "_var_spill_labels", {}).get(name)
+            if dest:
+                out.write(f"  ADDI {dest}, {rval}, 0    // assign {name}\n")
+                if spill_label:
+                    emitter._store_reg_to_spill_label(
+                        dest, spill_label, out, f"sync spilled {name}"
+                    )
             else:
-                emitter.var_regs[name] = rval
-                if name not in emitter.var_types:
-                    emitter.var_types[name] = "int"
-                rval = None
+                if spill_label:
+                    emitter._store_reg_to_spill_label(
+                        rval, spill_label, out, f"assign spilled {name}"
+                    )
+                else:
+                    emitter.var_regs[name] = rval
+                    if name not in emitter.var_types:
+                        emitter.var_types[name] = "int"
+                    rval = None
     elif isinstance(target, str):
-        dest = emitter.var_regs.get(target)
-        spill_label = getattr(emitter, "_var_spill_labels", {}).get(target)
-        if dest:
-            out.write(f"  ADDI {dest}, {rval}, 0    // assign {target}\n")
-            if spill_label:
-                emitter._store_reg_to_spill_label(
-                    dest, spill_label, out, f"sync spilled {target}"
-                )
+        if getattr(emitter, "_is_global_storage_var", lambda _name: False)(target):
+            emitter._emit_global_store(target, rval, out)
+            rval = None
+        elif getattr(emitter, "_is_global_address_symbol", lambda _name: False)(target):
+            out.write(f"  // ERROR: cannot assign through address-only global {target}\n")
         else:
-            if spill_label:
-                emitter._store_reg_to_spill_label(
-                    rval, spill_label, out, f"assign spilled {target}"
-                )
+            dest = emitter.var_regs.get(target)
+            spill_label = getattr(emitter, "_var_spill_labels", {}).get(target)
+            if dest:
+                out.write(f"  ADDI {dest}, {rval}, 0    // assign {target}\n")
+                if spill_label:
+                    emitter._store_reg_to_spill_label(
+                        dest, spill_label, out, f"sync spilled {target}"
+                    )
             else:
-                emitter.var_regs[target] = rval
-                if target not in emitter.var_types:
-                    emitter.var_types[target] = "int"
-                rval = None
+                if spill_label:
+                    emitter._store_reg_to_spill_label(
+                        rval, spill_label, out, f"assign spilled {target}"
+                    )
+                else:
+                    emitter.var_regs[target] = rval
+                    if target not in emitter.var_types:
+                        emitter.var_types[target] = "int"
+                    rval = None
     else:
         out.write(f"  // assign to unsupported target {target!r}\n")
 

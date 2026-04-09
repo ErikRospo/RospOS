@@ -45,15 +45,13 @@ def _emit_var(emitter, expr: Dict[str, Any], out) -> str:
         if r:
             emitter.consume_var_read(name)
             return r
-    if name in emitter.global_value_inits:
-        reg = emitter._alloc_var_reg(
-            name,
-            out,
-            init_value=emitter.global_value_inits[name],
-            typ=emitter.global_types.get(name, "int"),
-            is_label=True,
-            comment="global symbol addr",
-        )
+    if getattr(emitter, "_is_global_storage_var", lambda _name: False)(name):
+        reg = emitter._emit_global_load(name, out)
+        emitter.consume_var_read(name)
+        return reg
+    if getattr(emitter, "_is_global_address_symbol", lambda _name: False)(name):
+        reg = emitter.alloc_reg()
+        emitter._load_imm(reg, emitter.global_address_labels[name], out)
         emitter.consume_var_read(name)
         return reg
     reg = emitter._alloc_var_reg(name, out, init_value=None, typ="int")
@@ -385,47 +383,59 @@ def _emit_assign_expr(emitter, expr: Dict[str, Any], out) -> str:
             out.write("  // ERROR: assign-expr deref target has no address register\n")
     elif isinstance(target, dict) and target.get("type") == "var":
         name = target.get("name")
-        dest = emitter.var_regs.get(name)
-        spill_label = getattr(emitter, "_var_spill_labels", {}).get(name)
-        if dest:
-            out.write(f"  ADDI {dest}, {rval}, 0    // assign-expr {name}\n")
-            if spill_label:
-                emitter._store_reg_to_spill_label(
-                    dest, spill_label, out, f"sync spilled {name}"
-                )
-            result = dest
+        if getattr(emitter, "_is_global_storage_var", lambda _name: False)(name):
+            emitter._emit_global_store(name, rval, out)
+            result = rval
+        elif getattr(emitter, "_is_global_address_symbol", lambda _name: False)(name):
+            out.write(f"  // ERROR: cannot assign through address-only global {name}\n")
         else:
-            if spill_label:
-                emitter._store_reg_to_spill_label(
-                    rval, spill_label, out, f"assign-expr spilled {name}"
-                )
-                result = rval
+            dest = emitter.var_regs.get(name)
+            spill_label = getattr(emitter, "_var_spill_labels", {}).get(name)
+            if dest:
+                out.write(f"  ADDI {dest}, {rval}, 0    // assign-expr {name}\n")
+                if spill_label:
+                    emitter._store_reg_to_spill_label(
+                        dest, spill_label, out, f"sync spilled {name}"
+                    )
+                result = dest
             else:
-                emitter.var_regs[name] = rval
-                if name not in emitter.var_types:
-                    emitter.var_types[name] = "int"
-                result = rval
+                if spill_label:
+                    emitter._store_reg_to_spill_label(
+                        rval, spill_label, out, f"assign-expr spilled {name}"
+                    )
+                    result = rval
+                else:
+                    emitter.var_regs[name] = rval
+                    if name not in emitter.var_types:
+                        emitter.var_types[name] = "int"
+                    result = rval
     elif isinstance(target, str):
-        dest = emitter.var_regs.get(target)
-        spill_label = getattr(emitter, "_var_spill_labels", {}).get(target)
-        if dest:
-            out.write(f"  ADDI {dest}, {rval}, 0    // assign-expr {target}\n")
-            if spill_label:
-                emitter._store_reg_to_spill_label(
-                    dest, spill_label, out, f"sync spilled {target}"
-                )
-            result = dest
+        if getattr(emitter, "_is_global_storage_var", lambda _name: False)(target):
+            emitter._emit_global_store(target, rval, out)
+            result = rval
+        elif getattr(emitter, "_is_global_address_symbol", lambda _name: False)(target):
+            out.write(f"  // ERROR: cannot assign through address-only global {target}\n")
         else:
-            if spill_label:
-                emitter._store_reg_to_spill_label(
-                    rval, spill_label, out, f"assign-expr spilled {target}"
-                )
-                result = rval
+            dest = emitter.var_regs.get(target)
+            spill_label = getattr(emitter, "_var_spill_labels", {}).get(target)
+            if dest:
+                out.write(f"  ADDI {dest}, {rval}, 0    // assign-expr {target}\n")
+                if spill_label:
+                    emitter._store_reg_to_spill_label(
+                        dest, spill_label, out, f"sync spilled {target}"
+                    )
+                result = dest
             else:
-                emitter.var_regs[target] = rval
-                if target not in emitter.var_types:
-                    emitter.var_types[target] = "int"
-                result = rval
+                if spill_label:
+                    emitter._store_reg_to_spill_label(
+                        rval, spill_label, out, f"assign-expr spilled {target}"
+                    )
+                    result = rval
+                else:
+                    emitter.var_regs[target] = rval
+                    if target not in emitter.var_types:
+                        emitter.var_types[target] = "int"
+                    result = rval
     else:
         out.write(f"  // assign-expr to unsupported target {target!r}\n")
 

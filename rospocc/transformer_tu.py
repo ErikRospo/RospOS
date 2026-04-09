@@ -334,6 +334,46 @@ class TranslationUnitTransformer:
         if not init_list:
             return []
 
+        def _resolved_type(base_type, pointer_count, is_array=False):
+            if is_array:
+                return "char_ptr" if base_type == "char" else "int_ptr"
+            if pointer_count > 0:
+                return "char_ptr" if base_type == "char" else "int_ptr"
+            return base_type or "int"
+
+        def _decl_array_size(declarator_node):
+            if not isinstance(declarator_node, dict):
+                return None
+
+            for decl_child in declarator_node.get("children", []):
+                if not (
+                    isinstance(decl_child, dict)
+                    and node_name(decl_child.get("node")) == "array"
+                ):
+                    continue
+
+                array_children = decl_child.get("children", [])
+                if not array_children:
+                    return None
+
+                size_node = array_children[0]
+                if isinstance(size_node, dict) and "int" in size_node:
+                    return int(size_node["int"])
+                if isinstance(size_node, dict) and "token" in size_node:
+                    tok = size_node["token"]
+                    if isinstance(tok, str):
+                        try:
+                            return int(tok, 0)
+                        except Exception:
+                            return None
+            return None
+
+        def _pack_scalar_value(value, size):
+            masked = int(value)
+            if size <= 1:
+                return masked & 0xFF
+            return masked & 0xFFFFFFFF
+
         for init in init_list.get("children", []):
             if not (isinstance(init, dict) and init.get("node") == "init_declarator"):
                 continue
@@ -355,11 +395,15 @@ class TranslationUnitTransformer:
                 elif isinstance(decl_child, dict) and init_node is None:
                     init_node = decl_child
 
-            if not name or init_node is None:
+            if not name:
                 continue
 
             decl_pointer_count = self._count_declarator_pointers(declarator_node)
             total_pointer_count = t_pointer_count + decl_pointer_count
+            array_size = _decl_array_size(declarator_node)
+            resolved_type = _resolved_type(
+                t_spec, total_pointer_count, is_array=array_size is not None
+            )
 
             embed_path = self._extract_embed_path(init_node)
             if embed_path is not None:
@@ -387,7 +431,48 @@ class TranslationUnitTransformer:
                 )
                 continue
 
-            if t_spec == "char" and total_pointer_count == 0:
+            if array_size is not None:
+                str_value = self._extract_string_literal(init_node)
+                if str_value is not None:
+                    init_bytes = str_value.encode("utf-8") + b"\x00"
+                    global_entry = {
+                        "kind": "global_array",
+                        "name": name,
+                        "type": resolved_type,
+                        "storage_kind": "array",
+                        "size": array_size,
+                        "value": init_bytes[:array_size],
+                    }
+                    if is_inline:
+                        global_entry["inline"] = True
+                    self.ctx.tu["globals"].append(global_entry)
+                    continue
+
+                if init_node is None:
+                    init_bytes = b"\x00" * max(array_size, 0)
+                else:
+                    const_value = self._extract_const_value(init_node)
+                    if const_value is not None:
+                        init_bytes = int(const_value).to_bytes(
+                            max(array_size, 1), byteorder="little", signed=False
+                        )[:array_size]
+                    else:
+                        init_bytes = b"\x00" * max(array_size, 0)
+
+                global_entry = {
+                    "kind": "global_array",
+                    "name": name,
+                    "type": resolved_type,
+                    "storage_kind": "array",
+                    "size": array_size,
+                    "value": init_bytes,
+                }
+                if is_inline:
+                    global_entry["inline"] = True
+                self.ctx.tu["globals"].append(global_entry)
+                continue
+
+            if t_spec == "char" and total_pointer_count == 0 and init_node is not None:
                 str_value = self._extract_string_literal(init_node)
                 if str_value is not None:
                     global_entry = {"kind": "string", "name": name, "value": str_value}
@@ -396,19 +481,38 @@ class TranslationUnitTransformer:
                     self.ctx.tu["globals"].append(global_entry)
                     continue
 
-            # Handle inline constant variables (int, char, etc.)
-            if is_inline and total_pointer_count == 0:
-                const_value = self._extract_const_value(init_node)
-                if const_value is not None:
-                    global_entry = {
-                        "kind": "inline_const",
-                        "name": name,
-                        "value": const_value,
-                        "type": t_spec,
-                        "inline": True,
-                    }
-                    self.ctx.tu["globals"].append(global_entry)
+            const_value = self._extract_const_value(init_node) if init_node is not None else 0
+            if const_value is None:
+                str_value = self._extract_string_literal(init_node)
+                if str_value is not None:
+                    const_value = {"type": "string_addr", "label": self.ctx.get_or_create_string_label(str_value)}
+                else:
                     continue
+
+            if is_inline and total_pointer_count == 0 and isinstance(const_value, int):
+                global_entry = {
+                    "kind": "inline_const",
+                    "name": name,
+                    "value": const_value,
+                    "type": t_spec,
+                    "inline": True,
+                }
+                self.ctx.tu["globals"].append(global_entry)
+                continue
+
+            global_entry = {
+                "kind": "global_var",
+                "name": name,
+                "type": resolved_type,
+                "storage_kind": "scalar",
+                "size": 1 if t_spec == "char" and total_pointer_count == 0 else 4,
+                "value": _pack_scalar_value(const_value, 1 if t_spec == "char" and total_pointer_count == 0 else 4)
+                if isinstance(const_value, int)
+                else const_value,
+            }
+            if is_inline:
+                global_entry["inline"] = True
+            self.ctx.tu["globals"].append(global_entry)
         return []
 
     def _extract_const_value(self, node):
