@@ -2284,6 +2284,113 @@ program
   codeline
     directiveuse
       func
+        label	fast_clear_display:
+  codeline
+    instruction
+      push
+        register	r14
+  codeline
+    instruction
+      lli
+        register	r2
+        imm	0
+  codeline
+    label	fast_clear_display_10_WHILE1:
+  codeline
+    instruction
+      lli
+        register	r3
+        imm	65536
+  codeline
+    instruction
+      binstructuse
+        blt
+        register	r2
+        register	r3
+        imm
+          labeluse	fast_clear_display_10_CMP_TRUE3
+  codeline
+    instruction
+      lli
+        register	r3
+        imm	0
+  codeline
+    instruction
+      jmpseudo
+        imm
+          labeluse	fast_clear_display_10_CMP_END4
+  codeline
+    label	fast_clear_display_10_CMP_TRUE3:
+  codeline
+    instruction
+      lli
+        register	r3
+        imm	1
+  codeline
+    label	fast_clear_display_10_CMP_END4:
+  codeline
+    instruction
+      binstructuse
+        beq
+        register	r3
+        register	r0
+        imm
+          labeluse	fast_clear_display_10_WHILE_END2
+  codeline
+    instruction
+      lli
+        register	r4
+        imm	536870912
+  codeline
+    instruction
+      rinstructuse
+        add
+        register	r4
+        register	r4
+        register	r2
+  codeline
+    instruction
+      lli
+        register	r5
+        imm	0
+  codeline
+    instruction
+      lsinstructuse
+        sw
+        register	r5
+        register	r4
+        imm	0
+  codeline
+    instruction
+      iinstructuse
+        addi
+        register	r2
+        register	r2
+        imm	4
+  codeline
+    instruction
+      jmpseudo
+        imm
+          labeluse	fast_clear_display_10_WHILE1
+  codeline
+    label	fast_clear_display_10_WHILE_END2:
+  codeline
+    instruction
+      iinstructuse
+        addi
+        register	r1
+        register	r0
+        imm	0
+  codeline
+    instruction
+      pop
+        register	r14
+  codeline
+    instruction
+      retpseudo
+  codeline
+    directiveuse
+      func
         label	lfsr_test:
   codeline
     instruction
@@ -2305,7 +2412,7 @@ program
         register	r4
         imm	3735928559
   codeline
-    label	lfsr_test_10_WHILE1:
+    label	lfsr_test_11_WHILE1:
   codeline
     instruction
       binstructuse
@@ -2313,7 +2420,7 @@ program
         register	r3
         register	r0
         imm
-          labeluse	lfsr_test_10_WHILE_END2
+          labeluse	lfsr_test_11_WHILE_END2
   codeline
     instruction
       lsinstructuse
@@ -2716,9 +2823,9 @@ program
     instruction
       jmpseudo
         imm
-          labeluse	lfsr_test_10_WHILE1
+          labeluse	lfsr_test_11_WHILE1
   codeline
-    label	lfsr_test_10_WHILE_END2:
+    label	lfsr_test_11_WHILE_END2:
   codeline
     instruction
       iinstructuse
@@ -2747,7 +2854,7 @@ program
         register	r4
         imm	0
   codeline
-    label	palette_test_11_WHILE1:
+    label	palette_test_12_WHILE1:
   codeline
     instruction
       lli
@@ -2760,7 +2867,7 @@ program
         register	r4
         register	r5
         imm
-          labeluse	palette_test_11_CMP_TRUE3
+          labeluse	palette_test_12_CMP_TRUE3
   codeline
     instruction
       lli
@@ -2770,16 +2877,16 @@ program
     instruction
       jmpseudo
         imm
-          labeluse	palette_test_11_CMP_END4
+          labeluse	palette_test_12_CMP_END4
   codeline
-    label	palette_test_11_CMP_TRUE3:
+    label	palette_test_12_CMP_TRUE3:
   codeline
     instruction
       lli
         register	r5
         imm	1
   codeline
-    label	palette_test_11_CMP_END4:
+    label	palette_test_12_CMP_END4:
   codeline
     instruction
       binstructuse
@@ -2787,7 +2894,7 @@ program
         register	r5
         register	r0
         imm
-          labeluse	palette_test_11_WHILE_END2
+          labeluse	palette_test_12_WHILE_END2
   codeline
     instruction
       lli
@@ -2823,7 +2930,7 @@ program
         register	r9
         imm	0
   codeline
-    label	palette_test_11_WHILE5:
+    label	palette_test_12_WHILE5:
   codeline
     instruction
       binstructuse
@@ -2831,7 +2938,7 @@ program
         register	r9
         register	r3
         imm
-          labeluse	palette_test_11_CMP_TRUE7
+          labeluse	palette_test_12_CMP_TRUE7
   codeline
     instruction
       lli
@@ -2841,16 +2948,16 @@ program
     instruction
       jmpseudo
         imm
-          labeluse	palette_test_11_CMP_END8
+          labeluse	palette_test_12_CMP_END8
   codeline
-    label	palette_test_11_CMP_TRUE7:
+    label	palette_test_12_CMP_TRUE7:
   codeline
     instruction
       lli
         register	r10
         imm	1
   codeline
-    label	palette_test_11_CMP_END8:
+    label	palette_test_12_CMP_END8:
   codeline
     instruction
       binstructuse
@@ -2858,14 +2965,14 @@ program
         register	r10
         register	r0
         imm
-          labeluse	palette_test_11_WHILE_END6
+          labeluse	palette_test_12_WHILE_END6
   codeline
     instruction
       lli
         register	r11
         imm	0
   codeline
-    label	palette_test_11_WHILE9:
+    label	palette_test_12_WHILE9:
   codeline
     instruction
       binstructuse
@@ -2873,7 +2980,7 @@ program
         register	r11
         register	r3
         imm
-          labeluse	palette_test_11_CMP_TRUE11
+          labeluse	palette_test_12_CMP_TRUE11
   codeline
     instruction
       lli
@@ -2883,16 +2990,16 @@ program
     instruction
       jmpseudo
         imm
-          labeluse	palette_test_11_CMP_END12
+          labeluse	palette_test_12_CMP_END12
   codeline
-    label	palette_test_11_CMP_TRUE11:
+    label	palette_test_12_CMP_TRUE11:
   codeline
     instruction
       lli
         register	r12
         imm	1
   codeline
-    label	palette_test_11_CMP_END12:
+    label	palette_test_12_CMP_END12:
   codeline
     instruction
       binstructuse
@@ -2900,7 +3007,7 @@ program
         register	r12
         register	r0
         imm
-          labeluse	palette_test_11_WHILE_END10
+          labeluse	palette_test_12_WHILE_END10
   codeline
     instruction
       rinstructuse
@@ -2971,7 +3078,7 @@ program
       lli
         register	r3
         imm
-          labeluse	palette_test_11_spill13
+          labeluse	palette_test_12_spill13
   codeline
     instruction
       lsinstructuse
@@ -3013,9 +3120,9 @@ program
     instruction
       jmpseudo
         imm
-          labeluse	palette_test_11_WHILE9
+          labeluse	palette_test_12_WHILE9
   codeline
-    label	palette_test_11_WHILE_END10:
+    label	palette_test_12_WHILE_END10:
   codeline
     instruction
       iinstructuse
@@ -3027,9 +3134,9 @@ program
     instruction
       jmpseudo
         imm
-          labeluse	palette_test_11_WHILE5
+          labeluse	palette_test_12_WHILE5
   codeline
-    label	palette_test_11_WHILE_END6:
+    label	palette_test_12_WHILE_END6:
   codeline
     instruction
       iinstructuse
@@ -3041,9 +3148,9 @@ program
     instruction
       jmpseudo
         imm
-          labeluse	palette_test_11_WHILE1
+          labeluse	palette_test_12_WHILE1
   codeline
-    label	palette_test_11_WHILE_END2:
+    label	palette_test_12_WHILE_END2:
   codeline
     instruction
       iinstructuse
@@ -3072,7 +3179,7 @@ program
         register	r2
         imm	0
   codeline
-    label	rand_block_test_12_WHILE1:
+    label	rand_block_test_13_WHILE1:
   codeline
     instruction
       lli
@@ -3085,7 +3192,7 @@ program
         register	r2
         register	r3
         imm
-          labeluse	rand_block_test_12_CMP_TRUE3
+          labeluse	rand_block_test_13_CMP_TRUE3
   codeline
     instruction
       lli
@@ -3095,16 +3202,16 @@ program
     instruction
       jmpseudo
         imm
-          labeluse	rand_block_test_12_CMP_END4
+          labeluse	rand_block_test_13_CMP_END4
   codeline
-    label	rand_block_test_12_CMP_TRUE3:
+    label	rand_block_test_13_CMP_TRUE3:
   codeline
     instruction
       lli
         register	r3
         imm	1
   codeline
-    label	rand_block_test_12_CMP_END4:
+    label	rand_block_test_13_CMP_END4:
   codeline
     instruction
       binstructuse
@@ -3112,7 +3219,7 @@ program
         register	r3
         register	r0
         imm
-          labeluse	rand_block_test_12_WHILE_END2
+          labeluse	rand_block_test_13_WHILE_END2
   codeline
     instruction
       push
@@ -3361,9 +3468,9 @@ program
     instruction
       jmpseudo
         imm
-          labeluse	rand_block_test_12_WHILE1
+          labeluse	rand_block_test_13_WHILE1
   codeline
-    label	rand_block_test_12_WHILE_END2:
+    label	rand_block_test_13_WHILE_END2:
   codeline
     instruction
       lli
@@ -3773,7 +3880,7 @@ program
         register	r2
         imm	0
   codeline
-    label	string_length_17_WHILE1:
+    label	string_length_18_WHILE1:
   codeline
     instruction
       rinstructuse
@@ -3800,7 +3907,7 @@ program
         register	r3
         register	r4
         imm
-          labeluse	string_length_17_CMP_TRUE3
+          labeluse	string_length_18_CMP_TRUE3
   codeline
     instruction
       lli
@@ -3810,16 +3917,16 @@ program
     instruction
       jmpseudo
         imm
-          labeluse	string_length_17_CMP_END4
+          labeluse	string_length_18_CMP_END4
   codeline
-    label	string_length_17_CMP_TRUE3:
+    label	string_length_18_CMP_TRUE3:
   codeline
     instruction
       lli
         register	r3
         imm	1
   codeline
-    label	string_length_17_CMP_END4:
+    label	string_length_18_CMP_END4:
   codeline
     instruction
       binstructuse
@@ -3827,7 +3934,7 @@ program
         register	r3
         register	r0
         imm
-          labeluse	string_length_17_WHILE_END2
+          labeluse	string_length_18_WHILE_END2
   codeline
     instruction
       iinstructuse
@@ -3839,9 +3946,9 @@ program
     instruction
       jmpseudo
         imm
-          labeluse	string_length_17_WHILE1
+          labeluse	string_length_18_WHILE1
   codeline
-    label	string_length_17_WHILE_END2:
+    label	string_length_18_WHILE_END2:
   codeline
     instruction
       rinstructuse
@@ -3869,7 +3976,7 @@ program
       lli
         register	r2
         imm
-          labeluse	initialize_filesystem_18_superblock_buf1
+          labeluse	initialize_filesystem_19_superblock_buf1
   codeline
     instruction
       lli
@@ -4044,7 +4151,7 @@ program
         register	r8
         imm	7
   codeline
-    label	initialize_filesystem_18_WHILE2:
+    label	initialize_filesystem_19_WHILE2:
   codeline
     instruction
       lli
@@ -4057,7 +4164,7 @@ program
         register	r8
         register	r7
         imm
-          labeluse	initialize_filesystem_18_CMP_TRUE4
+          labeluse	initialize_filesystem_19_CMP_TRUE4
   codeline
     instruction
       lli
@@ -4067,16 +4174,16 @@ program
     instruction
       jmpseudo
         imm
-          labeluse	initialize_filesystem_18_CMP_END5
+          labeluse	initialize_filesystem_19_CMP_END5
   codeline
-    label	initialize_filesystem_18_CMP_TRUE4:
+    label	initialize_filesystem_19_CMP_TRUE4:
   codeline
     instruction
       lli
         register	r7
         imm	1
   codeline
-    label	initialize_filesystem_18_CMP_END5:
+    label	initialize_filesystem_19_CMP_END5:
   codeline
     instruction
       binstructuse
@@ -4084,7 +4191,7 @@ program
         register	r7
         register	r0
         imm
-          labeluse	initialize_filesystem_18_WHILE_END3
+          labeluse	initialize_filesystem_19_WHILE_END3
   codeline
     instruction
       lli
@@ -4115,9 +4222,9 @@ program
     instruction
       jmpseudo
         imm
-          labeluse	initialize_filesystem_18_WHILE2
+          labeluse	initialize_filesystem_19_WHILE2
   codeline
-    label	initialize_filesystem_18_WHILE_END3:
+    label	initialize_filesystem_19_WHILE_END3:
   codeline
     instruction
       push
@@ -4317,7 +4424,7 @@ program
       lli
         register	r2
         imm
-          labeluse	ensure_filesystem_initialized_19_superblock_buf1
+          labeluse	ensure_filesystem_initialized_20_superblock_buf1
   codeline
     instruction
       push
@@ -4532,7 +4639,7 @@ program
         register	r10
         register	r11
         imm
-          labeluse	ensure_filesystem_initialized_19_CMP_TRUE4
+          labeluse	ensure_filesystem_initialized_20_CMP_TRUE4
   codeline
     instruction
       lli
@@ -4542,16 +4649,16 @@ program
     instruction
       jmpseudo
         imm
-          labeluse	ensure_filesystem_initialized_19_CMP_END5
+          labeluse	ensure_filesystem_initialized_20_CMP_END5
   codeline
-    label	ensure_filesystem_initialized_19_CMP_TRUE4:
+    label	ensure_filesystem_initialized_20_CMP_TRUE4:
   codeline
     instruction
       lli
         register	r10
         imm	1
   codeline
-    label	ensure_filesystem_initialized_19_CMP_END5:
+    label	ensure_filesystem_initialized_20_CMP_END5:
   codeline
     instruction
       lli
@@ -4583,7 +4690,7 @@ program
         register	r12
         register	r3
         imm
-          labeluse	ensure_filesystem_initialized_19_CMP_TRUE6
+          labeluse	ensure_filesystem_initialized_20_CMP_TRUE6
   codeline
     instruction
       lli
@@ -4593,16 +4700,16 @@ program
     instruction
       jmpseudo
         imm
-          labeluse	ensure_filesystem_initialized_19_CMP_END7
+          labeluse	ensure_filesystem_initialized_20_CMP_END7
   codeline
-    label	ensure_filesystem_initialized_19_CMP_TRUE6:
+    label	ensure_filesystem_initialized_20_CMP_TRUE6:
   codeline
     instruction
       lli
         register	r12
         imm	1
   codeline
-    label	ensure_filesystem_initialized_19_CMP_END7:
+    label	ensure_filesystem_initialized_20_CMP_END7:
   codeline
     instruction
       rinstructuse
@@ -4617,7 +4724,7 @@ program
         register	r10
         register	r0
         imm
-          labeluse	ensure_filesystem_initialized_19_CMP_TRUE8
+          labeluse	ensure_filesystem_initialized_20_CMP_TRUE8
   codeline
     instruction
       lli
@@ -4627,16 +4734,16 @@ program
     instruction
       jmpseudo
         imm
-          labeluse	ensure_filesystem_initialized_19_CMP_END9
+          labeluse	ensure_filesystem_initialized_20_CMP_END9
   codeline
-    label	ensure_filesystem_initialized_19_CMP_TRUE8:
+    label	ensure_filesystem_initialized_20_CMP_TRUE8:
   codeline
     instruction
       lli
         register	r10
         imm	1
   codeline
-    label	ensure_filesystem_initialized_19_CMP_END9:
+    label	ensure_filesystem_initialized_20_CMP_END9:
   codeline
     instruction
       lli
@@ -4668,7 +4775,7 @@ program
         register	r4
         register	r5
         imm
-          labeluse	ensure_filesystem_initialized_19_CMP_TRUE10
+          labeluse	ensure_filesystem_initialized_20_CMP_TRUE10
   codeline
     instruction
       lli
@@ -4678,16 +4785,16 @@ program
     instruction
       jmpseudo
         imm
-          labeluse	ensure_filesystem_initialized_19_CMP_END11
+          labeluse	ensure_filesystem_initialized_20_CMP_END11
   codeline
-    label	ensure_filesystem_initialized_19_CMP_TRUE10:
+    label	ensure_filesystem_initialized_20_CMP_TRUE10:
   codeline
     instruction
       lli
         register	r4
         imm	1
   codeline
-    label	ensure_filesystem_initialized_19_CMP_END11:
+    label	ensure_filesystem_initialized_20_CMP_END11:
   codeline
     instruction
       rinstructuse
@@ -4702,7 +4809,7 @@ program
         register	r10
         register	r0
         imm
-          labeluse	ensure_filesystem_initialized_19_CMP_TRUE12
+          labeluse	ensure_filesystem_initialized_20_CMP_TRUE12
   codeline
     instruction
       lli
@@ -4712,16 +4819,16 @@ program
     instruction
       jmpseudo
         imm
-          labeluse	ensure_filesystem_initialized_19_CMP_END13
+          labeluse	ensure_filesystem_initialized_20_CMP_END13
   codeline
-    label	ensure_filesystem_initialized_19_CMP_TRUE12:
+    label	ensure_filesystem_initialized_20_CMP_TRUE12:
   codeline
     instruction
       lli
         register	r10
         imm	1
   codeline
-    label	ensure_filesystem_initialized_19_CMP_END13:
+    label	ensure_filesystem_initialized_20_CMP_END13:
   codeline
     instruction
       lli
@@ -4753,7 +4860,7 @@ program
         register	r6
         register	r7
         imm
-          labeluse	ensure_filesystem_initialized_19_CMP_TRUE14
+          labeluse	ensure_filesystem_initialized_20_CMP_TRUE14
   codeline
     instruction
       lli
@@ -4763,16 +4870,16 @@ program
     instruction
       jmpseudo
         imm
-          labeluse	ensure_filesystem_initialized_19_CMP_END15
+          labeluse	ensure_filesystem_initialized_20_CMP_END15
   codeline
-    label	ensure_filesystem_initialized_19_CMP_TRUE14:
+    label	ensure_filesystem_initialized_20_CMP_TRUE14:
   codeline
     instruction
       lli
         register	r6
         imm	1
   codeline
-    label	ensure_filesystem_initialized_19_CMP_END15:
+    label	ensure_filesystem_initialized_20_CMP_END15:
   codeline
     instruction
       rinstructuse
@@ -4787,7 +4894,7 @@ program
         register	r10
         register	r0
         imm
-          labeluse	ensure_filesystem_initialized_19_CMP_TRUE16
+          labeluse	ensure_filesystem_initialized_20_CMP_TRUE16
   codeline
     instruction
       lli
@@ -4797,16 +4904,16 @@ program
     instruction
       jmpseudo
         imm
-          labeluse	ensure_filesystem_initialized_19_CMP_END17
+          labeluse	ensure_filesystem_initialized_20_CMP_END17
   codeline
-    label	ensure_filesystem_initialized_19_CMP_TRUE16:
+    label	ensure_filesystem_initialized_20_CMP_TRUE16:
   codeline
     instruction
       lli
         register	r10
         imm	1
   codeline
-    label	ensure_filesystem_initialized_19_CMP_END17:
+    label	ensure_filesystem_initialized_20_CMP_END17:
   codeline
     instruction
       lli
@@ -4838,7 +4945,7 @@ program
         register	r8
         register	r9
         imm
-          labeluse	ensure_filesystem_initialized_19_CMP_TRUE18
+          labeluse	ensure_filesystem_initialized_20_CMP_TRUE18
   codeline
     instruction
       lli
@@ -4848,16 +4955,16 @@ program
     instruction
       jmpseudo
         imm
-          labeluse	ensure_filesystem_initialized_19_CMP_END19
+          labeluse	ensure_filesystem_initialized_20_CMP_END19
   codeline
-    label	ensure_filesystem_initialized_19_CMP_TRUE18:
+    label	ensure_filesystem_initialized_20_CMP_TRUE18:
   codeline
     instruction
       lli
         register	r8
         imm	1
   codeline
-    label	ensure_filesystem_initialized_19_CMP_END19:
+    label	ensure_filesystem_initialized_20_CMP_END19:
   codeline
     instruction
       rinstructuse
@@ -4872,7 +4979,7 @@ program
         register	r10
         register	r0
         imm
-          labeluse	ensure_filesystem_initialized_19_CMP_TRUE20
+          labeluse	ensure_filesystem_initialized_20_CMP_TRUE20
   codeline
     instruction
       lli
@@ -4882,16 +4989,16 @@ program
     instruction
       jmpseudo
         imm
-          labeluse	ensure_filesystem_initialized_19_CMP_END21
+          labeluse	ensure_filesystem_initialized_20_CMP_END21
   codeline
-    label	ensure_filesystem_initialized_19_CMP_TRUE20:
+    label	ensure_filesystem_initialized_20_CMP_TRUE20:
   codeline
     instruction
       lli
         register	r10
         imm	1
   codeline
-    label	ensure_filesystem_initialized_19_CMP_END21:
+    label	ensure_filesystem_initialized_20_CMP_END21:
   codeline
     instruction
       lli
@@ -4923,7 +5030,7 @@ program
         register	r11
         register	r3
         imm
-          labeluse	ensure_filesystem_initialized_19_CMP_TRUE22
+          labeluse	ensure_filesystem_initialized_20_CMP_TRUE22
   codeline
     instruction
       lli
@@ -4933,16 +5040,16 @@ program
     instruction
       jmpseudo
         imm
-          labeluse	ensure_filesystem_initialized_19_CMP_END23
+          labeluse	ensure_filesystem_initialized_20_CMP_END23
   codeline
-    label	ensure_filesystem_initialized_19_CMP_TRUE22:
+    label	ensure_filesystem_initialized_20_CMP_TRUE22:
   codeline
     instruction
       lli
         register	r11
         imm	1
   codeline
-    label	ensure_filesystem_initialized_19_CMP_END23:
+    label	ensure_filesystem_initialized_20_CMP_END23:
   codeline
     instruction
       rinstructuse
@@ -4957,7 +5064,7 @@ program
         register	r10
         register	r0
         imm
-          labeluse	ensure_filesystem_initialized_19_CMP_TRUE24
+          labeluse	ensure_filesystem_initialized_20_CMP_TRUE24
   codeline
     instruction
       lli
@@ -4967,16 +5074,16 @@ program
     instruction
       jmpseudo
         imm
-          labeluse	ensure_filesystem_initialized_19_CMP_END25
+          labeluse	ensure_filesystem_initialized_20_CMP_END25
   codeline
-    label	ensure_filesystem_initialized_19_CMP_TRUE24:
+    label	ensure_filesystem_initialized_20_CMP_TRUE24:
   codeline
     instruction
       lli
         register	r10
         imm	1
   codeline
-    label	ensure_filesystem_initialized_19_CMP_END25:
+    label	ensure_filesystem_initialized_20_CMP_END25:
   codeline
     instruction
       binstructuse
@@ -4984,7 +5091,7 @@ program
         register	r10
         register	r0
         imm
-          labeluse	ensure_filesystem_initialized_19_ELSE2
+          labeluse	ensure_filesystem_initialized_20_ELSE2
   codeline
     instruction
       push
@@ -5010,11 +5117,11 @@ program
     instruction
       jmpseudo
         imm
-          labeluse	ensure_filesystem_initialized_19_IF_END3
+          labeluse	ensure_filesystem_initialized_20_IF_END3
   codeline
-    label	ensure_filesystem_initialized_19_ELSE2:
+    label	ensure_filesystem_initialized_20_ELSE2:
   codeline
-    label	ensure_filesystem_initialized_19_IF_END3:
+    label	ensure_filesystem_initialized_20_IF_END3:
   codeline
     instruction
       lli
@@ -5047,14 +5154,14 @@ program
       lli
         register	r3
         imm
-          labeluse	write_file_20_scratch_block_buf1
+          labeluse	write_file_21_scratch_block_buf1
   codeline
     instruction
       lli
         register	r4
         imm	0
   codeline
-    label	write_file_20_WHILE2:
+    label	write_file_21_WHILE2:
   codeline
     instruction
       lli
@@ -5067,7 +5174,7 @@ program
         register	r4
         register	r5
         imm
-          labeluse	write_file_20_CMP_TRUE4
+          labeluse	write_file_21_CMP_TRUE4
   codeline
     instruction
       lli
@@ -5077,16 +5184,16 @@ program
     instruction
       jmpseudo
         imm
-          labeluse	write_file_20_CMP_END5
+          labeluse	write_file_21_CMP_END5
   codeline
-    label	write_file_20_CMP_TRUE4:
+    label	write_file_21_CMP_TRUE4:
   codeline
     instruction
       lli
         register	r5
         imm	1
   codeline
-    label	write_file_20_CMP_END5:
+    label	write_file_21_CMP_END5:
   codeline
     instruction
       binstructuse
@@ -5094,7 +5201,7 @@ program
         register	r5
         register	r0
         imm
-          labeluse	write_file_20_WHILE_END3
+          labeluse	write_file_21_WHILE_END3
   codeline
     instruction
       lli
@@ -5125,9 +5232,9 @@ program
     instruction
       jmpseudo
         imm
-          labeluse	write_file_20_WHILE2
+          labeluse	write_file_21_WHILE2
   codeline
-    label	write_file_20_WHILE_END3:
+    label	write_file_21_WHILE_END3:
   codeline
     instruction
       lli
@@ -5139,7 +5246,7 @@ program
         register	r9
         imm	0
   codeline
-    label	write_file_20_WHILE6:
+    label	write_file_21_WHILE6:
   codeline
     instruction
       lli
@@ -5152,7 +5259,7 @@ program
         register	r9
         register	r10
         imm
-          labeluse	write_file_20_CMP_TRUE8
+          labeluse	write_file_21_CMP_TRUE8
   codeline
     instruction
       lli
@@ -5162,16 +5269,16 @@ program
     instruction
       jmpseudo
         imm
-          labeluse	write_file_20_CMP_END9
+          labeluse	write_file_21_CMP_END9
   codeline
-    label	write_file_20_CMP_TRUE8:
+    label	write_file_21_CMP_TRUE8:
   codeline
     instruction
       lli
         register	r10
         imm	1
   codeline
-    label	write_file_20_CMP_END9:
+    label	write_file_21_CMP_END9:
   codeline
     instruction
       binstructuse
@@ -5179,7 +5286,7 @@ program
         register	r10
         register	r0
         imm
-          labeluse	write_file_20_WHILE_END7
+          labeluse	write_file_21_WHILE_END7
   codeline
     instruction
       binstructuse
@@ -5187,7 +5294,7 @@ program
         register	r8
         register	r0
         imm
-          labeluse	write_file_20_UNOP_NOT_TRUE12
+          labeluse	write_file_21_UNOP_NOT_TRUE12
   codeline
     instruction
       lli
@@ -5197,16 +5304,16 @@ program
     instruction
       jmpseudo
         imm
-          labeluse	write_file_20_UNOP_NOT_END13
+          labeluse	write_file_21_UNOP_NOT_END13
   codeline
-    label	write_file_20_UNOP_NOT_TRUE12:
+    label	write_file_21_UNOP_NOT_TRUE12:
   codeline
     instruction
       lli
         register	r11
         imm	1
   codeline
-    label	write_file_20_UNOP_NOT_END13:
+    label	write_file_21_UNOP_NOT_END13:
   codeline
     instruction
       binstructuse
@@ -5214,7 +5321,7 @@ program
         register	r11
         register	r0
         imm
-          labeluse	write_file_20_ELSE10
+          labeluse	write_file_21_ELSE10
   codeline
     instruction
       rinstructuse
@@ -5255,7 +5362,7 @@ program
         register	r12
         register	r7
         imm
-          labeluse	write_file_20_CMP_TRUE16
+          labeluse	write_file_21_CMP_TRUE16
   codeline
     instruction
       lli
@@ -5265,16 +5372,16 @@ program
     instruction
       jmpseudo
         imm
-          labeluse	write_file_20_CMP_END17
+          labeluse	write_file_21_CMP_END17
   codeline
-    label	write_file_20_CMP_TRUE16:
+    label	write_file_21_CMP_TRUE16:
   codeline
     instruction
       lli
         register	r7
         imm	1
   codeline
-    label	write_file_20_CMP_END17:
+    label	write_file_21_CMP_END17:
   codeline
     instruction
       binstructuse
@@ -5282,7 +5389,7 @@ program
         register	r7
         register	r0
         imm
-          labeluse	write_file_20_ELSE14
+          labeluse	write_file_21_ELSE14
   codeline
     instruction
       lli
@@ -5299,18 +5406,18 @@ program
     instruction
       jmpseudo
         imm
-          labeluse	write_file_20_IF_END15
+          labeluse	write_file_21_IF_END15
   codeline
-    label	write_file_20_ELSE14:
+    label	write_file_21_ELSE14:
   codeline
-    label	write_file_20_IF_END15:
+    label	write_file_21_IF_END15:
   codeline
     instruction
       jmpseudo
         imm
-          labeluse	write_file_20_IF_END11
+          labeluse	write_file_21_IF_END11
   codeline
-    label	write_file_20_ELSE10:
+    label	write_file_21_ELSE10:
   codeline
     instruction
       lli
@@ -5331,7 +5438,7 @@ program
         register	r10
         imm	0
   codeline
-    label	write_file_20_IF_END11:
+    label	write_file_21_IF_END11:
   codeline
     instruction
       iinstructuse
@@ -5343,9 +5450,9 @@ program
     instruction
       jmpseudo
         imm
-          labeluse	write_file_20_WHILE6
+          labeluse	write_file_21_WHILE6
   codeline
-    label	write_file_20_WHILE_END7:
+    label	write_file_21_WHILE_END7:
   codeline
     instruction
       lli
@@ -5943,7 +6050,7 @@ program
         register	r6
         imm	0
   codeline
-    label	write_file_20_WHILE18:
+    label	write_file_21_WHILE18:
   codeline
     instruction
       lli
@@ -5956,7 +6063,7 @@ program
         register	r6
         register	r9
         imm
-          labeluse	write_file_20_CMP_TRUE20
+          labeluse	write_file_21_CMP_TRUE20
   codeline
     instruction
       lli
@@ -5966,16 +6073,16 @@ program
     instruction
       jmpseudo
         imm
-          labeluse	write_file_20_CMP_END21
+          labeluse	write_file_21_CMP_END21
   codeline
-    label	write_file_20_CMP_TRUE20:
+    label	write_file_21_CMP_TRUE20:
   codeline
     instruction
       lli
         register	r9
         imm	1
   codeline
-    label	write_file_20_CMP_END21:
+    label	write_file_21_CMP_END21:
   codeline
     instruction
       binstructuse
@@ -5983,7 +6090,7 @@ program
         register	r9
         register	r0
         imm
-          labeluse	write_file_20_WHILE_END19
+          labeluse	write_file_21_WHILE_END19
   codeline
     instruction
       lli
@@ -6014,9 +6121,9 @@ program
     instruction
       jmpseudo
         imm
-          labeluse	write_file_20_WHILE18
+          labeluse	write_file_21_WHILE18
   codeline
-    label	write_file_20_WHILE_END19:
+    label	write_file_21_WHILE_END19:
   codeline
     instruction
       lli
@@ -6028,7 +6135,7 @@ program
         register	r10
         imm	0
   codeline
-    label	write_file_20_WHILE22:
+    label	write_file_21_WHILE22:
   codeline
     instruction
       lli
@@ -6041,7 +6148,7 @@ program
         register	r10
         register	r7
         imm
-          labeluse	write_file_20_CMP_TRUE24
+          labeluse	write_file_21_CMP_TRUE24
   codeline
     instruction
       lli
@@ -6051,16 +6158,16 @@ program
     instruction
       jmpseudo
         imm
-          labeluse	write_file_20_CMP_END25
+          labeluse	write_file_21_CMP_END25
   codeline
-    label	write_file_20_CMP_TRUE24:
+    label	write_file_21_CMP_TRUE24:
   codeline
     instruction
       lli
         register	r7
         imm	1
   codeline
-    label	write_file_20_CMP_END25:
+    label	write_file_21_CMP_END25:
   codeline
     instruction
       binstructuse
@@ -6068,7 +6175,7 @@ program
         register	r7
         register	r0
         imm
-          labeluse	write_file_20_WHILE_END23
+          labeluse	write_file_21_WHILE_END23
   codeline
     instruction
       binstructuse
@@ -6076,7 +6183,7 @@ program
         register	r4
         register	r0
         imm
-          labeluse	write_file_20_UNOP_NOT_TRUE28
+          labeluse	write_file_21_UNOP_NOT_TRUE28
   codeline
     instruction
       lli
@@ -6086,16 +6193,16 @@ program
     instruction
       jmpseudo
         imm
-          labeluse	write_file_20_UNOP_NOT_END29
+          labeluse	write_file_21_UNOP_NOT_END29
   codeline
-    label	write_file_20_UNOP_NOT_TRUE28:
+    label	write_file_21_UNOP_NOT_TRUE28:
   codeline
     instruction
       lli
         register	r8
         imm	1
   codeline
-    label	write_file_20_UNOP_NOT_END29:
+    label	write_file_21_UNOP_NOT_END29:
   codeline
     instruction
       binstructuse
@@ -6103,7 +6210,7 @@ program
         register	r8
         register	r0
         imm
-          labeluse	write_file_20_ELSE26
+          labeluse	write_file_21_ELSE26
   codeline
     instruction
       rinstructuse
@@ -6144,7 +6251,7 @@ program
         register	r9
         register	r11
         imm
-          labeluse	write_file_20_CMP_TRUE32
+          labeluse	write_file_21_CMP_TRUE32
   codeline
     instruction
       lli
@@ -6154,16 +6261,16 @@ program
     instruction
       jmpseudo
         imm
-          labeluse	write_file_20_CMP_END33
+          labeluse	write_file_21_CMP_END33
   codeline
-    label	write_file_20_CMP_TRUE32:
+    label	write_file_21_CMP_TRUE32:
   codeline
     instruction
       lli
         register	r11
         imm	1
   codeline
-    label	write_file_20_CMP_END33:
+    label	write_file_21_CMP_END33:
   codeline
     instruction
       binstructuse
@@ -6171,7 +6278,7 @@ program
         register	r11
         register	r0
         imm
-          labeluse	write_file_20_ELSE30
+          labeluse	write_file_21_ELSE30
   codeline
     instruction
       lli
@@ -6188,18 +6295,18 @@ program
     instruction
       jmpseudo
         imm
-          labeluse	write_file_20_IF_END31
+          labeluse	write_file_21_IF_END31
   codeline
-    label	write_file_20_ELSE30:
+    label	write_file_21_ELSE30:
   codeline
-    label	write_file_20_IF_END31:
+    label	write_file_21_IF_END31:
   codeline
     instruction
       jmpseudo
         imm
-          labeluse	write_file_20_IF_END27
+          labeluse	write_file_21_IF_END27
   codeline
-    label	write_file_20_ELSE26:
+    label	write_file_21_ELSE26:
   codeline
     instruction
       lli
@@ -6220,7 +6327,7 @@ program
         register	r8
         imm	0
   codeline
-    label	write_file_20_IF_END27:
+    label	write_file_21_IF_END27:
   codeline
     instruction
       iinstructuse
@@ -6232,9 +6339,9 @@ program
     instruction
       jmpseudo
         imm
-          labeluse	write_file_20_WHILE22
+          labeluse	write_file_21_WHILE22
   codeline
-    label	write_file_20_WHILE_END23:
+    label	write_file_21_WHILE_END23:
   codeline
     instruction
       push
@@ -6437,7 +6544,7 @@ program
       lli
         register	r3
         imm
-          labeluse	read_file_21_dir_entry_buf1
+          labeluse	read_file_22_dir_entry_buf1
   codeline
     instruction
       push
@@ -6669,7 +6776,7 @@ program
         register	r4
         imm	0
   codeline
-    label	read_file_21_WHILE2:
+    label	read_file_22_WHILE2:
   codeline
     instruction
       lli
@@ -6682,7 +6789,7 @@ program
         register	r4
         register	r5
         imm
-          labeluse	read_file_21_CMP_TRUE4
+          labeluse	read_file_22_CMP_TRUE4
   codeline
     instruction
       lli
@@ -6692,16 +6799,16 @@ program
     instruction
       jmpseudo
         imm
-          labeluse	read_file_21_CMP_END5
+          labeluse	read_file_22_CMP_END5
   codeline
-    label	read_file_21_CMP_TRUE4:
+    label	read_file_22_CMP_TRUE4:
   codeline
     instruction
       lli
         register	r5
         imm	1
   codeline
-    label	read_file_21_CMP_END5:
+    label	read_file_22_CMP_END5:
   codeline
     instruction
       binstructuse
@@ -6709,7 +6816,7 @@ program
         register	r5
         register	r0
         imm
-          labeluse	read_file_21_WHILE_END3
+          labeluse	read_file_22_WHILE_END3
   codeline
     instruction
       binstructuse
@@ -6717,7 +6824,7 @@ program
         register	r12
         register	r0
         imm
-          labeluse	read_file_21_UNOP_NOT_TRUE8
+          labeluse	read_file_22_UNOP_NOT_TRUE8
   codeline
     instruction
       lli
@@ -6727,16 +6834,16 @@ program
     instruction
       jmpseudo
         imm
-          labeluse	read_file_21_UNOP_NOT_END9
+          labeluse	read_file_22_UNOP_NOT_END9
   codeline
-    label	read_file_21_UNOP_NOT_TRUE8:
+    label	read_file_22_UNOP_NOT_TRUE8:
   codeline
     instruction
       lli
         register	r6
         imm	1
   codeline
-    label	read_file_21_UNOP_NOT_END9:
+    label	read_file_22_UNOP_NOT_END9:
   codeline
     instruction
       binstructuse
@@ -6744,7 +6851,7 @@ program
         register	r6
         register	r0
         imm
-          labeluse	read_file_21_ELSE6
+          labeluse	read_file_22_ELSE6
   codeline
     instruction
       rinstructuse
@@ -6792,7 +6899,7 @@ program
         register	r7
         register	r8
         imm
-          labeluse	read_file_21_CMP_TRUE12
+          labeluse	read_file_22_CMP_TRUE12
   codeline
     instruction
       lli
@@ -6802,16 +6909,16 @@ program
     instruction
       jmpseudo
         imm
-          labeluse	read_file_21_CMP_END13
+          labeluse	read_file_22_CMP_END13
   codeline
-    label	read_file_21_CMP_TRUE12:
+    label	read_file_22_CMP_TRUE12:
   codeline
     instruction
       lli
         register	r10
         imm	1
   codeline
-    label	read_file_21_CMP_END13:
+    label	read_file_22_CMP_END13:
   codeline
     instruction
       binstructuse
@@ -6819,7 +6926,7 @@ program
         register	r10
         register	r0
         imm
-          labeluse	read_file_21_ELSE10
+          labeluse	read_file_22_ELSE10
   codeline
     instruction
       lli
@@ -6836,11 +6943,11 @@ program
     instruction
       jmpseudo
         imm
-          labeluse	read_file_21_IF_END11
+          labeluse	read_file_22_IF_END11
   codeline
-    label	read_file_21_ELSE10:
+    label	read_file_22_ELSE10:
   codeline
-    label	read_file_21_IF_END11:
+    label	read_file_22_IF_END11:
   codeline
     instruction
       lli
@@ -6853,7 +6960,7 @@ program
         register	r7
         register	r6
         imm
-          labeluse	read_file_21_CMP_TRUE16
+          labeluse	read_file_22_CMP_TRUE16
   codeline
     instruction
       lli
@@ -6863,16 +6970,16 @@ program
     instruction
       jmpseudo
         imm
-          labeluse	read_file_21_CMP_END17
+          labeluse	read_file_22_CMP_END17
   codeline
-    label	read_file_21_CMP_TRUE16:
+    label	read_file_22_CMP_TRUE16:
   codeline
     instruction
       lli
         register	r6
         imm	1
   codeline
-    label	read_file_21_CMP_END17:
+    label	read_file_22_CMP_END17:
   codeline
     instruction
       binstructuse
@@ -6880,7 +6987,7 @@ program
         register	r6
         register	r0
         imm
-          labeluse	read_file_21_ELSE14
+          labeluse	read_file_22_ELSE14
   codeline
     instruction
       lli
@@ -6897,20 +7004,20 @@ program
     instruction
       jmpseudo
         imm
-          labeluse	read_file_21_IF_END15
+          labeluse	read_file_22_IF_END15
   codeline
-    label	read_file_21_ELSE14:
+    label	read_file_22_ELSE14:
   codeline
-    label	read_file_21_IF_END15:
+    label	read_file_22_IF_END15:
   codeline
     instruction
       jmpseudo
         imm
-          labeluse	read_file_21_IF_END7
+          labeluse	read_file_22_IF_END7
   codeline
-    label	read_file_21_ELSE6:
+    label	read_file_22_ELSE6:
   codeline
-    label	read_file_21_IF_END7:
+    label	read_file_22_IF_END7:
   codeline
     instruction
       iinstructuse
@@ -6922,9 +7029,9 @@ program
     instruction
       jmpseudo
         imm
-          labeluse	read_file_21_WHILE2
+          labeluse	read_file_22_WHILE2
   codeline
-    label	read_file_21_WHILE_END3:
+    label	read_file_22_WHILE_END3:
   codeline
     instruction
       binstructuse
@@ -6932,7 +7039,7 @@ program
         register	r11
         register	r0
         imm
-          labeluse	read_file_21_UNOP_NOT_TRUE20
+          labeluse	read_file_22_UNOP_NOT_TRUE20
   codeline
     instruction
       lli
@@ -6942,16 +7049,16 @@ program
     instruction
       jmpseudo
         imm
-          labeluse	read_file_21_UNOP_NOT_END21
+          labeluse	read_file_22_UNOP_NOT_END21
   codeline
-    label	read_file_21_UNOP_NOT_TRUE20:
+    label	read_file_22_UNOP_NOT_TRUE20:
   codeline
     instruction
       lli
         register	r10
         imm	1
   codeline
-    label	read_file_21_UNOP_NOT_END21:
+    label	read_file_22_UNOP_NOT_END21:
   codeline
     instruction
       binstructuse
@@ -6959,7 +7066,7 @@ program
         register	r10
         register	r0
         imm
-          labeluse	read_file_21_ELSE18
+          labeluse	read_file_22_ELSE18
   codeline
     instruction
       lli
@@ -7007,11 +7114,11 @@ program
     instruction
       jmpseudo
         imm
-          labeluse	read_file_21_IF_END19
+          labeluse	read_file_22_IF_END19
   codeline
-    label	read_file_21_ELSE18:
+    label	read_file_22_ELSE18:
   codeline
-    label	read_file_21_IF_END19:
+    label	read_file_22_IF_END19:
   codeline
     instruction
       lli
@@ -7574,7 +7681,7 @@ program
         register	r8
         register	r9
         imm
-          labeluse	read_file_21_CMP_TRUE24
+          labeluse	read_file_22_CMP_TRUE24
   codeline
     instruction
       lli
@@ -7584,16 +7691,16 @@ program
     instruction
       jmpseudo
         imm
-          labeluse	read_file_21_CMP_END25
+          labeluse	read_file_22_CMP_END25
   codeline
-    label	read_file_21_CMP_TRUE24:
+    label	read_file_22_CMP_TRUE24:
   codeline
     instruction
       lli
         register	r9
         imm	1
   codeline
-    label	read_file_21_CMP_END25:
+    label	read_file_22_CMP_END25:
   codeline
     instruction
       binstructuse
@@ -7601,7 +7708,7 @@ program
         register	r9
         register	r0
         imm
-          labeluse	read_file_21_ELSE22
+          labeluse	read_file_22_ELSE22
   codeline
     instruction
       lli
@@ -7625,9 +7732,9 @@ program
     instruction
       jmpseudo
         imm
-          labeluse	read_file_21_IF_END23
+          labeluse	read_file_22_IF_END23
   codeline
-    label	read_file_21_ELSE22:
+    label	read_file_22_ELSE22:
   codeline
     instruction
       lli
@@ -7653,7 +7760,7 @@ program
         register	r12
         imm	0
   codeline
-    label	read_file_21_IF_END23:
+    label	read_file_22_IF_END23:
   codeline
     instruction
       lli
@@ -7687,7 +7794,7 @@ program
         register	r2
         imm	0
   codeline
-    label	update_buffer_22_WHILE1:
+    label	update_buffer_23_WHILE1:
   codeline
     instruction
       lli
@@ -7697,7 +7804,7 @@ program
   codeline
     instruction
       lsinstructuse
-        lb
+        lw
         register	r3
         register	r3
         imm	0
@@ -7708,7 +7815,7 @@ program
         register	r2
         register	r3
         imm
-          labeluse	update_buffer_22_CMP_TRUE3
+          labeluse	update_buffer_23_CMP_TRUE3
   codeline
     instruction
       lli
@@ -7718,16 +7825,16 @@ program
     instruction
       jmpseudo
         imm
-          labeluse	update_buffer_22_CMP_END4
+          labeluse	update_buffer_23_CMP_END4
   codeline
-    label	update_buffer_22_CMP_TRUE3:
+    label	update_buffer_23_CMP_TRUE3:
   codeline
     instruction
       lli
         register	r3
         imm	1
   codeline
-    label	update_buffer_22_CMP_END4:
+    label	update_buffer_23_CMP_END4:
   codeline
     instruction
       binstructuse
@@ -7735,7 +7842,7 @@ program
         register	r3
         register	r0
         imm
-          labeluse	update_buffer_22_WHILE_END2
+          labeluse	update_buffer_23_WHILE_END2
   codeline
     instruction
       lli
@@ -7796,7 +7903,7 @@ program
     instruction
       lli
         register	r6
-        imm	16
+        imm	32
   codeline
     instruction
       rinstructuse
@@ -7824,7 +7931,7 @@ program
     instruction
       lli
         register	r8
-        imm	16
+        imm	32
   codeline
     instruction
       rinstructuse
@@ -7901,9 +8008,9 @@ program
     instruction
       jmpseudo
         imm
-          labeluse	update_buffer_22_WHILE1
+          labeluse	update_buffer_23_WHILE1
   codeline
-    label	update_buffer_22_WHILE_END2:
+    label	update_buffer_23_WHILE_END2:
   codeline
     instruction
       lli
@@ -7918,7 +8025,7 @@ program
   codeline
     instruction
       lsinstructuse
-        sb
+        sw
         register	r11
         register	r12
         imm	0
@@ -7950,7 +8057,7 @@ program
         register	r2
         imm	0
   codeline
-    label	refresh_display_23_WHILE1:
+    label	refresh_display_24_WHILE1:
   codeline
     instruction
       lli
@@ -7963,7 +8070,7 @@ program
         register	r2
         register	r3
         imm
-          labeluse	refresh_display_23_CMP_TRUE3
+          labeluse	refresh_display_24_CMP_TRUE3
   codeline
     instruction
       lli
@@ -7973,16 +8080,16 @@ program
     instruction
       jmpseudo
         imm
-          labeluse	refresh_display_23_CMP_END4
+          labeluse	refresh_display_24_CMP_END4
   codeline
-    label	refresh_display_23_CMP_TRUE3:
+    label	refresh_display_24_CMP_TRUE3:
   codeline
     instruction
       lli
         register	r3
         imm	1
   codeline
-    label	refresh_display_23_CMP_END4:
+    label	refresh_display_24_CMP_END4:
   codeline
     instruction
       binstructuse
@@ -7990,7 +8097,7 @@ program
         register	r3
         register	r0
         imm
-          labeluse	refresh_display_23_WHILE_END2
+          labeluse	refresh_display_24_WHILE_END2
   codeline
     instruction
       push
@@ -8027,7 +8134,7 @@ program
     instruction
       lli
         register	r5
-        imm	16
+        imm	32
   codeline
     instruction
       rinstructuse
@@ -8055,7 +8162,7 @@ program
     instruction
       lli
         register	r7
-        imm	16
+        imm	32
   codeline
     instruction
       rinstructuse
@@ -8128,9 +8235,9 @@ program
     instruction
       jmpseudo
         imm
-          labeluse	refresh_display_23_WHILE1
+          labeluse	refresh_display_24_WHILE1
   codeline
-    label	refresh_display_23_WHILE_END2:
+    label	refresh_display_24_WHILE_END2:
   codeline
     instruction
       iinstructuse
@@ -8159,7 +8266,7 @@ program
         register	r2
         imm	0
   codeline
-    label	clear_buffer_24_WHILE1:
+    label	clear_buffer_25_WHILE1:
   codeline
     instruction
       lli
@@ -8172,7 +8279,7 @@ program
         register	r2
         register	r3
         imm
-          labeluse	clear_buffer_24_CMP_TRUE3
+          labeluse	clear_buffer_25_CMP_TRUE3
   codeline
     instruction
       lli
@@ -8182,16 +8289,16 @@ program
     instruction
       jmpseudo
         imm
-          labeluse	clear_buffer_24_CMP_END4
+          labeluse	clear_buffer_25_CMP_END4
   codeline
-    label	clear_buffer_24_CMP_TRUE3:
+    label	clear_buffer_25_CMP_TRUE3:
   codeline
     instruction
       lli
         register	r3
         imm	1
   codeline
-    label	clear_buffer_24_CMP_END4:
+    label	clear_buffer_25_CMP_END4:
   codeline
     instruction
       binstructuse
@@ -8199,7 +8306,7 @@ program
         register	r3
         register	r0
         imm
-          labeluse	clear_buffer_24_WHILE_END2
+          labeluse	clear_buffer_25_WHILE_END2
   codeline
     instruction
       lli
@@ -8236,9 +8343,9 @@ program
     instruction
       jmpseudo
         imm
-          labeluse	clear_buffer_24_WHILE1
+          labeluse	clear_buffer_25_WHILE1
   codeline
-    label	clear_buffer_24_WHILE_END2:
+    label	clear_buffer_25_WHILE_END2:
   codeline
     instruction
       iinstructuse
@@ -8267,7 +8374,7 @@ program
         register	r3
         imm	0
   codeline
-    label	write_to_buffer_25_WHILE1:
+    label	write_to_buffer_26_WHILE1:
   codeline
     instruction
       rinstructuse
@@ -8294,7 +8401,7 @@ program
         register	r4
         register	r5
         imm
-          labeluse	write_to_buffer_25_CMP_TRUE3
+          labeluse	write_to_buffer_26_CMP_TRUE3
   codeline
     instruction
       lli
@@ -8304,16 +8411,16 @@ program
     instruction
       jmpseudo
         imm
-          labeluse	write_to_buffer_25_CMP_END4
+          labeluse	write_to_buffer_26_CMP_END4
   codeline
-    label	write_to_buffer_25_CMP_TRUE3:
+    label	write_to_buffer_26_CMP_TRUE3:
   codeline
     instruction
       lli
         register	r4
         imm	1
   codeline
-    label	write_to_buffer_25_CMP_END4:
+    label	write_to_buffer_26_CMP_END4:
   codeline
     instruction
       rinstructuse
@@ -8333,7 +8440,7 @@ program
         register	r6
         register	r7
         imm
-          labeluse	write_to_buffer_25_CMP_TRUE5
+          labeluse	write_to_buffer_26_CMP_TRUE5
   codeline
     instruction
       lli
@@ -8343,16 +8450,16 @@ program
     instruction
       jmpseudo
         imm
-          labeluse	write_to_buffer_25_CMP_END6
+          labeluse	write_to_buffer_26_CMP_END6
   codeline
-    label	write_to_buffer_25_CMP_TRUE5:
+    label	write_to_buffer_26_CMP_TRUE5:
   codeline
     instruction
       lli
         register	r6
         imm	1
   codeline
-    label	write_to_buffer_25_CMP_END6:
+    label	write_to_buffer_26_CMP_END6:
   codeline
     instruction
       rinstructuse
@@ -8367,7 +8474,7 @@ program
         register	r4
         register	r0
         imm
-          labeluse	write_to_buffer_25_CMP_TRUE7
+          labeluse	write_to_buffer_26_CMP_TRUE7
   codeline
     instruction
       lli
@@ -8377,16 +8484,16 @@ program
     instruction
       jmpseudo
         imm
-          labeluse	write_to_buffer_25_CMP_END8
+          labeluse	write_to_buffer_26_CMP_END8
   codeline
-    label	write_to_buffer_25_CMP_TRUE7:
+    label	write_to_buffer_26_CMP_TRUE7:
   codeline
     instruction
       lli
         register	r4
         imm	1
   codeline
-    label	write_to_buffer_25_CMP_END8:
+    label	write_to_buffer_26_CMP_END8:
   codeline
     instruction
       binstructuse
@@ -8394,7 +8501,7 @@ program
         register	r4
         register	r0
         imm
-          labeluse	write_to_buffer_25_WHILE_END2
+          labeluse	write_to_buffer_26_WHILE_END2
   codeline
     instruction
       rinstructuse
@@ -8458,7 +8565,7 @@ program
   codeline
     instruction
       lsinstructuse
-        lb
+        lw
         register	r5
         register	r5
         imm	0
@@ -8483,7 +8590,7 @@ program
   codeline
     instruction
       lsinstructuse
-        sb
+        sw
         register	r5
         register	r6
         imm	0
@@ -8510,86 +8617,65 @@ program
         imm	1
   codeline
     instruction
-      jmpseudo
-        imm
-          labeluse	write_to_buffer_25_WHILE1
-  codeline
-    label	write_to_buffer_25_WHILE_END2:
-  codeline
-    instruction
-      iinstructuse
-        addi
-        register	r1
-        register	r0
-        imm	0
-  codeline
-    instruction
-      pop
-        register	r14
-  codeline
-    instruction
-      retpseudo
-  codeline
-    directiveuse
-      func
-        label	fast_flush:
-  codeline
-    instruction
-      push
-        register	r14
-  codeline
-    instruction
       lli
-        register	r2
+        register	r4
         imm
           labeluse	buffer_update_queue_ptr
   codeline
     instruction
       lsinstructuse
-        lb
-        register	r2
-        register	r2
+        lw
+        register	r4
+        register	r4
         imm	0
   codeline
     instruction
       lli
-        register	r3
-        imm	16
+        register	r10
+        imm	64
   codeline
     instruction
       binstructuse
-        blt
-        register	r3
-        register	r2
+        bge
+        register	r4
+        register	r10
         imm
-          labeluse	fast_flush_26_CMP_TRUE3
+          labeluse	write_to_buffer_26_CMP_TRUE11
   codeline
     instruction
       lli
-        register	r2
+        register	r4
         imm	0
   codeline
     instruction
       jmpseudo
         imm
-          labeluse	fast_flush_26_CMP_END4
+          labeluse	write_to_buffer_26_CMP_END12
   codeline
-    label	fast_flush_26_CMP_TRUE3:
+    label	write_to_buffer_26_CMP_TRUE11:
   codeline
     instruction
       lli
-        register	r2
+        register	r4
         imm	1
   codeline
-    label	fast_flush_26_CMP_END4:
+    label	write_to_buffer_26_CMP_END12:
   codeline
     instruction
       binstructuse
         beq
-        register	r2
+        register	r4
         register	r0
         imm
-          labeluse	fast_flush_26_ELSE1
+          labeluse	write_to_buffer_26_ELSE9
+  codeline
+    instruction
+      push
+        register	r2
+  codeline
+    instruction
+      push
+        register	r3
   codeline
     instruction
       push
@@ -8605,13 +8691,28 @@ program
         register	r1
   codeline
     instruction
+      pop
+        register	r3
+  codeline
+    instruction
+      pop
+        register	r2
+  codeline
+    instruction
       jmpseudo
         imm
-          labeluse	fast_flush_26_IF_END2
+          labeluse	write_to_buffer_26_IF_END10
   codeline
-    label	fast_flush_26_ELSE1:
+    label	write_to_buffer_26_ELSE9:
   codeline
-    label	fast_flush_26_IF_END2:
+    label	write_to_buffer_26_IF_END10:
+  codeline
+    instruction
+      jmpseudo
+        imm
+          labeluse	write_to_buffer_26_WHILE1
+  codeline
+    label	write_to_buffer_26_WHILE_END2:
   codeline
     instruction
       iinstructuse
@@ -9410,7 +9511,7 @@ program
     instruction
       callpseudo
         imm
-          labeluse	clear_display
+          labeluse	fast_clear_display
   codeline
     instruction
       pop
@@ -9539,7 +9640,7 @@ program
     instruction
       lli
         register	r4
-        imm	64
+        imm	128
   codeline
     instruction
       push
@@ -9579,11 +9680,104 @@ program
     instruction
       lli
         register	r5
-        imm	96
+        imm	129
   codeline
     instruction
       push
         register	r5
+  codeline
+    instruction
+      pop
+        register	r2
+  codeline
+    instruction
+      pop
+        register	r1
+  codeline
+    instruction
+      callpseudo
+        imm
+          labeluse	write_to_buffer
+  codeline
+    instruction
+      pop
+        register	r1
+  codeline
+    instruction
+      push
+        register	r1
+  codeline
+    instruction
+      lli
+        register	r6
+        imm
+          labeluse	str_10
+  codeline
+    instruction
+      push
+        register	r6
+  codeline
+    instruction
+      lli
+        register	r7
+        imm	130
+  codeline
+    instruction
+      push
+        register	r7
+  codeline
+    instruction
+      pop
+        register	r2
+  codeline
+    instruction
+      pop
+        register	r1
+  codeline
+    instruction
+      callpseudo
+        imm
+          labeluse	write_to_buffer
+  codeline
+    instruction
+      pop
+        register	r1
+  codeline
+    instruction
+      push
+        register	r1
+  codeline
+    instruction
+      callpseudo
+        imm
+          labeluse	update_buffer
+  codeline
+    instruction
+      pop
+        register	r1
+  codeline
+    instruction
+      push
+        register	r1
+  codeline
+    instruction
+      lli
+        register	r8
+        imm
+          labeluse	str_11
+  codeline
+    instruction
+      push
+        register	r8
+  codeline
+    instruction
+      lli
+        register	r11
+        imm	253
+  codeline
+    instruction
+      push
+        register	r11
   codeline
     instruction
       pop
@@ -10661,7 +10855,7 @@ program
   codeline
     directiveuse
       data
-        imm	0x00
+        imm	0x00000000
   codeline
     label	str_0:
   codeline
@@ -10706,12 +10900,22 @@ program
     label	str_8:
   codeline
     directiveuse
-      strv	"It uses a buffer to store characters\0"
+      strv	"A\0"
   codeline
     label	str_9:
   codeline
     directiveuse
-      strv	"and only updates the display when necessary.\0"
+      strv	"B\0"
+  codeline
+    label	str_10:
+  codeline
+    directiveuse
+      strv	"C\0"
+  codeline
+    label	str_11:
+  codeline
+    directiveuse
+      strv	"XYZ\0"
   codeline
     label	draw_line_8_spill23:
   codeline
@@ -10731,31 +10935,31 @@ program
       space
         imm	4
   codeline
-    label	palette_test_11_spill13:
+    label	palette_test_12_spill13:
   codeline
     directiveuse
       space
         imm	4
   codeline
-    label	initialize_filesystem_18_superblock_buf1:
+    label	initialize_filesystem_19_superblock_buf1:
   codeline
     directiveuse
       space
         imm	512
   codeline
-    label	ensure_filesystem_initialized_19_superblock_buf1:
+    label	ensure_filesystem_initialized_20_superblock_buf1:
   codeline
     directiveuse
       space
         imm	512
   codeline
-    label	write_file_20_scratch_block_buf1:
+    label	write_file_21_scratch_block_buf1:
   codeline
     directiveuse
       space
         imm	512
   codeline
-    label	read_file_21_dir_entry_buf1:
+    label	read_file_22_dir_entry_buf1:
   codeline
     directiveuse
       space

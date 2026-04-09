@@ -178,6 +178,15 @@ void draw_rectangle(int x, int y, int width, int height, int bc, int fc)
     };
     return 0;
 }
+
+void fast_clear_display(){
+    int i = 0;
+    while (i < 0x10000)
+    {
+        __sw(0x20000000 + i, 0);
+        i = i + 4;
+    }
+}
 void lfsr_test()
 {
     int addr = 0x20000000;
@@ -468,20 +477,20 @@ void read_file(char *filename, char *buffer){
 
 char buffer[256];
 char buffer_update_queue[64];
-char buffer_update_queue_ptr = 0;
+int buffer_update_queue_ptr = 0;
 
 void update_buffer(){
     for (int i = 0; i < buffer_update_queue_ptr; i++)
     {
         int index = buffer_update_queue[i];
-        draw_char_to_display(buffer[index], (index % 16) * 8, (index / 16) * 8, 0x3F);
+        draw_char_to_display(buffer[index], (index % 32) * 8, (index / 32) * 8, 0x3F);
     }
     buffer_update_queue_ptr = 0;
 }
 void refresh_display(){
     for (int i = 0; i < 256; i++)
     {
-        draw_char_to_display(buffer[i], (i % 16) * 8, (i / 16) * 8, 0x3F);
+        draw_char_to_display(buffer[i], (i % 32) * 8, (i / 32) * 8, 0x3F);
     }
 }
 
@@ -501,13 +510,10 @@ void write_to_buffer(char *str, int index){
         buffer[index + i] = str[i];
         buffer_update_queue[buffer_update_queue_ptr++] = index + i;
         i = i + 1;
-    }
-}
-
-void fast_flush(){
-    if (buffer_update_queue_ptr > 16)
-    {
-        update_buffer();
+        if (buffer_update_queue_ptr >= 64)
+        {
+            update_buffer();
+        }
     }
 }
 
@@ -537,12 +543,15 @@ void main()
     draw_string_to_display("Blue", 10, 40 , 0x07);
     draw_string_to_display("Yellow", 10, 48 , 0x3C);
     rand_block_test();
-    clear_display();
+    fast_clear_display();
     write_to_buffer("Hello, RospOS Terminal!\0", 0);
     update_buffer();
     write_to_buffer("This is a simple terminal implementation.\0", 32);
     update_buffer();
-    write_to_buffer("It uses a buffer to store characters\0",64);
-    write_to_buffer("and only updates the display when necessary.\0", 96);
+    write_to_buffer("A\0", 128);
+    write_to_buffer("B\0", 129);
+    write_to_buffer("C\0", 130);
+    update_buffer();
+    write_to_buffer("XYZ\0", 256 - 3);
     update_buffer();
 }

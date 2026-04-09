@@ -881,6 +881,42 @@ translation_unit
     function_def
       type_specifier
         void
+      declarator	fast_clear_display
+      compound_stmt
+        declaration
+          type_specifier
+            int
+          init_declarator_list
+            init_declarator
+              declarator	i
+              0
+        while_stmt
+          relational
+            i
+            lt
+            0x10000
+          compound_stmt
+            expr_stmt
+              postfix
+                __sw
+                call_suffix
+                  arg_list
+                    additive
+                      0x20000000
+                      plus
+                      i
+                    0
+            expr_stmt
+              assignment
+                i
+                additive
+                  i
+                  plus
+                  4
+  external_decl
+    function_def
+      type_specifier
+        void
       declarator	lfsr_test
       compound_stmt
         declaration
@@ -2453,7 +2489,7 @@ translation_unit
   external_decl
     declaration
       type_specifier
-        char
+        int
       init_declarator_list
         init_declarator
           declarator	buffer_update_queue_ptr
@@ -2501,14 +2537,14 @@ translation_unit
                       multiplicative
                         index
                         mod
-                        16
+                        32
                       mult
                       8
                     multiplicative
                       multiplicative
                         index
                         div
-                        16
+                        32
                       mult
                       8
                     0x3F
@@ -2550,14 +2586,14 @@ translation_unit
                       multiplicative
                         i
                         mod
-                        16
+                        32
                       mult
                       8
                     multiplicative
                       multiplicative
                         i
                         div
-                        16
+                        32
                       mult
                       8
                     0x3F
@@ -2659,22 +2695,16 @@ translation_unit
                   i
                   plus
                   1
-  external_decl
-    function_def
-      type_specifier
-        void
-      declarator	fast_flush
-      compound_stmt
-        if_stmt
-          relational
-            buffer_update_queue_ptr
-            gt
-            16
-          compound_stmt
-            expr_stmt
-              postfix
-                update_buffer
-                call_suffix
+            if_stmt
+              relational
+                buffer_update_queue_ptr
+                gte
+                64
+              compound_stmt
+                expr_stmt
+                  postfix
+                    update_buffer
+                    call_suffix
   external_decl
     function_def
       inline
@@ -2835,7 +2865,7 @@ translation_unit
             call_suffix
         expr_stmt
           postfix
-            clear_display
+            fast_clear_display
             call_suffix
         expr_stmt
           postfix
@@ -2864,15 +2894,36 @@ translation_unit
             write_to_buffer
             call_suffix
               arg_list
-                "It uses a buffer to store characters\0"
-                64
+                "A\0"
+                128
         expr_stmt
           postfix
             write_to_buffer
             call_suffix
               arg_list
-                "and only updates the display when necessary.\0"
-                96
+                "B\0"
+                129
+        expr_stmt
+          postfix
+            write_to_buffer
+            call_suffix
+              arg_list
+                "C\0"
+                130
+        expr_stmt
+          postfix
+            update_buffer
+            call_suffix
+        expr_stmt
+          postfix
+            write_to_buffer
+            call_suffix
+              arg_list
+                "XYZ\0"
+                additive
+                  256
+                  minus
+                  3
         expr_stmt
           postfix
             update_buffer
