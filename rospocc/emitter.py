@@ -8,7 +8,7 @@ from typing import Any, Dict, Optional
 import abi
 from emitter_calls import emit_call
 from emitter_expr import emit_expr as emit_expression
-from emitter_intrinsics import intrinsic_break, intrinsic_lb, intrinsic_sb
+from emitter_intrinsics import intrinsic_break, intrinsic_lb, intrinsic_sb, intrinsic_sw
 from emitter_registers import alloc_var_reg, ensure_var_reg, load_imm
 from emitter_stmt import emit_statement as emit_statement_impl
 from register_allocator import RegAllocation, RegisterAllocator
@@ -66,6 +66,7 @@ class Emitter:
             "__lb": self._intrinsic_lb,
             "__sb": self._intrinsic_sb,
             "__break": self._intrinsic_break,
+            "__sw": self._intrinsic_sw,
         }
         # Source tracking for debug info
         self.source_file = source_file
@@ -1052,8 +1053,11 @@ class Emitter:
     def _intrinsic_sb(self, args, out, return_reg=None):
         intrinsic_sb(self, args, out, return_reg=return_reg)
 
+    def _intrinsic_sw(self, args, out, return_reg=None):
+        intrinsic_sw(self, args, out, return_reg=return_reg)
     def _intrinsic_break(self, args, out, return_reg=None):
         intrinsic_break(self, args, out, return_reg=return_reg)
+    
 
     def emit_translation_unit(self, ast: Dict[str, Any], out_path: str):
         out_file = Path(out_path)

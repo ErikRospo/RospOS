@@ -161,3 +161,20 @@ def intrinsic_sb(emitter, args, out, return_reg=None):
         emitter.release_expr_reg(raddr)
     if borrowed_addr is not None:
         _release_scratch_reg(emitter, out, borrowed_addr[0], borrowed_addr[1])
+
+
+def intrinsic_sw(emitter, args, out, return_reg=None):
+    
+    if len(args) < 2:
+        out.write("  // __sw missing args\n")
+        return
+    a_addr = args[0]
+    a_val = args[1]
+    raddr = emitter.emit_expr(a_addr, out)
+    emitter.pin_reg(raddr)
+    rval = emitter.emit_expr(a_val, out)
+    emitter.unpin_reg(raddr)
+    out.write(f"  SW {rval}, {raddr}, 0    // intrinsic __sw\n")
+    emitter.release_expr_reg(rval)
+    emitter.release_expr_reg(raddr)
+    
