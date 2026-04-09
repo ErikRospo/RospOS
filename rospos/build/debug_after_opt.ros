@@ -171,48 +171,46 @@ draw_char_to_display_6_CMP_END4:
   BEQ r7, r0, draw_char_to_display_6_WHILE_END2
   LLI r8, 0
   LLI r9, font_address
-  ADD r10, r9, r5
-  ADD r10, r10, r6
-  LB r8, r10, 0
-  LLI r11, 0
+  ADD r9, r9, r5
+  ADD r9, r9, r6
+  LB r8, r9, 0
+  LLI r10, 0
 draw_char_to_display_6_WHILE5:
 
-  LLI r12, 8
-  BLT r11, r12, draw_char_to_display_6_CMP_TRUE7
-  LLI r12, 0
+  LLI r11, 8
+  BLT r10, r11, draw_char_to_display_6_CMP_TRUE7
+  LLI r11, 0
   JMP draw_char_to_display_6_CMP_END8
 
 draw_char_to_display_6_CMP_TRUE7:
 
-  LLI r12, 1
+  LLI r11, 1
 draw_char_to_display_6_CMP_END8:
 
-  BEQ r12, r0, draw_char_to_display_6_WHILE_END6
-  SHR r7, r8, r11
-  LLI r10, 1
-  AND r7, r7, r10
-  ADD r12, r3, r6
-  LLI r10, 256
-  MUL r12, r12, r10
-  ADD r12, r12, r2
-  ADD r12, r12, r11
-  BEQ r7, r0, draw_char_to_display_6_ELSE9
-  LLI r10, 536870912
-  ADD r10, r10, r12
-  SB r4, r10, 0
+  BEQ r11, r0, draw_char_to_display_6_WHILE_END6
+  SHR r12, r8, r10
+  LLI r7, 1
+  AND r12, r12, r7
+  ADD r9, r3, r6
+  LLI r11, 256
+  MUL r9, r9, r11
+  ADD r9, r9, r2
+  ADD r9, r9, r10
+  BEQ r12, r0, draw_char_to_display_6_ELSE9
+  LLI r7, 536870912
+  ADD r7, r7, r9
+  SB r4, r7, 0
   JMP draw_char_to_display_6_IF_END10
 
 draw_char_to_display_6_ELSE9:
 
-  LLI r10, 536870912
-  ADD r10, r10, r12
-  PUSH r2
-  LLI r2, 0
-  SB r2, r10, 0
-  POP r2
+  LLI r11, 536870912
+  ADD r11, r11, r9
+  LLI r7, 0
+  SB r7, r11, 0
 draw_char_to_display_6_IF_END10:
 
-  ADDI r11, r11, 1
+  ADDI r10, r10, 1
   JMP draw_char_to_display_6_WHILE5
 
 draw_char_to_display_6_WHILE_END6:
@@ -222,8 +220,8 @@ draw_char_to_display_6_WHILE_END6:
 
 draw_char_to_display_6_WHILE_END2:
 
-  LLI r10, 0
-  ADD r1, r10, r0
+  LLI r7, 0
+  ADD r1, r7, r0
   POP r14
   JALR r0, r14, 0
 draw_string_to_display:
@@ -1582,56 +1580,56 @@ update_buffer:
   LLI r2, 0
 update_buffer_22_WHILE1:
 
-  LLI r3, 0
+  LLI r3, buffer_update_queue_ptr
+  LB r3, r3, 0
   BLT r2, r3, update_buffer_22_CMP_TRUE3
-  LLI r4, 0
+  LLI r3, 0
   JMP update_buffer_22_CMP_END4
 
 update_buffer_22_CMP_TRUE3:
 
-  LLI r4, 1
+  LLI r3, 1
 update_buffer_22_CMP_END4:
 
-  BEQ r4, r0, update_buffer_22_WHILE_END2
-  LLI r5, 0
-  ADD r6, r5, r2
-  LW r6, r6, 0
+  BEQ r3, r0, update_buffer_22_WHILE_END2
+  LLI r4, buffer_update_queue
+  ADD r4, r4, r2
+  LB r4, r4, 0
   PUSH r2
-  PUSH r3
-  PUSH r5
-  PUSH r6
+  PUSH r4
   PUSH r1
-  LLI r7, 0
-  ADD r8, r7, r6
-  LW r8, r8, 0
+  LLI r5, buffer
+  ADD r5, r5, r4
+  LB r5, r5, 0
+  PUSH r5
+  LLI r6, 16
+  REM r6, r4, r6
+  LLI r7, 8
+  MUL r6, r6, r7
+  PUSH r6
+  LLI r8, 16
+  DIV r8, r4, r8
+  LLI r9, 8
+  MUL r8, r8, r9
   PUSH r8
-  LLI r9, 16
-  REM r9, r6, r9
-  LLI r10, 8
-  MUL r9, r9, r10
-  PUSH r9
-  LLI r11, 16
-  DIV r11, r6, r11
-  LLI r12, 8
-  MUL r11, r11, r12
-  PUSH r11
-  LLI r4, 63
+  LLI r10, 63
+  ADDI r4, r10, 0
   POP r3
   POP r2
   POP r1
   JMP draw_char_to_display
 
   POP r1
-  POP r6
-  POP r5
-  POP r3
+  POP r4
   POP r2
   ADDI r2, r2, 1
   JMP update_buffer_22_WHILE1
 
 update_buffer_22_WHILE_END2:
 
-  LLI r8, 0
+  LLI r11, 0
+  LLI r12, buffer_update_queue_ptr
+  SB r11, r12, 0
   ADDI r1, r0, 0
   POP r14
   JALR r0, r14, 0
@@ -1652,22 +1650,22 @@ refresh_display_23_CMP_END4:
   BEQ r3, r0, refresh_display_23_WHILE_END2
   PUSH r2
   PUSH r1
-  LLI r4, 0
-  ADD r5, r4, r2
-  LW r5, r5, 0
+  LLI r4, buffer
+  ADD r4, r4, r2
+  LB r4, r4, 0
+  PUSH r4
+  LLI r5, 16
+  REM r5, r2, r5
+  LLI r6, 8
+  MUL r5, r5, r6
   PUSH r5
-  LLI r6, 16
-  REM r6, r2, r6
-  LLI r7, 8
-  MUL r6, r6, r7
-  PUSH r6
-  LLI r8, 16
-  DIV r8, r2, r8
-  LLI r9, 8
-  MUL r8, r8, r9
-  PUSH r8
-  LLI r10, 63
-  ADDI r4, r10, 0
+  LLI r7, 16
+  DIV r7, r2, r7
+  LLI r8, 8
+  MUL r7, r7, r8
+  PUSH r7
+  LLI r9, 63
+  ADDI r4, r9, 0
   POP r3
   POP r2
   POP r1
@@ -1699,9 +1697,9 @@ clear_buffer_24_CMP_END4:
 
   BEQ r3, r0, clear_buffer_24_WHILE_END2
   LLI r4, 0
-  LLI r5, 0
-  ADD r6, r5, r2
-  SW r4, r6, 0
+  LLI r5, buffer
+  ADD r5, r5, r2
+  SB r4, r5, 0
   ADDI r2, r2, 1
   JMP clear_buffer_24_WHILE1
 
@@ -1751,17 +1749,20 @@ write_to_buffer_25_CMP_END8:
   BEQ r4, r0, write_to_buffer_25_WHILE_END2
   ADD r8, r1, r3
   LB r8, r8, 0
-  LLI r9, 0
+  LLI r9, buffer
   ADD r10, r2, r3
-  ADD r10, r9, r10
-  SW r8, r10, 0
+  ADD r9, r9, r10
+  SB r8, r9, 0
   ADD r11, r2, r3
-  LLI r12, 0
-  LLI r5, 0
+  LLI r12, buffer_update_queue
+  LLI r5, buffer_update_queue_ptr
+  LB r5, r5, 0
   LLI r7, 1
   ADD r5, r5, r7
-  ADD r6, r12, r5
-  SW r11, r6, 0
+  LLI r6, buffer_update_queue_ptr
+  SB r5, r6, 0
+  ADD r12, r12, r5
+  SB r11, r12, 0
   ADDI r3, r3, 1
   JMP write_to_buffer_25_WHILE1
 
@@ -1771,24 +1772,23 @@ write_to_buffer_25_WHILE_END2:
   POP r14
   JALR r0, r14, 0
   PUSH r14
-  LLI r2, 0
+  LLI r2, buffer_update_queue_ptr
+  LB r2, r2, 0
   LLI r3, 16
   BLT r3, r2, fast_flush_26_CMP_TRUE3
-  LLI r3, 0
+  LLI r2, 0
   JMP fast_flush_26_CMP_END4
 
 fast_flush_26_CMP_TRUE3:
 
-  LLI r3, 1
+  LLI r2, 1
 fast_flush_26_CMP_END4:
 
-  BEQ r3, r0, fast_flush_26_ELSE1
-  PUSH r2
+  BEQ r2, r0, fast_flush_26_ELSE1
   PUSH r1
   JMP update_buffer
 
   POP r1
-  POP r2
 fast_flush_26_ELSE1:
 
   ADDI r1, r0, 0
@@ -2506,6 +2506,10 @@ font_address:
 
 .DATA 0
 
+buffer_update_queue_ptr:
+
+.DATA 0
+
 str_0:
 
 .DATA 0x65 0x78 0x61 0x6D 0x70 0x6C 0x65 0x2E 0x74 0x78 0x74 0x00 0x00
@@ -2545,6 +2549,14 @@ str_8:
 str_9:
 
 .DATA 0x61 0x6E 0x64 0x20 0x6F 0x6E 0x6C 0x79 0x20 0x75 0x70 0x64 0x61 0x74 0x65 0x73 0x20 0x74 0x68 0x65 0x20 0x64 0x69 0x73 0x70 0x6C 0x61 0x79 0x20 0x77 0x68 0x65 0x6E 0x20 0x6E 0x65 0x63 0x65 0x73 0x73 0x61 0x72 0x79 0x2E 0x00 0x00
+
+buffer:
+
+.SPACE 256
+
+buffer_update_queue:
+
+.SPACE 64
 
 draw_line_8_spill23:
 

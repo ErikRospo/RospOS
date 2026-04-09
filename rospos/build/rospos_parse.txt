@@ -676,47 +676,47 @@ program
     instruction
       rinstructuse
         add
-        register	r10
+        register	r9
         register	r9
         register	r5
   codeline
     instruction
       rinstructuse
         add
-        register	r10
-        register	r10
+        register	r9
+        register	r9
         register	r6
   codeline
     instruction
       lsinstructuse
         lb
         register	r8
-        register	r10
+        register	r9
         imm	0
   codeline
     instruction
       lli
-        register	r11
+        register	r10
         imm	0
   codeline
     label	draw_char_to_display_6_WHILE5:
   codeline
     instruction
       lli
-        register	r12
+        register	r11
         imm	8
   codeline
     instruction
       binstructuse
         blt
+        register	r10
         register	r11
-        register	r12
         imm
           labeluse	draw_char_to_display_6_CMP_TRUE7
   codeline
     instruction
       lli
-        register	r12
+        register	r11
         imm	0
   codeline
     instruction
@@ -728,7 +728,7 @@ program
   codeline
     instruction
       lli
-        register	r12
+        register	r11
         imm	1
   codeline
     label	draw_char_to_display_6_CMP_END8:
@@ -736,7 +736,7 @@ program
     instruction
       binstructuse
         beq
-        register	r12
+        register	r11
         register	r0
         imm
           labeluse	draw_char_to_display_6_WHILE_END6
@@ -744,80 +744,80 @@ program
     instruction
       rinstructuse
         shr
-        register	r7
+        register	r12
         register	r8
-        register	r11
+        register	r10
   codeline
     instruction
       lli
-        register	r10
+        register	r7
         imm	1
   codeline
     instruction
       rinstructuse
         and
+        register	r12
+        register	r12
         register	r7
-        register	r7
-        register	r10
   codeline
     instruction
       rinstructuse
         add
-        register	r12
+        register	r9
         register	r3
         register	r6
   codeline
     instruction
       lli
-        register	r10
+        register	r11
         imm	256
   codeline
     instruction
       rinstructuse
         mul
-        register	r12
-        register	r12
-        register	r10
+        register	r9
+        register	r9
+        register	r11
   codeline
     instruction
       rinstructuse
         add
-        register	r12
-        register	r12
+        register	r9
+        register	r9
         register	r2
   codeline
     instruction
       rinstructuse
         add
-        register	r12
-        register	r12
-        register	r11
+        register	r9
+        register	r9
+        register	r10
   codeline
     instruction
       binstructuse
         beq
-        register	r7
+        register	r12
         register	r0
         imm
           labeluse	draw_char_to_display_6_ELSE9
   codeline
     instruction
       lli
-        register	r10
+        register	r7
         imm	536870912
   codeline
     instruction
       rinstructuse
         add
-        register	r10
-        register	r10
-        register	r12
+        register	r7
+        register	r7
+        register	r9
   codeline
     instruction
       lsinstructuse
         sb
         register	r4
-        register	r10
+        register	r7
         imm	0
   codeline
     instruction
@@ -829,43 +829,35 @@ program
   codeline
     instruction
       lli
-        register	r10
+        register	r11
         imm	536870912
   codeline
     instruction
       rinstructuse
         add
-        register	r10
-        register	r10
-        register	r12
-  codeline
-    instruction
-      push
-        register	r2
+        register	r11
+        register	r11
+        register	r9
   codeline
     instruction
       lli
-        register	r2
+        register	r7
         imm	0
   codeline
     instruction
       lsinstructuse
         sb
-        register	r2
-        register	r10
+        register	r7
+        register	r11
         imm	0
-  codeline
-    instruction
-      pop
-        register	r2
   codeline
     label	draw_char_to_display_6_IF_END10:
   codeline
     instruction
       iinstructuse
         addi
-        register	r11
-        register	r11
+        register	r10
+        register	r10
         imm	1
   codeline
     instruction
@@ -891,14 +883,14 @@ program
   codeline
     instruction
       lli
-        register	r10
+        register	r7
         imm	0
   codeline
     instruction
       rinstructuse
         add
         register	r1
-        register	r10
+        register	r7
         register	r0
   codeline
     instruction
@@ -7700,6 +7692,14 @@ program
     instruction
       lli
         register	r3
+        imm
+          labeluse	buffer_update_queue_ptr
+  codeline
+    instruction
+      lsinstructuse
+        lb
+        register	r3
+        register	r3
         imm	0
   codeline
     instruction
@@ -7712,7 +7712,7 @@ program
   codeline
     instruction
       lli
-        register	r4
+        register	r3
         imm	0
   codeline
     instruction
@@ -7724,7 +7724,7 @@ program
   codeline
     instruction
       lli
-        register	r4
+        register	r3
         imm	1
   codeline
     label	update_buffer_22_CMP_END4:
@@ -7732,28 +7732,29 @@ program
     instruction
       binstructuse
         beq
-        register	r4
+        register	r3
         register	r0
         imm
           labeluse	update_buffer_22_WHILE_END2
   codeline
     instruction
       lli
-        register	r5
-        imm	0
+        register	r4
+        imm
+          labeluse	buffer_update_queue
   codeline
     instruction
       rinstructuse
         add
-        register	r6
-        register	r5
+        register	r4
+        register	r4
         register	r2
   codeline
     instruction
       lsinstructuse
-        lw
-        register	r6
-        register	r6
+        lb
+        register	r4
+        register	r4
         imm	0
   codeline
     instruction
@@ -7762,15 +7763,7 @@ program
   codeline
     instruction
       push
-        register	r3
-  codeline
-    instruction
-      push
-        register	r5
-  codeline
-    instruction
-      push
-        register	r6
+        register	r4
   codeline
     instruction
       push
@@ -7778,91 +7771,92 @@ program
   codeline
     instruction
       lli
-        register	r7
-        imm	0
+        register	r5
+        imm
+          labeluse	buffer
   codeline
     instruction
       rinstructuse
         add
-        register	r8
-        register	r7
-        register	r6
+        register	r5
+        register	r5
+        register	r4
   codeline
     instruction
       lsinstructuse
-        lw
-        register	r8
-        register	r8
+        lb
+        register	r5
+        register	r5
         imm	0
   codeline
     instruction
       push
-        register	r8
+        register	r5
   codeline
     instruction
       lli
-        register	r9
+        register	r6
         imm	16
   codeline
     instruction
       rinstructuse
         rem
-        register	r9
         register	r6
-        register	r9
+        register	r4
+        register	r6
   codeline
     instruction
       lli
-        register	r10
+        register	r7
         imm	8
   codeline
     instruction
       rinstructuse
         mul
-        register	r9
-        register	r9
-        register	r10
+        register	r6
+        register	r6
+        register	r7
   codeline
     instruction
       push
-        register	r9
+        register	r6
   codeline
     instruction
       lli
-        register	r11
+        register	r8
         imm	16
   codeline
     instruction
       rinstructuse
         div
-        register	r11
-        register	r6
-        register	r11
+        register	r8
+        register	r4
+        register	r8
   codeline
     instruction
       lli
-        register	r12
+        register	r9
         imm	8
   codeline
     instruction
       rinstructuse
         mul
-        register	r11
-        register	r11
-        register	r12
+        register	r8
+        register	r8
+        register	r9
   codeline
     instruction
       push
-        register	r11
+        register	r8
   codeline
     instruction
       lli
-        register	r4
+        register	r10
         imm	63
   codeline
     instruction
       push
-        register	r4
+        register	r10
   codeline
     instruction
       pop
@@ -7891,15 +7885,7 @@ program
   codeline
     instruction
       pop
-        register	r6
-  codeline
-    instruction
-      pop
-        register	r5
-  codeline
-    instruction
-      pop
-        register	r3
+        register	r4
   codeline
     instruction
       pop
@@ -7921,7 +7907,20 @@ program
   codeline
     instruction
       lli
-        register	r8
+        register	r11
+        imm	0
+  codeline
+    instruction
+      lli
+        register	r12
+        imm
+          labeluse	buffer_update_queue_ptr
+  codeline
+    instruction
+      lsinstructuse
+        sb
+        register	r11
+        register	r12
         imm	0
   codeline
     instruction
@@ -8004,90 +8003,91 @@ program
     instruction
       lli
         register	r4
-        imm	0
+        imm
+          labeluse	buffer
   codeline
     instruction
       rinstructuse
         add
-        register	r5
+        register	r4
         register	r4
         register	r2
   codeline
     instruction
       lsinstructuse
-        lw
-        register	r5
-        register	r5
+        lb
+        register	r4
+        register	r4
         imm	0
   codeline
     instruction
       push
-        register	r5
+        register	r4
   codeline
     instruction
       lli
-        register	r6
+        register	r5
         imm	16
   codeline
     instruction
       rinstructuse
         rem
-        register	r6
+        register	r5
         register	r2
-        register	r6
+        register	r5
   codeline
     instruction
       lli
-        register	r7
+        register	r6
         imm	8
   codeline
     instruction
       rinstructuse
         mul
+        register	r5
+        register	r5
         register	r6
-        register	r6
-        register	r7
   codeline
     instruction
       push
-        register	r6
+        register	r5
   codeline
     instruction
       lli
-        register	r8
+        register	r7
         imm	16
   codeline
     instruction
       rinstructuse
         div
-        register	r8
+        register	r7
         register	r2
-        register	r8
+        register	r7
   codeline
     instruction
       lli
-        register	r9
+        register	r8
         imm	8
   codeline
     instruction
       rinstructuse
         mul
+        register	r7
+        register	r7
         register	r8
-        register	r8
-        register	r9
   codeline
     instruction
       push
-        register	r8
+        register	r7
   codeline
     instruction
       lli
-        register	r10
+        register	r9
         imm	63
   codeline
     instruction
       push
-        register	r10
+        register	r9
   codeline
     instruction
       pop
@@ -8209,20 +8209,21 @@ program
     instruction
       lli
         register	r5
-        imm	0
+        imm
+          labeluse	buffer
   codeline
     instruction
       rinstructuse
         add
-        register	r6
+        register	r5
         register	r5
         register	r2
   codeline
     instruction
       lsinstructuse
-        sw
+        sb
         register	r4
-        register	r6
+        register	r5
         imm	0
   codeline
     instruction
@@ -8412,7 +8413,8 @@ program
     instruction
       lli
         register	r9
-        imm	0
+        imm
+          labeluse	buffer
   codeline
     instruction
       rinstructuse
@@ -8424,15 +8426,15 @@ program
     instruction
       rinstructuse
         add
-        register	r10
+        register	r9
         register	r9
         register	r10
   codeline
     instruction
       lsinstructuse
-        sw
+        sb
         register	r8
-        register	r10
+        register	r9
         imm	0
   codeline
     instruction
@@ -8445,10 +8447,19 @@ program
     instruction
       lli
         register	r12
-        imm	0
+        imm
+          labeluse	buffer_update_queue
   codeline
     instruction
       lli
+        register	r5
+        imm
+          labeluse	buffer_update_queue_ptr
+  codeline
+    instruction
+      lsinstructuse
+        lb
+        register	r5
         register	r5
         imm	0
   codeline
@@ -8460,29 +8471,35 @@ program
     instruction
       rinstructuse
         add
-        register	r7
+        register	r5
         register	r5
         register	r7
   codeline
     instruction
-      iinstructuse
-        addi
+      lli
+        register	r6
+        imm
+          labeluse	buffer_update_queue_ptr
+  codeline
+    instruction
+      lsinstructuse
+        sb
         register	r5
-        register	r7
+        register	r6
         imm	0
   codeline
     instruction
       rinstructuse
         add
-        register	r6
+        register	r12
         register	r12
         register	r5
   codeline
     instruction
       lsinstructuse
-        sw
+        sb
         register	r11
-        register	r6
+        register	r12
         imm	0
   codeline
     instruction
@@ -8524,6 +8541,14 @@ program
     instruction
       lli
         register	r2
+        imm
+          labeluse	buffer_update_queue_ptr
+  codeline
+    instruction
+      lsinstructuse
+        lb
+        register	r2
+        register	r2
         imm	0
   codeline
     instruction
@@ -8541,7 +8566,7 @@ program
   codeline
     instruction
       lli
-        register	r3
+        register	r2
         imm	0
   codeline
     instruction
@@ -8553,7 +8578,7 @@ program
   codeline
     instruction
       lli
-        register	r3
+        register	r2
         imm	1
   codeline
     label	fast_flush_26_CMP_END4:
@@ -8561,14 +8586,10 @@ program
     instruction
       binstructuse
         beq
-        register	r3
+        register	r2
         register	r0
         imm
           labeluse	fast_flush_26_ELSE1
-  codeline
-    instruction
-      push
-        register	r2
   codeline
     instruction
       push
@@ -8582,10 +8603,6 @@ program
     instruction
       pop
         register	r1
-  codeline
-    instruction
-      pop
-        register	r2
   codeline
     instruction
       jmpseudo
@@ -10627,6 +10644,24 @@ program
     directiveuse
       data
         imm	0x00000000
+  codeline
+    label	buffer:
+  codeline
+    directiveuse
+      space
+        imm	256
+  codeline
+    label	buffer_update_queue:
+  codeline
+    directiveuse
+      space
+        imm	64
+  codeline
+    label	buffer_update_queue_ptr:
+  codeline
+    directiveuse
+      data
+        imm	0x00
   codeline
     label	str_0:
   codeline
