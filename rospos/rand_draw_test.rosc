@@ -1,17 +1,19 @@
 void rand_block_test(){
-    int addr = 0x20000000;
-    int end_addr = 0x20000000 + 0x00010000;
-    while (addr < end_addr)
+    int offset=0;
+    while (offset < 0x20000)
     {
         bd_write_u32(0x40000008, 0xFFFFFFFE); //Special RNG block
-        bd_write_u32(0x4000000C, (int)addr); // Set the DMA address *to the display MMIO address*
+        __sb(0x4000000C, 0x20);
+        __sb(0x4000000D, (offset>>16) & 0xFF);
+        __sb(0x4000000E, (offset >> 8) & 0xFF);
+        __sb(0x4000000F, 0);
         // This means the random data will be written directly to the display's framebuffer, which is a neat way to visualize the randomness.
         // This works because the block device uses DMA to write data, so it can write directly to the display's framebuffer without needing CPU intervention.
         // Despite the framebuffer not being a "normal" memory address, the block device's DMA uses the same write pathway as normal stores and loads
         // So it can write to MMIO addresses just fine. 
         bd_write_u32(0x40000010, 1); // Read 1 block
         bd_write_u32(0x40000004, 1); // Trigger the read
-        addr = addr + 0x200; // Move to the next block (512 bytes)
+        offset = offset + 0x200; // Move to the next block (512 bytes)
     }
     return;
 }
