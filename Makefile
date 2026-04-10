@@ -39,7 +39,8 @@ ROSPOVM_SRC := $(sort $(shell find rospovm -type f -not -path "rospovm/build/*")
 
 .PHONY: all help bm parse compile dump build clean doc format frontend \
 		frontend_cmake run vm_headless run_headless test report \
-		benchmark benchmark_plot everything frontend_minimal run_minimal
+		benchmark benchmark_plot everything frontend_minimal run_minimal \
+		min_run
 
 all: build
 
@@ -54,6 +55,7 @@ help:
 	@echo "  run              Run with Qt frontend"
 	@echo "  run_minimal      Run with minimal frontend"
 	@echo "  run_headless     Run with headless VM"
+	@echo "  min_run 		  Run with minimal frontend without full rebuild"
 	@echo "  doc              Build HTML and PDF docs"
 	@echo "  test             Run test suite"
 	@echo "  benchmark        Run benchmark suite"
@@ -148,6 +150,8 @@ format:
 	black .
 	isort .
 
+min_run: $(ROSP_FULL) $(DIR_ROSPOVM_BUILD)/rospovm_minimal
+	$(DIR_ROSPOVM_BUILD)/rospovm_minimal $<
 clean:
 	rm -rf $(DIR_ROSPOS_BUILD)
 	rm -rf $(DIR_ROSPOVM_BUILD)
