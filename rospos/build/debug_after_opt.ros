@@ -2488,20 +2488,20 @@ unix_ms_buffer:
   LB r2, r2, 0
   LLI r12, 255
   AND r2, r2, r12
-  SHLI r5, r5, 24
-  SHLI r7, r7, 16
-  OR r5, r5, r7
-  SHLI r9, r9, 8
-  OR r5, r5, r9
-  OR r5, r5, r2
-  ADD r3, r5, r0
+  SHLI r2, r2, 24
+  SHLI r9, r9, 16
+  OR r2, r2, r9
+  SHLI r7, r7, 8
+  OR r2, r2, r7
+  OR r2, r2, r5
+  ADD r3, r2, r0
   ADD r1, r3, r0
   POP r14
   JALR r0, r14, 0
 get_unix_time:
 
   PUSH r14
-  LLI r2, get_unix_time_46_out_struct1
+  LLI r2, get_unix_time_47_out_struct1
   LLI r3, 4294967292
   LLI r4, 0
   PUSH r2
@@ -2796,208 +2796,169 @@ fmt_unix_time:
 
   POP r2
   ADDI r2, r1, 0
-  BEQ r2, r0, fmt_unix_time_48_UNOP_NOT_TRUE3
+  BEQ r2, r0, fmt_unix_time_49_UNOP_NOT_TRUE3
   LLI r4, 0
-  JMP fmt_unix_time_48_UNOP_NOT_END4
+  JMP fmt_unix_time_49_UNOP_NOT_END4
 
-fmt_unix_time_48_UNOP_NOT_TRUE3:
+fmt_unix_time_49_UNOP_NOT_TRUE3:
 
   LLI r4, 1
-fmt_unix_time_48_UNOP_NOT_END4:
+fmt_unix_time_49_UNOP_NOT_END4:
 
-  BEQ r4, r0, fmt_unix_time_48_ELSE1
+  BEQ r4, r0, fmt_unix_time_49_ELSE1
   LLI r5, 0
   ADD r1, r5, r0
   POP r14
   JALR r0, r14, 0
-fmt_unix_time_48_ELSE1:
+fmt_unix_time_49_ELSE1:
 
+  LLI r6, 0
+  SB r6, r2, 0
   PUSH r2
   PUSH r1
   PUSH r2
   PUSH r2
-  PUSH r6
-  LW r7, r1, 0
-  ADDI r1, r7, 0
+  PUSH r8
+  LW r9, r1, 0
+  ADDI r1, r9, 0
   JMP int_to_str
 
-  POP r6
+  POP r8
   POP r2
-  ADDI r6, r1, 0
-  ADDI r2, r6, 0
-  POP r1
-  JMP strcat
-
-  POP r1
-  POP r2
-  PUSH r2
-  PUSH r1
-  PUSH r2
-  LLI r8, 45
+  ADDI r8, r1, 0
   ADDI r2, r8, 0
   POP r1
   JMP strcat
 
   POP r1
   POP r2
-  LW r9, r1, 4
-  LLI r10, 0
   PUSH r2
-  PUSH r9
-  PUSH r10
-  ADDI r1, r2, 0
-  JMP string_length
+  PUSH r1
+  PUSH r2
+  LLI r10, 45
+  ADDI r2, r10, 0
+  POP r1
+  JMP strcat
 
-  POP r10
-  POP r9
+  POP r1
   POP r2
-  ADDI r10, r1, 0
-  LLI r11, 10
-  DIV r11, r9, r11
-  LLI r12, 10
-  REM r11, r11, r12
-  LLI r3, 48
-  ADD r11, r11, r3
-  LLI r4, 0
-  ADD r4, r10, r4
-  ADD r4, r2, r4
-  SB r11, r4, 0
-  LLI r5, 10
-  REM r9, r9, r5
-  LLI r7, 48
-  ADD r9, r9, r7
-  LLI r6, 1
-  ADD r6, r10, r6
-  ADD r6, r2, r6
-  SB r9, r6, 0
-  LLI r8, 0
-  LLI r12, 2
-  ADD r10, r10, r12
-  ADD r2, r2, r10
-  SB r8, r2, 0
-  PUSH r1
+  LW r11, r1, 4
+  LLI r12, 0
   PUSH r2
-  LLI r3, 45
-  ADDI r2, r3, 0
-  POP r1
-  JMP strcat
-
-  POP r1
-  LW r4, r1, 8
-  LLI r11, 0
-  PUSH r4
   PUSH r11
-  ADDI r1, r2, 0
-  JMP string_length
-
-  POP r11
-  POP r4
-  ADDI r11, r1, 0
-  LLI r9, 10
-  DIV r9, r4, r9
-  LLI r5, 10
-  REM r9, r9, r5
-  LLI r7, 48
-  ADD r9, r9, r7
-  LLI r6, 0
-  ADD r6, r11, r6
-  ADD r6, r2, r6
-  SB r9, r6, 0
-  LLI r2, 10
-  REM r4, r4, r2
-  LLI r10, 48
-  ADD r4, r4, r10
-  LLI r12, 1
-  ADD r12, r11, r12
-  ADD r12, r2, r12
-  SB r4, r12, 0
-  LLI r8, 0
-  LLI r3, 2
-  ADD r11, r11, r3
-  ADD r2, r2, r11
-  SB r8, r2, 0
-  PUSH r1
-  PUSH r2
-  LLI r5, 32
-  ADDI r2, r5, 0
-  POP r1
-  JMP strcat
-
-  POP r1
-  LW r7, r1, 12
-  LLI r6, 0
-  PUSH r6
-  PUSH r7
-  ADDI r1, r2, 0
-  JMP string_length
-
-  POP r7
-  POP r6
-  ADDI r6, r1, 0
-  LLI r9, 10
-  DIV r9, r7, r9
-  LLI r4, 10
-  REM r9, r9, r4
-  LLI r10, 48
-  ADD r9, r9, r10
-  LLI r12, 0
-  ADD r12, r6, r12
-  ADD r12, r2, r12
-  SB r9, r12, 0
-  LLI r2, 10
-  REM r7, r7, r2
-  LLI r11, 48
-  ADD r7, r7, r11
-  LLI r3, 1
-  ADD r3, r6, r3
-  ADD r3, r2, r3
-  SB r7, r3, 0
-  LLI r8, 0
-  LLI r5, 2
-  ADD r6, r6, r5
-  ADD r2, r2, r6
-  SB r8, r2, 0
-  PUSH r1
-  PUSH r2
-  LLI r4, 58
-  ADDI r2, r4, 0
-  POP r1
-  JMP strcat
-
-  POP r1
-  LW r10, r1, 16
-  LLI r12, 0
-  PUSH r10
   PUSH r12
   ADDI r1, r2, 0
   JMP string_length
 
   POP r12
-  POP r10
+  POP r11
+  POP r2
   ADDI r12, r1, 0
-  LLI r9, 10
-  DIV r9, r10, r9
-  LLI r7, 10
-  REM r9, r9, r7
-  LLI r11, 48
-  ADD r9, r9, r11
-  LLI r3, 0
-  ADD r3, r12, r3
-  ADD r3, r2, r3
-  SB r9, r3, 0
-  LLI r2, 10
-  REM r10, r10, r2
-  LLI r6, 48
-  ADD r10, r10, r6
-  LLI r5, 1
-  ADD r5, r12, r5
-  ADD r5, r2, r5
-  SB r10, r5, 0
-  LLI r8, 0
+  LLI r3, 10
+  DIV r3, r11, r3
+  LLI r4, 10
+  REM r3, r3, r4
+  LLI r5, 48
+  ADD r3, r3, r5
+  LLI r7, 0
+  ADD r7, r12, r7
+  ADD r7, r2, r7
+  SB r3, r7, 0
+  LLI r6, 10
+  REM r11, r11, r6
+  LLI r9, 48
+  ADD r11, r11, r9
+  LLI r8, 1
+  ADD r8, r12, r8
+  ADD r8, r2, r8
+  SB r11, r8, 0
+  LLI r10, 0
   LLI r4, 2
   ADD r12, r12, r4
   ADD r2, r2, r12
-  SB r8, r2, 0
+  SB r10, r2, 0
+  PUSH r1
+  PUSH r2
+  LLI r5, 45
+  ADDI r2, r5, 0
+  POP r1
+  JMP strcat
+
+  POP r1
+  LW r7, r1, 8
+  LLI r3, 0
+  PUSH r3
+  PUSH r7
+  ADDI r1, r2, 0
+  JMP string_length
+
+  POP r7
+  POP r3
+  ADDI r3, r1, 0
+  LLI r11, 10
+  DIV r11, r7, r11
+  LLI r6, 10
+  REM r11, r11, r6
+  LLI r9, 48
+  ADD r11, r11, r9
+  LLI r8, 0
+  ADD r8, r3, r8
+  ADD r8, r2, r8
+  SB r11, r8, 0
+  LLI r2, 10
+  REM r7, r7, r2
+  LLI r12, 48
+  ADD r7, r7, r12
+  LLI r4, 1
+  ADD r4, r3, r4
+  ADD r4, r2, r4
+  SB r7, r4, 0
+  LLI r10, 0
+  LLI r5, 2
+  ADD r3, r3, r5
+  ADD r2, r2, r3
+  SB r10, r2, 0
+  PUSH r1
+  PUSH r2
+  LLI r6, 32
+  ADDI r2, r6, 0
+  POP r1
+  JMP strcat
+
+  POP r1
+  LW r9, r1, 12
+  LLI r8, 0
+  PUSH r8
+  PUSH r9
+  ADDI r1, r2, 0
+  JMP string_length
+
+  POP r9
+  POP r8
+  ADDI r8, r1, 0
+  LLI r11, 10
+  DIV r11, r9, r11
+  LLI r7, 10
+  REM r11, r11, r7
+  LLI r12, 48
+  ADD r11, r11, r12
+  LLI r4, 0
+  ADD r4, r8, r4
+  ADD r4, r2, r4
+  SB r11, r4, 0
+  LLI r2, 10
+  REM r9, r9, r2
+  LLI r3, 48
+  ADD r9, r9, r3
+  LLI r5, 1
+  ADD r5, r8, r5
+  ADD r5, r2, r5
+  SB r9, r5, 0
+  LLI r10, 0
+  LLI r6, 2
+  ADD r8, r8, r6
+  ADD r2, r2, r8
+  SB r10, r2, 0
   PUSH r1
   PUSH r2
   LLI r7, 58
@@ -3006,39 +2967,80 @@ fmt_unix_time_48_ELSE1:
   JMP strcat
 
   POP r1
-  LW r11, r1, 20
-  LLI r3, 0
-  PUSH r3
-  PUSH r11
+  LW r12, r1, 16
+  LLI r4, 0
+  PUSH r4
+  PUSH r12
   ADDI r1, r2, 0
   JMP string_length
 
-  POP r11
-  POP r3
-  ADDI r3, r1, 0
+  POP r12
+  POP r4
+  ADDI r4, r1, 0
+  LLI r11, 10
+  DIV r11, r12, r11
   LLI r9, 10
-  DIV r9, r11, r9
-  LLI r10, 10
-  REM r9, r9, r10
-  LLI r6, 48
-  ADD r9, r9, r6
+  REM r11, r11, r9
+  LLI r3, 48
+  ADD r11, r11, r3
   LLI r5, 0
-  ADD r5, r3, r5
+  ADD r5, r4, r5
   ADD r5, r2, r5
-  SB r9, r5, 0
+  SB r11, r5, 0
   LLI r2, 10
-  REM r11, r11, r2
-  LLI r12, 48
-  ADD r11, r11, r12
-  LLI r4, 1
-  ADD r4, r3, r4
-  ADD r4, r2, r4
-  SB r11, r4, 0
-  LLI r8, 0
+  REM r12, r12, r2
+  LLI r8, 48
+  ADD r12, r12, r8
+  LLI r6, 1
+  ADD r6, r4, r6
+  ADD r6, r2, r6
+  SB r12, r6, 0
+  LLI r10, 0
   LLI r7, 2
-  ADD r3, r3, r7
-  ADD r2, r2, r3
-  SB r8, r2, 0
+  ADD r4, r4, r7
+  ADD r2, r2, r4
+  SB r10, r2, 0
+  PUSH r1
+  PUSH r2
+  LLI r9, 58
+  ADDI r2, r9, 0
+  POP r1
+  JMP strcat
+
+  POP r1
+  LW r3, r1, 20
+  LLI r5, 0
+  PUSH r3
+  PUSH r5
+  ADDI r1, r2, 0
+  JMP string_length
+
+  POP r5
+  POP r3
+  ADDI r5, r1, 0
+  LLI r11, 10
+  DIV r11, r3, r11
+  LLI r12, 10
+  REM r11, r11, r12
+  LLI r8, 48
+  ADD r11, r11, r8
+  LLI r6, 0
+  ADD r6, r5, r6
+  ADD r6, r2, r6
+  SB r11, r6, 0
+  LLI r2, 10
+  REM r3, r3, r2
+  LLI r4, 48
+  ADD r3, r3, r4
+  LLI r7, 1
+  ADD r7, r5, r7
+  ADD r7, r2, r7
+  SB r3, r7, 0
+  LLI r10, 0
+  LLI r9, 2
+  ADD r5, r5, r9
+  ADD r2, r2, r5
+  SB r10, r2, 0
   ADD r1, r2, r0
   POP r14
   JALR r0, r14, 0
@@ -3077,28 +3079,28 @@ main:
   POP r2
   LLI r7, str_0
   LLI r8, 268435456
-main_50_WHILE1:
+main_51_WHILE1:
 
   LB r9, r7, 0
-  BEQ r9, r0, main_50_WHILE_END2
+  BEQ r9, r0, main_51_WHILE_END2
   ADDI r10, r9, 0
   SB r10, r8, 0
   ADDI r7, r7, 1
-  JMP main_50_WHILE1
+  JMP main_51_WHILE1
 
-main_50_WHILE_END2:
+main_51_WHILE_END2:
 
   LLI r11, 268435456
-main_50_WHILE3:
+main_51_WHILE3:
 
   LB r12, r2, 0
-  BEQ r12, r0, main_50_WHILE_END4
+  BEQ r12, r0, main_51_WHILE_END4
   ADDI r3, r12, 0
   SB r3, r11, 0
   ADDI r2, r2, 1
-  JMP main_50_WHILE3
+  JMP main_51_WHILE3
 
-main_50_WHILE_END4:
+main_51_WHILE_END4:
 
   PUSH r1
   JMP update_buffer
@@ -3687,6 +3689,6 @@ read_file_37_dir_entry_buf1:
 
 .SPACE 512
 
-get_unix_time_46_out_struct1:
+get_unix_time_47_out_struct1:
 
 .SPACE 28

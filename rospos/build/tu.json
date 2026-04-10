@@ -8665,7 +8665,7 @@
       "_line": 753
     },
     {
-      "name": "_read_be_u32",
+      "name": "_read_le_u32",
       "params": [
         "buffer",
         "offset"
@@ -8835,6 +8835,226 @@
                   "op": "lshift",
                   "left": {
                     "type": "var",
+                    "name": "b3"
+                  },
+                  "right": {
+                    "type": "const",
+                    "value": 24
+                  }
+                },
+                "right": {
+                  "type": "binop",
+                  "op": "lshift",
+                  "left": {
+                    "type": "var",
+                    "name": "b2"
+                  },
+                  "right": {
+                    "type": "const",
+                    "value": 16
+                  }
+                }
+              },
+              "right": {
+                "type": "binop",
+                "op": "lshift",
+                "left": {
+                  "type": "var",
+                  "name": "b1"
+                },
+                "right": {
+                  "type": "const",
+                  "value": 8
+                }
+              }
+            },
+            "right": {
+              "type": "var",
+              "name": "b0"
+            }
+          },
+          "_line": 790
+        }
+      ],
+      "param_types": {
+        "buffer": "char_ptr",
+        "offset": "int"
+      },
+      "return_type": "int",
+      "inline": true,
+      "_line": 784
+    },
+    {
+      "name": "_read_be_u32",
+      "params": [
+        "buffer",
+        "offset"
+      ],
+      "body": [
+        {
+          "type": "decl",
+          "name": "b0",
+          "init": {
+            "type": "binop",
+            "op": "and",
+            "left": {
+              "type": "deref",
+              "expr": {
+                "type": "binop",
+                "op": "plus",
+                "left": {
+                  "type": "var",
+                  "name": "buffer"
+                },
+                "right": {
+                  "type": "binop",
+                  "op": "plus",
+                  "left": {
+                    "type": "var",
+                    "name": "offset"
+                  },
+                  "right": {
+                    "type": "const",
+                    "value": 0
+                  }
+                }
+              }
+            },
+            "right": {
+              "type": "const",
+              "value": 255
+            }
+          },
+          "_line": 795,
+          "decl_type": "int"
+        },
+        {
+          "type": "decl",
+          "name": "b1",
+          "init": {
+            "type": "binop",
+            "op": "and",
+            "left": {
+              "type": "deref",
+              "expr": {
+                "type": "binop",
+                "op": "plus",
+                "left": {
+                  "type": "var",
+                  "name": "buffer"
+                },
+                "right": {
+                  "type": "binop",
+                  "op": "plus",
+                  "left": {
+                    "type": "var",
+                    "name": "offset"
+                  },
+                  "right": {
+                    "type": "const",
+                    "value": 1
+                  }
+                }
+              }
+            },
+            "right": {
+              "type": "const",
+              "value": 255
+            }
+          },
+          "_line": 796,
+          "decl_type": "int"
+        },
+        {
+          "type": "decl",
+          "name": "b2",
+          "init": {
+            "type": "binop",
+            "op": "and",
+            "left": {
+              "type": "deref",
+              "expr": {
+                "type": "binop",
+                "op": "plus",
+                "left": {
+                  "type": "var",
+                  "name": "buffer"
+                },
+                "right": {
+                  "type": "binop",
+                  "op": "plus",
+                  "left": {
+                    "type": "var",
+                    "name": "offset"
+                  },
+                  "right": {
+                    "type": "const",
+                    "value": 2
+                  }
+                }
+              }
+            },
+            "right": {
+              "type": "const",
+              "value": 255
+            }
+          },
+          "_line": 797,
+          "decl_type": "int"
+        },
+        {
+          "type": "decl",
+          "name": "b3",
+          "init": {
+            "type": "binop",
+            "op": "and",
+            "left": {
+              "type": "deref",
+              "expr": {
+                "type": "binop",
+                "op": "plus",
+                "left": {
+                  "type": "var",
+                  "name": "buffer"
+                },
+                "right": {
+                  "type": "binop",
+                  "op": "plus",
+                  "left": {
+                    "type": "var",
+                    "name": "offset"
+                  },
+                  "right": {
+                    "type": "const",
+                    "value": 3
+                  }
+                }
+              }
+            },
+            "right": {
+              "type": "const",
+              "value": 255
+            }
+          },
+          "_line": 798,
+          "decl_type": "int"
+        },
+        {
+          "type": "return",
+          "value": {
+            "type": "binop",
+            "op": "or",
+            "left": {
+              "type": "binop",
+              "op": "or",
+              "left": {
+                "type": "binop",
+                "op": "or",
+                "left": {
+                  "type": "binop",
+                  "op": "lshift",
+                  "left": {
+                    "type": "var",
                     "name": "b0"
                   },
                   "right": {
@@ -8873,7 +9093,7 @@
               "name": "b3"
             }
           },
-          "_line": 790
+          "_line": 799
         }
       ],
       "param_types": {
@@ -8882,7 +9102,7 @@
       },
       "return_type": "int",
       "inline": true,
-      "_line": 784
+      "_line": 793
     },
     {
       "name": "_read_special_block",
@@ -8904,7 +9124,7 @@
               "name": "block_id"
             }
           ],
-          "_line": 795
+          "_line": 804
         },
         {
           "type": "call_stmt",
@@ -8919,7 +9139,7 @@
               "name": "buffer"
             }
           ],
-          "_line": 796
+          "_line": 805
         },
         {
           "type": "call_stmt",
@@ -8934,7 +9154,7 @@
               "value": 1
             }
           ],
-          "_line": 797
+          "_line": 806
         },
         {
           "type": "call_stmt",
@@ -8949,7 +9169,7 @@
               "value": 1
             }
           ],
-          "_line": 798
+          "_line": 807
         }
       ],
       "param_types": {
@@ -8958,7 +9178,7 @@
       },
       "return_type": "void",
       "inline": true,
-      "_line": 793
+      "_line": 802
     },
     {
       "name": "unix_ms_buffer",
@@ -8977,7 +9197,7 @@
               "name": "__time_block_buffer"
             }
           ],
-          "_line": 803
+          "_line": 812
         },
         {
           "type": "return",
@@ -8985,11 +9205,11 @@
             "type": "var",
             "name": "__time_block_buffer"
           },
-          "_line": 804
+          "_line": 813
         }
       ],
       "return_type": "pointer",
-      "_line": 801
+      "_line": 810
     },
     {
       "name": "unix_ms",
@@ -9003,14 +9223,14 @@
             "name": "unix_ms_buffer",
             "args": []
           },
-          "_line": 809,
+          "_line": 818,
           "decl_type": "char_ptr"
         },
         {
           "type": "return",
           "value": {
             "type": "call",
-            "name": "_read_be_u32",
+            "name": "_read_le_u32",
             "args": [
               {
                 "type": "var",
@@ -9022,11 +9242,11 @@
               }
             ]
           },
-          "_line": 810
+          "_line": 819
         }
       ],
       "return_type": "int",
-      "_line": 807
+      "_line": 816
     },
     {
       "name": "get_unix_time",
@@ -9036,7 +9256,7 @@
           "type": "decl",
           "name": "out",
           "init": null,
-          "_line": 815,
+          "_line": 824,
           "decl_type": "unix_time"
         },
         {
@@ -9052,7 +9272,7 @@
               "name": "__time_block_buffer"
             }
           ],
-          "_line": 816
+          "_line": 825
         },
         {
           "type": "assign",
@@ -9079,7 +9299,7 @@
               }
             ]
           },
-          "_line": 818
+          "_line": 827
         },
         {
           "type": "assign",
@@ -9106,7 +9326,7 @@
               }
             ]
           },
-          "_line": 819
+          "_line": 828
         },
         {
           "type": "assign",
@@ -9133,7 +9353,7 @@
               }
             ]
           },
-          "_line": 820
+          "_line": 829
         },
         {
           "type": "assign",
@@ -9160,7 +9380,7 @@
               }
             ]
           },
-          "_line": 821
+          "_line": 830
         },
         {
           "type": "assign",
@@ -9187,7 +9407,7 @@
               }
             ]
           },
-          "_line": 822
+          "_line": 831
         },
         {
           "type": "assign",
@@ -9214,7 +9434,7 @@
               }
             ]
           },
-          "_line": 823
+          "_line": 832
         },
         {
           "type": "assign",
@@ -9241,7 +9461,7 @@
               }
             ]
           },
-          "_line": 824
+          "_line": 833
         },
         {
           "type": "return",
@@ -9249,10 +9469,10 @@
             "type": "var",
             "name": "out"
           },
-          "_line": 826
+          "_line": 835
         }
       ],
-      "_line": 813
+      "_line": 822
     },
     {
       "name": "_append_two_digits",
@@ -9274,7 +9494,7 @@
               }
             ]
           },
-          "_line": 831,
+          "_line": 840,
           "decl_type": "int"
         },
         {
@@ -9330,7 +9550,7 @@
               "value": 48
             }
           },
-          "_line": 832
+          "_line": 841
         },
         {
           "type": "assign",
@@ -9377,7 +9597,7 @@
               "value": 48
             }
           },
-          "_line": 833
+          "_line": 842
         },
         {
           "type": "assign",
@@ -9408,7 +9628,7 @@
             "type": "const",
             "value": 0
           },
-          "_line": 834
+          "_line": 843
         }
       ],
       "param_types": {
@@ -9417,7 +9637,7 @@
       },
       "return_type": "void",
       "inline": true,
-      "_line": 829
+      "_line": 838
     },
     {
       "name": "fmt_unix_time",
@@ -9438,7 +9658,7 @@
               }
             ]
           },
-          "_line": 840,
+          "_line": 849,
           "decl_type": "char_ptr"
         },
         {
@@ -9458,11 +9678,34 @@
                 "type": "const",
                 "value": 0
               },
-              "_line": 843
+              "_line": 852
             }
           ],
           "else": [],
-          "_line": 841
+          "_line": 850
+        },
+        {
+          "type": "assign",
+          "target": {
+            "type": "deref",
+            "expr": {
+              "type": "binop",
+              "op": "plus",
+              "left": {
+                "type": "var",
+                "name": "buffer"
+              },
+              "right": {
+                "type": "const",
+                "value": 0
+              }
+            }
+          },
+          "value": {
+            "type": "const",
+            "value": 0
+          },
+          "_line": 855
         },
         {
           "type": "call_stmt",
@@ -9488,7 +9731,7 @@
               ]
             }
           ],
-          "_line": 846
+          "_line": 857
         },
         {
           "type": "call_stmt",
@@ -9503,7 +9746,7 @@
               "value": 45
             }
           ],
-          "_line": 847
+          "_line": 858
         },
         {
           "type": "call_stmt",
@@ -9523,7 +9766,7 @@
               "member": "month"
             }
           ],
-          "_line": 848
+          "_line": 859
         },
         {
           "type": "call_stmt",
@@ -9538,7 +9781,7 @@
               "value": 45
             }
           ],
-          "_line": 849
+          "_line": 860
         },
         {
           "type": "call_stmt",
@@ -9558,7 +9801,7 @@
               "member": "day"
             }
           ],
-          "_line": 850
+          "_line": 861
         },
         {
           "type": "call_stmt",
@@ -9573,7 +9816,7 @@
               "value": 32
             }
           ],
-          "_line": 851
+          "_line": 862
         },
         {
           "type": "call_stmt",
@@ -9593,7 +9836,7 @@
               "member": "hour"
             }
           ],
-          "_line": 852
+          "_line": 863
         },
         {
           "type": "call_stmt",
@@ -9608,7 +9851,7 @@
               "value": 58
             }
           ],
-          "_line": 853
+          "_line": 864
         },
         {
           "type": "call_stmt",
@@ -9628,7 +9871,7 @@
               "member": "minute"
             }
           ],
-          "_line": 854
+          "_line": 865
         },
         {
           "type": "call_stmt",
@@ -9643,7 +9886,7 @@
               "value": 58
             }
           ],
-          "_line": 855
+          "_line": 866
         },
         {
           "type": "call_stmt",
@@ -9663,7 +9906,7 @@
               "member": "second"
             }
           ],
-          "_line": 856
+          "_line": 867
         },
         {
           "type": "return",
@@ -9671,14 +9914,14 @@
             "type": "var",
             "name": "buffer"
           },
-          "_line": 857
+          "_line": 868
         }
       ],
       "param_types": {
         "time": "unix_time"
       },
       "return_type": "pointer",
-      "_line": 837
+      "_line": 846
     },
     {
       "name": "add",
@@ -9701,7 +9944,7 @@
               "name": "b"
             }
           },
-          "_line": 862
+          "_line": 873
         }
       ],
       "param_types": {
@@ -9710,7 +9953,7 @@
       },
       "return_type": "int",
       "inline": true,
-      "_line": 860
+      "_line": 871
     },
     {
       "name": "main",
@@ -9730,7 +9973,7 @@
               }
             ]
           },
-          "_line": 892,
+          "_line": 903,
           "decl_type": "char_ptr"
         },
         {
@@ -9754,7 +9997,7 @@
               "value": 63
             }
           ],
-          "_line": 893
+          "_line": 904
         },
         {
           "type": "call_stmt",
@@ -9765,7 +10008,7 @@
               "label": "str_0"
             }
           ],
-          "_line": 894
+          "_line": 905
         },
         {
           "type": "call_stmt",
@@ -9776,17 +10019,17 @@
               "name": "time_str"
             }
           ],
-          "_line": 895
+          "_line": 906
         },
         {
           "type": "call_stmt",
           "name": "update_buffer",
           "args": [],
-          "_line": 896
+          "_line": 907
         }
       ],
       "return_type": "void",
-      "_line": 866
+      "_line": 877
     }
   ],
   "types": [

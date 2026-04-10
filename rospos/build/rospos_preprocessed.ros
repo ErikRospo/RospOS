@@ -2393,6 +2393,8 @@ write_to_buffer_41_WHILE_END2:
   POP r14
   RET
 
+// Inline function definition '_read_le_u32' skipped (will be inlined at call sites)
+
 // Inline function definition '_read_be_u32' skipped (will be inlined at call sites)
 
 // Inline function definition '_read_special_block' skipped (will be inlined at call sites)
@@ -2466,8 +2468,8 @@ write_to_buffer_41_WHILE_END2:
   // call return value in r1
   POP r2    // restore caller temp
   ADDI r2, r1, 0    // move return value
-  // inline call to _read_be_u32 with args [{'type': 'var', 'name': 'buffer'}, {'type': 'const', 'value': 0}]
-  // begin inline expansion of _read_be_u32
+  // inline call to _read_le_u32 with args [{'type': 'var', 'name': 'buffer'}, {'type': 'const', 'value': 0}]
+  // begin inline expansion of _read_le_u32
   LLI r4, 0    // load immediate 0
   LLI r5, 0    // load immediate 0
   ADD r5, r4, r5    // binop +
@@ -2493,24 +2495,24 @@ write_to_buffer_41_WHILE_END2:
   LB r2, r2, 0    // deref
   LLI r12, 255    // load immediate 255
   AND r2, r2, r12    // binop &
-  SHLI r5, r5, 24    // binop << (imm)
-  SHLI r7, r7, 16    // binop << (imm)
-  OR r5, r5, r7    // binop |
-  SHLI r9, r9, 8    // binop << (imm)
-  OR r5, r5, r9    // binop |
-  OR r5, r5, r2    // binop |
-  ADD r1, r5, r0
+  SHLI r2, r2, 24    // binop << (imm)
+  SHLI r9, r9, 16    // binop << (imm)
+  OR r2, r2, r9    // binop |
+  SHLI r7, r7, 8    // binop << (imm)
+  OR r2, r2, r7    // binop |
+  OR r2, r2, r5    // binop |
+  ADD r1, r2, r0
   // inline function return (no RET emitted)
   ADDI r3, r1, 0    // move inline return value
-  // end inline expansion of _read_be_u32
-  // call expr _read_be_u32 -> return in r3
+  // end inline expansion of _read_le_u32
+  // call expr _read_le_u32 -> return in r3
   ADD r1, r3, r0
   POP r14
   RET
 
 .FUNC get_unix_time:
   PUSH r14
-  LLI r2, get_unix_time_46_out_struct1    // init out (struct unix_time addr)
+  LLI r2, get_unix_time_47_out_struct1    // init out (struct unix_time addr)
   // inline call to _read_special_block with args [{'type': 'const', 'value': 4294967292}, {'type': 'var', 'name': '__time_block_buffer'}]
   // begin inline expansion of _read_special_block
   LLI r3, 4294967292    // load immediate 4294967292
@@ -2864,37 +2866,41 @@ write_to_buffer_41_WHILE_END2:
   // call return value in r1
   POP r2    // restore caller temp
   ADDI r2, r1, 0    // move return value
-  BEQ r2, r0, fmt_unix_time_48_UNOP_NOT_TRUE3
+  BEQ r2, r0, fmt_unix_time_49_UNOP_NOT_TRUE3
   LLI r4, 0    // operand is nonzero -> false
-  JMP fmt_unix_time_48_UNOP_NOT_END4
-fmt_unix_time_48_UNOP_NOT_TRUE3:
+  JMP fmt_unix_time_49_UNOP_NOT_END4
+fmt_unix_time_49_UNOP_NOT_TRUE3:
   LLI r4, 1    // operand is zero -> true
-fmt_unix_time_48_UNOP_NOT_END4:
-  BEQ r4, r0, fmt_unix_time_48_ELSE1
+fmt_unix_time_49_UNOP_NOT_END4:
+  BEQ r4, r0, fmt_unix_time_49_ELSE1
   LLI r5, 0    // load immediate 0
   ADD r1, r5, r0
   POP r14
   RET
-  JMP fmt_unix_time_48_IF_END2
-fmt_unix_time_48_ELSE1:
-fmt_unix_time_48_IF_END2:
+  JMP fmt_unix_time_49_IF_END2
+fmt_unix_time_49_ELSE1:
+fmt_unix_time_49_IF_END2:
+  LLI r6, 0    // load immediate 0
+  LLI r7, 0    // load immediate 0
+  ADD r7, r2, r7    // binop +
+  SB r6, r7, 0    // store 
   // emit call to strcat with args [{'type': 'var', 'name': 'buffer'}, {'type': 'call', 'name': 'int_to_str', 'args': [{'type': 'member_access', 'op': '.', 'base': {'type': 'var', 'name': 'time'}, 'member': 'year'}]}]
   PUSH r2    // save caller temp
   PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
   PUSH r2    // stage reg arg 0
   // emit call to int_to_str with args [{'type': 'member_access', 'op': '.', 'base': {'type': 'var', 'name': 'time'}, 'member': 'year'}]
   PUSH r2    // save caller temp
-  PUSH r6    // save caller temp
-  LW r7, r1, 0    // load time.year
-  PUSH r7    // stage reg arg 0
+  PUSH r8    // save caller temp
+  LW r9, r1, 0    // load time.year
+  PUSH r9    // stage reg arg 0
   POP r1    // load reg arg 0
   CALL int_to_str
   // call return value in r1
-  POP r6    // restore caller temp
+  POP r8    // restore caller temp
   POP r2    // restore caller temp
-  ADDI r6, r1, 0    // move return value
-  // call expr int_to_str -> return in r6
-  PUSH r6    // stage reg arg 1
+  ADDI r8, r1, 0    // move return value
+  // call expr int_to_str -> return in r8
+  PUSH r8    // stage reg arg 1
   POP r2    // load reg arg 1
   POP r1    // load reg arg 0
   CALL strcat
@@ -2905,8 +2911,8 @@ fmt_unix_time_48_IF_END2:
   PUSH r2    // save caller temp
   PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
   PUSH r2    // stage reg arg 0
-  LLI r8, 45    // load immediate 45
-  PUSH r8    // stage reg arg 1
+  LLI r10, 45    // load immediate 45
+  PUSH r10    // stage reg arg 1
   POP r2    // load reg arg 1
   POP r1    // load reg arg 0
   CALL strcat
@@ -2915,49 +2921,49 @@ fmt_unix_time_48_IF_END2:
   POP r2    // restore caller temp
   // inline call to _append_two_digits with args [{'type': 'var', 'name': 'buffer'}, {'type': 'member_access', 'op': '.', 'base': {'type': 'var', 'name': 'time'}, 'member': 'month'}]
   // begin inline expansion of _append_two_digits
-  LW r9, r1, 4    // load time.month
-  LLI r10, 0    // zero init len
+  LW r11, r1, 4    // load time.month
+  LLI r12, 0    // zero init len
   // emit call to string_length with args [{'type': 'var', 'name': 'buffer'}]
   PUSH r2    // save caller temp
-  PUSH r9    // save caller temp
-  PUSH r10    // save caller temp
+  PUSH r11    // save caller temp
+  PUSH r12    // save caller temp
   PUSH r2    // stage reg arg 0
   POP r1    // load reg arg 0
   CALL string_length
   // call return value in r1
-  POP r10    // restore caller temp
-  POP r9    // restore caller temp
+  POP r12    // restore caller temp
+  POP r11    // restore caller temp
   POP r2    // restore caller temp
-  ADDI r10, r1, 0    // move return value
-  LLI r11, 10    // load immediate 10
-  DIV r11, r9, r11    // binop /
-  LLI r12, 10    // load immediate 10
-  REM r11, r11, r12    // binop %
-  LLI r3, 48    // load immediate 48
-  ADD r11, r11, r3    // binop +
-  LLI r4, 0    // load immediate 0
-  ADD r4, r10, r4    // binop +
-  ADD r4, r2, r4    // binop +
-  SB r11, r4, 0    // store 
-  LLI r5, 10    // load immediate 10
-  REM r9, r9, r5    // binop %
-  LLI r7, 48    // load immediate 48
-  ADD r9, r9, r7    // binop +
-  LLI r6, 1    // load immediate 1
-  ADD r6, r10, r6    // binop +
-  ADD r6, r2, r6    // binop +
-  SB r9, r6, 0    // store 
-  LLI r8, 0    // load immediate 0
-  LLI r12, 2    // load immediate 2
-  ADD r10, r10, r12    // binop +
-  ADD r2, r2, r10    // binop +
-  SB r8, r2, 0    // store 
+  ADDI r12, r1, 0    // move return value
+  LLI r3, 10    // load immediate 10
+  DIV r3, r11, r3    // binop /
+  LLI r4, 10    // load immediate 10
+  REM r3, r3, r4    // binop %
+  LLI r5, 48    // load immediate 48
+  ADD r3, r3, r5    // binop +
+  LLI r7, 0    // load immediate 0
+  ADD r7, r12, r7    // binop +
+  ADD r7, r2, r7    // binop +
+  SB r3, r7, 0    // store 
+  LLI r6, 10    // load immediate 10
+  REM r11, r11, r6    // binop %
+  LLI r9, 48    // load immediate 48
+  ADD r11, r11, r9    // binop +
+  LLI r8, 1    // load immediate 1
+  ADD r8, r12, r8    // binop +
+  ADD r8, r2, r8    // binop +
+  SB r11, r8, 0    // store 
+  LLI r10, 0    // load immediate 0
+  LLI r4, 2    // load immediate 2
+  ADD r12, r12, r4    // binop +
+  ADD r2, r2, r12    // binop +
+  SB r10, r2, 0    // store 
   // end inline expansion of _append_two_digits
   // emit call to strcat with args [{'type': 'var', 'name': 'buffer'}, {'type': 'const', 'value': 45}]
   PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
   PUSH r2    // stage reg arg 0
-  LLI r3, 45    // load immediate 45
-  PUSH r3    // stage reg arg 1
+  LLI r5, 45    // load immediate 45
+  PUSH r5    // stage reg arg 1
   POP r2    // load reg arg 1
   POP r1    // load reg arg 0
   CALL strcat
@@ -2965,47 +2971,47 @@ fmt_unix_time_48_IF_END2:
   POP r1  
   // inline call to _append_two_digits with args [{'type': 'var', 'name': 'buffer'}, {'type': 'member_access', 'op': '.', 'base': {'type': 'var', 'name': 'time'}, 'member': 'day'}]
   // begin inline expansion of _append_two_digits
-  LW r4, r1, 8    // load time.day
-  LLI r11, 0    // zero init len
+  LW r7, r1, 8    // load time.day
+  LLI r3, 0    // zero init len
   // emit call to string_length with args [{'type': 'var', 'name': 'buffer'}]
-  PUSH r4    // save caller temp
-  PUSH r11    // save caller temp
+  PUSH r3    // save caller temp
+  PUSH r7    // save caller temp
   PUSH r2    // stage reg arg 0
   POP r1    // load reg arg 0
   CALL string_length
   // call return value in r1
-  POP r11    // restore caller temp
-  POP r4    // restore caller temp
-  ADDI r11, r1, 0    // move return value
-  LLI r9, 10    // load immediate 10
-  DIV r9, r4, r9    // binop /
-  LLI r5, 10    // load immediate 10
-  REM r9, r9, r5    // binop %
-  LLI r7, 48    // load immediate 48
-  ADD r9, r9, r7    // binop +
-  LLI r6, 0    // load immediate 0
-  ADD r6, r11, r6    // binop +
-  ADD r6, r2, r6    // binop +
-  SB r9, r6, 0    // store 
-  LLI r2, 10    // load immediate 10
-  REM r4, r4, r2    // binop %
-  LLI r10, 48    // load immediate 48
-  ADD r4, r4, r10    // binop +
-  LLI r12, 1    // load immediate 1
-  ADD r12, r11, r12    // binop +
-  ADD r12, r2, r12    // binop +
-  SB r4, r12, 0    // store 
+  POP r7    // restore caller temp
+  POP r3    // restore caller temp
+  ADDI r3, r1, 0    // move return value
+  LLI r11, 10    // load immediate 10
+  DIV r11, r7, r11    // binop /
+  LLI r6, 10    // load immediate 10
+  REM r11, r11, r6    // binop %
+  LLI r9, 48    // load immediate 48
+  ADD r11, r11, r9    // binop +
   LLI r8, 0    // load immediate 0
-  LLI r3, 2    // load immediate 2
-  ADD r11, r11, r3    // binop +
-  ADD r2, r2, r11    // binop +
-  SB r8, r2, 0    // store 
+  ADD r8, r3, r8    // binop +
+  ADD r8, r2, r8    // binop +
+  SB r11, r8, 0    // store 
+  LLI r2, 10    // load immediate 10
+  REM r7, r7, r2    // binop %
+  LLI r12, 48    // load immediate 48
+  ADD r7, r7, r12    // binop +
+  LLI r4, 1    // load immediate 1
+  ADD r4, r3, r4    // binop +
+  ADD r4, r2, r4    // binop +
+  SB r7, r4, 0    // store 
+  LLI r10, 0    // load immediate 0
+  LLI r5, 2    // load immediate 2
+  ADD r3, r3, r5    // binop +
+  ADD r2, r2, r3    // binop +
+  SB r10, r2, 0    // store 
   // end inline expansion of _append_two_digits
   // emit call to strcat with args [{'type': 'var', 'name': 'buffer'}, {'type': 'const', 'value': 32}]
   PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
   PUSH r2    // stage reg arg 0
-  LLI r5, 32    // load immediate 32
-  PUSH r5    // stage reg arg 1
+  LLI r6, 32    // load immediate 32
+  PUSH r6    // stage reg arg 1
   POP r2    // load reg arg 1
   POP r1    // load reg arg 0
   CALL strcat
@@ -3013,89 +3019,41 @@ fmt_unix_time_48_IF_END2:
   POP r1  
   // inline call to _append_two_digits with args [{'type': 'var', 'name': 'buffer'}, {'type': 'member_access', 'op': '.', 'base': {'type': 'var', 'name': 'time'}, 'member': 'hour'}]
   // begin inline expansion of _append_two_digits
-  LW r7, r1, 12    // load time.hour
-  LLI r6, 0    // zero init len
+  LW r9, r1, 12    // load time.hour
+  LLI r8, 0    // zero init len
   // emit call to string_length with args [{'type': 'var', 'name': 'buffer'}]
-  PUSH r6    // save caller temp
-  PUSH r7    // save caller temp
+  PUSH r8    // save caller temp
+  PUSH r9    // save caller temp
   PUSH r2    // stage reg arg 0
   POP r1    // load reg arg 0
   CALL string_length
   // call return value in r1
-  POP r7    // restore caller temp
-  POP r6    // restore caller temp
-  ADDI r6, r1, 0    // move return value
-  LLI r9, 10    // load immediate 10
-  DIV r9, r7, r9    // binop /
-  LLI r4, 10    // load immediate 10
-  REM r9, r9, r4    // binop %
-  LLI r10, 48    // load immediate 48
-  ADD r9, r9, r10    // binop +
-  LLI r12, 0    // load immediate 0
-  ADD r12, r6, r12    // binop +
-  ADD r12, r2, r12    // binop +
-  SB r9, r12, 0    // store 
-  LLI r2, 10    // load immediate 10
-  REM r7, r7, r2    // binop %
-  LLI r11, 48    // load immediate 48
-  ADD r7, r7, r11    // binop +
-  LLI r3, 1    // load immediate 1
-  ADD r3, r6, r3    // binop +
-  ADD r3, r2, r3    // binop +
-  SB r7, r3, 0    // store 
-  LLI r8, 0    // load immediate 0
-  LLI r5, 2    // load immediate 2
-  ADD r6, r6, r5    // binop +
-  ADD r2, r2, r6    // binop +
-  SB r8, r2, 0    // store 
-  // end inline expansion of _append_two_digits
-  // emit call to strcat with args [{'type': 'var', 'name': 'buffer'}, {'type': 'const', 'value': 58}]
-  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  PUSH r2    // stage reg arg 0
-  LLI r4, 58    // load immediate 58
-  PUSH r4    // stage reg arg 1
-  POP r2    // load reg arg 1
-  POP r1    // load reg arg 0
-  CALL strcat
-  // call return value in r1
-  POP r1  
-  // inline call to _append_two_digits with args [{'type': 'var', 'name': 'buffer'}, {'type': 'member_access', 'op': '.', 'base': {'type': 'var', 'name': 'time'}, 'member': 'minute'}]
-  // begin inline expansion of _append_two_digits
-  LW r10, r1, 16    // load time.minute
-  LLI r12, 0    // zero init len
-  // emit call to string_length with args [{'type': 'var', 'name': 'buffer'}]
-  PUSH r10    // save caller temp
-  PUSH r12    // save caller temp
-  PUSH r2    // stage reg arg 0
-  POP r1    // load reg arg 0
-  CALL string_length
-  // call return value in r1
-  POP r12    // restore caller temp
-  POP r10    // restore caller temp
-  ADDI r12, r1, 0    // move return value
-  LLI r9, 10    // load immediate 10
-  DIV r9, r10, r9    // binop /
+  POP r9    // restore caller temp
+  POP r8    // restore caller temp
+  ADDI r8, r1, 0    // move return value
+  LLI r11, 10    // load immediate 10
+  DIV r11, r9, r11    // binop /
   LLI r7, 10    // load immediate 10
-  REM r9, r9, r7    // binop %
-  LLI r11, 48    // load immediate 48
-  ADD r9, r9, r11    // binop +
-  LLI r3, 0    // load immediate 0
-  ADD r3, r12, r3    // binop +
-  ADD r3, r2, r3    // binop +
-  SB r9, r3, 0    // store 
+  REM r11, r11, r7    // binop %
+  LLI r12, 48    // load immediate 48
+  ADD r11, r11, r12    // binop +
+  LLI r4, 0    // load immediate 0
+  ADD r4, r8, r4    // binop +
+  ADD r4, r2, r4    // binop +
+  SB r11, r4, 0    // store 
   LLI r2, 10    // load immediate 10
-  REM r10, r10, r2    // binop %
-  LLI r6, 48    // load immediate 48
-  ADD r10, r10, r6    // binop +
+  REM r9, r9, r2    // binop %
+  LLI r3, 48    // load immediate 48
+  ADD r9, r9, r3    // binop +
   LLI r5, 1    // load immediate 1
-  ADD r5, r12, r5    // binop +
+  ADD r5, r8, r5    // binop +
   ADD r5, r2, r5    // binop +
-  SB r10, r5, 0    // store 
-  LLI r8, 0    // load immediate 0
-  LLI r4, 2    // load immediate 2
-  ADD r12, r12, r4    // binop +
-  ADD r2, r2, r12    // binop +
-  SB r8, r2, 0    // store 
+  SB r9, r5, 0    // store 
+  LLI r10, 0    // load immediate 0
+  LLI r6, 2    // load immediate 2
+  ADD r8, r8, r6    // binop +
+  ADD r2, r2, r8    // binop +
+  SB r10, r2, 0    // store 
   // end inline expansion of _append_two_digits
   // emit call to strcat with args [{'type': 'var', 'name': 'buffer'}, {'type': 'const', 'value': 58}]
   PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
@@ -3107,43 +3065,91 @@ fmt_unix_time_48_IF_END2:
   CALL strcat
   // call return value in r1
   POP r1  
-  // inline call to _append_two_digits with args [{'type': 'var', 'name': 'buffer'}, {'type': 'member_access', 'op': '.', 'base': {'type': 'var', 'name': 'time'}, 'member': 'second'}]
+  // inline call to _append_two_digits with args [{'type': 'var', 'name': 'buffer'}, {'type': 'member_access', 'op': '.', 'base': {'type': 'var', 'name': 'time'}, 'member': 'minute'}]
   // begin inline expansion of _append_two_digits
-  LW r11, r1, 20    // load time.second
-  LLI r3, 0    // zero init len
+  LW r12, r1, 16    // load time.minute
+  LLI r4, 0    // zero init len
   // emit call to string_length with args [{'type': 'var', 'name': 'buffer'}]
-  PUSH r3    // save caller temp
-  PUSH r11    // save caller temp
+  PUSH r4    // save caller temp
+  PUSH r12    // save caller temp
   PUSH r2    // stage reg arg 0
   POP r1    // load reg arg 0
   CALL string_length
   // call return value in r1
-  POP r11    // restore caller temp
-  POP r3    // restore caller temp
-  ADDI r3, r1, 0    // move return value
+  POP r12    // restore caller temp
+  POP r4    // restore caller temp
+  ADDI r4, r1, 0    // move return value
+  LLI r11, 10    // load immediate 10
+  DIV r11, r12, r11    // binop /
   LLI r9, 10    // load immediate 10
-  DIV r9, r11, r9    // binop /
-  LLI r10, 10    // load immediate 10
-  REM r9, r9, r10    // binop %
-  LLI r6, 48    // load immediate 48
-  ADD r9, r9, r6    // binop +
+  REM r11, r11, r9    // binop %
+  LLI r3, 48    // load immediate 48
+  ADD r11, r11, r3    // binop +
   LLI r5, 0    // load immediate 0
-  ADD r5, r3, r5    // binop +
+  ADD r5, r4, r5    // binop +
   ADD r5, r2, r5    // binop +
-  SB r9, r5, 0    // store 
+  SB r11, r5, 0    // store 
   LLI r2, 10    // load immediate 10
-  REM r11, r11, r2    // binop %
-  LLI r12, 48    // load immediate 48
-  ADD r11, r11, r12    // binop +
-  LLI r4, 1    // load immediate 1
-  ADD r4, r3, r4    // binop +
-  ADD r4, r2, r4    // binop +
-  SB r11, r4, 0    // store 
-  LLI r8, 0    // load immediate 0
+  REM r12, r12, r2    // binop %
+  LLI r8, 48    // load immediate 48
+  ADD r12, r12, r8    // binop +
+  LLI r6, 1    // load immediate 1
+  ADD r6, r4, r6    // binop +
+  ADD r6, r2, r6    // binop +
+  SB r12, r6, 0    // store 
+  LLI r10, 0    // load immediate 0
   LLI r7, 2    // load immediate 2
-  ADD r3, r3, r7    // binop +
-  ADD r2, r2, r3    // binop +
-  SB r8, r2, 0    // store 
+  ADD r4, r4, r7    // binop +
+  ADD r2, r2, r4    // binop +
+  SB r10, r2, 0    // store 
+  // end inline expansion of _append_two_digits
+  // emit call to strcat with args [{'type': 'var', 'name': 'buffer'}, {'type': 'const', 'value': 58}]
+  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
+  PUSH r2    // stage reg arg 0
+  LLI r9, 58    // load immediate 58
+  PUSH r9    // stage reg arg 1
+  POP r2    // load reg arg 1
+  POP r1    // load reg arg 0
+  CALL strcat
+  // call return value in r1
+  POP r1  
+  // inline call to _append_two_digits with args [{'type': 'var', 'name': 'buffer'}, {'type': 'member_access', 'op': '.', 'base': {'type': 'var', 'name': 'time'}, 'member': 'second'}]
+  // begin inline expansion of _append_two_digits
+  LW r3, r1, 20    // load time.second
+  LLI r5, 0    // zero init len
+  // emit call to string_length with args [{'type': 'var', 'name': 'buffer'}]
+  PUSH r3    // save caller temp
+  PUSH r5    // save caller temp
+  PUSH r2    // stage reg arg 0
+  POP r1    // load reg arg 0
+  CALL string_length
+  // call return value in r1
+  POP r5    // restore caller temp
+  POP r3    // restore caller temp
+  ADDI r5, r1, 0    // move return value
+  LLI r11, 10    // load immediate 10
+  DIV r11, r3, r11    // binop /
+  LLI r12, 10    // load immediate 10
+  REM r11, r11, r12    // binop %
+  LLI r8, 48    // load immediate 48
+  ADD r11, r11, r8    // binop +
+  LLI r6, 0    // load immediate 0
+  ADD r6, r5, r6    // binop +
+  ADD r6, r2, r6    // binop +
+  SB r11, r6, 0    // store 
+  LLI r2, 10    // load immediate 10
+  REM r3, r3, r2    // binop %
+  LLI r4, 48    // load immediate 48
+  ADD r3, r3, r4    // binop +
+  LLI r7, 1    // load immediate 1
+  ADD r7, r5, r7    // binop +
+  ADD r7, r2, r7    // binop +
+  SB r3, r7, 0    // store 
+  LLI r10, 0    // load immediate 0
+  LLI r9, 2    // load immediate 2
+  ADD r5, r5, r9    // binop +
+  ADD r2, r2, r5    // binop +
+  SB r10, r2, 0    // store 
   // end inline expansion of _append_two_digits
   ADD r1, r2, r0
   POP r14
@@ -3193,26 +3199,26 @@ fmt_unix_time_48_IF_END2:
   // begin inline expansion of print_string
   LLI r7, str_0    // load immediate str_0
   LLI r8, 268435456    // init tty_addr
-main_50_WHILE1:
+main_51_WHILE1:
   LB r9, r7, 0    // deref
-  BEQ r9, r0, main_50_WHILE_END2
+  BEQ r9, r0, main_51_WHILE_END2
   LB r10, r7, 0    // deref
   SB r10, r8, 0    // intrinsic __sb
   ADDI r7, r7, 1    // assign str (addi fast path)
-  JMP main_50_WHILE1
-main_50_WHILE_END2:
+  JMP main_51_WHILE1
+main_51_WHILE_END2:
   // end inline expansion of print_string
   // inline call to print_string with args [{'type': 'var', 'name': 'time_str'}]
   // begin inline expansion of print_string
   LLI r11, 268435456    // init tty_addr
-main_50_WHILE3:
+main_51_WHILE3:
   LB r12, r2, 0    // deref
-  BEQ r12, r0, main_50_WHILE_END4
+  BEQ r12, r0, main_51_WHILE_END4
   LB r3, r2, 0    // deref
   SB r3, r11, 0    // intrinsic __sb
   ADDI r2, r2, 1    // assign str (addi fast path)
-  JMP main_50_WHILE3
-main_50_WHILE_END4:
+  JMP main_51_WHILE3
+main_51_WHILE_END4:
   // end inline expansion of print_string
   // emit call to update_buffer with args []
   PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
@@ -3532,6 +3538,6 @@ write_file_36_scratch_block_buf1:
 read_file_37_dir_entry_buf1:
   .SPACE 512 // lifted buffer
 
-get_unix_time_46_out_struct1:
+get_unix_time_47_out_struct1:
   .SPACE 28 // lifted buffer
 
