@@ -923,8 +923,7 @@ void main()
     inline int r2 = 50;
     int r3 = add(r1, r2);
     
-    load_and_display_image();
-    fast_clear_display();
+
     initialize_filesystem();
     write_file("example.txt\0", "Hello, RospOS filesystem!\0");
     char device_info[512];
@@ -944,6 +943,7 @@ void main()
     write_to_buffer("This is a simple terminal implementation.\0", 32);
     update_buffer();
     fast_clear_display();
+    load_and_display_image();
     // char *time_str = fmt_unix_time(get_unix_time());
     // draw_string_to_display(time_str, 10, 56, 0x3F);
     // print_string("Current time: \n");

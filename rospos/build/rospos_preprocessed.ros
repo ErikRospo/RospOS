@@ -3291,16 +3291,6 @@ load_and_display_image_50_WHILE_END2:
   // inline function return (no RET emitted)
   ADDI r6, r1, 0    // move inline return value
   // end inline expansion of add
-  // emit call to load_and_display_image with args []
-  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  CALL load_and_display_image
-  // call return value in r1
-  POP r1  
-  // emit call to fast_clear_display with args []
-  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  CALL fast_clear_display
-  // call return value in r1
-  POP r1  
   // emit call to initialize_filesystem with args []
   PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
   CALL initialize_filesystem
@@ -3533,6 +3523,11 @@ load_and_display_image_50_WHILE_END2:
   // emit call to fast_clear_display with args []
   PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
   CALL fast_clear_display
+  // call return value in r1
+  POP r1  
+  // emit call to load_and_display_image with args []
+  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
+  CALL load_and_display_image
   // call return value in r1
   POP r1  
   BREAK
