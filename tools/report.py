@@ -213,6 +213,24 @@ class BuildAnalyzer:
         instruction_types = {}
         subtypes_by_type: Dict[str, Dict[str, int]] = {}
         total_instructions = 0
+        addi_breakdown = {"load": 0, "mov": 0, "other": 0}
+
+        def classify_addi(line: str) -> str:
+            """Classify ADDI usage as load, mov, or other based on operands."""
+            rs1_match = re.search(r"rs1=([^,)\s]+)", line)
+            imm_is_zero = bool(re.search(r"imm=ImmValue\(value=0\)", line))
+
+            # ADDI rd, rs1, 0 behaves like MOV rd, rs1.
+            if imm_is_zero:
+                return "mov"
+
+            rs1_token = rs1_match.group(1) if rs1_match else ""
+
+            # ADDI rd, r0, imm is used as an immediate load pattern.
+            if rs1_token in {"0", "r0"}:
+                return "load"
+
+            return "other"
 
         for line in lines:
             if not line.lstrip().startswith("Instruction("):
@@ -236,10 +254,15 @@ class BuildAnalyzer:
                     subtypes_by_type[instr_type].get(instr_name, 0) + 1
                 )
 
+                if instr_type == "i" and instr_name == "addi":
+                    addi_kind = classify_addi(line)
+                    addi_breakdown[addi_kind] += 1
+
         return {
             "total": total_instructions,
             "by_type": instruction_types,
             "subtypes_by_type": subtypes_by_type,
+            "addi_breakdown": addi_breakdown,
         }
 
     def analyze_layout(self) -> Dict[str, Any]:
@@ -501,8 +524,27 @@ def print_instruction_types(analyzer: BuildAnalyzer):
                             f"{subtype_count:,} ({subtype_pct:.1f}% of {instr_type}-type)",
                             Colors.GRAY,
                         )
+                        if subtype=="addi":
+                            addi_breakdown = ir_stats.get("addi_breakdown", {})
+                            addi_total = sum(addi_breakdown.values())
+                            if addi_total > 0:
+                                print_metric("      ADDI total", f"{addi_total:,}")
+                                print_metric(
+                                    "      ADDI as loads (addi rX, r0, imm)",
+                                    f"{addi_breakdown.get('load', 0):,} ({(addi_breakdown.get('load', 0) / addi_total) * 100:.1f}%)",
+                                    Colors.GRAY,
+                                )
+                                print_metric(
+                                    "      ADDI as movs (addi rX, rY, 0)",
+                                    f"{addi_breakdown.get('mov', 0):,} ({(addi_breakdown.get('mov', 0) / addi_total) * 100:.1f}%)",
+                                    Colors.GRAY,
+                                )
+                                print_metric(
+                                    "      Other ADDI usage",
+                                    f"{addi_breakdown.get('other', 0):,} ({(addi_breakdown.get('other', 0) / addi_total) * 100:.1f}%)",
+                                    Colors.GRAY,
+                                )
                     print()
-
 
 def print_summary(analyzer: BuildAnalyzer):
     """Print build summary"""
