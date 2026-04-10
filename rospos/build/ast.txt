@@ -70,6 +70,29 @@ translation_unit
     function_def
       inline
       type_specifier
+        void
+      declarator	print_line
+      param_list
+        param
+          type_specifier
+            char
+            pointer
+          declarator	str
+      compound_stmt
+        expr_stmt
+          postfix
+            print_string
+            call_suffix
+              arg_list	str
+        expr_stmt
+          postfix
+            print_char
+            call_suffix
+              arg_list	"\n"
+  external_decl
+    function_def
+      inline
+      type_specifier
         char
       declarator	read_char
       compound_stmt
@@ -162,6 +185,235 @@ translation_unit
               array_index	i
             "\0"
         return_stmt	buffer
+  external_decl
+    function_def
+      type_specifier
+        void
+      declarator	int_to_str_buf
+      param_list
+        param
+          type_specifier
+            int
+          declarator	input
+        param
+          type_specifier
+            char
+            pointer
+          declarator	buffer
+      compound_stmt
+        if_stmt
+          equality
+            input
+            eq
+            0
+          compound_stmt
+            expr_stmt
+              assignment
+                postfix
+                  buffer
+                  array_index	0
+                "0"
+            expr_stmt
+              assignment
+                postfix
+                  buffer
+                  array_index	1
+                "\0"
+            return_stmt	0
+        declaration
+          type_specifier
+            int
+          init_declarator_list
+            init_declarator
+              declarator	is_negative
+              0
+        if_stmt
+          relational
+            input
+            lt
+            0
+          compound_stmt
+            expr_stmt
+              assignment
+                is_negative
+                1
+            expr_stmt
+              assignment
+                input
+                unary
+                  uminus
+                  input
+        declaration
+          type_specifier
+            int
+          init_declarator_list
+            init_declarator
+              declarator	i
+              0
+        while_stmt
+          relational
+            input
+            gt
+            0
+          compound_stmt
+            expr_stmt
+              assignment
+                postfix
+                  buffer
+                  array_index	i
+                additive
+                  multiplicative
+                    input
+                    mod
+                    10
+                  plus
+                  "0"
+            expr_stmt
+              assignment
+                i
+                additive
+                  i
+                  plus
+                  1
+            expr_stmt
+              assignment
+                input
+                multiplicative
+                  input
+                  div
+                  10
+        if_stmt
+          is_negative
+          compound_stmt
+            expr_stmt
+              assignment
+                postfix
+                  buffer
+                  array_index	i
+                "-"
+            expr_stmt
+              assignment
+                i
+                additive
+                  i
+                  plus
+                  1
+        expr_stmt
+          assignment
+            postfix
+              buffer
+              array_index	i
+            "\0"
+        declaration
+          type_specifier
+            int
+          init_declarator_list
+            init_declarator
+              declarator	left
+              0
+        declaration
+          type_specifier
+            int
+          init_declarator_list
+            init_declarator
+              declarator	right
+              additive
+                i
+                minus
+                1
+        while_stmt
+          relational
+            left
+            lt
+            right
+          compound_stmt
+            declaration
+              type_specifier
+                char
+              init_declarator_list
+                init_declarator
+                  declarator	tmp
+                  postfix
+                    buffer
+                    array_index	left
+            expr_stmt
+              assignment
+                postfix
+                  buffer
+                  array_index	left
+                postfix
+                  buffer
+                  array_index	right
+            expr_stmt
+              assignment
+                postfix
+                  buffer
+                  array_index	right
+                tmp
+            expr_stmt
+              assignment
+                left
+                additive
+                  left
+                  plus
+                  1
+            expr_stmt
+              assignment
+                right
+                additive
+                  right
+                  minus
+                  1
+  external_decl
+    declaration
+      type_specifier
+        char
+      init_declarator_list
+        init_declarator
+          declarator
+            __int_to_str_static_buffer
+            array	12
+  external_decl
+    function_def
+      type_specifier
+        char
+        pointer
+      declarator	int_to_str
+      param_list
+        param
+          type_specifier
+            int
+          declarator	input
+      compound_stmt
+        expr_stmt
+          postfix
+            int_to_str_buf
+            call_suffix
+              arg_list
+                input
+                __int_to_str_static_buffer
+        return_stmt	__int_to_str_static_buffer
+  external_decl
+    function_def
+      inline
+      type_specifier
+        void
+      declarator	print_int
+      param_list
+        param
+          type_specifier
+            int
+          declarator	value
+      compound_stmt
+        expr_stmt
+          postfix
+            print_string
+            call_suffix
+              arg_list
+                postfix
+                  int_to_str
+                  call_suffix
+                    arg_list	value
   external_decl
     function_def
       type_specifier
@@ -1628,6 +1880,12 @@ translation_unit
             pointer
           declarator	str
       compound_stmt
+        if_stmt
+          unary
+            not
+            str
+          compound_stmt
+            return_stmt	0
         declaration
           type_specifier
             int
@@ -1651,6 +1909,822 @@ translation_unit
                   plus
                   1
         return_stmt	length
+  external_decl
+    function_def
+      type_specifier
+        int
+      declarator	strcmp
+      param_list
+        param
+          type_specifier
+            char
+            pointer
+          declarator	a
+        param
+          type_specifier
+            char
+            pointer
+          declarator	b
+      compound_stmt
+        declaration
+          type_specifier
+            int
+          init_declarator_list
+            init_declarator
+              declarator	i
+              0
+        while_stmt
+          logic_and
+            postfix
+              a
+              array_index	i
+            postfix
+              b
+              array_index	i
+          compound_stmt
+            if_stmt
+              equality
+                postfix
+                  a
+                  array_index	i
+                neq
+                postfix
+                  b
+                  array_index	i
+              compound_stmt
+                return_stmt
+                  additive
+                    bit_and
+                      postfix
+                        a
+                        array_index	i
+                      0xFF
+                    minus
+                    bit_and
+                      postfix
+                        b
+                        array_index	i
+                      0xFF
+            expr_stmt
+              assignment
+                i
+                additive
+                  i
+                  plus
+                  1
+        return_stmt
+          additive
+            bit_and
+              postfix
+                a
+                array_index	i
+              0xFF
+            minus
+            bit_and
+              postfix
+                b
+                array_index	i
+              0xFF
+  external_decl
+    function_def
+      type_specifier
+        char
+        pointer
+      declarator	strcpy
+      param_list
+        param
+          type_specifier
+            char
+            pointer
+          declarator	dest
+        param
+          type_specifier
+            char
+            pointer
+          declarator	src
+      compound_stmt
+        declaration
+          type_specifier
+            int
+          init_declarator_list
+            init_declarator
+              declarator	i
+              0
+        while_stmt
+          postfix
+            src
+            array_index	i
+          compound_stmt
+            expr_stmt
+              assignment
+                postfix
+                  dest
+                  array_index	i
+                postfix
+                  src
+                  array_index	i
+            expr_stmt
+              assignment
+                i
+                additive
+                  i
+                  plus
+                  1
+        expr_stmt
+          assignment
+            postfix
+              dest
+              array_index	i
+            "\0"
+        return_stmt	dest
+  external_decl
+    function_def
+      type_specifier
+        char
+        pointer
+      declarator	strncpy
+      param_list
+        param
+          type_specifier
+            char
+            pointer
+          declarator	dest
+        param
+          type_specifier
+            char
+            pointer
+          declarator	src
+        param
+          type_specifier
+            int
+          declarator	n
+      compound_stmt
+        declaration
+          type_specifier
+            int
+          init_declarator_list
+            init_declarator
+              declarator	i
+              0
+        while_stmt
+          logic_and
+            relational
+              i
+              lt
+              n
+            postfix
+              src
+              array_index	i
+          compound_stmt
+            expr_stmt
+              assignment
+                postfix
+                  dest
+                  array_index	i
+                postfix
+                  src
+                  array_index	i
+            expr_stmt
+              assignment
+                i
+                additive
+                  i
+                  plus
+                  1
+        while_stmt
+          relational
+            i
+            lt
+            n
+          compound_stmt
+            expr_stmt
+              assignment
+                postfix
+                  dest
+                  array_index	i
+                "\0"
+            expr_stmt
+              assignment
+                i
+                additive
+                  i
+                  plus
+                  1
+        return_stmt	dest
+  external_decl
+    function_def
+      type_specifier
+        char
+        pointer
+      declarator	strcat
+      param_list
+        param
+          type_specifier
+            char
+            pointer
+          declarator	dest
+        param
+          type_specifier
+            char
+            pointer
+          declarator	src
+      compound_stmt
+        declaration
+          type_specifier
+            int
+          init_declarator_list
+            init_declarator
+              declarator	i
+              postfix
+                string_length
+                call_suffix
+                  arg_list	dest
+        declaration
+          type_specifier
+            int
+          init_declarator_list
+            init_declarator
+              declarator	j
+              0
+        while_stmt
+          postfix
+            src
+            array_index	j
+          compound_stmt
+            expr_stmt
+              assignment
+                postfix
+                  dest
+                  array_index	i
+                postfix
+                  src
+                  array_index	j
+            expr_stmt
+              assignment
+                i
+                additive
+                  i
+                  plus
+                  1
+            expr_stmt
+              assignment
+                j
+                additive
+                  j
+                  plus
+                  1
+        expr_stmt
+          assignment
+            postfix
+              dest
+              array_index	i
+            "\0"
+        return_stmt	dest
+  external_decl
+    function_def
+      type_specifier
+        void
+        pointer
+      declarator	memset
+      param_list
+        param
+          type_specifier
+            void
+            pointer
+          declarator	dest
+        param
+          type_specifier
+            int
+          declarator	value
+        param
+          type_specifier
+            int
+          declarator	n
+      compound_stmt
+        declaration
+          type_specifier
+            char
+            pointer
+          init_declarator_list
+            init_declarator
+              declarator	out
+              cast
+                type_specifier
+                  char
+                  pointer
+                dest
+        declaration
+          type_specifier
+            int
+          init_declarator_list
+            init_declarator
+              declarator	i
+              0
+        while_stmt
+          relational
+            i
+            lt
+            n
+          compound_stmt
+            expr_stmt
+              assignment
+                postfix
+                  out
+                  array_index	i
+                value
+            expr_stmt
+              assignment
+                i
+                additive
+                  i
+                  plus
+                  1
+        return_stmt	dest
+  external_decl
+    function_def
+      type_specifier
+        void
+        pointer
+      declarator	memcpy
+      param_list
+        param
+          type_specifier
+            void
+            pointer
+          declarator	dest
+        param
+          type_specifier
+            void
+            pointer
+          declarator	src
+        param
+          type_specifier
+            int
+          declarator	n
+      compound_stmt
+        declaration
+          type_specifier
+            char
+            pointer
+          init_declarator_list
+            init_declarator
+              declarator	out
+              cast
+                type_specifier
+                  char
+                  pointer
+                dest
+        declaration
+          type_specifier
+            char
+            pointer
+          init_declarator_list
+            init_declarator
+              declarator	in
+              cast
+                type_specifier
+                  char
+                  pointer
+                src
+        declaration
+          type_specifier
+            int
+          init_declarator_list
+            init_declarator
+              declarator	i
+              0
+        while_stmt
+          relational
+            i
+            lt
+            n
+          compound_stmt
+            expr_stmt
+              assignment
+                postfix
+                  out
+                  array_index	i
+                postfix
+                  in
+                  array_index	i
+            expr_stmt
+              assignment
+                i
+                additive
+                  i
+                  plus
+                  1
+        return_stmt	dest
+  external_decl
+    function_def
+      type_specifier
+        void
+        pointer
+      declarator	memmove
+      param_list
+        param
+          type_specifier
+            void
+            pointer
+          declarator	dest
+        param
+          type_specifier
+            void
+            pointer
+          declarator	src
+        param
+          type_specifier
+            int
+          declarator	n
+      compound_stmt
+        declaration
+          type_specifier
+            char
+            pointer
+          init_declarator_list
+            init_declarator
+              declarator	out
+              cast
+                type_specifier
+                  char
+                  pointer
+                dest
+        declaration
+          type_specifier
+            char
+            pointer
+          init_declarator_list
+            init_declarator
+              declarator	in
+              cast
+                type_specifier
+                  char
+                  pointer
+                src
+        if_stmt
+          relational
+            out
+            lt
+            in
+          compound_stmt
+            declaration
+              type_specifier
+                int
+              init_declarator_list
+                init_declarator
+                  declarator	i
+                  0
+            while_stmt
+              relational
+                i
+                lt
+                n
+              compound_stmt
+                expr_stmt
+                  assignment
+                    postfix
+                      out
+                      array_index	i
+                    postfix
+                      in
+                      array_index	i
+                expr_stmt
+                  assignment
+                    i
+                    additive
+                      i
+                      plus
+                      1
+          compound_stmt
+            declaration
+              type_specifier
+                int
+              init_declarator_list
+                init_declarator
+                  declarator	i
+                  additive
+                    n
+                    minus
+                    1
+            while_stmt
+              relational
+                i
+                gte
+                0
+              compound_stmt
+                expr_stmt
+                  assignment
+                    postfix
+                      out
+                      array_index	i
+                    postfix
+                      in
+                      array_index	i
+                expr_stmt
+                  assignment
+                    i
+                    additive
+                      i
+                      minus
+                      1
+        return_stmt	dest
+  external_decl
+    struct_decl
+      malloc_header
+      struct_member
+        type_specifier
+          int
+        init_declarator_list
+          init_declarator
+            declarator	size
+      struct_member
+        type_specifier
+          int
+        init_declarator_list
+          init_declarator
+            declarator	free
+      struct_member
+        type_specifier
+          malloc_header
+          pointer
+        init_declarator_list
+          init_declarator
+            declarator	next
+  external_decl
+    declaration
+      type_specifier
+        char
+      init_declarator_list
+        init_declarator
+          declarator
+            __heap_area
+            array	16384
+  external_decl
+    declaration
+      type_specifier
+        int
+      init_declarator_list
+        init_declarator
+          declarator	__heap_used
+          0
+  external_decl
+    declaration
+      type_specifier
+        malloc_header
+        pointer
+      init_declarator_list
+        init_declarator
+          declarator	malloc_head
+          0
+  external_decl
+    function_def
+      type_specifier
+        int
+      declarator	_align4
+      param_list
+        param
+          type_specifier
+            int
+          declarator	value
+      compound_stmt
+        return_stmt
+          bit_and
+            additive
+              value
+              plus
+              3
+            unary
+              bitnot
+              3
+  external_decl
+    function_def
+      type_specifier
+        void
+        pointer
+      declarator	_heap_alloc_raw
+      param_list
+        param
+          type_specifier
+            int
+          declarator	bytes
+      compound_stmt
+        declaration
+          type_specifier
+            int
+          init_declarator_list
+            init_declarator
+              declarator	aligned
+              postfix
+                _align4
+                call_suffix
+                  arg_list	bytes
+        if_stmt
+          relational
+            additive
+              __heap_used
+              plus
+              aligned
+            gt
+            16384
+          compound_stmt
+            return_stmt	0
+        declaration
+          type_specifier
+            void
+            pointer
+          init_declarator_list
+            init_declarator
+              declarator	ptr
+              cast
+                type_specifier
+                  void
+                  pointer
+                additive
+                  __heap_area
+                  plus
+                  __heap_used
+        expr_stmt
+          assignment
+            __heap_used
+            additive
+              __heap_used
+              plus
+              aligned
+        return_stmt	ptr
+  external_decl
+    function_def
+      type_specifier
+        void
+        pointer
+      declarator	malloc
+      param_list
+        param
+          type_specifier
+            int
+          declarator	size
+      compound_stmt
+        if_stmt
+          relational
+            size
+            lte
+            0
+          compound_stmt
+            return_stmt	0
+        declaration
+          type_specifier
+            int
+          init_declarator_list
+            init_declarator
+              declarator	payload
+              postfix
+                _align4
+                call_suffix
+                  arg_list	size
+        declaration
+          type_specifier
+            malloc_header
+            pointer
+          init_declarator_list
+            init_declarator
+              declarator	node
+              malloc_head
+        while_stmt
+          node
+          compound_stmt
+            if_stmt
+              logic_and
+                postfix
+                  node
+                  ptr_member_access	free
+                relational
+                  postfix
+                    node
+                    ptr_member_access	size
+                  gte
+                  payload
+              compound_stmt
+                expr_stmt
+                  assignment
+                    postfix
+                      node
+                      ptr_member_access	free
+                    0
+                return_stmt
+                  cast
+                    type_specifier
+                      void
+                      pointer
+                    additive
+                      node
+                      plus
+                      1
+            expr_stmt
+              assignment
+                node
+                postfix
+                  node
+                  ptr_member_access	next
+        declaration
+          type_specifier
+            int
+          init_declarator_list
+            init_declarator
+              declarator	total
+              additive
+                type_specifier	malloc_header
+                plus
+                payload
+        declaration
+          type_specifier
+            malloc_header
+            pointer
+          init_declarator_list
+            init_declarator
+              declarator	new_node
+              cast
+                type_specifier
+                  malloc_header
+                  pointer
+                postfix
+                  _heap_alloc_raw
+                  call_suffix
+                    arg_list	total
+        if_stmt
+          unary
+            not
+            new_node
+          compound_stmt
+            return_stmt	0
+        expr_stmt
+          assignment
+            postfix
+              new_node
+              ptr_member_access	size
+            payload
+        expr_stmt
+          assignment
+            postfix
+              new_node
+              ptr_member_access	free
+            0
+        expr_stmt
+          assignment
+            postfix
+              new_node
+              ptr_member_access	next
+            malloc_head
+        expr_stmt
+          assignment
+            malloc_head
+            new_node
+        return_stmt
+          cast
+            type_specifier
+              void
+              pointer
+            additive
+              new_node
+              plus
+              1
+  external_decl
+    function_def
+      type_specifier
+        void
+      declarator	free
+      param_list
+        param
+          type_specifier
+            void
+            pointer
+          declarator	ptr
+      compound_stmt
+        if_stmt
+          unary
+            not
+            ptr
+          compound_stmt
+            return_stmt	0
+        declaration
+          type_specifier
+            malloc_header
+            pointer
+          init_declarator_list
+            init_declarator
+              declarator	header
+              additive
+                cast
+                  type_specifier
+                    malloc_header
+                    pointer
+                  ptr
+                minus
+                1
+        expr_stmt
+          assignment
+            postfix
+              header
+              ptr_member_access	free
+            1
   external_decl
     function_def
       type_specifier
@@ -2706,6 +3780,531 @@ translation_unit
                     update_buffer
                     call_suffix
   external_decl
+    declaration
+      type_specifier
+        char
+      init_declarator_list
+        init_declarator
+          declarator
+            __time_block_buffer
+            array	512
+  external_decl
+    struct_decl
+      unix_time
+      struct_member
+        type_specifier
+          int
+        init_declarator_list
+          init_declarator
+            declarator	year
+      struct_member
+        type_specifier
+          int
+        init_declarator_list
+          init_declarator
+            declarator	month
+      struct_member
+        type_specifier
+          int
+        init_declarator_list
+          init_declarator
+            declarator	day
+      struct_member
+        type_specifier
+          int
+        init_declarator_list
+          init_declarator
+            declarator	hour
+      struct_member
+        type_specifier
+          int
+        init_declarator_list
+          init_declarator
+            declarator	minute
+      struct_member
+        type_specifier
+          int
+        init_declarator_list
+          init_declarator
+            declarator	second
+      struct_member
+        type_specifier
+          int
+        init_declarator_list
+          init_declarator
+            declarator	millisecond
+  external_decl
+    function_def
+      inline
+      type_specifier
+        int
+      declarator	_read_be_u32
+      param_list
+        param
+          type_specifier
+            char
+            pointer
+          declarator	buffer
+        param
+          type_specifier
+            int
+          declarator	offset
+      compound_stmt
+        declaration
+          type_specifier
+            int
+          init_declarator_list
+            init_declarator
+              declarator	b0
+              bit_and
+                postfix
+                  buffer
+                  array_index
+                    additive
+                      offset
+                      plus
+                      0
+                0xFF
+        declaration
+          type_specifier
+            int
+          init_declarator_list
+            init_declarator
+              declarator	b1
+              bit_and
+                postfix
+                  buffer
+                  array_index
+                    additive
+                      offset
+                      plus
+                      1
+                0xFF
+        declaration
+          type_specifier
+            int
+          init_declarator_list
+            init_declarator
+              declarator	b2
+              bit_and
+                postfix
+                  buffer
+                  array_index
+                    additive
+                      offset
+                      plus
+                      2
+                0xFF
+        declaration
+          type_specifier
+            int
+          init_declarator_list
+            init_declarator
+              declarator	b3
+              bit_and
+                postfix
+                  buffer
+                  array_index
+                    additive
+                      offset
+                      plus
+                      3
+                0xFF
+        return_stmt
+          bit_or
+            shift
+              b0
+              lshift
+              24
+            shift
+              b1
+              lshift
+              16
+            shift
+              b2
+              lshift
+              8
+            b3
+  external_decl
+    function_def
+      inline
+      type_specifier
+        void
+      declarator	_read_special_block
+      param_list
+        param
+          type_specifier
+            int
+          declarator	block_id
+        param
+          type_specifier
+            char
+            pointer
+          declarator	buffer
+      compound_stmt
+        expr_stmt
+          postfix
+            bd_write_u32
+            call_suffix
+              arg_list
+                0x40000008
+                block_id
+        expr_stmt
+          postfix
+            bd_write_u32
+            call_suffix
+              arg_list
+                0x4000000C
+                cast
+                  type_specifier
+                    int
+                  buffer
+        expr_stmt
+          postfix
+            bd_write_u32
+            call_suffix
+              arg_list
+                0x40000010
+                1
+        expr_stmt
+          postfix
+            bd_write_u32
+            call_suffix
+              arg_list
+                0x40000004
+                1
+  external_decl
+    function_def
+      type_specifier
+        char
+        pointer
+      declarator	unix_ms_buffer
+      compound_stmt
+        expr_stmt
+          postfix
+            _read_special_block
+            call_suffix
+              arg_list
+                0xFFFFFFFD
+                __time_block_buffer
+        return_stmt	__time_block_buffer
+  external_decl
+    function_def
+      type_specifier
+        int
+      declarator	unix_ms
+      compound_stmt
+        declaration
+          type_specifier
+            char
+            pointer
+          init_declarator_list
+            init_declarator
+              declarator	buffer
+              postfix
+                unix_ms_buffer
+                call_suffix
+        return_stmt
+          postfix
+            _read_be_u32
+            call_suffix
+              arg_list
+                buffer
+                0
+  external_decl
+    function_def
+      type_specifier	unix_time
+      declarator	get_unix_time
+      compound_stmt
+        declaration
+          type_specifier	unix_time
+          init_declarator_list
+            init_declarator
+              declarator	out
+        expr_stmt
+          postfix
+            _read_special_block
+            call_suffix
+              arg_list
+                0xFFFFFFFC
+                __time_block_buffer
+        expr_stmt
+          assignment
+            postfix
+              out
+              member_access	year
+            postfix
+              _read_be_u32
+              call_suffix
+                arg_list
+                  __time_block_buffer
+                  0
+        expr_stmt
+          assignment
+            postfix
+              out
+              member_access	month
+            postfix
+              _read_be_u32
+              call_suffix
+                arg_list
+                  __time_block_buffer
+                  4
+        expr_stmt
+          assignment
+            postfix
+              out
+              member_access	day
+            postfix
+              _read_be_u32
+              call_suffix
+                arg_list
+                  __time_block_buffer
+                  8
+        expr_stmt
+          assignment
+            postfix
+              out
+              member_access	hour
+            postfix
+              _read_be_u32
+              call_suffix
+                arg_list
+                  __time_block_buffer
+                  12
+        expr_stmt
+          assignment
+            postfix
+              out
+              member_access	minute
+            postfix
+              _read_be_u32
+              call_suffix
+                arg_list
+                  __time_block_buffer
+                  16
+        expr_stmt
+          assignment
+            postfix
+              out
+              member_access	second
+            postfix
+              _read_be_u32
+              call_suffix
+                arg_list
+                  __time_block_buffer
+                  20
+        expr_stmt
+          assignment
+            postfix
+              out
+              member_access	millisecond
+            postfix
+              _read_be_u32
+              call_suffix
+                arg_list
+                  __time_block_buffer
+                  24
+        return_stmt	out
+  external_decl
+    function_def
+      inline
+      type_specifier
+        void
+      declarator	_append_two_digits
+      param_list
+        param
+          type_specifier
+            char
+            pointer
+          declarator	buffer
+        param
+          type_specifier
+            int
+          declarator	value
+      compound_stmt
+        declaration
+          type_specifier
+            int
+          init_declarator_list
+            init_declarator
+              declarator	len
+              postfix
+                string_length
+                call_suffix
+                  arg_list	buffer
+        expr_stmt
+          assignment
+            postfix
+              buffer
+              array_index
+                additive
+                  len
+                  plus
+                  0
+            additive
+              multiplicative
+                multiplicative
+                  value
+                  div
+                  10
+                mod
+                10
+              plus
+              "0"
+        expr_stmt
+          assignment
+            postfix
+              buffer
+              array_index
+                additive
+                  len
+                  plus
+                  1
+            additive
+              multiplicative
+                value
+                mod
+                10
+              plus
+              "0"
+        expr_stmt
+          assignment
+            postfix
+              buffer
+              array_index
+                additive
+                  len
+                  plus
+                  2
+            "\0"
+  external_decl
+    function_def
+      type_specifier
+        char
+        pointer
+      declarator	fmt_unix_time
+      param_list
+        param
+          type_specifier	unix_time
+          declarator	time
+      compound_stmt
+        declaration
+          type_specifier
+            char
+            pointer
+          init_declarator_list
+            init_declarator
+              declarator	buffer
+              cast
+                type_specifier
+                  char
+                  pointer
+                postfix
+                  malloc
+                  call_suffix
+                    arg_list	20
+        if_stmt
+          unary
+            not
+            buffer
+          compound_stmt
+            return_stmt	0
+        expr_stmt
+          postfix
+            strcat
+            call_suffix
+              arg_list
+                buffer
+                postfix
+                  int_to_str
+                  call_suffix
+                    arg_list
+                      postfix
+                        time
+                        member_access	year
+        expr_stmt
+          postfix
+            strcat
+            call_suffix
+              arg_list
+                buffer
+                "-"
+        expr_stmt
+          postfix
+            _append_two_digits
+            call_suffix
+              arg_list
+                buffer
+                postfix
+                  time
+                  member_access	month
+        expr_stmt
+          postfix
+            strcat
+            call_suffix
+              arg_list
+                buffer
+                "-"
+        expr_stmt
+          postfix
+            _append_two_digits
+            call_suffix
+              arg_list
+                buffer
+                postfix
+                  time
+                  member_access	day
+        expr_stmt
+          postfix
+            strcat
+            call_suffix
+              arg_list
+                buffer
+                " "
+        expr_stmt
+          postfix
+            _append_two_digits
+            call_suffix
+              arg_list
+                buffer
+                postfix
+                  time
+                  member_access	hour
+        expr_stmt
+          postfix
+            strcat
+            call_suffix
+              arg_list
+                buffer
+                ":"
+        expr_stmt
+          postfix
+            _append_two_digits
+            call_suffix
+              arg_list
+                buffer
+                postfix
+                  time
+                  member_access	minute
+        expr_stmt
+          postfix
+            strcat
+            call_suffix
+              arg_list
+                buffer
+                ":"
+        expr_stmt
+          postfix
+            _append_two_digits
+            call_suffix
+              arg_list
+                buffer
+                postfix
+                  time
+                  member_access	second
+        return_stmt	buffer
+  external_decl
     function_def
       inline
       type_specifier
@@ -2734,196 +4333,37 @@ translation_unit
       compound_stmt
         declaration
           type_specifier
-            int
-          init_declarator_list
-            init_declarator
-              declarator	r1
-              postfix
-                add
-                call_suffix
-                  arg_list
-                    15
-                    25
-        declaration
-          inline
-          type_specifier
-            int
-          init_declarator_list
-            init_declarator
-              declarator	r2
-              50
-        declaration
-          type_specifier
-            int
-          init_declarator_list
-            init_declarator
-              declarator	r3
-              postfix
-                add
-                call_suffix
-                  arg_list
-                    r1
-                    r2
-        expr_stmt
-          postfix
-            initialize_filesystem
-            call_suffix
-        expr_stmt
-          postfix
-            write_file
-            call_suffix
-              arg_list
-                "example.txt\0"
-                "Hello, RospOS filesystem!\0"
-        declaration
-          type_specifier
             char
+            pointer
           init_declarator_list
             init_declarator
-              declarator
-                device_info
-                array	512
-        expr_stmt
-          postfix
-            read_block
-            call_suffix
-              arg_list
-                0xFFFFFFFF
-                device_info
+              declarator	time_str
+              postfix
+                fmt_unix_time
+                call_suffix
+                  arg_list
+                    postfix
+                      get_unix_time
+                      call_suffix
         expr_stmt
           postfix
             draw_string_to_display
             call_suffix
               arg_list
-                device_info
+                time_str
                 10
-                8
-                0x3F
-        declaration
-          type_specifier
-            char
-          init_declarator_list
-            init_declarator
-              declarator
-                file_contents
-                array	512
-        expr_stmt
-          postfix
-            read_file
-            call_suffix
-              arg_list
-                "example.txt\0"
-                file_contents
-        expr_stmt
-          postfix
-            draw_string_to_display
-            call_suffix
-              arg_list
-                file_contents
-                10
-                16
+                56
                 0x3F
         expr_stmt
           postfix
-            draw_string_to_display
+            print_string
             call_suffix
-              arg_list
-                "Green"
-                10
-                24
-                0x0C
+              arg_list	"Current time: \n"
         expr_stmt
           postfix
-            draw_string_to_display
+            print_string
             call_suffix
-              arg_list
-                "Red"
-                10
-                32
-                0x30
-        expr_stmt
-          postfix
-            draw_string_to_display
-            call_suffix
-              arg_list
-                "Blue"
-                10
-                40
-                0x07
-        expr_stmt
-          postfix
-            draw_string_to_display
-            call_suffix
-              arg_list
-                "Yellow"
-                10
-                48
-                0x3C
-        expr_stmt
-          postfix
-            rand_block_test
-            call_suffix
-        expr_stmt
-          postfix
-            fast_clear_display
-            call_suffix
-        expr_stmt
-          postfix
-            write_to_buffer
-            call_suffix
-              arg_list
-                "Hello, RospOS Terminal!\0"
-                0
-        expr_stmt
-          postfix
-            update_buffer
-            call_suffix
-        expr_stmt
-          postfix
-            write_to_buffer
-            call_suffix
-              arg_list
-                "This is a simple terminal implementation.\0"
-                32
-        expr_stmt
-          postfix
-            update_buffer
-            call_suffix
-        expr_stmt
-          postfix
-            write_to_buffer
-            call_suffix
-              arg_list
-                "A\0"
-                128
-        expr_stmt
-          postfix
-            write_to_buffer
-            call_suffix
-              arg_list
-                "B\0"
-                129
-        expr_stmt
-          postfix
-            write_to_buffer
-            call_suffix
-              arg_list
-                "C\0"
-                130
-        expr_stmt
-          postfix
-            update_buffer
-            call_suffix
-        expr_stmt
-          postfix
-            write_to_buffer
-            call_suffix
-              arg_list
-                "XYZ\0"
-                additive
-                  256
-                  minus
-                  3
+              arg_list	time_str
         expr_stmt
           postfix
             update_buffer

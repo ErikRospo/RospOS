@@ -13,6 +13,12 @@ inline void print_char(char c)
     __sb(tty_addr, c);
 }
 
+inline void print_line(char *str)
+{
+    print_string(str);
+    print_char("\n");
+}
+
 
 inline char read_char()
 {
@@ -33,6 +39,63 @@ char *read_string(char *buffer, int max_len)
     }
     buffer[i] = "\0";
     return buffer;
+}
+
+void int_to_str_buf(int input, char *buffer)
+{
+    if (input == 0)
+    {
+        buffer[0] = "0";
+        buffer[1] = "\0";
+        return 0;
+    }
+
+    int is_negative = 0;
+    if (input < 0)
+    {
+        is_negative = 1;
+        input = -input;
+    }
+
+    int i = 0;
+    while (input > 0)
+    {
+        buffer[i] = (input % 10) + "0";
+        i = i + 1;
+        input = input / 10;
+    }
+
+    if (is_negative)
+    {
+        buffer[i] = "-";
+        i = i + 1;
+    }
+
+    buffer[i] = "\0";
+
+    int left = 0;
+    int right = i - 1;
+    while (left < right)
+    {
+        char tmp = buffer[left];
+        buffer[left] = buffer[right];
+        buffer[right] = tmp;
+        left = left + 1;
+        right = right - 1;
+    }
+}
+
+char __int_to_str_static_buffer[12];
+
+char *int_to_str(int input)
+{
+    int_to_str_buf(input, __int_to_str_static_buffer);
+    return __int_to_str_static_buffer;
+}
+
+inline void print_int(int value)
+{
+    print_string(int_to_str(value));
 }
 // .rosc translation of display.ros routines.
 // Font blob is generated as a direct 128-entry table: 8 bytes per char code.
@@ -291,13 +354,198 @@ inline void read_block(int blockID, char *buffer)
     // Same note about asynchronous operation applies here as in write_block.
     return 0;
 }
-int string_length(char *str){
+int string_length(char *str)
+{
+    if (!str)
+    {
+        return 0;
+    }
+
     int length = 0;
     while (str[length] != "\0")
     {
         length = length + 1;
     }
     return length;
+}
+
+int strcmp(char *a, char *b)
+{
+    int i = 0;
+    while (a[i] && b[i])
+    {
+        if (a[i] != b[i])
+        {
+            return (a[i] & 0xFF) - (b[i] & 0xFF);
+        }
+        i = i + 1;
+    }
+    return (a[i] & 0xFF) - (b[i] & 0xFF);
+}
+
+char *strcpy(char *dest, char *src)
+{
+    int i = 0;
+    while (src[i])
+    {
+        dest[i] = src[i];
+        i = i + 1;
+    }
+    dest[i] = "\0";
+    return dest;
+}
+
+char *strncpy(char *dest, char *src, int n)
+{
+    int i = 0;
+    while (i < n && src[i])
+    {
+        dest[i] = src[i];
+        i = i + 1;
+    }
+    while (i < n)
+    {
+        dest[i] = "\0";
+        i = i + 1;
+    }
+    return dest;
+}
+
+char *strcat(char *dest, char *src)
+{
+    int i = string_length(dest);
+    int j = 0;
+    while (src[j])
+    {
+        dest[i] = src[j];
+        i = i + 1;
+        j = j + 1;
+    }
+    dest[i] = "\0";
+    return dest;
+}
+
+void *memset(void *dest, int value, int n)
+{
+    char *out = (char *)dest;
+    int i = 0;
+    while (i < n)
+    {
+        out[i] = value;
+        i = i + 1;
+    }
+    return dest;
+}
+
+void *memcpy(void *dest, void *src, int n)
+{
+    char *out = (char *)dest;
+    char *in = (char *)src;
+    int i = 0;
+    while (i < n)
+    {
+        out[i] = in[i];
+        i = i + 1;
+    }
+    return dest;
+}
+
+void *memmove(void *dest, void *src, int n)
+{
+    char *out = (char *)dest;
+    char *in = (char *)src;
+    if (out < in)
+    {
+        int i = 0;
+        while (i < n)
+        {
+            out[i] = in[i];
+            i = i + 1;
+        }
+    }
+    else
+    {
+        int i = n - 1;
+        while (i >= 0)
+        {
+            out[i] = in[i];
+            i = i - 1;
+        }
+    }
+    return dest;
+}
+
+struct malloc_header
+{
+    int size;
+    int free;
+    struct malloc_header *next;
+};
+
+char __heap_area[16384];
+int __heap_used = 0;
+struct malloc_header *malloc_head = 0;
+
+int _align4(int value)
+{
+    return (value + 3) & (~3);
+}
+
+void *_heap_alloc_raw(int bytes)
+{
+    int aligned = _align4(bytes);
+    if (__heap_used + aligned > 16384)
+    {
+        return 0;
+    }
+
+    void *ptr = (void *)(__heap_area + __heap_used);
+    __heap_used = __heap_used + aligned;
+    return ptr;
+}
+
+void *malloc(int size)
+{
+    if (size <= 0)
+    {
+        return 0;
+    }
+
+    int payload = _align4(size);
+    struct malloc_header *node = malloc_head;
+    while (node)
+    {
+        if (node->free && node->size >= payload)
+        {
+            node->free = 0;
+            return (void *)(node + 1);
+        }
+        node = node->next;
+    }
+
+    int total = sizeof(struct malloc_header) + payload;
+    struct malloc_header *new_node = (struct malloc_header *)_heap_alloc_raw(total);
+    if (!new_node)
+    {
+        return 0;
+    }
+
+    new_node->size = payload;
+    new_node->free = 0;
+    new_node->next = malloc_head;
+    malloc_head = new_node;
+    return (void *)(new_node + 1);
+}
+
+void free(void *ptr)
+{
+    if (!ptr)
+    {
+        return 0;
+    }
+
+    struct malloc_header *header = ((struct malloc_header *)ptr) - 1;
+    header->free = 1;
 }
 //Basic filesystem for RospOS.
 
@@ -517,6 +765,98 @@ void write_to_buffer(char *str, int index){
     }
 }
 
+
+
+
+char __time_block_buffer[512];
+
+struct unix_time
+{
+    int year;
+    int month;
+    int day;
+    int hour;
+    int minute;
+    int second;
+    int millisecond;
+};
+
+inline int _read_be_u32(char *buffer, int offset)
+{
+    int b0 = buffer[offset + 0] & 0xFF;
+    int b1 = buffer[offset + 1] & 0xFF;
+    int b2 = buffer[offset + 2] & 0xFF;
+    int b3 = buffer[offset + 3] & 0xFF;
+    return (b0 << 24) | (b1 << 16) | (b2 << 8) | b3;
+}
+
+inline void _read_special_block(int block_id, char *buffer)
+{
+    bd_write_u32(0x40000008, block_id);
+    bd_write_u32(0x4000000C, (int)buffer);
+    bd_write_u32(0x40000010, 1);
+    bd_write_u32(0x40000004, 1);
+}
+
+char *unix_ms_buffer()
+{
+    _read_special_block(0xFFFFFFFD, __time_block_buffer);
+    return __time_block_buffer;
+}
+
+int unix_ms()
+{
+    char *buffer = unix_ms_buffer();
+    return _read_be_u32(buffer, 0);
+}
+
+struct unix_time get_unix_time()
+{
+    struct unix_time out;
+    _read_special_block(0xFFFFFFFC, __time_block_buffer);
+
+    out.year = _read_be_u32(__time_block_buffer, 0);
+    out.month = _read_be_u32(__time_block_buffer, 4);
+    out.day = _read_be_u32(__time_block_buffer, 8);
+    out.hour = _read_be_u32(__time_block_buffer, 12);
+    out.minute = _read_be_u32(__time_block_buffer, 16);
+    out.second = _read_be_u32(__time_block_buffer, 20);
+    out.millisecond = _read_be_u32(__time_block_buffer, 24);
+
+    return out;
+}
+
+inline void _append_two_digits(char *buffer, int value)
+{
+    int len = string_length(buffer);
+    buffer[len + 0] = ((value / 10) % 10) + "0";
+    buffer[len + 1] = (value % 10) + "0";
+    buffer[len + 2] = "\0";
+}
+
+char *fmt_unix_time(struct unix_time time)
+{
+    //YYYY-MM-DD HH:MM:SS
+    char *buffer = (char *)malloc(20);
+    if (!buffer)
+    {
+        return 0;
+    }
+
+    strcat(buffer, int_to_str(time.year));
+    strcat(buffer, "-");
+    _append_two_digits(buffer, time.month);
+    strcat(buffer, "-");
+    _append_two_digits(buffer, time.day);
+    strcat(buffer, " ");
+    _append_two_digits(buffer, time.hour);
+    strcat(buffer, ":");
+    _append_two_digits(buffer, time.minute);
+    strcat(buffer, ":");
+    _append_two_digits(buffer, time.second); 
+    return buffer;
+}
+
 inline int add(int a, int b)
 {
     return a + b;
@@ -525,33 +865,33 @@ inline int add(int a, int b)
 
 void main()
 {
-    int r1= add(15, 25);
-    inline int r2 = 50;
-    int r3 = add(r1, r2);
+    // int r1= add(15, 25);
+    // inline int r2 = 50;
+    // int r3 = add(r1, r2);
     
     
-    initialize_filesystem();
-    write_file("example.txt\0", "Hello, RospOS filesystem!\0");
-    char device_info[512];
-    read_block(0xFFFFFFFF, device_info); // Read from the special block to get device info
-    draw_string_to_display(device_info, 10, 8, 0x3F);
-    char file_contents[512];
-    read_file("example.txt\0", file_contents);
-    draw_string_to_display(file_contents, 10, 16, 0x3F);
-    draw_string_to_display("Green", 10, 24 , 0x0C);
-    draw_string_to_display("Red", 10, 32 , 0x30);
-    draw_string_to_display("Blue", 10, 40 , 0x07);
-    draw_string_to_display("Yellow", 10, 48 , 0x3C);
-    rand_block_test();
-    fast_clear_display();
-    write_to_buffer("Hello, RospOS Terminal!\0", 0);
-    update_buffer();
-    write_to_buffer("This is a simple terminal implementation.\0", 32);
-    update_buffer();
-    write_to_buffer("A\0", 128);
-    write_to_buffer("B\0", 129);
-    write_to_buffer("C\0", 130);
-    update_buffer();
-    write_to_buffer("XYZ\0", 256 - 3);
+    // initialize_filesystem();
+    // write_file("example.txt\0", "Hello, RospOS filesystem!\0");
+    // char device_info[512];
+    // read_block(0xFFFFFFFF, device_info); // Read from the special block to get device info
+    // draw_string_to_display(device_info, 10, 8, 0x3F);
+    // char file_contents[512];
+    // read_file("example.txt\0", file_contents);
+    // draw_string_to_display(file_contents, 10, 16, 0x3F);
+    // draw_string_to_display("Green", 10, 24 , 0x0C);
+    // draw_string_to_display("Red", 10, 32 , 0x30);
+    // draw_string_to_display("Blue", 10, 40 , 0x07);
+    // draw_string_to_display("Yellow", 10, 48 , 0x3C);
+    // rand_block_test();
+    // fast_clear_display();
+    // write_to_buffer("Hello, RospOS Terminal!\0", 0);
+    // update_buffer();
+    // write_to_buffer("This is a simple terminal implementation.\0", 32);
+    // update_buffer();
+    // fast_clear_display();
+    char *time_str = fmt_unix_time(get_unix_time());
+    draw_string_to_display(time_str, 10, 56, 0x3F);
+    print_string("Current time: \n");
+    print_string(time_str);
     update_buffer();
 }
