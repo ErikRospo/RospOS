@@ -33,7 +33,8 @@ constexpr uint32_t kCommandNone = 0x00;
 constexpr uint32_t kCommandRead = 0x01;
 constexpr uint32_t kCommandWrite = 0x02;
 
-constexpr uint32_t kSpecialTimeBlockId = 0xFFFFFFFDU;
+constexpr uint32_t kSpecialTimeFMTBlockId=0xFFFFFFFC;
+constexpr uint32_t kSpecialTimeMSBlockId = 0xFFFFFFFDU;
 constexpr uint32_t kSpecialRngBlockId = 0xFFFFFFFEU;
 constexpr uint32_t kSpecialInfoBlockId = 0xFFFFFFFFU;
 
@@ -82,14 +83,38 @@ void set_data_ready(bool set)
 
 bool is_special_read_only(uint32_t blockId)
 {
-    return blockId == kSpecialTimeBlockId ||
+    return blockId == kSpecialTimeMSBlockId ||
+           blockId == kSpecialTimeFMTBlockId ||
            blockId == kSpecialRngBlockId ||
            blockId == kSpecialInfoBlockId;
 }
 
 bool try_read_special_block(uint32_t blockId, std::array<uint8_t, BlockDeviceBacking::kBlockSize> &block)
 {
-    if (blockId == kSpecialTimeBlockId) {
+    if (blockId==kSpecialTimeFMTBlockId){
+        const auto now = std::chrono::system_clock::now();
+        const std::time_t now_c = std::chrono::system_clock::to_time_t(now);
+        const std::tm *now_tm = std::localtime(&now_c);
+        const auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch()).count() % 1000;
+        const int values[7] = {
+            now_tm->tm_year + 1900,
+            now_tm->tm_mon + 1,
+            now_tm->tm_mday,
+            now_tm->tm_hour,
+            now_tm->tm_min,
+            now_tm->tm_sec,
+            static_cast<int>(ms)
+        };
+        for (size_t i = 0; i < 7; ++i) {
+            const int value = values[i];
+            block[i * 4 + 0] = static_cast<uint8_t>(value & 0xFFU);
+            block[i * 4 + 1] = static_cast<uint8_t>((value >> 8U) & 0xFFU);
+            block[i * 4 + 2] = static_cast<uint8_t>((value >> 16U) & 0xFFU);
+            block[i * 4 + 3] = static_cast<uint8_t>((value >> 24U) & 0xFFU);
+        };
+        return true;
+    }
+    if (blockId == kSpecialTimeMSBlockId) {
         const auto nowMs = std::chrono::duration_cast<std::chrono::milliseconds>(
             std::chrono::system_clock::now().time_since_epoch()
         ).count();

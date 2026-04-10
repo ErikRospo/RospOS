@@ -1,0 +1,55 @@
+char* unix_ms_buffer(){
+    char buffer[512];
+    bd_write_u32(0x40000008, 0xFFFFFFFD); // Special block for getting time in milliseconds
+    __sb(0x4000000C, (buffer>>24) & 0xFF);
+    __sb(0x4000000D, (buffer>>16) & 0xFF);
+    __sb(0x4000000E, (buffer >> 8) & 0xFF);
+    __sb(0x4000000F, buffer & 0xFF);
+    bd_write_u32(0x40000010, 1); // Read 1 block
+    bd_write_u32(0x40000004, 1); // Trigger the read
+    return buffer;
+}
+
+struct long {
+    int high;
+    int low;
+}
+
+struct unix_time {
+    int year;
+    int month;
+    int day;
+    int hour;
+    int minute;
+    int second;
+    int millisecond;
+}
+
+struct unix_time get_unix_time(){
+    char buffer[512];
+    bd_write_u32(0x40000008, 0xFFFFFFFC); // Special block for getting full date and time
+    __sb(0x4000000C, (buffer>>24) & 0xFF);
+    __sb(0x4000000D, (buffer>>16) & 0xFF);
+    __sb(0x4000000E, (buffer >> 8) & 0xFF);
+    __sb(0x4000000F, buffer & 0xFF);
+    bd_write_u32(0x40000010, 1); // Read 1 block
+    bd_write_u32(0x40000004, 1); // Trigger the read
+    struct unix_time *time = (struct unix_time *)buffer;
+    return *time;
+}
+
+char *fmt_unix_time(struct unix_time time){
+    char *buffer = (char *)malloc(20); // Allocate enough space for "YYYY-MM-DD HH:MM:SS\0"
+    int_to_str(time.year, buffer);
+    strcat(buffer, "-");
+    int_to_str(time.month, buffer + string_length(buffer));
+    strcat(buffer, "-");
+    int_to_str(time.day, buffer + string_length(buffer));
+    strcat(buffer, " ");
+    int_to_str(time.hour, buffer + string_length(buffer));
+    strcat(buffer, ":");
+    int_to_str(time.minute, buffer + string_length(buffer));
+    strcat(buffer, ":");
+    int_to_str(time.second, buffer + string_length(buffer));
+    return buffer;
+}

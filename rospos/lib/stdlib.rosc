@@ -6,3 +6,33 @@ int string_length(char *str){
     }
     return length;
 }
+
+//todo: malloc/free, strcopy, strcat, memcopy, memset, etc.
+
+struct malloc_header {
+    int size;
+    struct malloc_header *next;
+};
+
+struct malloc_header *malloc_head = 0;
+void *malloc(int size){
+    struct malloc_header *header = (struct malloc_header *)malloc_head;
+    struct malloc_header *prev = 0;
+    while (header && header->size < size) {
+        prev = header;
+        header = header->next;
+    }
+    if (header) {
+        if (prev) {
+            prev->next = header->next;
+        } else {
+            malloc_head = (void *)header->next;
+        }
+        return (void *)(header + 1);
+    } else {
+        // No suitable block found, allocate a new one
+        struct malloc_header *new_block = (struct malloc_header *)sbrk(sizeof(struct malloc_header) + size);
+        new_block->size = size;
+        return (void *)(new_block + 1);
+    }
+}
