@@ -217,7 +217,7 @@ class Emitter:
 
     def _emit_global_load(self, name: str, out) -> str:
         rd = self.alloc_reg()
-        self._load_imm(rd, self.global_storage_labels[name], out) 
+        self._load_imm(rd, self.global_storage_labels[name], out)
         load_instr = self._global_scalar_access_instr(name)
         # It's fine to use LX rd, rd, 0 even though it clobbers the address
         # since the address isn't needed after the load and this saves an extra register allocation
@@ -342,7 +342,9 @@ class Emitter:
 
         aliases = list(self._spill_label_aliases.get(spill_label, [name]))
         reg = self.alloc_reg(track_as_temp=False)
-        self._load_reg_from_spill_label(reg, spill_label, out, f"restore spilled var {name}")
+        self._load_reg_from_spill_label(
+            reg, spill_label, out, f"restore spilled var {name}"
+        )
         for alias in aliases:
             self.var_regs[alias] = reg
             self._var_spill_labels.pop(alias, None)
@@ -371,7 +373,9 @@ class Emitter:
         for candidate in abi.TEMP_REGS:
             if candidate in avoid:
                 continue
-            out.write(f"  PUSH {candidate}    // borrow scratch reg for spill label addr\n")
+            out.write(
+                f"  PUSH {candidate}    // borrow scratch reg for spill label addr\n"
+            )
             return candidate, True
 
         raise RuntimeError("No register available to materialize spill label address")
@@ -383,7 +387,9 @@ class Emitter:
         if reg not in self.reg_free:
             self.reg_free.append(reg)
 
-    def _store_reg_to_spill_label(self, src_reg: str, spill_label: str, out, comment: str):
+    def _store_reg_to_spill_label(
+        self, src_reg: str, spill_label: str, out, comment: str
+    ):
         addr_reg, borrowed = self._borrow_spill_addr_reg(out, {src_reg})
         try:
             out.write(f"  LLI {addr_reg}, {spill_label}    // spill slot addr\n")
@@ -391,7 +397,9 @@ class Emitter:
         finally:
             self._release_spill_addr_reg(out, addr_reg, borrowed)
 
-    def _load_reg_from_spill_label(self, dst_reg: str, spill_label: str, out, comment: str):
+    def _load_reg_from_spill_label(
+        self, dst_reg: str, spill_label: str, out, comment: str
+    ):
         out.write(f"  LLI {dst_reg}, {spill_label}    // spill slot addr\n")
         out.write(f"  LW {dst_reg}, {dst_reg}, 0    // {comment}\n")
 
@@ -452,9 +460,7 @@ class Emitter:
                     _discard_stale_spill_tops()
                 else:
                     self._spill_stack.pop()
-                    writer.write(
-                        f"  POP {reg}    // restore spilled temp\n"
-                    )
+                    writer.write(f"  POP {reg}    // restore spilled temp\n")
                     _restore_aliases(reg, entry.get("aliases", []))
                     _dec_spill_depth(reg)
                 # Keep legacy alias stack roughly in sync.
@@ -717,7 +723,9 @@ class Emitter:
         if st in ("if", "while"):
             self._count_expr_var_reads(stmt.get("cond"), counts)
 
-    def _count_stmt_self_var_reads_set(self, stmt: Optional[Dict[str, Any]]) -> Dict[str, int]:
+    def _count_stmt_self_var_reads_set(
+        self, stmt: Optional[Dict[str, Any]]
+    ) -> Dict[str, int]:
         counts: Dict[str, int] = {}
         self._count_stmt_self_var_reads(stmt, counts)
         return counts
@@ -902,7 +910,9 @@ class Emitter:
             return None
         return self._statement_stack[-1]
 
-    def _try_release_reg_aliases_if_dead(self, reg: str, live_after: Optional[set[str]] = None):
+    def _try_release_reg_aliases_if_dead(
+        self, reg: str, live_after: Optional[set[str]] = None
+    ):
         if self._pinned_regs.get(reg, 0) > 0:
             return
         if self._spill_depth.get(reg, 0) > 0:
@@ -1055,9 +1065,9 @@ class Emitter:
 
     def _intrinsic_sw(self, args, out, return_reg=None):
         intrinsic_sw(self, args, out, return_reg=return_reg)
+
     def _intrinsic_break(self, args, out, return_reg=None):
         intrinsic_break(self, args, out, return_reg=return_reg)
-    
 
     def emit_translation_unit(self, ast: Dict[str, Any], out_path: str):
         out_file = Path(out_path)
@@ -1159,9 +1169,7 @@ class Emitter:
             for word in range(0, len(data_bytes), 4):
                 byte = data_bytes[word : word + 4]
                 width = max(2, len(byte) * 2)
-                out.write(
-                    f"  .DATA 0x{int.from_bytes(byte, 'little'):0{width}X}\n"
-                )
+                out.write(f"  .DATA 0x{int.from_bytes(byte, 'little'):0{width}X}\n")
             out.write("\n")
 
         kind = g.get("kind")
@@ -1400,7 +1408,9 @@ def _snapshot_emitter_state(template: Emitter) -> Dict[str, Any]:
     }
 
 
-def _clone_emitter_for_function(template_state: Dict[str, Any], label_namespace: str) -> Emitter:
+def _clone_emitter_for_function(
+    template_state: Dict[str, Any], label_namespace: str
+) -> Emitter:
     clone = Emitter(
         source_file=template_state.get("source_file"),
         source_lines=list(template_state.get("source_lines", [])),
@@ -1465,15 +1475,11 @@ def _emit_functions_parallel(template: Emitter, functions: list[Dict[str, Any]])
     # Keep parallel emission for larger function counts only.
     min_parallel_funcs = 8
     try:
-        min_parallel_funcs = max(
-            2, int(os.getenv("ROSPOCC_PARALLEL_MIN_FUNCS", "8"))
-        )
+        min_parallel_funcs = max(2, int(os.getenv("ROSPOCC_PARALLEL_MIN_FUNCS", "8")))
     except (TypeError, ValueError):
         min_parallel_funcs = 8
 
-    use_parallel = (
-        len(job_payloads) >= min_parallel_funcs and (os.cpu_count() or 1) > 1
-    )
+    use_parallel = len(job_payloads) >= min_parallel_funcs and (os.cpu_count() or 1) > 1
     if not use_parallel:
         results = [_emit_single_function_chunk(payload) for payload in job_payloads]
     else:

@@ -164,7 +164,7 @@ def intrinsic_sb(emitter, args, out, return_reg=None):
 
 
 def intrinsic_sw(emitter, args, out, return_reg=None):
-    
+
     if len(args) < 2:
         out.write("  // __sw missing args\n")
         return
@@ -177,4 +177,3 @@ def intrinsic_sw(emitter, args, out, return_reg=None):
     out.write(f"  SW {rval}, {raddr}, 0    // intrinsic __sw\n")
     emitter.release_expr_reg(rval)
     emitter.release_expr_reg(raddr)
-    

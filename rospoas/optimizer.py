@@ -638,8 +638,9 @@ def opt_45_push_pop_to_move(ast, logs):
 
     return optimized_ast
 
+
 def opt_40_space_sorting(ast, logs):
-    #buffer:
+    # buffer:
     #   .SPACE 256
 
     # buffer_update_queue:
@@ -651,28 +652,28 @@ def opt_40_space_sorting(ast, logs):
     # str_0:
     #   .STR "example.txt\0"
 
-    #...
+    # ...
 
     # str_9:
     #   .STR "and only updates the display when necessary.\0"
     # draw_line_8_spill23:
     #   .SPACE 4 // lifted buffer
-    
-    #interleaving space and data declarations leads to suboptimal buffer packing, as .SPACE directive only *virtually*
-    #increases the address of the next declaration, but doesn't actually emit any bytes.
-    #This saves space, but if we have a .SPACE directive before any other declaration, it will be forced to create
-    #A new section to ensure the correct address for the next declaration, which can lead to inefficient packing 
+
+    # interleaving space and data declarations leads to suboptimal buffer packing, as .SPACE directive only *virtually*
+    # increases the address of the next declaration, but doesn't actually emit any bytes.
+    # This saves space, but if we have a .SPACE directive before any other declaration, it will be forced to create
+    # A new section to ensure the correct address for the next declaration, which can lead to inefficient packing
     # of data and wasted space. By moving all .SPACE directives to the end of the data section, we can ensure that
     # all actual data declarations are packed together efficiently, and all the .SPACE directives are grouped together
     # At the end, which should lead to better overall packing of the data section and reduced binary size
-    
+
     # Key notes:
     # We only move .SPACE directives AND THEIR ASSOCIATED LABELS. We do NOT move any other directives (e.g. .DATA, .STR) or their labels.
     # A .SPACE directive may have multiple labels (e.g. a buffer with multiple pointers to it), and we move all of those labels together with the .SPACE directive.
     # We preserve the relative order of all non-.SPACE directives and their labels.
     optimized_ast = []
-    space_decls = [] # ([labels], space_directive)
-    
+    space_decls = []  # ([labels], space_directive)
+
     current_labels = []
     for node in ast:
         if isinstance(node, LabelDecl):
@@ -691,6 +692,8 @@ def opt_40_space_sorting(ast, logs):
         optimized_ast.extend(labels)
         optimized_ast.append(space)
     return optimized_ast
+
+
 # This is a bit of a hack to avoid having to manually maintain the list of optimizations,
 # but it should work fine as long as we don't have any non-optimization functions that start with "opt_".
 opts = [globals()[_] for _ in sorted(dir()) if _.startswith("opt_")]

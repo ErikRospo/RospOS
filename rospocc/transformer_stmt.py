@@ -171,7 +171,9 @@ class StatementTransformer:
             if decl_type:
                 total_pointer_count = type_pointer_count + decl_pointer_count
                 decl["decl_type"] = _resolved_type(
-                    decl_type, total_pointer_count, is_array=(init and init.get("type") == "array")
+                    decl_type,
+                    total_pointer_count,
+                    is_array=(init and init.get("type") == "array"),
                 )
             return [decl]
         return []

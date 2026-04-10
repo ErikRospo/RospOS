@@ -489,11 +489,16 @@ class TranslationUnitTransformer:
                     self.ctx.tu["globals"].append(global_entry)
                     continue
 
-            const_value = self._extract_const_value(init_node) if init_node is not None else 0
+            const_value = (
+                self._extract_const_value(init_node) if init_node is not None else 0
+            )
             if const_value is None:
                 str_value = self._extract_string_literal(init_node)
                 if str_value is not None:
-                    const_value = {"type": "string_addr", "label": self.ctx.get_or_create_string_label(str_value)}
+                    const_value = {
+                        "type": "string_addr",
+                        "label": self.ctx.get_or_create_string_label(str_value),
+                    }
                 else:
                     continue
 
@@ -514,9 +519,14 @@ class TranslationUnitTransformer:
                 "type": resolved_type,
                 "storage_kind": "scalar",
                 "size": 1 if t_spec == "char" and total_pointer_count == 0 else 4,
-                "value": _pack_scalar_value(const_value, 1 if t_spec == "char" and total_pointer_count == 0 else 4)
-                if isinstance(const_value, int)
-                else const_value,
+                "value": (
+                    _pack_scalar_value(
+                        const_value,
+                        1 if t_spec == "char" and total_pointer_count == 0 else 4,
+                    )
+                    if isinstance(const_value, int)
+                    else const_value
+                ),
             }
             if is_inline:
                 global_entry["inline"] = True

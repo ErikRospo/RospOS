@@ -414,7 +414,9 @@ def _emit_assign_expr(emitter, expr: Dict[str, Any], out) -> str:
             emitter._emit_global_store(target, rval, out)
             result = rval
         elif getattr(emitter, "_is_global_address_symbol", lambda _name: False)(target):
-            out.write(f"  // ERROR: cannot assign through address-only global {target}\n")
+            out.write(
+                f"  // ERROR: cannot assign through address-only global {target}\n"
+            )
         else:
             dest = emitter.var_regs.get(target)
             spill_label = getattr(emitter, "_var_spill_labels", {}).get(target)

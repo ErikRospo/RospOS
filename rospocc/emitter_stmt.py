@@ -195,7 +195,9 @@ def _emit_assign_member_access(emitter, target: Dict[str, Any], rval: str, out):
                 out.write(f"  // ERROR: member {member_name} not found\n")
             else:
                 base_reg = emitter.var_regs.get(base_name)
-                if not base_reg and base_name in getattr(emitter, "_var_spill_labels", {}):
+                if not base_reg and base_name in getattr(
+                    emitter, "_var_spill_labels", {}
+                ):
                     base_reg = emitter._restore_spilled_var_reg(base_name, out)
                 if member_offset < 2**16:
                     out.write(
@@ -276,7 +278,8 @@ def _emit_assign(emitter, stmt: Dict[str, Any], out):
         target_name = target
 
     target_is_global = bool(
-        target_name and getattr(emitter, "_is_global_storage_var", lambda _name: False)(target_name)
+        target_name
+        and getattr(emitter, "_is_global_storage_var", lambda _name: False)(target_name)
     )
 
     # Fast path:
@@ -414,7 +417,9 @@ def _emit_assign(emitter, stmt: Dict[str, Any], out):
             emitter._emit_global_store(target, rval, out)
             rval = None
         elif getattr(emitter, "_is_global_address_symbol", lambda _name: False)(target):
-            out.write(f"  // ERROR: cannot assign through address-only global {target}\n")
+            out.write(
+                f"  // ERROR: cannot assign through address-only global {target}\n"
+            )
         else:
             dest = emitter.var_regs.get(target)
             spill_label = getattr(emitter, "_var_spill_labels", {}).get(target)
