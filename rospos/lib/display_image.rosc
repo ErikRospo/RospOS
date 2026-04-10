@@ -1,0 +1,43 @@
+// display_image.rosc
+// Load and display a full 256x256 image from block device blocks 256-383
+// Usage: compile with rospocc and run with rospovm
+// Image blocks should be created using tools/image_to_rosb_full.py with default --start-block-id=256
+
+#include <block_device.rosc>
+#include <stdlib.rosc>
+
+
+void load_and_display_image()
+{
+    
+    // Image parameters
+    int IMAGE_START_BLOCK = 256;
+    int IMAGE_BLOCK_COUNT = 128;
+    int BLOCK_SIZE = 512;
+    // Use block device DMA to write directly to display framebuffer
+    // This is much faster than read->buffer->copy approach
+    int block_idx = 0;
+    
+    while (block_idx < IMAGE_BLOCK_COUNT)
+    {
+        int block_id = IMAGE_START_BLOCK + block_idx;
+        int display_addr = 0x20000000 + (block_idx * BLOCK_SIZE);
+        
+        // Write block ID
+        bd_write_u32(0x40000008, block_id);
+        
+        // Write destination address (split into 4 bytes like rand_draw_test)
+        __sb(0x4000000C, (display_addr >> 24) & 0xFF);
+        __sb(0x4000000D, (display_addr >> 16) & 0xFF);
+        __sb(0x4000000E, (display_addr >> 8) & 0xFF);
+        __sb(0x4000000F, display_addr & 0xFF);
+        
+        // Read 1 block - block device DMA writes directly to framebuffer
+        bd_write_u32(0x40000010, 1);
+        bd_write_u32(0x40000004, 1);
+        
+        block_idx = block_idx + 1;
+    }
+    
+    return;
+}

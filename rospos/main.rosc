@@ -5,6 +5,7 @@
 #include <file.rosc>
 #include <terminal.rosc>
 #include <time.rosc>
+#include <display_image.rosc>
 
 inline int add(int a, int b)
 {
@@ -14,33 +15,35 @@ inline int add(int a, int b)
 
 void main()
 {
-    // int r1= add(15, 25);
-    // inline int r2 = 50;
-    // int r3 = add(r1, r2);
+    int r1= add(15, 25);
+    inline int r2 = 50;
+    int r3 = add(r1, r2);
     
-    
-    // initialize_filesystem();
-    // write_file("example.txt\0", "Hello, RospOS filesystem!\0");
-    // char device_info[512];
-    // read_block(0xFFFFFFFF, device_info); // Read from the special block to get device info
-    // draw_string_to_display(device_info, 10, 8, 0x3F);
-    // char file_contents[512];
-    // read_file("example.txt\0", file_contents);
-    // draw_string_to_display(file_contents, 10, 16, 0x3F);
-    // draw_string_to_display("Green", 10, 24 , 0x0C);
-    // draw_string_to_display("Red", 10, 32 , 0x30);
-    // draw_string_to_display("Blue", 10, 40 , 0x07);
-    // draw_string_to_display("Yellow", 10, 48 , 0x3C);
-    // rand_block_test();
-    // fast_clear_display();
-    // write_to_buffer("Hello, RospOS Terminal!\0", 0);
-    // update_buffer();
-    // write_to_buffer("This is a simple terminal implementation.\0", 32);
-    // update_buffer();
-    // fast_clear_display();
-    char *time_str = fmt_unix_time(get_unix_time());
-    draw_string_to_display(time_str, 10, 56, 0x3F);
-    print_string("Current time: \n");
-    print_string(time_str);
+    load_and_display_image();
+    fast_clear_display();
+    initialize_filesystem();
+    write_file("example.txt\0", "Hello, RospOS filesystem!\0");
+    char device_info[512];
+    read_block(0xFFFFFFFF, device_info); // Read from the special block to get device info
+    draw_string_to_display(device_info, 10, 8, 0x3F);
+    char file_contents[512];
+    read_file("example.txt\0", file_contents);
+    draw_string_to_display(file_contents, 10, 16, 0x3F);
+    draw_string_to_display("Green", 10, 24 , 0x0C);
+    draw_string_to_display("Red", 10, 32 , 0x30);
+    draw_string_to_display("Blue", 10, 40 , 0x07);
+    draw_string_to_display("Yellow", 10, 48 , 0x3C);
+    rand_block_test();
+    fast_clear_display();
+    write_to_buffer("Hello, RospOS Terminal!\0", 0);
     update_buffer();
+    write_to_buffer("This is a simple terminal implementation.\0", 32);
+    update_buffer();
+    fast_clear_display();
+    // char *time_str = fmt_unix_time(get_unix_time());
+    // draw_string_to_display(time_str, 10, 56, 0x3F);
+    // print_string("Current time: \n");
+    // print_string(time_str);
+    // update_buffer();
+    
 }

@@ -1,6 +1,6 @@
 Segments:
 0xFFFFFFFC size=4
-0x00000000 size=14768
+0x00000000 size=16494
 
 Labels:
 read_string_4_WHILE1 -> 0x00000010
@@ -108,6 +108,7 @@ draw_rectangle_13_ELSE9 -> 0x0000095C
 draw_rectangle_13_IF_END10 -> 0x0000096C
 draw_rectangle_13_WHILE_END6 -> 0x00000980
 draw_rectangle_13_WHILE_END2 -> 0x00000994
+fast_clear_display -> 0x000009A8
 fast_clear_display_14_WHILE1 -> 0x000009B4
 fast_clear_display_14_CMP_TRUE3 -> 0x000009D4
 fast_clear_display_14_CMP_END4 -> 0x000009D8
@@ -126,6 +127,7 @@ palette_test_16_CMP_END12 -> 0x00000BB0
 palette_test_16_WHILE_END10 -> 0x00000C1C
 palette_test_16_WHILE_END6 -> 0x00000C30
 palette_test_16_WHILE_END2 -> 0x00000C44
+rand_block_test -> 0x00000C54
 rand_block_test_17_WHILE1 -> 0x00000C60
 rand_block_test_17_CMP_TRUE3 -> 0x00000C80
 rand_block_test_17_CMP_END4 -> 0x00000C84
@@ -230,6 +232,7 @@ ensure_filesystem_initialized_35_CMP_END23 -> 0x00001A0C
 ensure_filesystem_initialized_35_CMP_TRUE24 -> 0x00001A28
 ensure_filesystem_initialized_35_CMP_END25 -> 0x00001A2C
 ensure_filesystem_initialized_35_ELSE2 -> 0x00001A60
+write_file -> 0x00001A74
 write_file_36_WHILE2 -> 0x00001A8C
 write_file_36_CMP_TRUE4 -> 0x00001AA8
 write_file_36_CMP_END5 -> 0x00001AAC
@@ -260,6 +263,7 @@ write_file_36_ELSE30 -> 0x00001E24
 write_file_36_ELSE26 -> 0x00001E34
 write_file_36_IF_END27 -> 0x00001E40
 write_file_36_WHILE_END23 -> 0x00001E54
+read_file -> 0x00001F90
 read_file_37_WHILE2 -> 0x000020AC
 read_file_37_CMP_TRUE4 -> 0x000020C8
 read_file_37_CMP_END5 -> 0x000020CC
@@ -293,6 +297,7 @@ clear_buffer_40_WHILE1 -> 0x000025EC
 clear_buffer_40_CMP_TRUE3 -> 0x00002608
 clear_buffer_40_CMP_END4 -> 0x0000260C
 clear_buffer_40_WHILE_END2 -> 0x0000263C
+write_to_buffer -> 0x0000264C
 write_to_buffer_41_WHILE1 -> 0x00002658
 write_to_buffer_41_CMP_TRUE3 -> 0x00002678
 write_to_buffer_41_CMP_END4 -> 0x0000267C
@@ -305,32 +310,40 @@ write_to_buffer_41_CMP_END12 -> 0x00002758
 write_to_buffer_41_ELSE9 -> 0x0000279C
 write_to_buffer_41_WHILE_END2 -> 0x000027AC
 unix_ms_buffer -> 0x000027BC
-get_unix_time -> 0x000029C8
-fmt_unix_time -> 0x00002EEC
 fmt_unix_time_49_UNOP_NOT_TRUE3 -> 0x00002F3C
 fmt_unix_time_49_UNOP_NOT_END4 -> 0x00002F40
 fmt_unix_time_49_ELSE1 -> 0x00002F58
-main -> 0x00003434
-main_51_WHILE1 -> 0x00003520
-main_51_WHILE_END2 -> 0x00003544
-main_51_WHILE3 -> 0x0000354C
-main_51_WHILE_END4 -> 0x00003570
-font_address -> 0x00003594
-__heap_used -> 0x00003994
-malloc_head -> 0x00003998
-buffer_update_queue_ptr -> 0x0000399C
-str_0 -> 0x000039A0
-__int_to_str_static_buffer -> 0x000039B0
-__heap_area -> 0x000039BC
-buffer -> 0x000079BC
-buffer_update_queue -> 0x00007ABC
-__time_block_buffer -> 0x00007AFC
-draw_line_12_spill23 -> 0x00007CFC
-draw_line_12_spill36 -> 0x00007D00
-draw_rectangle_13_spill13 -> 0x00007D04
-palette_test_16_spill13 -> 0x00007D08
-initialize_filesystem_34_superblock_buf1 -> 0x00007D0C
-ensure_filesystem_initialized_35_superblock_buf1 -> 0x00007F0C
-write_file_36_scratch_block_buf1 -> 0x0000810C
-read_file_37_dir_entry_buf1 -> 0x0000830C
-get_unix_time_47_out_struct1 -> 0x0000850C
+load_and_display_image -> 0x00003434
+load_and_display_image_50_WHILE1 -> 0x0000344C
+load_and_display_image_50_CMP_TRUE3 -> 0x00003464
+load_and_display_image_50_CMP_END4 -> 0x00003468
+load_and_display_image_50_WHILE_END2 -> 0x00003678
+main -> 0x0000368C
+font_address -> 0x00003BE0
+__heap_used -> 0x00003FE0
+malloc_head -> 0x00003FE4
+buffer_update_queue_ptr -> 0x00003FE8
+str_0 -> 0x00003FEC
+str_1 -> 0x00003FF9
+str_2 -> 0x00004014
+str_3 -> 0x0000401A
+str_4 -> 0x0000401E
+str_5 -> 0x00004023
+str_6 -> 0x0000402A
+str_7 -> 0x00004043
+__int_to_str_static_buffer -> 0x0000406E
+__heap_area -> 0x0000407A
+buffer -> 0x0000807A
+buffer_update_queue -> 0x0000817A
+__time_block_buffer -> 0x000081BA
+draw_line_12_spill23 -> 0x000083BA
+draw_line_12_spill36 -> 0x000083BE
+draw_rectangle_13_spill13 -> 0x000083C2
+palette_test_16_spill13 -> 0x000083C6
+initialize_filesystem_34_superblock_buf1 -> 0x000083CA
+ensure_filesystem_initialized_35_superblock_buf1 -> 0x000085CA
+write_file_36_scratch_block_buf1 -> 0x000087CA
+read_file_37_dir_entry_buf1 -> 0x000089CA
+get_unix_time_47_out_struct1 -> 0x00008BCA
+main_52_device_info_buf1 -> 0x00008BE6
+main_52_file_contents_buf2 -> 0x00008DE6

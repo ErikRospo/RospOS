@@ -4404,6 +4404,143 @@ translation_unit
         return_stmt	buffer
   external_decl
     function_def
+      type_specifier
+        void
+      declarator	load_and_display_image
+      compound_stmt
+        declaration
+          type_specifier
+            int
+          init_declarator_list
+            init_declarator
+              declarator	IMAGE_START_BLOCK
+              256
+        declaration
+          type_specifier
+            int
+          init_declarator_list
+            init_declarator
+              declarator	IMAGE_BLOCK_COUNT
+              128
+        declaration
+          type_specifier
+            int
+          init_declarator_list
+            init_declarator
+              declarator	BLOCK_SIZE
+              512
+        declaration
+          type_specifier
+            int
+          init_declarator_list
+            init_declarator
+              declarator	block_idx
+              0
+        while_stmt
+          relational
+            block_idx
+            lt
+            IMAGE_BLOCK_COUNT
+          compound_stmt
+            declaration
+              type_specifier
+                int
+              init_declarator_list
+                init_declarator
+                  declarator	block_id
+                  additive
+                    IMAGE_START_BLOCK
+                    plus
+                    block_idx
+            declaration
+              type_specifier
+                int
+              init_declarator_list
+                init_declarator
+                  declarator	display_addr
+                  additive
+                    0x20000000
+                    plus
+                    multiplicative
+                      block_idx
+                      mult
+                      BLOCK_SIZE
+            expr_stmt
+              postfix
+                bd_write_u32
+                call_suffix
+                  arg_list
+                    0x40000008
+                    block_id
+            expr_stmt
+              postfix
+                __sb
+                call_suffix
+                  arg_list
+                    0x4000000C
+                    bit_and
+                      shift
+                        display_addr
+                        rshift
+                        24
+                      0xFF
+            expr_stmt
+              postfix
+                __sb
+                call_suffix
+                  arg_list
+                    0x4000000D
+                    bit_and
+                      shift
+                        display_addr
+                        rshift
+                        16
+                      0xFF
+            expr_stmt
+              postfix
+                __sb
+                call_suffix
+                  arg_list
+                    0x4000000E
+                    bit_and
+                      shift
+                        display_addr
+                        rshift
+                        8
+                      0xFF
+            expr_stmt
+              postfix
+                __sb
+                call_suffix
+                  arg_list
+                    0x4000000F
+                    bit_and
+                      display_addr
+                      0xFF
+            expr_stmt
+              postfix
+                bd_write_u32
+                call_suffix
+                  arg_list
+                    0x40000010
+                    1
+            expr_stmt
+              postfix
+                bd_write_u32
+                call_suffix
+                  arg_list
+                    0x40000004
+                    1
+            expr_stmt
+              assignment
+                block_idx
+                additive
+                  block_idx
+                  plus
+                  1
+        return_stmt	0
+  external_decl
+    function_def
       inline
       type_specifier
         int
@@ -4431,38 +4568,170 @@ translation_unit
       compound_stmt
         declaration
           type_specifier
-            char
-            pointer
+            int
           init_declarator_list
             init_declarator
-              declarator	time_str
+              declarator	r1
               postfix
-                fmt_unix_time
+                add
                 call_suffix
                   arg_list
-                    postfix
-                      get_unix_time
-                      call_suffix
+                    15
+                    25
+        declaration
+          inline
+          type_specifier
+            int
+          init_declarator_list
+            init_declarator
+              declarator	r2
+              50
+        declaration
+          type_specifier
+            int
+          init_declarator_list
+            init_declarator
+              declarator	r3
+              postfix
+                add
+                call_suffix
+                  arg_list
+                    r1
+                    r2
+        expr_stmt
+          postfix
+            load_and_display_image
+            call_suffix
+        expr_stmt
+          postfix
+            fast_clear_display
+            call_suffix
+        expr_stmt
+          postfix
+            initialize_filesystem
+            call_suffix
+        expr_stmt
+          postfix
+            write_file
+            call_suffix
+              arg_list
+                "example.txt\0"
+                "Hello, RospOS filesystem!\0"
+        declaration
+          type_specifier
+            char
+          init_declarator_list
+            init_declarator
+              declarator
+                device_info
+                array	512
+        expr_stmt
+          postfix
+            read_block
+            call_suffix
+              arg_list
+                0xFFFFFFFF
+                device_info
         expr_stmt
           postfix
             draw_string_to_display
             call_suffix
               arg_list
-                time_str
+                device_info
                 10
-                56
+                8
+                0x3F
+        declaration
+          type_specifier
+            char
+          init_declarator_list
+            init_declarator
+              declarator
+                file_contents
+                array	512
+        expr_stmt
+          postfix
+            read_file
+            call_suffix
+              arg_list
+                "example.txt\0"
+                file_contents
+        expr_stmt
+          postfix
+            draw_string_to_display
+            call_suffix
+              arg_list
+                file_contents
+                10
+                16
                 0x3F
         expr_stmt
           postfix
-            print_string
+            draw_string_to_display
             call_suffix
-              arg_list	"Current time: \n"
+              arg_list
+                "Green"
+                10
+                24
+                0x0C
         expr_stmt
           postfix
-            print_string
+            draw_string_to_display
             call_suffix
-              arg_list	time_str
+              arg_list
+                "Red"
+                10
+                32
+                0x30
+        expr_stmt
+          postfix
+            draw_string_to_display
+            call_suffix
+              arg_list
+                "Blue"
+                10
+                40
+                0x07
+        expr_stmt
+          postfix
+            draw_string_to_display
+            call_suffix
+              arg_list
+                "Yellow"
+                10
+                48
+                0x3C
+        expr_stmt
+          postfix
+            rand_block_test
+            call_suffix
+        expr_stmt
+          postfix
+            fast_clear_display
+            call_suffix
+        expr_stmt
+          postfix
+            write_to_buffer
+            call_suffix
+              arg_list
+                "Hello, RospOS Terminal!\0"
+                0
         expr_stmt
           postfix
             update_buffer
+            call_suffix
+        expr_stmt
+          postfix
+            write_to_buffer
+            call_suffix
+              arg_list
+                "This is a simple terminal implementation.\0"
+                32
+        expr_stmt
+          postfix
+            update_buffer
+            call_suffix
+        expr_stmt
+          postfix
+            fast_clear_display
             call_suffix

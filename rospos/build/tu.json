@@ -75,7 +75,42 @@
     {
       "kind": "string",
       "name": "str_0",
-      "value": "Current time: \n"
+      "value": "example.txt\u0000"
+    },
+    {
+      "kind": "string",
+      "name": "str_1",
+      "value": "Hello, RospOS filesystem!\u0000"
+    },
+    {
+      "kind": "string",
+      "name": "str_2",
+      "value": "Green"
+    },
+    {
+      "kind": "string",
+      "name": "str_3",
+      "value": "Red"
+    },
+    {
+      "kind": "string",
+      "name": "str_4",
+      "value": "Blue"
+    },
+    {
+      "kind": "string",
+      "name": "str_5",
+      "value": "Yellow"
+    },
+    {
+      "kind": "string",
+      "name": "str_6",
+      "value": "Hello, RospOS Terminal!\u0000"
+    },
+    {
+      "kind": "string",
+      "name": "str_7",
+      "value": "This is a simple terminal implementation.\u0000"
     }
   ],
   "functions": [
@@ -9924,6 +9959,302 @@
       "_line": 846
     },
     {
+      "name": "load_and_display_image",
+      "params": [],
+      "body": [
+        {
+          "type": "decl",
+          "name": "IMAGE_START_BLOCK",
+          "init": {
+            "type": "const",
+            "value": 256
+          },
+          "_line": 883,
+          "decl_type": "int"
+        },
+        {
+          "type": "decl",
+          "name": "IMAGE_BLOCK_COUNT",
+          "init": {
+            "type": "const",
+            "value": 128
+          },
+          "_line": 884,
+          "decl_type": "int"
+        },
+        {
+          "type": "decl",
+          "name": "BLOCK_SIZE",
+          "init": {
+            "type": "const",
+            "value": 512
+          },
+          "_line": 885,
+          "decl_type": "int"
+        },
+        {
+          "type": "decl",
+          "name": "block_idx",
+          "init": {
+            "type": "const",
+            "value": 0
+          },
+          "_line": 888,
+          "decl_type": "int"
+        },
+        {
+          "type": "while",
+          "cond": {
+            "type": "binop",
+            "op": "lt",
+            "left": {
+              "type": "var",
+              "name": "block_idx"
+            },
+            "right": {
+              "type": "var",
+              "name": "IMAGE_BLOCK_COUNT"
+            }
+          },
+          "body": [
+            {
+              "type": "decl",
+              "name": "block_id",
+              "init": {
+                "type": "binop",
+                "op": "plus",
+                "left": {
+                  "type": "var",
+                  "name": "IMAGE_START_BLOCK"
+                },
+                "right": {
+                  "type": "var",
+                  "name": "block_idx"
+                }
+              },
+              "_line": 892,
+              "decl_type": "int"
+            },
+            {
+              "type": "decl",
+              "name": "display_addr",
+              "init": {
+                "type": "binop",
+                "op": "plus",
+                "left": {
+                  "type": "const",
+                  "value": 536870912
+                },
+                "right": {
+                  "type": "binop",
+                  "op": "mult",
+                  "left": {
+                    "type": "var",
+                    "name": "block_idx"
+                  },
+                  "right": {
+                    "type": "var",
+                    "name": "BLOCK_SIZE"
+                  }
+                }
+              },
+              "_line": 893,
+              "decl_type": "int"
+            },
+            {
+              "type": "call_stmt",
+              "name": "bd_write_u32",
+              "args": [
+                {
+                  "type": "const",
+                  "value": 1073741832
+                },
+                {
+                  "type": "var",
+                  "name": "block_id"
+                }
+              ],
+              "_line": 896
+            },
+            {
+              "type": "call_stmt",
+              "name": "__sb",
+              "args": [
+                {
+                  "type": "const",
+                  "value": 1073741836
+                },
+                {
+                  "type": "binop",
+                  "op": "and",
+                  "left": {
+                    "type": "binop",
+                    "op": "rshift",
+                    "left": {
+                      "type": "var",
+                      "name": "display_addr"
+                    },
+                    "right": {
+                      "type": "const",
+                      "value": 24
+                    }
+                  },
+                  "right": {
+                    "type": "const",
+                    "value": 255
+                  }
+                }
+              ],
+              "_line": 899
+            },
+            {
+              "type": "call_stmt",
+              "name": "__sb",
+              "args": [
+                {
+                  "type": "const",
+                  "value": 1073741837
+                },
+                {
+                  "type": "binop",
+                  "op": "and",
+                  "left": {
+                    "type": "binop",
+                    "op": "rshift",
+                    "left": {
+                      "type": "var",
+                      "name": "display_addr"
+                    },
+                    "right": {
+                      "type": "const",
+                      "value": 16
+                    }
+                  },
+                  "right": {
+                    "type": "const",
+                    "value": 255
+                  }
+                }
+              ],
+              "_line": 900
+            },
+            {
+              "type": "call_stmt",
+              "name": "__sb",
+              "args": [
+                {
+                  "type": "const",
+                  "value": 1073741838
+                },
+                {
+                  "type": "binop",
+                  "op": "and",
+                  "left": {
+                    "type": "binop",
+                    "op": "rshift",
+                    "left": {
+                      "type": "var",
+                      "name": "display_addr"
+                    },
+                    "right": {
+                      "type": "const",
+                      "value": 8
+                    }
+                  },
+                  "right": {
+                    "type": "const",
+                    "value": 255
+                  }
+                }
+              ],
+              "_line": 901
+            },
+            {
+              "type": "call_stmt",
+              "name": "__sb",
+              "args": [
+                {
+                  "type": "const",
+                  "value": 1073741839
+                },
+                {
+                  "type": "binop",
+                  "op": "and",
+                  "left": {
+                    "type": "var",
+                    "name": "display_addr"
+                  },
+                  "right": {
+                    "type": "const",
+                    "value": 255
+                  }
+                }
+              ],
+              "_line": 902
+            },
+            {
+              "type": "call_stmt",
+              "name": "bd_write_u32",
+              "args": [
+                {
+                  "type": "const",
+                  "value": 1073741840
+                },
+                {
+                  "type": "const",
+                  "value": 1
+                }
+              ],
+              "_line": 905
+            },
+            {
+              "type": "call_stmt",
+              "name": "bd_write_u32",
+              "args": [
+                {
+                  "type": "const",
+                  "value": 1073741828
+                },
+                {
+                  "type": "const",
+                  "value": 1
+                }
+              ],
+              "_line": 906
+            },
+            {
+              "type": "assign",
+              "target": "block_idx",
+              "value": {
+                "type": "binop",
+                "op": "plus",
+                "left": {
+                  "type": "var",
+                  "name": "block_idx"
+                },
+                "right": {
+                  "type": "const",
+                  "value": 1
+                }
+              },
+              "_line": 908
+            }
+          ],
+          "_line": 890
+        },
+        {
+          "type": "return",
+          "value": {
+            "type": "const",
+            "value": 0
+          },
+          "_line": 911
+        }
+      ],
+      "return_type": "void",
+      "_line": 879
+    },
+    {
       "name": "add",
       "params": [
         "a",
@@ -9944,7 +10275,7 @@
               "name": "b"
             }
           },
-          "_line": 873
+          "_line": 916
         }
       ],
       "param_types": {
@@ -9953,7 +10284,7 @@
       },
       "return_type": "int",
       "inline": true,
-      "_line": 871
+      "_line": 914
     },
     {
       "name": "main",
@@ -9961,20 +10292,111 @@
       "body": [
         {
           "type": "decl",
-          "name": "time_str",
+          "name": "r1",
           "init": {
             "type": "call",
-            "name": "fmt_unix_time",
+            "name": "add",
             "args": [
               {
-                "type": "call",
-                "name": "get_unix_time",
-                "args": []
+                "type": "const",
+                "value": 15
+              },
+              {
+                "type": "const",
+                "value": 25
               }
             ]
           },
-          "_line": 903,
+          "_line": 922,
+          "decl_type": "int"
+        },
+        {
+          "type": "decl",
+          "name": "r2",
+          "init": {
+            "type": "const",
+            "value": 50
+          },
+          "_line": 923,
+          "decl_type": "int"
+        },
+        {
+          "type": "decl",
+          "name": "r3",
+          "init": {
+            "type": "call",
+            "name": "add",
+            "args": [
+              {
+                "type": "var",
+                "name": "r1"
+              },
+              {
+                "type": "var",
+                "name": "r2"
+              }
+            ]
+          },
+          "_line": 924,
+          "decl_type": "int"
+        },
+        {
+          "type": "call_stmt",
+          "name": "load_and_display_image",
+          "args": [],
+          "_line": 926
+        },
+        {
+          "type": "call_stmt",
+          "name": "fast_clear_display",
+          "args": [],
+          "_line": 927
+        },
+        {
+          "type": "call_stmt",
+          "name": "initialize_filesystem",
+          "args": [],
+          "_line": 928
+        },
+        {
+          "type": "call_stmt",
+          "name": "write_file",
+          "args": [
+            {
+              "type": "string_addr",
+              "label": "str_0"
+            },
+            {
+              "type": "string_addr",
+              "label": "str_1"
+            }
+          ],
+          "_line": 929
+        },
+        {
+          "type": "decl",
+          "name": "device_info",
+          "init": {
+            "type": "array",
+            "size": 512
+          },
+          "_line": 930,
           "decl_type": "char_ptr"
+        },
+        {
+          "type": "call_stmt",
+          "name": "read_block",
+          "args": [
+            {
+              "type": "const",
+              "value": 4294967295
+            },
+            {
+              "type": "var",
+              "name": "device_info"
+            }
+          ],
+          "_line": 931
         },
         {
           "type": "call_stmt",
@@ -9982,7 +10404,7 @@
           "args": [
             {
               "type": "var",
-              "name": "time_str"
+              "name": "device_info"
             },
             {
               "type": "const",
@@ -9990,46 +10412,218 @@
             },
             {
               "type": "const",
-              "value": 56
+              "value": 8
             },
             {
               "type": "const",
               "value": 63
             }
           ],
-          "_line": 904
+          "_line": 932
+        },
+        {
+          "type": "decl",
+          "name": "file_contents",
+          "init": {
+            "type": "array",
+            "size": 512
+          },
+          "_line": 933,
+          "decl_type": "char_ptr"
         },
         {
           "type": "call_stmt",
-          "name": "print_string",
+          "name": "read_file",
           "args": [
             {
               "type": "string_addr",
               "label": "str_0"
+            },
+            {
+              "type": "var",
+              "name": "file_contents"
             }
           ],
-          "_line": 905
+          "_line": 934
         },
         {
           "type": "call_stmt",
-          "name": "print_string",
+          "name": "draw_string_to_display",
           "args": [
             {
               "type": "var",
-              "name": "time_str"
+              "name": "file_contents"
+            },
+            {
+              "type": "const",
+              "value": 10
+            },
+            {
+              "type": "const",
+              "value": 16
+            },
+            {
+              "type": "const",
+              "value": 63
             }
           ],
-          "_line": 906
+          "_line": 935
+        },
+        {
+          "type": "call_stmt",
+          "name": "draw_string_to_display",
+          "args": [
+            {
+              "type": "string_addr",
+              "label": "str_2"
+            },
+            {
+              "type": "const",
+              "value": 10
+            },
+            {
+              "type": "const",
+              "value": 24
+            },
+            {
+              "type": "const",
+              "value": 12
+            }
+          ],
+          "_line": 936
+        },
+        {
+          "type": "call_stmt",
+          "name": "draw_string_to_display",
+          "args": [
+            {
+              "type": "string_addr",
+              "label": "str_3"
+            },
+            {
+              "type": "const",
+              "value": 10
+            },
+            {
+              "type": "const",
+              "value": 32
+            },
+            {
+              "type": "const",
+              "value": 48
+            }
+          ],
+          "_line": 937
+        },
+        {
+          "type": "call_stmt",
+          "name": "draw_string_to_display",
+          "args": [
+            {
+              "type": "string_addr",
+              "label": "str_4"
+            },
+            {
+              "type": "const",
+              "value": 10
+            },
+            {
+              "type": "const",
+              "value": 40
+            },
+            {
+              "type": "const",
+              "value": 7
+            }
+          ],
+          "_line": 938
+        },
+        {
+          "type": "call_stmt",
+          "name": "draw_string_to_display",
+          "args": [
+            {
+              "type": "string_addr",
+              "label": "str_5"
+            },
+            {
+              "type": "const",
+              "value": 10
+            },
+            {
+              "type": "const",
+              "value": 48
+            },
+            {
+              "type": "const",
+              "value": 60
+            }
+          ],
+          "_line": 939
+        },
+        {
+          "type": "call_stmt",
+          "name": "rand_block_test",
+          "args": [],
+          "_line": 940
+        },
+        {
+          "type": "call_stmt",
+          "name": "fast_clear_display",
+          "args": [],
+          "_line": 941
+        },
+        {
+          "type": "call_stmt",
+          "name": "write_to_buffer",
+          "args": [
+            {
+              "type": "string_addr",
+              "label": "str_6"
+            },
+            {
+              "type": "const",
+              "value": 0
+            }
+          ],
+          "_line": 942
         },
         {
           "type": "call_stmt",
           "name": "update_buffer",
           "args": [],
-          "_line": 907
+          "_line": 943
+        },
+        {
+          "type": "call_stmt",
+          "name": "write_to_buffer",
+          "args": [
+            {
+              "type": "string_addr",
+              "label": "str_7"
+            },
+            {
+              "type": "const",
+              "value": 32
+            }
+          ],
+          "_line": 944
+        },
+        {
+          "type": "call_stmt",
+          "name": "update_buffer",
+          "args": [],
+          "_line": 945
+        },
+        {
+          "type": "call_stmt",
+          "name": "fast_clear_display",
+          "args": [],
+          "_line": 946
         }
       ],
       "return_type": "void",
-      "_line": 877
+      "_line": 920
     }
   ],
   "types": [
