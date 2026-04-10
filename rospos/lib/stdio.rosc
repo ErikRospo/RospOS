@@ -13,6 +13,12 @@ inline void print_char(char c)
     __sb(tty_addr, c);
 }
 
+inline void print_line(char *str)
+{
+    print_string(str);
+    print_char('\n');
+}
+
 
 inline char read_char()
 {
@@ -35,32 +41,59 @@ char *read_string(char *buffer, int max_len)
     return buffer;
 }
 
-char *int_to_str(int input){
-    char buffer[12];
-    if (input==0){
-        buffer[0]="0";
-        buffer[1]="\0";
-        return buffer;
-    };
+void int_to_str_buf(int input, char *buffer)
+{
+    if (input == 0)
+    {
+        buffer[0] = '0';
+        buffer[1] = '\0';
+        return;
+    }
+
     int is_negative = 0;
-    if (input < 0) {
+    if (input < 0)
+    {
         is_negative = 1;
         input = -input;
-    };
+    }
+
     int i = 0;
-    while (input > 0) {
-        buffer[i++] = (input % 10) + '0';
-        input /= 10;
-    };
-    if (is_negative) {
-        buffer[i++] = '-';
-    };
+    while (input > 0)
+    {
+        buffer[i] = (input % 10) + '0';
+        i = i + 1;
+        input = input / 10;
+    }
+
+    if (is_negative)
+    {
+        buffer[i] = '-';
+        i = i + 1;
+    }
+
     buffer[i] = '\0';
-    // Reverse the string
-    for (int j = 0; j < i / 2; j++) {
-        char temp = buffer[j];
-        buffer[j] = buffer[i - j - 1];
-        buffer[i - j - 1] = temp;
-    };
-    return buffer;
+
+    int left = 0;
+    int right = i - 1;
+    while (left < right)
+    {
+        char tmp = buffer[left];
+        buffer[left] = buffer[right];
+        buffer[right] = tmp;
+        left = left + 1;
+        right = right - 1;
+    }
+}
+
+char __int_to_str_static_buffer[12];
+
+char *int_to_str(int input)
+{
+    int_to_str_buf(input, __int_to_str_static_buffer);
+    return __int_to_str_static_buffer;
+}
+
+inline void print_int(int value)
+{
+    print_string(int_to_str(value));
 }

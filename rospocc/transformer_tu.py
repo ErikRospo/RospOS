@@ -336,9 +336,17 @@ class TranslationUnitTransformer:
 
         def _resolved_type(base_type, pointer_count, is_array=False):
             if is_array:
-                return "char_ptr" if base_type == "char" else "int_ptr"
+                if base_type == "char":
+                    return "char_ptr"
+                if base_type == "int":
+                    return "int_ptr"
+                return f"{base_type}_ptr" if base_type else "int_ptr"
             if pointer_count > 0:
-                return "char_ptr" if base_type == "char" else "int_ptr"
+                if base_type == "char":
+                    return "char_ptr"
+                if base_type == "int":
+                    return "int_ptr"
+                return f"{base_type}_ptr" if base_type else "int_ptr"
             return base_type or "int"
 
         def _decl_array_size(declarator_node):

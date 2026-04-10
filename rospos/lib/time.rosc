@@ -1,21 +1,11 @@
-char* unix_ms_buffer(){
-    char buffer[512];
-    bd_write_u32(0x40000008, 0xFFFFFFFD); // Special block for getting time in milliseconds
-    __sb(0x4000000C, (buffer>>24) & 0xFF);
-    __sb(0x4000000D, (buffer>>16) & 0xFF);
-    __sb(0x4000000E, (buffer >> 8) & 0xFF);
-    __sb(0x4000000F, buffer & 0xFF);
-    bd_write_u32(0x40000010, 1); // Read 1 block
-    bd_write_u32(0x40000004, 1); // Trigger the read
-    return buffer;
-}
+#include <block_device.rosc>
+#include <stdlib.rosc>
+#include <stdio.rosc>
 
-struct long {
-    int high;
-    int low;
-}
+char __time_block_buffer[512];
 
-struct unix_time {
+struct unix_time
+{
     int year;
     int month;
     int day;
@@ -23,33 +13,80 @@ struct unix_time {
     int minute;
     int second;
     int millisecond;
+};
+
+inline int _read_be_u32(char *buffer, int offset)
+{
+    int b0 = buffer[offset + 0] & 0xFF;
+    int b1 = buffer[offset + 1] & 0xFF;
+    int b2 = buffer[offset + 2] & 0xFF;
+    int b3 = buffer[offset + 3] & 0xFF;
+    return (b0 << 24) | (b1 << 16) | (b2 << 8) | b3;
 }
 
-struct unix_time get_unix_time(){
-    char buffer[512];
-    bd_write_u32(0x40000008, 0xFFFFFFFC); // Special block for getting full date and time
-    __sb(0x4000000C, (buffer>>24) & 0xFF);
-    __sb(0x4000000D, (buffer>>16) & 0xFF);
-    __sb(0x4000000E, (buffer >> 8) & 0xFF);
-    __sb(0x4000000F, buffer & 0xFF);
-    bd_write_u32(0x40000010, 1); // Read 1 block
-    bd_write_u32(0x40000004, 1); // Trigger the read
-    struct unix_time *time = (struct unix_time *)buffer;
-    return *time;
+inline void _read_special_block(int block_id, char *buffer)
+{
+    bd_write_u32(0x40000008, block_id);
+    bd_write_u32(0x4000000C, (int)buffer);
+    bd_write_u32(0x40000010, 1);
+    bd_write_u32(0x40000004, 1);
 }
 
-char *fmt_unix_time(struct unix_time time){
-    char *buffer = (char *)malloc(20); // Allocate enough space for "YYYY-MM-DD HH:MM:SS\0"
-    int_to_str(time.year, buffer);
+char *unix_ms_buffer()
+{
+    _read_special_block(0xFFFFFFFD, __time_block_buffer);
+    return __time_block_buffer;
+}
+
+int unix_ms()
+{
+    char *buffer = unix_ms_buffer();
+    return _read_be_u32(buffer, 0);
+}
+
+struct unix_time get_unix_time()
+{
+    struct unix_time out;
+    _read_special_block(0xFFFFFFFC, __time_block_buffer);
+
+    out.year = _read_be_u32(__time_block_buffer, 0);
+    out.month = _read_be_u32(__time_block_buffer, 4);
+    out.day = _read_be_u32(__time_block_buffer, 8);
+    out.hour = _read_be_u32(__time_block_buffer, 12);
+    out.minute = _read_be_u32(__time_block_buffer, 16);
+    out.second = _read_be_u32(__time_block_buffer, 20);
+    out.millisecond = _read_be_u32(__time_block_buffer, 24);
+
+    return out;
+}
+
+inline void _append_two_digits(char *buffer, int value)
+{
+    int len = string_length(buffer);
+    buffer[len + 0] = ((value / 10) % 10) + '0';
+    buffer[len + 1] = (value % 10) + '0';
+    buffer[len + 2] = '\0';
+}
+
+char *fmt_unix_time(struct unix_time time)
+{
+    //YYYY-MM-DD HH:MM:SS
+    char *buffer = (char *)malloc(20);
+    if (!buffer)
+    {
+        return 0;
+    }
+
+    strcat(buffer, int_to_str(time.year));
     strcat(buffer, "-");
-    int_to_str(time.month, buffer + string_length(buffer));
+    _append_two_digits(buffer, time.month);
     strcat(buffer, "-");
-    int_to_str(time.day, buffer + string_length(buffer));
+    _append_two_digits(buffer, time.day);
     strcat(buffer, " ");
-    int_to_str(time.hour, buffer + string_length(buffer));
+    _append_two_digits(buffer, time.hour);
     strcat(buffer, ":");
-    int_to_str(time.minute, buffer + string_length(buffer));
+    _append_two_digits(buffer, time.minute);
     strcat(buffer, ":");
-    int_to_str(time.second, buffer + string_length(buffer));
+    _append_two_digits(buffer, time.second); 
     return buffer;
 }

@@ -42,6 +42,7 @@ def _emit_decl(emitter, stmt: Dict[str, Any], out):
     assert isinstance(name, str), "Expected variable name as string in decl"
     emitter.note_var_declaration(name)
     decl_type = stmt.get("decl_type")
+    var_typ = decl_type if isinstance(decl_type, str) and decl_type else "int"
     init = stmt.get("init")
 
     if decl_type and decl_type in emitter.struct_types:
@@ -63,7 +64,7 @@ def _emit_decl(emitter, stmt: Dict[str, Any], out):
         if init.get("type") == "const":
             val = int(init.get("value"))
             assert isinstance(val, int), "Expected integer constant initializer"
-            emitter._alloc_var_reg(name, out, init_value=val, typ="int")
+            emitter._alloc_var_reg(name, out, init_value=val, typ=var_typ)
         elif init.get("type") == "array":
             size = int(init.get("size", 0))
             lbl = emitter.gen_label(f"{name}_buf")
@@ -113,13 +114,14 @@ def _emit_decl(emitter, stmt: Dict[str, Any], out):
                     emitter.release_expr_reg(off_reg)
                     emitter.release_expr_reg(rval)
         elif init.get("type") == "call":
-            r = emitter._alloc_var_reg(name, out, init_value=None, typ="int")
+            r = emitter._alloc_var_reg(name, out, init_value=None, typ=var_typ)
             emitter._emit_call(init, r, out)
             emitter.var_regs[name] = r
             if isinstance(init.get("name"), str) and init.get("name") == "malloc":
-                emitter.var_types[name] = "int_ptr"
+                # Respect explicit declared type (e.g., struct foo* p = malloc(...)).
+                emitter.var_types[name] = var_typ if var_typ != "int" else "int_ptr"
             else:
-                emitter.var_types[name] = "int"
+                emitter.var_types[name] = var_typ
         elif init.get("type") == "string_addr":
             emitter._alloc_var_reg(
                 name,
@@ -136,7 +138,7 @@ def _emit_decl(emitter, stmt: Dict[str, Any], out):
                 # avoid allocating one extra register under pressure.
                 if rinit in abi.TEMP_REGS and not emitter.is_var_reg(rinit):
                     emitter.var_regs[name] = rinit
-                    emitter.var_types[name] = "int"
+                    emitter.var_types[name] = var_typ
                     if hasattr(emitter, "register_allocator") and hasattr(
                         out, "get_current_output_line"
                     ):
@@ -146,12 +148,14 @@ def _emit_decl(emitter, stmt: Dict[str, Any], out):
                         emitter.register_allocator.allocate(
                             register=rinit,
                             variable_name=name,
-                            variable_type="int",
+                            variable_type=var_typ,
                             var_kind="local",
                             origin=emitter.current_context_origin,
                         )
                 else:
-                    dest = emitter._alloc_var_reg(name, out, init_value=None, typ="int")
+                    dest = emitter._alloc_var_reg(
+                        name, out, init_value=None, typ=var_typ
+                    )
                     out.write(
                         f"  ADDI {dest}, {rinit}, 0    // init {name} from expr\n"
                     )
@@ -160,7 +164,7 @@ def _emit_decl(emitter, stmt: Dict[str, Any], out):
         emitter.reclaim_dead_var_regs()
         return
 
-    emitter._alloc_var_reg(name, out, init_value=None, typ="int")
+    emitter._alloc_var_reg(name, out, init_value=None, typ=var_typ)
 
 
 def _emit_assign_member_access(emitter, target: Dict[str, Any], rval: str, out):

@@ -4,6 +4,7 @@ from transformer_utils import (
     copy_line,
     decode_string_token,
     find_identifier,
+    node_name,
 )
 
 
@@ -17,17 +18,61 @@ class StatementTransformer:
         name = None
         init = None
         decl_type = None
+        type_pointer_count = 0
+        decl_pointer_count = 0
+
+        def _parse_type_specifier(type_node):
+            base_type = None
+            pointer_count = 0
+            if not isinstance(type_node, dict):
+                return base_type, pointer_count
+
+            for type_child in type_node.get("children", []):
+                if not isinstance(type_child, dict):
+                    continue
+                if "node" in type_child:
+                    node_val = node_name(type_child.get("node"))
+                    if node_val == "pointer":
+                        pointer_count = pointer_count + 1
+                    elif isinstance(node_val, str) and node_val != "struct_type":
+                        base_type = node_val
+                elif "token" in type_child and type_child["token"].isidentifier():
+                    base_type = type_child["token"]
+
+            return base_type, pointer_count
+
+        def _count_declarator_pointers(declarator_node):
+            count = 0
+            if not isinstance(declarator_node, dict):
+                return count
+
+            for child in declarator_node.get("children", []):
+                if not isinstance(child, dict):
+                    continue
+                if node_name(child.get("node")) == "pointer":
+                    count = count + 1
+                elif child.get("node") == "declarator":
+                    count = count + _count_declarator_pointers(child)
+            return count
+
+        def _resolved_type(base_type, pointer_count, is_array=False):
+            if is_array:
+                if base_type == "char":
+                    return "char_ptr"
+                if base_type == "int":
+                    return "int_ptr"
+                return f"{base_type}_ptr" if base_type else "int_ptr"
+            if pointer_count > 0:
+                if base_type == "char":
+                    return "char_ptr"
+                if base_type == "int":
+                    return "int_ptr"
+                return f"{base_type}_ptr" if base_type else "int_ptr"
+            return base_type or "int"
 
         for child in decl_node.get("children", []):
             if isinstance(child, dict) and child.get("node") == "type_specifier":
-                for type_child in child.get("children", []):
-                    if isinstance(type_child, dict):
-                        if "node" in type_child:
-                            decl_type = type_child["node"]
-                        elif (
-                            "token" in type_child and type_child["token"].isidentifier()
-                        ):
-                            decl_type = type_child["token"]
+                decl_type, type_pointer_count = _parse_type_specifier(child)
 
         for child in decl_node.get("children", []):
             if isinstance(child, dict) and child.get("node") == "init_declarator_list":
@@ -45,6 +90,7 @@ class StatementTransformer:
                                 ident = find_identifier(part)
                                 if ident:
                                     name = ident
+                                decl_pointer_count = _count_declarator_pointers(part)
                                 array_len = None
                                 for i, token_node in enumerate(decl_children):
                                     if (
@@ -123,7 +169,10 @@ class StatementTransformer:
 
             decl = copy_line(decl_node, {"type": "decl", "name": name, "init": init})
             if decl_type:
-                decl["decl_type"] = decl_type
+                total_pointer_count = type_pointer_count + decl_pointer_count
+                decl["decl_type"] = _resolved_type(
+                    decl_type, total_pointer_count, is_array=(init and init.get("type") == "array")
+                )
             return [decl]
         return []
 

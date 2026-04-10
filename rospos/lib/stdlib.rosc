@@ -1,38 +1,193 @@
-int string_length(char *str){
+int string_length(char *str)
+{
+    if (!str)
+    {
+        return 0;
+    }
+
     int length = 0;
     while (str[length] != '\0')
     {
-        length++;
+        length = length + 1;
     }
     return length;
 }
 
-//todo: malloc/free, strcopy, strcat, memcopy, memset, etc.
+int strcmp(char *a, char *b)
+{
+    int i = 0;
+    while (a[i] && b[i])
+    {
+        if (a[i] != b[i])
+        {
+            return (a[i] & 0xFF) - (b[i] & 0xFF);
+        }
+        i = i + 1;
+    }
+    return (a[i] & 0xFF) - (b[i] & 0xFF);
+}
 
-struct malloc_header {
+char *strcpy(char *dest, char *src)
+{
+    int i = 0;
+    while (src[i])
+    {
+        dest[i] = src[i];
+        i = i + 1;
+    }
+    dest[i] = '\0';
+    return dest;
+}
+
+char *strncpy(char *dest, char *src, int n)
+{
+    int i = 0;
+    while (i < n && src[i])
+    {
+        dest[i] = src[i];
+        i = i + 1;
+    }
+    while (i < n)
+    {
+        dest[i] = '\0';
+        i = i + 1;
+    }
+    return dest;
+}
+
+char *strcat(char *dest, char *src)
+{
+    int i = string_length(dest);
+    int j = 0;
+    while (src[j])
+    {
+        dest[i] = src[j];
+        i = i + 1;
+        j = j + 1;
+    }
+    dest[i] = '\0';
+    return dest;
+}
+
+void *memset(void *dest, int value, int n)
+{
+    char *out = (char *)dest;
+    int i = 0;
+    while (i < n)
+    {
+        out[i] = value;
+        i = i + 1;
+    }
+    return dest;
+}
+
+void *memcpy(void *dest, void *src, int n)
+{
+    char *out = (char *)dest;
+    char *in = (char *)src;
+    int i = 0;
+    while (i < n)
+    {
+        out[i] = in[i];
+        i = i + 1;
+    }
+    return dest;
+}
+
+void *memmove(void *dest, void *src, int n)
+{
+    char *out = (char *)dest;
+    char *in = (char *)src;
+    if (out < in)
+    {
+        int i = 0;
+        while (i < n)
+        {
+            out[i] = in[i];
+            i = i + 1;
+        }
+    }
+    else
+    {
+        int i = n - 1;
+        while (i >= 0)
+        {
+            out[i] = in[i];
+            i = i - 1;
+        }
+    }
+    return dest;
+}
+
+struct malloc_header
+{
     int size;
+    int free;
     struct malloc_header *next;
 };
 
+char __heap_area[16384];
+int __heap_used = 0;
 struct malloc_header *malloc_head = 0;
-void *malloc(int size){
-    struct malloc_header *header = (struct malloc_header *)malloc_head;
-    struct malloc_header *prev = 0;
-    while (header && header->size < size) {
-        prev = header;
-        header = header->next;
+
+int _align4(int value)
+{
+    return (value + 3) & (~3);
+}
+
+void *_heap_alloc_raw(int bytes)
+{
+    int aligned = _align4(bytes);
+    if (__heap_used + aligned > 16384)
+    {
+        return 0;
     }
-    if (header) {
-        if (prev) {
-            prev->next = header->next;
-        } else {
-            malloc_head = (void *)header->next;
+
+    void *ptr = (void *)(__heap_area + __heap_used);
+    __heap_used = __heap_used + aligned;
+    return ptr;
+}
+
+void *malloc(int size)
+{
+    if (size <= 0)
+    {
+        return 0;
+    }
+
+    int payload = _align4(size);
+    struct malloc_header *node = malloc_head;
+    while (node)
+    {
+        if (node->free && node->size >= payload)
+        {
+            node->free = 0;
+            return (void *)(node + 1);
         }
-        return (void *)(header + 1);
-    } else {
-        // No suitable block found, allocate a new one
-        struct malloc_header *new_block = (struct malloc_header *)sbrk(sizeof(struct malloc_header) + size);
-        new_block->size = size;
-        return (void *)(new_block + 1);
+        node = node->next;
     }
+
+    int total = sizeof(struct malloc_header) + payload;
+    struct malloc_header *new_node = (struct malloc_header *)_heap_alloc_raw(total);
+    if (!new_node)
+    {
+        return 0;
+    }
+
+    new_node->size = payload;
+    new_node->free = 0;
+    new_node->next = malloc_head;
+    malloc_head = new_node;
+    return (void *)(new_node + 1);
+}
+
+void free(void *ptr)
+{
+    if (!ptr)
+    {
+        return;
+    }
+
+    struct malloc_header *header = ((struct malloc_header *)ptr) - 1;
+    header->free = 1;
 }
