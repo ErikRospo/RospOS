@@ -107,10 +107,10 @@ bool try_read_special_block(uint32_t blockId, std::array<uint8_t, BlockDeviceBac
         };
         for (size_t i = 0; i < 7; ++i) {
             const int value = values[i];
-            block[i * 4 + 0] = static_cast<uint8_t>(value & 0xFFU);
-            block[i * 4 + 1] = static_cast<uint8_t>((value >> 8U) & 0xFFU);
-            block[i * 4 + 2] = static_cast<uint8_t>((value >> 16U) & 0xFFU);
-            block[i * 4 + 3] = static_cast<uint8_t>((value >> 24U) & 0xFFU);
+            block[i * 4 + 3] = static_cast<uint8_t>(value & 0xFFU);
+            block[i * 4 + 2] = static_cast<uint8_t>((value >> 8U) & 0xFFU);
+            block[i * 4 + 1] = static_cast<uint8_t>((value >> 16U) & 0xFFU);
+            block[i * 4 + 0] = static_cast<uint8_t>((value >> 24U) & 0xFFU);
         };
         return true;
     }
