@@ -25,7 +25,6 @@ except ModuleNotFoundError as exc:  # pragma: no cover
 
 import rosb_tool
 
-
 DISPLAY_WIDTH = 256
 DISPLAY_HEIGHT = 256
 DISPLAY_BYTES = DISPLAY_WIDTH * DISPLAY_HEIGHT
@@ -80,7 +79,9 @@ def image_to_display_bytes(image_path: Path, resize_filter: str, dither: str) ->
             for x in range(DISPLAY_WIDTH):
                 pixel = img.getpixel((x, y))
                 if not isinstance(pixel, tuple) or len(pixel) < 3:
-                    raise ValueError(f"Unexpected pixel format at ({x}, {y}): {pixel!r}")
+                    raise ValueError(
+                        f"Unexpected pixel format at ({x}, {y}): {pixel!r}"
+                    )
                 r = int(pixel[0])
                 g = int(pixel[1])
                 b = int(pixel[2])
@@ -91,7 +92,9 @@ def image_to_display_bytes(image_path: Path, resize_filter: str, dither: str) ->
             for x in range(DISPLAY_WIDTH):
                 pixel = img.getpixel((x, y))
                 if not isinstance(pixel, tuple) or len(pixel) < 3:
-                    raise ValueError(f"Unexpected pixel format at ({x}, {y}): {pixel!r}")
+                    raise ValueError(
+                        f"Unexpected pixel format at ({x}, {y}): {pixel!r}"
+                    )
                 work.append([float(pixel[0]), float(pixel[1]), float(pixel[2])])
 
         for y in range(DISPLAY_HEIGHT):

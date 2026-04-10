@@ -524,7 +524,7 @@ def print_instruction_types(analyzer: BuildAnalyzer):
                             f"{subtype_count:,} ({subtype_pct:.1f}% of {instr_type}-type)",
                             Colors.GRAY,
                         )
-                        if subtype=="addi":
+                        if subtype == "addi":
                             addi_breakdown = ir_stats.get("addi_breakdown", {})
                             addi_total = sum(addi_breakdown.values())
                             if addi_total > 0:
@@ -545,6 +545,7 @@ def print_instruction_types(analyzer: BuildAnalyzer):
                                     Colors.GRAY,
                                 )
                     print()
+
 
 def print_summary(analyzer: BuildAnalyzer):
     """Print build summary"""
