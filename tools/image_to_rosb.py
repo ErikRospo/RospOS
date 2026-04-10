@@ -32,6 +32,14 @@ DISPLAY_BYTES = DISPLAY_WIDTH * DISPLAY_HEIGHT
 BLOCKS_NEEDED = DISPLAY_BYTES // rosb_tool.BLOCK_SIZE
 
 
+def _clamp_byte(v: float) -> float:
+    if v < 0.0:
+        return 0.0
+    if v > 255.0:
+        return 255.0
+    return v
+
+
 def _quantize_channel(value: int) -> int:
     idx = int(round(value / 85.0))
     idx = max(0, min(3, idx))
@@ -45,7 +53,14 @@ def _encode_pixel(r: int, g: int, b: int) -> int:
     return (r2 << 4) | (g2 << 2) | b2
 
 
-def image_to_display_bytes(image_path: Path, resize_filter: str) -> bytes:
+def _quantized_rgb(r: float, g: float, b: float) -> tuple[int, int, int]:
+    r2 = _quantize_channel(int(round(r)))
+    g2 = _quantize_channel(int(round(g)))
+    b2 = _quantize_channel(int(round(b)))
+    return r2 * 85, g2 * 85, b2 * 85
+
+
+def image_to_display_bytes(image_path: Path, resize_filter: str, dither: str) -> bytes:
     """Resize image to 256x256, quantize to RospOS palette, return raw pixel data."""
     img = Image.open(image_path).convert("RGB")
 
@@ -59,15 +74,60 @@ def image_to_display_bytes(image_path: Path, resize_filter: str) -> bytes:
     img = img.resize((DISPLAY_WIDTH, DISPLAY_HEIGHT), pil_filter)
 
     out = bytearray()
-    for y in range(DISPLAY_HEIGHT):
-        for x in range(DISPLAY_WIDTH):
-            pixel = img.getpixel((x, y))
-            if not isinstance(pixel, tuple) or len(pixel) < 3:
-                raise ValueError(f"Unexpected pixel format at ({x}, {y}): {pixel!r}")
-            r = int(pixel[0])
-            g = int(pixel[1])
-            b = int(pixel[2])
-            out.append(_encode_pixel(r, g, b))
+
+    if dither == "none":
+        for y in range(DISPLAY_HEIGHT):
+            for x in range(DISPLAY_WIDTH):
+                pixel = img.getpixel((x, y))
+                if not isinstance(pixel, tuple) or len(pixel) < 3:
+                    raise ValueError(f"Unexpected pixel format at ({x}, {y}): {pixel!r}")
+                r = int(pixel[0])
+                g = int(pixel[1])
+                b = int(pixel[2])
+                out.append(_encode_pixel(r, g, b))
+    else:
+        work: list[list[float]] = []
+        for y in range(DISPLAY_HEIGHT):
+            for x in range(DISPLAY_WIDTH):
+                pixel = img.getpixel((x, y))
+                if not isinstance(pixel, tuple) or len(pixel) < 3:
+                    raise ValueError(f"Unexpected pixel format at ({x}, {y}): {pixel!r}")
+                work.append([float(pixel[0]), float(pixel[1]), float(pixel[2])])
+
+        for y in range(DISPLAY_HEIGHT):
+            for x in range(DISPLAY_WIDTH):
+                idx = y * DISPLAY_WIDTH + x
+                old_r, old_g, old_b = work[idx]
+                new_r, new_g, new_b = _quantized_rgb(old_r, old_g, old_b)
+                out.append(_encode_pixel(int(new_r), int(new_g), int(new_b)))
+
+                err_r = old_r - new_r
+                err_g = old_g - new_g
+                err_b = old_b - new_b
+
+                # Floyd-Steinberg error diffusion.
+                if x + 1 < DISPLAY_WIDTH:
+                    n = idx + 1
+                    work[n][0] = _clamp_byte(work[n][0] + (err_r * 7.0 / 16.0))
+                    work[n][1] = _clamp_byte(work[n][1] + (err_g * 7.0 / 16.0))
+                    work[n][2] = _clamp_byte(work[n][2] + (err_b * 7.0 / 16.0))
+                if y + 1 < DISPLAY_HEIGHT:
+                    if x > 0:
+                        n = idx + DISPLAY_WIDTH - 1
+                        work[n][0] = _clamp_byte(work[n][0] + (err_r * 3.0 / 16.0))
+                        work[n][1] = _clamp_byte(work[n][1] + (err_g * 3.0 / 16.0))
+                        work[n][2] = _clamp_byte(work[n][2] + (err_b * 3.0 / 16.0))
+
+                    n = idx + DISPLAY_WIDTH
+                    work[n][0] = _clamp_byte(work[n][0] + (err_r * 5.0 / 16.0))
+                    work[n][1] = _clamp_byte(work[n][1] + (err_g * 5.0 / 16.0))
+                    work[n][2] = _clamp_byte(work[n][2] + (err_b * 5.0 / 16.0))
+
+                    if x + 1 < DISPLAY_WIDTH:
+                        n = idx + DISPLAY_WIDTH + 1
+                        work[n][0] = _clamp_byte(work[n][0] + (err_r * 1.0 / 16.0))
+                        work[n][1] = _clamp_byte(work[n][1] + (err_g * 1.0 / 16.0))
+                        work[n][2] = _clamp_byte(work[n][2] + (err_b * 1.0 / 16.0))
 
     if len(out) != DISPLAY_BYTES:
         raise ValueError(
@@ -168,7 +228,7 @@ def run(args: argparse.Namespace) -> int:
     if not src_image.exists():
         raise ValueError(f"Input image not found: {src_image}")
 
-    display_data = image_to_display_bytes(src_image, args.resize_filter)
+    display_data = image_to_display_bytes(src_image, args.resize_filter, args.dither)
     image_blocks = _split_into_blocks(display_data)
 
     existing_blocks: Dict[int, bytes] = {}
@@ -218,6 +278,12 @@ def make_parser() -> argparse.ArgumentParser:
         choices=("lanczos", "bicubic", "nearest"),
         default="lanczos",
         help="Resampling filter before quantization (default: lanczos)",
+    )
+    parser.add_argument(
+        "--dither",
+        choices=("none", "floyd-steinberg"),
+        default="none",
+        help="Dithering mode for palette quantization (default: none)",
     )
     return parser
 
