@@ -97,6 +97,21 @@ inline void print_int(int value)
 {
     print_string(int_to_str(value));
 }
+
+char __int_to_hex_str_static_buffer[9];
+
+char* int_to_hex_str(int input)
+{
+    char *hex_chars = "0123456789ABCDEF";
+    for (int i = 0; i < 8; i++)
+    {
+        __int_to_hex_str_static_buffer[7 - i] = hex_chars[input & 0xF];
+        input = input >> 4;
+    }
+    __int_to_hex_str_static_buffer[8] = "\0";
+    return __int_to_hex_str_static_buffer;
+}
+
 // .rosc translation of display.ros routines.
 // Font blob is generated as a direct 128-entry table: 8 bytes per char code.
 
@@ -910,6 +925,183 @@ void load_and_display_image()
     
     return 0;
 }
+struct fixed_point{
+    int value_high;
+    int value_low;
+};
+
+struct fixed_point add_fixed_point(struct fixed_point a, struct fixed_point b)
+{
+    struct fixed_point result;
+    int carry = 0;
+    
+    // Add low parts
+    int low_sum = a.value_low + b.value_low;
+    if (low_sum < a.value_low) // Check for overflow
+    {
+        carry = 1;
+    }
+    result.value_low = low_sum;
+    
+    // Add high parts with carry
+    result.value_high = a.value_high + b.value_high + carry;
+    
+    return result;
+}
+
+struct fixed_point multiply_fixed_point(struct fixed_point a, struct fixed_point b)
+{
+    struct fixed_point result;
+    
+    // Multiply low parts using only 32-bit operations (NO LONG, NO LONG LONG, ONLY 32-BIT INTS)
+    int a_low = a.value_low;
+    int a_high = a.value_high;
+    int b_low = b.value_low;
+    int b_high = b.value_high;
+    int low_product = (a_low * b_low) & 0xFFFFFFFF; // Keep lower 32 bits
+    int cross_product1 = (a_high * b_low) & 0xFFFFFFFF; // Cross product 1
+    int cross_product2 = (a_low * b_high) & 0xFFFFFFFF; // Cross product 2
+    int high_product = (a_high * b_high) & 0xFFFFFFFF; // High product
+    // Combine results
+    result.value_low = (int)(low_product & 0xFFFFFFFF); // Keep lower 32 bits
+    result.value_high = (int)((high_product + cross_product1 + cross_product2 + (low_product >> 32)) & 0xFFFFFFFF); // Add high product, cross products, and carry from low product
+    
+    return result;
+}
+
+struct fixed_point add_fixed_point_with_int(struct fixed_point a, int b)
+{
+    struct fixed_point result;
+    int carry = 0;
+    
+    // Add integer to low part
+    int low_sum = a.value_low + b;
+    if (low_sum < a.value_low) // Check for overflow
+    {
+        carry = 1;
+    }
+    result.value_low = low_sum;
+    
+    // Add carry to high part
+    result.value_high = a.value_high + carry;
+    
+    return result;
+}
+
+struct fixed_point multiply_fixed_point_with_int(struct fixed_point a, int b)
+{
+    struct fixed_point result;
+    
+    // Multiply low part by integer using only 32-bit operations
+    int a_low = a.value_low;
+    int a_high = a.value_high;
+    int low_product = (a_low * b) & 0xFFFFFFFF; // Keep lower 32 bits
+    int high_product = (a_high * b) & 0xFFFFFFFF; // High product
+    // Combine results
+    result.value_low = (int)(low_product & 0xFFFFFFFF); // Keep lower 32 bits
+    result.value_high = (int)((high_product + (low_product >> 32)) & 0xFFFFFFFF); // Add high product and carry from low product
+    
+    return result;
+}
+
+struct fixed_point int_to_fixed_point(int value)
+{
+    struct fixed_point result;
+    result.value_high = value; // Store integer in high part
+    result.value_low = 0; // Low part is zero for integer values
+    return result;
+}
+
+
+struct fixed_point fixed_point_from_parts(int high, int low)
+{
+    struct fixed_point result;
+    result.value_high = high;
+    result.value_low = low;
+    return result;
+}
+
+char *fixed_point_to_string(struct fixed_point fp)
+{
+    char buffer[64];
+    int is_negative = 0;
+    // Convert fixed-point to string: integer.fractional
+    buffer[0] = "\0";
+    
+    if (fp.value_high < 0 || (fp.value_high == 0 && fp.value_low < 0))
+    {
+        is_negative = 1;
+        // Convert to positive
+        if (fp.value_low != 0)
+        {
+            fp.value_high = -(fp.value_high + 1);
+            fp.value_low = -(fp.value_low);
+        }
+        else
+        {
+            fp.value_high = -fp.value_high;
+        }
+    }
+    
+    // Simple approach: convert each part separately
+    // Integer part is in value_high, fractional part is in value_low
+    // For fractional digits, multiply by 10 and shift right
+    int frac_digits_remaining = 20;
+    
+    for (int i = 0; i < frac_digits_remaining; i++)
+    {
+        // To get next fractional digit: multiply by 10
+        // The digit is determined by whether it overflows 0xFFFFFFFF
+        // We use the approximation: digit ~ (value_low / (0x100000000 / 10)) = (value_low / 0x19999999)
+        
+        int digit = fp.value_low / 429496729; // Approximation: (2^32 / 10) ≈ 429496729
+        
+        // Update for next iteration: value_low = (value_low % 429496729) * 10
+        fp.value_low = (fp.value_low - digit * 429496729) * 10;
+        
+        buffer[i] = "0" + digit;
+    }
+    buffer[20] = "\0";
+    
+    // Build result string: [sign]integer.fractional
+    char result_str[64];
+    int j = 0;
+    if (is_negative)
+    {
+        result_str[j++] = "-";
+    }
+    
+    // Convert integer part to string
+    int int_part = fp.value_high;
+    int int_len = 0;
+    int temp = int_part;
+    if (temp == 0)
+    {
+        result_str[j++] = "0";
+    }
+    else
+    {
+        int int_digits[20];
+        int k = 0;
+        while (temp > 0)
+        {
+            int_digits[k++] = temp % 10;
+            temp = temp / 10;
+        }
+        for (int i = k - 1; i >= 0; i--)
+        {
+            result_str[j++] = "0" + int_digits[i];
+        }
+    }
+    
+    result_str[j++] = ".";
+    for (int i = 0; i < 20; i++)
+    {
+        result_str[j++] = buffer[i];
+    }
+    result_str[j] = "\0";
+    return result_str;
+}
 
 inline int add(int a, int b)
 {
@@ -944,6 +1136,19 @@ void main()
     update_buffer();
     fast_clear_display();
     load_and_display_image();
+    struct fixed_point fp1 = int_to_fixed_point(5);
+    struct fixed_point fp2 = int_to_fixed_point(10);
+    struct fixed_point half = fixed_point_from_parts(0, 0x80000000); // 0.5 in 32.32 fixed-point representation
+    struct fixed_point sum = add_fixed_point_with_int(fp1, 3); // Should be 8.0 in fixed-point
+    struct fixed_point product = multiply_fixed_point_with_int(fp2, 4); // Should be 40.0 in fixed-point
+    struct fixed_point half_sum = multiply_fixed_point(sum, half);
+    struct fixed_point total = add_fixed_point(product, half_sum);
+    write_to_buffer("Fixed-point arithmetic results as hex:",0);
+    write_to_buffer("Hex:", 32);
+    write_to_buffer(int_to_hex_str(total.value_high), 64);
+    write_to_buffer(int_to_hex_str(total.value_low), 96);
+
+    update_buffer();
     // char *time_str = fmt_unix_time(get_unix_time());
     // draw_string_to_display(time_str, 10, 56, 0x3F);
     // print_string("Current time: \n");

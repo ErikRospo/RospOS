@@ -97,3 +97,17 @@ inline void print_int(int value)
 {
     print_string(int_to_str(value));
 }
+
+char __int_to_hex_str_static_buffer[9];
+
+char* int_to_hex_str(int input)
+{
+    char *hex_chars = "0123456789ABCDEF";
+    for (int i = 0; i < 8; i++)
+    {
+        __int_to_hex_str_static_buffer[7 - i] = hex_chars[input & 0xF];
+        input = input >> 4;
+    }
+    __int_to_hex_str_static_buffer[8] = '\0';
+    return __int_to_hex_str_static_buffer;
+}

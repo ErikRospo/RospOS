@@ -415,6 +415,80 @@ translation_unit
                   call_suffix
                     arg_list	value
   external_decl
+    declaration
+      type_specifier
+        char
+      init_declarator_list
+        init_declarator
+          declarator
+            __int_to_hex_str_static_buffer
+            array	9
+  external_decl
+    function_def
+      type_specifier
+        char
+        pointer
+      declarator	int_to_hex_str
+      param_list
+        param
+          type_specifier
+            int
+          declarator	input
+      compound_stmt
+        declaration
+          type_specifier
+            char
+            pointer
+          init_declarator_list
+            init_declarator
+              declarator	hex_chars
+              "0123456789ABCDEF"
+        for_stmt
+          declaration
+            type_specifier
+              int
+            init_declarator_list
+              init_declarator
+                declarator	i
+                0
+          relational
+            i
+            lt
+            8
+          postfix
+            i
+            post_inc
+          compound_stmt
+            expr_stmt
+              assignment
+                postfix
+                  __int_to_hex_str_static_buffer
+                  array_index
+                    additive
+                      7
+                      minus
+                      i
+                postfix
+                  hex_chars
+                  array_index
+                    bit_and
+                      input
+                      0xF
+            expr_stmt
+              assignment
+                input
+                shift
+                  input
+                  rshift
+                  4
+        expr_stmt
+          assignment
+            postfix
+              __int_to_hex_str_static_buffer
+              array_index	8
+            "\0"
+        return_stmt	__int_to_hex_str_static_buffer
+  external_decl
     function_def
       type_specifier
         void
@@ -4540,6 +4614,792 @@ translation_unit
                   1
         return_stmt	0
   external_decl
+    struct_decl
+      fixed_point
+      struct_member
+        type_specifier
+          int
+        init_declarator_list
+          init_declarator
+            declarator	value_high
+      struct_member
+        type_specifier
+          int
+        init_declarator_list
+          init_declarator
+            declarator	value_low
+  external_decl
+    function_def
+      type_specifier	fixed_point
+      declarator	add_fixed_point
+      param_list
+        param
+          type_specifier	fixed_point
+          declarator	a
+        param
+          type_specifier	fixed_point
+          declarator	b
+      compound_stmt
+        declaration
+          type_specifier	fixed_point
+          init_declarator_list
+            init_declarator
+              declarator	result
+        declaration
+          type_specifier
+            int
+          init_declarator_list
+            init_declarator
+              declarator	carry
+              0
+        declaration
+          type_specifier
+            int
+          init_declarator_list
+            init_declarator
+              declarator	low_sum
+              additive
+                postfix
+                  a
+                  member_access	value_low
+                plus
+                postfix
+                  b
+                  member_access	value_low
+        if_stmt
+          relational
+            low_sum
+            lt
+            postfix
+              a
+              member_access	value_low
+          compound_stmt
+            expr_stmt
+              assignment
+                carry
+                1
+        expr_stmt
+          assignment
+            postfix
+              result
+              member_access	value_low
+            low_sum
+        expr_stmt
+          assignment
+            postfix
+              result
+              member_access	value_high
+            additive
+              postfix
+                a
+                member_access	value_high
+              plus
+              postfix
+                b
+                member_access	value_high
+              plus
+              carry
+        return_stmt	result
+  external_decl
+    function_def
+      type_specifier	fixed_point
+      declarator	multiply_fixed_point
+      param_list
+        param
+          type_specifier	fixed_point
+          declarator	a
+        param
+          type_specifier	fixed_point
+          declarator	b
+      compound_stmt
+        declaration
+          type_specifier	fixed_point
+          init_declarator_list
+            init_declarator
+              declarator	result
+        declaration
+          type_specifier
+            int
+          init_declarator_list
+            init_declarator
+              declarator	a_low
+              postfix
+                a
+                member_access	value_low
+        declaration
+          type_specifier
+            int
+          init_declarator_list
+            init_declarator
+              declarator	a_high
+              postfix
+                a
+                member_access	value_high
+        declaration
+          type_specifier
+            int
+          init_declarator_list
+            init_declarator
+              declarator	b_low
+              postfix
+                b
+                member_access	value_low
+        declaration
+          type_specifier
+            int
+          init_declarator_list
+            init_declarator
+              declarator	b_high
+              postfix
+                b
+                member_access	value_high
+        declaration
+          type_specifier
+            int
+          init_declarator_list
+            init_declarator
+              declarator	low_product
+              bit_and
+                multiplicative
+                  a_low
+                  mult
+                  b_low
+                0xFFFFFFFF
+        declaration
+          type_specifier
+            int
+          init_declarator_list
+            init_declarator
+              declarator	cross_product1
+              bit_and
+                multiplicative
+                  a_high
+                  mult
+                  b_low
+                0xFFFFFFFF
+        declaration
+          type_specifier
+            int
+          init_declarator_list
+            init_declarator
+              declarator	cross_product2
+              bit_and
+                multiplicative
+                  a_low
+                  mult
+                  b_high
+                0xFFFFFFFF
+        declaration
+          type_specifier
+            int
+          init_declarator_list
+            init_declarator
+              declarator	high_product
+              bit_and
+                multiplicative
+                  a_high
+                  mult
+                  b_high
+                0xFFFFFFFF
+        expr_stmt
+          assignment
+            postfix
+              result
+              member_access	value_low
+            cast
+              type_specifier
+                int
+              bit_and
+                low_product
+                0xFFFFFFFF
+        expr_stmt
+          assignment
+            postfix
+              result
+              member_access	value_high
+            cast
+              type_specifier
+                int
+              bit_and
+                additive
+                  high_product
+                  plus
+                  cross_product1
+                  plus
+                  cross_product2
+                  plus
+                  shift
+                    low_product
+                    rshift
+                    32
+                0xFFFFFFFF
+        return_stmt	result
+  external_decl
+    function_def
+      type_specifier	fixed_point
+      declarator	add_fixed_point_with_int
+      param_list
+        param
+          type_specifier	fixed_point
+          declarator	a
+        param
+          type_specifier
+            int
+          declarator	b
+      compound_stmt
+        declaration
+          type_specifier	fixed_point
+          init_declarator_list
+            init_declarator
+              declarator	result
+        declaration
+          type_specifier
+            int
+          init_declarator_list
+            init_declarator
+              declarator	carry
+              0
+        declaration
+          type_specifier
+            int
+          init_declarator_list
+            init_declarator
+              declarator	low_sum
+              additive
+                postfix
+                  a
+                  member_access	value_low
+                plus
+                b
+        if_stmt
+          relational
+            low_sum
+            lt
+            postfix
+              a
+              member_access	value_low
+          compound_stmt
+            expr_stmt
+              assignment
+                carry
+                1
+        expr_stmt
+          assignment
+            postfix
+              result
+              member_access	value_low
+            low_sum
+        expr_stmt
+          assignment
+            postfix
+              result
+              member_access	value_high
+            additive
+              postfix
+                a
+                member_access	value_high
+              plus
+              carry
+        return_stmt	result
+  external_decl
+    function_def
+      type_specifier	fixed_point
+      declarator	multiply_fixed_point_with_int
+      param_list
+        param
+          type_specifier	fixed_point
+          declarator	a
+        param
+          type_specifier
+            int
+          declarator	b
+      compound_stmt
+        declaration
+          type_specifier	fixed_point
+          init_declarator_list
+            init_declarator
+              declarator	result
+        declaration
+          type_specifier
+            int
+          init_declarator_list
+            init_declarator
+              declarator	a_low
+              postfix
+                a
+                member_access	value_low
+        declaration
+          type_specifier
+            int
+          init_declarator_list
+            init_declarator
+              declarator	a_high
+              postfix
+                a
+                member_access	value_high
+        declaration
+          type_specifier
+            int
+          init_declarator_list
+            init_declarator
+              declarator	low_product
+              bit_and
+                multiplicative
+                  a_low
+                  mult
+                  b
+                0xFFFFFFFF
+        declaration
+          type_specifier
+            int
+          init_declarator_list
+            init_declarator
+              declarator	high_product
+              bit_and
+                multiplicative
+                  a_high
+                  mult
+                  b
+                0xFFFFFFFF
+        expr_stmt
+          assignment
+            postfix
+              result
+              member_access	value_low
+            cast
+              type_specifier
+                int
+              bit_and
+                low_product
+                0xFFFFFFFF
+        expr_stmt
+          assignment
+            postfix
+              result
+              member_access	value_high
+            cast
+              type_specifier
+                int
+              bit_and
+                additive
+                  high_product
+                  plus
+                  shift
+                    low_product
+                    rshift
+                    32
+                0xFFFFFFFF
+        return_stmt	result
+  external_decl
+    function_def
+      type_specifier	fixed_point
+      declarator	int_to_fixed_point
+      param_list
+        param
+          type_specifier
+            int
+          declarator	value
+      compound_stmt
+        declaration
+          type_specifier	fixed_point
+          init_declarator_list
+            init_declarator
+              declarator	result
+        expr_stmt
+          assignment
+            postfix
+              result
+              member_access	value_high
+            value
+        expr_stmt
+          assignment
+            postfix
+              result
+              member_access	value_low
+            0
+        return_stmt	result
+  external_decl
+    function_def
+      type_specifier	fixed_point
+      declarator	fixed_point_from_parts
+      param_list
+        param
+          type_specifier
+            int
+          declarator	high
+        param
+          type_specifier
+            int
+          declarator	low
+      compound_stmt
+        declaration
+          type_specifier	fixed_point
+          init_declarator_list
+            init_declarator
+              declarator	result
+        expr_stmt
+          assignment
+            postfix
+              result
+              member_access	value_high
+            high
+        expr_stmt
+          assignment
+            postfix
+              result
+              member_access	value_low
+            low
+        return_stmt	result
+  external_decl
+    function_def
+      type_specifier
+        char
+        pointer
+      declarator	fixed_point_to_string
+      param_list
+        param
+          type_specifier	fixed_point
+          declarator	fp
+      compound_stmt
+        declaration
+          type_specifier
+            char
+          init_declarator_list
+            init_declarator
+              declarator
+                buffer
+                array	64
+        declaration
+          type_specifier
+            int
+          init_declarator_list
+            init_declarator
+              declarator	is_negative
+              0
+        expr_stmt
+          assignment
+            postfix
+              buffer
+              array_index	0
+            "\0"
+        if_stmt
+          logic_or
+            relational
+              postfix
+                fp
+                member_access	value_high
+              lt
+              0
+            logic_and
+              equality
+                postfix
+                  fp
+                  member_access	value_high
+                eq
+                0
+              relational
+                postfix
+                  fp
+                  member_access	value_low
+                lt
+                0
+          compound_stmt
+            expr_stmt
+              assignment
+                is_negative
+                1
+            if_stmt
+              equality
+                postfix
+                  fp
+                  member_access	value_low
+                neq
+                0
+              compound_stmt
+                expr_stmt
+                  assignment
+                    postfix
+                      fp
+                      member_access	value_high
+                    unary
+                      uminus
+                      additive
+                        postfix
+                          fp
+                          member_access	value_high
+                        plus
+                        1
+                expr_stmt
+                  assignment
+                    postfix
+                      fp
+                      member_access	value_low
+                    unary
+                      uminus
+                      postfix
+                        fp
+                        member_access	value_low
+              compound_stmt
+                expr_stmt
+                  assignment
+                    postfix
+                      fp
+                      member_access	value_high
+                    unary
+                      uminus
+                      postfix
+                        fp
+                        member_access	value_high
+        declaration
+          type_specifier
+            int
+          init_declarator_list
+            init_declarator
+              declarator	frac_digits_remaining
+              20
+        for_stmt
+          declaration
+            type_specifier
+              int
+            init_declarator_list
+              init_declarator
+                declarator	i
+                0
+          relational
+            i
+            lt
+            frac_digits_remaining
+          postfix
+            i
+            post_inc
+          compound_stmt
+            declaration
+              type_specifier
+                int
+              init_declarator_list
+                init_declarator
+                  declarator	digit
+                  multiplicative
+                    postfix
+                      fp
+                      member_access	value_low
+                    div
+                    429496729
+            expr_stmt
+              assignment
+                postfix
+                  fp
+                  member_access	value_low
+                multiplicative
+                  additive
+                    postfix
+                      fp
+                      member_access	value_low
+                    minus
+                    multiplicative
+                      digit
+                      mult
+                      429496729
+                  mult
+                  10
+            expr_stmt
+              assignment
+                postfix
+                  buffer
+                  array_index	i
+                additive
+                  "0"
+                  plus
+                  digit
+        expr_stmt
+          assignment
+            postfix
+              buffer
+              array_index	20
+            "\0"
+        declaration
+          type_specifier
+            char
+          init_declarator_list
+            init_declarator
+              declarator
+                result_str
+                array	64
+        declaration
+          type_specifier
+            int
+          init_declarator_list
+            init_declarator
+              declarator	j
+              0
+        if_stmt
+          is_negative
+          compound_stmt
+            expr_stmt
+              assignment
+                postfix
+                  result_str
+                  array_index
+                    postfix
+                      j
+                      post_inc
+                "-"
+        declaration
+          type_specifier
+            int
+          init_declarator_list
+            init_declarator
+              declarator	int_part
+              postfix
+                fp
+                member_access	value_high
+        declaration
+          type_specifier
+            int
+          init_declarator_list
+            init_declarator
+              declarator	int_len
+              0
+        declaration
+          type_specifier
+            int
+          init_declarator_list
+            init_declarator
+              declarator	temp
+              int_part
+        if_stmt
+          equality
+            temp
+            eq
+            0
+          compound_stmt
+            expr_stmt
+              assignment
+                postfix
+                  result_str
+                  array_index
+                    postfix
+                      j
+                      post_inc
+                "0"
+          compound_stmt
+            declaration
+              type_specifier
+                int
+              init_declarator_list
+                init_declarator
+                  declarator
+                    int_digits
+                    array	20
+            declaration
+              type_specifier
+                int
+              init_declarator_list
+                init_declarator
+                  declarator	k
+                  0
+            while_stmt
+              relational
+                temp
+                gt
+                0
+              compound_stmt
+                expr_stmt
+                  assignment
+                    postfix
+                      int_digits
+                      array_index
+                        postfix
+                          k
+                          post_inc
+                    multiplicative
+                      temp
+                      mod
+                      10
+                expr_stmt
+                  assignment
+                    temp
+                    multiplicative
+                      temp
+                      div
+                      10
+            for_stmt
+              declaration
+                type_specifier
+                  int
+                init_declarator_list
+                  init_declarator
+                    declarator	i
+                    additive
+                      k
+                      minus
+                      1
+              relational
+                i
+                gte
+                0
+              postfix
+                i
+                post_dec
+              compound_stmt
+                expr_stmt
+                  assignment
+                    postfix
+                      result_str
+                      array_index
+                        postfix
+                          j
+                          post_inc
+                    additive
+                      "0"
+                      plus
+                      postfix
+                        int_digits
+                        array_index	i
+        expr_stmt
+          assignment
+            postfix
+              result_str
+              array_index
+                postfix
+                  j
+                  post_inc
+            "."
+        for_stmt
+          declaration
+            type_specifier
+              int
+            init_declarator_list
+              init_declarator
+                declarator	i
+                0
+          relational
+            i
+            lt
+            20
+          postfix
+            i
+            post_inc
+          compound_stmt
+            expr_stmt
+              assignment
+                postfix
+                  result_str
+                  array_index
+                    postfix
+                      j
+                      post_inc
+                postfix
+                  buffer
+                  array_index	i
+        expr_stmt
+          assignment
+            postfix
+              result_str
+              array_index	j
+            "\0"
+        return_stmt	result_str
+  external_decl
     function_def
       inline
       type_specifier
@@ -4730,4 +5590,121 @@ translation_unit
         expr_stmt
           postfix
             load_and_display_image
+            call_suffix
+        declaration
+          type_specifier	fixed_point
+          init_declarator_list
+            init_declarator
+              declarator	fp1
+              postfix
+                int_to_fixed_point
+                call_suffix
+                  arg_list	5
+        declaration
+          type_specifier	fixed_point
+          init_declarator_list
+            init_declarator
+              declarator	fp2
+              postfix
+                int_to_fixed_point
+                call_suffix
+                  arg_list	10
+        declaration
+          type_specifier	fixed_point
+          init_declarator_list
+            init_declarator
+              declarator	half
+              postfix
+                fixed_point_from_parts
+                call_suffix
+                  arg_list
+                    0
+                    0x80000000
+        declaration
+          type_specifier	fixed_point
+          init_declarator_list
+            init_declarator
+              declarator	sum
+              postfix
+                add_fixed_point_with_int
+                call_suffix
+                  arg_list
+                    fp1
+                    3
+        declaration
+          type_specifier	fixed_point
+          init_declarator_list
+            init_declarator
+              declarator	product
+              postfix
+                multiply_fixed_point_with_int
+                call_suffix
+                  arg_list
+                    fp2
+                    4
+        declaration
+          type_specifier	fixed_point
+          init_declarator_list
+            init_declarator
+              declarator	half_sum
+              postfix
+                multiply_fixed_point
+                call_suffix
+                  arg_list
+                    sum
+                    half
+        declaration
+          type_specifier	fixed_point
+          init_declarator_list
+            init_declarator
+              declarator	total
+              postfix
+                add_fixed_point
+                call_suffix
+                  arg_list
+                    product
+                    half_sum
+        expr_stmt
+          postfix
+            write_to_buffer
+            call_suffix
+              arg_list
+                "Fixed-point arithmetic results as hex:"
+                0
+        expr_stmt
+          postfix
+            write_to_buffer
+            call_suffix
+              arg_list
+                "Hex:"
+                32
+        expr_stmt
+          postfix
+            write_to_buffer
+            call_suffix
+              arg_list
+                postfix
+                  int_to_hex_str
+                  call_suffix
+                    arg_list
+                      postfix
+                        total
+                        member_access	value_high
+                64
+        expr_stmt
+          postfix
+            write_to_buffer
+            call_suffix
+              arg_list
+                postfix
+                  int_to_hex_str
+                  call_suffix
+                    arg_list
+                      postfix
+                        total
+                        member_access	value_low
+                96
+        expr_stmt
+          postfix
+            update_buffer
             call_suffix
