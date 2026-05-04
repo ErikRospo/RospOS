@@ -128,12 +128,22 @@
     {
       "kind": "string",
       "name": "str_9",
-      "value": "Fixed-point arithmetic results as hex:"
+      "value": "3+4*2/(1-5)"
     },
     {
       "kind": "string",
       "name": "str_10",
-      "value": "Hex: "
+      "value": "Infix: \u0000"
+    },
+    {
+      "kind": "string",
+      "name": "str_11",
+      "value": "RPN: \u0000"
+    },
+    {
+      "kind": "string",
+      "name": "str_12",
+      "value": "Result: \u0000"
     }
   ],
   "functions": [
@@ -12269,6 +12279,758 @@
       "_line": 1024
     },
     {
+      "name": "precedence",
+      "params": [
+        "op"
+      ],
+      "body": [
+        {
+          "type": "if",
+          "cond": {
+            "type": "binop",
+            "op": "lor",
+            "left": {
+              "type": "binop",
+              "op": "eq",
+              "left": {
+                "type": "var",
+                "name": "op"
+              },
+              "right": {
+                "type": "const",
+                "value": 43
+              }
+            },
+            "right": {
+              "type": "binop",
+              "op": "eq",
+              "left": {
+                "type": "var",
+                "name": "op"
+              },
+              "right": {
+                "type": "const",
+                "value": 45
+              }
+            }
+          },
+          "then": [
+            {
+              "type": "return",
+              "value": {
+                "type": "const",
+                "value": 1
+              },
+              "_line": 1112
+            }
+          ],
+          "else": [],
+          "_line": 1112
+        },
+        {
+          "type": "if",
+          "cond": {
+            "type": "binop",
+            "op": "lor",
+            "left": {
+              "type": "binop",
+              "op": "eq",
+              "left": {
+                "type": "var",
+                "name": "op"
+              },
+              "right": {
+                "type": "const",
+                "value": 42
+              }
+            },
+            "right": {
+              "type": "binop",
+              "op": "eq",
+              "left": {
+                "type": "var",
+                "name": "op"
+              },
+              "right": {
+                "type": "const",
+                "value": 47
+              }
+            }
+          },
+          "then": [
+            {
+              "type": "return",
+              "value": {
+                "type": "const",
+                "value": 2
+              },
+              "_line": 1113
+            }
+          ],
+          "else": [],
+          "_line": 1113
+        },
+        {
+          "type": "return",
+          "value": {
+            "type": "const",
+            "value": 0
+          },
+          "_line": 1114
+        }
+      ],
+      "param_types": {
+        "op": "char"
+      },
+      "return_type": "int",
+      "_line": 1111
+    },
+    {
+      "name": "infix_to_rpn",
+      "params": [
+        "infix"
+      ],
+      "body": [
+        {
+          "type": "decl",
+          "name": "output",
+          "init": {
+            "type": "array",
+            "size": 512
+          },
+          "_line": 1119,
+          "decl_type": "char_ptr"
+        },
+        {
+          "type": "decl",
+          "name": "stack",
+          "init": {
+            "type": "array",
+            "size": 512
+          },
+          "_line": 1120,
+          "decl_type": "char_ptr"
+        },
+        {
+          "type": "decl",
+          "name": "stack_index",
+          "init": {
+            "type": "const",
+            "value": 0
+          },
+          "_line": 1121,
+          "decl_type": "int"
+        },
+        {
+          "type": "decl",
+          "name": "i",
+          "init": {
+            "type": "const",
+            "value": 0
+          },
+          "_line": 1122,
+          "decl_type": "int"
+        },
+        {
+          "type": "while",
+          "cond": {
+            "type": "deref",
+            "expr": {
+              "type": "binop",
+              "op": "plus",
+              "left": {
+                "type": "var",
+                "name": "infix"
+              },
+              "right": {
+                "type": "var",
+                "name": "i"
+              }
+            }
+          },
+          "body": [
+            {
+              "type": "decl",
+              "name": "token",
+              "init": {
+                "type": "deref",
+                "expr": {
+                  "type": "binop",
+                  "op": "plus",
+                  "left": {
+                    "type": "var",
+                    "name": "infix"
+                  },
+                  "right": {
+                    "type": "var",
+                    "name": "i"
+                  }
+                }
+              },
+              "_line": 1124,
+              "decl_type": "char"
+            },
+            {
+              "type": "if",
+              "cond": {
+                "type": "binop",
+                "op": "land",
+                "left": {
+                  "type": "binop",
+                  "op": "gte",
+                  "left": {
+                    "type": "var",
+                    "name": "token"
+                  },
+                  "right": {
+                    "type": "const",
+                    "value": 48
+                  }
+                },
+                "right": {
+                  "type": "binop",
+                  "op": "lte",
+                  "left": {
+                    "type": "var",
+                    "name": "token"
+                  },
+                  "right": {
+                    "type": "const",
+                    "value": 57
+                  }
+                }
+              },
+              "then": [
+                {
+                  "type": "assign",
+                  "target": {
+                    "type": "deref",
+                    "expr": {
+                      "type": "binop",
+                      "op": "plus",
+                      "left": {
+                        "type": "var",
+                        "name": "output"
+                      },
+                      "right": {
+                        "type": "assign",
+                        "target": "out_index",
+                        "value": {
+                          "type": "binop",
+                          "op": "plus",
+                          "left": {
+                            "type": "var",
+                            "name": "out_index"
+                          },
+                          "right": {
+                            "type": "const",
+                            "value": 1
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "value": {
+                    "type": "var",
+                    "name": "token"
+                  },
+                  "_line": 1126
+                }
+              ],
+              "else": [],
+              "_line": 1125
+            },
+            {
+              "type": "assign",
+              "target": "i",
+              "value": {
+                "type": "binop",
+                "op": "plus",
+                "left": {
+                  "type": "var",
+                  "name": "i"
+                },
+                "right": {
+                  "type": "const",
+                  "value": 1
+                }
+              },
+              "_line": 1142
+            }
+          ],
+          "_line": 1123
+        },
+        {
+          "type": "while",
+          "cond": {
+            "type": "binop",
+            "op": "gt",
+            "left": {
+              "type": "var",
+              "name": "stack_index"
+            },
+            "right": {
+              "type": "const",
+              "value": 0
+            }
+          },
+          "body": [
+            {
+              "type": "assign",
+              "target": {
+                "type": "deref",
+                "expr": {
+                  "type": "binop",
+                  "op": "plus",
+                  "left": {
+                    "type": "var",
+                    "name": "output"
+                  },
+                  "right": {
+                    "type": "assign",
+                    "target": "out_index",
+                    "value": {
+                      "type": "binop",
+                      "op": "plus",
+                      "left": {
+                        "type": "var",
+                        "name": "out_index"
+                      },
+                      "right": {
+                        "type": "const",
+                        "value": 1
+                      }
+                    }
+                  }
+                }
+              },
+              "value": {
+                "type": "deref",
+                "expr": {
+                  "type": "binop",
+                  "op": "plus",
+                  "left": {
+                    "type": "var",
+                    "name": "stack"
+                  },
+                  "right": {
+                    "type": "binop",
+                    "op": "minus",
+                    "left": {
+                      "type": "const",
+                      "value": 0
+                    },
+                    "right": {
+                      "type": "binop",
+                      "op": "minus",
+                      "left": {
+                        "type": "const",
+                        "value": 0
+                      },
+                      "right": {
+                        "type": "var",
+                        "name": "stack_index"
+                      }
+                    }
+                  }
+                }
+              },
+              "_line": 1145
+            }
+          ],
+          "_line": 1144
+        },
+        {
+          "type": "assign",
+          "target": {
+            "type": "deref",
+            "expr": {
+              "type": "binop",
+              "op": "plus",
+              "left": {
+                "type": "var",
+                "name": "output"
+              },
+              "right": {
+                "type": "var",
+                "name": "out_index"
+              }
+            }
+          },
+          "value": {
+            "type": "const",
+            "value": 0
+          },
+          "_line": 1147
+        },
+        {
+          "type": "return",
+          "value": {
+            "type": "var",
+            "name": "output"
+          },
+          "_line": 1148
+        }
+      ],
+      "param_types": {
+        "infix": "char_ptr"
+      },
+      "return_type": "pointer",
+      "_line": 1117
+    },
+    {
+      "name": "evaluate_rpn",
+      "params": [
+        "expression"
+      ],
+      "body": [
+        {
+          "type": "decl",
+          "name": "stack",
+          "init": {
+            "type": "array",
+            "size": 512
+          },
+          "_line": 1152,
+          "decl_type": "int_ptr"
+        },
+        {
+          "type": "decl",
+          "name": "stack_index",
+          "init": {
+            "type": "const",
+            "value": 0
+          },
+          "_line": 1153,
+          "decl_type": "int"
+        },
+        {
+          "type": "decl",
+          "name": "i",
+          "init": {
+            "type": "const",
+            "value": 0
+          },
+          "_line": 1154,
+          "decl_type": "int"
+        },
+        {
+          "type": "while",
+          "cond": {
+            "type": "deref",
+            "expr": {
+              "type": "binop",
+              "op": "plus",
+              "left": {
+                "type": "var",
+                "name": "expression"
+              },
+              "right": {
+                "type": "var",
+                "name": "i"
+              }
+            }
+          },
+          "body": [
+            {
+              "type": "decl",
+              "name": "token",
+              "init": {
+                "type": "deref",
+                "expr": {
+                  "type": "binop",
+                  "op": "plus",
+                  "left": {
+                    "type": "var",
+                    "name": "expression"
+                  },
+                  "right": {
+                    "type": "var",
+                    "name": "i"
+                  }
+                }
+              },
+              "_line": 1156,
+              "decl_type": "char"
+            },
+            {
+              "type": "if",
+              "cond": {
+                "type": "binop",
+                "op": "land",
+                "left": {
+                  "type": "binop",
+                  "op": "gte",
+                  "left": {
+                    "type": "var",
+                    "name": "token"
+                  },
+                  "right": {
+                    "type": "const",
+                    "value": 48
+                  }
+                },
+                "right": {
+                  "type": "binop",
+                  "op": "lte",
+                  "left": {
+                    "type": "var",
+                    "name": "token"
+                  },
+                  "right": {
+                    "type": "const",
+                    "value": 57
+                  }
+                }
+              },
+              "then": [
+                {
+                  "type": "assign",
+                  "target": {
+                    "type": "deref",
+                    "expr": {
+                      "type": "binop",
+                      "op": "plus",
+                      "left": {
+                        "type": "var",
+                        "name": "stack"
+                      },
+                      "right": {
+                        "type": "assign",
+                        "target": "stack_index",
+                        "value": {
+                          "type": "binop",
+                          "op": "plus",
+                          "left": {
+                            "type": "var",
+                            "name": "stack_index"
+                          },
+                          "right": {
+                            "type": "const",
+                            "value": 1
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "value": {
+                    "type": "binop",
+                    "op": "minus",
+                    "left": {
+                      "type": "var",
+                      "name": "token"
+                    },
+                    "right": {
+                      "type": "const",
+                      "value": 48
+                    }
+                  },
+                  "_line": 1158
+                }
+              ],
+              "else": [
+                {
+                  "type": "decl",
+                  "name": "b",
+                  "init": {
+                    "type": "deref",
+                    "expr": {
+                      "type": "binop",
+                      "op": "plus",
+                      "left": {
+                        "type": "var",
+                        "name": "stack"
+                      },
+                      "right": {
+                        "type": "binop",
+                        "op": "minus",
+                        "left": {
+                          "type": "const",
+                          "value": 0
+                        },
+                        "right": {
+                          "type": "binop",
+                          "op": "minus",
+                          "left": {
+                            "type": "const",
+                            "value": 0
+                          },
+                          "right": {
+                            "type": "var",
+                            "name": "stack_index"
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "_line": 1160,
+                  "decl_type": "int"
+                },
+                {
+                  "type": "decl",
+                  "name": "a",
+                  "init": {
+                    "type": "deref",
+                    "expr": {
+                      "type": "binop",
+                      "op": "plus",
+                      "left": {
+                        "type": "var",
+                        "name": "stack"
+                      },
+                      "right": {
+                        "type": "binop",
+                        "op": "minus",
+                        "left": {
+                          "type": "const",
+                          "value": 0
+                        },
+                        "right": {
+                          "type": "binop",
+                          "op": "minus",
+                          "left": {
+                            "type": "const",
+                            "value": 0
+                          },
+                          "right": {
+                            "type": "var",
+                            "name": "stack_index"
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "_line": 1161,
+                  "decl_type": "int"
+                },
+                {
+                  "type": "decl",
+                  "name": "result",
+                  "init": null,
+                  "_line": 1162,
+                  "decl_type": "int"
+                },
+                {
+                  "type": "if",
+                  "cond": {
+                    "type": "binop",
+                    "op": "eq",
+                    "left": {
+                      "type": "var",
+                      "name": "token"
+                    },
+                    "right": {
+                      "type": "const",
+                      "value": 43
+                    }
+                  },
+                  "then": [
+                    {
+                      "type": "assign",
+                      "target": "result",
+                      "value": {
+                        "type": "binop",
+                        "op": "plus",
+                        "left": {
+                          "type": "var",
+                          "name": "a"
+                        },
+                        "right": {
+                          "type": "var",
+                          "name": "b"
+                        }
+                      },
+                      "_line": 1163
+                    }
+                  ],
+                  "else": [],
+                  "_line": 1163
+                },
+                {
+                  "type": "assign",
+                  "target": {
+                    "type": "deref",
+                    "expr": {
+                      "type": "binop",
+                      "op": "plus",
+                      "left": {
+                        "type": "var",
+                        "name": "stack"
+                      },
+                      "right": {
+                        "type": "assign",
+                        "target": "stack_index",
+                        "value": {
+                          "type": "binop",
+                          "op": "plus",
+                          "left": {
+                            "type": "var",
+                            "name": "stack_index"
+                          },
+                          "right": {
+                            "type": "const",
+                            "value": 1
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "value": {
+                    "type": "var",
+                    "name": "result"
+                  },
+                  "_line": 1167
+                }
+              ],
+              "_line": 1157
+            },
+            {
+              "type": "assign",
+              "target": "i",
+              "value": {
+                "type": "binop",
+                "op": "plus",
+                "left": {
+                  "type": "var",
+                  "name": "i"
+                },
+                "right": {
+                  "type": "const",
+                  "value": 1
+                }
+              },
+              "_line": 1169
+            }
+          ],
+          "_line": 1155
+        },
+        {
+          "type": "return",
+          "value": {
+            "type": "deref",
+            "expr": {
+              "type": "binop",
+              "op": "plus",
+              "left": {
+                "type": "var",
+                "name": "stack"
+              },
+              "right": {
+                "type": "const",
+                "value": 0
+              }
+            }
+          },
+          "_line": 1171
+        }
+      ],
+      "param_types": {
+        "expression": "char_ptr"
+      },
+      "return_type": "int",
+      "_line": 1151
+    },
+    {
       "name": "add",
       "params": [
         "a",
@@ -12289,7 +13051,7 @@
               "name": "b"
             }
           },
-          "_line": 1108
+          "_line": 1176
         }
       ],
       "param_types": {
@@ -12298,7 +13060,7 @@
       },
       "return_type": "int",
       "inline": true,
-      "_line": 1106
+      "_line": 1174
     },
     {
       "name": "main",
@@ -12321,7 +13083,7 @@
               }
             ]
           },
-          "_line": 1114,
+          "_line": 1182,
           "decl_type": "int"
         },
         {
@@ -12331,7 +13093,7 @@
             "type": "const",
             "value": 50
           },
-          "_line": 1115,
+          "_line": 1183,
           "decl_type": "int"
         },
         {
@@ -12351,14 +13113,14 @@
               }
             ]
           },
-          "_line": 1116,
+          "_line": 1184,
           "decl_type": "int"
         },
         {
           "type": "call_stmt",
           "name": "initialize_filesystem",
           "args": [],
-          "_line": 1119
+          "_line": 1187
         },
         {
           "type": "call_stmt",
@@ -12373,7 +13135,7 @@
               "label": "str_2"
             }
           ],
-          "_line": 1120
+          "_line": 1188
         },
         {
           "type": "decl",
@@ -12382,7 +13144,7 @@
             "type": "array",
             "size": 512
           },
-          "_line": 1121,
+          "_line": 1189,
           "decl_type": "char_ptr"
         },
         {
@@ -12398,7 +13160,7 @@
               "name": "device_info"
             }
           ],
-          "_line": 1122
+          "_line": 1190
         },
         {
           "type": "call_stmt",
@@ -12421,7 +13183,7 @@
               "value": 63
             }
           ],
-          "_line": 1123
+          "_line": 1191
         },
         {
           "type": "decl",
@@ -12430,7 +13192,7 @@
             "type": "array",
             "size": 512
           },
-          "_line": 1124,
+          "_line": 1192,
           "decl_type": "char_ptr"
         },
         {
@@ -12446,7 +13208,7 @@
               "name": "file_contents"
             }
           ],
-          "_line": 1125
+          "_line": 1193
         },
         {
           "type": "call_stmt",
@@ -12469,7 +13231,7 @@
               "value": 63
             }
           ],
-          "_line": 1126
+          "_line": 1194
         },
         {
           "type": "call_stmt",
@@ -12492,7 +13254,7 @@
               "value": 12
             }
           ],
-          "_line": 1127
+          "_line": 1195
         },
         {
           "type": "call_stmt",
@@ -12515,7 +13277,7 @@
               "value": 48
             }
           ],
-          "_line": 1128
+          "_line": 1196
         },
         {
           "type": "call_stmt",
@@ -12538,7 +13300,7 @@
               "value": 7
             }
           ],
-          "_line": 1129
+          "_line": 1197
         },
         {
           "type": "call_stmt",
@@ -12561,19 +13323,19 @@
               "value": 60
             }
           ],
-          "_line": 1130
+          "_line": 1198
         },
         {
           "type": "call_stmt",
           "name": "rand_block_test",
           "args": [],
-          "_line": 1131
+          "_line": 1199
         },
         {
           "type": "call_stmt",
           "name": "fast_clear_display",
           "args": [],
-          "_line": 1132
+          "_line": 1200
         },
         {
           "type": "call_stmt",
@@ -12588,13 +13350,13 @@
               "value": 0
             }
           ],
-          "_line": 1133
+          "_line": 1201
         },
         {
           "type": "call_stmt",
           "name": "update_buffer",
           "args": [],
-          "_line": 1134
+          "_line": 1202
         },
         {
           "type": "call_stmt",
@@ -12609,172 +13371,57 @@
               "value": 32
             }
           ],
-          "_line": 1135
+          "_line": 1203
         },
         {
           "type": "call_stmt",
           "name": "update_buffer",
           "args": [],
-          "_line": 1136
+          "_line": 1204
         },
         {
           "type": "call_stmt",
           "name": "fast_clear_display",
           "args": [],
-          "_line": 1137
+          "_line": 1205
         },
         {
           "type": "call_stmt",
           "name": "load_and_display_image",
           "args": [],
-          "_line": 1138
-        },
-        {
-          "type": "decl",
-          "name": "fp1",
-          "init": {
-            "type": "call",
-            "name": "int_to_fixed_point",
-            "args": [
-              {
-                "type": "const",
-                "value": 5
-              }
-            ]
-          },
-          "_line": 1139,
-          "decl_type": "fixed_point"
-        },
-        {
-          "type": "decl",
-          "name": "fp2",
-          "init": {
-            "type": "call",
-            "name": "int_to_fixed_point",
-            "args": [
-              {
-                "type": "const",
-                "value": 10
-              }
-            ]
-          },
-          "_line": 1140,
-          "decl_type": "fixed_point"
-        },
-        {
-          "type": "decl",
-          "name": "half",
-          "init": {
-            "type": "call",
-            "name": "fixed_point_from_parts",
-            "args": [
-              {
-                "type": "const",
-                "value": 0
-              },
-              {
-                "type": "const",
-                "value": 2147483648
-              }
-            ]
-          },
-          "_line": 1141,
-          "decl_type": "fixed_point"
-        },
-        {
-          "type": "decl",
-          "name": "sum",
-          "init": {
-            "type": "call",
-            "name": "add_fixed_point_with_int",
-            "args": [
-              {
-                "type": "var",
-                "name": "fp1"
-              },
-              {
-                "type": "const",
-                "value": 3
-              }
-            ]
-          },
-          "_line": 1142,
-          "decl_type": "fixed_point"
-        },
-        {
-          "type": "decl",
-          "name": "product",
-          "init": {
-            "type": "call",
-            "name": "multiply_fixed_point_with_int",
-            "args": [
-              {
-                "type": "var",
-                "name": "fp2"
-              },
-              {
-                "type": "const",
-                "value": 4
-              }
-            ]
-          },
-          "_line": 1143,
-          "decl_type": "fixed_point"
-        },
-        {
-          "type": "decl",
-          "name": "half_sum",
-          "init": {
-            "type": "call",
-            "name": "multiply_fixed_point",
-            "args": [
-              {
-                "type": "var",
-                "name": "sum"
-              },
-              {
-                "type": "var",
-                "name": "half"
-              }
-            ]
-          },
-          "_line": 1144,
-          "decl_type": "fixed_point"
-        },
-        {
-          "type": "decl",
-          "name": "total",
-          "init": {
-            "type": "call",
-            "name": "add_fixed_point",
-            "args": [
-              {
-                "type": "var",
-                "name": "product"
-              },
-              {
-                "type": "var",
-                "name": "half_sum"
-              }
-            ]
-          },
-          "_line": 1145,
-          "decl_type": "fixed_point"
+          "_line": 1206
         },
         {
           "type": "call_stmt",
-          "name": "write_to_buffer",
-          "args": [
-            {
-              "type": "string_addr",
-              "label": "str_9"
-            },
-            {
-              "type": "const",
-              "value": 0
-            }
-          ],
-          "_line": 1146
+          "name": "fast_clear_display",
+          "args": [],
+          "_line": 1207
+        },
+        {
+          "type": "decl",
+          "name": "infix_expr",
+          "init": {
+            "type": "string_addr",
+            "label": "str_9"
+          },
+          "_line": 1208,
+          "decl_type": "char_ptr"
+        },
+        {
+          "type": "decl",
+          "name": "rpn_expr",
+          "init": {
+            "type": "call",
+            "name": "infix_to_rpn",
+            "args": [
+              {
+                "type": "var",
+                "name": "infix_expr"
+              }
+            ]
+          },
+          "_line": 1209,
+          "decl_type": "char_ptr"
         },
         {
           "type": "call_stmt",
@@ -12786,72 +13433,136 @@
             },
             {
               "type": "const",
-              "value": 32
+              "value": 0
             }
           ],
-          "_line": 1147
+          "_line": 1210
         },
         {
           "type": "call_stmt",
           "name": "write_to_buffer",
           "args": [
             {
-              "type": "call",
-              "name": "int_to_hex_str",
-              "args": [
-                {
-                  "type": "member_access",
-                  "op": ".",
-                  "base": {
-                    "type": "var",
-                    "name": "total"
-                  },
-                  "member": "value_high"
-                }
-              ]
+              "type": "var",
+              "name": "infix_expr"
+            },
+            {
+              "type": "const",
+              "value": 8
+            }
+          ],
+          "_line": 1211
+        },
+        {
+          "type": "call_stmt",
+          "name": "write_to_buffer",
+          "args": [
+            {
+              "type": "string_addr",
+              "label": "str_11"
+            },
+            {
+              "type": "const",
+              "value": 32
+            }
+          ],
+          "_line": 1212
+        },
+        {
+          "type": "call_stmt",
+          "name": "write_to_buffer",
+          "args": [
+            {
+              "type": "var",
+              "name": "rpn_expr"
+            },
+            {
+              "type": "const",
+              "value": 38
+            }
+          ],
+          "_line": 1213
+        },
+        {
+          "type": "call_stmt",
+          "name": "write_to_buffer",
+          "args": [
+            {
+              "type": "string_addr",
+              "label": "str_12"
             },
             {
               "type": "const",
               "value": 64
             }
           ],
-          "_line": 1148
+          "_line": 1214
+        },
+        {
+          "type": "decl",
+          "name": "result",
+          "init": {
+            "type": "call",
+            "name": "evaluate_rpn",
+            "args": [
+              {
+                "type": "var",
+                "name": "rpn_expr"
+              }
+            ]
+          },
+          "_line": 1215,
+          "decl_type": "int"
+        },
+        {
+          "type": "decl",
+          "name": "result_str",
+          "init": {
+            "type": "array",
+            "size": 16
+          },
+          "_line": 1216,
+          "decl_type": "char_ptr"
+        },
+        {
+          "type": "call_stmt",
+          "name": "int_to_str_buf",
+          "args": [
+            {
+              "type": "var",
+              "name": "result"
+            },
+            {
+              "type": "var",
+              "name": "result_str"
+            }
+          ],
+          "_line": 1217
         },
         {
           "type": "call_stmt",
           "name": "write_to_buffer",
           "args": [
             {
-              "type": "call",
-              "name": "int_to_hex_str",
-              "args": [
-                {
-                  "type": "member_access",
-                  "op": ".",
-                  "base": {
-                    "type": "var",
-                    "name": "total"
-                  },
-                  "member": "value_low"
-                }
-              ]
+              "type": "var",
+              "name": "result_str"
             },
             {
               "type": "const",
-              "value": 96
+              "value": 72
             }
           ],
-          "_line": 1149
+          "_line": 1218
         },
         {
           "type": "call_stmt",
           "name": "update_buffer",
           "args": [],
-          "_line": 1151
+          "_line": 1219
         }
       ],
       "return_type": "void",
-      "_line": 1112
+      "_line": 1180
     }
   ],
   "types": [

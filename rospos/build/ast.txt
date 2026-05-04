@@ -5401,6 +5401,476 @@ translation_unit
         return_stmt	result_str
   external_decl
     function_def
+      type_specifier
+        int
+      declarator	precedence
+      param_list
+        param
+          type_specifier
+            char
+          declarator	op
+      compound_stmt
+        if_stmt
+          logic_or
+            equality
+              op
+              eq
+              "+"
+            equality
+              op
+              eq
+              "-"
+          return_stmt	1
+        if_stmt
+          logic_or
+            equality
+              op
+              eq
+              "*"
+            equality
+              op
+              eq
+              "/"
+          return_stmt	2
+        return_stmt	0
+  external_decl
+    function_def
+      type_specifier
+        char
+        pointer
+      declarator	infix_to_rpn
+      param_list
+        param
+          type_specifier
+            char
+            pointer
+          declarator	infix
+      compound_stmt
+        declaration
+          type_specifier
+            char
+          init_declarator_list
+            init_declarator
+              declarator
+                output
+                array	512
+        declaration
+          type_specifier
+            char
+          init_declarator_list
+            init_declarator
+              declarator
+                stack
+                array	512
+        declaration
+          type_specifier
+            int
+          init_declarator_list
+            init_declarator
+              declarator	out_index
+              0
+            init_declarator
+              declarator	stack_index
+              0
+        declaration
+          type_specifier
+            int
+          init_declarator_list
+            init_declarator
+              declarator	i
+              0
+        while_stmt
+          postfix
+            infix
+            array_index	i
+          compound_stmt
+            declaration
+              type_specifier
+                char
+              init_declarator_list
+                init_declarator
+                  declarator	token
+                  postfix
+                    infix
+                    array_index	i
+            if_stmt
+              logic_and
+                relational
+                  token
+                  gte
+                  "0"
+                relational
+                  token
+                  lte
+                  "9"
+              compound_stmt
+                expr_stmt
+                  assignment
+                    postfix
+                      output
+                      array_index
+                        postfix
+                          out_index
+                          post_inc
+                    token
+              if_stmt
+                logic_or
+                  equality
+                    token
+                    eq
+                    "+"
+                  equality
+                    token
+                    eq
+                    "-"
+                  equality
+                    token
+                    eq
+                    "*"
+                  equality
+                    token
+                    eq
+                    "/"
+                compound_stmt
+                  while_stmt
+                    logic_and
+                      relational
+                        stack_index
+                        gt
+                        0
+                      relational
+                        postfix
+                          precedence
+                          call_suffix
+                            arg_list
+                              postfix
+                                stack
+                                array_index
+                                  additive
+                                    stack_index
+                                    minus
+                                    1
+                        gte
+                        postfix
+                          precedence
+                          call_suffix
+                            arg_list	token
+                    compound_stmt
+                      expr_stmt
+                        assignment
+                          postfix
+                            output
+                            array_index
+                              postfix
+                                out_index
+                                post_inc
+                          postfix
+                            stack
+                            array_index
+                              unary
+                                uminus
+                                unary
+                                  uminus
+                                  stack_index
+                  expr_stmt
+                    assignment
+                      postfix
+                        stack
+                        array_index
+                          postfix
+                            stack_index
+                            post_inc
+                      token
+                if_stmt
+                  equality
+                    token
+                    eq
+                    "("
+                  compound_stmt
+                    expr_stmt
+                      assignment
+                        postfix
+                          stack
+                          array_index
+                            postfix
+                              stack_index
+                              post_inc
+                        token
+                  if_stmt
+                    equality
+                      token
+                      eq
+                      ")"
+                    compound_stmt
+                      while_stmt
+                        logic_and
+                          relational
+                            stack_index
+                            gt
+                            0
+                          equality
+                            postfix
+                              stack
+                              array_index
+                                additive
+                                  stack_index
+                                  minus
+                                  1
+                            neq
+                            "("
+                        compound_stmt
+                          expr_stmt
+                            assignment
+                              postfix
+                                output
+                                array_index
+                                  postfix
+                                    out_index
+                                    post_inc
+                              postfix
+                                stack
+                                array_index
+                                  unary
+                                    uminus
+                                    unary
+                                      uminus
+                                      stack_index
+                      if_stmt
+                        logic_and
+                          relational
+                            stack_index
+                            gt
+                            0
+                          equality
+                            postfix
+                              stack
+                              array_index
+                                additive
+                                  stack_index
+                                  minus
+                                  1
+                            eq
+                            "("
+                        compound_stmt
+                          expr_stmt
+                            assignment
+                              stack_index
+                              additive
+                                stack_index
+                                minus
+                                1
+            expr_stmt
+              assignment
+                i
+                additive
+                  i
+                  plus
+                  1
+        while_stmt
+          relational
+            stack_index
+            gt
+            0
+          compound_stmt
+            expr_stmt
+              assignment
+                postfix
+                  output
+                  array_index
+                    postfix
+                      out_index
+                      post_inc
+                postfix
+                  stack
+                  array_index
+                    unary
+                      uminus
+                      unary
+                        uminus
+                        stack_index
+        expr_stmt
+          assignment
+            postfix
+              output
+              array_index	out_index
+            "\0"
+        return_stmt	output
+  external_decl
+    function_def
+      type_specifier
+        int
+      declarator	evaluate_rpn
+      param_list
+        param
+          type_specifier
+            char
+            pointer
+          declarator	expression
+      compound_stmt
+        declaration
+          type_specifier
+            int
+          init_declarator_list
+            init_declarator
+              declarator
+                stack
+                array	512
+        declaration
+          type_specifier
+            int
+          init_declarator_list
+            init_declarator
+              declarator	stack_index
+              0
+        declaration
+          type_specifier
+            int
+          init_declarator_list
+            init_declarator
+              declarator	i
+              0
+        while_stmt
+          postfix
+            expression
+            array_index	i
+          compound_stmt
+            declaration
+              type_specifier
+                char
+              init_declarator_list
+                init_declarator
+                  declarator	token
+                  postfix
+                    expression
+                    array_index	i
+            if_stmt
+              logic_and
+                relational
+                  token
+                  gte
+                  "0"
+                relational
+                  token
+                  lte
+                  "9"
+              compound_stmt
+                expr_stmt
+                  assignment
+                    postfix
+                      stack
+                      array_index
+                        postfix
+                          stack_index
+                          post_inc
+                    additive
+                      token
+                      minus
+                      "0"
+              compound_stmt
+                declaration
+                  type_specifier
+                    int
+                  init_declarator_list
+                    init_declarator
+                      declarator	b
+                      postfix
+                        stack
+                        array_index
+                          unary
+                            uminus
+                            unary
+                              uminus
+                              stack_index
+                declaration
+                  type_specifier
+                    int
+                  init_declarator_list
+                    init_declarator
+                      declarator	a
+                      postfix
+                        stack
+                        array_index
+                          unary
+                            uminus
+                            unary
+                              uminus
+                              stack_index
+                declaration
+                  type_specifier
+                    int
+                  init_declarator_list
+                    init_declarator
+                      declarator	result
+                if_stmt
+                  equality
+                    token
+                    eq
+                    "+"
+                  expr_stmt
+                    assignment
+                      result
+                      additive
+                        a
+                        plus
+                        b
+                  if_stmt
+                    equality
+                      token
+                      eq
+                      "-"
+                    expr_stmt
+                      assignment
+                        result
+                        additive
+                          a
+                          minus
+                          b
+                    if_stmt
+                      equality
+                        token
+                        eq
+                        "*"
+                      expr_stmt
+                        assignment
+                          result
+                          multiplicative
+                            a
+                            mult
+                            b
+                      if_stmt
+                        equality
+                          token
+                          eq
+                          "/"
+                        expr_stmt
+                          assignment
+                            result
+                            multiplicative
+                              a
+                              div
+                              b
+                expr_stmt
+                  assignment
+                    postfix
+                      stack
+                      array_index
+                        postfix
+                          stack_index
+                          post_inc
+                    result
+            expr_stmt
+              assignment
+                i
+                additive
+                  i
+                  plus
+                  1
+        return_stmt
+          postfix
+            stack
+            array_index	0
+  external_decl
+    function_def
       inline
       type_specifier
         int
@@ -5591,119 +6061,96 @@ translation_unit
           postfix
             load_and_display_image
             call_suffix
+        expr_stmt
+          postfix
+            fast_clear_display
+            call_suffix
         declaration
-          type_specifier	fixed_point
+          type_specifier
+            char
+            pointer
           init_declarator_list
             init_declarator
-              declarator	fp1
-              postfix
-                int_to_fixed_point
-                call_suffix
-                  arg_list	5
+              declarator	infix_expr
+              "3+4*2/(1-5)"
         declaration
-          type_specifier	fixed_point
+          type_specifier
+            char
+            pointer
           init_declarator_list
             init_declarator
-              declarator	fp2
+              declarator	rpn_expr
               postfix
-                int_to_fixed_point
+                infix_to_rpn
                 call_suffix
-                  arg_list	10
-        declaration
-          type_specifier	fixed_point
-          init_declarator_list
-            init_declarator
-              declarator	half
-              postfix
-                fixed_point_from_parts
-                call_suffix
-                  arg_list
-                    0
-                    0x80000000
-        declaration
-          type_specifier	fixed_point
-          init_declarator_list
-            init_declarator
-              declarator	sum
-              postfix
-                add_fixed_point_with_int
-                call_suffix
-                  arg_list
-                    fp1
-                    3
-        declaration
-          type_specifier	fixed_point
-          init_declarator_list
-            init_declarator
-              declarator	product
-              postfix
-                multiply_fixed_point_with_int
-                call_suffix
-                  arg_list
-                    fp2
-                    4
-        declaration
-          type_specifier	fixed_point
-          init_declarator_list
-            init_declarator
-              declarator	half_sum
-              postfix
-                multiply_fixed_point
-                call_suffix
-                  arg_list
-                    sum
-                    half
-        declaration
-          type_specifier	fixed_point
-          init_declarator_list
-            init_declarator
-              declarator	total
-              postfix
-                add_fixed_point
-                call_suffix
-                  arg_list
-                    product
-                    half_sum
+                  arg_list	infix_expr
         expr_stmt
           postfix
             write_to_buffer
             call_suffix
               arg_list
-                "Fixed-point arithmetic results as hex:"
+                "Infix: \0"
                 0
         expr_stmt
           postfix
             write_to_buffer
             call_suffix
               arg_list
-                "Hex: "
+                infix_expr
+                8
+        expr_stmt
+          postfix
+            write_to_buffer
+            call_suffix
+              arg_list
+                "RPN: \0"
                 32
         expr_stmt
           postfix
             write_to_buffer
             call_suffix
               arg_list
-                postfix
-                  int_to_hex_str
-                  call_suffix
-                    arg_list
-                      postfix
-                        total
-                        member_access	value_high
-                64
+                rpn_expr
+                38
         expr_stmt
           postfix
             write_to_buffer
             call_suffix
               arg_list
-                postfix
-                  int_to_hex_str
-                  call_suffix
-                    arg_list
-                      postfix
-                        total
-                        member_access	value_low
-                96
+                "Result: \0"
+                64
+        declaration
+          type_specifier
+            int
+          init_declarator_list
+            init_declarator
+              declarator	result
+              postfix
+                evaluate_rpn
+                call_suffix
+                  arg_list	rpn_expr
+        declaration
+          type_specifier
+            char
+          init_declarator_list
+            init_declarator
+              declarator
+                result_str
+                array	16
+        expr_stmt
+          postfix
+            int_to_str_buf
+            call_suffix
+              arg_list
+                result
+                result_str
+        expr_stmt
+          postfix
+            write_to_buffer
+            call_suffix
+              arg_list
+                result_str
+                72
         expr_stmt
           postfix
             update_buffer
