@@ -7,7 +7,7 @@
 #include <time.rosc>
 #include <display_image.rosc>
 #include <fixed_point.rosc>
-
+#include <bc.rosc>
 inline int add(int a, int b)
 {
     return a + b;
@@ -41,19 +41,20 @@ void main()
     update_buffer();
     fast_clear_display();
     load_and_display_image();
-    struct fixed_point fp1 = int_to_fixed_point(5);
-    struct fixed_point fp2 = int_to_fixed_point(10);
-    struct fixed_point half = fixed_point_from_parts(0, 0x80000000); // 0.5 in 32.32 fixed-point representation
-    struct fixed_point sum = add_fixed_point_with_int(fp1, 3); // Should be 8.0 in fixed-point
-    struct fixed_point product = multiply_fixed_point_with_int(fp2, 4); // Should be 40.0 in fixed-point
-    struct fixed_point half_sum = multiply_fixed_point(sum, half);
-    struct fixed_point total = add_fixed_point(product, half_sum);
-    write_to_buffer("Fixed-point arithmetic results as hex:",0);
-    write_to_buffer("Hex: ", 32);
-    write_to_buffer(int_to_hex_str(total.value_high), 64);
-    write_to_buffer(int_to_hex_str(total.value_low), 96);
-
+    fast_clear_display();
+    char* infix_expr = "3+4*2/(1-5)";
+    char* rpn_expr = infix_to_rpn(infix_expr);
+    write_to_buffer("Infix: \0", 0);
+    write_to_buffer(infix_expr, 8);
+    write_to_buffer("RPN: \0", 32);
+    write_to_buffer(rpn_expr, 38);
+    write_to_buffer("Result: \0", 64);
+    int result = evaluate_rpn(rpn_expr);
+    char result_str[16];
+    int_to_str_buf(result, result_str);
+    write_to_buffer(result_str, 72);
     update_buffer();
+    
     // char *time_str = fmt_unix_time(get_unix_time());
     // draw_string_to_display(time_str, 10, 56, 0x3F);
     // print_string("Current time: \n");
