@@ -97,6 +97,7 @@ void CodeView::createUI()
 
     codeDisplay = new QPlainTextEdit();
     codeDisplay->setReadOnly(true);
+    codeDisplay->setLineWrapMode(QPlainTextEdit::NoWrap);
     codeDisplay->setMouseTracking(true);
     codeDisplay->viewport()->setMouseTracking(true);
     codeDisplay->viewport()->installEventFilter(this);
@@ -111,6 +112,7 @@ void CodeView::createUI()
 
     sourceCodeDisplay = new QPlainTextEdit();
     sourceCodeDisplay->setReadOnly(true);
+    sourceCodeDisplay->setLineWrapMode(QPlainTextEdit::NoWrap);
     sourceCodeDisplay->setFont(monoFont);
     sourceCodeDisplay->setStyleSheet(kSourceDisplayStylesheet);
     sourceCodeDisplay->setPlaceholderText("Source file for current instruction will appear here");
