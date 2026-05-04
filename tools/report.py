@@ -199,6 +199,10 @@ class BuildAnalyzer:
                 # This optimization rewrites a branch comparing against zero into a more efficient form.
                 record_event("condition_against_zero", is_rewrite=True, removed=1)
                 continue
+            if line.startswith("Combined LLI with ADD at"):
+                # LLI + MOV(ADD) are combined into LLI.
+                record_event("combined_lli_add", is_rewrite=True, removed=1) 
+                continue
             if line.startswith("Optimization complete in"):
                 # Summary line, can be ignored for event counting.
                 continue
@@ -437,6 +441,7 @@ def print_optimization_stats(analyzer: BuildAnalyzer):
         "push_pop_to_move": "PUSH/POP pairs converted to moves",
         "remove_redundant_push_pop": "Redundant PUSH/POP pairs removed",
         "condition_against_zero": "Condition-against-zero optimizations",
+        "combined_lli_add": "LLI + ADD combinations",
     }
 
     if opt_stats["event_counts"]:

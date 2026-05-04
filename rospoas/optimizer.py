@@ -693,6 +693,46 @@ def opt_40_space_sorting(ast, logs):
         optimized_ast.append(space)
     return optimized_ast
 
+def opt_30_lli_combine(ast, logs):
+    #   LLI r8, X
+    #   ADD r1, r8, r0
+    #   POP r14
+    #   JALR r0, r14, 0
+    # =>
+    #   LLI r1, X
+    #   POP r14
+    #   JALR r0, r14, 0
+    optimized_ast = []
+    i = 0
+    while i < len(ast) - 1:
+        instr = ast[i]
+        next_instr = ast[i + 1]
+
+        if (
+            isinstance(instr, Instruction)
+            and instr.type == "p"
+            and instr.name == "lli"
+            and instr.rd is not None
+            and _reg_from_imm(instr.imm) is not None
+            and isinstance(next_instr, Instruction)
+            and next_instr.type == "r"
+            and next_instr.name == "add"
+            and next_instr.rs1 == instr.rd
+            and next_instr.rs2 == 0
+        ):
+            new_instr = instr.copy_with(rd=next_instr.rd, is_optimized=True)
+            optimized_ast.append(new_instr)
+            logs.append(
+                f"Combined LLI with ADD at indices {i}-{i+1}: replaced '{instr}' and '{next_instr}' with '{new_instr}'"
+            )
+            i += 2
+        else: 
+            optimized_ast.append(instr)
+            i += 1
+    # Append the last instruction if it wasn't part of a pair
+    if i < len(ast):
+        optimized_ast.append(ast[i])
+    return optimized_ast        
 
 # This is a bit of a hack to avoid having to manually maintain the list of optimizations,
 # but it should work fine as long as we don't have any non-optimization functions that start with "opt_".
