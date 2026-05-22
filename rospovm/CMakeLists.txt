@@ -198,14 +198,7 @@ if(EMSCRIPTEN)
     )
 
     set_target_properties(rospovm_html PROPERTIES
-        QT_WASM_INITIAL_MEMORY "3GB"
-        QT_WASM_MAXIMUM_MEMORY "4GB"
         QT_WASM_MEMORY_GROWTH "ON"
         )
 
-    add_custom_command(TARGET rospovm_html POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different
-                "${CMAKE_CURRENT_SOURCE_DIR}/frontend/html/index.html"
-                "$<TARGET_FILE_DIR:rospovm_html>/index.html"
-    )
 endif()
