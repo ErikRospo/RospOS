@@ -3903,151 +3903,15 @@ evaluate_rpn_61_WHILE_END3:
   // inline function return (no RET emitted)
   ADDI r6, r1, 0    // move inline return value
   // end inline expansion of add
-  // emit call to initialize_filesystem with args []
-  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  CALL initialize_filesystem
-  // call return value in r1
-  POP r1  
-  // emit call to write_file with args [{'type': 'string_addr', 'label': 'str_1'}, {'type': 'string_addr', 'label': 'str_2'}]
+  // emit call to draw_string_to_display with args [{'type': 'string_addr', 'label': 'str_1'}, {'type': 'const', 'value': 0}, {'type': 'const', 'value': 0}, {'type': 'const', 'value': 63}]
   PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
   LLI r7, str_1    // load immediate str_1
   PUSH r7    // stage reg arg 0
-  LLI r8, str_2    // load immediate str_2
+  LLI r8, 0    // load immediate 0
   PUSH r8    // stage reg arg 1
-  POP r2    // load reg arg 1
-  POP r1    // load reg arg 0
-  CALL write_file
-  // call return value in r1
-  POP r1  
-  LLI r9, main_63_device_info_buf1    // init device_info (buffer addr)
-  // inline call to read_block with args [{'type': 'const', 'value': 4294967295}, {'type': 'var', 'name': 'device_info'}]
-  // begin inline expansion of read_block
-  LLI r10, 4294967295    // load immediate 4294967295
-  // emit call to bd_write_u32 with args [{'type': 'const', 'value': 1073741832}, {'type': 'var', 'name': 'blockID'}]
-  PUSH r9    // save caller temp
-  PUSH r10    // save caller temp
-  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  LLI r11, 1073741832    // load immediate 1073741832
-  PUSH r11    // stage reg arg 0
-  PUSH r10    // stage reg arg 1
-  POP r2    // load reg arg 1
-  POP r1    // load reg arg 0
-  CALL bd_write_u32
-  // call return value in r1
-  POP r1  
-  POP r10    // restore caller temp
-  POP r9    // restore caller temp
-  // emit call to bd_write_u32 with args [{'type': 'const', 'value': 1073741836}, {'type': 'var', 'name': 'buffer'}]
-  PUSH r9    // save caller temp
-  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  LLI r12, 1073741836    // load immediate 1073741836
-  PUSH r12    // stage reg arg 0
-  PUSH r9    // stage reg arg 1
-  POP r2    // load reg arg 1
-  POP r1    // load reg arg 0
-  CALL bd_write_u32
-  // call return value in r1
-  POP r1  
-  POP r9    // restore caller temp
-  // emit call to bd_write_u32 with args [{'type': 'const', 'value': 1073741840}, {'type': 'const', 'value': 1}]
-  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  LLI r3, 1073741840    // load immediate 1073741840
-  PUSH r3    // stage reg arg 0
-  LLI r4, 1    // load immediate 1
-  PUSH r4    // stage reg arg 1
-  POP r2    // load reg arg 1
-  POP r1    // load reg arg 0
-  CALL bd_write_u32
-  // call return value in r1
-  POP r1  
-  // emit call to bd_write_u32 with args [{'type': 'const', 'value': 1073741828}, {'type': 'const', 'value': 1}]
-  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  LLI r2, 1073741828    // load immediate 1073741828
-  PUSH r2    // stage reg arg 0
-  LLI r5, 1    // load immediate 1
-  PUSH r5    // stage reg arg 1
-  POP r2    // load reg arg 1
-  POP r1    // load reg arg 0
-  CALL bd_write_u32
-  // call return value in r1
-  POP r1  
-  LLI r6, 0    // load immediate 0
-  ADD r1, r6, r0
-  // inline function return (no RET emitted)
-  // end inline expansion of read_block
-  // emit call to draw_string_to_display with args [{'type': 'var', 'name': 'device_info'}, {'type': 'const', 'value': 10}, {'type': 'const', 'value': 8}, {'type': 'const', 'value': 63}]
-  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  PUSH r9    // stage reg arg 0
-  LLI r7, 10    // load immediate 10
-  PUSH r7    // stage reg arg 1
-  LLI r8, 8    // load immediate 8
-  PUSH r8    // stage reg arg 2
-  LLI r11, 63    // load immediate 63
-  PUSH r11    // stage reg arg 3
-  POP r4    // load reg arg 3
-  POP r3    // load reg arg 2
-  POP r2    // load reg arg 1
-  POP r1    // load reg arg 0
-  CALL draw_string_to_display
-  // call return value in r1
-  POP r1  
-  LLI r10, main_63_file_contents_buf2    // init file_contents (buffer addr)
-  // emit call to read_file with args [{'type': 'string_addr', 'label': 'str_1'}, {'type': 'var', 'name': 'file_contents'}]
-  PUSH r10    // save caller temp
-  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  LLI r12, str_1    // load immediate str_1
-  PUSH r12    // stage reg arg 0
-  PUSH r10    // stage reg arg 1
-  POP r2    // load reg arg 1
-  POP r1    // load reg arg 0
-  CALL read_file
-  // call return value in r1
-  POP r1  
-  POP r10    // restore caller temp
-  // emit call to draw_string_to_display with args [{'type': 'var', 'name': 'file_contents'}, {'type': 'const', 'value': 10}, {'type': 'const', 'value': 16}, {'type': 'const', 'value': 63}]
-  PUSH r10    // save caller temp
-  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  PUSH r10    // stage reg arg 0
-  LLI r9, 10    // load immediate 10
-  PUSH r9    // stage reg arg 1
-  LLI r3, 16    // load immediate 16
-  PUSH r3    // stage reg arg 2
-  LLI r4, 63    // load immediate 63
-  PUSH r4    // stage reg arg 3
-  POP r4    // load reg arg 3
-  POP r3    // load reg arg 2
-  POP r2    // load reg arg 1
-  POP r1    // load reg arg 0
-  CALL draw_string_to_display
-  // call return value in r1
-  POP r1  
-  POP r10    // restore caller temp
-  // emit call to draw_string_to_display with args [{'type': 'string_addr', 'label': 'str_3'}, {'type': 'const', 'value': 10}, {'type': 'const', 'value': 24}, {'type': 'const', 'value': 12}]
-  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  LLI r2, str_3    // load immediate str_3
-  PUSH r2    // stage reg arg 0
-  LLI r5, 10    // load immediate 10
-  PUSH r5    // stage reg arg 1
-  LLI r6, 24    // load immediate 24
-  PUSH r6    // stage reg arg 2
-  LLI r7, 12    // load immediate 12
-  PUSH r7    // stage reg arg 3
-  POP r4    // load reg arg 3
-  POP r3    // load reg arg 2
-  POP r2    // load reg arg 1
-  POP r1    // load reg arg 0
-  CALL draw_string_to_display
-  // call return value in r1
-  POP r1  
-  // emit call to draw_string_to_display with args [{'type': 'string_addr', 'label': 'str_4'}, {'type': 'const', 'value': 10}, {'type': 'const', 'value': 32}, {'type': 'const', 'value': 48}]
-  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  LLI r8, str_4    // load immediate str_4
-  PUSH r8    // stage reg arg 0
-  LLI r11, 10    // load immediate 10
-  PUSH r11    // stage reg arg 1
-  LLI r12, 32    // load immediate 32
-  PUSH r12    // stage reg arg 2
-  LLI r10, 48    // load immediate 48
+  LLI r9, 0    // load immediate 0
+  PUSH r9    // stage reg arg 2
+  LLI r10, 63    // load immediate 63
   PUSH r10    // stage reg arg 3
   POP r4    // load reg arg 3
   POP r3    // load reg arg 2
@@ -4056,15 +3920,86 @@ evaluate_rpn_61_WHILE_END3:
   CALL draw_string_to_display
   // call return value in r1
   POP r1  
-  // emit call to draw_string_to_display with args [{'type': 'string_addr', 'label': 'str_5'}, {'type': 'const', 'value': 10}, {'type': 'const', 'value': 40}, {'type': 'const', 'value': 7}]
+  // emit call to initialize_filesystem with args []
   PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  LLI r9, str_5    // load immediate str_5
-  PUSH r9    // stage reg arg 0
-  LLI r3, 10    // load immediate 10
+  CALL initialize_filesystem
+  // call return value in r1
+  POP r1  
+  // emit call to write_file with args [{'type': 'string_addr', 'label': 'str_2'}, {'type': 'string_addr', 'label': 'str_3'}]
+  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
+  LLI r11, str_2    // load immediate str_2
+  PUSH r11    // stage reg arg 0
+  LLI r12, str_3    // load immediate str_3
+  PUSH r12    // stage reg arg 1
+  POP r2    // load reg arg 1
+  POP r1    // load reg arg 0
+  CALL write_file
+  // call return value in r1
+  POP r1  
+  LLI r3, main_63_device_info_buf1    // init device_info (buffer addr)
+  // inline call to read_block with args [{'type': 'const', 'value': 4294967295}, {'type': 'var', 'name': 'device_info'}]
+  // begin inline expansion of read_block
+  LLI r4, 4294967295    // load immediate 4294967295
+  // emit call to bd_write_u32 with args [{'type': 'const', 'value': 1073741832}, {'type': 'var', 'name': 'blockID'}]
+  PUSH r3    // save caller temp
+  PUSH r4    // save caller temp
+  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
+  LLI r2, 1073741832    // load immediate 1073741832
+  PUSH r2    // stage reg arg 0
+  PUSH r4    // stage reg arg 1
+  POP r2    // load reg arg 1
+  POP r1    // load reg arg 0
+  CALL bd_write_u32
+  // call return value in r1
+  POP r1  
+  POP r4    // restore caller temp
+  POP r3    // restore caller temp
+  // emit call to bd_write_u32 with args [{'type': 'const', 'value': 1073741836}, {'type': 'var', 'name': 'buffer'}]
+  PUSH r3    // save caller temp
+  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
+  LLI r5, 1073741836    // load immediate 1073741836
+  PUSH r5    // stage reg arg 0
   PUSH r3    // stage reg arg 1
-  LLI r4, 40    // load immediate 40
-  PUSH r4    // stage reg arg 2
-  LLI r2, 7    // load immediate 7
+  POP r2    // load reg arg 1
+  POP r1    // load reg arg 0
+  CALL bd_write_u32
+  // call return value in r1
+  POP r1  
+  POP r3    // restore caller temp
+  // emit call to bd_write_u32 with args [{'type': 'const', 'value': 1073741840}, {'type': 'const', 'value': 1}]
+  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
+  LLI r6, 1073741840    // load immediate 1073741840
+  PUSH r6    // stage reg arg 0
+  LLI r7, 1    // load immediate 1
+  PUSH r7    // stage reg arg 1
+  POP r2    // load reg arg 1
+  POP r1    // load reg arg 0
+  CALL bd_write_u32
+  // call return value in r1
+  POP r1  
+  // emit call to bd_write_u32 with args [{'type': 'const', 'value': 1073741828}, {'type': 'const', 'value': 1}]
+  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
+  LLI r8, 1073741828    // load immediate 1073741828
+  PUSH r8    // stage reg arg 0
+  LLI r9, 1    // load immediate 1
+  PUSH r9    // stage reg arg 1
+  POP r2    // load reg arg 1
+  POP r1    // load reg arg 0
+  CALL bd_write_u32
+  // call return value in r1
+  POP r1  
+  LLI r10, 0    // load immediate 0
+  ADD r1, r10, r0
+  // inline function return (no RET emitted)
+  // end inline expansion of read_block
+  // emit call to draw_string_to_display with args [{'type': 'var', 'name': 'device_info'}, {'type': 'const', 'value': 10}, {'type': 'const', 'value': 8}, {'type': 'const', 'value': 63}]
+  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
+  PUSH r3    // stage reg arg 0
+  LLI r11, 10    // load immediate 10
+  PUSH r11    // stage reg arg 1
+  LLI r12, 8    // load immediate 8
+  PUSH r12    // stage reg arg 2
+  LLI r2, 63    // load immediate 63
   PUSH r2    // stage reg arg 3
   POP r4    // load reg arg 3
   POP r3    // load reg arg 2
@@ -4073,16 +4008,98 @@ evaluate_rpn_61_WHILE_END3:
   CALL draw_string_to_display
   // call return value in r1
   POP r1  
-  // emit call to draw_string_to_display with args [{'type': 'string_addr', 'label': 'str_6'}, {'type': 'const', 'value': 10}, {'type': 'const', 'value': 48}, {'type': 'const', 'value': 60}]
+  LLI r4, main_63_file_contents_buf2    // init file_contents (buffer addr)
+  // emit call to read_file with args [{'type': 'string_addr', 'label': 'str_2'}, {'type': 'var', 'name': 'file_contents'}]
+  PUSH r4    // save caller temp
   PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  LLI r5, str_6    // load immediate str_6
+  LLI r5, str_2    // load immediate str_2
   PUSH r5    // stage reg arg 0
+  PUSH r4    // stage reg arg 1
+  POP r2    // load reg arg 1
+  POP r1    // load reg arg 0
+  CALL read_file
+  // call return value in r1
+  POP r1  
+  POP r4    // restore caller temp
+  // emit call to draw_string_to_display with args [{'type': 'var', 'name': 'file_contents'}, {'type': 'const', 'value': 10}, {'type': 'const', 'value': 16}, {'type': 'const', 'value': 63}]
+  PUSH r4    // save caller temp
+  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
+  PUSH r4    // stage reg arg 0
+  LLI r3, 10    // load immediate 10
+  PUSH r3    // stage reg arg 1
+  LLI r6, 16    // load immediate 16
+  PUSH r6    // stage reg arg 2
+  LLI r7, 63    // load immediate 63
+  PUSH r7    // stage reg arg 3
+  POP r4    // load reg arg 3
+  POP r3    // load reg arg 2
+  POP r2    // load reg arg 1
+  POP r1    // load reg arg 0
+  CALL draw_string_to_display
+  // call return value in r1
+  POP r1  
+  POP r4    // restore caller temp
+  // emit call to draw_string_to_display with args [{'type': 'string_addr', 'label': 'str_4'}, {'type': 'const', 'value': 10}, {'type': 'const', 'value': 24}, {'type': 'const', 'value': 12}]
+  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
+  LLI r8, str_4    // load immediate str_4
+  PUSH r8    // stage reg arg 0
+  LLI r9, 10    // load immediate 10
+  PUSH r9    // stage reg arg 1
+  LLI r10, 24    // load immediate 24
+  PUSH r10    // stage reg arg 2
+  LLI r11, 12    // load immediate 12
+  PUSH r11    // stage reg arg 3
+  POP r4    // load reg arg 3
+  POP r3    // load reg arg 2
+  POP r2    // load reg arg 1
+  POP r1    // load reg arg 0
+  CALL draw_string_to_display
+  // call return value in r1
+  POP r1  
+  // emit call to draw_string_to_display with args [{'type': 'string_addr', 'label': 'str_5'}, {'type': 'const', 'value': 10}, {'type': 'const', 'value': 32}, {'type': 'const', 'value': 48}]
+  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
+  LLI r12, str_5    // load immediate str_5
+  PUSH r12    // stage reg arg 0
+  LLI r2, 10    // load immediate 10
+  PUSH r2    // stage reg arg 1
+  LLI r5, 32    // load immediate 32
+  PUSH r5    // stage reg arg 2
+  LLI r4, 48    // load immediate 48
+  PUSH r4    // stage reg arg 3
+  POP r4    // load reg arg 3
+  POP r3    // load reg arg 2
+  POP r2    // load reg arg 1
+  POP r1    // load reg arg 0
+  CALL draw_string_to_display
+  // call return value in r1
+  POP r1  
+  // emit call to draw_string_to_display with args [{'type': 'string_addr', 'label': 'str_6'}, {'type': 'const', 'value': 10}, {'type': 'const', 'value': 40}, {'type': 'const', 'value': 7}]
+  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
+  LLI r3, str_6    // load immediate str_6
+  PUSH r3    // stage reg arg 0
   LLI r6, 10    // load immediate 10
   PUSH r6    // stage reg arg 1
-  LLI r7, 48    // load immediate 48
+  LLI r7, 40    // load immediate 40
   PUSH r7    // stage reg arg 2
-  LLI r8, 60    // load immediate 60
+  LLI r8, 7    // load immediate 7
   PUSH r8    // stage reg arg 3
+  POP r4    // load reg arg 3
+  POP r3    // load reg arg 2
+  POP r2    // load reg arg 1
+  POP r1    // load reg arg 0
+  CALL draw_string_to_display
+  // call return value in r1
+  POP r1  
+  // emit call to draw_string_to_display with args [{'type': 'string_addr', 'label': 'str_7'}, {'type': 'const', 'value': 10}, {'type': 'const', 'value': 48}, {'type': 'const', 'value': 60}]
+  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
+  LLI r9, str_7    // load immediate str_7
+  PUSH r9    // stage reg arg 0
+  LLI r10, 10    // load immediate 10
+  PUSH r10    // stage reg arg 1
+  LLI r11, 48    // load immediate 48
+  PUSH r11    // stage reg arg 2
+  LLI r12, 60    // load immediate 60
+  PUSH r12    // stage reg arg 3
   POP r4    // load reg arg 3
   POP r3    // load reg arg 2
   POP r2    // load reg arg 1
@@ -4100,70 +4117,9 @@ evaluate_rpn_61_WHILE_END3:
   CALL fast_clear_display
   // call return value in r1
   POP r1  
-  // emit call to write_to_buffer with args [{'type': 'string_addr', 'label': 'str_7'}, {'type': 'const', 'value': 0}]
+  // emit call to write_to_buffer with args [{'type': 'string_addr', 'label': 'str_8'}, {'type': 'const', 'value': 0}]
   PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  LLI r11, str_7    // load immediate str_7
-  PUSH r11    // stage reg arg 0
-  LLI r12, 0    // load immediate 0
-  PUSH r12    // stage reg arg 1
-  POP r2    // load reg arg 1
-  POP r1    // load reg arg 0
-  CALL write_to_buffer
-  // call return value in r1
-  POP r1  
-  // emit call to update_buffer with args []
-  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  CALL update_buffer
-  // call return value in r1
-  POP r1  
-  // emit call to write_to_buffer with args [{'type': 'string_addr', 'label': 'str_8'}, {'type': 'const', 'value': 32}]
-  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  LLI r10, str_8    // load immediate str_8
-  PUSH r10    // stage reg arg 0
-  LLI r9, 32    // load immediate 32
-  PUSH r9    // stage reg arg 1
-  POP r2    // load reg arg 1
-  POP r1    // load reg arg 0
-  CALL write_to_buffer
-  // call return value in r1
-  POP r1  
-  // emit call to update_buffer with args []
-  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  CALL update_buffer
-  // call return value in r1
-  POP r1  
-  // emit call to fast_clear_display with args []
-  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  CALL fast_clear_display
-  // call return value in r1
-  POP r1  
-  // emit call to load_and_display_image with args []
-  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  CALL load_and_display_image
-  // call return value in r1
-  POP r1  
-  // emit call to fast_clear_display with args []
-  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  CALL fast_clear_display
-  // call return value in r1
-  POP r1  
-  LLI r3, str_9    // init infix_expr (string addr)
-  LLI r4, 0    // zero init rpn_expr
-  // emit call to infix_to_rpn with args [{'type': 'var', 'name': 'infix_expr'}]
-  PUSH r3    // save caller temp
-  PUSH r4    // save caller temp
-  PUSH r3    // stage reg arg 0
-  POP r1    // load reg arg 0
-  CALL infix_to_rpn
-  // call return value in r1
-  POP r4    // restore caller temp
-  POP r3    // restore caller temp
-  ADDI r4, r1, 0    // move return value
-  // emit call to write_to_buffer with args [{'type': 'string_addr', 'label': 'str_10'}, {'type': 'const', 'value': 0}]
-  PUSH r3    // save caller temp
-  PUSH r4    // save caller temp
-  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  LLI r2, str_10    // load immediate str_10
+  LLI r2, str_8    // load immediate str_8
   PUSH r2    // stage reg arg 0
   LLI r5, 0    // load immediate 0
   PUSH r5    // stage reg arg 1
@@ -4172,100 +4128,30 @@ evaluate_rpn_61_WHILE_END3:
   CALL write_to_buffer
   // call return value in r1
   POP r1  
-  POP r4    // restore caller temp
-  POP r3    // restore caller temp
-  // emit call to write_to_buffer with args [{'type': 'var', 'name': 'infix_expr'}, {'type': 'const', 'value': 8}]
-  PUSH r3    // save caller temp
-  PUSH r4    // save caller temp
-  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  PUSH r3    // stage reg arg 0
-  LLI r6, 8    // load immediate 8
-  PUSH r6    // stage reg arg 1
-  POP r2    // load reg arg 1
-  POP r1    // load reg arg 0
-  CALL write_to_buffer
-  // call return value in r1
-  POP r1  
-  POP r4    // restore caller temp
-  POP r3    // restore caller temp
-  // emit call to write_to_buffer with args [{'type': 'string_addr', 'label': 'str_11'}, {'type': 'const', 'value': 32}]
-  PUSH r4    // save caller temp
-  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  LLI r7, str_11    // load immediate str_11
-  PUSH r7    // stage reg arg 0
-  LLI r8, 32    // load immediate 32
-  PUSH r8    // stage reg arg 1
-  POP r2    // load reg arg 1
-  POP r1    // load reg arg 0
-  CALL write_to_buffer
-  // call return value in r1
-  POP r1  
-  POP r4    // restore caller temp
-  // emit call to write_to_buffer with args [{'type': 'var', 'name': 'rpn_expr'}, {'type': 'const', 'value': 38}]
-  PUSH r4    // save caller temp
-  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  PUSH r4    // stage reg arg 0
-  LLI r11, 38    // load immediate 38
-  PUSH r11    // stage reg arg 1
-  POP r2    // load reg arg 1
-  POP r1    // load reg arg 0
-  CALL write_to_buffer
-  // call return value in r1
-  POP r1  
-  POP r4    // restore caller temp
-  // emit call to write_to_buffer with args [{'type': 'string_addr', 'label': 'str_12'}, {'type': 'const', 'value': 64}]
-  PUSH r4    // save caller temp
-  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  LLI r12, str_12    // load immediate str_12
-  PUSH r12    // stage reg arg 0
-  LLI r10, 64    // load immediate 64
-  PUSH r10    // stage reg arg 1
-  POP r2    // load reg arg 1
-  POP r1    // load reg arg 0
-  CALL write_to_buffer
-  // call return value in r1
-  POP r1  
-  POP r4    // restore caller temp
-  LLI r9, 0    // zero init result
-  // emit call to evaluate_rpn with args [{'type': 'var', 'name': 'rpn_expr'}]
-  PUSH r4    // save caller temp
-  PUSH r9    // save caller temp
-  PUSH r4    // stage reg arg 0
-  POP r1    // load reg arg 0
-  CALL evaluate_rpn
-  // call return value in r1
-  POP r9    // restore caller temp
-  POP r4    // restore caller temp
-  ADDI r9, r1, 0    // move return value
-  LLI r2, main_63_result_str_buf3    // init result_str (buffer addr)
-  // emit call to int_to_str_buf with args [{'type': 'var', 'name': 'result'}, {'type': 'var', 'name': 'result_str'}]
-  PUSH r2    // save caller temp
-  PUSH r9    // save caller temp
-  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  PUSH r9    // stage reg arg 0
-  PUSH r2    // stage reg arg 1
-  POP r2    // load reg arg 1
-  POP r1    // load reg arg 0
-  CALL int_to_str_buf
-  // call return value in r1
-  POP r1  
-  POP r9    // restore caller temp
-  POP r2    // restore caller temp
-  // emit call to write_to_buffer with args [{'type': 'var', 'name': 'result_str'}, {'type': 'const', 'value': 72}]
-  PUSH r2    // save caller temp
-  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  PUSH r2    // stage reg arg 0
-  LLI r5, 72    // load immediate 72
-  PUSH r5    // stage reg arg 1
-  POP r2    // load reg arg 1
-  POP r1    // load reg arg 0
-  CALL write_to_buffer
-  // call return value in r1
-  POP r1  
-  POP r2    // restore caller temp
   // emit call to update_buffer with args []
   PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
   CALL update_buffer
+  // call return value in r1
+  POP r1  
+  // emit call to write_to_buffer with args [{'type': 'string_addr', 'label': 'str_9'}, {'type': 'const', 'value': 32}]
+  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
+  LLI r4, str_9    // load immediate str_9
+  PUSH r4    // stage reg arg 0
+  LLI r3, 32    // load immediate 32
+  PUSH r3    // stage reg arg 1
+  POP r2    // load reg arg 1
+  POP r1    // load reg arg 0
+  CALL write_to_buffer
+  // call return value in r1
+  POP r1  
+  // emit call to update_buffer with args []
+  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
+  CALL update_buffer
+  // call return value in r1
+  POP r1  
+  // emit call to load_and_display_image with args []
+  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
+  CALL load_and_display_image
   // call return value in r1
   POP r1  
   BREAK
@@ -4561,40 +4447,31 @@ __time_block_buffer:
   .SPACE 512
 
 str_1:
-  .STR "example.txt\0"
+  .STR "Hello, RospOS!"
 
 str_2:
-  .STR "Hello, RospOS filesystem!\0"
+  .STR "example.txt\0"
 
 str_3:
-  .STR "Green"
+  .STR "Hello, RospOS filesystem!\0"
 
 str_4:
-  .STR "Red"
+  .STR "Green"
 
 str_5:
-  .STR "Blue"
+  .STR "Red"
 
 str_6:
-  .STR "Yellow"
+  .STR "Blue"
 
 str_7:
-  .STR "Hello, RospOS Terminal!\0"
+  .STR "Yellow"
 
 str_8:
-  .STR "This is a simple terminal implementation.\0"
+  .STR "Hello, RospOS Terminal!\0"
 
 str_9:
-  .STR "3+4*2/(1-5)"
-
-str_10:
-  .STR "Infix: \0"
-
-str_11:
-  .STR "RPN: \0"
-
-str_12:
-  .STR "Result: \0"
+  .STR "This is a simple terminal implementation.\0"
 
 draw_line_13_spill23:
   .SPACE 4 // lifted buffer
@@ -4664,7 +4541,4 @@ main_63_device_info_buf1:
 
 main_63_file_contents_buf2:
   .SPACE 512 // lifted buffer
-
-main_63_result_str_buf3:
-  .SPACE 16 // lifted buffer
 

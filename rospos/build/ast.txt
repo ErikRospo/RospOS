@@ -5930,6 +5930,15 @@ translation_unit
                     r2
         expr_stmt
           postfix
+            draw_string_to_display
+            call_suffix
+              arg_list
+                "Hello, RospOS!"
+                0
+                0
+                0x3F
+        expr_stmt
+          postfix
             initialize_filesystem
             call_suffix
         expr_stmt
@@ -6055,103 +6064,5 @@ translation_unit
             call_suffix
         expr_stmt
           postfix
-            fast_clear_display
-            call_suffix
-        expr_stmt
-          postfix
             load_and_display_image
-            call_suffix
-        expr_stmt
-          postfix
-            fast_clear_display
-            call_suffix
-        declaration
-          type_specifier
-            char
-            pointer
-          init_declarator_list
-            init_declarator
-              declarator	infix_expr
-              "3+4*2/(1-5)"
-        declaration
-          type_specifier
-            char
-            pointer
-          init_declarator_list
-            init_declarator
-              declarator	rpn_expr
-              postfix
-                infix_to_rpn
-                call_suffix
-                  arg_list	infix_expr
-        expr_stmt
-          postfix
-            write_to_buffer
-            call_suffix
-              arg_list
-                "Infix: \0"
-                0
-        expr_stmt
-          postfix
-            write_to_buffer
-            call_suffix
-              arg_list
-                infix_expr
-                8
-        expr_stmt
-          postfix
-            write_to_buffer
-            call_suffix
-              arg_list
-                "RPN: \0"
-                32
-        expr_stmt
-          postfix
-            write_to_buffer
-            call_suffix
-              arg_list
-                rpn_expr
-                38
-        expr_stmt
-          postfix
-            write_to_buffer
-            call_suffix
-              arg_list
-                "Result: \0"
-                64
-        declaration
-          type_specifier
-            int
-          init_declarator_list
-            init_declarator
-              declarator	result
-              postfix
-                evaluate_rpn
-                call_suffix
-                  arg_list	rpn_expr
-        declaration
-          type_specifier
-            char
-          init_declarator_list
-            init_declarator
-              declarator
-                result_str
-                array	16
-        expr_stmt
-          postfix
-            int_to_str_buf
-            call_suffix
-              arg_list
-                result
-                result_str
-        expr_stmt
-          postfix
-            write_to_buffer
-            call_suffix
-              arg_list
-                result_str
-                72
-        expr_stmt
-          postfix
-            update_buffer
             call_suffix

@@ -3622,8 +3622,6 @@ precedence_59_ELSE9:
   LLI r1, 0
   POP r14
   JALR r0, r14, 0
-infix_to_rpn:
-
   PUSH r14
   LLI r2, infix_to_rpn_60_output_buf1
   LLI r3, infix_to_rpn_60_stack_buf2
@@ -3712,8 +3710,6 @@ infix_to_rpn_60_WHILE_END14:
   ADD r1, r2, r0
   POP r14
   JALR r0, r14, 0
-evaluate_rpn:
-
   PUSH r14
   LLI r2, evaluate_rpn_61_stack_buf1
   LLI r3, 0
@@ -3823,145 +3819,158 @@ main:
   ADD r2, r2, r5
   ADD r6, r2, r0
   PUSH r1
-  JMP initialize_filesystem
-
   LLI r7, str_1
   PUSH r7
-  LLI r8, str_2
-  ADDI r2, r8, 0
-  POP r1
-  JMP write_file
-
-  POP r1
-  LLI r9, main_63_device_info_buf1
-  LLI r10, 4294967295
-  PUSH r9
-  PUSH r10
-  PUSH r1
-  LLI r11, 1073741832
-  PUSH r11
-  ADDI r2, r10, 0
-  POP r1
-  JMP bd_write_u32
-
-  POP r1
-  POP r10
-  POP r9
-  PUSH r9
-  PUSH r1
-  LLI r12, 1073741836
-  PUSH r12
-  ADDI r2, r9, 0
-  POP r1
-  JMP bd_write_u32
-
-  POP r1
-  POP r9
-  PUSH r1
-  LLI r3, 1073741840
-  PUSH r3
-  LLI r4, 1
-  ADDI r2, r4, 0
-  POP r1
-  JMP bd_write_u32
-
-  LLI r2, 1073741828
-  PUSH r2
-  LLI r5, 1
-  ADDI r2, r5, 0
-  POP r1
-  JMP bd_write_u32
-
-  POP r1
-  LLI r1, 0
-  PUSH r1
-  PUSH r9
-  LLI r7, 10
-  PUSH r7
-  LLI r8, 8
+  LLI r8, 0
   PUSH r8
-  LLI r11, 63
-  ADDI r4, r11, 0
-  POP r3
-  POP r2
-  POP r1
-  JMP draw_string_to_display
-
-  POP r1
-  LLI r10, main_63_file_contents_buf2
-  PUSH r10
-  PUSH r1
-  LLI r12, str_1
-  PUSH r12
-  ADDI r2, r10, 0
-  POP r1
-  JMP read_file
-
-  POP r1
-  POP r10
-  PUSH r10
-  PUSH r1
-  PUSH r10
-  LLI r9, 10
+  LLI r9, 0
   PUSH r9
-  LLI r3, 16
-  PUSH r3
-  LLI r4, 63
-  POP r3
-  POP r2
-  POP r1
-  JMP draw_string_to_display
-
-  POP r1
-  POP r10
-  PUSH r1
-  LLI r2, str_3
-  PUSH r2
-  LLI r5, 10
-  PUSH r5
-  LLI r6, 24
-  PUSH r6
-  LLI r7, 12
-  ADDI r4, r7, 0
-  POP r3
-  POP r2
-  POP r1
-  JMP draw_string_to_display
-
-  LLI r8, str_4
-  PUSH r8
-  LLI r11, 10
-  PUSH r11
-  LLI r12, 32
-  PUSH r12
-  LLI r10, 48
+  LLI r10, 63
   ADDI r4, r10, 0
   POP r3
   POP r2
   POP r1
   JMP draw_string_to_display
 
-  LLI r9, str_5
-  PUSH r9
-  LLI r3, 10
+  JMP initialize_filesystem
+
+  LLI r11, str_2
+  PUSH r11
+  LLI r12, str_3
+  ADDI r2, r12, 0
+  POP r1
+  JMP write_file
+
+  POP r1
+  LLI r3, main_63_device_info_buf1
+  LLI r4, 4294967295
   PUSH r3
-  LLI r4, 40
   PUSH r4
-  LLI r2, 7
+  PUSH r1
+  LLI r2, 1073741832
+  PUSH r2
+  ADDI r2, r4, 0
+  POP r1
+  JMP bd_write_u32
+
+  POP r1
+  POP r4
+  POP r3
+  PUSH r3
+  PUSH r1
+  LLI r5, 1073741836
+  PUSH r5
+  ADDI r2, r3, 0
+  POP r1
+  JMP bd_write_u32
+
+  POP r1
+  POP r3
+  PUSH r1
+  LLI r6, 1073741840
+  PUSH r6
+  LLI r7, 1
+  ADDI r2, r7, 0
+  POP r1
+  JMP bd_write_u32
+
+  LLI r8, 1073741828
+  PUSH r8
+  LLI r9, 1
+  ADDI r2, r9, 0
+  POP r1
+  JMP bd_write_u32
+
+  POP r1
+  LLI r1, 0
+  PUSH r1
+  PUSH r3
+  LLI r11, 10
+  PUSH r11
+  LLI r12, 8
+  PUSH r12
+  LLI r2, 63
   ADDI r4, r2, 0
   POP r3
   POP r2
   POP r1
   JMP draw_string_to_display
 
-  LLI r5, str_6
+  POP r1
+  LLI r4, main_63_file_contents_buf2
+  PUSH r4
+  PUSH r1
+  LLI r5, str_2
   PUSH r5
+  ADDI r2, r4, 0
+  POP r1
+  JMP read_file
+
+  POP r1
+  POP r4
+  PUSH r4
+  PUSH r1
+  PUSH r4
+  LLI r3, 10
+  PUSH r3
+  LLI r6, 16
+  PUSH r6
+  LLI r7, 63
+  ADDI r4, r7, 0
+  POP r3
+  POP r2
+  POP r1
+  JMP draw_string_to_display
+
+  POP r1
+  POP r4
+  PUSH r1
+  LLI r8, str_4
+  PUSH r8
+  LLI r9, 10
+  PUSH r9
+  LLI r10, 24
+  PUSH r10
+  LLI r11, 12
+  ADDI r4, r11, 0
+  POP r3
+  POP r2
+  POP r1
+  JMP draw_string_to_display
+
+  LLI r12, str_5
+  PUSH r12
+  LLI r2, 10
+  PUSH r2
+  LLI r5, 32
+  PUSH r5
+  LLI r4, 48
+  POP r3
+  POP r2
+  POP r1
+  JMP draw_string_to_display
+
+  LLI r3, str_6
+  PUSH r3
   LLI r6, 10
   PUSH r6
-  LLI r7, 48
+  LLI r7, 40
   PUSH r7
-  LLI r8, 60
+  LLI r8, 7
   ADDI r4, r8, 0
+  POP r3
+  POP r2
+  POP r1
+  JMP draw_string_to_display
+
+  LLI r9, str_7
+  PUSH r9
+  LLI r10, 10
+  PUSH r10
+  LLI r11, 48
+  PUSH r11
+  LLI r12, 60
+  ADDI r4, r12, 0
   POP r3
   POP r2
   POP r1
@@ -3971,125 +3980,25 @@ main:
 
   JMP fast_clear_display
 
-  LLI r11, str_7
-  PUSH r11
-  LLI r12, 0
-  ADDI r2, r12, 0
-  POP r1
-  JMP write_to_buffer
-
-  JMP update_buffer
-
-  LLI r10, str_8
-  PUSH r10
-  LLI r9, 32
-  ADDI r2, r9, 0
-  POP r1
-  JMP write_to_buffer
-
-  JMP update_buffer
-
-  JMP fast_clear_display
-
-  JMP load_and_display_image
-
-  JMP fast_clear_display
-
-  POP r1
-  LLI r3, str_9
-  LLI r4, 0
-  PUSH r3
-  PUSH r4
-  ADDI r1, r3, 0
-  JMP infix_to_rpn
-
-  POP r4
-  POP r3
-  ADDI r4, r1, 0
-  PUSH r3
-  PUSH r4
-  PUSH r1
-  LLI r2, str_10
+  LLI r2, str_8
   PUSH r2
   LLI r5, 0
   ADDI r2, r5, 0
   POP r1
   JMP write_to_buffer
 
-  POP r1
-  POP r4
-  POP r3
-  PUSH r3
-  PUSH r4
-  PUSH r1
-  PUSH r3
-  LLI r6, 8
-  ADDI r2, r6, 0
-  POP r1
-  JMP write_to_buffer
-
-  POP r1
-  POP r4
-  POP r3
-  PUSH r4
-  PUSH r1
-  LLI r7, str_11
-  PUSH r7
-  LLI r8, 32
-  ADDI r2, r8, 0
-  POP r1
-  JMP write_to_buffer
-
-  POP r1
-  POP r4
-  PUSH r4
-  PUSH r1
-  PUSH r4
-  LLI r11, 38
-  ADDI r2, r11, 0
-  POP r1
-  JMP write_to_buffer
-
-  LLI r12, str_12
-  PUSH r12
-  LLI r10, 64
-  ADDI r2, r10, 0
-  POP r1
-  JMP write_to_buffer
-
-  POP r1
-  POP r4
-  LLI r9, 0
-  PUSH r4
-  PUSH r9
-  ADDI r1, r4, 0
-  JMP evaluate_rpn
-
-  POP r9
-  POP r4
-  ADDI r9, r1, 0
-  LLI r2, main_63_result_str_buf3
-  PUSH r2
-  PUSH r9
-  PUSH r1
-  ADDI r1, r9, 0
-  JMP int_to_str_buf
-
-  POP r1
-  POP r9
-  POP r2
-  PUSH r2
-  PUSH r1
-  PUSH r2
-  LLI r5, 72
-  ADDI r2, r5, 0
-  POP r1
-  JMP write_to_buffer
-
-  POP r1
-  POP r2
-  PUSH r1
   JMP update_buffer
+
+  LLI r4, str_9
+  PUSH r4
+  LLI r3, 32
+  ADDI r2, r3, 0
+  POP r1
+  JMP write_to_buffer
+
+  JMP update_buffer
+
+  JMP load_and_display_image
 
   POP r1
   BREAK
@@ -4625,51 +4534,39 @@ buffer_update_queue_ptr:
 
 str_1:
 
-.DATA 0x65 0x78 0x61 0x6D 0x70 0x6C 0x65 0x2E 0x74 0x78 0x74 0x00 0x00
+.DATA 0x48 0x65 0x6C 0x6C 0x6F 0x2C 0x20 0x52 0x6F 0x73 0x70 0x4F 0x53 0x21 0x00
 
 str_2:
 
-.DATA 0x48 0x65 0x6C 0x6C 0x6F 0x2C 0x20 0x52 0x6F 0x73 0x70 0x4F 0x53 0x20 0x66 0x69 0x6C 0x65 0x73 0x79 0x73 0x74 0x65 0x6D 0x21 0x00 0x00
+.DATA 0x65 0x78 0x61 0x6D 0x70 0x6C 0x65 0x2E 0x74 0x78 0x74 0x00 0x00
 
 str_3:
 
-.DATA 0x47 0x72 0x65 0x65 0x6E 0x00
+.DATA 0x48 0x65 0x6C 0x6C 0x6F 0x2C 0x20 0x52 0x6F 0x73 0x70 0x4F 0x53 0x20 0x66 0x69 0x6C 0x65 0x73 0x79 0x73 0x74 0x65 0x6D 0x21 0x00 0x00
 
 str_4:
 
-.DATA 0x52 0x65 0x64 0x00
+.DATA 0x47 0x72 0x65 0x65 0x6E 0x00
 
 str_5:
 
-.DATA 0x42 0x6C 0x75 0x65 0x00
+.DATA 0x52 0x65 0x64 0x00
 
 str_6:
 
-.DATA 0x59 0x65 0x6C 0x6C 0x6F 0x77 0x00
+.DATA 0x42 0x6C 0x75 0x65 0x00
 
 str_7:
 
-.DATA 0x48 0x65 0x6C 0x6C 0x6F 0x2C 0x20 0x52 0x6F 0x73 0x70 0x4F 0x53 0x20 0x54 0x65 0x72 0x6D 0x69 0x6E 0x61 0x6C 0x21 0x00 0x00
+.DATA 0x59 0x65 0x6C 0x6C 0x6F 0x77 0x00
 
 str_8:
 
-.DATA 0x54 0x68 0x69 0x73 0x20 0x69 0x73 0x20 0x61 0x20 0x73 0x69 0x6D 0x70 0x6C 0x65 0x20 0x74 0x65 0x72 0x6D 0x69 0x6E 0x61 0x6C 0x20 0x69 0x6D 0x70 0x6C 0x65 0x6D 0x65 0x6E 0x74 0x61 0x74 0x69 0x6F 0x6E 0x2E 0x00 0x00
+.DATA 0x48 0x65 0x6C 0x6C 0x6F 0x2C 0x20 0x52 0x6F 0x73 0x70 0x4F 0x53 0x20 0x54 0x65 0x72 0x6D 0x69 0x6E 0x61 0x6C 0x21 0x00 0x00
 
 str_9:
 
-.DATA 0x33 0x2B 0x34 0x2A 0x32 0x2F 0x28 0x31 0x2D 0x35 0x29 0x00
-
-str_10:
-
-.DATA 0x49 0x6E 0x66 0x69 0x78 0x3A 0x20 0x00 0x00
-
-str_11:
-
-.DATA 0x52 0x50 0x4E 0x3A 0x20 0x00 0x00
-
-str_12:
-
-.DATA 0x52 0x65 0x73 0x75 0x6C 0x74 0x3A 0x20 0x00 0x00
+.DATA 0x54 0x68 0x69 0x73 0x20 0x69 0x73 0x20 0x61 0x20 0x73 0x69 0x6D 0x70 0x6C 0x65 0x20 0x74 0x65 0x72 0x6D 0x69 0x6E 0x61 0x6C 0x20 0x69 0x6D 0x70 0x6C 0x65 0x6D 0x65 0x6E 0x74 0x61 0x74 0x69 0x6F 0x6E 0x2E 0x00 0x00
 
 __int_to_str_static_buffer:
 
@@ -4786,7 +4683,3 @@ main_63_device_info_buf1:
 main_63_file_contents_buf2:
 
 .SPACE 512
-
-main_63_result_str_buf3:
-
-.SPACE 16

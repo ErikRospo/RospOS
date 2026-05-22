@@ -88,62 +88,47 @@
     {
       "kind": "string",
       "name": "str_1",
-      "value": "example.txt\u0000"
+      "value": "Hello, RospOS!"
     },
     {
       "kind": "string",
       "name": "str_2",
-      "value": "Hello, RospOS filesystem!\u0000"
+      "value": "example.txt\u0000"
     },
     {
       "kind": "string",
       "name": "str_3",
-      "value": "Green"
+      "value": "Hello, RospOS filesystem!\u0000"
     },
     {
       "kind": "string",
       "name": "str_4",
-      "value": "Red"
+      "value": "Green"
     },
     {
       "kind": "string",
       "name": "str_5",
-      "value": "Blue"
+      "value": "Red"
     },
     {
       "kind": "string",
       "name": "str_6",
-      "value": "Yellow"
+      "value": "Blue"
     },
     {
       "kind": "string",
       "name": "str_7",
-      "value": "Hello, RospOS Terminal!\u0000"
+      "value": "Yellow"
     },
     {
       "kind": "string",
       "name": "str_8",
-      "value": "This is a simple terminal implementation.\u0000"
+      "value": "Hello, RospOS Terminal!\u0000"
     },
     {
       "kind": "string",
       "name": "str_9",
-      "value": "3+4*2/(1-5)"
-    },
-    {
-      "kind": "string",
-      "name": "str_10",
-      "value": "Infix: \u0000"
-    },
-    {
-      "kind": "string",
-      "name": "str_11",
-      "value": "RPN: \u0000"
-    },
-    {
-      "kind": "string",
-      "name": "str_12",
-      "value": "Result: \u0000"
+      "value": "This is a simple terminal implementation.\u0000"
     }
   ],
   "functions": [
@@ -13118,9 +13103,32 @@
         },
         {
           "type": "call_stmt",
+          "name": "draw_string_to_display",
+          "args": [
+            {
+              "type": "string_addr",
+              "label": "str_1"
+            },
+            {
+              "type": "const",
+              "value": 0
+            },
+            {
+              "type": "const",
+              "value": 0
+            },
+            {
+              "type": "const",
+              "value": 63
+            }
+          ],
+          "_line": 1185
+        },
+        {
+          "type": "call_stmt",
           "name": "initialize_filesystem",
           "args": [],
-          "_line": 1187
+          "_line": 1186
         },
         {
           "type": "call_stmt",
@@ -13128,14 +13136,14 @@
           "args": [
             {
               "type": "string_addr",
-              "label": "str_1"
+              "label": "str_2"
             },
             {
               "type": "string_addr",
-              "label": "str_2"
+              "label": "str_3"
             }
           ],
-          "_line": 1188
+          "_line": 1187
         },
         {
           "type": "decl",
@@ -13144,7 +13152,7 @@
             "type": "array",
             "size": 512
           },
-          "_line": 1189,
+          "_line": 1188,
           "decl_type": "char_ptr"
         },
         {
@@ -13160,7 +13168,7 @@
               "name": "device_info"
             }
           ],
-          "_line": 1190
+          "_line": 1189
         },
         {
           "type": "call_stmt",
@@ -13183,7 +13191,7 @@
               "value": 63
             }
           ],
-          "_line": 1191
+          "_line": 1190
         },
         {
           "type": "decl",
@@ -13192,7 +13200,7 @@
             "type": "array",
             "size": 512
           },
-          "_line": 1192,
+          "_line": 1191,
           "decl_type": "char_ptr"
         },
         {
@@ -13201,14 +13209,14 @@
           "args": [
             {
               "type": "string_addr",
-              "label": "str_1"
+              "label": "str_2"
             },
             {
               "type": "var",
               "name": "file_contents"
             }
           ],
-          "_line": 1193
+          "_line": 1192
         },
         {
           "type": "call_stmt",
@@ -13231,30 +13239,7 @@
               "value": 63
             }
           ],
-          "_line": 1194
-        },
-        {
-          "type": "call_stmt",
-          "name": "draw_string_to_display",
-          "args": [
-            {
-              "type": "string_addr",
-              "label": "str_3"
-            },
-            {
-              "type": "const",
-              "value": 10
-            },
-            {
-              "type": "const",
-              "value": 24
-            },
-            {
-              "type": "const",
-              "value": 12
-            }
-          ],
-          "_line": 1195
+          "_line": 1193
         },
         {
           "type": "call_stmt",
@@ -13270,14 +13255,14 @@
             },
             {
               "type": "const",
-              "value": 32
+              "value": 24
             },
             {
               "type": "const",
-              "value": 48
+              "value": 12
             }
           ],
-          "_line": 1196
+          "_line": 1194
         },
         {
           "type": "call_stmt",
@@ -13293,14 +13278,14 @@
             },
             {
               "type": "const",
-              "value": 40
+              "value": 32
             },
             {
               "type": "const",
-              "value": 7
+              "value": 48
             }
           ],
-          "_line": 1197
+          "_line": 1195
         },
         {
           "type": "call_stmt",
@@ -13316,30 +13301,18 @@
             },
             {
               "type": "const",
-              "value": 48
+              "value": 40
             },
             {
               "type": "const",
-              "value": 60
+              "value": 7
             }
           ],
-          "_line": 1198
+          "_line": 1196
         },
         {
           "type": "call_stmt",
-          "name": "rand_block_test",
-          "args": [],
-          "_line": 1199
-        },
-        {
-          "type": "call_stmt",
-          "name": "fast_clear_display",
-          "args": [],
-          "_line": 1200
-        },
-        {
-          "type": "call_stmt",
-          "name": "write_to_buffer",
+          "name": "draw_string_to_display",
           "args": [
             {
               "type": "string_addr",
@@ -13347,16 +13320,30 @@
             },
             {
               "type": "const",
-              "value": 0
+              "value": 10
+            },
+            {
+              "type": "const",
+              "value": 48
+            },
+            {
+              "type": "const",
+              "value": 60
             }
           ],
-          "_line": 1201
+          "_line": 1197
         },
         {
           "type": "call_stmt",
-          "name": "update_buffer",
+          "name": "rand_block_test",
           "args": [],
-          "_line": 1202
+          "_line": 1198
+        },
+        {
+          "type": "call_stmt",
+          "name": "fast_clear_display",
+          "args": [],
+          "_line": 1199
         },
         {
           "type": "call_stmt",
@@ -13368,197 +13355,43 @@
             },
             {
               "type": "const",
-              "value": 32
+              "value": 0
             }
           ],
-          "_line": 1203
+          "_line": 1200
         },
         {
           "type": "call_stmt",
           "name": "update_buffer",
           "args": [],
-          "_line": 1204
+          "_line": 1201
         },
         {
           "type": "call_stmt",
-          "name": "fast_clear_display",
+          "name": "write_to_buffer",
+          "args": [
+            {
+              "type": "string_addr",
+              "label": "str_9"
+            },
+            {
+              "type": "const",
+              "value": 32
+            }
+          ],
+          "_line": 1202
+        },
+        {
+          "type": "call_stmt",
+          "name": "update_buffer",
           "args": [],
-          "_line": 1205
+          "_line": 1203
         },
         {
           "type": "call_stmt",
           "name": "load_and_display_image",
           "args": [],
-          "_line": 1206
-        },
-        {
-          "type": "call_stmt",
-          "name": "fast_clear_display",
-          "args": [],
-          "_line": 1207
-        },
-        {
-          "type": "decl",
-          "name": "infix_expr",
-          "init": {
-            "type": "string_addr",
-            "label": "str_9"
-          },
-          "_line": 1208,
-          "decl_type": "char_ptr"
-        },
-        {
-          "type": "decl",
-          "name": "rpn_expr",
-          "init": {
-            "type": "call",
-            "name": "infix_to_rpn",
-            "args": [
-              {
-                "type": "var",
-                "name": "infix_expr"
-              }
-            ]
-          },
-          "_line": 1209,
-          "decl_type": "char_ptr"
-        },
-        {
-          "type": "call_stmt",
-          "name": "write_to_buffer",
-          "args": [
-            {
-              "type": "string_addr",
-              "label": "str_10"
-            },
-            {
-              "type": "const",
-              "value": 0
-            }
-          ],
-          "_line": 1210
-        },
-        {
-          "type": "call_stmt",
-          "name": "write_to_buffer",
-          "args": [
-            {
-              "type": "var",
-              "name": "infix_expr"
-            },
-            {
-              "type": "const",
-              "value": 8
-            }
-          ],
-          "_line": 1211
-        },
-        {
-          "type": "call_stmt",
-          "name": "write_to_buffer",
-          "args": [
-            {
-              "type": "string_addr",
-              "label": "str_11"
-            },
-            {
-              "type": "const",
-              "value": 32
-            }
-          ],
-          "_line": 1212
-        },
-        {
-          "type": "call_stmt",
-          "name": "write_to_buffer",
-          "args": [
-            {
-              "type": "var",
-              "name": "rpn_expr"
-            },
-            {
-              "type": "const",
-              "value": 38
-            }
-          ],
-          "_line": 1213
-        },
-        {
-          "type": "call_stmt",
-          "name": "write_to_buffer",
-          "args": [
-            {
-              "type": "string_addr",
-              "label": "str_12"
-            },
-            {
-              "type": "const",
-              "value": 64
-            }
-          ],
-          "_line": 1214
-        },
-        {
-          "type": "decl",
-          "name": "result",
-          "init": {
-            "type": "call",
-            "name": "evaluate_rpn",
-            "args": [
-              {
-                "type": "var",
-                "name": "rpn_expr"
-              }
-            ]
-          },
-          "_line": 1215,
-          "decl_type": "int"
-        },
-        {
-          "type": "decl",
-          "name": "result_str",
-          "init": {
-            "type": "array",
-            "size": 16
-          },
-          "_line": 1216,
-          "decl_type": "char_ptr"
-        },
-        {
-          "type": "call_stmt",
-          "name": "int_to_str_buf",
-          "args": [
-            {
-              "type": "var",
-              "name": "result"
-            },
-            {
-              "type": "var",
-              "name": "result_str"
-            }
-          ],
-          "_line": 1217
-        },
-        {
-          "type": "call_stmt",
-          "name": "write_to_buffer",
-          "args": [
-            {
-              "type": "var",
-              "name": "result_str"
-            },
-            {
-              "type": "const",
-              "value": 72
-            }
-          ],
-          "_line": 1218
-        },
-        {
-          "type": "call_stmt",
-          "name": "update_buffer",
-          "args": [],
-          "_line": 1219
+          "_line": 1205
         }
       ],
       "return_type": "void",

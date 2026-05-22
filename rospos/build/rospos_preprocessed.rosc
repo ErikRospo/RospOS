@@ -1182,8 +1182,7 @@ void main()
     int r1= add(15, 25);
     inline int r2 = 50;
     int r3 = add(r1, r2);
-    
-
+    draw_string_to_display("Hello, RospOS!", 0, 0, 0x3F);
     initialize_filesystem();
     write_file("example.txt\0", "Hello, RospOS filesystem!\0");
     char device_info[512];
@@ -1202,21 +1201,21 @@ void main()
     update_buffer();
     write_to_buffer("This is a simple terminal implementation.\0", 32);
     update_buffer();
-    fast_clear_display();
+    // fast_clear_display();
     load_and_display_image();
-    fast_clear_display();
-    char* infix_expr = "3+4*2/(1-5)";
-    char* rpn_expr = infix_to_rpn(infix_expr);
-    write_to_buffer("Infix: \0", 0);
-    write_to_buffer(infix_expr, 8);
-    write_to_buffer("RPN: \0", 32);
-    write_to_buffer(rpn_expr, 38);
-    write_to_buffer("Result: \0", 64);
-    int result = evaluate_rpn(rpn_expr);
-    char result_str[16];
-    int_to_str_buf(result, result_str);
-    write_to_buffer(result_str, 72);
-    update_buffer();
+    // fast_clear_display();
+    // char* infix_expr = "3+4*2/(1-5)";
+    // char* rpn_expr = infix_to_rpn(infix_expr);
+    // write_to_buffer("Infix: \0", 0);
+    // write_to_buffer(infix_expr, 8);
+    // write_to_buffer("RPN: \0", 32);
+    // write_to_buffer(rpn_expr, 38);
+    // write_to_buffer("Result: \0", 64);
+    // int result = evaluate_rpn(rpn_expr);
+    // char result_str[16];
+    // int_to_str_buf(result, result_str);
+    // write_to_buffer(result_str, 72);
+    // update_buffer();
     
     // char *time_str = fmt_unix_time(get_unix_time());
     // draw_string_to_display(time_str, 10, 56, 0x3F);
