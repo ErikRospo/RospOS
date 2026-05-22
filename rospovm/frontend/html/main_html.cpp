@@ -83,8 +83,8 @@ public:
         auto *speedSlider = new QSlider(Qt::Horizontal, this);
         speedSlider->setMinimum(0);
         speedSlider->setMaximum(14);
-        speedSlider->setValue(4);
-
+        speedSlider->setValue(13);
+        
         auto *controls = new QHBoxLayout();
         controls->addWidget(loadButton);
         controls->addWidget(stepButton);
@@ -164,6 +164,7 @@ public:
         connect(pauseButton, &QPushButton::clicked, controller, &VMControllerCore::pause);
         connect(resetButton, &QPushButton::clicked, controller, &VMControllerCore::reset);
         connect(speedSlider, &QSlider::valueChanged, controller, &VMControllerCore::setExecutionSpeedLevel);
+        controller->setExecutionSpeedLevel(speedSlider->value());
 
         connect(controller, &VMControllerCore::stateChanged, this, [this]() {
             status->setText(QStringLiteral("Status: PC=0x%1")
