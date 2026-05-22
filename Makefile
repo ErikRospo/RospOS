@@ -12,6 +12,7 @@ FONT_SRC := tools/font8x8_basic_data.h
 
 DIR_ROSPOS_BUILD := rospos/build
 DIR_ROSPOVM_BUILD := rospovm/build
+DIR_ROSPOVM_WASM_BUILD := rospovm/build-wasm
 DIR_DOCS_BUILD := build/
 
 ROS_SOURCE := rospos/main.rosc
@@ -38,7 +39,8 @@ ROSPOVM_SRC := $(sort $(shell find rospovm -type f -not -path "rospovm/build/*")
 .DEFAULT_GOAL := build
 
 .PHONY: all help bm parse compile dump build clean doc format frontend \
-		frontend_cmake run vm_headless run_headless test report \
+		frontend_cmake frontend_wasm frontend_wasm_light frontend_wasm_dark \
+		frontend_wasm_both run vm_headless run_headless test report \
 		benchmark benchmark_plot everything frontend_minimal run_minimal \
 		min_run
 
@@ -50,6 +52,7 @@ help:
 	@echo "  parse            Compile .rosc to .ros"
 	@echo "  compile          Assemble all .rosp output variants"
 	@echo "  frontend         Build Qt VM frontend"
+	@echo "  frontend_wasm    Build WASM frontend"
 	@echo "  frontend_minimal Build minimal VM frontend"
 	@echo "  vm_headless      Build headless VM"
 	@echo "  run              Run with Qt frontend"
@@ -87,6 +90,14 @@ $(eval $(call make_rosp_variant,$(ROSP_COMBINED),--compress-bin --compress-debug
 $(DIR_ROSPOVM_BUILD)/Makefile: rospovm/CMakeLists.txt $(ROSPOVM_SRC) | $(DIR_ROSPOVM_BUILD)
 	$(CMAKE) -S rospovm -B $(DIR_ROSPOVM_BUILD)
 
+WASM_CMAKE_ARGS := \
+	-DCMAKE_TOOLCHAIN_FILE=/home/erospo/Qt/6.10.3/wasm_singlethread/lib/cmake/Qt6/qt.toolchain.cmake \
+	-DCMAKE_PREFIX_PATH=/home/erospo/Qt/6.10.3/wasm_singlethread \
+	-DQt6_DIR=/home/erospo/Qt/6.10.3/wasm_singlethread/lib/cmake/Qt6
+
+$(DIR_ROSPOVM_WASM_BUILD)/Makefile: rospovm/CMakeLists.txt $(ROSPOVM_SRC) | $(DIR_ROSPOVM_WASM_BUILD)
+	$(CMAKE) -S rospovm -B $(DIR_ROSPOVM_WASM_BUILD) $(WASM_CMAKE_ARGS)
+
 define make_vm_target
 $(DIR_ROSPOVM_BUILD)/.$1.stamp: $(DIR_ROSPOVM_BUILD)/Makefile $(ROSPOVM_SRC)
 	$(CMAKE) --build $(DIR_ROSPOVM_BUILD) --target $1 -j $(NPROC)
@@ -119,6 +130,12 @@ frontend_cmake: $(DIR_ROSPOVM_BUILD)/Makefile
 frontend: $(DIR_ROSPOVM_BUILD)/rospovm_qt
 frontend_minimal: $(DIR_ROSPOVM_BUILD)/rospovm_minimal
 vm_headless: $(DIR_ROSPOVM_BUILD)/rospovm_headless
+
+
+frontend_wasm: $(DIR_ROSPOVM_WASM_BUILD)/Makefile
+	$(CMAKE) -S rospovm -B $(DIR_ROSPOVM_WASM_BUILD) $(WASM_CMAKE_ARGS)
+	$(CMAKE) --build $(DIR_ROSPOVM_WASM_BUILD) --target rospovm_html -j $(NPROC)
+
 
 run: $(ROSP_FULL) $(DIR_ROSPOVM_BUILD)/rospovm_qt
 	$(DIR_ROSPOVM_BUILD)/rospovm_qt $<
@@ -155,6 +172,7 @@ min_run: $(ROSP_FULL) $(DIR_ROSPOVM_BUILD)/rospovm_minimal
 clean:
 	rm -rf $(DIR_ROSPOS_BUILD)
 	rm -rf $(DIR_ROSPOVM_BUILD)
+	rm -rf $(DIR_ROSPOVM_WASM_BUILD)
 	rm -f $(HTMLDOCS)
 	rm -f $(PDFDOCS)
 	rm -f rospos/font_bitmap.bin

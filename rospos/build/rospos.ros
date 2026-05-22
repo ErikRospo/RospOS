@@ -4202,59 +4202,6 @@ evaluate_rpn_61_WHILE_END3:
   CALL fast_clear_display
   // call return value in r1
   POP r1  
-  // emit call to write_to_buffer with args [{'type': 'string_addr', 'label': 'str_13'}, {'type': 'const', 'value': 0}]
-  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  LLI r11, str_13    // load immediate str_13
-  PUSH r11    // stage reg arg 0
-  LLI r12, 0    // load immediate 0
-  PUSH r12    // stage reg arg 1
-  POP r2    // load reg arg 1
-  POP r1    // load reg arg 0
-  CALL write_to_buffer
-  // call return value in r1
-  POP r1  
-  // emit call to update_buffer with args []
-  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  CALL update_buffer
-  // call return value in r1
-  POP r1  
-  // emit call to write_to_buffer with args [{'type': 'string_addr', 'label': 'str_14'}, {'type': 'const', 'value': 32}]
-  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  LLI r2, str_14    // load immediate str_14
-  PUSH r2    // stage reg arg 0
-  LLI r5, 32    // load immediate 32
-  PUSH r5    // stage reg arg 1
-  POP r2    // load reg arg 1
-  POP r1    // load reg arg 0
-  CALL write_to_buffer
-  // call return value in r1
-  POP r1  
-  // emit call to fast_clear_display with args []
-  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  CALL fast_clear_display
-  // call return value in r1
-  POP r1  
-  // emit call to clear_buffer with args []
-  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  CALL clear_buffer
-  // call return value in r1
-  POP r1  
-  // emit call to write_to_buffer with args [{'type': 'string_addr', 'label': 'str_15'}, {'type': 'const', 'value': 0}]
-  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  LLI r4, str_15    // load immediate str_15
-  PUSH r4    // stage reg arg 0
-  LLI r3, 0    // load immediate 0
-  PUSH r3    // stage reg arg 1
-  POP r2    // load reg arg 1
-  POP r1    // load reg arg 0
-  CALL write_to_buffer
-  // call return value in r1
-  POP r1  
-  // emit call to update_buffer with args []
-  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  CALL update_buffer
-  // call return value in r1
-  POP r1  
   // emit call to load_and_display_image with args []
   PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
   CALL load_and_display_image
@@ -4587,15 +4534,6 @@ str_11:
 
 str_12:
   .STR "using DMA:\0"
-
-str_13:
-  .STR "Hello, RospOS Terminal!\0"
-
-str_14:
-  .STR "This is a simple terminal implementation.\0"
-
-str_15:
-  .STR "Fast loading image from disk using DMA:\0"
 
 draw_line_13_spill23:
   .SPACE 4 // lifted buffer
