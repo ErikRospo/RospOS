@@ -13,8 +13,11 @@ constexpr int kSpeedLevelUnlimited = kSpeedLevelMax;
 constexpr int kBurstThresholdLevel = 7;
 }
 
-VMControllerCore::VMControllerCore(QObject *parent)
-    : QObject(parent), vm(std::make_unique<RospOSVM>(false)), running(false)
+VMControllerCore::VMControllerCore(QObject *parent, const QString &blockDevicePath)
+    : QObject(parent),
+      vm(std::make_unique<RospOSVM>(false, blockDevicePath.toStdString())),
+      running(false),
+      currentBlockDevicePath(blockDevicePath)
 {
     executionTimer.setSingleShot(true);
     connect(&executionTimer, &QTimer::timeout, this, &VMControllerCore::onExecutionTick);
@@ -33,6 +36,35 @@ bool VMControllerCore::loadBinaryFile(const QString &filePath)
         return true;
     } catch (const std::exception &e) {
         emit error(QString("Failed to load binary: %1").arg(e.what()));
+        return false;
+    }
+}
+
+bool VMControllerCore::setBlockDeviceFile(const QString &filePath)
+{
+    return recreateVm(filePath, !loadedBinaryPath.isEmpty());
+}
+
+bool VMControllerCore::recreateVm(const QString &blockDevicePath, bool reloadLoadedBinary)
+{
+    try {
+        std::unique_ptr<RospOSVM> newVm = std::make_unique<RospOSVM>(false, blockDevicePath.toStdString());
+        if (reloadLoadedBinary && !loadedBinaryPath.isEmpty()) {
+            newVm->loadBinaryFromFile(loadedBinaryPath.toStdString());
+        }
+
+        executionTimer.stop();
+        running = false;
+        pendingBurstSteps = 0.0;
+        throughputTimer.invalidate();
+        vm = std::move(newVm);
+        currentBlockDevicePath = blockDevicePath;
+        emit stateChanged();
+        emit executionStopped();
+        return true;
+    } catch (const std::exception &e) {
+        emit error(QString("Failed to load block device: %1").arg(e.what()));
+        emit executionStopped();
         return false;
     }
 }
@@ -113,14 +145,9 @@ bool VMControllerCore::restart()
 
 void VMControllerCore::reset()
 {
-    executionTimer.stop();
-    vm = std::make_unique<RospOSVM>(false);
-    running = false;
-    pendingBurstSteps = 0.0;
-    throughputTimer.invalidate();
-    loadedBinaryPath.clear();
-    emit stateChanged();
-    emit executionStopped();
+    if (recreateVm(currentBlockDevicePath, false)) {
+        loadedBinaryPath.clear();
+    }
 }
 
 void VMControllerCore::setExecutionSpeedLevel(int level)

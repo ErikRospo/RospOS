@@ -16,12 +16,57 @@
 #include <QVBoxLayout>
 #include <QWidget>
 
+#ifndef ROSPOSVM_DEFAULT_BINARY_FILE
+#define ROSPOSVM_DEFAULT_BINARY_FILE ""
+#endif
+
+#ifndef ROSPOSVM_DEFAULT_BLOCKDEV_FILE
+#define ROSPOSVM_DEFAULT_BLOCKDEV_FILE ""
+#endif
+
+namespace {
+
+QString defaultBinaryFilePath()
+{
+    return QStringLiteral(ROSPOSVM_DEFAULT_BINARY_FILE);
+}
+
+QString defaultBlockDeviceFilePath()
+{
+    return QStringLiteral(ROSPOSVM_DEFAULT_BLOCKDEV_FILE);
+}
+
+QString stageUploadedFile(const QByteArray &fileContent, const QString &suffix, QString *errorMessage)
+{
+    QTemporaryFile tempFile(QDir::tempPath() + QStringLiteral("/rospovm-web-XXXXXX.") + suffix);
+    tempFile.setAutoRemove(false);
+    if (!tempFile.open()) {
+        if (errorMessage) {
+            *errorMessage = QStringLiteral("Failed to prepare browser upload");
+        }
+        return QString();
+    }
+
+    if (tempFile.write(fileContent) != fileContent.size()) {
+        if (errorMessage) {
+            *errorMessage = QStringLiteral("Failed to stage uploaded file");
+        }
+        return QString();
+    }
+
+    const QString stagedPath = tempFile.fileName();
+    tempFile.close();
+    return stagedPath;
+}
+
+} // namespace
+
 class HtmlWindow : public QWidget
 {
 public:
     explicit HtmlWindow(QWidget *parent = nullptr)
         : QWidget(parent),
-          controller(new VMControllerCore(this)),
+          controller(new VMControllerCore(this, defaultBlockDeviceFilePath())),
           display(new VMDisplay(this)),
           tty(new TTYWidget(this)),
           status(new QLabel(tr("Status: Ready"), this))
@@ -59,39 +104,58 @@ public:
         connect(loadButton, &QPushButton::clicked, this, [this]() {
 #ifdef __EMSCRIPTEN__
             QFileDialog::getOpenFileContent(
-                QStringLiteral("Binary Files (*.rosp);;All Files (*)"),
+                QStringLiteral("RospOS Files (*.rosp *.blockdev);;All Files (*)"),
                 [this](const QString &fileName, const QByteArray &fileContent) {
                     if (fileName.isEmpty() || fileContent.isEmpty()) {
                         status->setText(tr("Status: No file selected"));
                         return;
                     }
 
-                    QTemporaryFile tempFile(QDir::tempPath() + QStringLiteral("/rospovm-web-XXXXXX.rosp"));
-                    tempFile.setAutoRemove(false);
-                    if (!tempFile.open()) {
-                        status->setText(tr("Status: Failed to prepare browser upload"));
+                    const QString suffix = QFileInfo(fileName).suffix().toLower();
+                    QString stageError;
+                    const QString stagedPath = stageUploadedFile(fileContent, suffix, &stageError);
+                    if (stagedPath.isEmpty()) {
+                        status->setText(tr("Status: %1").arg(stageError));
                         return;
                     }
 
-                    if (tempFile.write(fileContent) != fileContent.size()) {
-                        status->setText(tr("Status: Failed to stage uploaded binary"));
+                    if (suffix == QStringLiteral("blockdev")) {
+                        if (controller->setBlockDeviceFile(stagedPath)) {
+                            status->setText(tr("Status: Loaded %1").arg(QFileInfo(fileName).fileName()));
+                        }
                         return;
                     }
 
-                    const QString stagedPath = tempFile.fileName();
-                    tempFile.close();
-                    loadBinaryFile(stagedPath);
+                    if (suffix == QStringLiteral("rosp")) {
+                        loadBinaryFile(stagedPath);
+                        return;
+                    }
+
+                    status->setText(tr("Status: Unsupported file type"));
                 });
 #else
             const QString fileName = QFileDialog::getOpenFileName(
                 this,
-                tr("Open RospOS Binary"),
+                tr("Open RospOS File"),
                 QString(),
-                tr("Binary Files (*.rosp);;All Files (*)"));
+                tr("RospOS Files (*.rosp *.blockdev);;All Files (*)"));
             if (fileName.isEmpty()) {
                 return;
             }
-            loadBinaryFile(fileName);
+            const QString suffix = QFileInfo(fileName).suffix().toLower();
+            if (suffix == QStringLiteral("blockdev")) {
+                if (controller->setBlockDeviceFile(fileName)) {
+                    status->setText(tr("Status: Loaded %1").arg(QFileInfo(fileName).fileName()));
+                }
+                return;
+            }
+
+            if (suffix == QStringLiteral("rosp")) {
+                loadBinaryFile(fileName);
+                return;
+            }
+
+            status->setText(tr("Status: Unsupported file type"));
 #endif
         });
 
@@ -126,6 +190,11 @@ public:
                 tty->requestInputFocusHighlight();
             }, Qt::QueuedConnection);
         });
+
+        const QString defaultBinary = defaultBinaryFilePath();
+        if (!defaultBinary.isEmpty()) {
+            loadBinaryFile(defaultBinary);
+        }
     }
 
     ~HtmlWindow() override

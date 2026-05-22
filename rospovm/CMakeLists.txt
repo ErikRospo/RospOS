@@ -19,6 +19,11 @@ endif()
 
 find_package(Qt6 COMPONENTS Core Gui Widgets REQUIRED)
 
+set(ROSPOSVM_DEFAULT_BINARY_SOURCE "${CMAKE_CURRENT_SOURCE_DIR}/../rospos/build/rospos.rosp" CACHE FILEPATH
+    "Default RospOS binary to preload for the wasm/html frontend")
+set(ROSPOSVM_DEFAULT_BLOCKDEV_SOURCE "${CMAKE_CURRENT_SOURCE_DIR}/../rospos.blockdev" CACHE FILEPATH
+    "Default RospOS block device to preload for the wasm/html frontend")
+
 if(EMSCRIPTEN)
     find_package(Qt6 COMPONENTS BundledZLIB REQUIRED)
     set(ROSPOSVM_ZLIB_TARGETS Qt6::ZlibPrivate Qt6::BundledZLIB)
@@ -193,8 +198,22 @@ if(EMSCRIPTEN)
         ${ROSPOSVM_ZLIB_TARGETS}
     )
 
+    if(EXISTS "${ROSPOSVM_DEFAULT_BINARY_SOURCE}")
+        target_link_options(rospovm_html PRIVATE
+            "SHELL:--preload-file ${ROSPOSVM_DEFAULT_BINARY_SOURCE}@rospos.rosp"
+        )
+    endif()
+
+    if(EXISTS "${ROSPOSVM_DEFAULT_BLOCKDEV_SOURCE}")
+        target_link_options(rospovm_html PRIVATE
+            "SHELL:--preload-file ${ROSPOSVM_DEFAULT_BLOCKDEV_SOURCE}@rospos.blockdev"
+        )
+    endif()
+
     target_compile_definitions(rospovm_html PRIVATE
         ROSPOSVM_WEB_BUILD=1
+        ROSPOSVM_DEFAULT_BINARY_FILE="rospos.rosp"
+        ROSPOSVM_DEFAULT_BLOCKDEV_FILE="rospos.blockdev"
     )
 
     set_target_properties(rospovm_html PROPERTIES

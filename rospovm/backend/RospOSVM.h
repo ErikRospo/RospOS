@@ -93,7 +93,7 @@ private:
 
 public:
     bool debugMode;
-    RospOSVM(bool debugMode);
+    RospOSVM(bool debugMode, const std::string &blockDevicePath = std::string());
     void resetCpuState();
     void loadBinaryAtAddress(const std::vector<char> &binary, uint32_t address);
     void loadBinaryFromFile(const std::string& filename);

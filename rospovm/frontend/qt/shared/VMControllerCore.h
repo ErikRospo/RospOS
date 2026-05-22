@@ -16,10 +16,11 @@ class VMControllerCore : public QObject
     Q_OBJECT
 
 public:
-    explicit VMControllerCore(QObject *parent = nullptr);
+    explicit VMControllerCore(QObject *parent = nullptr, const QString &blockDevicePath = QString());
     ~VMControllerCore() override;
 
     bool loadBinaryFile(const QString &filePath);
+    bool setBlockDeviceFile(const QString &filePath);
 
     void step();
     void stepBackward();
@@ -70,6 +71,9 @@ private:
     QElapsedTimer throughputTimer;
     double pendingBurstSteps = 0.0;
     QString loadedBinaryPath;
+    QString currentBlockDevicePath;
+
+    bool recreateVm(const QString &blockDevicePath, bool reloadLoadedBinary);
 };
 
 #endif // VM_CONTROLLER_CORE_H

@@ -19,7 +19,7 @@
 #include "Shutdown.h"
 #include "TTY.h"
 
-RospOSVM::RospOSVM(bool debugMode) 
+RospOSVM::RospOSVM(bool debugMode, const std::string &blockDevicePath) 
         : memory(1ULL << 32),  // Initialize 4GB memory
             debugMode(debugMode)
 {
@@ -39,11 +39,14 @@ RospOSVM::RospOSVM(bool debugMode)
                            VMDisplay::displayReadHandler, VMDisplay::displayWriteHandler);
 
     // Setup Block Device MMIO range
-    const char *blockDevicePath = std::getenv("ROSPOS_BLOCK_DEVICE_FILE");
-    std::string resolvedBlockDevicePath =
-        (blockDevicePath != nullptr && blockDevicePath[0] != '\0')
-        ? std::string(blockDevicePath)
-        : std::string("rospos.blockdev");
+    std::string resolvedBlockDevicePath = blockDevicePath;
+    if (resolvedBlockDevicePath.empty()) {
+        const char *envBlockDevicePath = std::getenv("ROSPOS_BLOCK_DEVICE_FILE");
+        resolvedBlockDevicePath =
+            (envBlockDevicePath != nullptr && envBlockDevicePath[0] != '\0')
+            ? std::string(envBlockDevicePath)
+            : std::string("rospos.blockdev");
+    }
     BlockDeviceInitialize(&memory, resolvedBlockDevicePath);
     memory.addSpecialRange("BLK ", 0x40000000, 0x400000FF,
                            SpecialMemoryRange::Type::MMIO, true, true,
