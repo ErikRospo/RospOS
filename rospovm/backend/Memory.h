@@ -3,6 +3,7 @@
 
 #include <cstdint>
 #include <vector>
+#include <unordered_map>
 
 using ReadHandler = uint8_t (*)(uint32_t address);
 using WriteHandler = void (*)(uint32_t address, uint8_t value);
@@ -31,7 +32,14 @@ class Memory
 {
 private:
     std::vector<SpecialMemoryRange> specialRanges;
+#ifdef EMSCRIPTEN
+    // On WASM, avoid a single huge allocation. Use a sparse page map (64KB pages)
+    static constexpr size_t kPageSize = 65536;
+    std::unordered_map<uint32_t, std::vector<uint8_t>> pages; // key = page index
+    uint64_t totalSize = 0;
+#else
     std::vector<uint8_t> mem;
+#endif
     mutable int lastSpecialRangeIndex = -1;
 
     const SpecialMemoryRange* findSpecialRange(uint32_t address) const;
@@ -40,7 +48,7 @@ private:
     void writeWordDirectRam(uint32_t address, uint32_t value);
 
 public:
-    Memory(size_t size);
+    Memory(uint64_t size);
     
     void addSpecialRange(const char* name, uint32_t start, uint32_t end, 
                          SpecialMemoryRange::Type type, bool readable, bool writable,

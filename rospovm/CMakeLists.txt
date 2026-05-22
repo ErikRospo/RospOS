@@ -11,15 +11,25 @@ set(CMAKE_AUTOUIC ON)
 if(MSVC)
     add_compile_options(/W4 /WX)
 else()
-    add_compile_options(-Wall -Wextra -Wpedantic -Werror=unused-variable -O2)
+    add_compile_options(-Wall -Wextra -Wpedantic -Werror=unused-variable -O2 -ltcg)
     if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
         add_compile_options(-Weverything -Wno-c++98-compat -Wno-c++98-compat-pedantic)
     endif()
 endif()
 
 find_package(Qt6 COMPONENTS Core Gui Widgets REQUIRED)
-find_package(ZLIB REQUIRED)
-find_package(KF6SyntaxHighlighting REQUIRED)
+
+if(EMSCRIPTEN)
+    find_package(Qt6 COMPONENTS BundledZLIB REQUIRED)
+    set(ROSPOSVM_ZLIB_TARGETS Qt6::ZlibPrivate Qt6::BundledZLIB)
+else()
+    find_package(ZLIB REQUIRED)
+    set(ROSPOSVM_ZLIB_TARGETS ZLIB::ZLIB)
+endif()
+
+if(NOT EMSCRIPTEN)
+    find_package(KF6SyntaxHighlighting REQUIRED)
+endif()
 
 set(ROSPOSVM_HIGHLIGHTING_DIR "${CMAKE_CURRENT_SOURCE_DIR}/highlighting")
 
@@ -57,7 +67,7 @@ add_library(rosposvm_lib STATIC ${ROSPOSVM_BACKEND_SOURCES})
 target_include_directories(rosposvm_lib PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/backend
 )
-target_link_libraries(rosposvm_lib PUBLIC Qt6::Core Qt6::Gui Qt6::Widgets ZLIB::ZLIB KF6::SyntaxHighlighting)
+target_link_libraries(rosposvm_lib PUBLIC Qt6::Core Qt6::Gui Qt6::Widgets ${ROSPOSVM_ZLIB_TARGETS})
 target_compile_definitions(rosposvm_lib PRIVATE
     ROSPOSVM_ENABLE_STATE_CAPTURE=1
     ROSPOSVM_ENABLE_DEBUG_INFO=1
@@ -69,91 +79,133 @@ add_library(rosposvm_lib_release STATIC ${ROSPOSVM_BACKEND_SOURCES})
 target_include_directories(rosposvm_lib_release PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/backend
 )
-target_link_libraries(rosposvm_lib_release PUBLIC Qt6::Core Qt6::Gui Qt6::Widgets ZLIB::ZLIB KF6::SyntaxHighlighting)
+target_link_libraries(rosposvm_lib_release PUBLIC Qt6::Core Qt6::Gui Qt6::Widgets ${ROSPOSVM_ZLIB_TARGETS})
 target_compile_definitions(rosposvm_lib_release PRIVATE
     ROSPOSVM_ENABLE_STATE_CAPTURE=0
     ROSPOSVM_ENABLE_DEBUG_INFO=0
 )
-    
-# Qt GUI Application
-add_executable(rospovm_qt
-    frontend/qt/full/main_qt.cpp
-    frontend/qt/full/MainWindow.h
-    frontend/qt/full/MainWindow.cpp
-    frontend/qt/full/VMController.h
-    frontend/qt/full/VMController.cpp
-    frontend/qt/full/CodeView.h
-    frontend/qt/full/CodeView.cpp
-    frontend/qt/full/DebugControlPanel.h
-    frontend/qt/full/DebugControlPanel.cpp
-    frontend/qt/full/RegisterView.h
-    frontend/qt/full/RegisterView.cpp
-    frontend/qt/full/MemoryView.h
-    frontend/qt/full/MemoryView.cpp
-    frontend/qt/full/LogView.h
-    frontend/qt/full/LogView.cpp
-    frontend/qt/shared/VMControllerCore.h
-    frontend/qt/shared/VMControllerCore.cpp
-    frontend/qt/shared/TTYWidget.h
-    frontend/qt/shared/TTYWidget.cpp
-)
 
-add_executable(rospovm_minimal
-    frontend/qt/minimal/main_minimal_qt.cpp
-    frontend/qt/shared/VMControllerCore.h
-    frontend/qt/shared/VMControllerCore.cpp
-    frontend/qt/shared/TTYWidget.h
-    frontend/qt/shared/TTYWidget.cpp
-)
+if(NOT EMSCRIPTEN)
+    # Qt GUI Application
+    add_executable(rospovm_qt
+        frontend/qt/full/main_qt.cpp
+        frontend/qt/full/MainWindow.h
+        frontend/qt/full/MainWindow.cpp
+        frontend/qt/full/VMController.h
+        frontend/qt/full/VMController.cpp
+        frontend/qt/full/CodeView.h
+        frontend/qt/full/CodeView.cpp
+        frontend/qt/full/DebugControlPanel.h
+        frontend/qt/full/DebugControlPanel.cpp
+        frontend/qt/full/RegisterView.h
+        frontend/qt/full/RegisterView.cpp
+        frontend/qt/full/MemoryView.h
+        frontend/qt/full/MemoryView.cpp
+        frontend/qt/full/LogView.h
+        frontend/qt/full/LogView.cpp
+        frontend/qt/shared/VMControllerCore.h
+        frontend/qt/shared/VMControllerCore.cpp
+        frontend/qt/shared/TTYWidget.h
+        frontend/qt/shared/TTYWidget.cpp
+    )
 
-add_executable(rospovm_headless
-    frontend/headless/main_headless.cpp
-)
+    add_executable(rospovm_minimal
+        frontend/qt/minimal/main_minimal_qt.cpp
+        frontend/qt/shared/VMControllerCore.h
+        frontend/qt/shared/VMControllerCore.cpp
+        frontend/qt/shared/TTYWidget.h
+        frontend/qt/shared/TTYWidget.cpp
+    )
 
-target_include_directories(rospovm_qt PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}/frontend/qt/shared
-    ${CMAKE_CURRENT_SOURCE_DIR}/frontend/qt/full
-    ${CMAKE_CURRENT_SOURCE_DIR}/backend
-)
-target_include_directories(rospovm_minimal PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}/frontend/qt/shared
-    ${CMAKE_CURRENT_SOURCE_DIR}/frontend/qt/minimal
-    ${CMAKE_CURRENT_SOURCE_DIR}/backend
-)
+    add_executable(rospovm_headless
+        frontend/headless/main_headless.cpp
+    )
 
-target_include_directories(rospovm_headless PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}/frontend/headless
-    ${CMAKE_CURRENT_SOURCE_DIR}/backend
-)
+    target_include_directories(rospovm_qt PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/frontend/qt/shared
+        ${CMAKE_CURRENT_SOURCE_DIR}/frontend/qt/full
+        ${CMAKE_CURRENT_SOURCE_DIR}/backend
+    )
+    target_include_directories(rospovm_minimal PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/frontend/qt/shared
+        ${CMAKE_CURRENT_SOURCE_DIR}/frontend/qt/minimal
+        ${CMAKE_CURRENT_SOURCE_DIR}/backend
+    )
 
-target_link_libraries(rospovm_qt PRIVATE
-    rosposvm_lib
-    Qt6::Core
-    Qt6::Gui
-    Qt6::Widgets
-    ZLIB::ZLIB
-    KF6::SyntaxHighlighting
-)
+    target_include_directories(rospovm_headless PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/frontend/headless
+        ${CMAKE_CURRENT_SOURCE_DIR}/backend
+    )
 
-target_link_libraries(rospovm_minimal PRIVATE
-    rosposvm_lib_release
-    Qt6::Core
-    Qt6::Gui
-    Qt6::Widgets
-    ZLIB::ZLIB
-)
+    target_link_libraries(rospovm_qt PRIVATE
+        rosposvm_lib
+        Qt6::Core
+        Qt6::Gui
+        Qt6::Widgets
+        ${ROSPOSVM_ZLIB_TARGETS}
+        KF6::SyntaxHighlighting
+    )
 
-target_link_libraries(rospovm_headless PRIVATE
-    rosposvm_lib_release
-    Qt6::Core
-)
+    target_link_libraries(rospovm_minimal PRIVATE
+        rosposvm_lib_release
+        Qt6::Core
+        Qt6::Gui
+        Qt6::Widgets
+        ${ROSPOSVM_ZLIB_TARGETS}
+    )
 
-target_compile_definitions(rospovm_qt PRIVATE
-    ROSPOSVM_HIGHLIGHTING_DIR="${ROSPOSVM_HIGHLIGHTING_DIR}"
-)
+    target_link_libraries(rospovm_headless PRIVATE
+        rosposvm_lib_release
+        Qt6::Core
+    )
 
-add_custom_command(TARGET rospovm_qt POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_directory
-            "${ROSPOSVM_HIGHLIGHTING_DIR}"
-            "$<TARGET_FILE_DIR:rospovm_qt>/highlighting"
-)
+    target_compile_definitions(rospovm_qt PRIVATE
+        ROSPOSVM_HIGHLIGHTING_DIR="${ROSPOSVM_HIGHLIGHTING_DIR}"
+    )
+
+    add_custom_command(TARGET rospovm_qt POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+                "${ROSPOSVM_HIGHLIGHTING_DIR}"
+                "$<TARGET_FILE_DIR:rospovm_qt>/highlighting"
+    )
+endif()
+
+if(EMSCRIPTEN)
+    qt_add_executable(rospovm_html
+        frontend/html/main_html.cpp
+        frontend/qt/shared/VMControllerCore.h
+        frontend/qt/shared/VMControllerCore.cpp
+        frontend/qt/shared/TTYWidget.h
+        frontend/qt/shared/TTYWidget.cpp
+    )
+
+    target_include_directories(rospovm_html PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/frontend/html
+        ${CMAKE_CURRENT_SOURCE_DIR}/frontend/qt/shared
+        ${CMAKE_CURRENT_SOURCE_DIR}/backend
+    )
+
+    target_link_libraries(rospovm_html PRIVATE
+        rosposvm_lib_release
+        Qt6::Core
+        Qt6::Gui
+        Qt6::Widgets
+        ${ROSPOSVM_ZLIB_TARGETS}
+    )
+
+    target_compile_definitions(rospovm_html PRIVATE
+        ROSPOSVM_WEB_BUILD=1
+    )
+
+    set_target_properties(rospovm_html PROPERTIES
+        QT_WASM_INITIAL_MEMORY "3GB"
+        QT_WASM_MAXIMUM_MEMORY "4GB"
+        QT_WASM_MEMORY_GROWTH "ON"
+        )
+
+    add_custom_command(TARGET rospovm_html POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                "${CMAKE_CURRENT_SOURCE_DIR}/frontend/html/index.html"
+                "$<TARGET_FILE_DIR:rospovm_html>/index.html"
+    )
+endif()
