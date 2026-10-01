@@ -337,12 +337,43 @@ class ExpressionTransformer:
                         }
 
             return result
+        if node_type=="sizeof":
+            # Sizeof depends on the type, which we may or may not have resolved now. 
+            if "children" in node and len(node["children"]) > 0:
+                # if type_specifier is present, we can try to resolve it
+                type_specifier_node = node["children"][0]
+                type_node=type_specifier_node["children"][0]
+                
+                # self.ctx.tu["types"]
+                # ^ for structs, we can look up the size in the translation unit context
+                # int: 4 bytes
+                # no floats/doubles
+                # void: 0 bytes
+                # char: 1 byte
+                # bool: 1 byte
+                # pointers: 4 bytes
+                # Sizeof(array): array is really a pointer, 4 bytes
+                # sizeof(struct): Structs we have to actually look up.
+                
+                sizes={
+                    "int":4,"void":0,"char":1,"bool":1,"pointer":4
+                }
+                size = sizes.get(str(type_node.get("node")))
+                if size is not None:
+                    return {"type":"const","value":size}
+                for type_dec in self.ctx.tu["types"]:
+                    td_name=type_dec.get("name")
+                    if td_name==type_node.get("token"):
+                        size=type_dec.get("size",0)
+                return {"type":"const","value":size}
+                    
         if node_type == "cast":
             # We don't really care about the type for now.
             # We just want to get the expression being casted.
             children = node.get("children", [])
             if len(children) >= 2:
                 return self.from_node(children[1])
+        print("Unhandled node type in ExpressionTransformer:", node_type)
         for child in node.get("children", []):
             result = self.from_node(child)
             if result is not None:
