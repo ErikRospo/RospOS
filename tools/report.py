@@ -201,7 +201,7 @@ class BuildAnalyzer:
                 continue
             if line.startswith("Combined LLI with ADD at"):
                 # LLI + MOV(ADD) are combined into LLI.
-                record_event("combined_lli_add", is_rewrite=True, removed=1) 
+                record_event("combined_lli_add", is_rewrite=True, removed=1)
                 continue
             if line.startswith("Optimization complete in"):
                 # Summary line, can be ignored for event counting.
