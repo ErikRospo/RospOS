@@ -19765,36 +19765,375 @@ program
         register	r1
   codeline
     instruction
+      lli
+        register	r5
+        imm	1024
+  codeline
+    instruction
+      lli
+        register	r4
+        imm	0
+  codeline
+    instruction
+      push
+        register	r4
+  codeline
+    instruction
+      push
+        register	r5
+  codeline
+    instruction
+      push
+        register	r5
+  codeline
+    instruction
+      pop
+        register	r1
+  codeline
+    instruction
+      callpseudo
+        imm
+          labeluse	malloc
+  codeline
+    instruction
+      pop
+        register	r5
+  codeline
+    instruction
+      pop
+        register	r4
+  codeline
+    instruction
+      iinstructuse
+        addi
+        register	r4
+        register	r1
+        imm	0
+  codeline
+    instruction
+      lli
+        register	r3
+        imm	1
+  codeline
+    instruction
+      lli
+        register	r6
+        imm	0
+  codeline
+    instruction
+      binstructuse
+        bne
+        register	r4
+        register	r6
+        imm
+          labeluse	main_63_CMP_TRUE5
+  codeline
+    instruction
+      lli
+        register	r6
+        imm	0
+  codeline
+    instruction
+      jmpseudo
+        imm
+          labeluse	main_63_CMP_END6
+  codeline
+    label	main_63_CMP_TRUE5:
+  codeline
+    instruction
+      lli
+        register	r6
+        imm	1
+  codeline
+    label	main_63_CMP_END6:
+  codeline
+    instruction
+      binstructuse
+        beq
+        register	r6
+        register	r0
+        imm
+          labeluse	main_63_ELSE3
+  codeline
+    instruction
+      lli
+        register	r7
+        imm	0
+  codeline
+    label	main_63_WHILE7:
+  codeline
+    instruction
+      binstructuse
+        blt
+        register	r7
+        register	r5
+        imm
+          labeluse	main_63_CMP_TRUE9
+  codeline
+    instruction
+      lli
+        register	r8
+        imm	0
+  codeline
+    instruction
+      jmpseudo
+        imm
+          labeluse	main_63_CMP_END10
+  codeline
+    label	main_63_CMP_TRUE9:
+  codeline
+    instruction
+      lli
+        register	r8
+        imm	1
+  codeline
+    label	main_63_CMP_END10:
+  codeline
+    instruction
+      binstructuse
+        beq
+        register	r8
+        register	r0
+        imm
+          labeluse	main_63_WHILE_END8
+  codeline
+    instruction
+      lli
+        register	r9
+        imm	256
+  codeline
+    instruction
+      rinstructuse
+        rem
+        register	r9
+        register	r7
+        register	r9
+  codeline
+    instruction
+      rinstructuse
+        add
+        register	r10
+        register	r4
+        register	r7
+  codeline
+    instruction
+      lsinstructuse
+        sb
+        register	r9
+        register	r10
+        imm	0
+  codeline
+    instruction
+      iinstructuse
+        addi
+        register	r7
+        register	r7
+        imm	1
+  codeline
+    instruction
+      jmpseudo
+        imm
+          labeluse	main_63_WHILE7
+  codeline
+    label	main_63_WHILE_END8:
+  codeline
+    instruction
+      lli
+        register	r11
+        imm	0
+  codeline
+    label	main_63_WHILE11:
+  codeline
+    instruction
+      binstructuse
+        blt
+        register	r11
+        register	r5
+        imm
+          labeluse	main_63_CMP_TRUE13
+  codeline
+    instruction
+      lli
+        register	r12
+        imm	0
+  codeline
+    instruction
+      jmpseudo
+        imm
+          labeluse	main_63_CMP_END14
+  codeline
+    label	main_63_CMP_TRUE13:
+  codeline
+    instruction
+      lli
+        register	r12
+        imm	1
+  codeline
+    label	main_63_CMP_END14:
+  codeline
+    instruction
+      binstructuse
+        beq
+        register	r12
+        register	r0
+        imm
+          labeluse	main_63_WHILE_END12
+  codeline
+    instruction
+      rinstructuse
+        add
+        register	r2
+        register	r4
+        register	r11
+  codeline
+    instruction
+      lsinstructuse
+        lb
+        register	r2
+        register	r2
+        imm	0
+  codeline
+    instruction
+      lli
+        register	r6
+        imm	256
+  codeline
+    instruction
+      rinstructuse
+        rem
+        register	r6
+        register	r11
+        register	r6
+  codeline
+    instruction
+      binstructuse
+        bne
+        register	r2
+        register	r6
+        imm
+          labeluse	main_63_CMP_TRUE17
+  codeline
+    instruction
+      lli
+        register	r2
+        imm	0
+  codeline
+    instruction
+      jmpseudo
+        imm
+          labeluse	main_63_CMP_END18
+  codeline
+    label	main_63_CMP_TRUE17:
+  codeline
+    instruction
+      lli
+        register	r2
+        imm	1
+  codeline
+    label	main_63_CMP_END18:
+  codeline
+    instruction
+      binstructuse
+        beq
+        register	r2
+        register	r0
+        imm
+          labeluse	main_63_ELSE15
+  codeline
+    instruction
+      lli
+        register	r8
+        imm	0
+  codeline
+    instruction
+      iinstructuse
+        addi
+        register	r3
+        register	r8
+        imm	0
+  codeline
+    instruction
+      jmpseudo
+        imm
+          labeluse	main_63_IF_END16
+  codeline
+    label	main_63_ELSE15:
+  codeline
+    label	main_63_IF_END16:
+  codeline
+    instruction
+      iinstructuse
+        addi
+        register	r11
+        register	r11
+        imm	1
+  codeline
+    instruction
+      jmpseudo
+        imm
+          labeluse	main_63_WHILE11
+  codeline
+    label	main_63_WHILE_END12:
+  codeline
+    instruction
+      binstructuse
+        beq
+        register	r3
+        register	r0
+        imm
+          labeluse	main_63_ELSE19
+  codeline
+    instruction
+      push
+        register	r3
+  codeline
+    instruction
+      push
+        register	r4
+  codeline
+    instruction
+      push
+        register	r5
+  codeline
+    instruction
+      push
+        register	r7
+  codeline
+    instruction
+      push
+        register	r11
+  codeline
+    instruction
       push
         register	r1
   codeline
     instruction
       lli
-        register	r5
+        register	r10
         imm
           labeluse	str_11
   codeline
     instruction
       push
-        register	r5
+        register	r10
   codeline
     instruction
       lli
-        register	r4
+        register	r9
         imm	0
   codeline
     instruction
       push
-        register	r4
+        register	r9
   codeline
     instruction
       lli
-        register	r3
-        imm	80
+        register	r12
+        imm	96
   codeline
     instruction
       push
-        register	r3
+        register	r12
   codeline
     instruction
       lli
@@ -19831,18 +20170,65 @@ program
         register	r1
   codeline
     instruction
+      pop
+        register	r11
+  codeline
+    instruction
+      pop
+        register	r7
+  codeline
+    instruction
+      pop
+        register	r5
+  codeline
+    instruction
+      pop
+        register	r4
+  codeline
+    instruction
+      pop
+        register	r3
+  codeline
+    instruction
+      jmpseudo
+        imm
+          labeluse	main_63_IF_END20
+  codeline
+    label	main_63_ELSE19:
+  codeline
+    instruction
+      push
+        register	r3
+  codeline
+    instruction
+      push
+        register	r4
+  codeline
+    instruction
+      push
+        register	r5
+  codeline
+    instruction
+      push
+        register	r7
+  codeline
+    instruction
+      push
+        register	r11
+  codeline
+    instruction
       push
         register	r1
   codeline
     instruction
       lli
-        register	r7
+        register	r2
         imm
           labeluse	str_12
   codeline
     instruction
       push
-        register	r7
+        register	r2
   codeline
     instruction
       lli
@@ -19855,12 +20241,218 @@ program
   codeline
     instruction
       lli
+        register	r10
+        imm	96
+  codeline
+    instruction
+      push
+        register	r10
+  codeline
+    instruction
+      lli
         register	r9
-        imm	88
+        imm	63
   codeline
     instruction
       push
         register	r9
+  codeline
+    instruction
+      pop
+        register	r4
+  codeline
+    instruction
+      pop
+        register	r3
+  codeline
+    instruction
+      pop
+        register	r2
+  codeline
+    instruction
+      pop
+        register	r1
+  codeline
+    instruction
+      callpseudo
+        imm
+          labeluse	draw_string_to_display
+  codeline
+    instruction
+      pop
+        register	r1
+  codeline
+    instruction
+      pop
+        register	r11
+  codeline
+    instruction
+      pop
+        register	r7
+  codeline
+    instruction
+      pop
+        register	r5
+  codeline
+    instruction
+      pop
+        register	r4
+  codeline
+    instruction
+      pop
+        register	r3
+  codeline
+    label	main_63_IF_END20:
+  codeline
+    instruction
+      push
+        register	r3
+  codeline
+    instruction
+      push
+        register	r4
+  codeline
+    instruction
+      push
+        register	r5
+  codeline
+    instruction
+      push
+        register	r7
+  codeline
+    instruction
+      push
+        register	r11
+  codeline
+    instruction
+      push
+        register	r1
+  codeline
+    instruction
+      push
+        register	r4
+  codeline
+    instruction
+      pop
+        register	r1
+  codeline
+    instruction
+      callpseudo
+        imm
+          labeluse	free
+  codeline
+    instruction
+      pop
+        register	r1
+  codeline
+    instruction
+      pop
+        register	r11
+  codeline
+    instruction
+      pop
+        register	r7
+  codeline
+    instruction
+      pop
+        register	r5
+  codeline
+    instruction
+      pop
+        register	r4
+  codeline
+    instruction
+      pop
+        register	r3
+  codeline
+    instruction
+      jmpseudo
+        imm
+          labeluse	main_63_IF_END4
+  codeline
+    label	main_63_ELSE3:
+  codeline
+    label	main_63_IF_END4:
+  codeline
+    instruction
+      lli
+        register	r12
+        imm	0
+  codeline
+    instruction
+      binstructuse
+        beq
+        register	r4
+        register	r12
+        imm
+          labeluse	main_63_CMP_TRUE23
+  codeline
+    instruction
+      lli
+        register	r12
+        imm	0
+  codeline
+    instruction
+      jmpseudo
+        imm
+          labeluse	main_63_CMP_END24
+  codeline
+    label	main_63_CMP_TRUE23:
+  codeline
+    instruction
+      lli
+        register	r12
+        imm	1
+  codeline
+    label	main_63_CMP_END24:
+  codeline
+    instruction
+      binstructuse
+        beq
+        register	r12
+        register	r0
+        imm
+          labeluse	main_63_ELSE21
+  codeline
+    instruction
+      push
+        register	r4
+  codeline
+    instruction
+      push
+        register	r7
+  codeline
+    instruction
+      push
+        register	r1
+  codeline
+    instruction
+      lli
+        register	r6
+        imm
+          labeluse	str_13
+  codeline
+    instruction
+      push
+        register	r6
+  codeline
+    instruction
+      lli
+        register	r2
+        imm	0
+  codeline
+    instruction
+      push
+        register	r2
+  codeline
+    instruction
+      lli
+        register	r8
+        imm	96
+  codeline
+    instruction
+      push
+        register	r8
   codeline
     instruction
       lli
@@ -19897,43 +20489,496 @@ program
         register	r1
   codeline
     instruction
+      pop
+        register	r7
+  codeline
+    instruction
+      pop
+        register	r4
+  codeline
+    instruction
+      jmpseudo
+        imm
+          labeluse	main_63_IF_END22
+  codeline
+    label	main_63_ELSE21:
+  codeline
+    label	main_63_IF_END22:
+  codeline
+    instruction
+      push
+        register	r7
+  codeline
+    instruction
       push
         register	r1
   codeline
     instruction
       callpseudo
         imm
-          labeluse	rand_block_test
+          labeluse	update_buffer
   codeline
     instruction
       pop
         register	r1
+  codeline
+    instruction
+      pop
+        register	r7
+  codeline
+    instruction
+      lli
+        register	r9
+        imm	0
+  codeline
+    instruction
+      push
+        register	r7
+  codeline
+    instruction
+      push
+        register	r9
+  codeline
+    instruction
+      lli
+        register	r11
+        imm	12
+  codeline
+    instruction
+      push
+        register	r11
+  codeline
+    instruction
+      pop
+        register	r1
+  codeline
+    instruction
+      callpseudo
+        imm
+          labeluse	malloc
+  codeline
+    instruction
+      pop
+        register	r9
+  codeline
+    instruction
+      pop
+        register	r7
+  codeline
+    instruction
+      iinstructuse
+        addi
+        register	r9
+        register	r1
+        imm	0
+  codeline
+    instruction
+      lli
+        register	r5
+        imm	0
+  codeline
+    instruction
+      binstructuse
+        bne
+        register	r9
+        register	r5
+        imm
+          labeluse	main_63_CMP_TRUE27
+  codeline
+    instruction
+      lli
+        register	r5
+        imm	0
+  codeline
+    instruction
+      jmpseudo
+        imm
+          labeluse	main_63_CMP_END28
+  codeline
+    label	main_63_CMP_TRUE27:
+  codeline
+    instruction
+      lli
+        register	r5
+        imm	1
+  codeline
+    label	main_63_CMP_END28:
+  codeline
+    instruction
+      binstructuse
+        beq
+        register	r5
+        register	r0
+        imm
+          labeluse	main_63_ELSE25
+  codeline
+    instruction
+      lli
+        register	r3
+        imm	-123456
+  codeline
+    instruction
+      push
+        register	r3
+  codeline
+    instruction
+      push
+        register	r7
+  codeline
+    instruction
+      push
+        register	r9
   codeline
     instruction
       push
         register	r1
   codeline
     instruction
-      callpseudo
-        imm
-          labeluse	fast_clear_display
+      push
+        register	r3
+  codeline
+    instruction
+      push
+        register	r9
+  codeline
+    instruction
+      pop
+        register	r2
   codeline
     instruction
       pop
         register	r1
+  codeline
+    instruction
+      callpseudo
+        imm
+          labeluse	int_to_str_buf
+  codeline
+    instruction
+      pop
+        register	r1
+  codeline
+    instruction
+      pop
+        register	r9
+  codeline
+    instruction
+      pop
+        register	r7
+  codeline
+    instruction
+      pop
+        register	r3
+  codeline
+    instruction
+      push
+        register	r3
+  codeline
+    instruction
+      push
+        register	r7
+  codeline
+    instruction
+      push
+        register	r9
   codeline
     instruction
       push
         register	r1
   codeline
     instruction
-      callpseudo
+      lli
+        register	r12
         imm
-          labeluse	load_and_display_image
+          labeluse	str_14
+  codeline
+    instruction
+      push
+        register	r12
+  codeline
+    instruction
+      lli
+        register	r6
+        imm	0
+  codeline
+    instruction
+      push
+        register	r6
+  codeline
+    instruction
+      lli
+        register	r2
+        imm	104
+  codeline
+    instruction
+      push
+        register	r2
+  codeline
+    instruction
+      lli
+        register	r8
+        imm	63
+  codeline
+    instruction
+      push
+        register	r8
+  codeline
+    instruction
+      pop
+        register	r4
+  codeline
+    instruction
+      pop
+        register	r3
+  codeline
+    instruction
+      pop
+        register	r2
   codeline
     instruction
       pop
         register	r1
+  codeline
+    instruction
+      callpseudo
+        imm
+          labeluse	draw_string_to_display
+  codeline
+    instruction
+      pop
+        register	r1
+  codeline
+    instruction
+      pop
+        register	r9
+  codeline
+    instruction
+      pop
+        register	r7
+  codeline
+    instruction
+      pop
+        register	r3
+  codeline
+    instruction
+      push
+        register	r3
+  codeline
+    instruction
+      push
+        register	r7
+  codeline
+    instruction
+      push
+        register	r9
+  codeline
+    instruction
+      push
+        register	r1
+  codeline
+    instruction
+      push
+        register	r9
+  codeline
+    instruction
+      lli
+        register	r10
+        imm	0
+  codeline
+    instruction
+      push
+        register	r10
+  codeline
+    instruction
+      lli
+        register	r4
+        imm	112
+  codeline
+    instruction
+      push
+        register	r4
+  codeline
+    instruction
+      lli
+        register	r11
+        imm	63
+  codeline
+    instruction
+      push
+        register	r11
+  codeline
+    instruction
+      pop
+        register	r4
+  codeline
+    instruction
+      pop
+        register	r3
+  codeline
+    instruction
+      pop
+        register	r2
+  codeline
+    instruction
+      pop
+        register	r1
+  codeline
+    instruction
+      callpseudo
+        imm
+          labeluse	draw_string_to_display
+  codeline
+    instruction
+      pop
+        register	r1
+  codeline
+    instruction
+      pop
+        register	r9
+  codeline
+    instruction
+      pop
+        register	r7
+  codeline
+    instruction
+      pop
+        register	r3
+  codeline
+    instruction
+      push
+        register	r3
+  codeline
+    instruction
+      push
+        register	r7
+  codeline
+    instruction
+      push
+        register	r9
+  codeline
+    instruction
+      push
+        register	r1
+  codeline
+    instruction
+      push
+        register	r9
+  codeline
+    instruction
+      pop
+        register	r1
+  codeline
+    instruction
+      callpseudo
+        imm
+          labeluse	free
+  codeline
+    instruction
+      pop
+        register	r1
+  codeline
+    instruction
+      pop
+        register	r9
+  codeline
+    instruction
+      pop
+        register	r7
+  codeline
+    instruction
+      pop
+        register	r3
+  codeline
+    instruction
+      jmpseudo
+        imm
+          labeluse	main_63_IF_END26
+  codeline
+    label	main_63_ELSE25:
+  codeline
+    instruction
+      push
+        register	r7
+  codeline
+    instruction
+      push
+        register	r9
+  codeline
+    instruction
+      push
+        register	r1
+  codeline
+    instruction
+      lli
+        register	r5
+        imm
+          labeluse	str_15
+  codeline
+    instruction
+      push
+        register	r5
+  codeline
+    instruction
+      lli
+        register	r12
+        imm	0
+  codeline
+    instruction
+      push
+        register	r12
+  codeline
+    instruction
+      lli
+        register	r6
+        imm	104
+  codeline
+    instruction
+      push
+        register	r6
+  codeline
+    instruction
+      lli
+        register	r2
+        imm	63
+  codeline
+    instruction
+      push
+        register	r2
+  codeline
+    instruction
+      pop
+        register	r4
+  codeline
+    instruction
+      pop
+        register	r3
+  codeline
+    instruction
+      pop
+        register	r2
+  codeline
+    instruction
+      pop
+        register	r1
+  codeline
+    instruction
+      callpseudo
+        imm
+          labeluse	draw_string_to_display
+  codeline
+    instruction
+      pop
+        register	r1
+  codeline
+    instruction
+      pop
+        register	r9
+  codeline
+    instruction
+      pop
+        register	r7
+  codeline
+    label	main_63_IF_END26:
   codeline
     instruction
       systeminstructuse
@@ -21077,12 +22122,27 @@ program
     label	str_11:
   codeline
     directiveuse
-      strv	"Loading random blocks to display"
+      strv	"Malloc test passed!\0"
   codeline
     label	str_12:
   codeline
     directiveuse
-      strv	"using DMA:\0"
+      strv	"Malloc test failed!\0"
+  codeline
+    label	str_13:
+  codeline
+    directiveuse
+      strv	"Malloc test failed: unable to allocate memory!\0"
+  codeline
+    label	str_14:
+  codeline
+    directiveuse
+      strv	"Int to str test: \0"
+  codeline
+    label	str_15:
+  codeline
+    directiveuse
+      strv	"Int to str test failed: unable to allocate buffer!\0"
   codeline
     label	draw_line_13_spill23:
   codeline

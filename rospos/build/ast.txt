@@ -6059,33 +6059,218 @@ translation_unit
                 0
                 72
                 0x3F
+        declaration
+          type_specifier
+            int
+          init_declarator_list
+            init_declarator
+              declarator	malloc_test_size
+              1024
+        declaration
+          type_specifier
+            char
+            pointer
+          init_declarator_list
+            init_declarator
+              declarator	malloc_test_ptr
+              cast
+                type_specifier
+                  char
+                  pointer
+                postfix
+                  malloc
+                  call_suffix
+                    arg_list	malloc_test_size
+        declaration
+          type_specifier
+            int
+          init_declarator_list
+            init_declarator
+              declarator	read_success
+              1
+        if_stmt
+          equality
+            malloc_test_ptr
+            neq
+            0
+          compound_stmt
+            for_stmt
+              declaration
+                type_specifier
+                  int
+                init_declarator_list
+                  init_declarator
+                    declarator	i
+                    0
+              relational
+                i
+                lt
+                malloc_test_size
+              postfix
+                i
+                post_inc
+              compound_stmt
+                expr_stmt
+                  assignment
+                    postfix
+                      malloc_test_ptr
+                      array_index	i
+                    cast
+                      type_specifier
+                        char
+                      multiplicative
+                        i
+                        mod
+                        256
+            for_stmt
+              declaration
+                type_specifier
+                  int
+                init_declarator_list
+                  init_declarator
+                    declarator	i
+                    0
+              relational
+                i
+                lt
+                malloc_test_size
+              postfix
+                i
+                post_inc
+              compound_stmt
+                if_stmt
+                  equality
+                    postfix
+                      malloc_test_ptr
+                      array_index	i
+                    neq
+                    cast
+                      type_specifier
+                        char
+                      multiplicative
+                        i
+                        mod
+                        256
+                  compound_stmt
+                    expr_stmt
+                      assignment
+                        read_success
+                        0
+                    expr_stmt	break
+            if_stmt
+              read_success
+              compound_stmt
+                expr_stmt
+                  postfix
+                    draw_string_to_display
+                    call_suffix
+                      arg_list
+                        "Malloc test passed!\0"
+                        0
+                        96
+                        0x3F
+              compound_stmt
+                expr_stmt
+                  postfix
+                    draw_string_to_display
+                    call_suffix
+                      arg_list
+                        "Malloc test failed!\0"
+                        0
+                        96
+                        0x3F
+            expr_stmt
+              postfix
+                free
+                call_suffix
+                  arg_list	malloc_test_ptr
+        if_stmt
+          equality
+            malloc_test_ptr
+            eq
+            0
+          compound_stmt
+            expr_stmt
+              postfix
+                draw_string_to_display
+                call_suffix
+                  arg_list
+                    "Malloc test failed: unable to allocate memory!\0"
+                    0
+                    96
+                    0x3F
+        compound_stmt
         expr_stmt
           postfix
-            draw_string_to_display
+            update_buffer
             call_suffix
-              arg_list
-                "Loading random blocks to display"
-                0
-                80
-                0x3F
-        expr_stmt
-          postfix
-            draw_string_to_display
-            call_suffix
-              arg_list
-                "using DMA:\0"
-                0
-                88
-                0x3F
-        expr_stmt
-          postfix
-            rand_block_test
-            call_suffix
-        expr_stmt
-          postfix
-            fast_clear_display
-            call_suffix
-        expr_stmt
-          postfix
-            load_and_display_image
-            call_suffix
+        declaration
+          type_specifier
+            char
+            pointer
+          init_declarator_list
+            init_declarator
+              declarator	int_to_str_test_buffer
+              cast
+                type_specifier
+                  char
+                  pointer
+                postfix
+                  malloc
+                  call_suffix
+                    arg_list	12
+        if_stmt
+          equality
+            int_to_str_test_buffer
+            neq
+            0
+          compound_stmt
+            declaration
+              type_specifier
+                int
+              init_declarator_list
+                init_declarator
+                  declarator	test_value
+                  unary
+                    uminus
+                    123456
+            expr_stmt
+              postfix
+                int_to_str_buf
+                call_suffix
+                  arg_list
+                    test_value
+                    int_to_str_test_buffer
+            expr_stmt
+              postfix
+                draw_string_to_display
+                call_suffix
+                  arg_list
+                    "Int to str test: \0"
+                    0
+                    104
+                    0x3F
+            expr_stmt
+              postfix
+                draw_string_to_display
+                call_suffix
+                  arg_list
+                    int_to_str_test_buffer
+                    0
+                    112
+                    0x3F
+            expr_stmt
+              postfix
+                free
+                call_suffix
+                  arg_list	int_to_str_test_buffer
+          compound_stmt
+            expr_stmt
+              postfix
+                draw_string_to_display
+                call_suffix
+                  arg_list
+                    "Int to str test failed: unable to allocate buffer!\0"
+                    0
+                    104
+                    0x3F

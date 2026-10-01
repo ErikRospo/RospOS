@@ -69,6 +69,7 @@ This is after the optimizer, but this still feels very redundant. This can just 
 ### Other optimizations
 
 - Remove redundant loads/stores (e.g. if a value is already in a register, don't load it again from memory)
+- CMP against static zero can use r0 instead of loading 0 into a register first
 - Constant folding (e.g. if an expression can be evaluated at compile time, do so and replace it with the result)
   - This also also be integrated with the constant expression evaluation mentioned above for LLI.
 - Very simple dead code elimination

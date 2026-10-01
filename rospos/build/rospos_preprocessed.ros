@@ -4158,14 +4158,85 @@ evaluate_rpn_61_WHILE_END3:
   CALL draw_string_to_display
   // call return value in r1
   POP r1  
-  // emit call to draw_string_to_display with args [{'type': 'string_addr', 'label': 'str_11'}, {'type': 'const', 'value': 0}, {'type': 'const', 'value': 80}, {'type': 'const', 'value': 63}]
-  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  LLI r5, str_11    // load immediate str_11
+  LLI r5, 1024    // init malloc_test_size
+  LLI r4, 0    // zero init malloc_test_ptr
+  // emit call to malloc with args [{'type': 'var', 'name': 'malloc_test_size'}]
+  PUSH r4    // save caller temp
+  PUSH r5    // save caller temp
   PUSH r5    // stage reg arg 0
-  LLI r4, 0    // load immediate 0
-  PUSH r4    // stage reg arg 1
-  LLI r3, 80    // load immediate 80
-  PUSH r3    // stage reg arg 2
+  POP r1    // load reg arg 0
+  CALL malloc
+  // call return value in r1
+  POP r5    // restore caller temp
+  POP r4    // restore caller temp
+  ADDI r4, r1, 0    // move return value
+  LLI r3, 1    // init read_success
+  LLI r6, 0    // load immediate 0
+  BNE r4, r6, main_63_CMP_TRUE5
+  LLI r6, 0    // compare false path
+  JMP main_63_CMP_END6
+main_63_CMP_TRUE5:
+  LLI r6, 1
+main_63_CMP_END6:
+  BEQ r6, r0, main_63_ELSE3
+  LLI r7, 0    // init i
+main_63_WHILE7:
+  BLT r7, r5, main_63_CMP_TRUE9
+  LLI r8, 0    // compare false path
+  JMP main_63_CMP_END10
+main_63_CMP_TRUE9:
+  LLI r8, 1
+main_63_CMP_END10:
+  BEQ r8, r0, main_63_WHILE_END8
+  LLI r9, 256    // load immediate 256
+  REM r9, r7, r9    // binop %
+  ADD r10, r4, r7    // binop +
+  SB r9, r10, 0    // store 
+  ADDI r7, r7, 1    // assign i (addi fast path)
+  JMP main_63_WHILE7
+main_63_WHILE_END8:
+  LLI r11, 0    // init i
+main_63_WHILE11:
+  BLT r11, r5, main_63_CMP_TRUE13
+  LLI r12, 0    // compare false path
+  JMP main_63_CMP_END14
+main_63_CMP_TRUE13:
+  LLI r12, 1
+main_63_CMP_END14:
+  BEQ r12, r0, main_63_WHILE_END12
+  ADD r2, r4, r11    // binop +
+  LB r2, r2, 0    // deref
+  LLI r6, 256    // load immediate 256
+  REM r6, r11, r6    // binop %
+  BNE r2, r6, main_63_CMP_TRUE17
+  LLI r2, 0    // compare false path
+  JMP main_63_CMP_END18
+main_63_CMP_TRUE17:
+  LLI r2, 1
+main_63_CMP_END18:
+  BEQ r2, r0, main_63_ELSE15
+  LLI r8, 0    // load immediate 0
+  ADDI r3, r8, 0    // assign read_success
+  JMP main_63_IF_END16
+main_63_ELSE15:
+main_63_IF_END16:
+  ADDI r11, r11, 1    // assign i (addi fast path)
+  JMP main_63_WHILE11
+main_63_WHILE_END12:
+  BEQ r3, r0, main_63_ELSE19
+  // emit call to draw_string_to_display with args [{'type': 'string_addr', 'label': 'str_11'}, {'type': 'const', 'value': 0}, {'type': 'const', 'value': 96}, {'type': 'const', 'value': 63}]
+  PUSH r3    // save caller temp
+  PUSH r4    // save caller temp
+  PUSH r5    // save caller temp
+  PUSH r7    // save caller temp
+  PUSH r11    // save caller temp
+  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
+  LLI r10, str_11    // load immediate str_11
+  PUSH r10    // stage reg arg 0
+  LLI r9, 0    // load immediate 0
+  PUSH r9    // stage reg arg 1
+  LLI r12, 96    // load immediate 96
+  PUSH r12    // stage reg arg 2
   LLI r6, 63    // load immediate 63
   PUSH r6    // stage reg arg 3
   POP r4    // load reg arg 3
@@ -4175,14 +4246,79 @@ evaluate_rpn_61_WHILE_END3:
   CALL draw_string_to_display
   // call return value in r1
   POP r1  
-  // emit call to draw_string_to_display with args [{'type': 'string_addr', 'label': 'str_12'}, {'type': 'const', 'value': 0}, {'type': 'const', 'value': 88}, {'type': 'const', 'value': 63}]
+  POP r11    // restore caller temp
+  POP r7    // restore caller temp
+  POP r5    // restore caller temp
+  POP r4    // restore caller temp
+  POP r3    // restore caller temp
+  JMP main_63_IF_END20
+main_63_ELSE19:
+  // emit call to draw_string_to_display with args [{'type': 'string_addr', 'label': 'str_12'}, {'type': 'const', 'value': 0}, {'type': 'const', 'value': 96}, {'type': 'const', 'value': 63}]
+  PUSH r3    // save caller temp
+  PUSH r4    // save caller temp
+  PUSH r5    // save caller temp
+  PUSH r7    // save caller temp
+  PUSH r11    // save caller temp
   PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  LLI r7, str_12    // load immediate str_12
-  PUSH r7    // stage reg arg 0
+  LLI r2, str_12    // load immediate str_12
+  PUSH r2    // stage reg arg 0
   LLI r8, 0    // load immediate 0
   PUSH r8    // stage reg arg 1
-  LLI r9, 88    // load immediate 88
-  PUSH r9    // stage reg arg 2
+  LLI r10, 96    // load immediate 96
+  PUSH r10    // stage reg arg 2
+  LLI r9, 63    // load immediate 63
+  PUSH r9    // stage reg arg 3
+  POP r4    // load reg arg 3
+  POP r3    // load reg arg 2
+  POP r2    // load reg arg 1
+  POP r1    // load reg arg 0
+  CALL draw_string_to_display
+  // call return value in r1
+  POP r1  
+  POP r11    // restore caller temp
+  POP r7    // restore caller temp
+  POP r5    // restore caller temp
+  POP r4    // restore caller temp
+  POP r3    // restore caller temp
+main_63_IF_END20:
+  // emit call to free with args [{'type': 'var', 'name': 'malloc_test_ptr'}]
+  PUSH r3    // save caller temp
+  PUSH r4    // save caller temp
+  PUSH r5    // save caller temp
+  PUSH r7    // save caller temp
+  PUSH r11    // save caller temp
+  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
+  PUSH r4    // stage reg arg 0
+  POP r1    // load reg arg 0
+  CALL free
+  // call return value in r1
+  POP r1  
+  POP r11    // restore caller temp
+  POP r7    // restore caller temp
+  POP r5    // restore caller temp
+  POP r4    // restore caller temp
+  POP r3    // restore caller temp
+  JMP main_63_IF_END4
+main_63_ELSE3:
+main_63_IF_END4:
+  LLI r12, 0    // load immediate 0
+  BEQ r4, r12, main_63_CMP_TRUE23
+  LLI r12, 0    // compare false path
+  JMP main_63_CMP_END24
+main_63_CMP_TRUE23:
+  LLI r12, 1
+main_63_CMP_END24:
+  BEQ r12, r0, main_63_ELSE21
+  // emit call to draw_string_to_display with args [{'type': 'string_addr', 'label': 'str_13'}, {'type': 'const', 'value': 0}, {'type': 'const', 'value': 96}, {'type': 'const', 'value': 63}]
+  PUSH r4    // save caller temp
+  PUSH r7    // save caller temp
+  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
+  LLI r6, str_13    // load immediate str_13
+  PUSH r6    // stage reg arg 0
+  LLI r2, 0    // load immediate 0
+  PUSH r2    // stage reg arg 1
+  LLI r8, 96    // load immediate 96
+  PUSH r8    // stage reg arg 2
   LLI r10, 63    // load immediate 63
   PUSH r10    // stage reg arg 3
   POP r4    // load reg arg 3
@@ -4192,21 +4328,136 @@ evaluate_rpn_61_WHILE_END3:
   CALL draw_string_to_display
   // call return value in r1
   POP r1  
-  // emit call to rand_block_test with args []
+  POP r7    // restore caller temp
+  POP r4    // restore caller temp
+  JMP main_63_IF_END22
+main_63_ELSE21:
+main_63_IF_END22:
+  // emit call to update_buffer with args []
+  PUSH r7    // save caller temp
   PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  CALL rand_block_test
+  CALL update_buffer
   // call return value in r1
   POP r1  
-  // emit call to fast_clear_display with args []
+  POP r7    // restore caller temp
+  LLI r9, 0    // zero init int_to_str_test_buffer
+  // emit call to malloc with args [{'type': 'const', 'value': 12}]
+  PUSH r7    // save caller temp
+  PUSH r9    // save caller temp
+  LLI r11, 12    // load immediate 12
+  PUSH r11    // stage reg arg 0
+  POP r1    // load reg arg 0
+  CALL malloc
+  // call return value in r1
+  POP r9    // restore caller temp
+  POP r7    // restore caller temp
+  ADDI r9, r1, 0    // move return value
+  LLI r5, 0    // load immediate 0
+  BNE r9, r5, main_63_CMP_TRUE27
+  LLI r5, 0    // compare false path
+  JMP main_63_CMP_END28
+main_63_CMP_TRUE27:
+  LLI r5, 1
+main_63_CMP_END28:
+  BEQ r5, r0, main_63_ELSE25
+  LLI r3, -123456    // init test_value
+  // emit call to int_to_str_buf with args [{'type': 'var', 'name': 'test_value'}, {'type': 'var', 'name': 'int_to_str_test_buffer'}]
+  PUSH r3    // save caller temp
+  PUSH r7    // save caller temp
+  PUSH r9    // save caller temp
   PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  CALL fast_clear_display
+  PUSH r3    // stage reg arg 0
+  PUSH r9    // stage reg arg 1
+  POP r2    // load reg arg 1
+  POP r1    // load reg arg 0
+  CALL int_to_str_buf
   // call return value in r1
   POP r1  
-  // emit call to load_and_display_image with args []
+  POP r9    // restore caller temp
+  POP r7    // restore caller temp
+  POP r3    // restore caller temp
+  // emit call to draw_string_to_display with args [{'type': 'string_addr', 'label': 'str_14'}, {'type': 'const', 'value': 0}, {'type': 'const', 'value': 104}, {'type': 'const', 'value': 63}]
+  PUSH r3    // save caller temp
+  PUSH r7    // save caller temp
+  PUSH r9    // save caller temp
   PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  CALL load_and_display_image
+  LLI r12, str_14    // load immediate str_14
+  PUSH r12    // stage reg arg 0
+  LLI r6, 0    // load immediate 0
+  PUSH r6    // stage reg arg 1
+  LLI r2, 104    // load immediate 104
+  PUSH r2    // stage reg arg 2
+  LLI r8, 63    // load immediate 63
+  PUSH r8    // stage reg arg 3
+  POP r4    // load reg arg 3
+  POP r3    // load reg arg 2
+  POP r2    // load reg arg 1
+  POP r1    // load reg arg 0
+  CALL draw_string_to_display
   // call return value in r1
   POP r1  
+  POP r9    // restore caller temp
+  POP r7    // restore caller temp
+  POP r3    // restore caller temp
+  // emit call to draw_string_to_display with args [{'type': 'var', 'name': 'int_to_str_test_buffer'}, {'type': 'const', 'value': 0}, {'type': 'const', 'value': 112}, {'type': 'const', 'value': 63}]
+  PUSH r3    // save caller temp
+  PUSH r7    // save caller temp
+  PUSH r9    // save caller temp
+  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
+  PUSH r9    // stage reg arg 0
+  LLI r10, 0    // load immediate 0
+  PUSH r10    // stage reg arg 1
+  LLI r4, 112    // load immediate 112
+  PUSH r4    // stage reg arg 2
+  LLI r11, 63    // load immediate 63
+  PUSH r11    // stage reg arg 3
+  POP r4    // load reg arg 3
+  POP r3    // load reg arg 2
+  POP r2    // load reg arg 1
+  POP r1    // load reg arg 0
+  CALL draw_string_to_display
+  // call return value in r1
+  POP r1  
+  POP r9    // restore caller temp
+  POP r7    // restore caller temp
+  POP r3    // restore caller temp
+  // emit call to free with args [{'type': 'var', 'name': 'int_to_str_test_buffer'}]
+  PUSH r3    // save caller temp
+  PUSH r7    // save caller temp
+  PUSH r9    // save caller temp
+  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
+  PUSH r9    // stage reg arg 0
+  POP r1    // load reg arg 0
+  CALL free
+  // call return value in r1
+  POP r1  
+  POP r9    // restore caller temp
+  POP r7    // restore caller temp
+  POP r3    // restore caller temp
+  JMP main_63_IF_END26
+main_63_ELSE25:
+  // emit call to draw_string_to_display with args [{'type': 'string_addr', 'label': 'str_15'}, {'type': 'const', 'value': 0}, {'type': 'const', 'value': 104}, {'type': 'const', 'value': 63}]
+  PUSH r7    // save caller temp
+  PUSH r9    // save caller temp
+  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
+  LLI r5, str_15    // load immediate str_15
+  PUSH r5    // stage reg arg 0
+  LLI r12, 0    // load immediate 0
+  PUSH r12    // stage reg arg 1
+  LLI r6, 104    // load immediate 104
+  PUSH r6    // stage reg arg 2
+  LLI r2, 63    // load immediate 63
+  PUSH r2    // stage reg arg 3
+  POP r4    // load reg arg 3
+  POP r3    // load reg arg 2
+  POP r2    // load reg arg 1
+  POP r1    // load reg arg 0
+  CALL draw_string_to_display
+  // call return value in r1
+  POP r1  
+  POP r9    // restore caller temp
+  POP r7    // restore caller temp
+main_63_IF_END26:
   BREAK
 
 // Globals
@@ -4530,10 +4781,19 @@ str_10:
   .STR "White"
 
 str_11:
-  .STR "Loading random blocks to display"
+  .STR "Malloc test passed!\0"
 
 str_12:
-  .STR "using DMA:\0"
+  .STR "Malloc test failed!\0"
+
+str_13:
+  .STR "Malloc test failed: unable to allocate memory!\0"
+
+str_14:
+  .STR "Int to str test: \0"
+
+str_15:
+  .STR "Int to str test failed: unable to allocate buffer!\0"
 
 draw_line_13_spill23:
   .SPACE 4 // lifted buffer

@@ -138,12 +138,27 @@
     {
       "kind": "string",
       "name": "str_11",
-      "value": "Loading random blocks to display"
+      "value": "Malloc test passed!\u0000"
     },
     {
       "kind": "string",
       "name": "str_12",
-      "value": "using DMA:\u0000"
+      "value": "Malloc test failed!\u0000"
+    },
+    {
+      "kind": "string",
+      "name": "str_13",
+      "value": "Malloc test failed: unable to allocate memory!\u0000"
+    },
+    {
+      "kind": "string",
+      "name": "str_14",
+      "value": "Int to str test: \u0000"
+    },
+    {
+      "kind": "string",
+      "name": "str_15",
+      "value": "Int to str test failed: unable to allocate buffer!\u0000"
     }
   ],
   "functions": [
@@ -13083,7 +13098,7 @@
               }
             ]
           },
-          "_line": 1182,
+          "_line": 1181,
           "decl_type": "int"
         },
         {
@@ -13093,7 +13108,7 @@
             "type": "const",
             "value": 50
           },
-          "_line": 1183,
+          "_line": 1182,
           "decl_type": "int"
         },
         {
@@ -13113,7 +13128,7 @@
               }
             ]
           },
-          "_line": 1184,
+          "_line": 1183,
           "decl_type": "int"
         },
         {
@@ -13137,13 +13152,13 @@
               "value": 63
             }
           ],
-          "_line": 1185
+          "_line": 1184
         },
         {
           "type": "call_stmt",
           "name": "initialize_filesystem",
           "args": [],
-          "_line": 1186
+          "_line": 1185
         },
         {
           "type": "call_stmt",
@@ -13158,7 +13173,7 @@
               "label": "str_3"
             }
           ],
-          "_line": 1187
+          "_line": 1186
         },
         {
           "type": "decl",
@@ -13167,7 +13182,7 @@
             "type": "array",
             "size": 512
           },
-          "_line": 1188,
+          "_line": 1187,
           "decl_type": "char_ptr"
         },
         {
@@ -13183,7 +13198,7 @@
               "name": "device_info"
             }
           ],
-          "_line": 1189
+          "_line": 1188
         },
         {
           "type": "call_stmt",
@@ -13206,7 +13221,7 @@
               "value": 63
             }
           ],
-          "_line": 1190
+          "_line": 1189
         },
         {
           "type": "decl",
@@ -13215,7 +13230,7 @@
             "type": "array",
             "size": 512
           },
-          "_line": 1191,
+          "_line": 1190,
           "decl_type": "char_ptr"
         },
         {
@@ -13231,7 +13246,7 @@
               "name": "file_contents"
             }
           ],
-          "_line": 1192
+          "_line": 1191
         },
         {
           "type": "call_stmt",
@@ -13254,7 +13269,7 @@
               "value": 63
             }
           ],
-          "_line": 1193
+          "_line": 1192
         },
         {
           "type": "call_stmt",
@@ -13277,7 +13292,7 @@
               "value": 12
             }
           ],
-          "_line": 1194
+          "_line": 1193
         },
         {
           "type": "call_stmt",
@@ -13300,7 +13315,7 @@
               "value": 48
             }
           ],
-          "_line": 1195
+          "_line": 1194
         },
         {
           "type": "call_stmt",
@@ -13323,7 +13338,7 @@
               "value": 7
             }
           ],
-          "_line": 1196
+          "_line": 1195
         },
         {
           "type": "call_stmt",
@@ -13346,7 +13361,7 @@
               "value": 60
             }
           ],
-          "_line": 1197
+          "_line": 1196
         },
         {
           "type": "call_stmt",
@@ -13369,7 +13384,7 @@
               "value": 15
             }
           ],
-          "_line": 1198
+          "_line": 1197
         },
         {
           "type": "call_stmt",
@@ -13392,7 +13407,7 @@
               "value": 51
             }
           ],
-          "_line": 1199
+          "_line": 1198
         },
         {
           "type": "call_stmt",
@@ -13415,75 +13430,492 @@
               "value": 63
             }
           ],
-          "_line": 1200
+          "_line": 1199
         },
         {
-          "type": "call_stmt",
-          "name": "draw_string_to_display",
-          "args": [
-            {
-              "type": "string_addr",
-              "label": "str_11"
+          "type": "decl",
+          "name": "malloc_test_size",
+          "init": {
+            "type": "const",
+            "value": 1024
+          },
+          "_line": 1213,
+          "decl_type": "int"
+        },
+        {
+          "type": "decl",
+          "name": "malloc_test_ptr",
+          "init": {
+            "type": "call",
+            "name": "malloc",
+            "args": [
+              {
+                "type": "var",
+                "name": "malloc_test_size"
+              }
+            ]
+          },
+          "_line": 1214,
+          "decl_type": "char_ptr"
+        },
+        {
+          "type": "decl",
+          "name": "read_success",
+          "init": {
+            "type": "const",
+            "value": 1
+          },
+          "_line": 1215,
+          "decl_type": "int"
+        },
+        {
+          "type": "if",
+          "cond": {
+            "type": "binop",
+            "op": "neq",
+            "left": {
+              "type": "var",
+              "name": "malloc_test_ptr"
             },
-            {
+            "right": {
               "type": "const",
               "value": 0
+            }
+          },
+          "then": [
+            {
+              "type": "decl",
+              "name": "i",
+              "init": {
+                "type": "const",
+                "value": 0
+              },
+              "_line": 1220,
+              "decl_type": "int"
             },
             {
-              "type": "const",
-              "value": 80
+              "type": "while",
+              "cond": {
+                "type": "binop",
+                "op": "lt",
+                "left": {
+                  "type": "var",
+                  "name": "i"
+                },
+                "right": {
+                  "type": "var",
+                  "name": "malloc_test_size"
+                }
+              },
+              "body": [
+                {
+                  "type": "assign",
+                  "target": {
+                    "type": "deref",
+                    "expr": {
+                      "type": "binop",
+                      "op": "plus",
+                      "left": {
+                        "type": "var",
+                        "name": "malloc_test_ptr"
+                      },
+                      "right": {
+                        "type": "var",
+                        "name": "i"
+                      }
+                    }
+                  },
+                  "value": {
+                    "type": "binop",
+                    "op": "mod",
+                    "left": {
+                      "type": "var",
+                      "name": "i"
+                    },
+                    "right": {
+                      "type": "const",
+                      "value": 256
+                    }
+                  },
+                  "_line": 1222
+                },
+                {
+                  "type": "assign",
+                  "target": "i",
+                  "value": {
+                    "type": "binop",
+                    "op": "plus",
+                    "left": {
+                      "type": "var",
+                      "name": "i"
+                    },
+                    "right": {
+                      "type": "const",
+                      "value": 1
+                    }
+                  },
+                  "_line": 1220
+                }
+              ],
+              "_line": 1220
             },
             {
-              "type": "const",
-              "value": 63
+              "type": "decl",
+              "name": "i",
+              "init": {
+                "type": "const",
+                "value": 0
+              },
+              "_line": 1225,
+              "decl_type": "int"
+            },
+            {
+              "type": "while",
+              "cond": {
+                "type": "binop",
+                "op": "lt",
+                "left": {
+                  "type": "var",
+                  "name": "i"
+                },
+                "right": {
+                  "type": "var",
+                  "name": "malloc_test_size"
+                }
+              },
+              "body": [
+                {
+                  "type": "if",
+                  "cond": {
+                    "type": "binop",
+                    "op": "neq",
+                    "left": {
+                      "type": "deref",
+                      "expr": {
+                        "type": "binop",
+                        "op": "plus",
+                        "left": {
+                          "type": "var",
+                          "name": "malloc_test_ptr"
+                        },
+                        "right": {
+                          "type": "var",
+                          "name": "i"
+                        }
+                      }
+                    },
+                    "right": {
+                      "type": "binop",
+                      "op": "mod",
+                      "left": {
+                        "type": "var",
+                        "name": "i"
+                      },
+                      "right": {
+                        "type": "const",
+                        "value": 256
+                      }
+                    }
+                  },
+                  "then": [
+                    {
+                      "type": "assign",
+                      "target": "read_success",
+                      "value": {
+                        "type": "const",
+                        "value": 0
+                      },
+                      "_line": 1229
+                    }
+                  ],
+                  "else": [],
+                  "_line": 1227
+                },
+                {
+                  "type": "assign",
+                  "target": "i",
+                  "value": {
+                    "type": "binop",
+                    "op": "plus",
+                    "left": {
+                      "type": "var",
+                      "name": "i"
+                    },
+                    "right": {
+                      "type": "const",
+                      "value": 1
+                    }
+                  },
+                  "_line": 1225
+                }
+              ],
+              "_line": 1225
+            },
+            {
+              "type": "if",
+              "cond": {
+                "type": "var",
+                "name": "read_success"
+              },
+              "then": [
+                {
+                  "type": "call_stmt",
+                  "name": "draw_string_to_display",
+                  "args": [
+                    {
+                      "type": "string_addr",
+                      "label": "str_11"
+                    },
+                    {
+                      "type": "const",
+                      "value": 0
+                    },
+                    {
+                      "type": "const",
+                      "value": 96
+                    },
+                    {
+                      "type": "const",
+                      "value": 63
+                    }
+                  ],
+                  "_line": 1235
+                }
+              ],
+              "else": [
+                {
+                  "type": "call_stmt",
+                  "name": "draw_string_to_display",
+                  "args": [
+                    {
+                      "type": "string_addr",
+                      "label": "str_12"
+                    },
+                    {
+                      "type": "const",
+                      "value": 0
+                    },
+                    {
+                      "type": "const",
+                      "value": 96
+                    },
+                    {
+                      "type": "const",
+                      "value": 63
+                    }
+                  ],
+                  "_line": 1239
+                }
+              ],
+              "_line": 1233
+            },
+            {
+              "type": "call_stmt",
+              "name": "free",
+              "args": [
+                {
+                  "type": "var",
+                  "name": "malloc_test_ptr"
+                }
+              ],
+              "_line": 1241
             }
           ],
-          "_line": 1201
+          "else": [],
+          "_line": 1217
         },
         {
-          "type": "call_stmt",
-          "name": "draw_string_to_display",
-          "args": [
-            {
-              "type": "string_addr",
-              "label": "str_12"
+          "type": "if",
+          "cond": {
+            "type": "binop",
+            "op": "eq",
+            "left": {
+              "type": "var",
+              "name": "malloc_test_ptr"
             },
-            {
+            "right": {
               "type": "const",
               "value": 0
-            },
+            }
+          },
+          "then": [
             {
-              "type": "const",
-              "value": 88
-            },
-            {
-              "type": "const",
-              "value": 63
+              "type": "call_stmt",
+              "name": "draw_string_to_display",
+              "args": [
+                {
+                  "type": "string_addr",
+                  "label": "str_13"
+                },
+                {
+                  "type": "const",
+                  "value": 0
+                },
+                {
+                  "type": "const",
+                  "value": 96
+                },
+                {
+                  "type": "const",
+                  "value": 63
+                }
+              ],
+              "_line": 1246
             }
           ],
-          "_line": 1202
+          "else": [],
+          "_line": 1244
         },
         {
           "type": "call_stmt",
-          "name": "rand_block_test",
+          "name": "update_buffer",
           "args": [],
-          "_line": 1203
+          "_line": 1251
         },
         {
-          "type": "call_stmt",
-          "name": "fast_clear_display",
-          "args": [],
-          "_line": 1204
+          "type": "decl",
+          "name": "int_to_str_test_buffer",
+          "init": {
+            "type": "call",
+            "name": "malloc",
+            "args": [
+              {
+                "type": "const",
+                "value": 12
+              }
+            ]
+          },
+          "_line": 1252,
+          "decl_type": "char_ptr"
         },
         {
-          "type": "call_stmt",
-          "name": "load_and_display_image",
-          "args": [],
-          "_line": 1213
+          "type": "if",
+          "cond": {
+            "type": "binop",
+            "op": "neq",
+            "left": {
+              "type": "var",
+              "name": "int_to_str_test_buffer"
+            },
+            "right": {
+              "type": "const",
+              "value": 0
+            }
+          },
+          "then": [
+            {
+              "type": "decl",
+              "name": "test_value",
+              "init": {
+                "type": "const",
+                "value": -123456
+              },
+              "_line": 1255,
+              "decl_type": "int"
+            },
+            {
+              "type": "call_stmt",
+              "name": "int_to_str_buf",
+              "args": [
+                {
+                  "type": "var",
+                  "name": "test_value"
+                },
+                {
+                  "type": "var",
+                  "name": "int_to_str_test_buffer"
+                }
+              ],
+              "_line": 1256
+            },
+            {
+              "type": "call_stmt",
+              "name": "draw_string_to_display",
+              "args": [
+                {
+                  "type": "string_addr",
+                  "label": "str_14"
+                },
+                {
+                  "type": "const",
+                  "value": 0
+                },
+                {
+                  "type": "const",
+                  "value": 104
+                },
+                {
+                  "type": "const",
+                  "value": 63
+                }
+              ],
+              "_line": 1257
+            },
+            {
+              "type": "call_stmt",
+              "name": "draw_string_to_display",
+              "args": [
+                {
+                  "type": "var",
+                  "name": "int_to_str_test_buffer"
+                },
+                {
+                  "type": "const",
+                  "value": 0
+                },
+                {
+                  "type": "const",
+                  "value": 112
+                },
+                {
+                  "type": "const",
+                  "value": 63
+                }
+              ],
+              "_line": 1258
+            },
+            {
+              "type": "call_stmt",
+              "name": "free",
+              "args": [
+                {
+                  "type": "var",
+                  "name": "int_to_str_test_buffer"
+                }
+              ],
+              "_line": 1259
+            }
+          ],
+          "else": [
+            {
+              "type": "call_stmt",
+              "name": "draw_string_to_display",
+              "args": [
+                {
+                  "type": "string_addr",
+                  "label": "str_15"
+                },
+                {
+                  "type": "const",
+                  "value": 0
+                },
+                {
+                  "type": "const",
+                  "value": 104
+                },
+                {
+                  "type": "const",
+                  "value": 63
+                }
+              ],
+              "_line": 1263
+            }
+          ],
+          "_line": 1253
         }
       ],
       "return_type": "void",
-      "_line": 1180
+      "_line": 1179
     }
   ],
   "types": [
