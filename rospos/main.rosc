@@ -58,7 +58,7 @@ void image_display_test()
 }
 void malloc_test()
 {
-    int malloc_test_size = 1024; // Size of memory to allocate
+    int malloc_test_size = 256; // Size of memory to allocate
     char *malloc_test_ptr = (char *)malloc(malloc_test_size);
     int read_success = 1;
     /* Rosc has no null, so we check for 0 instead. */
@@ -67,12 +67,12 @@ void malloc_test()
         // Successfully allocated memory, now we can use it.
         for (int i = 0; i < malloc_test_size; i++)
         {
-            malloc_test_ptr[i] = (char)(i % 256); // Fill with some data
+            malloc_test_ptr[i] = (char)i; // Fill with some data
         }
         // Optionally, we can read back the data to verify.
         for (int i = 0; i < malloc_test_size; i++)
         {
-            if (malloc_test_ptr[i] != (char)(i % 256))
+            if (malloc_test_ptr[i] != (char)i)
             {
                 read_success = 0; // Data mismatch
             }

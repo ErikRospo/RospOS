@@ -401,7 +401,7 @@ void RospOSVM::step()
     }
 }
 
-uint64_t RospOSVM::runSteps(uint64_t maxSteps, uint32_t timeBudgetMicros)
+uint64_t RospOSVM::runSteps(uint64_t maxSteps, uint32_t timeBudgetMicros, bool logExecution)
 {
     if (maxSteps == 0) {
         return 0;
@@ -425,6 +425,14 @@ uint64_t RospOSVM::runSteps(uint64_t maxSteps, uint32_t timeBudgetMicros)
     while (executed < maxSteps && !shouldShutdown()) {
         clearLastMemoryAccess();
         const uint32_t instruction = memory.readWord(pc);
+        if (logExecution) {
+            std::ostringstream oss;
+            oss << "PC: " << std::hex << pc << std::dec << " ";
+            oss << "I: " << decodeInstruction(instruction, regFile) << "\n";
+            oss << "RI: " << std::hex << std::setw(8) << std::setfill('0') << instruction << std::dec << "\n";
+            oss << "Registers: " << getRegisterState();
+            Logger::instance().debug(QString::fromStdString(oss.str()));
+        };
         executeInstruction(instruction);
         ++executed;
 
@@ -514,6 +522,8 @@ void RospOSVM::executeInstruction(uint32_t instruction)
             break;
         default:
             Logger::instance().error(QString("Unknown opcode: %1").arg(opcode));
+            requestShutdown();
+
             break;
     }
     
@@ -623,6 +633,9 @@ void RospOSVM::rTypeInstruction(uint32_t instruction)
     default:
         validResult = false;
         Logger::instance().error(QString("Unknown R-type sub-opcode: %1").arg(sub_op));
+        
+        requestShutdown();
+
         break;
     }
 
@@ -672,6 +685,7 @@ void RospOSVM::iArithTypeInstruction(uint32_t instruction)
     default:
         validResult = false;
         Logger::instance().error(QString("Unknown I-type sub-opcode: %1").arg(sub_op));
+        requestShutdown();
         break;
     }
 
@@ -741,6 +755,7 @@ void RospOSVM::iTypeLSInstruction(uint32_t instruction)
         break;
     default:
         Logger::instance().error(QString("Unknown Load/Store sub-opcode: %1").arg(sub_op));
+        requestShutdown();
         break;
     }
 }
@@ -784,7 +799,9 @@ bool RospOSVM::bTypeInstruction(uint32_t instruction)
         takeBranch = (rs1Val >= rs2Val);
         break;
     default:
+    
         Logger::instance().error(QString("Unknown B-type sub-opcode: %1").arg(sub_op));
+        requestShutdown();
         break;
     }
     if (takeBranch)
@@ -816,8 +833,12 @@ void RospOSVM::jTypeInstruction(uint32_t instruction)
         const uint32_t temp = pc + 4;
         pc = (regFile.unchecked(rs).get() + (static_cast<uint32_t>(sign_ext_imm) << 2)) & ~1u;
         writeRegisterHot(rd, temp);
+        break;
     }
-    break;
+    default:
+        Logger::instance().error(QString("Unknown J-type sub-opcode: %1").arg(sub_op));
+        requestShutdown();
+        break;
     }
 }
 void RospOSVM::sTypeInstruction(uint32_t instruction)
@@ -841,6 +862,7 @@ void RospOSVM::sTypeInstruction(uint32_t instruction)
         break;
     default:
         Logger::instance().error(QString("Unknown S-type sub-opcode: %1").arg(sub_op));
+        requestShutdown();
         break;
     }
 }

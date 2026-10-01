@@ -4166,7 +4166,7 @@ evaluate_rpn_62_WHILE_END3:
 malloc_test:
 
   PUSH r14
-  LLI r2, 1024
+  LLI r2, 256
   LLI r3, 0
   PUSH r2
   PUSH r3
@@ -4200,47 +4200,43 @@ malloc_test_69_CMP_TRUE7:
 malloc_test_69_CMP_END8:
 
   BEQ r7, r0, malloc_test_69_WHILE_END6
-  LLI r8, 256
-  REM r8, r6, r8
-  ADD r9, r3, r6
-  SB r8, r9, 0
+  ADD r8, r3, r6
+  SB r6, r8, 0
   ADDI r6, r6, 1
   JMP malloc_test_69_WHILE5
 
 malloc_test_69_WHILE_END6:
 
-  LLI r10, 0
+  LLI r9, 0
 malloc_test_69_WHILE9:
 
-  BLT r10, r2, malloc_test_69_CMP_TRUE11
-  LLI r11, 0
+  BLT r9, r2, malloc_test_69_CMP_TRUE11
+  LLI r10, 0
   JMP malloc_test_69_CMP_END12
 
 malloc_test_69_CMP_TRUE11:
 
-  LLI r11, 1
+  LLI r10, 1
 malloc_test_69_CMP_END12:
 
-  BEQ r11, r0, malloc_test_69_WHILE_END10
-  ADD r12, r3, r10
-  LB r12, r12, 0
-  LLI r5, 256
-  REM r5, r10, r5
-  BNE r12, r5, malloc_test_69_CMP_TRUE15
-  LLI r12, 0
+  BEQ r10, r0, malloc_test_69_WHILE_END10
+  ADD r11, r3, r9
+  LB r11, r11, 0
+  BNE r11, r9, malloc_test_69_CMP_TRUE15
+  LLI r11, 0
   JMP malloc_test_69_CMP_END16
 
 malloc_test_69_CMP_TRUE15:
 
-  LLI r12, 1
+  LLI r11, 1
 malloc_test_69_CMP_END16:
 
-  BEQ r12, r0, malloc_test_69_ELSE13
-  LLI r7, 0
-  ADDI r4, r7, 0
+  BEQ r11, r0, malloc_test_69_ELSE13
+  LLI r12, 0
+  ADDI r4, r12, 0
 malloc_test_69_ELSE13:
 
-  ADDI r10, r10, 1
+  ADDI r9, r9, 1
   JMP malloc_test_69_WHILE9
 
 malloc_test_69_WHILE_END10:
@@ -4250,23 +4246,23 @@ malloc_test_69_WHILE_END10:
   PUSH r3
   PUSH r4
   PUSH r6
-  PUSH r10
-  PUSH r1
-  LLI r9, str_16
   PUSH r9
-  LLI r8, 0
+  PUSH r1
+  LLI r5, str_16
+  PUSH r5
+  LLI r7, 0
+  PUSH r7
+  LLI r8, 96
   PUSH r8
-  LLI r11, 96
-  PUSH r11
-  LLI r5, 63
-  ADDI r4, r5, 0
+  LLI r10, 63
+  ADDI r4, r10, 0
   POP r3
   POP r2
   POP r1
   JMP draw_string_to_display
 
   POP r1
-  POP r10
+  POP r9
   POP r6
   POP r4
   POP r3
@@ -4279,23 +4275,23 @@ malloc_test_69_ELSE17:
   PUSH r3
   PUSH r4
   PUSH r6
-  PUSH r10
-  PUSH r1
-  LLI r12, str_17
-  PUSH r12
-  LLI r7, 0
-  PUSH r7
-  LLI r9, 96
   PUSH r9
-  LLI r8, 63
-  ADDI r4, r8, 0
+  PUSH r1
+  LLI r11, str_17
+  PUSH r11
+  LLI r12, 0
+  PUSH r12
+  LLI r5, 96
+  PUSH r5
+  LLI r7, 63
+  ADDI r4, r7, 0
   POP r3
   POP r2
   POP r1
   JMP draw_string_to_display
 
   POP r1
-  POP r10
+  POP r9
   POP r6
   POP r4
   POP r3
@@ -4306,13 +4302,13 @@ malloc_test_69_IF_END18:
   PUSH r3
   PUSH r4
   PUSH r6
-  PUSH r10
+  PUSH r9
   PUSH r1
   ADDI r1, r3, 0
   JMP free
 
   POP r1
-  POP r10
+  POP r9
   POP r6
   POP r4
   POP r3
@@ -4326,14 +4322,14 @@ malloc_test_69_ELSE1:
   PUSH r4
   PUSH r6
   PUSH r1
-  LLI r11, str_18
+  LLI r8, str_18
+  PUSH r8
+  LLI r10, 0
+  PUSH r10
+  LLI r11, 96
   PUSH r11
-  LLI r5, 0
-  PUSH r5
-  LLI r12, 96
-  PUSH r12
-  LLI r7, 63
-  ADDI r4, r7, 0
+  LLI r12, 63
+  ADDI r4, r12, 0
   POP r3
   POP r2
   POP r1
@@ -4346,42 +4342,42 @@ malloc_test_69_ELSE1:
   POP r2
 malloc_test_69_IF_END2:
 
-  LLI r9, 0
+  LLI r5, 0
+  PUSH r5
   PUSH r6
-  PUSH r9
-  LLI r8, 12
-  ADDI r1, r8, 0
+  LLI r7, 12
+  ADDI r1, r7, 0
   JMP malloc
 
-  POP r9
   POP r6
-  ADDI r9, r1, 0
-  BNE r9, r0, malloc_test_69_CMP_TRUE21
-  LLI r10, 0
+  POP r5
+  ADDI r5, r1, 0
+  BNE r5, r0, malloc_test_69_CMP_TRUE21
+  LLI r9, 0
   JMP malloc_test_69_CMP_END22
 
 malloc_test_69_CMP_TRUE21:
 
-  LLI r10, 1
+  LLI r9, 1
 malloc_test_69_CMP_END22:
 
-  BEQ r10, r0, malloc_test_69_ELSE19
-  LLI r11, -123456
+  BEQ r9, r0, malloc_test_69_ELSE19
+  LLI r8, -123456
+  PUSH r5
   PUSH r6
-  PUSH r9
-  PUSH r11
+  PUSH r8
   PUSH r1
-  PUSH r11
-  ADDI r2, r9, 0
+  PUSH r8
+  ADDI r2, r5, 0
   POP r1
   JMP int_to_str_buf
 
-  LLI r5, str_19
-  PUSH r5
-  LLI r12, 0
+  LLI r10, str_19
+  PUSH r10
+  LLI r11, 0
+  PUSH r11
+  LLI r12, 104
   PUSH r12
-  LLI r7, 104
-  PUSH r7
   LLI r2, 63
   ADDI r4, r2, 0
   POP r3
@@ -4390,45 +4386,18 @@ malloc_test_69_CMP_END22:
   JMP draw_string_to_display
 
   POP r1
-  POP r11
-  POP r9
+  POP r8
   POP r6
+  POP r5
+  PUSH r5
   PUSH r6
-  PUSH r9
-  PUSH r11
+  PUSH r8
   PUSH r1
-  PUSH r9
+  PUSH r5
   LLI r3, 0
   PUSH r3
   LLI r4, 112
   PUSH r4
-  LLI r8, 63
-  ADDI r4, r8, 0
-  POP r3
-  POP r2
-  POP r1
-  JMP draw_string_to_display
-
-  ADDI r1, r9, 0
-  JMP free
-
-  POP r1
-  POP r11
-  POP r9
-  POP r6
-  JMP malloc_test_69_IF_END20
-
-malloc_test_69_ELSE19:
-
-  PUSH r6
-  PUSH r9
-  PUSH r1
-  LLI r10, str_20
-  PUSH r10
-  LLI r5, 0
-  PUSH r5
-  LLI r12, 104
-  PUSH r12
   LLI r7, 63
   ADDI r4, r7, 0
   POP r3
@@ -4436,9 +4405,36 @@ malloc_test_69_ELSE19:
   POP r1
   JMP draw_string_to_display
 
+  ADDI r1, r5, 0
+  JMP free
+
   POP r1
-  POP r9
+  POP r8
   POP r6
+  POP r5
+  JMP malloc_test_69_IF_END20
+
+malloc_test_69_ELSE19:
+
+  PUSH r5
+  PUSH r6
+  PUSH r1
+  LLI r9, str_20
+  PUSH r9
+  LLI r10, 0
+  PUSH r10
+  LLI r11, 104
+  PUSH r11
+  LLI r12, 63
+  ADDI r4, r12, 0
+  POP r3
+  POP r2
+  POP r1
+  JMP draw_string_to_display
+
+  POP r1
+  POP r6
+  POP r5
 malloc_test_69_IF_END20:
 
   ADDI r1, r0, 0

@@ -4340,7 +4340,7 @@ evaluate_rpn_62_WHILE_END3:
 
 .FUNC malloc_test:
   PUSH r14
-  LLI r2, 1024    // init malloc_test_size
+  LLI r2, 256    // init malloc_test_size
   LLI r3, 0    // zero init malloc_test_ptr
   // emit call to malloc with args [{'type': 'var', 'name': 'malloc_test_size'}]
   PUSH r2    // save caller temp
@@ -4370,39 +4370,35 @@ malloc_test_69_CMP_TRUE7:
   LLI r7, 1
 malloc_test_69_CMP_END8:
   BEQ r7, r0, malloc_test_69_WHILE_END6
-  LLI r8, 256    // load immediate 256
-  REM r8, r6, r8    // binop %
-  ADD r9, r3, r6    // binop +
-  SB r8, r9, 0    // store 
+  ADD r8, r3, r6    // binop +
+  SB r6, r8, 0    // store 
   ADDI r6, r6, 1    // assign i (addi fast path)
   JMP malloc_test_69_WHILE5
 malloc_test_69_WHILE_END6:
-  LLI r10, 0    // init i
+  LLI r9, 0    // init i
 malloc_test_69_WHILE9:
-  BLT r10, r2, malloc_test_69_CMP_TRUE11
-  LLI r11, 0    // compare false path
+  BLT r9, r2, malloc_test_69_CMP_TRUE11
+  LLI r10, 0    // compare false path
   JMP malloc_test_69_CMP_END12
 malloc_test_69_CMP_TRUE11:
-  LLI r11, 1
+  LLI r10, 1
 malloc_test_69_CMP_END12:
-  BEQ r11, r0, malloc_test_69_WHILE_END10
-  ADD r12, r3, r10    // binop +
-  LB r12, r12, 0    // deref
-  LLI r5, 256    // load immediate 256
-  REM r5, r10, r5    // binop %
-  BNE r12, r5, malloc_test_69_CMP_TRUE15
-  LLI r12, 0    // compare false path
+  BEQ r10, r0, malloc_test_69_WHILE_END10
+  ADD r11, r3, r9    // binop +
+  LB r11, r11, 0    // deref
+  BNE r11, r9, malloc_test_69_CMP_TRUE15
+  LLI r11, 0    // compare false path
   JMP malloc_test_69_CMP_END16
 malloc_test_69_CMP_TRUE15:
-  LLI r12, 1
+  LLI r11, 1
 malloc_test_69_CMP_END16:
-  BEQ r12, r0, malloc_test_69_ELSE13
-  LLI r7, 0    // load immediate 0
-  ADDI r4, r7, 0    // assign read_success
+  BEQ r11, r0, malloc_test_69_ELSE13
+  LLI r12, 0    // load immediate 0
+  ADDI r4, r12, 0    // assign read_success
   JMP malloc_test_69_IF_END14
 malloc_test_69_ELSE13:
 malloc_test_69_IF_END14:
-  ADDI r10, r10, 1    // assign i (addi fast path)
+  ADDI r9, r9, 1    // assign i (addi fast path)
   JMP malloc_test_69_WHILE9
 malloc_test_69_WHILE_END10:
   BEQ r4, r0, malloc_test_69_ELSE17
@@ -4411,16 +4407,16 @@ malloc_test_69_WHILE_END10:
   PUSH r3    // save caller temp
   PUSH r4    // save caller temp
   PUSH r6    // save caller temp
-  PUSH r10    // save caller temp
+  PUSH r9    // save caller temp
   PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  LLI r9, str_16    // load immediate str_16
-  PUSH r9    // stage reg arg 0
-  LLI r8, 0    // load immediate 0
-  PUSH r8    // stage reg arg 1
-  LLI r11, 96    // load immediate 96
-  PUSH r11    // stage reg arg 2
-  LLI r5, 63    // load immediate 63
-  PUSH r5    // stage reg arg 3
+  LLI r5, str_16    // load immediate str_16
+  PUSH r5    // stage reg arg 0
+  LLI r7, 0    // load immediate 0
+  PUSH r7    // stage reg arg 1
+  LLI r8, 96    // load immediate 96
+  PUSH r8    // stage reg arg 2
+  LLI r10, 63    // load immediate 63
+  PUSH r10    // stage reg arg 3
   POP r4    // load reg arg 3
   POP r3    // load reg arg 2
   POP r2    // load reg arg 1
@@ -4428,7 +4424,7 @@ malloc_test_69_WHILE_END10:
   CALL draw_string_to_display
   // call return value in r1
   POP r1  
-  POP r10    // restore caller temp
+  POP r9    // restore caller temp
   POP r6    // restore caller temp
   POP r4    // restore caller temp
   POP r3    // restore caller temp
@@ -4440,16 +4436,16 @@ malloc_test_69_ELSE17:
   PUSH r3    // save caller temp
   PUSH r4    // save caller temp
   PUSH r6    // save caller temp
-  PUSH r10    // save caller temp
+  PUSH r9    // save caller temp
   PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  LLI r12, str_17    // load immediate str_17
-  PUSH r12    // stage reg arg 0
-  LLI r7, 0    // load immediate 0
-  PUSH r7    // stage reg arg 1
-  LLI r9, 96    // load immediate 96
-  PUSH r9    // stage reg arg 2
-  LLI r8, 63    // load immediate 63
-  PUSH r8    // stage reg arg 3
+  LLI r11, str_17    // load immediate str_17
+  PUSH r11    // stage reg arg 0
+  LLI r12, 0    // load immediate 0
+  PUSH r12    // stage reg arg 1
+  LLI r5, 96    // load immediate 96
+  PUSH r5    // stage reg arg 2
+  LLI r7, 63    // load immediate 63
+  PUSH r7    // stage reg arg 3
   POP r4    // load reg arg 3
   POP r3    // load reg arg 2
   POP r2    // load reg arg 1
@@ -4457,7 +4453,7 @@ malloc_test_69_ELSE17:
   CALL draw_string_to_display
   // call return value in r1
   POP r1  
-  POP r10    // restore caller temp
+  POP r9    // restore caller temp
   POP r6    // restore caller temp
   POP r4    // restore caller temp
   POP r3    // restore caller temp
@@ -4468,14 +4464,14 @@ malloc_test_69_IF_END18:
   PUSH r3    // save caller temp
   PUSH r4    // save caller temp
   PUSH r6    // save caller temp
-  PUSH r10    // save caller temp
+  PUSH r9    // save caller temp
   PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
   PUSH r3    // stage reg arg 0
   POP r1    // load reg arg 0
   CALL free
   // call return value in r1
   POP r1  
-  POP r10    // restore caller temp
+  POP r9    // restore caller temp
   POP r6    // restore caller temp
   POP r4    // restore caller temp
   POP r3    // restore caller temp
@@ -4488,14 +4484,14 @@ malloc_test_69_ELSE1:
   PUSH r4    // save caller temp
   PUSH r6    // save caller temp
   PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  LLI r11, str_18    // load immediate str_18
-  PUSH r11    // stage reg arg 0
-  LLI r5, 0    // load immediate 0
-  PUSH r5    // stage reg arg 1
-  LLI r12, 96    // load immediate 96
-  PUSH r12    // stage reg arg 2
-  LLI r7, 63    // load immediate 63
-  PUSH r7    // stage reg arg 3
+  LLI r8, str_18    // load immediate str_18
+  PUSH r8    // stage reg arg 0
+  LLI r10, 0    // load immediate 0
+  PUSH r10    // stage reg arg 1
+  LLI r11, 96    // load immediate 96
+  PUSH r11    // stage reg arg 2
+  LLI r12, 63    // load immediate 63
+  PUSH r12    // stage reg arg 3
   POP r4    // load reg arg 3
   POP r3    // load reg arg 2
   POP r2    // load reg arg 1
@@ -4508,53 +4504,53 @@ malloc_test_69_ELSE1:
   POP r3    // restore caller temp
   POP r2    // restore caller temp
 malloc_test_69_IF_END2:
-  LLI r9, 0    // zero init int_to_str_test_buffer
+  LLI r5, 0    // zero init int_to_str_test_buffer
   // emit call to malloc with args [{'type': 'const', 'value': 12}]
+  PUSH r5    // save caller temp
   PUSH r6    // save caller temp
-  PUSH r9    // save caller temp
-  LLI r8, 12    // load immediate 12
-  PUSH r8    // stage reg arg 0
+  LLI r7, 12    // load immediate 12
+  PUSH r7    // stage reg arg 0
   POP r1    // load reg arg 0
   CALL malloc
   // call return value in r1
-  POP r9    // restore caller temp
   POP r6    // restore caller temp
-  ADDI r9, r1, 0    // move return value
-  LLI r10, 0    // load immediate 0
-  BNE r9, r10, malloc_test_69_CMP_TRUE21
-  LLI r10, 0    // compare false path
+  POP r5    // restore caller temp
+  ADDI r5, r1, 0    // move return value
+  LLI r9, 0    // load immediate 0
+  BNE r5, r9, malloc_test_69_CMP_TRUE21
+  LLI r9, 0    // compare false path
   JMP malloc_test_69_CMP_END22
 malloc_test_69_CMP_TRUE21:
-  LLI r10, 1
+  LLI r9, 1
 malloc_test_69_CMP_END22:
-  BEQ r10, r0, malloc_test_69_ELSE19
-  LLI r11, -123456    // init test_value
+  BEQ r9, r0, malloc_test_69_ELSE19
+  LLI r8, -123456    // init test_value
   // emit call to int_to_str_buf with args [{'type': 'var', 'name': 'test_value'}, {'type': 'var', 'name': 'int_to_str_test_buffer'}]
+  PUSH r5    // save caller temp
   PUSH r6    // save caller temp
-  PUSH r9    // save caller temp
-  PUSH r11    // save caller temp
+  PUSH r8    // save caller temp
   PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  PUSH r11    // stage reg arg 0
-  PUSH r9    // stage reg arg 1
+  PUSH r8    // stage reg arg 0
+  PUSH r5    // stage reg arg 1
   POP r2    // load reg arg 1
   POP r1    // load reg arg 0
   CALL int_to_str_buf
   // call return value in r1
   POP r1  
-  POP r11    // restore caller temp
-  POP r9    // restore caller temp
+  POP r8    // restore caller temp
   POP r6    // restore caller temp
+  POP r5    // restore caller temp
   // emit call to draw_string_to_display with args [{'type': 'string_addr', 'label': 'str_19'}, {'type': 'const', 'value': 0}, {'type': 'const', 'value': 104}, {'type': 'const', 'value': 63}]
+  PUSH r5    // save caller temp
   PUSH r6    // save caller temp
-  PUSH r9    // save caller temp
-  PUSH r11    // save caller temp
+  PUSH r8    // save caller temp
   PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  LLI r5, str_19    // load immediate str_19
-  PUSH r5    // stage reg arg 0
-  LLI r12, 0    // load immediate 0
-  PUSH r12    // stage reg arg 1
-  LLI r7, 104    // load immediate 104
-  PUSH r7    // stage reg arg 2
+  LLI r10, str_19    // load immediate str_19
+  PUSH r10    // stage reg arg 0
+  LLI r11, 0    // load immediate 0
+  PUSH r11    // stage reg arg 1
+  LLI r12, 104    // load immediate 104
+  PUSH r12    // stage reg arg 2
   LLI r2, 63    // load immediate 63
   PUSH r2    // stage reg arg 3
   POP r4    // load reg arg 3
@@ -4564,56 +4560,19 @@ malloc_test_69_CMP_END22:
   CALL draw_string_to_display
   // call return value in r1
   POP r1  
-  POP r11    // restore caller temp
-  POP r9    // restore caller temp
+  POP r8    // restore caller temp
   POP r6    // restore caller temp
+  POP r5    // restore caller temp
   // emit call to draw_string_to_display with args [{'type': 'var', 'name': 'int_to_str_test_buffer'}, {'type': 'const', 'value': 0}, {'type': 'const', 'value': 112}, {'type': 'const', 'value': 63}]
+  PUSH r5    // save caller temp
   PUSH r6    // save caller temp
-  PUSH r9    // save caller temp
-  PUSH r11    // save caller temp
+  PUSH r8    // save caller temp
   PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  PUSH r9    // stage reg arg 0
+  PUSH r5    // stage reg arg 0
   LLI r3, 0    // load immediate 0
   PUSH r3    // stage reg arg 1
   LLI r4, 112    // load immediate 112
   PUSH r4    // stage reg arg 2
-  LLI r8, 63    // load immediate 63
-  PUSH r8    // stage reg arg 3
-  POP r4    // load reg arg 3
-  POP r3    // load reg arg 2
-  POP r2    // load reg arg 1
-  POP r1    // load reg arg 0
-  CALL draw_string_to_display
-  // call return value in r1
-  POP r1  
-  POP r11    // restore caller temp
-  POP r9    // restore caller temp
-  POP r6    // restore caller temp
-  // emit call to free with args [{'type': 'var', 'name': 'int_to_str_test_buffer'}]
-  PUSH r6    // save caller temp
-  PUSH r9    // save caller temp
-  PUSH r11    // save caller temp
-  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  PUSH r9    // stage reg arg 0
-  POP r1    // load reg arg 0
-  CALL free
-  // call return value in r1
-  POP r1  
-  POP r11    // restore caller temp
-  POP r9    // restore caller temp
-  POP r6    // restore caller temp
-  JMP malloc_test_69_IF_END20
-malloc_test_69_ELSE19:
-  // emit call to draw_string_to_display with args [{'type': 'string_addr', 'label': 'str_20'}, {'type': 'const', 'value': 0}, {'type': 'const', 'value': 104}, {'type': 'const', 'value': 63}]
-  PUSH r6    // save caller temp
-  PUSH r9    // save caller temp
-  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  LLI r10, str_20    // load immediate str_20
-  PUSH r10    // stage reg arg 0
-  LLI r5, 0    // load immediate 0
-  PUSH r5    // stage reg arg 1
-  LLI r12, 104    // load immediate 104
-  PUSH r12    // stage reg arg 2
   LLI r7, 63    // load immediate 63
   PUSH r7    // stage reg arg 3
   POP r4    // load reg arg 3
@@ -4623,8 +4582,45 @@ malloc_test_69_ELSE19:
   CALL draw_string_to_display
   // call return value in r1
   POP r1  
-  POP r9    // restore caller temp
+  POP r8    // restore caller temp
   POP r6    // restore caller temp
+  POP r5    // restore caller temp
+  // emit call to free with args [{'type': 'var', 'name': 'int_to_str_test_buffer'}]
+  PUSH r5    // save caller temp
+  PUSH r6    // save caller temp
+  PUSH r8    // save caller temp
+  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
+  PUSH r5    // stage reg arg 0
+  POP r1    // load reg arg 0
+  CALL free
+  // call return value in r1
+  POP r1  
+  POP r8    // restore caller temp
+  POP r6    // restore caller temp
+  POP r5    // restore caller temp
+  JMP malloc_test_69_IF_END20
+malloc_test_69_ELSE19:
+  // emit call to draw_string_to_display with args [{'type': 'string_addr', 'label': 'str_20'}, {'type': 'const', 'value': 0}, {'type': 'const', 'value': 104}, {'type': 'const', 'value': 63}]
+  PUSH r5    // save caller temp
+  PUSH r6    // save caller temp
+  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
+  LLI r9, str_20    // load immediate str_20
+  PUSH r9    // stage reg arg 0
+  LLI r10, 0    // load immediate 0
+  PUSH r10    // stage reg arg 1
+  LLI r11, 104    // load immediate 104
+  PUSH r11    // stage reg arg 2
+  LLI r12, 63    // load immediate 63
+  PUSH r12    // stage reg arg 3
+  POP r4    // load reg arg 3
+  POP r3    // load reg arg 2
+  POP r2    // load reg arg 1
+  POP r1    // load reg arg 0
+  CALL draw_string_to_display
+  // call return value in r1
+  POP r1  
+  POP r6    // restore caller temp
+  POP r5    // restore caller temp
 malloc_test_69_IF_END20:
   // epilogue and return
   ADDI r1, r0, 0  // ensure r1=0

@@ -98,7 +98,7 @@ public:
     void loadBinaryAtAddress(const std::vector<char> &binary, uint32_t address);
     void loadBinaryFromFile(const std::string& filename);
     void step();
-    uint64_t runSteps(uint64_t maxSteps, uint32_t timeBudgetMicros = 0);
+    uint64_t runSteps(uint64_t maxSteps, uint32_t timeBudgetMicros = 0, bool logExecution = false);
     bool stepBackward();
     bool canStepBackward() const { 
         if constexpr (kEnableStateCapture) {
