@@ -2519,6 +2519,12 @@ translation_unit
             declarator	free
       struct_member
         type_specifier
+          int
+        init_declarator_list
+          init_declarator
+            declarator	exists
+      struct_member
+        type_specifier
           malloc_header
           pointer
         init_declarator_list
@@ -2540,7 +2546,6 @@ translation_unit
       init_declarator_list
         init_declarator
           declarator	__heap_used
-          0
   external_decl
     declaration
       type_specifier
@@ -2550,6 +2555,48 @@ translation_unit
         init_declarator
           declarator	malloc_head
           0
+  external_decl
+    function_def
+      type_specifier
+        void
+      declarator	init_heap
+      compound_stmt
+        expr_stmt
+          assignment
+            __heap_used
+            0
+        expr_stmt
+          assignment
+            malloc_head
+            cast
+              type_specifier
+                malloc_header
+                pointer
+              __heap_area
+        expr_stmt
+          assignment
+            postfix
+              malloc_head
+              ptr_member_access	size
+            0
+        expr_stmt
+          assignment
+            postfix
+              malloc_head
+              ptr_member_access	free
+            1
+        expr_stmt
+          assignment
+            postfix
+              malloc_head
+              ptr_member_access	exists
+            1
+        expr_stmt
+          assignment
+            postfix
+              malloc_head
+              ptr_member_access	next
+            0
   external_decl
     function_def
       type_specifier
@@ -2663,7 +2710,9 @@ translation_unit
               declarator	node
               malloc_head
         while_stmt
-          node
+          postfix
+            node
+            ptr_member_access	exists
           compound_stmt
             if_stmt
               logic_and
@@ -2692,6 +2741,15 @@ translation_unit
                       node
                       plus
                       1
+            if_stmt
+              equality
+                postfix
+                  node
+                  ptr_member_access	next
+                eq
+                0
+              compound_stmt
+                expr_stmt	break
             expr_stmt
               assignment
                 node
@@ -2747,6 +2805,12 @@ translation_unit
               new_node
               ptr_member_access	next
             malloc_head
+        expr_stmt
+          assignment
+            postfix
+              new_node
+              ptr_member_access	exists
+            1
         expr_stmt
           assignment
             malloc_head
@@ -5894,40 +5958,8 @@ translation_unit
     function_def
       type_specifier
         void
-      declarator	main
+      declarator	display_test
       compound_stmt
-        declaration
-          type_specifier
-            int
-          init_declarator_list
-            init_declarator
-              declarator	r1
-              postfix
-                add
-                call_suffix
-                  arg_list
-                    15
-                    25
-        declaration
-          inline
-          type_specifier
-            int
-          init_declarator_list
-            init_declarator
-              declarator	r2
-              50
-        declaration
-          type_specifier
-            int
-          init_declarator_list
-            init_declarator
-              declarator	r3
-              postfix
-                add
-                call_suffix
-                  arg_list
-                    r1
-                    r2
         expr_stmt
           postfix
             draw_string_to_display
@@ -5936,65 +5968,6 @@ translation_unit
                 "Hello, RospOS!"
                 0
                 0
-                0x3F
-        expr_stmt
-          postfix
-            initialize_filesystem
-            call_suffix
-        expr_stmt
-          postfix
-            write_file
-            call_suffix
-              arg_list
-                "example.txt\0"
-                "Hello, RospOS filesystem!\0"
-        declaration
-          type_specifier
-            char
-          init_declarator_list
-            init_declarator
-              declarator
-                device_info
-                array	512
-        expr_stmt
-          postfix
-            read_block
-            call_suffix
-              arg_list
-                0xFFFFFFFF
-                device_info
-        expr_stmt
-          postfix
-            draw_string_to_display
-            call_suffix
-              arg_list
-                device_info
-                0
-                8
-                0x3F
-        declaration
-          type_specifier
-            char
-          init_declarator_list
-            init_declarator
-              declarator
-                file_contents
-                array	512
-        expr_stmt
-          postfix
-            read_file
-            call_suffix
-              arg_list
-                "example.txt\0"
-                file_contents
-        expr_stmt
-          postfix
-            draw_string_to_display
-            call_suffix
-              arg_list
-                file_contents
-                0
-                16
                 0x3F
         expr_stmt
           postfix
@@ -6059,6 +6032,162 @@ translation_unit
                 0
                 72
                 0x3F
+  external_decl
+    function_def
+      type_specifier
+        void
+      declarator	fs_test
+      compound_stmt
+        expr_stmt
+          postfix
+            initialize_filesystem
+            call_suffix
+        expr_stmt
+          postfix
+            write_file
+            call_suffix
+              arg_list
+                "example.txt\0"
+                "Hello, RospOS filesystem!\0"
+        declaration
+          type_specifier
+            char
+          init_declarator_list
+            init_declarator
+              declarator
+                device_info
+                array	512
+        expr_stmt
+          postfix
+            read_block
+            call_suffix
+              arg_list
+                0xFFFFFFFF
+                device_info
+        expr_stmt
+          postfix
+            draw_string_to_display
+            call_suffix
+              arg_list
+                device_info
+                0
+                8
+                0x3F
+        declaration
+          type_specifier
+            char
+          init_declarator_list
+            init_declarator
+              declarator
+                file_contents
+                array	512
+        expr_stmt
+          postfix
+            read_file
+            call_suffix
+              arg_list
+                "example.txt\0"
+                file_contents
+        expr_stmt
+          postfix
+            draw_string_to_display
+            call_suffix
+              arg_list
+                file_contents
+                0
+                16
+                0x3F
+  external_decl
+    function_def
+      type_specifier
+        void
+      declarator	rand_block_display_test
+      compound_stmt
+        expr_stmt
+          postfix
+            draw_string_to_display
+            call_suffix
+              arg_list
+                "Loading random blocks to display"
+                0
+                80
+                0x3F
+        expr_stmt
+          postfix
+            draw_string_to_display
+            call_suffix
+              arg_list
+                "using DMA:\0"
+                0
+                88
+                0x3F
+        expr_stmt
+          postfix
+            rand_block_test
+            call_suffix
+        expr_stmt
+          postfix
+            fast_clear_display
+            call_suffix
+  external_decl
+    function_def
+      type_specifier
+        void
+      declarator	terminal_test
+      compound_stmt
+        expr_stmt
+          postfix
+            write_to_buffer
+            call_suffix
+              arg_list
+                "Hello, RospOS Terminal!\0"
+                0
+        expr_stmt
+          postfix
+            update_buffer
+            call_suffix
+        expr_stmt
+          postfix
+            write_to_buffer
+            call_suffix
+              arg_list
+                "This is a simple terminal implementation.\0"
+                32
+        expr_stmt
+          postfix
+            update_buffer
+            call_suffix
+  external_decl
+    function_def
+      type_specifier
+        void
+      declarator	image_display_test
+      compound_stmt
+        expr_stmt
+          postfix
+            write_to_buffer
+            call_suffix
+              arg_list
+                "Fast loading image using DMA:\0"
+                0
+        expr_stmt
+          postfix
+            update_buffer
+            call_suffix
+        expr_stmt
+          postfix
+            fast_clear_display
+            call_suffix
+        expr_stmt
+          postfix
+            load_and_display_image
+            call_suffix
+  external_decl
+    function_def
+      type_specifier
+        void
+      declarator	malloc_test
+      compound_stmt
         declaration
           type_specifier
             int
@@ -6195,15 +6324,10 @@ translation_unit
                 draw_string_to_display
                 call_suffix
                   arg_list
-                    "Malloc test failed: unable to allocate memory!\0"
+                    "Malloc test failed: MEM!\0"
                     0
                     96
                     0x3F
-        compound_stmt
-        expr_stmt
-          postfix
-            update_buffer
-            call_suffix
         declaration
           type_specifier
             char
@@ -6270,7 +6394,160 @@ translation_unit
                 draw_string_to_display
                 call_suffix
                   arg_list
-                    "Int to str test failed: unable to allocate buffer!\0"
+                    "Int to str test failed: MEM!\0"
                     0
                     104
                     0x3F
+  external_decl
+    function_def
+      type_specifier
+        void
+      declarator	math_test
+      compound_stmt
+        declaration
+          type_specifier
+            char
+            pointer
+          init_declarator_list
+            init_declarator
+              declarator	infix_expr
+              "3+4*2/(1-5)"
+        declaration
+          type_specifier
+            char
+            pointer
+          init_declarator_list
+            init_declarator
+              declarator	rpn_expr
+              postfix
+                infix_to_rpn
+                call_suffix
+                  arg_list	infix_expr
+        expr_stmt
+          postfix
+            write_to_buffer
+            call_suffix
+              arg_list
+                "Infix: \0"
+                0
+        expr_stmt
+          postfix
+            write_to_buffer
+            call_suffix
+              arg_list
+                infix_expr
+                8
+        expr_stmt
+          postfix
+            write_to_buffer
+            call_suffix
+              arg_list
+                "RPN: \0"
+                32
+        expr_stmt
+          postfix
+            write_to_buffer
+            call_suffix
+              arg_list
+                rpn_expr
+                38
+        expr_stmt
+          postfix
+            write_to_buffer
+            call_suffix
+              arg_list
+                "Result: \0"
+                64
+        declaration
+          type_specifier
+            int
+          init_declarator_list
+            init_declarator
+              declarator	result
+              postfix
+                evaluate_rpn
+                call_suffix
+                  arg_list	rpn_expr
+        declaration
+          type_specifier
+            char
+          init_declarator_list
+            init_declarator
+              declarator
+                result_str
+                array	16
+        expr_stmt
+          postfix
+            int_to_str_buf
+            call_suffix
+              arg_list
+                result
+                result_str
+        expr_stmt
+          postfix
+            write_to_buffer
+            call_suffix
+              arg_list
+                result_str
+                72
+        expr_stmt
+          postfix
+            update_buffer
+            call_suffix
+  external_decl
+    function_def
+      type_specifier
+        void
+      declarator	time_test
+      compound_stmt
+        declaration
+          type_specifier
+            char
+            pointer
+          init_declarator_list
+            init_declarator
+              declarator	time_str
+              postfix
+                fmt_unix_time
+                call_suffix
+                  arg_list
+                    postfix
+                      get_unix_time
+                      call_suffix
+        expr_stmt
+          postfix
+            draw_string_to_display
+            call_suffix
+              arg_list
+                time_str
+                10
+                56
+                0x3F
+        expr_stmt
+          postfix
+            print_string
+            call_suffix
+              arg_list	"Current time: \n"
+        expr_stmt
+          postfix
+            print_string
+            call_suffix
+              arg_list	time_str
+        expr_stmt
+          postfix
+            update_buffer
+            call_suffix
+  external_decl
+    function_def
+      type_specifier
+        void
+      declarator	main
+      compound_stmt
+        expr_stmt
+          postfix
+            init_heap
+            call_suffix
+        expr_stmt
+          postfix
+            malloc_test
+            call_suffix

@@ -494,12 +494,22 @@ struct malloc_header
 {
     int size;
     int free;
+    int exists;
     struct malloc_header *next;
 };
 
 char __heap_area[16384];
-int __heap_used = 0;
+int __heap_used;
 struct malloc_header *malloc_head = 0;
+void init_heap()
+{
+    __heap_used = 0;
+    malloc_head = (struct malloc_header *)__heap_area;
+    malloc_head->size = 0;
+    malloc_head->free = 1;
+    malloc_head->exists = 1;
+    malloc_head->next = 0;
+}
 
 int _align4(int value)
 {
@@ -528,12 +538,20 @@ void *malloc(int size)
 
     int payload = _align4(size);
     struct malloc_header *node = malloc_head;
-    while (node)
+    while (node->exists)
     {
+        /* Look for a free block of sufficient size */
+        /* Note: this is an incredibly basic allocator.
+            We can obviously improve it later with even some really
+            basic optimizations, like if two (or more) subsequent 
+            blocks can be merged.*/
         if (node->free && node->size >= payload)
         {
             node->free = 0;
             return (void *)(node + 1);
+        }
+        if (node->next==0){
+            break;
         }
         node = node->next;
     }
@@ -548,6 +566,7 @@ void *malloc(int size)
     new_node->size = payload;
     new_node->free = 0;
     new_node->next = malloc_head;
+    new_node->exists = 1;
     malloc_head = new_node;
     return (void *)(new_node + 1);
 }
@@ -561,6 +580,7 @@ void free(void *ptr)
 
     struct malloc_header *header = ((struct malloc_header *)ptr) - 1;
     header->free = 1;
+    /* It's free now.*/
 }
 //Basic filesystem for RospOS.
 
@@ -1175,13 +1195,19 @@ inline int add(int a, int b)
 {
     return a + b;
 }
-
-void main()
+void display_test()
 {
-    int r1 = add(15, 25);
-    inline int r2 = 50;
-    int r3 = add(r1, r2);
     draw_string_to_display("Hello, RospOS!", 0, 0, 0x3F);
+    
+    draw_string_to_display("Green", 0, 24, 0x0C);
+    draw_string_to_display("Red", 0, 32, 0x30);
+    draw_string_to_display("Blue", 0, 40, 0x07);
+    draw_string_to_display("Yellow", 0, 48, 0x3C);
+    draw_string_to_display("Cyan", 0, 56, 0x0F);
+    draw_string_to_display("Magenta", 0, 64, 0x33);
+    draw_string_to_display("White", 0, 72, 0x3F);
+}
+void fs_test(){
     initialize_filesystem();
     write_file("example.txt\0", "Hello, RospOS filesystem!\0");
     char device_info[512];
@@ -1190,31 +1216,34 @@ void main()
     char file_contents[512];
     read_file("example.txt\0", file_contents);
     draw_string_to_display(file_contents, 0, 16, 0x3F);
-    draw_string_to_display("Green", 0, 24, 0x0C);
-    draw_string_to_display("Red", 0, 32, 0x30);
-    draw_string_to_display("Blue", 0, 40, 0x07);
-    draw_string_to_display("Yellow", 0, 48, 0x3C);
-    draw_string_to_display("Cyan", 0, 56, 0x0F);
-    draw_string_to_display("Magenta", 0, 64, 0x33);
-    draw_string_to_display("White", 0, 72, 0x3F);
-    // draw_string_to_display("Loading random blocks to display", 0, 80, 0x3F);
-    // draw_string_to_display("using DMA:\0", 0, 88, 0x3F);
-    // rand_block_test();
-    // fast_clear_display();
-    // write_to_buffer("Hello, RospOS Terminal!\0", 0);
-    // update_buffer();
-    // write_to_buffer("This is a simple terminal implementation.\0", 32);
-    // fast_clear_display();
-    // clear_buffer();
-    // write_to_buffer("Fast loading image using DMA:\0",0);
-    // update_buffer();
-    // fast_clear_display();
-    // load_and_display_image();
-    int malloc_test_size = 1024; // Size of memory to allocate
+}
+void rand_block_display_test()
+{
+    draw_string_to_display("Loading random blocks to display", 0, 80, 0x3F);
+    draw_string_to_display("using DMA:\0", 0, 88, 0x3F);
+    rand_block_test();
+    fast_clear_display();
+}
+void terminal_test()
+{
+    write_to_buffer("Hello, RospOS Terminal!\0", 0);
+    update_buffer();
+    write_to_buffer("This is a simple terminal implementation.\0", 32);
+    update_buffer();
+}
+void image_display_test()
+{
+    write_to_buffer("Fast loading image using DMA:\0", 0);
+    update_buffer();
+    fast_clear_display();
+    load_and_display_image();
+}
+void malloc_test(){
+       int malloc_test_size = 1024; // Size of memory to allocate
     char *malloc_test_ptr = (char *)malloc(malloc_test_size);
     int read_success = 1;
     /* Rosc has no null, so we check for 0 instead. */
-    if (malloc_test_ptr != 0) 
+    if (malloc_test_ptr != 0)
     {
         // Successfully allocated memory, now we can use it.
         for (int i = 0; i < malloc_test_size; i++)
@@ -1241,14 +1270,11 @@ void main()
         free(malloc_test_ptr); // Free the allocated memory
     }
     /* Rosc has no null, so we check for 0 instead. */
-    if (malloc_test_ptr== 0) 
+    if (malloc_test_ptr == 0)
     {
-        draw_string_to_display("Malloc test failed: unable to allocate memory!\0", 0, 96, 0x3F);
-    }
-    {
+        draw_string_to_display("Malloc test failed: MEM!\0", 0, 96, 0x3F);
     }
 
-    update_buffer();
     char *int_to_str_test_buffer = (char *)malloc(12); // Buffer to hold the string representation
     if (int_to_str_test_buffer != 0)
     {
@@ -1260,25 +1286,51 @@ void main()
     }
     else
     {
-        draw_string_to_display("Int to str test failed: unable to allocate buffer!\0", 0, 104, 0x3F);
+        draw_string_to_display("Int to str test failed: MEM!\0", 0, 104, 0x3F);
     }
-        // fast_clear_display();
-        // char* infix_expr = "3+4*2/(1-5)";
-        // char* rpn_expr = infix_to_rpn(infix_expr);
-        // write_to_buffer("Infix: \0", 0);
-        // write_to_buffer(infix_expr, 8);
-        // write_to_buffer("RPN: \0", 32);
-        // write_to_buffer(rpn_expr, 38);
-        // write_to_buffer("Result: \0", 64);
-        // int result = evaluate_rpn(rpn_expr);
-        // char result_str[16];
-        // int_to_str_buf(result, result_str);
-        // write_to_buffer(result_str, 72);
-        // update_buffer();
+}
 
-        // char *time_str = fmt_unix_time(get_unix_time());
-        // draw_string_to_display(time_str, 10, 56, 0x3F);
-        // print_string("Current time: \n");
-        // print_string(time_str);
-        // update_buffer();
-    }
+void math_test()
+{
+    char *infix_expr = "3+4*2/(1-5)";
+    char *rpn_expr = infix_to_rpn(infix_expr);
+    write_to_buffer("Infix: \0", 0);
+    write_to_buffer(infix_expr, 8);
+    write_to_buffer("RPN: \0", 32);
+    write_to_buffer(rpn_expr, 38);
+    write_to_buffer("Result: \0", 64);
+    int result = evaluate_rpn(rpn_expr);
+    char result_str[16];
+    int_to_str_buf(result, result_str);
+    write_to_buffer(result_str, 72);
+    update_buffer();
+}
+void time_test()
+{
+    char *time_str = fmt_unix_time(get_unix_time());
+    draw_string_to_display(time_str, 10, 56, 0x3F);
+    print_string("Current time: \n");
+    print_string(time_str);
+    update_buffer();
+}
+void main()
+{
+    init_heap();
+    
+    // int r1 = add(15, 25);
+    // inline int r2 = 50;
+    // int r3 = add(r1, r2);
+
+    
+    // display_test();
+    // fs_test();
+    // rand_block_display_test();
+    // terminal_test();
+    // image_display_test();
+    // fast_clear_display();
+    malloc_test();
+    // math_test();
+    // time_test();
+ 
+
+}

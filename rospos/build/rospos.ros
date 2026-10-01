@@ -1226,6 +1226,35 @@ memmove_30_IF_END2:
   POP r14
   RET
 
+.FUNC init_heap:
+  PUSH r14
+  LLI r2, 0    // load immediate 0
+  LLI r3, __heap_used    // load immediate __heap_used
+  SW r2, r3, 0    // store global __heap_used
+  LLI r4, __heap_area    // load immediate __heap_area
+  LLI r5, malloc_head    // load immediate malloc_head
+  SW r4, r5, 0    // store global malloc_head
+  LLI r6, 0    // load immediate 0
+  LLI r7, malloc_head    // load immediate malloc_head
+  LW r7, r7, 0    // load global malloc_head
+  SW r6, r7, 0    // store ptr->size
+  LLI r8, 1    // load immediate 1
+  LLI r9, malloc_head    // load immediate malloc_head
+  LW r9, r9, 0    // load global malloc_head
+  SW r8, r9, 4    // store ptr->free
+  LLI r10, 1    // load immediate 1
+  LLI r11, malloc_head    // load immediate malloc_head
+  LW r11, r11, 0    // load global malloc_head
+  SW r10, r11, 8    // store ptr->exists
+  LLI r12, 0    // load immediate 0
+  LLI r3, malloc_head    // load immediate malloc_head
+  LW r3, r3, 0    // load global malloc_head
+  SW r12, r3, 12    // store ptr->next
+  // epilogue and return
+  ADDI r1, r0, 0  // ensure r1=0
+  POP r14
+  RET
+
 .FUNC _align4:
   PUSH r14
   LLI r2, 3    // load immediate 3
@@ -1251,20 +1280,20 @@ memmove_30_IF_END2:
   LW r3, r3, 0    // load global __heap_used
   ADD r3, r3, r2    // binop +
   LLI r4, 16384    // load immediate 16384
-  BLT r4, r3, heap_alloc_raw_32_CMP_TRUE3
+  BLT r4, r3, heap_alloc_raw_33_CMP_TRUE3
   LLI r3, 0    // compare false path
-  JMP heap_alloc_raw_32_CMP_END4
-heap_alloc_raw_32_CMP_TRUE3:
+  JMP heap_alloc_raw_33_CMP_END4
+heap_alloc_raw_33_CMP_TRUE3:
   LLI r3, 1
-heap_alloc_raw_32_CMP_END4:
-  BEQ r3, r0, heap_alloc_raw_32_ELSE1
+heap_alloc_raw_33_CMP_END4:
+  BEQ r3, r0, heap_alloc_raw_33_ELSE1
   LLI r5, 0    // load immediate 0
   ADD r1, r5, r0
   POP r14
   RET
-  JMP heap_alloc_raw_32_IF_END2
-heap_alloc_raw_32_ELSE1:
-heap_alloc_raw_32_IF_END2:
+  JMP heap_alloc_raw_33_IF_END2
+heap_alloc_raw_33_ELSE1:
+heap_alloc_raw_33_IF_END2:
   LLI r6, __heap_area    // load immediate __heap_area
   LLI r7, __heap_used    // load immediate __heap_used
   LW r7, r7, 0    // load global __heap_used
@@ -1281,20 +1310,20 @@ heap_alloc_raw_32_IF_END2:
 .FUNC malloc:
   PUSH r14
   LLI r2, 0    // load immediate 0
-  BGE r2, r1, malloc_33_CMP_TRUE3
+  BGE r2, r1, malloc_34_CMP_TRUE3
   LLI r2, 0    // compare false path
-  JMP malloc_33_CMP_END4
-malloc_33_CMP_TRUE3:
+  JMP malloc_34_CMP_END4
+malloc_34_CMP_TRUE3:
   LLI r2, 1
-malloc_33_CMP_END4:
-  BEQ r2, r0, malloc_33_ELSE1
+malloc_34_CMP_END4:
+  BEQ r2, r0, malloc_34_ELSE1
   LLI r3, 0    // load immediate 0
   ADD r1, r3, r0
   POP r14
   RET
-  JMP malloc_33_IF_END2
-malloc_33_ELSE1:
-malloc_33_IF_END2:
+  JMP malloc_34_IF_END2
+malloc_34_ELSE1:
+malloc_34_IF_END2:
   LLI r4, 0    // zero init payload
   // emit call to _align4 with args [{'type': 'var', 'name': 'size'}]
   PUSH r4    // save caller temp
@@ -1305,93 +1334,118 @@ malloc_33_IF_END2:
   POP r4    // restore caller temp
   ADDI r4, r1, 0    // move return value
   LLI r5, 0    // zero init node
-malloc_33_WHILE5:
-  BEQ r5, r0, malloc_33_WHILE_END6
-  LW r6, r5, 4    // load ptr->free
-  LW r7, r5, 0    // load ptr->size
-  BGE r7, r4, malloc_33_CMP_TRUE9
+malloc_34_WHILE5:
+  LW r6, r5, 8    // load ptr->exists
+  BEQ r6, r0, malloc_34_WHILE_END6
+  LW r7, r5, 4    // load ptr->free
+  LW r8, r5, 0    // load ptr->size
+  BGE r8, r4, malloc_34_CMP_TRUE9
+  LLI r8, 0    // compare false path
+  JMP malloc_34_CMP_END10
+malloc_34_CMP_TRUE9:
+  LLI r8, 1
+malloc_34_CMP_END10:
+  AND r7, r7, r8    // logic && fold
+  BNE r7, r0, malloc_34_CMP_TRUE11
   LLI r7, 0    // compare false path
-  JMP malloc_33_CMP_END10
-malloc_33_CMP_TRUE9:
+  JMP malloc_34_CMP_END12
+malloc_34_CMP_TRUE11:
   LLI r7, 1
-malloc_33_CMP_END10:
-  AND r6, r6, r7    // logic && fold
-  BNE r6, r0, malloc_33_CMP_TRUE11
-  LLI r6, 0    // compare false path
-  JMP malloc_33_CMP_END12
-malloc_33_CMP_TRUE11:
-  LLI r6, 1
-malloc_33_CMP_END12:
-  BEQ r6, r0, malloc_33_ELSE7
-  LLI r8, 0    // load immediate 0
-  SW r8, r5, 4    // store ptr->free
-  LLI r9, 1    // load immediate 1
-  ADD r9, r5, r9    // binop +
-  ADD r1, r9, r0
+malloc_34_CMP_END12:
+  BEQ r7, r0, malloc_34_ELSE7
+  LLI r9, 0    // load immediate 0
+  SW r9, r5, 4    // store ptr->free
+  LLI r10, 1    // load immediate 1
+  ADD r10, r5, r10    // binop +
+  ADD r1, r10, r0
   POP r14
   RET
-  JMP malloc_33_IF_END8
-malloc_33_ELSE7:
-malloc_33_IF_END8:
-  LW r10, r5, 8    // load ptr->next
-  ADDI r5, r10, 0    // assign node
-  JMP malloc_33_WHILE5
-malloc_33_WHILE_END6:
-  LLI r11, 0    // zero init malloc_header
-  ADD r12, r11, r4    // binop +
-  BEQ r11, r0, malloc_33_UNOP_NOT_TRUE15
-  LLI r2, 0    // operand is nonzero -> false
-  JMP malloc_33_UNOP_NOT_END16
-malloc_33_UNOP_NOT_TRUE15:
-  LLI r2, 1    // operand is zero -> true
-malloc_33_UNOP_NOT_END16:
-  BEQ r2, r0, malloc_33_ELSE13
-  LLI r3, 0    // load immediate 0
-  ADD r1, r3, r0
-  POP r14
-  RET
-  JMP malloc_33_IF_END14
-malloc_33_ELSE13:
-malloc_33_IF_END14:
-  SW r4, r11, 0    // store ptr->size
+  JMP malloc_34_IF_END8
+malloc_34_ELSE7:
+malloc_34_IF_END8:
+  LW r11, r5, 12    // load ptr->next
+  LLI r12, 0    // load immediate 0
+  BEQ r11, r12, malloc_34_CMP_TRUE15
+  LLI r11, 0    // compare false path
+  JMP malloc_34_CMP_END16
+malloc_34_CMP_TRUE15:
+  LLI r11, 1
+malloc_34_CMP_END16:
+  BEQ r11, r0, malloc_34_ELSE13
+  JMP malloc_34_IF_END14
+malloc_34_ELSE13:
+malloc_34_IF_END14:
+  LW r2, r5, 12    // load ptr->next
+  ADDI r5, r2, 0    // assign node
+  JMP malloc_34_WHILE5
+malloc_34_WHILE_END6:
+  LLI r3, 0    // zero init malloc_header
+  ADD r3, r3, r4    // binop +
+  LLI r6, 0    // zero init new_node
+  // emit call to _heap_alloc_raw with args [{'type': 'var', 'name': 'total'}]
+  PUSH r4    // save caller temp
+  PUSH r6    // save caller temp
+  PUSH r3    // stage reg arg 0
+  POP r1    // load reg arg 0
+  CALL _heap_alloc_raw
+  // call return value in r1
+  POP r6    // restore caller temp
+  POP r4    // restore caller temp
+  ADDI r6, r1, 0    // move return value
+  BEQ r6, r0, malloc_34_UNOP_NOT_TRUE19
+  LLI r8, 0    // operand is nonzero -> false
+  JMP malloc_34_UNOP_NOT_END20
+malloc_34_UNOP_NOT_TRUE19:
+  LLI r8, 1    // operand is zero -> true
+malloc_34_UNOP_NOT_END20:
+  BEQ r8, r0, malloc_34_ELSE17
   LLI r7, 0    // load immediate 0
-  SW r7, r11, 4    // store ptr->free
-  LLI r6, malloc_head    // load immediate malloc_head
-  LW r6, r6, 0    // load global malloc_head
-  SW r6, r11, 8    // store ptr->next
-  LLI r8, malloc_head    // load immediate malloc_head
-  SW r11, r8, 0    // store global malloc_head
-  LLI r9, 1    // load immediate 1
-  ADD r11, r11, r9    // binop +
-  ADD r1, r11, r0
+  ADD r1, r7, r0
+  POP r14
+  RET
+  JMP malloc_34_IF_END18
+malloc_34_ELSE17:
+malloc_34_IF_END18:
+  SW r4, r6, 0    // store ptr->size
+  LLI r9, 0    // load immediate 0
+  SW r9, r6, 4    // store ptr->free
+  LLI r10, malloc_head    // load immediate malloc_head
+  LW r10, r10, 0    // load global malloc_head
+  SW r10, r6, 12    // store ptr->next
+  LLI r12, 1    // load immediate 1
+  SW r12, r6, 8    // store ptr->exists
+  LLI r11, malloc_head    // load immediate malloc_head
+  SW r6, r11, 0    // store global malloc_head
+  LLI r2, 1    // load immediate 1
+  ADD r6, r6, r2    // binop +
+  ADD r1, r6, r0
   POP r14
   RET
 
 .FUNC free:
   PUSH r14
-  BEQ r1, r0, free_34_UNOP_NOT_TRUE3
+  BEQ r1, r0, free_35_UNOP_NOT_TRUE3
   LLI r2, 0    // operand is nonzero -> false
-  JMP free_34_UNOP_NOT_END4
-free_34_UNOP_NOT_TRUE3:
+  JMP free_35_UNOP_NOT_END4
+free_35_UNOP_NOT_TRUE3:
   LLI r2, 1    // operand is zero -> true
-free_34_UNOP_NOT_END4:
-  BEQ r2, r0, free_34_ELSE1
+free_35_UNOP_NOT_END4:
+  BEQ r2, r0, free_35_ELSE1
   LLI r3, 0    // load immediate 0
   ADD r1, r3, r0
   POP r14
   RET
-  JMP free_34_IF_END2
-free_34_ELSE1:
-free_34_IF_END2:
-  LLI r4, 0    // zero init malloc_header
+  JMP free_35_IF_END2
+free_35_ELSE1:
+free_35_IF_END2:
+  LLI r4, 1    // load immediate 1
+  SUB r4, r1, r4    // binop -
   LLI r5, 1    // load immediate 1
-  SUB r4, r4, r5    // binop -
-  LLI r6, 1    // load immediate 1
-  SW r6, r4, 4    // store ptr->free
+  SW r5, r4, 4    // store ptr->free
 
 .FUNC initialize_filesystem:
   PUSH r14
-  LLI r2, initialize_filesystem_35_superblock_buf1    // init superblock (buffer addr)
+  LLI r2, initialize_filesystem_36_superblock_buf1    // init superblock (buffer addr)
   LLI r3, 82    // load immediate 82
   LLI r4, 0    // load immediate 0
   ADD r4, r2, r4    // binop +
@@ -1421,21 +1475,21 @@ free_34_IF_END2:
   ADD r5, r2, r5    // binop +
   SB r6, r5, 0    // store 
   LLI r8, 7    // init i
-initialize_filesystem_35_WHILE2:
+initialize_filesystem_36_WHILE2:
   LLI r7, 512    // load immediate 512
-  BLT r8, r7, initialize_filesystem_35_CMP_TRUE4
+  BLT r8, r7, initialize_filesystem_36_CMP_TRUE4
   LLI r7, 0    // compare false path
-  JMP initialize_filesystem_35_CMP_END5
-initialize_filesystem_35_CMP_TRUE4:
+  JMP initialize_filesystem_36_CMP_END5
+initialize_filesystem_36_CMP_TRUE4:
   LLI r7, 1
-initialize_filesystem_35_CMP_END5:
-  BEQ r7, r0, initialize_filesystem_35_WHILE_END3
+initialize_filesystem_36_CMP_END5:
+  BEQ r7, r0, initialize_filesystem_36_WHILE_END3
   LLI r10, 0    // load immediate 0
   ADD r9, r2, r8    // binop +
   SB r10, r9, 0    // store 
   ADDI r8, r8, 1    // assign i (addi fast path)
-  JMP initialize_filesystem_35_WHILE2
-initialize_filesystem_35_WHILE_END3:
+  JMP initialize_filesystem_36_WHILE2
+initialize_filesystem_36_WHILE_END3:
   // emit call to bd_write_u32 with args [{'type': 'const', 'value': 1073741832}, {'type': 'const', 'value': 0}]
   PUSH r2    // save caller temp
   PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
@@ -1490,7 +1544,7 @@ initialize_filesystem_35_WHILE_END3:
 
 .FUNC ensure_filesystem_initialized:
   PUSH r14
-  LLI r2, ensure_filesystem_initialized_36_superblock_buf1    // init superblock (buffer addr)
+  LLI r2, ensure_filesystem_initialized_37_superblock_buf1    // init superblock (buffer addr)
   // emit call to bd_write_u32 with args [{'type': 'const', 'value': 1073741832}, {'type': 'const', 'value': 0}]
   PUSH r2    // save caller temp
   PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
@@ -1546,98 +1600,98 @@ initialize_filesystem_35_WHILE_END3:
   ADD r10, r2, r10    // binop +
   LB r10, r10, 0    // deref
   LLI r11, 82    // load immediate 82
-  BNE r10, r11, ensure_filesystem_initialized_36_CMP_TRUE4
+  BNE r10, r11, ensure_filesystem_initialized_37_CMP_TRUE4
   LLI r10, 0    // compare false path
-  JMP ensure_filesystem_initialized_36_CMP_END5
-ensure_filesystem_initialized_36_CMP_TRUE4:
+  JMP ensure_filesystem_initialized_37_CMP_END5
+ensure_filesystem_initialized_37_CMP_TRUE4:
   LLI r10, 1
-ensure_filesystem_initialized_36_CMP_END5:
+ensure_filesystem_initialized_37_CMP_END5:
   LLI r12, 1    // load immediate 1
   ADD r12, r2, r12    // binop +
   LB r12, r12, 0    // deref
   LLI r3, 79    // load immediate 79
-  BNE r12, r3, ensure_filesystem_initialized_36_CMP_TRUE6
+  BNE r12, r3, ensure_filesystem_initialized_37_CMP_TRUE6
   LLI r12, 0    // compare false path
-  JMP ensure_filesystem_initialized_36_CMP_END7
-ensure_filesystem_initialized_36_CMP_TRUE6:
+  JMP ensure_filesystem_initialized_37_CMP_END7
+ensure_filesystem_initialized_37_CMP_TRUE6:
   LLI r12, 1
-ensure_filesystem_initialized_36_CMP_END7:
+ensure_filesystem_initialized_37_CMP_END7:
   OR r10, r10, r12    // logic || fold
-  BNE r10, r0, ensure_filesystem_initialized_36_CMP_TRUE8
+  BNE r10, r0, ensure_filesystem_initialized_37_CMP_TRUE8
   LLI r10, 0    // compare false path
-  JMP ensure_filesystem_initialized_36_CMP_END9
-ensure_filesystem_initialized_36_CMP_TRUE8:
+  JMP ensure_filesystem_initialized_37_CMP_END9
+ensure_filesystem_initialized_37_CMP_TRUE8:
   LLI r10, 1
-ensure_filesystem_initialized_36_CMP_END9:
+ensure_filesystem_initialized_37_CMP_END9:
   LLI r4, 2    // load immediate 2
   ADD r4, r2, r4    // binop +
   LB r4, r4, 0    // deref
   LLI r5, 83    // load immediate 83
-  BNE r4, r5, ensure_filesystem_initialized_36_CMP_TRUE10
+  BNE r4, r5, ensure_filesystem_initialized_37_CMP_TRUE10
   LLI r4, 0    // compare false path
-  JMP ensure_filesystem_initialized_36_CMP_END11
-ensure_filesystem_initialized_36_CMP_TRUE10:
+  JMP ensure_filesystem_initialized_37_CMP_END11
+ensure_filesystem_initialized_37_CMP_TRUE10:
   LLI r4, 1
-ensure_filesystem_initialized_36_CMP_END11:
+ensure_filesystem_initialized_37_CMP_END11:
   OR r10, r10, r4    // logic || fold
-  BNE r10, r0, ensure_filesystem_initialized_36_CMP_TRUE12
+  BNE r10, r0, ensure_filesystem_initialized_37_CMP_TRUE12
   LLI r10, 0    // compare false path
-  JMP ensure_filesystem_initialized_36_CMP_END13
-ensure_filesystem_initialized_36_CMP_TRUE12:
+  JMP ensure_filesystem_initialized_37_CMP_END13
+ensure_filesystem_initialized_37_CMP_TRUE12:
   LLI r10, 1
-ensure_filesystem_initialized_36_CMP_END13:
+ensure_filesystem_initialized_37_CMP_END13:
   LLI r6, 3    // load immediate 3
   ADD r6, r2, r6    // binop +
   LB r6, r6, 0    // deref
   LLI r7, 80    // load immediate 80
-  BNE r6, r7, ensure_filesystem_initialized_36_CMP_TRUE14
+  BNE r6, r7, ensure_filesystem_initialized_37_CMP_TRUE14
   LLI r6, 0    // compare false path
-  JMP ensure_filesystem_initialized_36_CMP_END15
-ensure_filesystem_initialized_36_CMP_TRUE14:
+  JMP ensure_filesystem_initialized_37_CMP_END15
+ensure_filesystem_initialized_37_CMP_TRUE14:
   LLI r6, 1
-ensure_filesystem_initialized_36_CMP_END15:
+ensure_filesystem_initialized_37_CMP_END15:
   OR r10, r10, r6    // logic || fold
-  BNE r10, r0, ensure_filesystem_initialized_36_CMP_TRUE16
+  BNE r10, r0, ensure_filesystem_initialized_37_CMP_TRUE16
   LLI r10, 0    // compare false path
-  JMP ensure_filesystem_initialized_36_CMP_END17
-ensure_filesystem_initialized_36_CMP_TRUE16:
+  JMP ensure_filesystem_initialized_37_CMP_END17
+ensure_filesystem_initialized_37_CMP_TRUE16:
   LLI r10, 1
-ensure_filesystem_initialized_36_CMP_END17:
+ensure_filesystem_initialized_37_CMP_END17:
   LLI r8, 4    // load immediate 4
   ADD r8, r2, r8    // binop +
   LB r8, r8, 0    // deref
   LLI r9, 70    // load immediate 70
-  BNE r8, r9, ensure_filesystem_initialized_36_CMP_TRUE18
+  BNE r8, r9, ensure_filesystem_initialized_37_CMP_TRUE18
   LLI r8, 0    // compare false path
-  JMP ensure_filesystem_initialized_36_CMP_END19
-ensure_filesystem_initialized_36_CMP_TRUE18:
+  JMP ensure_filesystem_initialized_37_CMP_END19
+ensure_filesystem_initialized_37_CMP_TRUE18:
   LLI r8, 1
-ensure_filesystem_initialized_36_CMP_END19:
+ensure_filesystem_initialized_37_CMP_END19:
   OR r10, r10, r8    // logic || fold
-  BNE r10, r0, ensure_filesystem_initialized_36_CMP_TRUE20
+  BNE r10, r0, ensure_filesystem_initialized_37_CMP_TRUE20
   LLI r10, 0    // compare false path
-  JMP ensure_filesystem_initialized_36_CMP_END21
-ensure_filesystem_initialized_36_CMP_TRUE20:
+  JMP ensure_filesystem_initialized_37_CMP_END21
+ensure_filesystem_initialized_37_CMP_TRUE20:
   LLI r10, 1
-ensure_filesystem_initialized_36_CMP_END21:
+ensure_filesystem_initialized_37_CMP_END21:
   LLI r11, 5    // load immediate 5
   ADD r11, r2, r11    // binop +
   LB r11, r11, 0    // deref
   LLI r3, 83    // load immediate 83
-  BNE r11, r3, ensure_filesystem_initialized_36_CMP_TRUE22
+  BNE r11, r3, ensure_filesystem_initialized_37_CMP_TRUE22
   LLI r11, 0    // compare false path
-  JMP ensure_filesystem_initialized_36_CMP_END23
-ensure_filesystem_initialized_36_CMP_TRUE22:
+  JMP ensure_filesystem_initialized_37_CMP_END23
+ensure_filesystem_initialized_37_CMP_TRUE22:
   LLI r11, 1
-ensure_filesystem_initialized_36_CMP_END23:
+ensure_filesystem_initialized_37_CMP_END23:
   OR r10, r10, r11    // logic || fold
-  BNE r10, r0, ensure_filesystem_initialized_36_CMP_TRUE24
+  BNE r10, r0, ensure_filesystem_initialized_37_CMP_TRUE24
   LLI r10, 0    // compare false path
-  JMP ensure_filesystem_initialized_36_CMP_END25
-ensure_filesystem_initialized_36_CMP_TRUE24:
+  JMP ensure_filesystem_initialized_37_CMP_END25
+ensure_filesystem_initialized_37_CMP_TRUE24:
   LLI r10, 1
-ensure_filesystem_initialized_36_CMP_END25:
-  BEQ r10, r0, ensure_filesystem_initialized_36_ELSE2
+ensure_filesystem_initialized_37_CMP_END25:
+  BEQ r10, r0, ensure_filesystem_initialized_37_ELSE2
   // emit call to initialize_filesystem with args []
   PUSH r2    // save caller temp
   PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
@@ -1645,9 +1699,9 @@ ensure_filesystem_initialized_36_CMP_END25:
   // call return value in r1
   POP r1  
   POP r2    // restore caller temp
-  JMP ensure_filesystem_initialized_36_IF_END3
-ensure_filesystem_initialized_36_ELSE2:
-ensure_filesystem_initialized_36_IF_END3:
+  JMP ensure_filesystem_initialized_37_IF_END3
+ensure_filesystem_initialized_37_ELSE2:
+ensure_filesystem_initialized_37_IF_END3:
   LLI r12, 0    // load immediate 0
   ADD r1, r12, r0
   POP r14
@@ -1655,67 +1709,67 @@ ensure_filesystem_initialized_36_IF_END3:
 
 .FUNC write_file:
   PUSH r14
-  LLI r3, write_file_37_scratch_block_buf1    // init scratch_block (buffer addr)
+  LLI r3, write_file_38_scratch_block_buf1    // init scratch_block (buffer addr)
   LLI r4, 0    // init i
-write_file_37_WHILE2:
+write_file_38_WHILE2:
   LLI r5, 512    // load immediate 512
-  BLT r4, r5, write_file_37_CMP_TRUE4
+  BLT r4, r5, write_file_38_CMP_TRUE4
   LLI r5, 0    // compare false path
-  JMP write_file_37_CMP_END5
-write_file_37_CMP_TRUE4:
+  JMP write_file_38_CMP_END5
+write_file_38_CMP_TRUE4:
   LLI r5, 1
-write_file_37_CMP_END5:
-  BEQ r5, r0, write_file_37_WHILE_END3
+write_file_38_CMP_END5:
+  BEQ r5, r0, write_file_38_WHILE_END3
   LLI r6, 0    // load immediate 0
   ADD r7, r3, r4    // binop +
   SB r6, r7, 0    // store 
   ADDI r4, r4, 1    // assign i (addi fast path)
-  JMP write_file_37_WHILE2
-write_file_37_WHILE_END3:
+  JMP write_file_38_WHILE2
+write_file_38_WHILE_END3:
   LLI r8, 0    // init filename_done
   LLI r9, 0    // init i
-write_file_37_WHILE6:
+write_file_38_WHILE6:
   LLI r10, 32    // load immediate 32
-  BLT r9, r10, write_file_37_CMP_TRUE8
+  BLT r9, r10, write_file_38_CMP_TRUE8
   LLI r10, 0    // compare false path
-  JMP write_file_37_CMP_END9
-write_file_37_CMP_TRUE8:
+  JMP write_file_38_CMP_END9
+write_file_38_CMP_TRUE8:
   LLI r10, 1
-write_file_37_CMP_END9:
-  BEQ r10, r0, write_file_37_WHILE_END7
-  BEQ r8, r0, write_file_37_UNOP_NOT_TRUE12
+write_file_38_CMP_END9:
+  BEQ r10, r0, write_file_38_WHILE_END7
+  BEQ r8, r0, write_file_38_UNOP_NOT_TRUE12
   LLI r11, 0    // operand is nonzero -> false
-  JMP write_file_37_UNOP_NOT_END13
-write_file_37_UNOP_NOT_TRUE12:
+  JMP write_file_38_UNOP_NOT_END13
+write_file_38_UNOP_NOT_TRUE12:
   LLI r11, 1    // operand is zero -> true
-write_file_37_UNOP_NOT_END13:
-  BEQ r11, r0, write_file_37_ELSE10
+write_file_38_UNOP_NOT_END13:
+  BEQ r11, r0, write_file_38_ELSE10
   ADD r12, r1, r9    // binop +
   LB r12, r12, 0    // deref
   ADD r5, r3, r9    // binop +
   SB r12, r5, 0    // store 
   LLI r7, 0    // load immediate 0
-  BEQ r12, r7, write_file_37_CMP_TRUE16
+  BEQ r12, r7, write_file_38_CMP_TRUE16
   LLI r7, 0    // compare false path
-  JMP write_file_37_CMP_END17
-write_file_37_CMP_TRUE16:
+  JMP write_file_38_CMP_END17
+write_file_38_CMP_TRUE16:
   LLI r7, 1
-write_file_37_CMP_END17:
-  BEQ r7, r0, write_file_37_ELSE14
+write_file_38_CMP_END17:
+  BEQ r7, r0, write_file_38_ELSE14
   LLI r6, 1    // load immediate 1
   ADDI r8, r6, 0    // assign filename_done
-  JMP write_file_37_IF_END15
-write_file_37_ELSE14:
-write_file_37_IF_END15:
-  JMP write_file_37_IF_END11
-write_file_37_ELSE10:
+  JMP write_file_38_IF_END15
+write_file_38_ELSE14:
+write_file_38_IF_END15:
+  JMP write_file_38_IF_END11
+write_file_38_ELSE10:
   LLI r4, 0    // load immediate 0
   ADD r10, r3, r9    // binop +
   SB r4, r10, 0    // store 
-write_file_37_IF_END11:
+write_file_38_IF_END11:
   ADDI r9, r9, 1    // assign i (addi fast path)
-  JMP write_file_37_WHILE6
-write_file_37_WHILE_END7:
+  JMP write_file_38_WHILE6
+write_file_38_WHILE_END7:
   LLI r11, 0    // zero init file_size
   // emit call to string_length with args [{'type': 'var', 'name': 'data'}]
   PUSH r2    // save caller temp
@@ -1844,65 +1898,65 @@ write_file_37_WHILE_END7:
   POP r3    // restore caller temp
   POP r2    // restore caller temp
   LLI r6, 0    // init i
-write_file_37_WHILE18:
+write_file_38_WHILE18:
   LLI r9, 512    // load immediate 512
-  BLT r6, r9, write_file_37_CMP_TRUE20
+  BLT r6, r9, write_file_38_CMP_TRUE20
   LLI r9, 0    // compare false path
-  JMP write_file_37_CMP_END21
-write_file_37_CMP_TRUE20:
+  JMP write_file_38_CMP_END21
+write_file_38_CMP_TRUE20:
   LLI r9, 1
-write_file_37_CMP_END21:
-  BEQ r9, r0, write_file_37_WHILE_END19
+write_file_38_CMP_END21:
+  BEQ r9, r0, write_file_38_WHILE_END19
   LLI r11, 0    // load immediate 0
   ADD r12, r3, r6    // binop +
   SB r11, r12, 0    // store 
   ADDI r6, r6, 1    // assign i (addi fast path)
-  JMP write_file_37_WHILE18
-write_file_37_WHILE_END19:
+  JMP write_file_38_WHILE18
+write_file_38_WHILE_END19:
   LLI r4, 0    // init data_done
   LLI r10, 0    // init i
-write_file_37_WHILE22:
+write_file_38_WHILE22:
   LLI r7, 511    // load immediate 511
-  BLT r10, r7, write_file_37_CMP_TRUE24
+  BLT r10, r7, write_file_38_CMP_TRUE24
   LLI r7, 0    // compare false path
-  JMP write_file_37_CMP_END25
-write_file_37_CMP_TRUE24:
+  JMP write_file_38_CMP_END25
+write_file_38_CMP_TRUE24:
   LLI r7, 1
-write_file_37_CMP_END25:
-  BEQ r7, r0, write_file_37_WHILE_END23
-  BEQ r4, r0, write_file_37_UNOP_NOT_TRUE28
+write_file_38_CMP_END25:
+  BEQ r7, r0, write_file_38_WHILE_END23
+  BEQ r4, r0, write_file_38_UNOP_NOT_TRUE28
   LLI r8, 0    // operand is nonzero -> false
-  JMP write_file_37_UNOP_NOT_END29
-write_file_37_UNOP_NOT_TRUE28:
+  JMP write_file_38_UNOP_NOT_END29
+write_file_38_UNOP_NOT_TRUE28:
   LLI r8, 1    // operand is zero -> true
-write_file_37_UNOP_NOT_END29:
-  BEQ r8, r0, write_file_37_ELSE26
+write_file_38_UNOP_NOT_END29:
+  BEQ r8, r0, write_file_38_ELSE26
   ADD r9, r2, r10    // binop +
   LB r9, r9, 0    // deref
   ADD r12, r3, r10    // binop +
   SB r9, r12, 0    // store 
   LLI r11, 0    // load immediate 0
-  BEQ r9, r11, write_file_37_CMP_TRUE32
+  BEQ r9, r11, write_file_38_CMP_TRUE32
   LLI r11, 0    // compare false path
-  JMP write_file_37_CMP_END33
-write_file_37_CMP_TRUE32:
+  JMP write_file_38_CMP_END33
+write_file_38_CMP_TRUE32:
   LLI r11, 1
-write_file_37_CMP_END33:
-  BEQ r11, r0, write_file_37_ELSE30
+write_file_38_CMP_END33:
+  BEQ r11, r0, write_file_38_ELSE30
   LLI r6, 1    // load immediate 1
   ADDI r4, r6, 0    // assign data_done
-  JMP write_file_37_IF_END31
-write_file_37_ELSE30:
-write_file_37_IF_END31:
-  JMP write_file_37_IF_END27
-write_file_37_ELSE26:
+  JMP write_file_38_IF_END31
+write_file_38_ELSE30:
+write_file_38_IF_END31:
+  JMP write_file_38_IF_END27
+write_file_38_ELSE26:
   LLI r7, 0    // load immediate 0
   ADD r8, r3, r10    // binop +
   SB r7, r8, 0    // store 
-write_file_37_IF_END27:
+write_file_38_IF_END27:
   ADDI r10, r10, 1    // assign i (addi fast path)
-  JMP write_file_37_WHILE22
-write_file_37_WHILE_END23:
+  JMP write_file_38_WHILE22
+write_file_38_WHILE_END23:
   // emit call to bd_write_u32 with args [{'type': 'const', 'value': 1073741832}, {'type': 'var', 'name': 'scratch_block_index'}]
   PUSH r3    // save caller temp
   PUSH r5    // save caller temp
@@ -1958,7 +2012,7 @@ write_file_37_WHILE_END23:
 
 .FUNC read_file:
   PUSH r14
-  LLI r3, read_file_38_dir_entry_buf1    // init dir_entry (buffer addr)
+  LLI r3, read_file_39_dir_entry_buf1    // init dir_entry (buffer addr)
   // emit call to bd_write_u32 with args [{'type': 'const', 'value': 1073741832}, {'type': 'const', 'value': 1}]
   PUSH r2    // save caller temp
   PUSH r3    // save caller temp
@@ -2021,66 +2075,66 @@ write_file_37_WHILE_END23:
   LLI r11, 1    // init match
   LLI r12, 0    // init compare_done
   LLI r4, 0    // init i
-read_file_38_WHILE2:
+read_file_39_WHILE2:
   LLI r5, 32    // load immediate 32
-  BLT r4, r5, read_file_38_CMP_TRUE4
+  BLT r4, r5, read_file_39_CMP_TRUE4
   LLI r5, 0    // compare false path
-  JMP read_file_38_CMP_END5
-read_file_38_CMP_TRUE4:
+  JMP read_file_39_CMP_END5
+read_file_39_CMP_TRUE4:
   LLI r5, 1
-read_file_38_CMP_END5:
-  BEQ r5, r0, read_file_38_WHILE_END3
-  BEQ r12, r0, read_file_38_UNOP_NOT_TRUE8
+read_file_39_CMP_END5:
+  BEQ r5, r0, read_file_39_WHILE_END3
+  BEQ r12, r0, read_file_39_UNOP_NOT_TRUE8
   LLI r6, 0    // operand is nonzero -> false
-  JMP read_file_38_UNOP_NOT_END9
-read_file_38_UNOP_NOT_TRUE8:
+  JMP read_file_39_UNOP_NOT_END9
+read_file_39_UNOP_NOT_TRUE8:
   LLI r6, 1    // operand is zero -> true
-read_file_38_UNOP_NOT_END9:
-  BEQ r6, r0, read_file_38_ELSE6
+read_file_39_UNOP_NOT_END9:
+  BEQ r6, r0, read_file_39_ELSE6
   ADD r7, r1, r4    // binop +
   LB r7, r7, 0    // deref
   ADD r8, r3, r4    // binop +
   LB r8, r8, 0    // deref
   LLI r9, 255    // load immediate 255
   AND r8, r8, r9    // binop &
-  BNE r7, r8, read_file_38_CMP_TRUE12
+  BNE r7, r8, read_file_39_CMP_TRUE12
   LLI r10, 0    // compare false path
-  JMP read_file_38_CMP_END13
-read_file_38_CMP_TRUE12:
+  JMP read_file_39_CMP_END13
+read_file_39_CMP_TRUE12:
   LLI r10, 1
-read_file_38_CMP_END13:
-  BEQ r10, r0, read_file_38_ELSE10
+read_file_39_CMP_END13:
+  BEQ r10, r0, read_file_39_ELSE10
   LLI r5, 0    // load immediate 0
   ADDI r11, r5, 0    // assign match
-  JMP read_file_38_IF_END11
-read_file_38_ELSE10:
-read_file_38_IF_END11:
+  JMP read_file_39_IF_END11
+read_file_39_ELSE10:
+read_file_39_IF_END11:
   LLI r6, 0    // load immediate 0
-  BEQ r7, r6, read_file_38_CMP_TRUE16
+  BEQ r7, r6, read_file_39_CMP_TRUE16
   LLI r6, 0    // compare false path
-  JMP read_file_38_CMP_END17
-read_file_38_CMP_TRUE16:
+  JMP read_file_39_CMP_END17
+read_file_39_CMP_TRUE16:
   LLI r6, 1
-read_file_38_CMP_END17:
-  BEQ r6, r0, read_file_38_ELSE14
+read_file_39_CMP_END17:
+  BEQ r6, r0, read_file_39_ELSE14
   LLI r9, 1    // load immediate 1
   ADDI r12, r9, 0    // assign compare_done
-  JMP read_file_38_IF_END15
-read_file_38_ELSE14:
-read_file_38_IF_END15:
-  JMP read_file_38_IF_END7
-read_file_38_ELSE6:
-read_file_38_IF_END7:
+  JMP read_file_39_IF_END15
+read_file_39_ELSE14:
+read_file_39_IF_END15:
+  JMP read_file_39_IF_END7
+read_file_39_ELSE6:
+read_file_39_IF_END7:
   ADDI r4, r4, 1    // assign i (addi fast path)
-  JMP read_file_38_WHILE2
-read_file_38_WHILE_END3:
-  BEQ r11, r0, read_file_38_UNOP_NOT_TRUE20
+  JMP read_file_39_WHILE2
+read_file_39_WHILE_END3:
+  BEQ r11, r0, read_file_39_UNOP_NOT_TRUE20
   LLI r10, 0    // operand is nonzero -> false
-  JMP read_file_38_UNOP_NOT_END21
-read_file_38_UNOP_NOT_TRUE20:
+  JMP read_file_39_UNOP_NOT_END21
+read_file_39_UNOP_NOT_TRUE20:
   LLI r10, 1    // operand is zero -> true
-read_file_38_UNOP_NOT_END21:
-  BEQ r10, r0, read_file_38_ELSE18
+read_file_39_UNOP_NOT_END21:
+  BEQ r10, r0, read_file_39_ELSE18
   LLI r5, 0    // load immediate 0
   LLI r6, 0    // load immediate 0
   ADD r6, r2, r6    // binop +
@@ -2089,9 +2143,9 @@ read_file_38_UNOP_NOT_END21:
   ADD r1, r9, r0
   POP r14
   RET
-  JMP read_file_38_IF_END19
-read_file_38_ELSE18:
-read_file_38_IF_END19:
+  JMP read_file_39_IF_END19
+read_file_39_ELSE18:
+read_file_39_IF_END19:
   LLI r8, 32    // load immediate 32
   ADD r8, r3, r8    // binop +
   LB r8, r8, 0    // deref
@@ -2205,23 +2259,23 @@ read_file_38_IF_END19:
   POP r8    // restore caller temp
   POP r2    // restore caller temp
   LLI r9, 511    // load immediate 511
-  BLT r8, r9, read_file_38_CMP_TRUE24
+  BLT r8, r9, read_file_39_CMP_TRUE24
   LLI r9, 0    // compare false path
-  JMP read_file_38_CMP_END25
-read_file_38_CMP_TRUE24:
+  JMP read_file_39_CMP_END25
+read_file_39_CMP_TRUE24:
   LLI r9, 1
-read_file_38_CMP_END25:
-  BEQ r9, r0, read_file_38_ELSE22
+read_file_39_CMP_END25:
+  BEQ r9, r0, read_file_39_ELSE22
   LLI r3, 0    // load immediate 0
   ADD r7, r2, r8    // binop +
   SB r3, r7, 0    // store 
-  JMP read_file_38_IF_END23
-read_file_38_ELSE22:
+  JMP read_file_39_IF_END23
+read_file_39_ELSE22:
   LLI r11, 0    // load immediate 0
   LLI r12, 511    // load immediate 511
   ADD r12, r2, r12    // binop +
   SB r11, r12, 0    // store 
-read_file_38_IF_END23:
+read_file_39_IF_END23:
   LLI r4, 0    // load immediate 0
   ADD r1, r4, r0
   POP r14
@@ -2230,16 +2284,16 @@ read_file_38_IF_END23:
 .FUNC update_buffer:
   PUSH r14
   LLI r2, 0    // init i
-update_buffer_39_WHILE1:
+update_buffer_40_WHILE1:
   LLI r3, buffer_update_queue_ptr    // load immediate buffer_update_queue_ptr
   LW r3, r3, 0    // load global buffer_update_queue_ptr
-  BLT r2, r3, update_buffer_39_CMP_TRUE3
+  BLT r2, r3, update_buffer_40_CMP_TRUE3
   LLI r3, 0    // compare false path
-  JMP update_buffer_39_CMP_END4
-update_buffer_39_CMP_TRUE3:
+  JMP update_buffer_40_CMP_END4
+update_buffer_40_CMP_TRUE3:
   LLI r3, 1
-update_buffer_39_CMP_END4:
-  BEQ r3, r0, update_buffer_39_WHILE_END2
+update_buffer_40_CMP_END4:
+  BEQ r3, r0, update_buffer_40_WHILE_END2
   LLI r4, buffer_update_queue    // load immediate buffer_update_queue
   ADD r4, r4, r2    // binop +
   LB r4, r4, 0    // deref
@@ -2273,8 +2327,8 @@ update_buffer_39_CMP_END4:
   POP r4    // restore caller temp
   POP r2    // restore caller temp
   ADDI r2, r2, 1    // assign i (addi fast path)
-  JMP update_buffer_39_WHILE1
-update_buffer_39_WHILE_END2:
+  JMP update_buffer_40_WHILE1
+update_buffer_40_WHILE_END2:
   LLI r11, 0    // load immediate 0
   LLI r12, buffer_update_queue_ptr    // load immediate buffer_update_queue_ptr
   SW r11, r12, 0    // store global buffer_update_queue_ptr
@@ -2286,15 +2340,15 @@ update_buffer_39_WHILE_END2:
 .FUNC refresh_display:
   PUSH r14
   LLI r2, 0    // init i
-refresh_display_40_WHILE1:
+refresh_display_41_WHILE1:
   LLI r3, 256    // load immediate 256
-  BLT r2, r3, refresh_display_40_CMP_TRUE3
+  BLT r2, r3, refresh_display_41_CMP_TRUE3
   LLI r3, 0    // compare false path
-  JMP refresh_display_40_CMP_END4
-refresh_display_40_CMP_TRUE3:
+  JMP refresh_display_41_CMP_END4
+refresh_display_41_CMP_TRUE3:
   LLI r3, 1
-refresh_display_40_CMP_END4:
-  BEQ r3, r0, refresh_display_40_WHILE_END2
+refresh_display_41_CMP_END4:
+  BEQ r3, r0, refresh_display_41_WHILE_END2
   // emit call to draw_char_to_display with args [{'type': 'deref', 'expr': {'type': 'binop', 'op': 'plus', 'left': {'type': 'var', 'name': 'buffer'}, 'right': {'type': 'var', 'name': 'i'}}}, {'type': 'binop', 'op': 'mult', 'left': {'type': 'binop', 'op': 'mod', 'left': {'type': 'var', 'name': 'i'}, 'right': {'type': 'const', 'value': 32}}, 'right': {'type': 'const', 'value': 8}}, {'type': 'binop', 'op': 'mult', 'left': {'type': 'binop', 'op': 'div', 'left': {'type': 'var', 'name': 'i'}, 'right': {'type': 'const', 'value': 32}}, 'right': {'type': 'const', 'value': 8}}, {'type': 'const', 'value': 63}]
   PUSH r2    // save caller temp
   PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
@@ -2323,8 +2377,8 @@ refresh_display_40_CMP_END4:
   POP r1  
   POP r2    // restore caller temp
   ADDI r2, r2, 1    // assign i (addi fast path)
-  JMP refresh_display_40_WHILE1
-refresh_display_40_WHILE_END2:
+  JMP refresh_display_41_WHILE1
+refresh_display_41_WHILE_END2:
   // epilogue and return
   ADDI r1, r0, 0  // ensure r1=0
   POP r14
@@ -2333,22 +2387,22 @@ refresh_display_40_WHILE_END2:
 .FUNC clear_buffer:
   PUSH r14
   LLI r2, 0    // init i
-clear_buffer_41_WHILE1:
+clear_buffer_42_WHILE1:
   LLI r3, 256    // load immediate 256
-  BLT r2, r3, clear_buffer_41_CMP_TRUE3
+  BLT r2, r3, clear_buffer_42_CMP_TRUE3
   LLI r3, 0    // compare false path
-  JMP clear_buffer_41_CMP_END4
-clear_buffer_41_CMP_TRUE3:
+  JMP clear_buffer_42_CMP_END4
+clear_buffer_42_CMP_TRUE3:
   LLI r3, 1
-clear_buffer_41_CMP_END4:
-  BEQ r3, r0, clear_buffer_41_WHILE_END2
+clear_buffer_42_CMP_END4:
+  BEQ r3, r0, clear_buffer_42_WHILE_END2
   LLI r4, 0    // load immediate 0
   LLI r5, buffer    // load immediate buffer
   ADD r5, r5, r2    // binop +
   SB r4, r5, 0    // store 
   ADDI r2, r2, 1    // assign i (addi fast path)
-  JMP clear_buffer_41_WHILE1
-clear_buffer_41_WHILE_END2:
+  JMP clear_buffer_42_WHILE1
+clear_buffer_42_WHILE_END2:
   // epilogue and return
   ADDI r1, r0, 0  // ensure r1=0
   POP r14
@@ -2357,32 +2411,32 @@ clear_buffer_41_WHILE_END2:
 .FUNC write_to_buffer:
   PUSH r14
   LLI r3, 0    // init i
-write_to_buffer_42_WHILE1:
+write_to_buffer_43_WHILE1:
   ADD r4, r1, r3    // binop +
   LB r4, r4, 0    // deref
   LLI r5, 0    // load immediate 0
-  BNE r4, r5, write_to_buffer_42_CMP_TRUE3
+  BNE r4, r5, write_to_buffer_43_CMP_TRUE3
   LLI r4, 0    // compare false path
-  JMP write_to_buffer_42_CMP_END4
-write_to_buffer_42_CMP_TRUE3:
+  JMP write_to_buffer_43_CMP_END4
+write_to_buffer_43_CMP_TRUE3:
   LLI r4, 1
-write_to_buffer_42_CMP_END4:
+write_to_buffer_43_CMP_END4:
   ADD r6, r2, r3    // binop +
   LLI r7, 256    // load immediate 256
-  BLT r6, r7, write_to_buffer_42_CMP_TRUE5
+  BLT r6, r7, write_to_buffer_43_CMP_TRUE5
   LLI r6, 0    // compare false path
-  JMP write_to_buffer_42_CMP_END6
-write_to_buffer_42_CMP_TRUE5:
+  JMP write_to_buffer_43_CMP_END6
+write_to_buffer_43_CMP_TRUE5:
   LLI r6, 1
-write_to_buffer_42_CMP_END6:
+write_to_buffer_43_CMP_END6:
   AND r4, r4, r6    // logic && fold
-  BNE r4, r0, write_to_buffer_42_CMP_TRUE7
+  BNE r4, r0, write_to_buffer_43_CMP_TRUE7
   LLI r4, 0    // compare false path
-  JMP write_to_buffer_42_CMP_END8
-write_to_buffer_42_CMP_TRUE7:
+  JMP write_to_buffer_43_CMP_END8
+write_to_buffer_43_CMP_TRUE7:
   LLI r4, 1
-write_to_buffer_42_CMP_END8:
-  BEQ r4, r0, write_to_buffer_42_WHILE_END2
+write_to_buffer_43_CMP_END8:
+  BEQ r4, r0, write_to_buffer_43_WHILE_END2
   ADD r8, r1, r3    // binop +
   LB r8, r8, 0    // deref
   LLI r9, buffer    // load immediate buffer
@@ -2403,13 +2457,13 @@ write_to_buffer_42_CMP_END8:
   LLI r4, buffer_update_queue_ptr    // load immediate buffer_update_queue_ptr
   LW r4, r4, 0    // load global buffer_update_queue_ptr
   LLI r10, 64    // load immediate 64
-  BGE r4, r10, write_to_buffer_42_CMP_TRUE11
+  BGE r4, r10, write_to_buffer_43_CMP_TRUE11
   LLI r4, 0    // compare false path
-  JMP write_to_buffer_42_CMP_END12
-write_to_buffer_42_CMP_TRUE11:
+  JMP write_to_buffer_43_CMP_END12
+write_to_buffer_43_CMP_TRUE11:
   LLI r4, 1
-write_to_buffer_42_CMP_END12:
-  BEQ r4, r0, write_to_buffer_42_ELSE9
+write_to_buffer_43_CMP_END12:
+  BEQ r4, r0, write_to_buffer_43_ELSE9
   // emit call to update_buffer with args []
   PUSH r2    // save caller temp
   PUSH r3    // save caller temp
@@ -2419,11 +2473,11 @@ write_to_buffer_42_CMP_END12:
   POP r1  
   POP r3    // restore caller temp
   POP r2    // restore caller temp
-  JMP write_to_buffer_42_IF_END10
-write_to_buffer_42_ELSE9:
-write_to_buffer_42_IF_END10:
-  JMP write_to_buffer_42_WHILE1
-write_to_buffer_42_WHILE_END2:
+  JMP write_to_buffer_43_IF_END10
+write_to_buffer_43_ELSE9:
+write_to_buffer_43_IF_END10:
+  JMP write_to_buffer_43_WHILE1
+write_to_buffer_43_WHILE_END2:
   // epilogue and return
   ADDI r1, r0, 0  // ensure r1=0
   POP r14
@@ -2548,7 +2602,7 @@ write_to_buffer_42_WHILE_END2:
 
 .FUNC get_unix_time:
   PUSH r14
-  LLI r2, get_unix_time_48_out_struct1    // init out (struct unix_time addr)
+  LLI r2, get_unix_time_49_out_struct1    // init out (struct unix_time addr)
   // inline call to _read_special_block with args [{'type': 'const', 'value': 4294967292}, {'type': 'var', 'name': '__time_block_buffer'}]
   // begin inline expansion of _read_special_block
   LLI r3, 4294967292    // load immediate 4294967292
@@ -2902,20 +2956,20 @@ write_to_buffer_42_WHILE_END2:
   // call return value in r1
   POP r2    // restore caller temp
   ADDI r2, r1, 0    // move return value
-  BEQ r2, r0, fmt_unix_time_50_UNOP_NOT_TRUE3
+  BEQ r2, r0, fmt_unix_time_51_UNOP_NOT_TRUE3
   LLI r4, 0    // operand is nonzero -> false
-  JMP fmt_unix_time_50_UNOP_NOT_END4
-fmt_unix_time_50_UNOP_NOT_TRUE3:
+  JMP fmt_unix_time_51_UNOP_NOT_END4
+fmt_unix_time_51_UNOP_NOT_TRUE3:
   LLI r4, 1    // operand is zero -> true
-fmt_unix_time_50_UNOP_NOT_END4:
-  BEQ r4, r0, fmt_unix_time_50_ELSE1
+fmt_unix_time_51_UNOP_NOT_END4:
+  BEQ r4, r0, fmt_unix_time_51_ELSE1
   LLI r5, 0    // load immediate 0
   ADD r1, r5, r0
   POP r14
   RET
-  JMP fmt_unix_time_50_IF_END2
-fmt_unix_time_50_ELSE1:
-fmt_unix_time_50_IF_END2:
+  JMP fmt_unix_time_51_IF_END2
+fmt_unix_time_51_ELSE1:
+fmt_unix_time_51_IF_END2:
   LLI r6, 0    // load immediate 0
   LLI r7, 0    // load immediate 0
   ADD r7, r2, r7    // binop +
@@ -3197,14 +3251,14 @@ fmt_unix_time_50_IF_END2:
   LLI r3, 128    // init IMAGE_BLOCK_COUNT
   LLI r4, 512    // init BLOCK_SIZE
   LLI r5, 0    // init block_idx
-load_and_display_image_51_WHILE1:
-  BLT r5, r3, load_and_display_image_51_CMP_TRUE3
+load_and_display_image_52_WHILE1:
+  BLT r5, r3, load_and_display_image_52_CMP_TRUE3
   LLI r6, 0    // compare false path
-  JMP load_and_display_image_51_CMP_END4
-load_and_display_image_51_CMP_TRUE3:
+  JMP load_and_display_image_52_CMP_END4
+load_and_display_image_52_CMP_TRUE3:
   LLI r6, 1
-load_and_display_image_51_CMP_END4:
-  BEQ r6, r0, load_and_display_image_51_WHILE_END2
+load_and_display_image_52_CMP_END4:
+  BEQ r6, r0, load_and_display_image_52_WHILE_END2
   ADD r7, r2, r5    // binop +
   LLI r8, 536870912    // load immediate 536870912
   MUL r9, r5, r4    // binop *
@@ -3297,8 +3351,8 @@ load_and_display_image_51_CMP_END4:
   POP r3    // restore caller temp
   POP r2    // restore caller temp
   ADDI r5, r5, 1    // assign block_idx (addi fast path)
-  JMP load_and_display_image_51_WHILE1
-load_and_display_image_51_WHILE_END2:
+  JMP load_and_display_image_52_WHILE1
+load_and_display_image_52_WHILE_END2:
   LLI r10, 0    // load immediate 0
   ADD r1, r10, r0
   POP r14
@@ -3306,24 +3360,24 @@ load_and_display_image_51_WHILE_END2:
 
 .FUNC add_fixed_point:
   PUSH r14
-  LLI r3, add_fixed_point_52_result_struct1    // init result (struct fixed_point addr)
+  LLI r3, add_fixed_point_53_result_struct1    // init result (struct fixed_point addr)
   LLI r4, 0    // init carry
   LW r5, r1, 4    // load a.value_low
   LW r6, r2, 4    // load b.value_low
   ADD r5, r5, r6    // binop +
   LW r7, r1, 4    // load a.value_low
-  BLT r5, r7, add_fixed_point_52_CMP_TRUE4
+  BLT r5, r7, add_fixed_point_53_CMP_TRUE4
   LLI r7, 0    // compare false path
-  JMP add_fixed_point_52_CMP_END5
-add_fixed_point_52_CMP_TRUE4:
+  JMP add_fixed_point_53_CMP_END5
+add_fixed_point_53_CMP_TRUE4:
   LLI r7, 1
-add_fixed_point_52_CMP_END5:
-  BEQ r7, r0, add_fixed_point_52_ELSE2
+add_fixed_point_53_CMP_END5:
+  BEQ r7, r0, add_fixed_point_53_ELSE2
   LLI r8, 1    // load immediate 1
   ADDI r4, r8, 0    // assign carry
-  JMP add_fixed_point_52_IF_END3
-add_fixed_point_52_ELSE2:
-add_fixed_point_52_IF_END3:
+  JMP add_fixed_point_53_IF_END3
+add_fixed_point_53_ELSE2:
+add_fixed_point_53_IF_END3:
   SW r5, r3, 4    // store result.value_low
   LW r9, r1, 0    // load a.value_high
   LW r10, r2, 0    // load b.value_high
@@ -3336,7 +3390,7 @@ add_fixed_point_52_IF_END3:
 
 .FUNC multiply_fixed_point:
   PUSH r14
-  LLI r3, multiply_fixed_point_53_result_struct1    // init result (struct fixed_point addr)
+  LLI r3, multiply_fixed_point_54_result_struct1    // init result (struct fixed_point addr)
   LW r4, r1, 4    // load a.value_low
   LW r5, r1, 0    // load a.value_high
   LW r6, r2, 4    // load b.value_low
@@ -3369,23 +3423,23 @@ add_fixed_point_52_IF_END3:
 
 .FUNC add_fixed_point_with_int:
   PUSH r14
-  LLI r3, add_fixed_point_with_int_54_result_struct1    // init result (struct fixed_point addr)
+  LLI r3, add_fixed_point_with_int_55_result_struct1    // init result (struct fixed_point addr)
   LLI r4, 0    // init carry
   LW r5, r1, 4    // load a.value_low
   ADD r5, r5, r2    // binop +
   LW r6, r1, 4    // load a.value_low
-  BLT r5, r6, add_fixed_point_with_int_54_CMP_TRUE4
+  BLT r5, r6, add_fixed_point_with_int_55_CMP_TRUE4
   LLI r6, 0    // compare false path
-  JMP add_fixed_point_with_int_54_CMP_END5
-add_fixed_point_with_int_54_CMP_TRUE4:
+  JMP add_fixed_point_with_int_55_CMP_END5
+add_fixed_point_with_int_55_CMP_TRUE4:
   LLI r6, 1
-add_fixed_point_with_int_54_CMP_END5:
-  BEQ r6, r0, add_fixed_point_with_int_54_ELSE2
+add_fixed_point_with_int_55_CMP_END5:
+  BEQ r6, r0, add_fixed_point_with_int_55_ELSE2
   LLI r7, 1    // load immediate 1
   ADDI r4, r7, 0    // assign carry
-  JMP add_fixed_point_with_int_54_IF_END3
-add_fixed_point_with_int_54_ELSE2:
-add_fixed_point_with_int_54_IF_END3:
+  JMP add_fixed_point_with_int_55_IF_END3
+add_fixed_point_with_int_55_ELSE2:
+add_fixed_point_with_int_55_IF_END3:
   SW r5, r3, 4    // store result.value_low
   LW r8, r1, 0    // load a.value_high
   ADD r8, r8, r4    // binop +
@@ -3396,7 +3450,7 @@ add_fixed_point_with_int_54_IF_END3:
 
 .FUNC multiply_fixed_point_with_int:
   PUSH r14
-  LLI r3, multiply_fixed_point_with_int_55_result_struct1    // init result (struct fixed_point addr)
+  LLI r3, multiply_fixed_point_with_int_56_result_struct1    // init result (struct fixed_point addr)
   LW r4, r1, 4    // load a.value_low
   LW r5, r1, 0    // load a.value_high
   MUL r4, r4, r2    // binop *
@@ -3419,7 +3473,7 @@ add_fixed_point_with_int_54_IF_END3:
 
 .FUNC int_to_fixed_point:
   PUSH r14
-  LLI r2, int_to_fixed_point_56_result_struct1    // init result (struct fixed_point addr)
+  LLI r2, int_to_fixed_point_57_result_struct1    // init result (struct fixed_point addr)
   SW r1, r2, 0    // store result.value_high
   LLI r3, 0    // load immediate 0
   SW r3, r2, 4    // store result.value_low
@@ -3429,7 +3483,7 @@ add_fixed_point_with_int_54_IF_END3:
 
 .FUNC fixed_point_from_parts:
   PUSH r14
-  LLI r3, fixed_point_from_parts_57_result_struct1    // init result (struct fixed_point addr)
+  LLI r3, fixed_point_from_parts_58_result_struct1    // init result (struct fixed_point addr)
   SW r1, r3, 0    // store result.value_high
   SW r2, r3, 4    // store result.value_low
   ADD r1, r3, r0
@@ -3438,7 +3492,7 @@ add_fixed_point_with_int_54_IF_END3:
 
 .FUNC fixed_point_to_string:
   PUSH r14
-  LLI r2, fixed_point_to_string_58_buffer_buf1    // init buffer (buffer addr)
+  LLI r2, fixed_point_to_string_59_buffer_buf1    // init buffer (buffer addr)
   LLI r3, 0    // init is_negative
   LLI r4, 0    // load immediate 0
   LLI r5, 0    // load immediate 0
@@ -3446,54 +3500,54 @@ add_fixed_point_with_int_54_IF_END3:
   SB r4, r5, 0    // store 
   LW r6, r1, 0    // load fp.value_high
   LLI r7, 0    // load immediate 0
-  BLT r6, r7, fixed_point_to_string_58_CMP_TRUE4
+  BLT r6, r7, fixed_point_to_string_59_CMP_TRUE4
   LLI r6, 0    // compare false path
-  JMP fixed_point_to_string_58_CMP_END5
-fixed_point_to_string_58_CMP_TRUE4:
+  JMP fixed_point_to_string_59_CMP_END5
+fixed_point_to_string_59_CMP_TRUE4:
   LLI r6, 1
-fixed_point_to_string_58_CMP_END5:
+fixed_point_to_string_59_CMP_END5:
   LW r8, r1, 0    // load fp.value_high
   LLI r9, 0    // load immediate 0
-  BEQ r8, r9, fixed_point_to_string_58_CMP_TRUE6
+  BEQ r8, r9, fixed_point_to_string_59_CMP_TRUE6
   LLI r8, 0    // compare false path
-  JMP fixed_point_to_string_58_CMP_END7
-fixed_point_to_string_58_CMP_TRUE6:
+  JMP fixed_point_to_string_59_CMP_END7
+fixed_point_to_string_59_CMP_TRUE6:
   LLI r8, 1
-fixed_point_to_string_58_CMP_END7:
+fixed_point_to_string_59_CMP_END7:
   LW r10, r1, 4    // load fp.value_low
   LLI r11, 0    // load immediate 0
-  BLT r10, r11, fixed_point_to_string_58_CMP_TRUE8
+  BLT r10, r11, fixed_point_to_string_59_CMP_TRUE8
   LLI r10, 0    // compare false path
-  JMP fixed_point_to_string_58_CMP_END9
-fixed_point_to_string_58_CMP_TRUE8:
+  JMP fixed_point_to_string_59_CMP_END9
+fixed_point_to_string_59_CMP_TRUE8:
   LLI r10, 1
-fixed_point_to_string_58_CMP_END9:
+fixed_point_to_string_59_CMP_END9:
   AND r8, r8, r10    // logic && fold
-  BNE r8, r0, fixed_point_to_string_58_CMP_TRUE10
+  BNE r8, r0, fixed_point_to_string_59_CMP_TRUE10
   LLI r8, 0    // compare false path
-  JMP fixed_point_to_string_58_CMP_END11
-fixed_point_to_string_58_CMP_TRUE10:
+  JMP fixed_point_to_string_59_CMP_END11
+fixed_point_to_string_59_CMP_TRUE10:
   LLI r8, 1
-fixed_point_to_string_58_CMP_END11:
+fixed_point_to_string_59_CMP_END11:
   OR r6, r6, r8    // logic || fold
-  BNE r6, r0, fixed_point_to_string_58_CMP_TRUE12
+  BNE r6, r0, fixed_point_to_string_59_CMP_TRUE12
   LLI r6, 0    // compare false path
-  JMP fixed_point_to_string_58_CMP_END13
-fixed_point_to_string_58_CMP_TRUE12:
+  JMP fixed_point_to_string_59_CMP_END13
+fixed_point_to_string_59_CMP_TRUE12:
   LLI r6, 1
-fixed_point_to_string_58_CMP_END13:
-  BEQ r6, r0, fixed_point_to_string_58_ELSE2
+fixed_point_to_string_59_CMP_END13:
+  BEQ r6, r0, fixed_point_to_string_59_ELSE2
   LLI r12, 1    // load immediate 1
   ADDI r3, r12, 0    // assign is_negative
   LW r5, r1, 4    // load fp.value_low
   LLI r4, 0    // load immediate 0
-  BNE r5, r4, fixed_point_to_string_58_CMP_TRUE16
+  BNE r5, r4, fixed_point_to_string_59_CMP_TRUE16
   LLI r5, 0    // compare false path
-  JMP fixed_point_to_string_58_CMP_END17
-fixed_point_to_string_58_CMP_TRUE16:
+  JMP fixed_point_to_string_59_CMP_END17
+fixed_point_to_string_59_CMP_TRUE16:
   LLI r5, 1
-fixed_point_to_string_58_CMP_END17:
-  BEQ r5, r0, fixed_point_to_string_58_ELSE14
+fixed_point_to_string_59_CMP_END17:
+  BEQ r5, r0, fixed_point_to_string_59_ELSE14
   LLI r7, 0    // load immediate 0
   LW r9, r1, 0    // load fp.value_high
   LLI r11, 1    // load immediate 1
@@ -3504,26 +3558,26 @@ fixed_point_to_string_58_CMP_END17:
   LW r8, r1, 4    // load fp.value_low
   SUB r10, r10, r8    // binop -
   SW r10, r1, 4    // store fp.value_low
-  JMP fixed_point_to_string_58_IF_END15
-fixed_point_to_string_58_ELSE14:
+  JMP fixed_point_to_string_59_IF_END15
+fixed_point_to_string_59_ELSE14:
   LLI r6, 0    // load immediate 0
   LW r12, r1, 0    // load fp.value_high
   SUB r6, r6, r12    // binop -
   SW r6, r1, 0    // store fp.value_high
-fixed_point_to_string_58_IF_END15:
-  JMP fixed_point_to_string_58_IF_END3
-fixed_point_to_string_58_ELSE2:
-fixed_point_to_string_58_IF_END3:
+fixed_point_to_string_59_IF_END15:
+  JMP fixed_point_to_string_59_IF_END3
+fixed_point_to_string_59_ELSE2:
+fixed_point_to_string_59_IF_END3:
   LLI r4, 20    // init frac_digits_remaining
   LLI r5, 0    // init i
-fixed_point_to_string_58_WHILE18:
-  BLT r5, r4, fixed_point_to_string_58_CMP_TRUE20
+fixed_point_to_string_59_WHILE18:
+  BLT r5, r4, fixed_point_to_string_59_CMP_TRUE20
   LLI r11, 0    // compare false path
-  JMP fixed_point_to_string_58_CMP_END21
-fixed_point_to_string_58_CMP_TRUE20:
+  JMP fixed_point_to_string_59_CMP_END21
+fixed_point_to_string_59_CMP_TRUE20:
   LLI r11, 1
-fixed_point_to_string_58_CMP_END21:
-  BEQ r11, r0, fixed_point_to_string_58_WHILE_END19
+fixed_point_to_string_59_CMP_END21:
+  BEQ r11, r0, fixed_point_to_string_59_WHILE_END19
   LW r9, r1, 4    // load fp.value_low
   LLI r7, 429496729    // load immediate 429496729
   DIV r9, r9, r7    // binop /
@@ -3539,54 +3593,54 @@ fixed_point_to_string_58_CMP_END21:
   ADD r11, r2, r5    // binop +
   SB r6, r11, 0    // store 
   ADDI r5, r5, 1    // assign i (addi fast path)
-  JMP fixed_point_to_string_58_WHILE18
-fixed_point_to_string_58_WHILE_END19:
+  JMP fixed_point_to_string_59_WHILE18
+fixed_point_to_string_59_WHILE_END19:
   LLI r7, 0    // load immediate 0
   LLI r10, 20    // load immediate 20
   ADD r10, r2, r10    // binop +
   SB r7, r10, 0    // store 
-  LLI r12, fixed_point_to_string_58_result_str_buf22    // init result_str (buffer addr)
+  LLI r12, fixed_point_to_string_59_result_str_buf22    // init result_str (buffer addr)
   LLI r8, 0    // init j
-  BEQ r3, r0, fixed_point_to_string_58_ELSE23
+  BEQ r3, r0, fixed_point_to_string_59_ELSE23
   LLI r11, 45    // load immediate 45
   LLI r6, 1    // load immediate 1
   ADD r6, r8, r6    // binop +
   ADDI r8, r6, 0    // assign-expr j
   ADD r9, r12, r8    // binop +
   SB r11, r9, 0    // store 
-  JMP fixed_point_to_string_58_IF_END24
-fixed_point_to_string_58_ELSE23:
-fixed_point_to_string_58_IF_END24:
+  JMP fixed_point_to_string_59_IF_END24
+fixed_point_to_string_59_ELSE23:
+fixed_point_to_string_59_IF_END24:
   LW r4, r1, 0    // load fp.value_high
   LLI r5, 0    // init int_len
   LLI r10, 0    // zero init temp
   LLI r7, 0    // load immediate 0
-  BEQ r10, r7, fixed_point_to_string_58_CMP_TRUE27
+  BEQ r10, r7, fixed_point_to_string_59_CMP_TRUE27
   LLI r7, 0    // compare false path
-  JMP fixed_point_to_string_58_CMP_END28
-fixed_point_to_string_58_CMP_TRUE27:
+  JMP fixed_point_to_string_59_CMP_END28
+fixed_point_to_string_59_CMP_TRUE27:
   LLI r7, 1
-fixed_point_to_string_58_CMP_END28:
-  BEQ r7, r0, fixed_point_to_string_58_ELSE25
+fixed_point_to_string_59_CMP_END28:
+  BEQ r7, r0, fixed_point_to_string_59_ELSE25
   LLI r6, 48    // load immediate 48
   LLI r9, 1    // load immediate 1
   ADD r9, r8, r9    // binop +
   ADDI r8, r9, 0    // assign-expr j
   ADD r11, r12, r8    // binop +
   SB r6, r11, 0    // store 
-  JMP fixed_point_to_string_58_IF_END26
-fixed_point_to_string_58_ELSE25:
-  LLI r3, fixed_point_to_string_58_int_digits_buf29    // init int_digits (buffer addr)
+  JMP fixed_point_to_string_59_IF_END26
+fixed_point_to_string_59_ELSE25:
+  LLI r3, fixed_point_to_string_59_int_digits_buf29    // init int_digits (buffer addr)
   LLI r4, 0    // init k
-fixed_point_to_string_58_WHILE30:
+fixed_point_to_string_59_WHILE30:
   LLI r5, 0    // load immediate 0
-  BLT r5, r10, fixed_point_to_string_58_CMP_TRUE32
+  BLT r5, r10, fixed_point_to_string_59_CMP_TRUE32
   LLI r5, 0    // compare false path
-  JMP fixed_point_to_string_58_CMP_END33
-fixed_point_to_string_58_CMP_TRUE32:
+  JMP fixed_point_to_string_59_CMP_END33
+fixed_point_to_string_59_CMP_TRUE32:
   LLI r5, 1
-fixed_point_to_string_58_CMP_END33:
-  BEQ r5, r0, fixed_point_to_string_58_WHILE_END31
+fixed_point_to_string_59_CMP_END33:
+  BEQ r5, r0, fixed_point_to_string_59_WHILE_END31
   LLI r7, 10    // load immediate 10
   REM r7, r10, r7    // binop %
   LLI r9, 1    // load immediate 1
@@ -3597,19 +3651,19 @@ fixed_point_to_string_58_CMP_END33:
   LLI r6, 10    // load immediate 10
   DIV r6, r10, r6    // binop /
   ADDI r10, r6, 0    // assign temp
-  JMP fixed_point_to_string_58_WHILE30
-fixed_point_to_string_58_WHILE_END31:
+  JMP fixed_point_to_string_59_WHILE30
+fixed_point_to_string_59_WHILE_END31:
   LLI r5, 1    // load immediate 1
   SUB r5, r4, r5    // binop -
-fixed_point_to_string_58_WHILE34:
+fixed_point_to_string_59_WHILE34:
   LLI r9, 0    // load immediate 0
-  BGE r5, r9, fixed_point_to_string_58_CMP_TRUE36
+  BGE r5, r9, fixed_point_to_string_59_CMP_TRUE36
   LLI r9, 0    // compare false path
-  JMP fixed_point_to_string_58_CMP_END37
-fixed_point_to_string_58_CMP_TRUE36:
+  JMP fixed_point_to_string_59_CMP_END37
+fixed_point_to_string_59_CMP_TRUE36:
   LLI r9, 1
-fixed_point_to_string_58_CMP_END37:
-  BEQ r9, r0, fixed_point_to_string_58_WHILE_END35
+fixed_point_to_string_59_CMP_END37:
+  BEQ r9, r0, fixed_point_to_string_59_WHILE_END35
   LLI r11, 48    // load immediate 48
   ADD r7, r3, r5    // binop +
   LB r7, r7, 0    // deref
@@ -3620,9 +3674,9 @@ fixed_point_to_string_58_CMP_END37:
   ADD r9, r12, r8    // binop +
   SB r11, r9, 0    // store 
   ADDI r5, r5, -1    // assign i (addi fast path)
-  JMP fixed_point_to_string_58_WHILE34
-fixed_point_to_string_58_WHILE_END35:
-fixed_point_to_string_58_IF_END26:
+  JMP fixed_point_to_string_59_WHILE34
+fixed_point_to_string_59_WHILE_END35:
+fixed_point_to_string_59_IF_END26:
   LLI r7, 46    // load immediate 46
   LLI r6, 1    // load immediate 1
   ADD r6, r8, r6    // binop +
@@ -3630,15 +3684,15 @@ fixed_point_to_string_58_IF_END26:
   ADD r9, r12, r8    // binop +
   SB r7, r9, 0    // store 
   LLI r11, 0    // init i
-fixed_point_to_string_58_WHILE38:
+fixed_point_to_string_59_WHILE38:
   LLI r5, 20    // load immediate 20
-  BLT r11, r5, fixed_point_to_string_58_CMP_TRUE40
+  BLT r11, r5, fixed_point_to_string_59_CMP_TRUE40
   LLI r5, 0    // compare false path
-  JMP fixed_point_to_string_58_CMP_END41
-fixed_point_to_string_58_CMP_TRUE40:
+  JMP fixed_point_to_string_59_CMP_END41
+fixed_point_to_string_59_CMP_TRUE40:
   LLI r5, 1
-fixed_point_to_string_58_CMP_END41:
-  BEQ r5, r0, fixed_point_to_string_58_WHILE_END39
+fixed_point_to_string_59_CMP_END41:
+  BEQ r5, r0, fixed_point_to_string_59_WHILE_END39
   ADD r4, r2, r11    // binop +
   LB r4, r4, 0    // deref
   LLI r3, 1    // load immediate 1
@@ -3647,8 +3701,8 @@ fixed_point_to_string_58_CMP_END41:
   ADD r10, r12, r8    // binop +
   SB r4, r10, 0    // store 
   ADDI r11, r11, 1    // assign i (addi fast path)
-  JMP fixed_point_to_string_58_WHILE38
-fixed_point_to_string_58_WHILE_END39:
+  JMP fixed_point_to_string_59_WHILE38
+fixed_point_to_string_59_WHILE_END39:
   LLI r6, 0    // load immediate 0
   ADD r8, r12, r8    // binop +
   SB r6, r8, 0    // store 
@@ -3659,63 +3713,63 @@ fixed_point_to_string_58_WHILE_END39:
 .FUNC precedence:
   PUSH r14
   LLI r2, 43    // load immediate 43
-  BEQ r1, r2, precedence_59_CMP_TRUE3
+  BEQ r1, r2, precedence_60_CMP_TRUE3
   LLI r2, 0    // compare false path
-  JMP precedence_59_CMP_END4
-precedence_59_CMP_TRUE3:
+  JMP precedence_60_CMP_END4
+precedence_60_CMP_TRUE3:
   LLI r2, 1
-precedence_59_CMP_END4:
+precedence_60_CMP_END4:
   LLI r3, 45    // load immediate 45
-  BEQ r1, r3, precedence_59_CMP_TRUE5
+  BEQ r1, r3, precedence_60_CMP_TRUE5
   LLI r3, 0    // compare false path
-  JMP precedence_59_CMP_END6
-precedence_59_CMP_TRUE5:
+  JMP precedence_60_CMP_END6
+precedence_60_CMP_TRUE5:
   LLI r3, 1
-precedence_59_CMP_END6:
+precedence_60_CMP_END6:
   OR r2, r2, r3    // logic || fold
-  BNE r2, r0, precedence_59_CMP_TRUE7
+  BNE r2, r0, precedence_60_CMP_TRUE7
   LLI r2, 0    // compare false path
-  JMP precedence_59_CMP_END8
-precedence_59_CMP_TRUE7:
+  JMP precedence_60_CMP_END8
+precedence_60_CMP_TRUE7:
   LLI r2, 1
-precedence_59_CMP_END8:
-  BEQ r2, r0, precedence_59_ELSE1
+precedence_60_CMP_END8:
+  BEQ r2, r0, precedence_60_ELSE1
   LLI r4, 1    // load immediate 1
   ADD r1, r4, r0
   POP r14
   RET
-  JMP precedence_59_IF_END2
-precedence_59_ELSE1:
-precedence_59_IF_END2:
+  JMP precedence_60_IF_END2
+precedence_60_ELSE1:
+precedence_60_IF_END2:
   LLI r5, 42    // load immediate 42
-  BEQ r1, r5, precedence_59_CMP_TRUE11
+  BEQ r1, r5, precedence_60_CMP_TRUE11
   LLI r5, 0    // compare false path
-  JMP precedence_59_CMP_END12
-precedence_59_CMP_TRUE11:
+  JMP precedence_60_CMP_END12
+precedence_60_CMP_TRUE11:
   LLI r5, 1
-precedence_59_CMP_END12:
+precedence_60_CMP_END12:
   LLI r6, 47    // load immediate 47
-  BEQ r1, r6, precedence_59_CMP_TRUE13
+  BEQ r1, r6, precedence_60_CMP_TRUE13
   LLI r6, 0    // compare false path
-  JMP precedence_59_CMP_END14
-precedence_59_CMP_TRUE13:
+  JMP precedence_60_CMP_END14
+precedence_60_CMP_TRUE13:
   LLI r6, 1
-precedence_59_CMP_END14:
+precedence_60_CMP_END14:
   OR r5, r5, r6    // logic || fold
-  BNE r5, r0, precedence_59_CMP_TRUE15
+  BNE r5, r0, precedence_60_CMP_TRUE15
   LLI r5, 0    // compare false path
-  JMP precedence_59_CMP_END16
-precedence_59_CMP_TRUE15:
+  JMP precedence_60_CMP_END16
+precedence_60_CMP_TRUE15:
   LLI r5, 1
-precedence_59_CMP_END16:
-  BEQ r5, r0, precedence_59_ELSE9
+precedence_60_CMP_END16:
+  BEQ r5, r0, precedence_60_ELSE9
   LLI r7, 2    // load immediate 2
   ADD r1, r7, r0
   POP r14
   RET
-  JMP precedence_59_IF_END10
-precedence_59_ELSE9:
-precedence_59_IF_END10:
+  JMP precedence_60_IF_END10
+precedence_60_ELSE9:
+precedence_60_IF_END10:
   LLI r8, 0    // load immediate 0
   ADD r1, r8, r0
   POP r14
@@ -3723,59 +3777,59 @@ precedence_59_IF_END10:
 
 .FUNC infix_to_rpn:
   PUSH r14
-  LLI r2, infix_to_rpn_60_output_buf1    // init output (buffer addr)
-  LLI r3, infix_to_rpn_60_stack_buf2    // init stack (buffer addr)
+  LLI r2, infix_to_rpn_61_output_buf1    // init output (buffer addr)
+  LLI r3, infix_to_rpn_61_stack_buf2    // init stack (buffer addr)
   LLI r4, 0    // init stack_index
   LLI r5, 0    // init i
-infix_to_rpn_60_WHILE3:
+infix_to_rpn_61_WHILE3:
   ADD r6, r1, r5    // binop +
   LB r6, r6, 0    // deref
-  BEQ r6, r0, infix_to_rpn_60_WHILE_END4
+  BEQ r6, r0, infix_to_rpn_61_WHILE_END4
   ADD r7, r1, r5    // binop +
   LB r7, r7, 0    // deref
   LLI r8, 48    // load immediate 48
-  BGE r7, r8, infix_to_rpn_60_CMP_TRUE7
+  BGE r7, r8, infix_to_rpn_61_CMP_TRUE7
   LLI r8, 0    // compare false path
-  JMP infix_to_rpn_60_CMP_END8
-infix_to_rpn_60_CMP_TRUE7:
+  JMP infix_to_rpn_61_CMP_END8
+infix_to_rpn_61_CMP_TRUE7:
   LLI r8, 1
-infix_to_rpn_60_CMP_END8:
+infix_to_rpn_61_CMP_END8:
   LLI r9, 57    // load immediate 57
-  BGE r9, r7, infix_to_rpn_60_CMP_TRUE9
+  BGE r9, r7, infix_to_rpn_61_CMP_TRUE9
   LLI r9, 0    // compare false path
-  JMP infix_to_rpn_60_CMP_END10
-infix_to_rpn_60_CMP_TRUE9:
+  JMP infix_to_rpn_61_CMP_END10
+infix_to_rpn_61_CMP_TRUE9:
   LLI r9, 1
-infix_to_rpn_60_CMP_END10:
+infix_to_rpn_61_CMP_END10:
   AND r8, r8, r9    // logic && fold
-  BNE r8, r0, infix_to_rpn_60_CMP_TRUE11
+  BNE r8, r0, infix_to_rpn_61_CMP_TRUE11
   LLI r8, 0    // compare false path
-  JMP infix_to_rpn_60_CMP_END12
-infix_to_rpn_60_CMP_TRUE11:
+  JMP infix_to_rpn_61_CMP_END12
+infix_to_rpn_61_CMP_TRUE11:
   LLI r8, 1
-infix_to_rpn_60_CMP_END12:
-  BEQ r8, r0, infix_to_rpn_60_ELSE5
+infix_to_rpn_61_CMP_END12:
+  BEQ r8, r0, infix_to_rpn_61_ELSE5
   LLI r10, 0    // zero init out_index
   LLI r11, 1    // load immediate 1
   ADD r11, r10, r11    // binop +
   ADDI r10, r11, 0    // assign-expr out_index
   ADD r12, r2, r10    // binop +
   SB r7, r12, 0    // store 
-  JMP infix_to_rpn_60_IF_END6
-infix_to_rpn_60_ELSE5:
-infix_to_rpn_60_IF_END6:
+  JMP infix_to_rpn_61_IF_END6
+infix_to_rpn_61_ELSE5:
+infix_to_rpn_61_IF_END6:
   ADDI r5, r5, 1    // assign i (addi fast path)
-  JMP infix_to_rpn_60_WHILE3
-infix_to_rpn_60_WHILE_END4:
-infix_to_rpn_60_WHILE13:
+  JMP infix_to_rpn_61_WHILE3
+infix_to_rpn_61_WHILE_END4:
+infix_to_rpn_61_WHILE13:
   LLI r6, 0    // load immediate 0
-  BLT r6, r4, infix_to_rpn_60_CMP_TRUE15
+  BLT r6, r4, infix_to_rpn_61_CMP_TRUE15
   LLI r6, 0    // compare false path
-  JMP infix_to_rpn_60_CMP_END16
-infix_to_rpn_60_CMP_TRUE15:
+  JMP infix_to_rpn_61_CMP_END16
+infix_to_rpn_61_CMP_TRUE15:
   LLI r6, 1
-infix_to_rpn_60_CMP_END16:
-  BEQ r6, r0, infix_to_rpn_60_WHILE_END14
+infix_to_rpn_61_CMP_END16:
+  BEQ r6, r0, infix_to_rpn_61_WHILE_END14
   LLI r9, 0    // load immediate 0
   LLI r8, 0    // load immediate 0
   SUB r8, r8, r4    // binop -
@@ -3787,8 +3841,8 @@ infix_to_rpn_60_CMP_END16:
   ADDI r10, r11, 0    // assign-expr out_index
   ADD r12, r2, r10    // binop +
   SB r9, r12, 0    // store 
-  JMP infix_to_rpn_60_WHILE13
-infix_to_rpn_60_WHILE_END14:
+  JMP infix_to_rpn_61_WHILE13
+infix_to_rpn_61_WHILE_END14:
   LLI r7, 0    // load immediate 0
   ADD r10, r2, r10    // binop +
   SB r7, r10, 0    // store 
@@ -3798,37 +3852,37 @@ infix_to_rpn_60_WHILE_END14:
 
 .FUNC evaluate_rpn:
   PUSH r14
-  LLI r2, evaluate_rpn_61_stack_buf1    // init stack (buffer addr)
+  LLI r2, evaluate_rpn_62_stack_buf1    // init stack (buffer addr)
   LLI r3, 0    // init stack_index
   LLI r4, 0    // init i
-evaluate_rpn_61_WHILE2:
+evaluate_rpn_62_WHILE2:
   ADD r5, r1, r4    // binop +
   LB r5, r5, 0    // deref
-  BEQ r5, r0, evaluate_rpn_61_WHILE_END3
+  BEQ r5, r0, evaluate_rpn_62_WHILE_END3
   ADD r6, r1, r4    // binop +
   LB r6, r6, 0    // deref
   LLI r7, 48    // load immediate 48
-  BGE r6, r7, evaluate_rpn_61_CMP_TRUE6
+  BGE r6, r7, evaluate_rpn_62_CMP_TRUE6
   LLI r7, 0    // compare false path
-  JMP evaluate_rpn_61_CMP_END7
-evaluate_rpn_61_CMP_TRUE6:
+  JMP evaluate_rpn_62_CMP_END7
+evaluate_rpn_62_CMP_TRUE6:
   LLI r7, 1
-evaluate_rpn_61_CMP_END7:
+evaluate_rpn_62_CMP_END7:
   LLI r8, 57    // load immediate 57
-  BGE r8, r6, evaluate_rpn_61_CMP_TRUE8
+  BGE r8, r6, evaluate_rpn_62_CMP_TRUE8
   LLI r8, 0    // compare false path
-  JMP evaluate_rpn_61_CMP_END9
-evaluate_rpn_61_CMP_TRUE8:
+  JMP evaluate_rpn_62_CMP_END9
+evaluate_rpn_62_CMP_TRUE8:
   LLI r8, 1
-evaluate_rpn_61_CMP_END9:
+evaluate_rpn_62_CMP_END9:
   AND r7, r7, r8    // logic && fold
-  BNE r7, r0, evaluate_rpn_61_CMP_TRUE10
+  BNE r7, r0, evaluate_rpn_62_CMP_TRUE10
   LLI r7, 0    // compare false path
-  JMP evaluate_rpn_61_CMP_END11
-evaluate_rpn_61_CMP_TRUE10:
+  JMP evaluate_rpn_62_CMP_END11
+evaluate_rpn_62_CMP_TRUE10:
   LLI r7, 1
-evaluate_rpn_61_CMP_END11:
-  BEQ r7, r0, evaluate_rpn_61_ELSE4
+evaluate_rpn_62_CMP_END11:
+  BEQ r7, r0, evaluate_rpn_62_ELSE4
   LLI r9, 48    // load immediate 48
   SUB r9, r6, r9    // binop -
   LLI r10, 1    // load immediate 1
@@ -3836,8 +3890,8 @@ evaluate_rpn_61_CMP_END11:
   ADDI r3, r10, 0    // assign-expr stack_index
   ADD r11, r2, r3    // binop +
   SB r9, r11, 0    // store 
-  JMP evaluate_rpn_61_IF_END5
-evaluate_rpn_61_ELSE4:
+  JMP evaluate_rpn_62_IF_END5
+evaluate_rpn_62_ELSE4:
   LLI r12, 0    // load immediate 0
   LLI r5, 0    // load immediate 0
   SUB r5, r5, r3    // binop -
@@ -3852,27 +3906,27 @@ evaluate_rpn_61_ELSE4:
   LB r8, r8, 0    // deref
   LLI r10, 0    // zero init result
   LLI r11, 43    // load immediate 43
-  BEQ r6, r11, evaluate_rpn_61_CMP_TRUE14
+  BEQ r6, r11, evaluate_rpn_62_CMP_TRUE14
   LLI r11, 0    // compare false path
-  JMP evaluate_rpn_61_CMP_END15
-evaluate_rpn_61_CMP_TRUE14:
+  JMP evaluate_rpn_62_CMP_END15
+evaluate_rpn_62_CMP_TRUE14:
   LLI r11, 1
-evaluate_rpn_61_CMP_END15:
-  BEQ r11, r0, evaluate_rpn_61_ELSE12
+evaluate_rpn_62_CMP_END15:
+  BEQ r11, r0, evaluate_rpn_62_ELSE12
   ADD r9, r8, r12    // binop +
   ADDI r10, r9, 0    // assign result
-  JMP evaluate_rpn_61_IF_END13
-evaluate_rpn_61_ELSE12:
-evaluate_rpn_61_IF_END13:
+  JMP evaluate_rpn_62_IF_END13
+evaluate_rpn_62_ELSE12:
+evaluate_rpn_62_IF_END13:
   LLI r5, 1    // load immediate 1
   ADD r5, r3, r5    // binop +
   ADDI r3, r5, 0    // assign-expr stack_index
   ADD r7, r2, r3    // binop +
   SB r10, r7, 0    // store 
-evaluate_rpn_61_IF_END5:
+evaluate_rpn_62_IF_END5:
   ADDI r4, r4, 1    // assign i (addi fast path)
-  JMP evaluate_rpn_61_WHILE2
-evaluate_rpn_61_WHILE_END3:
+  JMP evaluate_rpn_62_WHILE2
+evaluate_rpn_62_WHILE_END3:
   LLI r11, 0    // load immediate 0
   ADD r2, r2, r11    // binop +
   LB r2, r2, 0    // deref
@@ -3882,37 +3936,18 @@ evaluate_rpn_61_WHILE_END3:
 
 // Inline function definition 'add' skipped (will be inlined at call sites)
 
-.FUNC main:
+.FUNC display_test:
   PUSH r14
-  LLI r2, 0    // zero init r1
-  // inline call to add with args [{'type': 'const', 'value': 15}, {'type': 'const', 'value': 25}]
-  // begin inline expansion of add
-  LLI r3, 15    // load immediate 15
-  LLI r4, 25    // load immediate 25
-  ADD r3, r3, r4    // binop +
-  ADD r1, r3, r0
-  // inline function return (no RET emitted)
-  ADDI r2, r1, 0    // move inline return value
-  // end inline expansion of add
-  LLI r5, 50    // init r2
-  LLI r6, 0    // zero init r3
-  // inline call to add with args [{'type': 'var', 'name': 'r1'}, {'type': 'var', 'name': 'r2'}]
-  // begin inline expansion of add
-  ADD r2, r2, r5    // binop +
-  ADD r1, r2, r0
-  // inline function return (no RET emitted)
-  ADDI r6, r1, 0    // move inline return value
-  // end inline expansion of add
   // emit call to draw_string_to_display with args [{'type': 'string_addr', 'label': 'str_1'}, {'type': 'const', 'value': 0}, {'type': 'const', 'value': 0}, {'type': 'const', 'value': 63}]
   PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  LLI r7, str_1    // load immediate str_1
-  PUSH r7    // stage reg arg 0
-  LLI r8, 0    // load immediate 0
-  PUSH r8    // stage reg arg 1
-  LLI r9, 0    // load immediate 0
-  PUSH r9    // stage reg arg 2
-  LLI r10, 63    // load immediate 63
-  PUSH r10    // stage reg arg 3
+  LLI r2, str_1    // load immediate str_1
+  PUSH r2    // stage reg arg 0
+  LLI r3, 0    // load immediate 0
+  PUSH r3    // stage reg arg 1
+  LLI r4, 0    // load immediate 0
+  PUSH r4    // stage reg arg 2
+  LLI r5, 63    // load immediate 63
+  PUSH r5    // stage reg arg 3
   POP r4    // load reg arg 3
   POP r3    // load reg arg 2
   POP r2    // load reg arg 1
@@ -3920,86 +3955,32 @@ evaluate_rpn_61_WHILE_END3:
   CALL draw_string_to_display
   // call return value in r1
   POP r1  
-  // emit call to initialize_filesystem with args []
+  // emit call to draw_string_to_display with args [{'type': 'string_addr', 'label': 'str_2'}, {'type': 'const', 'value': 0}, {'type': 'const', 'value': 24}, {'type': 'const', 'value': 12}]
   PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  CALL initialize_filesystem
-  // call return value in r1
-  POP r1  
-  // emit call to write_file with args [{'type': 'string_addr', 'label': 'str_2'}, {'type': 'string_addr', 'label': 'str_3'}]
-  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  LLI r11, str_2    // load immediate str_2
-  PUSH r11    // stage reg arg 0
-  LLI r12, str_3    // load immediate str_3
-  PUSH r12    // stage reg arg 1
-  POP r2    // load reg arg 1
-  POP r1    // load reg arg 0
-  CALL write_file
-  // call return value in r1
-  POP r1  
-  LLI r3, main_63_device_info_buf1    // init device_info (buffer addr)
-  // inline call to read_block with args [{'type': 'const', 'value': 4294967295}, {'type': 'var', 'name': 'device_info'}]
-  // begin inline expansion of read_block
-  LLI r4, 4294967295    // load immediate 4294967295
-  // emit call to bd_write_u32 with args [{'type': 'const', 'value': 1073741832}, {'type': 'var', 'name': 'blockID'}]
-  PUSH r3    // save caller temp
-  PUSH r4    // save caller temp
-  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  LLI r2, 1073741832    // load immediate 1073741832
-  PUSH r2    // stage reg arg 0
-  PUSH r4    // stage reg arg 1
-  POP r2    // load reg arg 1
-  POP r1    // load reg arg 0
-  CALL bd_write_u32
-  // call return value in r1
-  POP r1  
-  POP r4    // restore caller temp
-  POP r3    // restore caller temp
-  // emit call to bd_write_u32 with args [{'type': 'const', 'value': 1073741836}, {'type': 'var', 'name': 'buffer'}]
-  PUSH r3    // save caller temp
-  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  LLI r5, 1073741836    // load immediate 1073741836
-  PUSH r5    // stage reg arg 0
-  PUSH r3    // stage reg arg 1
-  POP r2    // load reg arg 1
-  POP r1    // load reg arg 0
-  CALL bd_write_u32
-  // call return value in r1
-  POP r1  
-  POP r3    // restore caller temp
-  // emit call to bd_write_u32 with args [{'type': 'const', 'value': 1073741840}, {'type': 'const', 'value': 1}]
-  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  LLI r6, 1073741840    // load immediate 1073741840
+  LLI r6, str_2    // load immediate str_2
   PUSH r6    // stage reg arg 0
-  LLI r7, 1    // load immediate 1
+  LLI r7, 0    // load immediate 0
   PUSH r7    // stage reg arg 1
+  LLI r8, 24    // load immediate 24
+  PUSH r8    // stage reg arg 2
+  LLI r9, 12    // load immediate 12
+  PUSH r9    // stage reg arg 3
+  POP r4    // load reg arg 3
+  POP r3    // load reg arg 2
   POP r2    // load reg arg 1
   POP r1    // load reg arg 0
-  CALL bd_write_u32
+  CALL draw_string_to_display
   // call return value in r1
   POP r1  
-  // emit call to bd_write_u32 with args [{'type': 'const', 'value': 1073741828}, {'type': 'const', 'value': 1}]
+  // emit call to draw_string_to_display with args [{'type': 'string_addr', 'label': 'str_3'}, {'type': 'const', 'value': 0}, {'type': 'const', 'value': 32}, {'type': 'const', 'value': 48}]
   PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  LLI r8, 1073741828    // load immediate 1073741828
-  PUSH r8    // stage reg arg 0
-  LLI r9, 1    // load immediate 1
-  PUSH r9    // stage reg arg 1
-  POP r2    // load reg arg 1
-  POP r1    // load reg arg 0
-  CALL bd_write_u32
-  // call return value in r1
-  POP r1  
-  LLI r10, 0    // load immediate 0
-  ADD r1, r10, r0
-  // inline function return (no RET emitted)
-  // end inline expansion of read_block
-  // emit call to draw_string_to_display with args [{'type': 'var', 'name': 'device_info'}, {'type': 'const', 'value': 0}, {'type': 'const', 'value': 8}, {'type': 'const', 'value': 63}]
-  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  PUSH r3    // stage reg arg 0
+  LLI r10, str_3    // load immediate str_3
+  PUSH r10    // stage reg arg 0
   LLI r11, 0    // load immediate 0
   PUSH r11    // stage reg arg 1
-  LLI r12, 8    // load immediate 8
+  LLI r12, 32    // load immediate 32
   PUSH r12    // stage reg arg 2
-  LLI r2, 63    // load immediate 63
+  LLI r2, 48    // load immediate 48
   PUSH r2    // stage reg arg 3
   POP r4    // load reg arg 3
   POP r3    // load reg arg 2
@@ -4008,81 +3989,16 @@ evaluate_rpn_61_WHILE_END3:
   CALL draw_string_to_display
   // call return value in r1
   POP r1  
-  LLI r4, main_63_file_contents_buf2    // init file_contents (buffer addr)
-  // emit call to read_file with args [{'type': 'string_addr', 'label': 'str_2'}, {'type': 'var', 'name': 'file_contents'}]
-  PUSH r4    // save caller temp
+  // emit call to draw_string_to_display with args [{'type': 'string_addr', 'label': 'str_4'}, {'type': 'const', 'value': 0}, {'type': 'const', 'value': 40}, {'type': 'const', 'value': 7}]
   PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  LLI r5, str_2    // load immediate str_2
-  PUSH r5    // stage reg arg 0
-  PUSH r4    // stage reg arg 1
-  POP r2    // load reg arg 1
-  POP r1    // load reg arg 0
-  CALL read_file
-  // call return value in r1
-  POP r1  
-  POP r4    // restore caller temp
-  // emit call to draw_string_to_display with args [{'type': 'var', 'name': 'file_contents'}, {'type': 'const', 'value': 0}, {'type': 'const', 'value': 16}, {'type': 'const', 'value': 63}]
-  PUSH r4    // save caller temp
-  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  PUSH r4    // stage reg arg 0
-  LLI r3, 0    // load immediate 0
-  PUSH r3    // stage reg arg 1
-  LLI r6, 16    // load immediate 16
-  PUSH r6    // stage reg arg 2
-  LLI r7, 63    // load immediate 63
-  PUSH r7    // stage reg arg 3
-  POP r4    // load reg arg 3
-  POP r3    // load reg arg 2
-  POP r2    // load reg arg 1
-  POP r1    // load reg arg 0
-  CALL draw_string_to_display
-  // call return value in r1
-  POP r1  
-  POP r4    // restore caller temp
-  // emit call to draw_string_to_display with args [{'type': 'string_addr', 'label': 'str_4'}, {'type': 'const', 'value': 0}, {'type': 'const', 'value': 24}, {'type': 'const', 'value': 12}]
-  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  LLI r8, str_4    // load immediate str_4
-  PUSH r8    // stage reg arg 0
-  LLI r9, 0    // load immediate 0
-  PUSH r9    // stage reg arg 1
-  LLI r10, 24    // load immediate 24
-  PUSH r10    // stage reg arg 2
-  LLI r11, 12    // load immediate 12
-  PUSH r11    // stage reg arg 3
-  POP r4    // load reg arg 3
-  POP r3    // load reg arg 2
-  POP r2    // load reg arg 1
-  POP r1    // load reg arg 0
-  CALL draw_string_to_display
-  // call return value in r1
-  POP r1  
-  // emit call to draw_string_to_display with args [{'type': 'string_addr', 'label': 'str_5'}, {'type': 'const', 'value': 0}, {'type': 'const', 'value': 32}, {'type': 'const', 'value': 48}]
-  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  LLI r12, str_5    // load immediate str_5
-  PUSH r12    // stage reg arg 0
-  LLI r2, 0    // load immediate 0
-  PUSH r2    // stage reg arg 1
-  LLI r5, 32    // load immediate 32
-  PUSH r5    // stage reg arg 2
-  LLI r4, 48    // load immediate 48
-  PUSH r4    // stage reg arg 3
-  POP r4    // load reg arg 3
-  POP r3    // load reg arg 2
-  POP r2    // load reg arg 1
-  POP r1    // load reg arg 0
-  CALL draw_string_to_display
-  // call return value in r1
-  POP r1  
-  // emit call to draw_string_to_display with args [{'type': 'string_addr', 'label': 'str_6'}, {'type': 'const', 'value': 0}, {'type': 'const', 'value': 40}, {'type': 'const', 'value': 7}]
-  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  LLI r3, str_6    // load immediate str_6
+  LLI r3, str_4    // load immediate str_4
   PUSH r3    // stage reg arg 0
-  LLI r6, 0    // load immediate 0
-  PUSH r6    // stage reg arg 1
-  LLI r7, 40    // load immediate 40
-  PUSH r7    // stage reg arg 2
-  LLI r8, 7    // load immediate 7
-  PUSH r8    // stage reg arg 3
+  LLI r4, 0    // load immediate 0
+  PUSH r4    // stage reg arg 1
+  LLI r5, 40    // load immediate 40
+  PUSH r5    // stage reg arg 2
+  LLI r6, 7    // load immediate 7
+  PUSH r6    // stage reg arg 3
   POP r4    // load reg arg 3
   POP r3    // load reg arg 2
   POP r2    // load reg arg 1
@@ -4090,16 +4006,16 @@ evaluate_rpn_61_WHILE_END3:
   CALL draw_string_to_display
   // call return value in r1
   POP r1  
-  // emit call to draw_string_to_display with args [{'type': 'string_addr', 'label': 'str_7'}, {'type': 'const', 'value': 0}, {'type': 'const', 'value': 48}, {'type': 'const', 'value': 60}]
+  // emit call to draw_string_to_display with args [{'type': 'string_addr', 'label': 'str_5'}, {'type': 'const', 'value': 0}, {'type': 'const', 'value': 48}, {'type': 'const', 'value': 60}]
   PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  LLI r9, str_7    // load immediate str_7
-  PUSH r9    // stage reg arg 0
-  LLI r10, 0    // load immediate 0
-  PUSH r10    // stage reg arg 1
-  LLI r11, 48    // load immediate 48
-  PUSH r11    // stage reg arg 2
-  LLI r12, 60    // load immediate 60
-  PUSH r12    // stage reg arg 3
+  LLI r7, str_5    // load immediate str_5
+  PUSH r7    // stage reg arg 0
+  LLI r8, 0    // load immediate 0
+  PUSH r8    // stage reg arg 1
+  LLI r9, 48    // load immediate 48
+  PUSH r9    // stage reg arg 2
+  LLI r10, 60    // load immediate 60
+  PUSH r10    // stage reg arg 3
   POP r4    // load reg arg 3
   POP r3    // load reg arg 2
   POP r2    // load reg arg 1
@@ -4107,14 +4023,14 @@ evaluate_rpn_61_WHILE_END3:
   CALL draw_string_to_display
   // call return value in r1
   POP r1  
-  // emit call to draw_string_to_display with args [{'type': 'string_addr', 'label': 'str_8'}, {'type': 'const', 'value': 0}, {'type': 'const', 'value': 56}, {'type': 'const', 'value': 15}]
+  // emit call to draw_string_to_display with args [{'type': 'string_addr', 'label': 'str_6'}, {'type': 'const', 'value': 0}, {'type': 'const', 'value': 56}, {'type': 'const', 'value': 15}]
   PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  LLI r2, str_8    // load immediate str_8
-  PUSH r2    // stage reg arg 0
-  LLI r5, 0    // load immediate 0
-  PUSH r5    // stage reg arg 1
-  LLI r4, 56    // load immediate 56
-  PUSH r4    // stage reg arg 2
+  LLI r11, str_6    // load immediate str_6
+  PUSH r11    // stage reg arg 0
+  LLI r12, 0    // load immediate 0
+  PUSH r12    // stage reg arg 1
+  LLI r2, 56    // load immediate 56
+  PUSH r2    // stage reg arg 2
   LLI r3, 15    // load immediate 15
   PUSH r3    // stage reg arg 3
   POP r4    // load reg arg 3
@@ -4124,16 +4040,16 @@ evaluate_rpn_61_WHILE_END3:
   CALL draw_string_to_display
   // call return value in r1
   POP r1  
-  // emit call to draw_string_to_display with args [{'type': 'string_addr', 'label': 'str_9'}, {'type': 'const', 'value': 0}, {'type': 'const', 'value': 64}, {'type': 'const', 'value': 51}]
+  // emit call to draw_string_to_display with args [{'type': 'string_addr', 'label': 'str_7'}, {'type': 'const', 'value': 0}, {'type': 'const', 'value': 64}, {'type': 'const', 'value': 51}]
   PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  LLI r6, str_9    // load immediate str_9
-  PUSH r6    // stage reg arg 0
-  LLI r7, 0    // load immediate 0
-  PUSH r7    // stage reg arg 1
-  LLI r8, 64    // load immediate 64
-  PUSH r8    // stage reg arg 2
-  LLI r9, 51    // load immediate 51
-  PUSH r9    // stage reg arg 3
+  LLI r4, str_7    // load immediate str_7
+  PUSH r4    // stage reg arg 0
+  LLI r5, 0    // load immediate 0
+  PUSH r5    // stage reg arg 1
+  LLI r6, 64    // load immediate 64
+  PUSH r6    // stage reg arg 2
+  LLI r7, 51    // load immediate 51
+  PUSH r7    // stage reg arg 3
   POP r4    // load reg arg 3
   POP r3    // load reg arg 2
   POP r2    // load reg arg 1
@@ -4141,274 +4057,14 @@ evaluate_rpn_61_WHILE_END3:
   CALL draw_string_to_display
   // call return value in r1
   POP r1  
-  // emit call to draw_string_to_display with args [{'type': 'string_addr', 'label': 'str_10'}, {'type': 'const', 'value': 0}, {'type': 'const', 'value': 72}, {'type': 'const', 'value': 63}]
+  // emit call to draw_string_to_display with args [{'type': 'string_addr', 'label': 'str_8'}, {'type': 'const', 'value': 0}, {'type': 'const', 'value': 72}, {'type': 'const', 'value': 63}]
   PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  LLI r10, str_10    // load immediate str_10
-  PUSH r10    // stage reg arg 0
-  LLI r11, 0    // load immediate 0
-  PUSH r11    // stage reg arg 1
-  LLI r12, 72    // load immediate 72
-  PUSH r12    // stage reg arg 2
-  LLI r2, 63    // load immediate 63
-  PUSH r2    // stage reg arg 3
-  POP r4    // load reg arg 3
-  POP r3    // load reg arg 2
-  POP r2    // load reg arg 1
-  POP r1    // load reg arg 0
-  CALL draw_string_to_display
-  // call return value in r1
-  POP r1  
-  LLI r5, 1024    // init malloc_test_size
-  LLI r4, 0    // zero init malloc_test_ptr
-  // emit call to malloc with args [{'type': 'var', 'name': 'malloc_test_size'}]
-  PUSH r4    // save caller temp
-  PUSH r5    // save caller temp
-  PUSH r5    // stage reg arg 0
-  POP r1    // load reg arg 0
-  CALL malloc
-  // call return value in r1
-  POP r5    // restore caller temp
-  POP r4    // restore caller temp
-  ADDI r4, r1, 0    // move return value
-  LLI r3, 1    // init read_success
-  LLI r6, 0    // load immediate 0
-  BNE r4, r6, main_63_CMP_TRUE5
-  LLI r6, 0    // compare false path
-  JMP main_63_CMP_END6
-main_63_CMP_TRUE5:
-  LLI r6, 1
-main_63_CMP_END6:
-  BEQ r6, r0, main_63_ELSE3
-  LLI r7, 0    // init i
-main_63_WHILE7:
-  BLT r7, r5, main_63_CMP_TRUE9
-  LLI r8, 0    // compare false path
-  JMP main_63_CMP_END10
-main_63_CMP_TRUE9:
-  LLI r8, 1
-main_63_CMP_END10:
-  BEQ r8, r0, main_63_WHILE_END8
-  LLI r9, 256    // load immediate 256
-  REM r9, r7, r9    // binop %
-  ADD r10, r4, r7    // binop +
-  SB r9, r10, 0    // store 
-  ADDI r7, r7, 1    // assign i (addi fast path)
-  JMP main_63_WHILE7
-main_63_WHILE_END8:
-  LLI r11, 0    // init i
-main_63_WHILE11:
-  BLT r11, r5, main_63_CMP_TRUE13
-  LLI r12, 0    // compare false path
-  JMP main_63_CMP_END14
-main_63_CMP_TRUE13:
-  LLI r12, 1
-main_63_CMP_END14:
-  BEQ r12, r0, main_63_WHILE_END12
-  ADD r2, r4, r11    // binop +
-  LB r2, r2, 0    // deref
-  LLI r6, 256    // load immediate 256
-  REM r6, r11, r6    // binop %
-  BNE r2, r6, main_63_CMP_TRUE17
-  LLI r2, 0    // compare false path
-  JMP main_63_CMP_END18
-main_63_CMP_TRUE17:
-  LLI r2, 1
-main_63_CMP_END18:
-  BEQ r2, r0, main_63_ELSE15
-  LLI r8, 0    // load immediate 0
-  ADDI r3, r8, 0    // assign read_success
-  JMP main_63_IF_END16
-main_63_ELSE15:
-main_63_IF_END16:
-  ADDI r11, r11, 1    // assign i (addi fast path)
-  JMP main_63_WHILE11
-main_63_WHILE_END12:
-  BEQ r3, r0, main_63_ELSE19
-  // emit call to draw_string_to_display with args [{'type': 'string_addr', 'label': 'str_11'}, {'type': 'const', 'value': 0}, {'type': 'const', 'value': 96}, {'type': 'const', 'value': 63}]
-  PUSH r3    // save caller temp
-  PUSH r4    // save caller temp
-  PUSH r5    // save caller temp
-  PUSH r7    // save caller temp
-  PUSH r11    // save caller temp
-  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  LLI r10, str_11    // load immediate str_11
-  PUSH r10    // stage reg arg 0
+  LLI r8, str_8    // load immediate str_8
+  PUSH r8    // stage reg arg 0
   LLI r9, 0    // load immediate 0
   PUSH r9    // stage reg arg 1
-  LLI r12, 96    // load immediate 96
-  PUSH r12    // stage reg arg 2
-  LLI r6, 63    // load immediate 63
-  PUSH r6    // stage reg arg 3
-  POP r4    // load reg arg 3
-  POP r3    // load reg arg 2
-  POP r2    // load reg arg 1
-  POP r1    // load reg arg 0
-  CALL draw_string_to_display
-  // call return value in r1
-  POP r1  
-  POP r11    // restore caller temp
-  POP r7    // restore caller temp
-  POP r5    // restore caller temp
-  POP r4    // restore caller temp
-  POP r3    // restore caller temp
-  JMP main_63_IF_END20
-main_63_ELSE19:
-  // emit call to draw_string_to_display with args [{'type': 'string_addr', 'label': 'str_12'}, {'type': 'const', 'value': 0}, {'type': 'const', 'value': 96}, {'type': 'const', 'value': 63}]
-  PUSH r3    // save caller temp
-  PUSH r4    // save caller temp
-  PUSH r5    // save caller temp
-  PUSH r7    // save caller temp
-  PUSH r11    // save caller temp
-  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  LLI r2, str_12    // load immediate str_12
-  PUSH r2    // stage reg arg 0
-  LLI r8, 0    // load immediate 0
-  PUSH r8    // stage reg arg 1
-  LLI r10, 96    // load immediate 96
+  LLI r10, 72    // load immediate 72
   PUSH r10    // stage reg arg 2
-  LLI r9, 63    // load immediate 63
-  PUSH r9    // stage reg arg 3
-  POP r4    // load reg arg 3
-  POP r3    // load reg arg 2
-  POP r2    // load reg arg 1
-  POP r1    // load reg arg 0
-  CALL draw_string_to_display
-  // call return value in r1
-  POP r1  
-  POP r11    // restore caller temp
-  POP r7    // restore caller temp
-  POP r5    // restore caller temp
-  POP r4    // restore caller temp
-  POP r3    // restore caller temp
-main_63_IF_END20:
-  // emit call to free with args [{'type': 'var', 'name': 'malloc_test_ptr'}]
-  PUSH r3    // save caller temp
-  PUSH r4    // save caller temp
-  PUSH r5    // save caller temp
-  PUSH r7    // save caller temp
-  PUSH r11    // save caller temp
-  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  PUSH r4    // stage reg arg 0
-  POP r1    // load reg arg 0
-  CALL free
-  // call return value in r1
-  POP r1  
-  POP r11    // restore caller temp
-  POP r7    // restore caller temp
-  POP r5    // restore caller temp
-  POP r4    // restore caller temp
-  POP r3    // restore caller temp
-  JMP main_63_IF_END4
-main_63_ELSE3:
-main_63_IF_END4:
-  LLI r12, 0    // load immediate 0
-  BEQ r4, r12, main_63_CMP_TRUE23
-  LLI r12, 0    // compare false path
-  JMP main_63_CMP_END24
-main_63_CMP_TRUE23:
-  LLI r12, 1
-main_63_CMP_END24:
-  BEQ r12, r0, main_63_ELSE21
-  // emit call to draw_string_to_display with args [{'type': 'string_addr', 'label': 'str_13'}, {'type': 'const', 'value': 0}, {'type': 'const', 'value': 96}, {'type': 'const', 'value': 63}]
-  PUSH r4    // save caller temp
-  PUSH r7    // save caller temp
-  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  LLI r6, str_13    // load immediate str_13
-  PUSH r6    // stage reg arg 0
-  LLI r2, 0    // load immediate 0
-  PUSH r2    // stage reg arg 1
-  LLI r8, 96    // load immediate 96
-  PUSH r8    // stage reg arg 2
-  LLI r10, 63    // load immediate 63
-  PUSH r10    // stage reg arg 3
-  POP r4    // load reg arg 3
-  POP r3    // load reg arg 2
-  POP r2    // load reg arg 1
-  POP r1    // load reg arg 0
-  CALL draw_string_to_display
-  // call return value in r1
-  POP r1  
-  POP r7    // restore caller temp
-  POP r4    // restore caller temp
-  JMP main_63_IF_END22
-main_63_ELSE21:
-main_63_IF_END22:
-  // emit call to update_buffer with args []
-  PUSH r7    // save caller temp
-  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  CALL update_buffer
-  // call return value in r1
-  POP r1  
-  POP r7    // restore caller temp
-  LLI r9, 0    // zero init int_to_str_test_buffer
-  // emit call to malloc with args [{'type': 'const', 'value': 12}]
-  PUSH r7    // save caller temp
-  PUSH r9    // save caller temp
-  LLI r11, 12    // load immediate 12
-  PUSH r11    // stage reg arg 0
-  POP r1    // load reg arg 0
-  CALL malloc
-  // call return value in r1
-  POP r9    // restore caller temp
-  POP r7    // restore caller temp
-  ADDI r9, r1, 0    // move return value
-  LLI r5, 0    // load immediate 0
-  BNE r9, r5, main_63_CMP_TRUE27
-  LLI r5, 0    // compare false path
-  JMP main_63_CMP_END28
-main_63_CMP_TRUE27:
-  LLI r5, 1
-main_63_CMP_END28:
-  BEQ r5, r0, main_63_ELSE25
-  LLI r3, -123456    // init test_value
-  // emit call to int_to_str_buf with args [{'type': 'var', 'name': 'test_value'}, {'type': 'var', 'name': 'int_to_str_test_buffer'}]
-  PUSH r3    // save caller temp
-  PUSH r7    // save caller temp
-  PUSH r9    // save caller temp
-  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  PUSH r3    // stage reg arg 0
-  PUSH r9    // stage reg arg 1
-  POP r2    // load reg arg 1
-  POP r1    // load reg arg 0
-  CALL int_to_str_buf
-  // call return value in r1
-  POP r1  
-  POP r9    // restore caller temp
-  POP r7    // restore caller temp
-  POP r3    // restore caller temp
-  // emit call to draw_string_to_display with args [{'type': 'string_addr', 'label': 'str_14'}, {'type': 'const', 'value': 0}, {'type': 'const', 'value': 104}, {'type': 'const', 'value': 63}]
-  PUSH r3    // save caller temp
-  PUSH r7    // save caller temp
-  PUSH r9    // save caller temp
-  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  LLI r12, str_14    // load immediate str_14
-  PUSH r12    // stage reg arg 0
-  LLI r6, 0    // load immediate 0
-  PUSH r6    // stage reg arg 1
-  LLI r2, 104    // load immediate 104
-  PUSH r2    // stage reg arg 2
-  LLI r8, 63    // load immediate 63
-  PUSH r8    // stage reg arg 3
-  POP r4    // load reg arg 3
-  POP r3    // load reg arg 2
-  POP r2    // load reg arg 1
-  POP r1    // load reg arg 0
-  CALL draw_string_to_display
-  // call return value in r1
-  POP r1  
-  POP r9    // restore caller temp
-  POP r7    // restore caller temp
-  POP r3    // restore caller temp
-  // emit call to draw_string_to_display with args [{'type': 'var', 'name': 'int_to_str_test_buffer'}, {'type': 'const', 'value': 0}, {'type': 'const', 'value': 112}, {'type': 'const', 'value': 63}]
-  PUSH r3    // save caller temp
-  PUSH r7    // save caller temp
-  PUSH r9    // save caller temp
-  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  PUSH r9    // stage reg arg 0
-  LLI r10, 0    // load immediate 0
-  PUSH r10    // stage reg arg 1
-  LLI r4, 112    // load immediate 112
-  PUSH r4    // stage reg arg 2
   LLI r11, 63    // load immediate 63
   PUSH r11    // stage reg arg 3
   POP r4    // load reg arg 3
@@ -4418,36 +4074,94 @@ main_63_CMP_END28:
   CALL draw_string_to_display
   // call return value in r1
   POP r1  
-  POP r9    // restore caller temp
-  POP r7    // restore caller temp
-  POP r3    // restore caller temp
-  // emit call to free with args [{'type': 'var', 'name': 'int_to_str_test_buffer'}]
-  PUSH r3    // save caller temp
-  PUSH r7    // save caller temp
-  PUSH r9    // save caller temp
+  // epilogue and return
+  ADDI r1, r0, 0  // ensure r1=0
+  POP r14
+  RET
+
+.FUNC fs_test:
+  PUSH r14
+  // emit call to initialize_filesystem with args []
   PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  PUSH r9    // stage reg arg 0
-  POP r1    // load reg arg 0
-  CALL free
+  CALL initialize_filesystem
   // call return value in r1
   POP r1  
-  POP r9    // restore caller temp
-  POP r7    // restore caller temp
-  POP r3    // restore caller temp
-  JMP main_63_IF_END26
-main_63_ELSE25:
-  // emit call to draw_string_to_display with args [{'type': 'string_addr', 'label': 'str_15'}, {'type': 'const', 'value': 0}, {'type': 'const', 'value': 104}, {'type': 'const', 'value': 63}]
-  PUSH r7    // save caller temp
-  PUSH r9    // save caller temp
+  // emit call to write_file with args [{'type': 'string_addr', 'label': 'str_9'}, {'type': 'string_addr', 'label': 'str_10'}]
   PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  LLI r5, str_15    // load immediate str_15
-  PUSH r5    // stage reg arg 0
+  LLI r2, str_9    // load immediate str_9
+  PUSH r2    // stage reg arg 0
+  LLI r3, str_10    // load immediate str_10
+  PUSH r3    // stage reg arg 1
+  POP r2    // load reg arg 1
+  POP r1    // load reg arg 0
+  CALL write_file
+  // call return value in r1
+  POP r1  
+  LLI r4, fs_test_65_device_info_buf1    // init device_info (buffer addr)
+  // inline call to read_block with args [{'type': 'const', 'value': 4294967295}, {'type': 'var', 'name': 'device_info'}]
+  // begin inline expansion of read_block
+  LLI r5, 4294967295    // load immediate 4294967295
+  // emit call to bd_write_u32 with args [{'type': 'const', 'value': 1073741832}, {'type': 'var', 'name': 'blockID'}]
+  PUSH r4    // save caller temp
+  PUSH r5    // save caller temp
+  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
+  LLI r6, 1073741832    // load immediate 1073741832
+  PUSH r6    // stage reg arg 0
+  PUSH r5    // stage reg arg 1
+  POP r2    // load reg arg 1
+  POP r1    // load reg arg 0
+  CALL bd_write_u32
+  // call return value in r1
+  POP r1  
+  POP r5    // restore caller temp
+  POP r4    // restore caller temp
+  // emit call to bd_write_u32 with args [{'type': 'const', 'value': 1073741836}, {'type': 'var', 'name': 'buffer'}]
+  PUSH r4    // save caller temp
+  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
+  LLI r7, 1073741836    // load immediate 1073741836
+  PUSH r7    // stage reg arg 0
+  PUSH r4    // stage reg arg 1
+  POP r2    // load reg arg 1
+  POP r1    // load reg arg 0
+  CALL bd_write_u32
+  // call return value in r1
+  POP r1  
+  POP r4    // restore caller temp
+  // emit call to bd_write_u32 with args [{'type': 'const', 'value': 1073741840}, {'type': 'const', 'value': 1}]
+  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
+  LLI r8, 1073741840    // load immediate 1073741840
+  PUSH r8    // stage reg arg 0
+  LLI r9, 1    // load immediate 1
+  PUSH r9    // stage reg arg 1
+  POP r2    // load reg arg 1
+  POP r1    // load reg arg 0
+  CALL bd_write_u32
+  // call return value in r1
+  POP r1  
+  // emit call to bd_write_u32 with args [{'type': 'const', 'value': 1073741828}, {'type': 'const', 'value': 1}]
+  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
+  LLI r10, 1073741828    // load immediate 1073741828
+  PUSH r10    // stage reg arg 0
+  LLI r11, 1    // load immediate 1
+  PUSH r11    // stage reg arg 1
+  POP r2    // load reg arg 1
+  POP r1    // load reg arg 0
+  CALL bd_write_u32
+  // call return value in r1
+  POP r1  
   LLI r12, 0    // load immediate 0
-  PUSH r12    // stage reg arg 1
-  LLI r6, 104    // load immediate 104
-  PUSH r6    // stage reg arg 2
-  LLI r2, 63    // load immediate 63
-  PUSH r2    // stage reg arg 3
+  ADD r1, r12, r0
+  // inline function return (no RET emitted)
+  // end inline expansion of read_block
+  // emit call to draw_string_to_display with args [{'type': 'var', 'name': 'device_info'}, {'type': 'const', 'value': 0}, {'type': 'const', 'value': 8}, {'type': 'const', 'value': 63}]
+  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
+  PUSH r4    // stage reg arg 0
+  LLI r2, 0    // load immediate 0
+  PUSH r2    // stage reg arg 1
+  LLI r3, 8    // load immediate 8
+  PUSH r3    // stage reg arg 2
+  LLI r6, 63    // load immediate 63
+  PUSH r6    // stage reg arg 3
   POP r4    // load reg arg 3
   POP r3    // load reg arg 2
   POP r2    // load reg arg 1
@@ -4455,10 +4169,675 @@ main_63_ELSE25:
   CALL draw_string_to_display
   // call return value in r1
   POP r1  
-  POP r9    // restore caller temp
-  POP r7    // restore caller temp
-main_63_IF_END26:
-  BREAK
+  LLI r5, fs_test_65_file_contents_buf2    // init file_contents (buffer addr)
+  // emit call to read_file with args [{'type': 'string_addr', 'label': 'str_9'}, {'type': 'var', 'name': 'file_contents'}]
+  PUSH r5    // save caller temp
+  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
+  LLI r7, str_9    // load immediate str_9
+  PUSH r7    // stage reg arg 0
+  PUSH r5    // stage reg arg 1
+  POP r2    // load reg arg 1
+  POP r1    // load reg arg 0
+  CALL read_file
+  // call return value in r1
+  POP r1  
+  POP r5    // restore caller temp
+  // emit call to draw_string_to_display with args [{'type': 'var', 'name': 'file_contents'}, {'type': 'const', 'value': 0}, {'type': 'const', 'value': 16}, {'type': 'const', 'value': 63}]
+  PUSH r5    // save caller temp
+  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
+  PUSH r5    // stage reg arg 0
+  LLI r4, 0    // load immediate 0
+  PUSH r4    // stage reg arg 1
+  LLI r8, 16    // load immediate 16
+  PUSH r8    // stage reg arg 2
+  LLI r9, 63    // load immediate 63
+  PUSH r9    // stage reg arg 3
+  POP r4    // load reg arg 3
+  POP r3    // load reg arg 2
+  POP r2    // load reg arg 1
+  POP r1    // load reg arg 0
+  CALL draw_string_to_display
+  // call return value in r1
+  POP r1  
+  POP r5    // restore caller temp
+
+.FUNC rand_block_display_test:
+  PUSH r14
+  // emit call to draw_string_to_display with args [{'type': 'string_addr', 'label': 'str_11'}, {'type': 'const', 'value': 0}, {'type': 'const', 'value': 80}, {'type': 'const', 'value': 63}]
+  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
+  LLI r2, str_11    // load immediate str_11
+  PUSH r2    // stage reg arg 0
+  LLI r3, 0    // load immediate 0
+  PUSH r3    // stage reg arg 1
+  LLI r4, 80    // load immediate 80
+  PUSH r4    // stage reg arg 2
+  LLI r5, 63    // load immediate 63
+  PUSH r5    // stage reg arg 3
+  POP r4    // load reg arg 3
+  POP r3    // load reg arg 2
+  POP r2    // load reg arg 1
+  POP r1    // load reg arg 0
+  CALL draw_string_to_display
+  // call return value in r1
+  POP r1  
+  // emit call to draw_string_to_display with args [{'type': 'string_addr', 'label': 'str_12'}, {'type': 'const', 'value': 0}, {'type': 'const', 'value': 88}, {'type': 'const', 'value': 63}]
+  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
+  LLI r6, str_12    // load immediate str_12
+  PUSH r6    // stage reg arg 0
+  LLI r7, 0    // load immediate 0
+  PUSH r7    // stage reg arg 1
+  LLI r8, 88    // load immediate 88
+  PUSH r8    // stage reg arg 2
+  LLI r9, 63    // load immediate 63
+  PUSH r9    // stage reg arg 3
+  POP r4    // load reg arg 3
+  POP r3    // load reg arg 2
+  POP r2    // load reg arg 1
+  POP r1    // load reg arg 0
+  CALL draw_string_to_display
+  // call return value in r1
+  POP r1  
+  // emit call to rand_block_test with args []
+  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
+  CALL rand_block_test
+  // call return value in r1
+  POP r1  
+  // emit call to fast_clear_display with args []
+  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
+  CALL fast_clear_display
+  // call return value in r1
+  POP r1  
+  // epilogue and return
+  ADDI r1, r0, 0  // ensure r1=0
+  POP r14
+  RET
+
+.FUNC terminal_test:
+  PUSH r14
+  // emit call to write_to_buffer with args [{'type': 'string_addr', 'label': 'str_13'}, {'type': 'const', 'value': 0}]
+  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
+  LLI r2, str_13    // load immediate str_13
+  PUSH r2    // stage reg arg 0
+  LLI r3, 0    // load immediate 0
+  PUSH r3    // stage reg arg 1
+  POP r2    // load reg arg 1
+  POP r1    // load reg arg 0
+  CALL write_to_buffer
+  // call return value in r1
+  POP r1  
+  // emit call to update_buffer with args []
+  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
+  CALL update_buffer
+  // call return value in r1
+  POP r1  
+  // emit call to write_to_buffer with args [{'type': 'string_addr', 'label': 'str_14'}, {'type': 'const', 'value': 32}]
+  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
+  LLI r4, str_14    // load immediate str_14
+  PUSH r4    // stage reg arg 0
+  LLI r5, 32    // load immediate 32
+  PUSH r5    // stage reg arg 1
+  POP r2    // load reg arg 1
+  POP r1    // load reg arg 0
+  CALL write_to_buffer
+  // call return value in r1
+  POP r1  
+  // emit call to update_buffer with args []
+  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
+  CALL update_buffer
+  // call return value in r1
+  POP r1  
+  // epilogue and return
+  ADDI r1, r0, 0  // ensure r1=0
+  POP r14
+  RET
+
+.FUNC image_display_test:
+  PUSH r14
+  // emit call to write_to_buffer with args [{'type': 'string_addr', 'label': 'str_15'}, {'type': 'const', 'value': 0}]
+  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
+  LLI r2, str_15    // load immediate str_15
+  PUSH r2    // stage reg arg 0
+  LLI r3, 0    // load immediate 0
+  PUSH r3    // stage reg arg 1
+  POP r2    // load reg arg 1
+  POP r1    // load reg arg 0
+  CALL write_to_buffer
+  // call return value in r1
+  POP r1  
+  // emit call to update_buffer with args []
+  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
+  CALL update_buffer
+  // call return value in r1
+  POP r1  
+  // emit call to fast_clear_display with args []
+  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
+  CALL fast_clear_display
+  // call return value in r1
+  POP r1  
+  // emit call to load_and_display_image with args []
+  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
+  CALL load_and_display_image
+  // call return value in r1
+  POP r1  
+  // epilogue and return
+  ADDI r1, r0, 0  // ensure r1=0
+  POP r14
+  RET
+
+.FUNC malloc_test:
+  PUSH r14
+  LLI r2, 1024    // init malloc_test_size
+  LLI r3, 0    // zero init malloc_test_ptr
+  // emit call to malloc with args [{'type': 'var', 'name': 'malloc_test_size'}]
+  PUSH r2    // save caller temp
+  PUSH r3    // save caller temp
+  PUSH r2    // stage reg arg 0
+  POP r1    // load reg arg 0
+  CALL malloc
+  // call return value in r1
+  POP r3    // restore caller temp
+  POP r2    // restore caller temp
+  ADDI r3, r1, 0    // move return value
+  LLI r4, 1    // init read_success
+  LLI r5, 0    // load immediate 0
+  BNE r3, r5, malloc_test_69_CMP_TRUE3
+  LLI r5, 0    // compare false path
+  JMP malloc_test_69_CMP_END4
+malloc_test_69_CMP_TRUE3:
+  LLI r5, 1
+malloc_test_69_CMP_END4:
+  BEQ r5, r0, malloc_test_69_ELSE1
+  LLI r6, 0    // init i
+malloc_test_69_WHILE5:
+  BLT r6, r2, malloc_test_69_CMP_TRUE7
+  LLI r7, 0    // compare false path
+  JMP malloc_test_69_CMP_END8
+malloc_test_69_CMP_TRUE7:
+  LLI r7, 1
+malloc_test_69_CMP_END8:
+  BEQ r7, r0, malloc_test_69_WHILE_END6
+  LLI r8, 256    // load immediate 256
+  REM r8, r6, r8    // binop %
+  ADD r9, r3, r6    // binop +
+  SB r8, r9, 0    // store 
+  ADDI r6, r6, 1    // assign i (addi fast path)
+  JMP malloc_test_69_WHILE5
+malloc_test_69_WHILE_END6:
+  LLI r10, 0    // init i
+malloc_test_69_WHILE9:
+  BLT r10, r2, malloc_test_69_CMP_TRUE11
+  LLI r11, 0    // compare false path
+  JMP malloc_test_69_CMP_END12
+malloc_test_69_CMP_TRUE11:
+  LLI r11, 1
+malloc_test_69_CMP_END12:
+  BEQ r11, r0, malloc_test_69_WHILE_END10
+  ADD r12, r3, r10    // binop +
+  LB r12, r12, 0    // deref
+  LLI r5, 256    // load immediate 256
+  REM r5, r10, r5    // binop %
+  BNE r12, r5, malloc_test_69_CMP_TRUE15
+  LLI r12, 0    // compare false path
+  JMP malloc_test_69_CMP_END16
+malloc_test_69_CMP_TRUE15:
+  LLI r12, 1
+malloc_test_69_CMP_END16:
+  BEQ r12, r0, malloc_test_69_ELSE13
+  LLI r7, 0    // load immediate 0
+  ADDI r4, r7, 0    // assign read_success
+  JMP malloc_test_69_IF_END14
+malloc_test_69_ELSE13:
+malloc_test_69_IF_END14:
+  ADDI r10, r10, 1    // assign i (addi fast path)
+  JMP malloc_test_69_WHILE9
+malloc_test_69_WHILE_END10:
+  BEQ r4, r0, malloc_test_69_ELSE17
+  // emit call to draw_string_to_display with args [{'type': 'string_addr', 'label': 'str_16'}, {'type': 'const', 'value': 0}, {'type': 'const', 'value': 96}, {'type': 'const', 'value': 63}]
+  PUSH r2    // save caller temp
+  PUSH r3    // save caller temp
+  PUSH r4    // save caller temp
+  PUSH r6    // save caller temp
+  PUSH r10    // save caller temp
+  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
+  LLI r9, str_16    // load immediate str_16
+  PUSH r9    // stage reg arg 0
+  LLI r8, 0    // load immediate 0
+  PUSH r8    // stage reg arg 1
+  LLI r11, 96    // load immediate 96
+  PUSH r11    // stage reg arg 2
+  LLI r5, 63    // load immediate 63
+  PUSH r5    // stage reg arg 3
+  POP r4    // load reg arg 3
+  POP r3    // load reg arg 2
+  POP r2    // load reg arg 1
+  POP r1    // load reg arg 0
+  CALL draw_string_to_display
+  // call return value in r1
+  POP r1  
+  POP r10    // restore caller temp
+  POP r6    // restore caller temp
+  POP r4    // restore caller temp
+  POP r3    // restore caller temp
+  POP r2    // restore caller temp
+  JMP malloc_test_69_IF_END18
+malloc_test_69_ELSE17:
+  // emit call to draw_string_to_display with args [{'type': 'string_addr', 'label': 'str_17'}, {'type': 'const', 'value': 0}, {'type': 'const', 'value': 96}, {'type': 'const', 'value': 63}]
+  PUSH r2    // save caller temp
+  PUSH r3    // save caller temp
+  PUSH r4    // save caller temp
+  PUSH r6    // save caller temp
+  PUSH r10    // save caller temp
+  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
+  LLI r12, str_17    // load immediate str_17
+  PUSH r12    // stage reg arg 0
+  LLI r7, 0    // load immediate 0
+  PUSH r7    // stage reg arg 1
+  LLI r9, 96    // load immediate 96
+  PUSH r9    // stage reg arg 2
+  LLI r8, 63    // load immediate 63
+  PUSH r8    // stage reg arg 3
+  POP r4    // load reg arg 3
+  POP r3    // load reg arg 2
+  POP r2    // load reg arg 1
+  POP r1    // load reg arg 0
+  CALL draw_string_to_display
+  // call return value in r1
+  POP r1  
+  POP r10    // restore caller temp
+  POP r6    // restore caller temp
+  POP r4    // restore caller temp
+  POP r3    // restore caller temp
+  POP r2    // restore caller temp
+malloc_test_69_IF_END18:
+  // emit call to free with args [{'type': 'var', 'name': 'malloc_test_ptr'}]
+  PUSH r2    // save caller temp
+  PUSH r3    // save caller temp
+  PUSH r4    // save caller temp
+  PUSH r6    // save caller temp
+  PUSH r10    // save caller temp
+  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
+  PUSH r3    // stage reg arg 0
+  POP r1    // load reg arg 0
+  CALL free
+  // call return value in r1
+  POP r1  
+  POP r10    // restore caller temp
+  POP r6    // restore caller temp
+  POP r4    // restore caller temp
+  POP r3    // restore caller temp
+  POP r2    // restore caller temp
+  JMP malloc_test_69_IF_END2
+malloc_test_69_ELSE1:
+malloc_test_69_IF_END2:
+  LLI r11, 0    // load immediate 0
+  BEQ r3, r11, malloc_test_69_CMP_TRUE21
+  LLI r11, 0    // compare false path
+  JMP malloc_test_69_CMP_END22
+malloc_test_69_CMP_TRUE21:
+  LLI r11, 1
+malloc_test_69_CMP_END22:
+  BEQ r11, r0, malloc_test_69_ELSE19
+  // emit call to draw_string_to_display with args [{'type': 'string_addr', 'label': 'str_18'}, {'type': 'const', 'value': 0}, {'type': 'const', 'value': 96}, {'type': 'const', 'value': 63}]
+  PUSH r3    // save caller temp
+  PUSH r6    // save caller temp
+  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
+  LLI r5, str_18    // load immediate str_18
+  PUSH r5    // stage reg arg 0
+  LLI r12, 0    // load immediate 0
+  PUSH r12    // stage reg arg 1
+  LLI r7, 96    // load immediate 96
+  PUSH r7    // stage reg arg 2
+  LLI r9, 63    // load immediate 63
+  PUSH r9    // stage reg arg 3
+  POP r4    // load reg arg 3
+  POP r3    // load reg arg 2
+  POP r2    // load reg arg 1
+  POP r1    // load reg arg 0
+  CALL draw_string_to_display
+  // call return value in r1
+  POP r1  
+  POP r6    // restore caller temp
+  POP r3    // restore caller temp
+  JMP malloc_test_69_IF_END20
+malloc_test_69_ELSE19:
+malloc_test_69_IF_END20:
+  LLI r8, 0    // zero init int_to_str_test_buffer
+  // emit call to malloc with args [{'type': 'const', 'value': 12}]
+  PUSH r6    // save caller temp
+  PUSH r8    // save caller temp
+  LLI r10, 12    // load immediate 12
+  PUSH r10    // stage reg arg 0
+  POP r1    // load reg arg 0
+  CALL malloc
+  // call return value in r1
+  POP r8    // restore caller temp
+  POP r6    // restore caller temp
+  ADDI r8, r1, 0    // move return value
+  LLI r2, 0    // load immediate 0
+  BNE r8, r2, malloc_test_69_CMP_TRUE25
+  LLI r2, 0    // compare false path
+  JMP malloc_test_69_CMP_END26
+malloc_test_69_CMP_TRUE25:
+  LLI r2, 1
+malloc_test_69_CMP_END26:
+  BEQ r2, r0, malloc_test_69_ELSE23
+  LLI r4, -123456    // init test_value
+  // emit call to int_to_str_buf with args [{'type': 'var', 'name': 'test_value'}, {'type': 'var', 'name': 'int_to_str_test_buffer'}]
+  PUSH r4    // save caller temp
+  PUSH r6    // save caller temp
+  PUSH r8    // save caller temp
+  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
+  PUSH r4    // stage reg arg 0
+  PUSH r8    // stage reg arg 1
+  POP r2    // load reg arg 1
+  POP r1    // load reg arg 0
+  CALL int_to_str_buf
+  // call return value in r1
+  POP r1  
+  POP r8    // restore caller temp
+  POP r6    // restore caller temp
+  POP r4    // restore caller temp
+  // emit call to draw_string_to_display with args [{'type': 'string_addr', 'label': 'str_19'}, {'type': 'const', 'value': 0}, {'type': 'const', 'value': 104}, {'type': 'const', 'value': 63}]
+  PUSH r4    // save caller temp
+  PUSH r6    // save caller temp
+  PUSH r8    // save caller temp
+  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
+  LLI r11, str_19    // load immediate str_19
+  PUSH r11    // stage reg arg 0
+  LLI r5, 0    // load immediate 0
+  PUSH r5    // stage reg arg 1
+  LLI r12, 104    // load immediate 104
+  PUSH r12    // stage reg arg 2
+  LLI r7, 63    // load immediate 63
+  PUSH r7    // stage reg arg 3
+  POP r4    // load reg arg 3
+  POP r3    // load reg arg 2
+  POP r2    // load reg arg 1
+  POP r1    // load reg arg 0
+  CALL draw_string_to_display
+  // call return value in r1
+  POP r1  
+  POP r8    // restore caller temp
+  POP r6    // restore caller temp
+  POP r4    // restore caller temp
+  // emit call to draw_string_to_display with args [{'type': 'var', 'name': 'int_to_str_test_buffer'}, {'type': 'const', 'value': 0}, {'type': 'const', 'value': 112}, {'type': 'const', 'value': 63}]
+  PUSH r4    // save caller temp
+  PUSH r6    // save caller temp
+  PUSH r8    // save caller temp
+  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
+  PUSH r8    // stage reg arg 0
+  LLI r9, 0    // load immediate 0
+  PUSH r9    // stage reg arg 1
+  LLI r3, 112    // load immediate 112
+  PUSH r3    // stage reg arg 2
+  LLI r10, 63    // load immediate 63
+  PUSH r10    // stage reg arg 3
+  POP r4    // load reg arg 3
+  POP r3    // load reg arg 2
+  POP r2    // load reg arg 1
+  POP r1    // load reg arg 0
+  CALL draw_string_to_display
+  // call return value in r1
+  POP r1  
+  POP r8    // restore caller temp
+  POP r6    // restore caller temp
+  POP r4    // restore caller temp
+  // emit call to free with args [{'type': 'var', 'name': 'int_to_str_test_buffer'}]
+  PUSH r4    // save caller temp
+  PUSH r6    // save caller temp
+  PUSH r8    // save caller temp
+  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
+  PUSH r8    // stage reg arg 0
+  POP r1    // load reg arg 0
+  CALL free
+  // call return value in r1
+  POP r1  
+  POP r8    // restore caller temp
+  POP r6    // restore caller temp
+  POP r4    // restore caller temp
+  JMP malloc_test_69_IF_END24
+malloc_test_69_ELSE23:
+  // emit call to draw_string_to_display with args [{'type': 'string_addr', 'label': 'str_20'}, {'type': 'const', 'value': 0}, {'type': 'const', 'value': 104}, {'type': 'const', 'value': 63}]
+  PUSH r6    // save caller temp
+  PUSH r8    // save caller temp
+  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
+  LLI r2, str_20    // load immediate str_20
+  PUSH r2    // stage reg arg 0
+  LLI r11, 0    // load immediate 0
+  PUSH r11    // stage reg arg 1
+  LLI r5, 104    // load immediate 104
+  PUSH r5    // stage reg arg 2
+  LLI r12, 63    // load immediate 63
+  PUSH r12    // stage reg arg 3
+  POP r4    // load reg arg 3
+  POP r3    // load reg arg 2
+  POP r2    // load reg arg 1
+  POP r1    // load reg arg 0
+  CALL draw_string_to_display
+  // call return value in r1
+  POP r1  
+  POP r8    // restore caller temp
+  POP r6    // restore caller temp
+malloc_test_69_IF_END24:
+  // epilogue and return
+  ADDI r1, r0, 0  // ensure r1=0
+  POP r14
+  RET
+
+.FUNC math_test:
+  PUSH r14
+  LLI r2, str_21    // init infix_expr (string addr)
+  LLI r3, 0    // zero init rpn_expr
+  // emit call to infix_to_rpn with args [{'type': 'var', 'name': 'infix_expr'}]
+  PUSH r2    // save caller temp
+  PUSH r3    // save caller temp
+  PUSH r2    // stage reg arg 0
+  POP r1    // load reg arg 0
+  CALL infix_to_rpn
+  // call return value in r1
+  POP r3    // restore caller temp
+  POP r2    // restore caller temp
+  ADDI r3, r1, 0    // move return value
+  // emit call to write_to_buffer with args [{'type': 'string_addr', 'label': 'str_22'}, {'type': 'const', 'value': 0}]
+  PUSH r2    // save caller temp
+  PUSH r3    // save caller temp
+  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
+  LLI r4, str_22    // load immediate str_22
+  PUSH r4    // stage reg arg 0
+  LLI r5, 0    // load immediate 0
+  PUSH r5    // stage reg arg 1
+  POP r2    // load reg arg 1
+  POP r1    // load reg arg 0
+  CALL write_to_buffer
+  // call return value in r1
+  POP r1  
+  POP r3    // restore caller temp
+  POP r2    // restore caller temp
+  // emit call to write_to_buffer with args [{'type': 'var', 'name': 'infix_expr'}, {'type': 'const', 'value': 8}]
+  PUSH r2    // save caller temp
+  PUSH r3    // save caller temp
+  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
+  PUSH r2    // stage reg arg 0
+  LLI r6, 8    // load immediate 8
+  PUSH r6    // stage reg arg 1
+  POP r2    // load reg arg 1
+  POP r1    // load reg arg 0
+  CALL write_to_buffer
+  // call return value in r1
+  POP r1  
+  POP r3    // restore caller temp
+  POP r2    // restore caller temp
+  // emit call to write_to_buffer with args [{'type': 'string_addr', 'label': 'str_23'}, {'type': 'const', 'value': 32}]
+  PUSH r3    // save caller temp
+  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
+  LLI r7, str_23    // load immediate str_23
+  PUSH r7    // stage reg arg 0
+  LLI r8, 32    // load immediate 32
+  PUSH r8    // stage reg arg 1
+  POP r2    // load reg arg 1
+  POP r1    // load reg arg 0
+  CALL write_to_buffer
+  // call return value in r1
+  POP r1  
+  POP r3    // restore caller temp
+  // emit call to write_to_buffer with args [{'type': 'var', 'name': 'rpn_expr'}, {'type': 'const', 'value': 38}]
+  PUSH r3    // save caller temp
+  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
+  PUSH r3    // stage reg arg 0
+  LLI r9, 38    // load immediate 38
+  PUSH r9    // stage reg arg 1
+  POP r2    // load reg arg 1
+  POP r1    // load reg arg 0
+  CALL write_to_buffer
+  // call return value in r1
+  POP r1  
+  POP r3    // restore caller temp
+  // emit call to write_to_buffer with args [{'type': 'string_addr', 'label': 'str_24'}, {'type': 'const', 'value': 64}]
+  PUSH r3    // save caller temp
+  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
+  LLI r10, str_24    // load immediate str_24
+  PUSH r10    // stage reg arg 0
+  LLI r11, 64    // load immediate 64
+  PUSH r11    // stage reg arg 1
+  POP r2    // load reg arg 1
+  POP r1    // load reg arg 0
+  CALL write_to_buffer
+  // call return value in r1
+  POP r1  
+  POP r3    // restore caller temp
+  LLI r12, 0    // zero init result
+  // emit call to evaluate_rpn with args [{'type': 'var', 'name': 'rpn_expr'}]
+  PUSH r3    // save caller temp
+  PUSH r12    // save caller temp
+  PUSH r3    // stage reg arg 0
+  POP r1    // load reg arg 0
+  CALL evaluate_rpn
+  // call return value in r1
+  POP r12    // restore caller temp
+  POP r3    // restore caller temp
+  ADDI r12, r1, 0    // move return value
+  LLI r4, math_test_70_result_str_buf1    // init result_str (buffer addr)
+  // emit call to int_to_str_buf with args [{'type': 'var', 'name': 'result'}, {'type': 'var', 'name': 'result_str'}]
+  PUSH r4    // save caller temp
+  PUSH r12    // save caller temp
+  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
+  PUSH r12    // stage reg arg 0
+  PUSH r4    // stage reg arg 1
+  POP r2    // load reg arg 1
+  POP r1    // load reg arg 0
+  CALL int_to_str_buf
+  // call return value in r1
+  POP r1  
+  POP r12    // restore caller temp
+  POP r4    // restore caller temp
+  // emit call to write_to_buffer with args [{'type': 'var', 'name': 'result_str'}, {'type': 'const', 'value': 72}]
+  PUSH r4    // save caller temp
+  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
+  PUSH r4    // stage reg arg 0
+  LLI r5, 72    // load immediate 72
+  PUSH r5    // stage reg arg 1
+  POP r2    // load reg arg 1
+  POP r1    // load reg arg 0
+  CALL write_to_buffer
+  // call return value in r1
+  POP r1  
+  POP r4    // restore caller temp
+  // emit call to update_buffer with args []
+  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
+  CALL update_buffer
+  // call return value in r1
+  POP r1  
+  // epilogue and return
+  ADDI r1, r0, 0  // ensure r1=0
+  POP r14
+  RET
+
+.FUNC time_test:
+  PUSH r14
+  LLI r2, 0    // zero init time_str
+  // emit call to fmt_unix_time with args [{'type': 'call', 'name': 'get_unix_time', 'args': []}]
+  PUSH r2    // save caller temp
+  // emit call to get_unix_time with args []
+  PUSH r2    // save caller temp
+  PUSH r3    // save caller temp
+  CALL get_unix_time
+  // call return value in r1
+  POP r3    // restore caller temp
+  POP r2    // restore caller temp
+  ADDI r3, r1, 0    // move return value
+  // call expr get_unix_time -> return in r3
+  PUSH r3    // stage reg arg 0
+  POP r1    // load reg arg 0
+  CALL fmt_unix_time
+  // call return value in r1
+  POP r2    // restore caller temp
+  ADDI r2, r1, 0    // move return value
+  // emit call to draw_string_to_display with args [{'type': 'var', 'name': 'time_str'}, {'type': 'const', 'value': 10}, {'type': 'const', 'value': 56}, {'type': 'const', 'value': 63}]
+  PUSH r2    // save caller temp
+  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
+  PUSH r2    // stage reg arg 0
+  LLI r4, 10    // load immediate 10
+  PUSH r4    // stage reg arg 1
+  LLI r5, 56    // load immediate 56
+  PUSH r5    // stage reg arg 2
+  LLI r6, 63    // load immediate 63
+  PUSH r6    // stage reg arg 3
+  POP r4    // load reg arg 3
+  POP r3    // load reg arg 2
+  POP r2    // load reg arg 1
+  POP r1    // load reg arg 0
+  CALL draw_string_to_display
+  // call return value in r1
+  POP r1  
+  POP r2    // restore caller temp
+  // inline call to print_string with args [{'type': 'string_addr', 'label': 'str_25'}]
+  // begin inline expansion of print_string
+  LLI r7, str_25    // load immediate str_25
+  LLI r8, 268435456    // init tty_addr
+time_test_71_WHILE1:
+  LB r9, r7, 0    // deref
+  BEQ r9, r0, time_test_71_WHILE_END2
+  LB r10, r7, 0    // deref
+  SB r10, r8, 0    // intrinsic __sb
+  ADDI r7, r7, 1    // assign str (addi fast path)
+  JMP time_test_71_WHILE1
+time_test_71_WHILE_END2:
+  // end inline expansion of print_string
+  // inline call to print_string with args [{'type': 'var', 'name': 'time_str'}]
+  // begin inline expansion of print_string
+  LLI r11, 268435456    // init tty_addr
+time_test_71_WHILE3:
+  LB r12, r2, 0    // deref
+  BEQ r12, r0, time_test_71_WHILE_END4
+  LB r3, r2, 0    // deref
+  SB r3, r11, 0    // intrinsic __sb
+  ADDI r2, r2, 1    // assign str (addi fast path)
+  JMP time_test_71_WHILE3
+time_test_71_WHILE_END4:
+  // end inline expansion of print_string
+  // emit call to update_buffer with args []
+  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
+  CALL update_buffer
+  // call return value in r1
+  POP r1  
+
+.FUNC main:
+  PUSH r14
+  // emit call to init_heap with args []
+  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
+  CALL init_heap
+  // call return value in r1
+  POP r1  
+  // emit call to malloc_test with args []
+  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
+  CALL malloc_test
+  // call return value in r1
+  POP r1  
+  BREAK  // epilogue and return
+  ADDI r1, r0, 0  // ensure r1=0
+  POP r14
+  RET
+
 
 // Globals
 
@@ -4754,46 +5133,76 @@ str_1:
   .STR "Hello, RospOS!"
 
 str_2:
-  .STR "example.txt\0"
-
-str_3:
-  .STR "Hello, RospOS filesystem!\0"
-
-str_4:
   .STR "Green"
 
-str_5:
+str_3:
   .STR "Red"
 
-str_6:
+str_4:
   .STR "Blue"
 
-str_7:
+str_5:
   .STR "Yellow"
 
-str_8:
+str_6:
   .STR "Cyan"
 
-str_9:
+str_7:
   .STR "Magenta"
 
-str_10:
+str_8:
   .STR "White"
 
+str_9:
+  .STR "example.txt\0"
+
+str_10:
+  .STR "Hello, RospOS filesystem!\0"
+
 str_11:
-  .STR "Malloc test passed!\0"
+  .STR "Loading random blocks to display"
 
 str_12:
-  .STR "Malloc test failed!\0"
+  .STR "using DMA:\0"
 
 str_13:
-  .STR "Malloc test failed: unable to allocate memory!\0"
+  .STR "Hello, RospOS Terminal!\0"
 
 str_14:
-  .STR "Int to str test: \0"
+  .STR "This is a simple terminal implementation.\0"
 
 str_15:
-  .STR "Int to str test failed: unable to allocate buffer!\0"
+  .STR "Fast loading image using DMA:\0"
+
+str_16:
+  .STR "Malloc test passed!\0"
+
+str_17:
+  .STR "Malloc test failed!\0"
+
+str_18:
+  .STR "Malloc test failed: MEM!\0"
+
+str_19:
+  .STR "Int to str test: \0"
+
+str_20:
+  .STR "Int to str test failed: MEM!\0"
+
+str_21:
+  .STR "3+4*2/(1-5)"
+
+str_22:
+  .STR "Infix: \0"
+
+str_23:
+  .STR "RPN: \0"
+
+str_24:
+  .STR "Result: \0"
+
+str_25:
+  .STR "Current time: \n"
 
 draw_line_13_spill23:
   .SPACE 4 // lifted buffer
@@ -4807,61 +5216,64 @@ draw_rectangle_14_spill13:
 palette_test_17_spill13:
   .SPACE 4 // lifted buffer
 
-initialize_filesystem_35_superblock_buf1:
+initialize_filesystem_36_superblock_buf1:
   .SPACE 512 // lifted buffer
 
-ensure_filesystem_initialized_36_superblock_buf1:
+ensure_filesystem_initialized_37_superblock_buf1:
   .SPACE 512 // lifted buffer
 
-write_file_37_scratch_block_buf1:
+write_file_38_scratch_block_buf1:
   .SPACE 512 // lifted buffer
 
-read_file_38_dir_entry_buf1:
+read_file_39_dir_entry_buf1:
   .SPACE 512 // lifted buffer
 
-get_unix_time_48_out_struct1:
+get_unix_time_49_out_struct1:
   .SPACE 28 // lifted buffer
 
-add_fixed_point_52_result_struct1:
+add_fixed_point_53_result_struct1:
   .SPACE 8 // lifted buffer
 
-multiply_fixed_point_53_result_struct1:
+multiply_fixed_point_54_result_struct1:
   .SPACE 8 // lifted buffer
 
-add_fixed_point_with_int_54_result_struct1:
+add_fixed_point_with_int_55_result_struct1:
   .SPACE 8 // lifted buffer
 
-multiply_fixed_point_with_int_55_result_struct1:
+multiply_fixed_point_with_int_56_result_struct1:
   .SPACE 8 // lifted buffer
 
-int_to_fixed_point_56_result_struct1:
+int_to_fixed_point_57_result_struct1:
   .SPACE 8 // lifted buffer
 
-fixed_point_from_parts_57_result_struct1:
+fixed_point_from_parts_58_result_struct1:
   .SPACE 8 // lifted buffer
 
-fixed_point_to_string_58_buffer_buf1:
+fixed_point_to_string_59_buffer_buf1:
   .SPACE 64 // lifted buffer
 
-fixed_point_to_string_58_result_str_buf22:
+fixed_point_to_string_59_result_str_buf22:
   .SPACE 64 // lifted buffer
 
-fixed_point_to_string_58_int_digits_buf29:
+fixed_point_to_string_59_int_digits_buf29:
   .SPACE 20 // lifted buffer
 
-infix_to_rpn_60_output_buf1:
+infix_to_rpn_61_output_buf1:
   .SPACE 512 // lifted buffer
 
-infix_to_rpn_60_stack_buf2:
+infix_to_rpn_61_stack_buf2:
   .SPACE 512 // lifted buffer
 
-evaluate_rpn_61_stack_buf1:
+evaluate_rpn_62_stack_buf1:
   .SPACE 512 // lifted buffer
 
-main_63_device_info_buf1:
+fs_test_65_device_info_buf1:
   .SPACE 512 // lifted buffer
 
-main_63_file_contents_buf2:
+fs_test_65_file_contents_buf2:
   .SPACE 512 // lifted buffer
+
+math_test_70_result_str_buf1:
+  .SPACE 16 // lifted buffer
 
 
