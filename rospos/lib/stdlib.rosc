@@ -123,12 +123,22 @@ struct malloc_header
 {
     int size;
     int free;
+    int exists;
     struct malloc_header *next;
 };
 
 char __heap_area[16384];
-int __heap_used = 0;
+int __heap_used;
 struct malloc_header *malloc_head = 0;
+void init_heap()
+{
+    __heap_used = 0;
+    malloc_head = (struct malloc_header *)__heap_area;
+    malloc_head->size = 0;
+    malloc_head->free = 1;
+    malloc_head->exists = 1;
+    malloc_head->next = 0;
+}
 
 int _align4(int value)
 {
@@ -157,12 +167,20 @@ void *malloc(int size)
 
     int payload = _align4(size);
     struct malloc_header *node = malloc_head;
-    while (node)
+    while (node->exists)
     {
+        /* Look for a free block of sufficient size */
+        /* Note: this is an incredibly basic allocator.
+            We can obviously improve it later with even some really
+            basic optimizations, like if two (or more) subsequent 
+            blocks can be merged.*/
         if (node->free && node->size >= payload)
         {
             node->free = 0;
             return (void *)(node + 1);
+        }
+        if (node->next==0){
+            break;
         }
         node = node->next;
     }
@@ -177,6 +195,7 @@ void *malloc(int size)
     new_node->size = payload;
     new_node->free = 0;
     new_node->next = malloc_head;
+    new_node->exists = 1;
     malloc_head = new_node;
     return (void *)(new_node + 1);
 }
@@ -190,4 +209,5 @@ void free(void *ptr)
 
     struct malloc_header *header = ((struct malloc_header *)ptr) - 1;
     header->free = 1;
+    /* It's free now.*/
 }
