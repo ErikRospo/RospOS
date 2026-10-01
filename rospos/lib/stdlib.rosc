@@ -138,6 +138,7 @@ void init_heap()
     malloc_head->free = 1;
     malloc_head->exists = 1;
     malloc_head->next = 0;
+    malloc(4); /*First allocation fails*/
 }
 
 int _align4(int value)
@@ -209,5 +210,4 @@ void free(void *ptr)
 
     struct malloc_header *header = ((struct malloc_header *)ptr) - 1;
     header->free = 1;
-    /* It's free now.*/
 }

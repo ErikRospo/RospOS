@@ -2597,6 +2597,11 @@ translation_unit
               malloc_head
               ptr_member_access	next
             0
+        expr_stmt
+          postfix
+            malloc
+            call_suffix
+              arg_list	4
   external_decl
     function_def
       type_specifier
@@ -2763,7 +2768,8 @@ translation_unit
             init_declarator
               declarator	total
               additive
-                type_specifier	malloc_header
+                sizeof
+                  type_specifier	malloc_header
                 plus
                 payload
         declaration
@@ -6285,7 +6291,6 @@ translation_unit
                       assignment
                         read_success
                         0
-                    expr_stmt	break
             if_stmt
               read_success
               compound_stmt
@@ -6313,11 +6318,6 @@ translation_unit
                 free
                 call_suffix
                   arg_list	malloc_test_ptr
-        if_stmt
-          equality
-            malloc_test_ptr
-            eq
-            0
           compound_stmt
             expr_stmt
               postfix

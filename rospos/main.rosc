@@ -15,7 +15,7 @@ inline int add(int a, int b)
 void display_test()
 {
     draw_string_to_display("Hello, RospOS!", 0, 0, 0x3F);
-    
+
     draw_string_to_display("Green", 0, 24, 0x0C);
     draw_string_to_display("Red", 0, 32, 0x30);
     draw_string_to_display("Blue", 0, 40, 0x07);
@@ -24,7 +24,8 @@ void display_test()
     draw_string_to_display("Magenta", 0, 64, 0x33);
     draw_string_to_display("White", 0, 72, 0x3F);
 }
-void fs_test(){
+void fs_test()
+{
     initialize_filesystem();
     write_file("example.txt\0", "Hello, RospOS filesystem!\0");
     char device_info[512];
@@ -55,8 +56,9 @@ void image_display_test()
     fast_clear_display();
     load_and_display_image();
 }
-void malloc_test(){
-       int malloc_test_size = 1024; // Size of memory to allocate
+void malloc_test()
+{
+    int malloc_test_size = 1024; // Size of memory to allocate
     char *malloc_test_ptr = (char *)malloc(malloc_test_size);
     int read_success = 1;
     /* Rosc has no null, so we check for 0 instead. */
@@ -73,7 +75,6 @@ void malloc_test(){
             if (malloc_test_ptr[i] != (char)(i % 256))
             {
                 read_success = 0; // Data mismatch
-                break;
             }
         }
         if (read_success)
@@ -87,7 +88,7 @@ void malloc_test(){
         free(malloc_test_ptr); // Free the allocated memory
     }
     /* Rosc has no null, so we check for 0 instead. */
-    if (malloc_test_ptr == 0)
+    else
     {
         draw_string_to_display("Malloc test failed: MEM!\0", 0, 96, 0x3F);
     }
@@ -130,24 +131,22 @@ void time_test()
     print_string(time_str);
     update_buffer();
 }
+
 void main()
 {
     init_heap();
-    
+
     // int r1 = add(15, 25);
     // inline int r2 = 50;
     // int r3 = add(r1, r2);
 
-    
     // display_test();
     // fs_test();
+    // fast_clear_display();
+    malloc_test();
     // rand_block_display_test();
     // terminal_test();
     // image_display_test();
-    // fast_clear_display();
-    malloc_test();
     // math_test();
     // time_test();
- 
-
 }

@@ -6196,6 +6196,48 @@ program
         imm	12
   codeline
     instruction
+      push
+        register	r2
+  codeline
+    instruction
+      push
+        register	r4
+  codeline
+    instruction
+      push
+        register	r1
+  codeline
+    instruction
+      lli
+        register	r5
+        imm	4
+  codeline
+    instruction
+      push
+        register	r5
+  codeline
+    instruction
+      pop
+        register	r1
+  codeline
+    instruction
+      callpseudo
+        imm
+          labeluse	malloc
+  codeline
+    instruction
+      pop
+        register	r1
+  codeline
+    instruction
+      pop
+        register	r4
+  codeline
+    instruction
+      pop
+        register	r2
+  codeline
+    instruction
       iinstructuse
         addi
         register	r1
@@ -6798,7 +6840,7 @@ program
     instruction
       lli
         register	r3
-        imm	0
+        imm	16
   codeline
     instruction
       rinstructuse
@@ -6811,6 +6853,10 @@ program
       lli
         register	r6
         imm	0
+  codeline
+    instruction
+      push
+        register	r3
   codeline
     instruction
       push
@@ -6840,6 +6886,10 @@ program
     instruction
       pop
         register	r4
+  codeline
+    instruction
+      pop
+        register	r3
   codeline
     instruction
       iinstructuse
@@ -21014,51 +21064,17 @@ program
   codeline
     label	malloc_test_69_ELSE1:
   codeline
-    label	malloc_test_69_IF_END2:
-  codeline
     instruction
-      lli
-        register	r11
-        imm	0
-  codeline
-    instruction
-      binstructuse
-        beq
-        register	r3
-        register	r11
-        imm
-          labeluse	malloc_test_69_CMP_TRUE21
-  codeline
-    instruction
-      lli
-        register	r11
-        imm	0
-  codeline
-    instruction
-      jmpseudo
-        imm
-          labeluse	malloc_test_69_CMP_END22
-  codeline
-    label	malloc_test_69_CMP_TRUE21:
-  codeline
-    instruction
-      lli
-        register	r11
-        imm	1
-  codeline
-    label	malloc_test_69_CMP_END22:
-  codeline
-    instruction
-      binstructuse
-        beq
-        register	r11
-        register	r0
-        imm
-          labeluse	malloc_test_69_ELSE19
+      push
+        register	r2
   codeline
     instruction
       push
         register	r3
+  codeline
+    instruction
+      push
+        register	r4
   codeline
     instruction
       push
@@ -21070,18 +21086,27 @@ program
   codeline
     instruction
       lli
-        register	r5
+        register	r11
         imm
           labeluse	str_18
   codeline
     instruction
       push
+        register	r11
+  codeline
+    instruction
+      lli
+        register	r5
+        imm	0
+  codeline
+    instruction
+      push
         register	r5
   codeline
     instruction
       lli
         register	r12
-        imm	0
+        imm	96
   codeline
     instruction
       push
@@ -21090,20 +21115,11 @@ program
     instruction
       lli
         register	r7
-        imm	96
-  codeline
-    instruction
-      push
-        register	r7
-  codeline
-    instruction
-      lli
-        register	r9
         imm	63
   codeline
     instruction
       push
-        register	r9
+        register	r7
   codeline
     instruction
       pop
@@ -21136,20 +21152,21 @@ program
   codeline
     instruction
       pop
+        register	r4
+  codeline
+    instruction
+      pop
         register	r3
   codeline
     instruction
-      jmpseudo
-        imm
-          labeluse	malloc_test_69_IF_END20
+      pop
+        register	r2
   codeline
-    label	malloc_test_69_ELSE19:
-  codeline
-    label	malloc_test_69_IF_END20:
+    label	malloc_test_69_IF_END2:
   codeline
     instruction
       lli
-        register	r8
+        register	r9
         imm	0
   codeline
     instruction
@@ -21158,16 +21175,16 @@ program
   codeline
     instruction
       push
-        register	r8
+        register	r9
   codeline
     instruction
       lli
-        register	r10
+        register	r8
         imm	12
   codeline
     instruction
       push
-        register	r10
+        register	r8
   codeline
     instruction
       pop
@@ -21180,7 +21197,7 @@ program
   codeline
     instruction
       pop
-        register	r8
+        register	r9
   codeline
     instruction
       pop
@@ -21189,58 +21206,54 @@ program
     instruction
       iinstructuse
         addi
-        register	r8
+        register	r9
         register	r1
         imm	0
   codeline
     instruction
       lli
-        register	r2
+        register	r10
         imm	0
   codeline
     instruction
       binstructuse
         bne
-        register	r8
-        register	r2
+        register	r9
+        register	r10
         imm
-          labeluse	malloc_test_69_CMP_TRUE25
+          labeluse	malloc_test_69_CMP_TRUE21
   codeline
     instruction
       lli
-        register	r2
+        register	r10
         imm	0
   codeline
     instruction
       jmpseudo
         imm
-          labeluse	malloc_test_69_CMP_END26
+          labeluse	malloc_test_69_CMP_END22
   codeline
-    label	malloc_test_69_CMP_TRUE25:
+    label	malloc_test_69_CMP_TRUE21:
   codeline
     instruction
       lli
-        register	r2
+        register	r10
         imm	1
   codeline
-    label	malloc_test_69_CMP_END26:
+    label	malloc_test_69_CMP_END22:
   codeline
     instruction
       binstructuse
         beq
-        register	r2
+        register	r10
         register	r0
         imm
-          labeluse	malloc_test_69_ELSE23
+          labeluse	malloc_test_69_ELSE19
   codeline
     instruction
       lli
-        register	r4
+        register	r11
         imm	-123456
-  codeline
-    instruction
-      push
-        register	r4
   codeline
     instruction
       push
@@ -21248,7 +21261,11 @@ program
   codeline
     instruction
       push
-        register	r8
+        register	r9
+  codeline
+    instruction
+      push
+        register	r11
   codeline
     instruction
       push
@@ -21256,11 +21273,11 @@ program
   codeline
     instruction
       push
-        register	r4
+        register	r11
   codeline
     instruction
       push
-        register	r8
+        register	r9
   codeline
     instruction
       pop
@@ -21281,19 +21298,15 @@ program
   codeline
     instruction
       pop
-        register	r8
+        register	r11
+  codeline
+    instruction
+      pop
+        register	r9
   codeline
     instruction
       pop
         register	r6
-  codeline
-    instruction
-      pop
-        register	r4
-  codeline
-    instruction
-      push
-        register	r4
   codeline
     instruction
       push
@@ -21301,7 +21314,11 @@ program
   codeline
     instruction
       push
-        register	r8
+        register	r9
+  codeline
+    instruction
+      push
+        register	r11
   codeline
     instruction
       push
@@ -21309,40 +21326,40 @@ program
   codeline
     instruction
       lli
-        register	r11
+        register	r5
         imm
           labeluse	str_19
   codeline
     instruction
       push
-        register	r11
-  codeline
-    instruction
-      lli
-        register	r5
-        imm	0
-  codeline
-    instruction
-      push
         register	r5
   codeline
     instruction
       lli
         register	r12
+        imm	0
+  codeline
+    instruction
+      push
+        register	r12
+  codeline
+    instruction
+      lli
+        register	r7
         imm	104
   codeline
     instruction
       push
-        register	r12
+        register	r7
   codeline
     instruction
       lli
-        register	r7
+        register	r2
         imm	63
   codeline
     instruction
       push
-        register	r7
+        register	r2
   codeline
     instruction
       pop
@@ -21371,19 +21388,15 @@ program
   codeline
     instruction
       pop
-        register	r8
+        register	r11
+  codeline
+    instruction
+      pop
+        register	r9
   codeline
     instruction
       pop
         register	r6
-  codeline
-    instruction
-      pop
-        register	r4
-  codeline
-    instruction
-      push
-        register	r4
   codeline
     instruction
       push
@@ -21391,7 +21404,11 @@ program
   codeline
     instruction
       push
-        register	r8
+        register	r9
+  codeline
+    instruction
+      push
+        register	r11
   codeline
     instruction
       push
@@ -21399,34 +21416,34 @@ program
   codeline
     instruction
       push
-        register	r8
+        register	r9
   codeline
     instruction
       lli
-        register	r9
+        register	r3
         imm	0
   codeline
     instruction
       push
-        register	r9
+        register	r3
   codeline
     instruction
       lli
-        register	r3
+        register	r4
         imm	112
   codeline
     instruction
       push
-        register	r3
+        register	r4
   codeline
     instruction
       lli
-        register	r10
+        register	r8
         imm	63
   codeline
     instruction
       push
-        register	r10
+        register	r8
   codeline
     instruction
       pop
@@ -21455,19 +21472,15 @@ program
   codeline
     instruction
       pop
-        register	r8
+        register	r11
+  codeline
+    instruction
+      pop
+        register	r9
   codeline
     instruction
       pop
         register	r6
-  codeline
-    instruction
-      pop
-        register	r4
-  codeline
-    instruction
-      push
-        register	r4
   codeline
     instruction
       push
@@ -21475,7 +21488,11 @@ program
   codeline
     instruction
       push
-        register	r8
+        register	r9
+  codeline
+    instruction
+      push
+        register	r11
   codeline
     instruction
       push
@@ -21483,7 +21500,7 @@ program
   codeline
     instruction
       push
-        register	r8
+        register	r9
   codeline
     instruction
       pop
@@ -21500,22 +21517,22 @@ program
   codeline
     instruction
       pop
-        register	r8
+        register	r11
+  codeline
+    instruction
+      pop
+        register	r9
   codeline
     instruction
       pop
         register	r6
-  codeline
-    instruction
-      pop
-        register	r4
   codeline
     instruction
       jmpseudo
         imm
-          labeluse	malloc_test_69_IF_END24
+          labeluse	malloc_test_69_IF_END20
   codeline
-    label	malloc_test_69_ELSE23:
+    label	malloc_test_69_ELSE19:
   codeline
     instruction
       push
@@ -21523,7 +21540,7 @@ program
   codeline
     instruction
       push
-        register	r8
+        register	r9
   codeline
     instruction
       push
@@ -21531,40 +21548,40 @@ program
   codeline
     instruction
       lli
-        register	r2
+        register	r10
         imm
           labeluse	str_20
   codeline
     instruction
       push
-        register	r2
+        register	r10
   codeline
     instruction
       lli
-        register	r11
+        register	r5
         imm	0
   codeline
     instruction
       push
-        register	r11
+        register	r5
   codeline
     instruction
       lli
-        register	r5
+        register	r12
         imm	104
   codeline
     instruction
       push
-        register	r5
+        register	r12
   codeline
     instruction
       lli
-        register	r12
+        register	r7
         imm	63
   codeline
     instruction
       push
-        register	r12
+        register	r7
   codeline
     instruction
       pop
@@ -21593,13 +21610,13 @@ program
   codeline
     instruction
       pop
-        register	r8
+        register	r9
   codeline
     instruction
       pop
         register	r6
   codeline
-    label	malloc_test_69_IF_END24:
+    label	malloc_test_69_IF_END20:
   codeline
     instruction
       iinstructuse
