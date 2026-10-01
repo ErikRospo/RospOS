@@ -337,7 +337,12 @@ class ExpressionTransformer:
                         }
 
             return result
-
+        if node_type == "cast":
+            # We don't really care about the type for now.
+            # We just want to get the expression being casted.
+            children = node.get("children", [])
+            if len(children) >= 2:
+                return self.from_node(children[1])
         for child in node.get("children", []):
             result = self.from_node(child)
             if result is not None:
