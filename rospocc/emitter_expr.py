@@ -1,3 +1,4 @@
+from loguru import logger
 from typing import Any, Dict, Optional
 
 import abi
@@ -326,7 +327,7 @@ def _emit_binop(emitter, expr: Dict[str, Any], out) -> str:
 
 
 def _emit_unop(emitter, expr: Dict[str, Any], out) -> str:
-    print(f"unop expr: {expr!r}")
+    logger.info(f"unop expr: {expr!r}")
     op = expr.get("op")
     if op == "not":
         operand = expr.get("operand")

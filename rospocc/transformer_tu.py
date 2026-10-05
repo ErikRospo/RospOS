@@ -1,3 +1,4 @@
+from loguru import logger
 from pathlib import Path
 
 from transformer_context import TranslationUnitContext
@@ -56,7 +57,7 @@ class TranslationUnitTransformer:
             if isinstance(child, dict) and child.get("token") == "inline":
                 is_inline = True
             if isinstance(child, dict) and child.get("node") == "type_specifier":
-                print("type_specifier children:", child.get("children", []))
+                logger.debug("type_specifier children: {}", child.get("children", []))
                 for type_child in child.get("children", []):
                     if isinstance(type_child, dict) and "node" in type_child:
                         return_type = node_name(type_child["node"])
@@ -217,7 +218,7 @@ class TranslationUnitTransformer:
                     and isinstance(primary.get("token"), str)
                     and primary["token"] in ("__embed", "__blob")
                 ):
-                    print(
+                    logger.info(
                         f"Found potential embed call: {primary['token']} at line {node.get('_line')}"
                     )
                     for suffix in children[1:]:
@@ -415,7 +416,7 @@ class TranslationUnitTransformer:
 
             embed_path = self._extract_embed_path(init_node)
             if embed_path is not None:
-                print(f"Embedding blob for global '{name}' from path: {embed_path}")
+                logger.info(f"Embedding blob for global '{name}' from path: {embed_path}")
                 path_obj = Path(embed_path)
                 if not path_obj.is_absolute():
                     path_obj = self.ctx.source_dir / path_obj

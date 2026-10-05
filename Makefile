@@ -1,4 +1,4 @@
-PY ?= rospoas/venv/bin/python
+PY ?= .venv/bin/python
 CMAKE ?= cmake
 PANDOC ?= pandoc
 HEXDUMP ?= hexdump -C
@@ -29,16 +29,16 @@ HTMLDOCS := $(addprefix $(DIR_DOCS_BUILD),$(DOCS:.md=.html))
 PDFDOCS := $(addprefix $(DIR_DOCS_BUILD),$(DOCS:.md=.pdf))
 
 ROSPOAS_COMMON_ARGS := --optimize --bin-version 2 --rospocc-mapping --segment-debug
-ROSPOAS_VERBOSE_ARG := $(if $(VERBOSE),--verbose,)
+ROSPO_VERBOSE_ARG := $(if $(filter 3 -vvv,$(VERBOSE)),-vvv,$(if $(filter 2 -vv,$(VERBOSE)),-vv,$(if $(VERBOSE),-v,)))
 
-ROSPOAS_DEP := $(sort $(shell find rospoas -maxdepth 1 -type f))
-ROSPCC_DEP := $(sort $(shell find rospocc -maxdepth 1 -type f))
+ROSPOAS_DEP := $(sort $(shell find rospoas -maxdepth 1 -type f) rospolog.py requirements.txt)
+ROSPCC_DEP := $(sort $(shell find rospocc -maxdepth 1 -type f) rospolog.py requirements.txt)
 ROSPOS_DEP := $(sort $(shell find rospos -type f -not -path "rospos/build/*"))
 ROSPOVM_SRC := $(sort $(shell find rospovm -type f -not -path "rospovm/build/*"))
 
 .DEFAULT_GOAL := build
 
-.PHONY: all help bm parse compile dump build clean doc format frontend \
+.PHONY: all help venv bm parse compile dump build clean doc format frontend \
 		frontend_cmake frontend_wasm frontend_wasm_light frontend_wasm_dark \
 		frontend_wasm_both run vm_headless run_headless test report \
 		benchmark benchmark_plot everything frontend_minimal run_minimal \
@@ -46,8 +46,13 @@ ROSPOVM_SRC := $(sort $(shell find rospovm -type f -not -path "rospovm/build/*")
 
 all: build
 
+venv:
+	python3 -m venv .venv
+	.venv/bin/python -m pip install -r requirements.txt
+
 help:
 	@echo "Common targets:"
+	@echo "  venv             Create the root .venv and install Python dependencies"
 	@echo "  bm               Generate font bitmap binary"
 	@echo "  parse            Compile .rosc to .ros"
 	@echo "  compile          Assemble all .rosp output variants"
@@ -75,11 +80,11 @@ rospos/font_bitmap.bin: $(FONT_GEN) $(FONT_SRC)
 	$(PY) $(FONT_GEN) --output $@ --input $(FONT_SRC) 1>&2
 
 $(ROS_ASM): $(ROS_SOURCE) $(ROSPCC_DEP) $(ROSPOS_DEP) | $(DIR_ROSPOS_BUILD)
-	$(PY) $(ROSPCC_PARSER) --input $< --output $@ 1>&2
+	$(PY) $(ROSPCC_PARSER) $(ROSPO_VERBOSE_ARG) --input $< --output $@
 
 define make_rosp_variant
 $1: $(ROS_ASM) $(ROSPOAS_DEP) | $(DIR_ROSPOS_BUILD)
-	$(PY) $(ROSPOAS_COMPILE) $(ROSPOAS_COMMON_ARGS) $(ROSPOAS_VERBOSE_ARG) $2 --input $$< --output $$@ 1>&2
+	$(PY) $(ROSPOAS_COMPILE) $(ROSPOAS_COMMON_ARGS) $(ROSPO_VERBOSE_ARG) $2 --input $$< --output $$@
 endef
 
 $(eval $(call make_rosp_variant,$(ROSP_FULL),--debug-all))
