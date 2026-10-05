@@ -10,12 +10,15 @@ def _emit_immediate_loading_for_value(value, rd):
     high = (value >> 16) & 0xFFFF
     low = value & 0xFFFF
     if high != 0:
-        instrs.append({"type": "i", "name": "addi", "rd": rd, "rs1": 0, "imm": high})
+        instrs.append({"type": "i", "name": "ori", "rd": rd, "rs1": 0, "imm": high})
         instrs.append({"type": "i", "name": "shli", "rd": rd, "rs1": rd, "imm": 16})
         if low != 0:
             instrs.append({"type": "i", "name": "ori", "rd": rd, "rs1": rd, "imm": low})
-    else:
+    elif low <= 0x7FFF:
         instrs.append({"type": "i", "name": "addi", "rd": rd, "rs1": 0, "imm": low})
+    else:
+        # ADDI sign-extends its immediate, while ORI zero-extends it.
+        instrs.append({"type": "i", "name": "ori", "rd": rd, "rs1": 0, "imm": low})
     return instrs
 
 

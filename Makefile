@@ -42,7 +42,7 @@ ROSPOVM_SRC := $(sort $(shell find rospovm -type f -not -path "rospovm/build/*")
 		frontend_cmake frontend_wasm frontend_wasm_light frontend_wasm_dark \
 		frontend_wasm_both run vm_headless run_headless test report \
 		benchmark benchmark_plot everything frontend_minimal run_minimal \
-		min_run
+		min_run vm_fuzz_harness
 
 all: build
 
@@ -155,7 +155,11 @@ benchmark:
 benchmark_plot:
 	$(PY) tools/benchmarking/plot_benchmarks.py
 
-test:
+vm_fuzz_harness: $(DIR_ROSPOVM_BUILD)/Makefile
+	$(CMAKE) --build $(DIR_ROSPOVM_BUILD) --target rospovm_fuzz_harness -j $(NPROC)
+
+test: vm_fuzz_harness
+	ROSPOS_VM_FUZZ_HARNESS=$(DIR_ROSPOVM_BUILD)/rospovm_fuzz_harness \
 	$(PY) -m unittest discover -s tests -p "test_*.py" -v
 
 dump: $(ROSP_FULL)

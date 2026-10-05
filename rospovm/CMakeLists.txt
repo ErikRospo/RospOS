@@ -91,6 +91,9 @@ target_compile_definitions(rosposvm_lib_release PRIVATE
 )
 
 if(NOT EMSCRIPTEN)
+    add_executable(rospovm_fuzz_harness tests/fuzz_harness.cpp)
+    target_link_libraries(rospovm_fuzz_harness PRIVATE rosposvm_lib_release Qt6::Core)
+
     # Qt GUI Application
     add_executable(rospovm_qt
         frontend/qt/full/main_qt.cpp
