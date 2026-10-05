@@ -82,3 +82,23 @@ class CompilerFuzzTests(unittest.TestCase):
             expression = f"({expression} + 1)"
         actual = _run_compiled_source(f"int main() {{ return {expression}; }}")
         self.assertEqual(actual, (value + depth) & 0xFFFFFFFF)
+
+
+class CompilerCorrectnessTests(unittest.TestCase):
+    def test_arithmetic_and_return_value(self):
+        actual = _run_compiled_source("int main() { return (6 * 7) - 1; }")
+        self.assertEqual(actual, 41)
+
+    def test_function_call_returns_expected_value(self):
+        source = "int add(int a, int b) { return a + b; } int main() { return add(19, 23); }"
+        actual = _run_compiled_source(source)
+        self.assertEqual(actual, 42)
+
+    def test_if_else_and_loop_result(self):
+        source = (
+            "int main() { int sum = 0; int i = 0; "
+            "while (i < 6) { if (i < 3) { sum = sum + i; } "
+            "else { sum = sum + 2; } i = i + 1; } return sum; }"
+        )
+        # 0 + 1 + 2 + 2 + 2 + 2
+        self.assertEqual(_run_compiled_source(source), 9)

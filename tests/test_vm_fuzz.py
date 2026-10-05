@@ -43,7 +43,8 @@ class VmFuzzTests(unittest.TestCase):
         )
         self.assertEqual(result.returncode, 0, result.stderr.decode(errors="replace"))
         signed_immediate = immediate if immediate <= 0x7FFF else immediate - 0x10000
-        self.assertEqual(int(result.stdout.decode().strip().split()[-1]), signed_immediate & 0xFFFFFFFF)
+        fields = result.stdout.decode().strip().split()
+        self.assertIn(f"r1={signed_immediate & 0xFFFFFFFF}", fields)
 
     @settings()
     @given(data=st.one_of(st.binary(max_size=128), _binary_loader_cases()))
@@ -67,7 +68,8 @@ class VmFuzzTests(unittest.TestCase):
             timeout=5, check=False,
         )
         self.assertEqual(result.returncode, 0, result.stderr.decode(errors="replace"))
-        self.assertTrue(result.stdout.startswith((b"ok ", b"rejected ")))
+        last_line = result.stdout.strip().splitlines()[-1]
+        self.assertTrue(last_line.startswith((b"ok ", b"rejected ")))
 
 
 if __name__ == "__main__":

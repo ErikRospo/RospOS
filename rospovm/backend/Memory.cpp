@@ -265,20 +265,27 @@ void Memory::writeByte(uint32_t address, uint8_t value)
 
 uint16_t Memory::readHalf(uint32_t address) const
 {
+    if (address == UINT32_MAX) {
+        throw std::out_of_range("Memory half-word read out of bounds.");
+    }
     return static_cast<uint16_t>(readByte(address) << 8 | (readByte(address + 1)));
 }
 void Memory::writeHalf(uint32_t address, uint16_t value)
 {
+    if (address == UINT32_MAX) {
+        throw std::out_of_range("Memory half-word write out of bounds.");
+    }
     writeByte(address, static_cast<uint8_t>((value >> 8) & 0xFF));
     writeByte(address + 1, static_cast<uint8_t>(value & 0xFF));
 }
 uint32_t Memory::readWord(uint32_t address) const
 {
-    if (address <= (UINT32_MAX - 3)) {
-        const uint32_t endAddress = address + 3;
-        if (!findOverlappingSpecialRange(address, endAddress)) {
-            return readWordDirectRam(address);
-        }
+    if (address > UINT32_MAX - 3) {
+        throw std::out_of_range("Memory word read out of bounds.");
+    }
+    const uint32_t endAddress = address + 3;
+    if (!findOverlappingSpecialRange(address, endAddress)) {
+        return readWordDirectRam(address);
     }
 
     return static_cast<uint32_t>(
@@ -289,12 +296,13 @@ uint32_t Memory::readWord(uint32_t address) const
 }
 void Memory::writeWord(uint32_t address, uint32_t value)
 {
-    if (address <= (UINT32_MAX - 3)) {
-        const uint32_t endAddress = address + 3;
-        if (!findOverlappingSpecialRange(address, endAddress)) {
-            writeWordDirectRam(address, value);
-            return;
-        }
+    if (address > UINT32_MAX - 3) {
+        throw std::out_of_range("Memory word write out of bounds.");
+    }
+    const uint32_t endAddress = address + 3;
+    if (!findOverlappingSpecialRange(address, endAddress)) {
+        writeWordDirectRam(address, value);
+        return;
     }
 
     writeByte(address, static_cast<uint8_t>((value >> 24) & 0xFF));

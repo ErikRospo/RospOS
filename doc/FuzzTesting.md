@@ -2,7 +2,11 @@
 
 `make test` runs bounded Hypothesis tests for RospoAS, RospoCC, and the VM. The
 normal profile uses 40 examples per generated test and a deterministic example
-order. Failures include a reproducible Hypothesis example in the test output.
+order. It also runs deterministic assembler checks for exact instruction words
+and executable output, compiler checks for arithmetic, calls, and control flow,
+and VM checks for arithmetic, branches, load/store sign extension, and memory
+address boundaries. Failures include a reproducible Hypothesis example in the
+test output.
 
 For a longer local campaign, run:
 

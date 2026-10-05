@@ -1,3 +1,5 @@
+import os
+import subprocess
 import sys
 import unittest
 from pathlib import Path
@@ -71,3 +73,54 @@ class AssemblerFuzzTests(unittest.TestCase):
             parse_source(bad)
         except (UnexpectedInput, AssemblerError):
             pass
+
+
+class AssemblerCorrectnessTests(unittest.TestCase):
+    def test_instruction_families_have_expected_words(self):
+        source = (
+            ".SEG 0x1000\n"
+            "ADD r1, r2, r3\n"
+            "ADDI r4, r5, -2\n"
+            "LW r6, r7, 4\n"
+            "BEQ r1, r2, target\n"
+            "ADDI r0, r0, 0\n"
+            "target:\n"
+            "BREAK\n"
+        )
+        segments = _assemble(source)
+        self.assertEqual(len(segments), 1)
+        words = [
+            int.from_bytes(segments[0][1][offset : offset + 4], "big")
+            for offset in range(0, len(segments[0][1]), 4)
+        ]
+        self.assertEqual(
+            words,
+            [
+                (1 << 20) | (2 << 16) | (3 << 12),
+                (1 << 28) | (4 << 20) | (5 << 16) | 0xFFFE,
+                (2 << 28) | (4 << 24) | (6 << 20) | (7 << 16) | 4,
+                (3 << 28) | (1 << 20) | (2 << 16) | 2,
+                (1 << 28),
+                (5 << 28) | (1 << 24),
+            ],
+        )
+
+    def test_assembled_arithmetic_program_executes_to_expected_registers(self):
+        harness = os.environ.get("ROSPOS_VM_FUZZ_HARNESS")
+        if not harness:
+            self.skipTest("run through make test to build the VM harness")
+        segments = _assemble(
+            ".SEG 0x1000\n"
+            "ADDI r1, r0, 19\n"
+            "ADDI r2, r0, 23\n"
+            "ADD r3, r1, r2\n"
+            "BREAK\n"
+        )
+        self.assertEqual(len(segments), 1)
+        self.assertEqual(segments[0][0], 0x1000)
+        result = subprocess.run(
+            [harness], input=bytes(segments[0][1]), stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE, timeout=5, check=False,
+        )
+        self.assertEqual(result.returncode, 0, result.stderr.decode(errors="replace"))
+        self.assertIn(b"r3=42", result.stdout)

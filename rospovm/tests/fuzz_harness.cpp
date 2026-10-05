@@ -1,5 +1,6 @@
 #include "RospOSVM.h"
 #include "Binary.h"
+#include "Logger.h"
 
 #include <cstdint>
 #include <iostream>
@@ -23,6 +24,7 @@ static uint32_t readU32(std::istream &input)
 
 int main(int argc, char **argv)
 {
+    Logger::instance().setLogLevel(Logger::ERROR);
     if (argc == 3 && std::string(argv[1]) == "--binary-file") {
         try {
             Binary binary;
@@ -68,7 +70,11 @@ int main(int argc, char **argv)
         if (vm.getRegister(0) != 0) {
             return 3;
         }
-        std::cout << "ok " << vm.getProgramCounter() << " " << vm.getRegister(1) << '\n';
+        std::cout << "ok " << vm.getProgramCounter();
+        for (int index = 0; index < 16; ++index) {
+            std::cout << " r" << index << "=" << vm.getRegister(index);
+        }
+        std::cout << '\n';
     } catch (const std::exception &error) {
         // Invalid memory accesses and arithmetic traps are valid fuzz outcomes.
         std::cout << "rejected " << error.what() << '\n';
