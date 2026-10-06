@@ -20,6 +20,7 @@ void RegisterView::setVMController(VMController *controller)
 {
     vmController = controller;
     populateRegisters();
+    initExprtk();
 }
 
 void RegisterView::createUI()
@@ -134,10 +135,10 @@ void RegisterView::updateBkptCtx()
 {
     for (int i = 0; i < 16; ++i)
     {
-        breakpointCtx.regs[i] = (float)vmController->getRegister(i);
+        breakpointCtx.regs[i] = (double)vmController->getRegister(i);
     }
 
-    breakpointCtx.pc = (float)vmController->getProgramCounter();
+    breakpointCtx.pc = (double)vmController->getProgramCounter();
 }
 void RegisterView::checkBreakpoint()
 {
@@ -147,7 +148,7 @@ void RegisterView::checkBreakpoint()
     }
     updateBkptCtx();
 
-    if (expression.value() > 0)
+    if (expression.value() > 0 && vmController->isRunning())
     {
         vmController->pause();
     }
