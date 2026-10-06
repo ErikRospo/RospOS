@@ -1,4 +1,5 @@
 from loguru import logger
+
 """Encoding stage: resolve immediates, validate ranges, and write final bytes."""
 
 from typing import Dict, List, Tuple
@@ -80,7 +81,9 @@ def encode_ir(
     for idx in range(len(ir_list)):
         node = ir_list[idx]
         if verbose >= 2:
-            logger.trace("IR #{} at address 0x{:08X}: {}", idx, current_address, fmt_node(node))
+            logger.trace(
+                "IR #{} at address 0x{:08X}: {}", idx, current_address, fmt_node(node)
+            )
         if verbose >= 3:
             logger.trace("IR #{} full node: {!r}", idx, node)
         if isinstance(node, Directive) and node.name == "seg":

@@ -5,9 +5,9 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from hypothesis import given, settings, strategies as st
 import fuzz_settings  # noqa: F401
-
+from hypothesis import given, settings
+from hypothesis import strategies as st
 
 HARNESS = os.environ.get("ROSPOS_VM_FUZZ_HARNESS")
 
@@ -38,8 +38,12 @@ class VmFuzzTests(unittest.TestCase):
         instruction = (0x1 << 28) | (1 << 20) | (immediate & 0xFFFF)
         program = struct.pack(">II", instruction, 0x51000000)
         result = subprocess.run(
-            [HARNESS], input=program, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-            timeout=5, check=False,
+            [HARNESS],
+            input=program,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            timeout=5,
+            check=False,
         )
         self.assertEqual(result.returncode, 0, result.stderr.decode(errors="replace"))
         signed_immediate = immediate if immediate <= 0x7FFF else immediate - 0x10000
@@ -53,19 +57,30 @@ class VmFuzzTests(unittest.TestCase):
             path = Path(tmp) / "fuzz.rosp"
             path.write_bytes(data)
             result = subprocess.run(
-                [HARNESS, "--binary-file", str(path)], stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE, timeout=5, check=False,
+                [HARNESS, "--binary-file", str(path)],
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                timeout=5,
+                check=False,
             )
         self.assertEqual(result.returncode, 0)
         self.assertTrue(b"accepted" in result.stdout or b"rejected " in result.stdout)
 
     @settings()
-    @given(words=st.lists(st.integers(min_value=0, max_value=0xFFFFFFFF), min_size=1, max_size=16))
+    @given(
+        words=st.lists(
+            st.integers(min_value=0, max_value=0xFFFFFFFF), min_size=1, max_size=16
+        )
+    )
     def test_bounded_instruction_sequences(self, words):
         program = b"".join(struct.pack(">I", word) for word in words)
         result = subprocess.run(
-            [HARNESS], input=program, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-            timeout=5, check=False,
+            [HARNESS],
+            input=program,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            timeout=5,
+            check=False,
         )
         self.assertEqual(result.returncode, 0, result.stderr.decode(errors="replace"))
         last_line = result.stdout.strip().splitlines()[-1]

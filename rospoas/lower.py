@@ -59,7 +59,13 @@ def _emit_immediate_loading_for_value(
             Instruction(
                 # ORI zero-extends this half; ADDI would sign-extend values
                 # whose high half has bit 15 set.
-                type="i", name="ori", rd=rd, rs1=0, imm=ImmValue(high), src=src, **f
+                type="i",
+                name="ori",
+                rd=rd,
+                rs1=0,
+                imm=ImmValue(high),
+                src=src,
+                **f,
             )
         )
         instrs.append(

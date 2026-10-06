@@ -1,11 +1,10 @@
 import argparse
 import sys
 from pathlib import Path
+
 from loguru import logger
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
-from rospolog import configure_logging
-
 from compilation_pipeline import (
     CompilationOptions,
     CompilationPipeline,
@@ -13,6 +12,8 @@ from compilation_pipeline import (
     select_frontend,
 )
 from compile_debug import register_debug_handlers
+
+from rospolog import configure_logging
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -30,7 +31,10 @@ def build_parser() -> argparse.ArgumentParser:
         help="Output binary file. If not provided, will use the input filename with .rosp extension.",
     )
     parser.add_argument(
-        "-v", "--verbose", action="count", default=0,
+        "-v",
+        "--verbose",
+        action="count",
+        default=0,
         help="Show warning references (-v), source context (-vv), and full details (-vvv).",
     )
     parser.add_argument(
@@ -178,19 +182,27 @@ def main() -> int:
             "Outputting V1 binaries is deprecated and may not be supported in future versions of RospoAS. Consider using the default V2 format instead."
         )
         if options.compress_bin:
-            logger.bind(diagnostic=f"input: {options.input_path}; option: --compress-bin").warning(
+            logger.bind(
+                diagnostic=f"input: {options.input_path}; option: --compress-bin"
+            ).warning(
                 "--compress-bin is only supported for binary version 2. This will be ignored."
             )
         if options.rospocc_mapping:
-            logger.bind(diagnostic=f"input: {options.input_path}; binary version: 1").warning(
+            logger.bind(
+                diagnostic=f"input: {options.input_path}; binary version: 1"
+            ).warning(
                 "RospoCC mapping is not supported for V1 binaries. This will be ignored."
             )
         if options.segment_debug:
-            logger.bind(diagnostic=f"input: {options.input_path}; option: --segment-debug").warning(
+            logger.bind(
+                diagnostic=f"input: {options.input_path}; option: --segment-debug"
+            ).warning(
                 "--segment-debug is only supported for binary version 2. This will be ignored."
             )
             if options.compress_debug:
-                logger.bind(diagnostic=f"input: {options.input_path}; option: --compress-debug").warning(
+                logger.bind(
+                    diagnostic=f"input: {options.input_path}; option: --compress-debug"
+                ).warning(
                     "--compress-debug is only supported for binary version 2. This will be ignored."
                 )
     frontends = build_frontend_registry()

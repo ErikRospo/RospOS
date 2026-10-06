@@ -3,16 +3,17 @@ import json
 import re
 import sys
 from pathlib import Path
+
 from loguru import logger
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
-from rospolog import configure_logging
-
 import emitter
 from debug_emitter import RoscDebugEmitter
 from lark import Lark
 from preprocess import preprocess
 from transformer import transform_to_translation_unit
+
+from rospolog import configure_logging
 
 # Resolve all filesystem paths relative to this file
 HERE = Path(__file__).resolve().parent
@@ -75,7 +76,9 @@ def compile_source(code, output_path, source_file="<memory>", verbosity=0):
 
 
 def build_parser():
-    argp = argparse.ArgumentParser(description="Parse a .rosc file and emit .ros output")
+    argp = argparse.ArgumentParser(
+        description="Parse a .rosc file and emit .ros output"
+    )
     argp.add_argument("--input", type=str, required=True, help="Input .rosc file")
     argp.add_argument(
         "-v",
@@ -97,10 +100,16 @@ def build_parser():
         help="Override Loguru's expanded exception backtraces (default: enabled with -vv).",
     )
     argp.add_argument("--output", type=str, help="Output .ros file")
-    argp.add_argument("--fast", action="store_true", help="Skip optional parse artifacts and debug sidecar")
+    argp.add_argument(
+        "--fast",
+        action="store_true",
+        help="Skip optional parse artifacts and debug sidecar",
+    )
     argp.add_argument("--no-ast-dump", action="store_true", help="Do not write ast.txt")
     argp.add_argument("--no-tu-dump", action="store_true", help="Do not write tu.json")
-    argp.add_argument("--no-debug-sidecar", action="store_true", help="Do not write .rosc.debug")
+    argp.add_argument(
+        "--no-debug-sidecar", action="store_true", help="Do not write .rosc.debug"
+    )
     return argp
 
 

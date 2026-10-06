@@ -1,6 +1,6 @@
-from loguru import logger
 import re
 
+from loguru import logger
 from transformer_utils import decode_string_token
 
 

@@ -1,6 +1,6 @@
-from loguru import logger
 from pathlib import Path
 
+from loguru import logger
 from transformer_context import TranslationUnitContext
 from transformer_expr import ExpressionTransformer
 from transformer_stmt import StatementTransformer
@@ -416,7 +416,9 @@ class TranslationUnitTransformer:
 
             embed_path = self._extract_embed_path(init_node)
             if embed_path is not None:
-                logger.info(f"Embedding blob for global '{name}' from path: {embed_path}")
+                logger.info(
+                    f"Embedding blob for global '{name}' from path: {embed_path}"
+                )
                 path_obj = Path(embed_path)
                 if not path_obj.is_absolute():
                     path_obj = self.ctx.source_dir / path_obj

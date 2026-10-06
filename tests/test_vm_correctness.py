@@ -3,9 +3,8 @@ import struct
 import subprocess
 import unittest
 
-from hypothesis import settings
 import fuzz_settings  # noqa: F401
-
+from hypothesis import settings
 
 HARNESS = os.environ.get("ROSPOS_VM_FUZZ_HARNESS")
 BREAK = 0x51000000
@@ -28,8 +27,12 @@ class VmCorrectnessTests(unittest.TestCase):
     def run_words(self, *words):
         program = b"".join(struct.pack(">I", word) for word in words)
         result = subprocess.run(
-            [HARNESS], input=program, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-            timeout=5, check=False,
+            [HARNESS],
+            input=program,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            timeout=5,
+            check=False,
         )
         self.assertEqual(result.returncode, 0, result.stderr.decode(errors="replace"))
         lines = result.stdout.decode().strip().splitlines()

@@ -1,7 +1,8 @@
-from loguru import logger
 import os
 import re
 from functools import partial
+
+from loguru import logger
 
 
 def replace_quotes(code):
@@ -129,9 +130,7 @@ def include_replacer(match, current_file=None):
         line = match.string.count("\n", 0, match.start()) + 1
         logger.bind(
             diagnostic=f"{current_file or '<input>'}:{line}: #include <{filename}>"
-        ).warning(
-            f"Included file '{filename}' not found in any of the search paths."
-        )
+        ).warning(f"Included file '{filename}' not found in any of the search paths.")
     # If we did find the file but we got to this point, it was already included and a warning was printed, so we don't
     # need to print another warning here.
     return ""

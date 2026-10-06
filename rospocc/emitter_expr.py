@@ -1,7 +1,7 @@
-from loguru import logger
 from typing import Any, Dict, Optional
 
 import abi
+from loguru import logger
 
 
 def _is_char_ptr_expr(emitter, expr: Optional[Dict[str, Any]]) -> bool:

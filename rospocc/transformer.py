@@ -1,8 +1,8 @@
-from loguru import logger
 import re
 from typing import Any
 
 from lark import Token, Transformer, Tree
+from loguru import logger
 from transformer_tu import TranslationUnitTransformer
 
 

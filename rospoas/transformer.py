@@ -1,9 +1,9 @@
-from loguru import logger
 import random
 
 from errors import TransformError, fmt_node
 from ir import instr_list_from_legacy
 from lark import Token, Transformer, v_args
+from loguru import logger
 from maps import register_map
 
 

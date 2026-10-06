@@ -1,4 +1,3 @@
-from loguru import logger
 import io
 import os
 import re
@@ -12,6 +11,7 @@ from emitter_expr import emit_expr as emit_expression
 from emitter_intrinsics import intrinsic_break, intrinsic_lb, intrinsic_sb, intrinsic_sw
 from emitter_registers import alloc_var_reg, ensure_var_reg, load_imm
 from emitter_stmt import emit_statement as emit_statement_impl
+from loguru import logger
 from register_allocator import RegAllocation, RegisterAllocator
 from tracked_writer import TrackedWriter
 

@@ -1,7 +1,7 @@
-from loguru import logger
 from typing import Dict, Optional
 
 import abi
+from loguru import logger
 
 
 def _materialize_call_arg(emitter, arg, out):
@@ -55,7 +55,11 @@ def emit_call(emitter, call_expr: Dict, return_reg: Optional[str], out):
             return
         src = call_expr.get("src")
         src = src if isinstance(src, dict) else {}
-        source = f"{src.get('file')}:{src.get('line')}" if src else "source location unavailable"
+        source = (
+            f"{src.get('file')}:{src.get('line')}"
+            if src
+            else "source location unavailable"
+        )
         logger.bind(
             diagnostic=f"{source}; function={getattr(emitter, 'current_context_origin', None)}; intrinsic={name}"
         ).warning(f"no handler for intrinsic {name!r}")

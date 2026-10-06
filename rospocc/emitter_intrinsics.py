@@ -1,5 +1,5 @@
-from loguru import logger
 import abi
+from loguru import logger
 
 
 def _borrow_scratch_reg(emitter, out, avoid=None):

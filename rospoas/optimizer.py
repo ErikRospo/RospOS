@@ -735,6 +735,7 @@ def opt_30_lli_combine(ast, logs):
         optimized_ast.append(ast[i])
     return optimized_ast
 
+
 def opt_20_ret_merges(ast, logs):
     #   POP r14
     #   RET
@@ -758,12 +759,20 @@ def opt_20_ret_merges(ast, logs):
         )
 
     def _is_ret(node):
-        return isinstance(node, Instruction) and node.type == "j" and node.name == "jalr" and node.rd == 0 and node.rs1 == 14 and _reg_from_imm(node.imm) == 0
-# Instruction(type='p', name='pop', imm=ImmValue(value=14), src={'file': 'rospos/build/rospos_preprocessed.rosc', 'line': 41})
-# Instruction(type='j', name='jalr', rd=0, rs1=14, imm=ImmValue(value=0), src={'file': 'rospos/build/rospos_preprocessed.rosc', 'line': 41})
-# Instruction(type='i', name='addi', rd=1, rs1=0, imm=ImmValue(value=0), src={'file': 'rospos/build/rospos_preprocessed.rosc', 'line': 1})
-# Instruction(type='p', name='pop', imm=ImmValue(value=14), src={'file': 'rospos/build/rospos_preprocessed.rosc', 'line': 1})
-# Instruction(type='j', name='jalr', rd=0, rs1=14, imm=ImmValue(value=0), src={'file': 'rospos/build/rospos_preprocessed.rosc', 'line': 1})
+        return (
+            isinstance(node, Instruction)
+            and node.type == "j"
+            and node.name == "jalr"
+            and node.rd == 0
+            and node.rs1 == 14
+            and _reg_from_imm(node.imm) == 0
+        )
+
+    # Instruction(type='p', name='pop', imm=ImmValue(value=14), src={'file': 'rospos/build/rospos_preprocessed.rosc', 'line': 41})
+    # Instruction(type='j', name='jalr', rd=0, rs1=14, imm=ImmValue(value=0), src={'file': 'rospos/build/rospos_preprocessed.rosc', 'line': 41})
+    # Instruction(type='i', name='addi', rd=1, rs1=0, imm=ImmValue(value=0), src={'file': 'rospos/build/rospos_preprocessed.rosc', 'line': 1})
+    # Instruction(type='p', name='pop', imm=ImmValue(value=14), src={'file': 'rospos/build/rospos_preprocessed.rosc', 'line': 1})
+    # Instruction(type='j', name='jalr', rd=0, rs1=14, imm=ImmValue(value=0), src={'file': 'rospos/build/rospos_preprocessed.rosc', 'line': 1})
     def _is_clear_r1(node):
         return (
             isinstance(node, Instruction)
@@ -796,6 +805,7 @@ def opt_20_ret_merges(ast, logs):
 
     return optimized_ast
     # return ast
+
 
 # This is a bit of a hack to avoid having to manually maintain the list of optimizations,
 # but it should work fine as long as we don't have any non-optimization functions that start with "opt_".

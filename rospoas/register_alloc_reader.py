@@ -1,4 +1,5 @@
 from loguru import logger
+
 """
 RegisterAllocInfoReader: Reads register allocation debug info from .rosc.regalloc sidecar files.
 
@@ -92,9 +93,9 @@ class RegisterAllocInfoReader:
             # No regalloc file is OK - just not provided
             return False
         except json.JSONDecodeError as e:
-            logger.bind(
-                diagnostic=f"{filepath}:{e.lineno}:{e.colno}"
-            ).warning(f"Error parsing regalloc file {filepath}: {e}")
+            logger.bind(diagnostic=f"{filepath}:{e.lineno}:{e.colno}").warning(
+                f"Error parsing regalloc file {filepath}: {e}"
+            )
             return False
         except Exception as e:
             logger.bind(diagnostic=filepath).warning(

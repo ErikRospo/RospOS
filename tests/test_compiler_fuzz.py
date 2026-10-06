@@ -8,20 +8,24 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from hypothesis import given, settings, strategies as st
-from lark.exceptions import UnexpectedInput
 import fuzz_settings  # noqa: F401
+from hypothesis import given, settings
+from hypothesis import strategies as st
+from lark.exceptions import UnexpectedInput
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "rospocc"))
 # RospoAS and RospoCC both use a top-level module named ``transformer``.
 sys.modules.pop("transformer", None)
 from parser import compile_source, parse_code
+
 from test_assembler_fuzz import _assemble
 
 
 def _compile_silently(*args):
-    with contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(io.StringIO()):
+    with contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(
+        io.StringIO()
+    ):
         return compile_source(*args)
 
 
@@ -33,15 +37,21 @@ def _run_compiled_source(source):
         output, _preprocessed, _tu, _mappings = _compile_silently(
             source, Path(tmp) / "program.ros", "program.rosc"
         )
-        with contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(io.StringIO()):
+        with contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(
+            io.StringIO()
+        ):
             segments = _assemble(output.read_text(encoding="utf-8"))
         image = bytearray(struct.pack(">I", len(segments)))
         for address, content in segments:
             image.extend(struct.pack(">II", address, len(content)))
             image.extend(content)
         result = subprocess.run(
-            [harness, "--run-image"], input=image, stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE, timeout=5, check=False,
+            [harness, "--run-image"],
+            input=image,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            timeout=5,
+            check=False,
         )
     if result.returncode != 0:
         raise AssertionError(result.stderr.decode(errors="replace"))
@@ -90,7 +100,9 @@ class CompilerCorrectnessTests(unittest.TestCase):
         self.assertEqual(actual, 41)
 
     def test_function_call_returns_expected_value(self):
-        source = "int add(int a, int b) { return a + b; } int main() { return add(19, 23); }"
+        source = (
+            "int add(int a, int b) { return a + b; } int main() { return add(19, 23); }"
+        )
         actual = _run_compiled_source(source)
         self.assertEqual(actual, 42)
 
