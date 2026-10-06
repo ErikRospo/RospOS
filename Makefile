@@ -165,7 +165,7 @@ vm_fuzz_harness: $(DIR_ROSPOVM_BUILD)/Makefile
 
 test: vm_fuzz_harness
 	ROSPOS_VM_FUZZ_HARNESS=$(DIR_ROSPOVM_BUILD)/rospovm_fuzz_harness \
-	$(PY) -m unittest discover -s tests -p "test_*.py" -v
+	$(PY) -m unittest discover -s tests -p "test_*.py" -v --buffer
 
 dump: $(ROSP_FULL)
 	$(HEXDUMP) $< 1>&2
