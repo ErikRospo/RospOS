@@ -2,6 +2,8 @@ import os
 import re
 from functools import partial
 
+from loguru import logger
+
 
 def replace_quotes(code):
     """Replace single quotes with double quotes intelligently, avoiding replacements in comments or strings."""
@@ -92,7 +94,7 @@ def include_replacer(match, current_file=None):
             if os.path.isfile(filepath):
                 norm_path = os.path.normpath(filepath)
                 if norm_path in included_files:
-                    print(f"Skipping already included file: {norm_path}")
+                    logger.info(f"Skipping already included file: {norm_path}")
                     was_found = True
                     continue  # This file has already been included, skip it.
                     # Note: this means that if a file is included multiple times, and a file with the same name exists
@@ -117,14 +119,18 @@ def include_replacer(match, current_file=None):
                     # directives in any way, we should remove it to avoid a compiler error about an unknown directive.
                 return r
     except FileNotFoundError:
-        print(f"Warning: Included file '{filename}' not found.")
+        line = match.string.count("\n", 0, match.start()) + 1
+        logger.bind(
+            diagnostic=f"{current_file or '<input>'}:{line}: #include <{filename}>"
+        ).warning(f"Included file '{filename}' not found.")
         return ""
     if (
         not was_found
     ):  # If we went through all search paths and didn't find the file, print a warning
-        print(
-            f"Warning: Included file '{filename}' not found in any of the search paths."
-        )
+        line = match.string.count("\n", 0, match.start()) + 1
+        logger.bind(
+            diagnostic=f"{current_file or '<input>'}:{line}: #include <{filename}>"
+        ).warning(f"Included file '{filename}' not found in any of the search paths.")
     # If we did find the file but we got to this point, it was already included and a warning was printed, so we don't
     # need to print another warning here.
     return ""
@@ -154,9 +160,13 @@ def preprocess(code, current_file=None):
 
     for _ in range(10):
         code = include_pattern.sub(inc_replacer, code)
-    if include_pattern.search(code):
-        print(
-            "Warning: Maximum include depth reached. Some includes may not have been processed."
+    remaining_include = include_pattern.search(code)
+    if remaining_include:
+        line = code.count("\n", 0, remaining_include.start()) + 1
+        logger.bind(
+            diagnostic=f"{current_file or '<input>'}:{line}: nested include"
+        ).warning(
+            "Maximum include depth reached. Some includes may not have been processed."
         )
     code = code.replace("\r\n", "\n").replace("\r", "\n")
     code = replace_quotes(code)

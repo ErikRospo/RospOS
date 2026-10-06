@@ -1,3 +1,5 @@
+from loguru import logger
+
 """
 RegisterAllocInfoReader: Reads register allocation debug info from .rosc.regalloc sidecar files.
 
@@ -65,7 +67,9 @@ class RegisterAllocInfoReader:
                 data = json.load(f)
 
             if data.get("version") != 1:
-                print(f"Warning: Unknown regalloc format version {data.get('version')}")
+                logger.bind(
+                    diagnostic=f"{filepath}; found version={data.get('version')}, supported version=1"
+                ).warning(f"Unknown regalloc format version {data.get('version')}")
                 return False
 
             for alloc_dict in data.get("allocations", []):
@@ -89,10 +93,14 @@ class RegisterAllocInfoReader:
             # No regalloc file is OK - just not provided
             return False
         except json.JSONDecodeError as e:
-            print(f"Error parsing regalloc file {filepath}: {e}")
+            logger.bind(diagnostic=f"{filepath}:{e.lineno}:{e.colno}").warning(
+                f"Error parsing regalloc file {filepath}: {e}"
+            )
             return False
         except Exception as e:
-            print(f"Error loading regalloc file {filepath}: {e}")
+            logger.bind(diagnostic=filepath).warning(
+                f"Error loading regalloc file {filepath}: {e}"
+            )
             return False
 
     def get_allocations_for_line(self, output_line: int) -> List[RegisterAllocInfo]:

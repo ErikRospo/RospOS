@@ -1,6 +1,7 @@
+from loguru import logger
+
 """Encoding stage: resolve immediates, validate ranges, and write final bytes."""
 
-import sys
 from typing import Dict, List, Tuple
 
 from errors import EncodeError, fmt_node
@@ -48,7 +49,7 @@ def encode_ir(
     ir_list: List,
     addresses: Dict[str, int],
     segments: List[Tuple[int, bytearray]],
-    verbose: bool = False,
+    verbose: int = 0,
 ):
     current_segment = None
     current_segment_data = None
@@ -79,6 +80,12 @@ def encode_ir(
 
     for idx in range(len(ir_list)):
         node = ir_list[idx]
+        if verbose >= 2:
+            logger.trace(
+                "IR #{} at address 0x{:08X}: {}", idx, current_address, fmt_node(node)
+            )
+        if verbose >= 3:
+            logger.trace("IR #{} full node: {!r}", idx, node)
         if isinstance(node, Directive) and node.name == "seg":
             seg_addr = None
             if node.imm is not None:
@@ -280,11 +287,8 @@ def encode_ir(
                 found_seg = (seg_addr, seg_data)
                 break
         if found_seg is None:
-            if verbose:
-                print(
-                    f"Warning: label {name} at {hex(addr)} is not in any segment",
-                    file=sys.stderr,
-                )
+            if verbose >= 1:
+                logger.debug("Label {} at {} is not in any segment", name, hex(addr))
             continue
         seg_addr, seg_data = found_seg
         offset = addr - seg_addr
@@ -296,37 +300,45 @@ def encode_ir(
                 break
         if hit is None:
             # label points between nodes: OK but warn
-            if verbose:
-                print(
-                    f"Note: label {name} at {hex(addr)} points between nodes in segment {hex(seg_addr)}",
-                    file=sys.stderr,
+            if verbose >= 1:
+                logger.debug(
+                    "Label {} at {} points between nodes in segment {}",
+                    name,
+                    hex(addr),
+                    hex(seg_addr),
                 )
         else:
-            if hit[2] == "data" and verbose:
-                print(
-                    f"Warning: label {name} at {hex(addr)} falls inside a data region (segment {hex(seg_addr)} offset {hit[0]})",
-                    file=sys.stderr,
+            if hit[2] == "data" and verbose >= 1:
+                logger.debug(
+                    "Label {} at {} falls inside data in segment {} offset {}",
+                    name,
+                    hex(addr),
+                    hex(seg_addr),
+                    hit[0],
                 )
 
     # Print per-segment node map for debugging
-    if verbose:
-        print("--- Segment node layout ---", file=sys.stderr)
+    if verbose >= 2:
+        logger.debug("--- Segment node layout ---")
         for seg_addr, nodes in segment_node_map.items():
-            print(
-                f"Segment {hex(seg_addr)} (size {len(next(d for a,d in segments if a==seg_addr))}):",
-                file=sys.stderr,
+            logger.debug(
+                "Segment {} (size {}):",
+                hex(seg_addr),
+                len(next(d for a, d in segments if a == seg_addr)),
             )
             for start, size, ntype in nodes:
-                print(f"  {start:04} - {start+size-1:04} : {ntype}", file=sys.stderr)
+                logger.debug("  {:04} - {:04} : {}", start, start + size - 1, ntype)
 
     # Validate that each segment was fully reserved by layout and encoded writes match sizes
     for seg_addr, data in segments:
         reserved = len(data)
         used = segment_cursor_map.get(seg_addr, 0)
-        if used != reserved and verbose:
-            print(
-                f"Warning: segment {hex(seg_addr)} reserved {reserved} bytes but encoder used {used} bytes",
-                file=sys.stderr,
+        if used != reserved and verbose >= 1:
+            logger.debug(
+                "Segment {} reserved {} bytes but encoder used {} bytes",
+                hex(seg_addr),
+                reserved,
+                used,
             )
 
     # Post-encode verification: check that each instruction slot decodes to a valid opcode/type
@@ -342,9 +354,11 @@ def encode_ir(
                     t_map = instr_type_maps[op_nibble]
                     if opcode in t_map.values():
                         valid = True
-                if not valid and verbose:
-                    print(
-                        f"Warning: instruction at segment {hex(seg_addr)} offset {start} decodes as NOP/UNKNOWN (word={word:08x})",
-                        file=sys.stderr,
+                if not valid and verbose >= 2:
+                    logger.debug(
+                        "Instruction at segment {} offset {} decodes as NOP/UNKNOWN (word={:08x})",
+                        hex(seg_addr),
+                        start,
+                        word,
                     )
     return segments

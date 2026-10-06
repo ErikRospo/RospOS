@@ -2,6 +2,7 @@ import re
 from typing import Any
 
 from lark import Token, Transformer, Tree
+from loguru import logger
 from transformer_tu import TranslationUnitTransformer
 
 
@@ -32,7 +33,7 @@ class ASTTransformer(Transformer):
 
         if meta and hasattr(meta, "line"):
             node["_line"] = meta.line
-            print(f"DEBUG transformer: {data} -> line {meta.line}", file=sys.stderr)
+            logger.info(f"DEBUG transformer: {data} -> line {meta.line}")
 
         if data == "primary" and len(children) == 1:
             child = children[0]

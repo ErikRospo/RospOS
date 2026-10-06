@@ -111,6 +111,10 @@ void VMControllerCore::run()
 
 void VMControllerCore::pause()
 {
+    if (!running) {
+        return;
+    }
+
     executionTimer.stop();
     running = false;
     pendingBurstSteps = 0.0;

@@ -57,7 +57,15 @@ def _emit_immediate_loading_for_value(
     if high != 0:
         instrs.append(
             Instruction(
-                type="i", name="addi", rd=rd, rs1=0, imm=ImmValue(high), src=src, **f
+                # ORI zero-extends this half; ADDI would sign-extend values
+                # whose high half has bit 15 set.
+                type="i",
+                name="ori",
+                rd=rd,
+                rs1=0,
+                imm=ImmValue(high),
+                src=src,
+                **f,
             )
         )
         instrs.append(
@@ -71,10 +79,16 @@ def _emit_immediate_loading_for_value(
                     type="i", name="ori", rd=rd, rs1=rd, imm=ImmValue(low), src=src, **f
                 )
             )
-    else:
+    elif low <= 0x7FFF:
         instrs.append(
             Instruction(
                 type="i", name="addi", rd=rd, rs1=0, imm=ImmValue(low), src=src, **f
+            )
+        )
+    else:
+        instrs.append(
+            Instruction(
+                type="i", name="ori", rd=rd, rs1=0, imm=ImmValue(low), src=src, **f
             )
         )
     return instrs

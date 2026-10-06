@@ -132,7 +132,7 @@ def main() -> int:
     timeout = None if args.timeout == 0 else args.timeout
 
     rospocc_cmd = [
-        "rospoas/venv/bin/python",
+        ".venv/bin/python",
         "rospocc/parser.py",
         "--input",
         str(rosc_in_rel),
@@ -140,7 +140,7 @@ def main() -> int:
         str(ros_out_rel),
     ]
     rospoas_cmd = [
-        "rospoas/venv/bin/python",
+        ".venv/bin/python",
         "rospoas/compile.py",
         "--optimize",
         "--bin-version",

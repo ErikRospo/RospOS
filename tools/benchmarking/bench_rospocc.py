@@ -44,7 +44,7 @@ def main() -> int:
     )
     parser.add_argument(
         "--python",
-        default="rospoas/venv/bin/python",
+        default=".venv/bin/python",
         help="Python executable path relative to repo root",
     )
     parser.add_argument(

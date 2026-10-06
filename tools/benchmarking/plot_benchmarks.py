@@ -162,7 +162,7 @@ def save_plot(points: list[RunPoint], output_path: Path, title: str) -> None:
     except ModuleNotFoundError as exc:
         raise RuntimeError(
             "matplotlib is required for plotting. "
-            "Install it with: rospoas/venv/bin/pip install matplotlib"
+            "Install it with: .venv/bin/pip install matplotlib"
         ) from exc
 
     available_specs: list[MetricSpec] = []

@@ -423,17 +423,24 @@ uint64_t RospOSVM::runSteps(uint64_t maxSteps, uint32_t timeBudgetMicros, bool l
 
     uint64_t executed = 0;
     while (executed < maxSteps && !shouldShutdown()) {
+        beginStateCapture();
         clearLastMemoryAccess();
-        const uint32_t instruction = memory.readWord(pc);
-        if (logExecution) {
-            std::ostringstream oss;
-            oss << "PC: " << std::hex << pc << std::dec << " ";
-            oss << "I: " << decodeInstruction(instruction, regFile) << "\n";
-            oss << "RI: " << std::hex << std::setw(8) << std::setfill('0') << instruction << std::dec << "\n";
-            oss << "Registers: " << getRegisterState();
-            Logger::instance().debug(QString::fromStdString(oss.str()));
-        };
-        executeInstruction(instruction);
+        try {
+            const uint32_t instruction = memory.readWord(pc);
+            if (logExecution) {
+                std::ostringstream oss;
+                oss << "PC: " << std::hex << pc << std::dec << " ";
+                oss << "I: " << decodeInstruction(instruction, regFile) << "\n";
+                oss << "RI: " << std::hex << std::setw(8) << std::setfill('0') << instruction << std::dec << "\n";
+                oss << "Registers: " << getRegisterState();
+                Logger::instance().debug(QString::fromStdString(oss.str()));
+            };
+            executeInstruction(instruction);
+            commitStateCapture();
+        } catch (...) {
+            currentSnapshot.reset();
+            throw;
+        }
         ++executed;
 
         if (hasBudget && (executed & 0x3F) == 0) {

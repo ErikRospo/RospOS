@@ -3,6 +3,7 @@ import random
 from errors import TransformError, fmt_node
 from ir import instr_list_from_legacy
 from lark import Token, Transformer, v_args
+from loguru import logger
 from maps import register_map
 
 
@@ -573,8 +574,12 @@ class RospoasTransformer(Transformer):
 
     def func(self, items):
         label_t = items[0]
-        if self.verbose:
-            print(f"Defining function: {label_t}")
+        if self.verbose >= 1:
+            logger.info(f"Defining function: {label_t}")
+        if self.verbose >= 2 and isinstance(label_t, dict):
+            logger.debug("Function definition source: {}", label_t.get("src"))
+        if self.verbose >= 3:
+            logger.trace("Function definition node: {!r}", label_t)
         # label_t is likely a dict from `label` rule
         return label_t
 

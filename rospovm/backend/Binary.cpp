@@ -55,13 +55,17 @@ Binary Binary::load_binary(const std::string& path)
         throw std::runtime_error(oss.str());
     }
 
-    uint32_t magic;
-    uint32_t version;
-    uint32_t segment_count;
+    uint32_t magic = 0;
+    uint32_t version = 0;
+    uint32_t segment_count = 0;
 
     file.read(reinterpret_cast<char*>(&magic), sizeof(magic));
     file.read(reinterpret_cast<char*>(&version), sizeof(version));
     file.read(reinterpret_cast<char*>(&segment_count), sizeof(segment_count));
+
+    if (!file) {
+        throw std::runtime_error("Invalid binary format: truncated header");
+    }
 
     if (magic != ROSP_MAGIC) {
         throw std::runtime_error("Invalid binary format: magic number does not match");

@@ -698,80 +698,86 @@ translation_unit
                           glyph
                           plus
                           row
-            declaration
-              type_specifier
-                int
-              init_declarator_list
-                init_declarator
-                  declarator	col
-                  0
-            while_stmt
-              relational
-                col
-                lt
-                8
+            if_stmt
+              equality
+                glyph_row
+                neq
+                0
               compound_stmt
                 declaration
                   type_specifier
                     int
                   init_declarator_list
                     init_declarator
-                      declarator	bit
-                      bit_and
-                        shift
-                          glyph_row
-                          rshift
-                          col
-                        1
-                declaration
-                  type_specifier
-                    int
-                  init_declarator_list
-                    init_declarator
-                      declarator	index
-                      additive
-                        multiplicative
-                          additive
-                            y
-                            plus
-                            row
-                          mult
-                          256
-                        plus
-                        x
-                        plus
-                        col
-                if_stmt
-                  bit
-                  compound_stmt
-                    expr_stmt
-                      postfix
-                        __sb
-                        call_suffix
-                          arg_list
-                            additive
-                              0x20000000
-                              plus
-                              index
-                            color
-                  compound_stmt
-                    expr_stmt
-                      postfix
-                        __sb
-                        call_suffix
-                          arg_list
-                            additive
-                              0x20000000
-                              plus
-                              index
-                            0x00
-                expr_stmt
-                  assignment
+                      declarator	col
+                      0
+                while_stmt
+                  relational
                     col
-                    additive
-                      col
-                      plus
-                      1
+                    lt
+                    8
+                  compound_stmt
+                    declaration
+                      type_specifier
+                        int
+                      init_declarator_list
+                        init_declarator
+                          declarator	bit
+                          bit_and
+                            shift
+                              glyph_row
+                              rshift
+                              col
+                            1
+                    declaration
+                      type_specifier
+                        int
+                      init_declarator_list
+                        init_declarator
+                          declarator	index
+                          additive
+                            multiplicative
+                              additive
+                                y
+                                plus
+                                row
+                              mult
+                              256
+                            plus
+                            x
+                            plus
+                            col
+                    if_stmt
+                      bit
+                      compound_stmt
+                        expr_stmt
+                          postfix
+                            __sb
+                            call_suffix
+                              arg_list
+                                additive
+                                  0x20000000
+                                  plus
+                                  index
+                                color
+                      compound_stmt
+                        expr_stmt
+                          postfix
+                            __sb
+                            call_suffix
+                              arg_list
+                                additive
+                                  0x20000000
+                                  plus
+                                  index
+                                0x00
+                    expr_stmt
+                      assignment
+                        col
+                        additive
+                          col
+                          plus
+                          1
             expr_stmt
               assignment
                 row
@@ -5515,15 +5521,12 @@ translation_unit
             char
             pointer
           declarator	infix
-      compound_stmt
-        declaration
+        param
           type_specifier
             char
-          init_declarator_list
-            init_declarator
-              declarator
-                output
-                array	512
+            pointer
+          declarator	output
+      compound_stmt
         declaration
           type_specifier
             char
@@ -5539,6 +5542,10 @@ translation_unit
             init_declarator
               declarator	out_index
               0
+        declaration
+          type_specifier
+            int
+          init_declarator_list
             init_declarator
               declarator	stack_index
               0
@@ -5583,152 +5590,169 @@ translation_unit
                           out_index
                           post_inc
                     token
-              if_stmt
-                logic_or
-                  equality
-                    token
-                    eq
-                    "+"
-                  equality
-                    token
-                    eq
-                    "-"
-                  equality
-                    token
-                    eq
-                    "*"
-                  equality
-                    token
-                    eq
-                    "/"
-                compound_stmt
-                  while_stmt
-                    logic_and
-                      relational
-                        stack_index
-                        gt
-                        0
-                      relational
-                        postfix
-                          precedence
-                          call_suffix
-                            arg_list
-                              postfix
-                                stack
-                                array_index
-                                  additive
-                                    stack_index
-                                    minus
-                                    1
-                        gte
-                        postfix
-                          precedence
-                          call_suffix
-                            arg_list	token
-                    compound_stmt
-                      expr_stmt
-                        assignment
-                          postfix
-                            output
-                            array_index
-                              postfix
-                                out_index
-                                post_inc
-                          postfix
-                            stack
-                            array_index
-                              unary
-                                uminus
-                                unary
-                                  uminus
-                                  stack_index
-                  expr_stmt
-                    assignment
+            if_stmt
+              logic_or
+                equality
+                  token
+                  eq
+                  "+"
+                equality
+                  token
+                  eq
+                  "-"
+                equality
+                  token
+                  eq
+                  "*"
+                equality
+                  token
+                  eq
+                  "/"
+              compound_stmt
+                declaration
+                  type_specifier
+                    int
+                  init_declarator_list
+                    init_declarator
+                      declarator	token_precedence
                       postfix
-                        stack
-                        array_index
-                          postfix
-                            stack_index
-                            post_inc
-                      token
+                        precedence
+                        call_suffix
+                          arg_list	token
                 if_stmt
                   equality
-                    token
+                    token_precedence
                     eq
-                    "("
+                    0
+                  compound_stmt
+                    expr_stmt	break
+                while_stmt
+                  logic_and
+                    relational
+                      stack_index
+                      gt
+                      0
+                    relational
+                      postfix
+                        precedence
+                        call_suffix
+                          arg_list
+                            postfix
+                              stack
+                              array_index
+                                additive
+                                  stack_index
+                                  minus
+                                  1
+                      gte
+                      postfix
+                        precedence
+                        call_suffix
+                          arg_list	token
                   compound_stmt
                     expr_stmt
                       assignment
                         postfix
-                          stack
+                          output
                           array_index
                             postfix
-                              stack_index
+                              out_index
                               post_inc
-                        token
-                  if_stmt
-                    equality
-                      token
-                      eq
-                      ")"
-                    compound_stmt
-                      while_stmt
-                        logic_and
-                          relational
-                            stack_index
-                            gt
-                            0
-                          equality
-                            postfix
-                              stack
-                              array_index
-                                additive
-                                  stack_index
-                                  minus
-                                  1
-                            neq
-                            "("
-                        compound_stmt
-                          expr_stmt
-                            assignment
-                              postfix
-                                output
-                                array_index
-                                  postfix
-                                    out_index
-                                    post_inc
-                              postfix
-                                stack
-                                array_index
-                                  unary
-                                    uminus
-                                    unary
-                                      uminus
-                                      stack_index
-                      if_stmt
-                        logic_and
-                          relational
-                            stack_index
-                            gt
-                            0
-                          equality
-                            postfix
-                              stack
-                              array_index
-                                additive
-                                  stack_index
-                                  minus
-                                  1
-                            eq
-                            "("
-                        compound_stmt
-                          expr_stmt
-                            assignment
-                              stack_index
-                              additive
+                        postfix
+                          stack
+                          array_index
+                            unary
+                              uminus
+                              unary
+                                uminus
                                 stack_index
-                                minus
-                                1
+                expr_stmt
+                  assignment
+                    postfix
+                      stack
+                      array_index
+                        postfix
+                          stack_index
+                          post_inc
+                    token
+            if_stmt
+              equality
+                token
+                eq
+                "("
+              compound_stmt
+                expr_stmt
+                  assignment
+                    postfix
+                      stack
+                      array_index
+                        postfix
+                          stack_index
+                          post_inc
+                    token
+            if_stmt
+              equality
+                token
+                eq
+                ")"
+              compound_stmt
+                while_stmt
+                  logic_and
+                    relational
+                      stack_index
+                      gt
+                      0
+                    equality
+                      postfix
+                        stack
+                        array_index
+                          additive
+                            stack_index
+                            minus
+                            1
+                      neq
+                      "("
+                  compound_stmt
+                    expr_stmt
+                      assignment
+                        postfix
+                          output
+                          array_index
+                            postfix
+                              out_index
+                              post_inc
+                        postfix
+                          stack
+                          array_index
+                            unary
+                              uminus
+                              unary
+                                uminus
+                                stack_index
+                if_stmt
+                  logic_and
+                    relational
+                      stack_index
+                      gt
+                      0
+                    equality
+                      postfix
+                        stack
+                        array_index
+                          additive
+                            stack_index
+                            minus
+                            1
+                      eq
+                      "("
+                  compound_stmt
+                    expr_stmt
+                      assignment
+                        stack_index
+                        additive
+                          stack_index
+                          minus
+                          1
             expr_stmt
               assignment
                 i
@@ -5744,6 +5768,13 @@ translation_unit
           compound_stmt
             expr_stmt
               assignment
+                stack_index
+                additive
+                  stack_index
+                  minus
+                  1
+            expr_stmt
+              assignment
                 postfix
                   output
                   array_index
@@ -5752,12 +5783,7 @@ translation_unit
                       post_inc
                 postfix
                   stack
-                  array_index
-                    unary
-                      uminus
-                      unary
-                        uminus
-                        stack_index
+                  array_index	stack_index
         expr_stmt
           assignment
             postfix
@@ -5876,18 +5902,20 @@ translation_unit
                     token
                     eq
                     "+"
-                  expr_stmt
-                    assignment
-                      result
-                      additive
-                        a
-                        plus
-                        b
-                  if_stmt
-                    equality
-                      token
-                      eq
-                      "-"
+                  compound_stmt
+                    expr_stmt
+                      assignment
+                        result
+                        additive
+                          a
+                          plus
+                          b
+                if_stmt
+                  equality
+                    token
+                    eq
+                    "-"
+                  compound_stmt
                     expr_stmt
                       assignment
                         result
@@ -5895,30 +5923,32 @@ translation_unit
                           a
                           minus
                           b
-                    if_stmt
-                      equality
-                        token
-                        eq
-                        "*"
-                      expr_stmt
-                        assignment
-                          result
-                          multiplicative
-                            a
-                            mult
-                            b
-                      if_stmt
-                        equality
-                          token
-                          eq
-                          "/"
-                        expr_stmt
-                          assignment
-                            result
-                            multiplicative
-                              a
-                              div
-                              b
+                if_stmt
+                  equality
+                    token
+                    eq
+                    "*"
+                  compound_stmt
+                    expr_stmt
+                      assignment
+                        result
+                        multiplicative
+                          a
+                          mult
+                          b
+                if_stmt
+                  equality
+                    token
+                    eq
+                    "/"
+                  compound_stmt
+                    expr_stmt
+                      assignment
+                        result
+                        multiplicative
+                          a
+                          div
+                          b
                 expr_stmt
                   assignment
                     postfix
@@ -6175,14 +6205,10 @@ translation_unit
             call_suffix
               arg_list
                 "Fast loading image using DMA:\0"
-                0
+                72
         expr_stmt
           postfix
             update_buffer
-            call_suffix
-        expr_stmt
-          postfix
-            fast_clear_display
             call_suffix
         expr_stmt
           postfix
@@ -6406,17 +6432,6 @@ translation_unit
             init_declarator
               declarator	infix_expr
               "3+4*2/(1-5)"
-        declaration
-          type_specifier
-            char
-            pointer
-          init_declarator_list
-            init_declarator
-              declarator	rpn_expr
-              postfix
-                infix_to_rpn
-                call_suffix
-                  arg_list	infix_expr
         expr_stmt
           postfix
             write_to_buffer
@@ -6433,6 +6448,49 @@ translation_unit
                 8
         expr_stmt
           postfix
+            update_buffer
+            call_suffix
+        declaration
+          type_specifier
+            char
+            pointer
+          init_declarator_list
+            init_declarator
+              declarator	rpn_buffer
+              cast
+                type_specifier
+                  char
+                  pointer
+                postfix
+                  malloc
+                  call_suffix
+                    arg_list	512
+        if_stmt
+          unary
+            not
+            rpn_buffer
+          compound_stmt
+            expr_stmt
+              postfix
+                write_to_buffer
+                call_suffix
+                  arg_list
+                    "Memory allocation failed for RPN buffer.\0"
+                    16
+            expr_stmt
+              postfix
+                update_buffer
+                call_suffix
+            return_stmt	0
+        expr_stmt
+          postfix
+            infix_to_rpn
+            call_suffix
+              arg_list
+                infix_expr
+                rpn_buffer
+        expr_stmt
+          postfix
             write_to_buffer
             call_suffix
               arg_list
@@ -6443,8 +6501,12 @@ translation_unit
             write_to_buffer
             call_suffix
               arg_list
-                rpn_expr
+                rpn_buffer
                 38
+        expr_stmt
+          postfix
+            update_buffer
+            call_suffix
         expr_stmt
           postfix
             write_to_buffer
@@ -6461,7 +6523,7 @@ translation_unit
               postfix
                 evaluate_rpn
                 call_suffix
-                  arg_list	rpn_expr
+                  arg_list	rpn_buffer
         declaration
           type_specifier
             char
@@ -6543,5 +6605,29 @@ translation_unit
             call_suffix
         expr_stmt
           postfix
+            display_test
+            call_suffix
+        expr_stmt
+          postfix
+            fs_test
+            call_suffix
+        expr_stmt
+          postfix
+            fast_clear_display
+            call_suffix
+        expr_stmt
+          postfix
             malloc_test
+            call_suffix
+        expr_stmt
+          postfix
+            rand_block_display_test
+            call_suffix
+        expr_stmt
+          postfix
+            terminal_test
+            call_suffix
+        expr_stmt
+          postfix
+            image_display_test
             call_suffix

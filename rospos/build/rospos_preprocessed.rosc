@@ -154,18 +154,24 @@ void draw_char_to_display(int ch, int x, int y, int color)
     while (row < 8)
     {
         int glyph_row = __lb(font_address + glyph + row);
-        int col = 0;
-        while (col < 8)
+        if (glyph_row != 0)
         {
-            int bit = (glyph_row >> col) & 1;
-            int index = ((y+row) * 256) + x+col;
-            if (bit)
+
+            int col = 0;
+            while (col < 8)
             {
-                __sb(0x20000000 + index, color);
-            }else{
-                __sb(0x20000000 + index, 0x00);
+                int bit = (glyph_row >> col) & 1;
+                int index = ((y + row) * 256) + x + col;
+                if (bit)
+                {
+                    __sb(0x20000000 + index, color);
+                }
+                else
+                {
+                    __sb(0x20000000 + index, 0x00);
+                }
+                col = col + 1;
             }
-            col = col + 1;
         }
         row = row + 1;
     }
@@ -182,7 +188,6 @@ void draw_string_to_display(char *str, int x, int y, int color)
     }
     return 0;
 }
-
 
 void draw_line(int x1, int y1, int x2, int y2)
 {
@@ -226,12 +231,11 @@ void draw_line(int x1, int y1, int x2, int y2)
         }
     }
     return 0;
-    
 }
 
 void draw_rectangle(int x, int y, int width, int height, int bc, int fc)
 {
-    
+
     // Draw filled rectangle
     int row = 0;
     while (row < height)
@@ -257,7 +261,8 @@ void draw_rectangle(int x, int y, int width, int height, int bc, int fc)
     return 0;
 }
 
-void fast_clear_display(){
+void fast_clear_display()
+{
     int i = 0;
     while (i < 0x10000)
     {
@@ -1127,63 +1132,102 @@ char *fixed_point_to_string(struct fixed_point fp)
 
 
 
-
-int precedence(char op){
-    if(op == "+" || op == "-") return 1;
-    if(op == "*" || op == "/") return 2;
+int precedence(char op)
+{
+    if (op == "+" || op == "-")
+        return 1;
+    if (op == "*" || op == "/")
+        return 2;
     return 0;
 }
 
-char* infix_to_rpn(char* infix){
+char *infix_to_rpn(char *infix, char *output)
+{
     // shunting yard algorithm
-    char output[512];
     char stack[512];
-    int out_index = 0, stack_index = 0;
+    int out_index = 0;
+    int stack_index = 0;
     int i = 0;
-    while(infix[i]){
+    while (infix[i])
+    {
         char token = infix[i];
-        if(token >= "0" && token <= "9"){
+        if (token >= "0" && token <= "9")
+        {
             output[out_index++] = token;
-        } else if(token == "+" || token == "-" || token == "*" || token == "/"){
-            while(stack_index > 0 && precedence(stack[stack_index - 1]) >= precedence(token)){
+        }
+        if (token == "+" || token == "-" || token == "*" || token == "/")
+        {
+            int token_precedence = precedence(token);
+            if (token_precedence == 0)
+            {
+                // invalid operator
+                break;
+            }
+            while (stack_index > 0 && precedence(stack[stack_index - 1]) >= precedence(token))
+            {
                 output[out_index++] = stack[--stack_index];
             }
             stack[stack_index++] = token;
-        } else if(token == "("){
+        }
+        if (token == "(")
+        {
             stack[stack_index++] = token;
-        } else if(token == ")"){
-            while(stack_index > 0 && stack[stack_index - 1] != "("){
+        }
+        if (token == ")")
+        {
+            while (stack_index > 0 && stack[stack_index - 1] != "(")
+            {
                 output[out_index++] = stack[--stack_index];
             }
-            if(stack_index > 0 && stack[stack_index - 1] == "("){
+            if (stack_index > 0 && stack[stack_index - 1] == "(")
+            {
                 stack_index = stack_index - 1; // pop '('
             }
         }
         i = i + 1;
     }
-    while(stack_index > 0){
-        output[out_index++] = stack[--stack_index];
+    while (stack_index > 0)
+    {
+        stack_index = stack_index - 1;
+        output[out_index++] = stack[stack_index];
     }
     output[out_index] = "\0";
     return output;
 }
 
-int evaluate_rpn(char* expression){
+int evaluate_rpn(char *expression)
+{
     int stack[512];
     int stack_index = 0;
     int i = 0;
-    while(expression[i]){
+    while (expression[i])
+    {
         char token = expression[i];
-        if(token >= "0" && token <= "9"){
+        if (token >= "0" && token <= "9")
+        {
             stack[stack_index++] = token - "0";
-        } else {
+        }
+        else
+        {
             int b = stack[--stack_index];
             int a = stack[--stack_index];
             int result;
-            if (token == "+") result = a + b;
-            else if (token == "-") result = a - b;
-            else if (token == "*") result = a * b;
-            else if (token == "/") result = a / b;
+            if (token == "+")
+            {
+                result = a + b;
+            }
+            if (token == "-")
+            {
+                result = a - b;
+            }
+            if (token == "*")
+            {
+                result = a * b;
+            }
+            if (token == "/")
+            {
+                result = a / b;
+            }
             stack[stack_index++] = result;
         }
         i = i + 1;
@@ -1234,9 +1278,8 @@ void terminal_test()
 }
 void image_display_test()
 {
-    write_to_buffer("Fast loading image using DMA:\0", 0);
+    write_to_buffer("Fast loading image using DMA:\0", 72);
     update_buffer();
-    fast_clear_display();
     load_and_display_image();
 }
 void malloc_test()
@@ -1294,13 +1337,23 @@ void malloc_test()
 void math_test()
 {
     char *infix_expr = "3+4*2/(1-5)";
-    char *rpn_expr = infix_to_rpn(infix_expr);
     write_to_buffer("Infix: \0", 0);
     write_to_buffer(infix_expr, 8);
+    update_buffer();
+    char *rpn_buffer = (char *)malloc(512);
+    if (!rpn_buffer)
+    {
+        write_to_buffer("Memory allocation failed for RPN buffer.\0", 16);
+        update_buffer();
+        return 0;
+    }
+    infix_to_rpn(infix_expr, rpn_buffer);
     write_to_buffer("RPN: \0", 32);
-    write_to_buffer(rpn_expr, 38);
+    write_to_buffer(rpn_buffer, 38);
+    update_buffer();
+
     write_to_buffer("Result: \0", 64);
-    int result = evaluate_rpn(rpn_expr);
+    int result = evaluate_rpn(rpn_buffer);
     char result_str[16];
     int_to_str_buf(result, result_str);
     write_to_buffer(result_str, 72);
@@ -1323,13 +1376,13 @@ void main()
     // inline int r2 = 50;
     // int r3 = add(r1, r2);
 
-    // display_test();
-    // fs_test();
-    // fast_clear_display();
+    display_test();
+    fs_test();
+    fast_clear_display();
     malloc_test();
-    // rand_block_display_test();
-    // terminal_test();
-    // image_display_test();
+    rand_block_display_test();
+    terminal_test();
+    image_display_test();
     // math_test();
     // time_test();
 }

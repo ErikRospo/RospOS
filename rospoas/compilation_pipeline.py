@@ -30,7 +30,7 @@ class CompilationFrontend:
     extensions: tuple[str, ...]
     preprocess: Callable[[str, str], tuple[list[str], Any]]
     parse: Callable[[str], Any]
-    transform: Callable[[Any, Any, bool], tuple[list[Any], Any]]
+    transform: Callable[[Any, Any, int], tuple[list[Any], Any]]
 
 
 @dataclass(frozen=True)
@@ -43,7 +43,7 @@ class CompilationOptions:
     bin_version: int
     rospocc_mapping: bool
     segment_debug: bool
-    verbose: bool
+    verbose: int
     debug_enabled: dict[str, bool]
 
 

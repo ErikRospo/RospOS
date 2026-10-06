@@ -11,6 +11,7 @@ from emitter_expr import emit_expr as emit_expression
 from emitter_intrinsics import intrinsic_break, intrinsic_lb, intrinsic_sb, intrinsic_sw
 from emitter_registers import alloc_var_reg, ensure_var_reg, load_imm
 from emitter_stmt import emit_statement as emit_statement_impl
+from loguru import logger
 from register_allocator import RegAllocation, RegisterAllocator
 from tracked_writer import TrackedWriter
 
@@ -138,7 +139,7 @@ class Emitter:
 
     def _collect_global_types(self, ast: Dict[str, Any]):
         for g in ast.get("globals", []):
-            print("collecting global type for:", g)
+            logger.debug("collecting global type for: {}", g)
             if g.get("kind") == "string":
                 self.global_types[g.get("name")] = "char_ptr"
                 self.global_value_inits[g.get("name")] = g.get("name")
@@ -268,12 +269,12 @@ class Emitter:
             ]
 
             if aliases:
-                print(
+                logger.info(
                     f"Register pressure: spilling live variable register {reg} to static slot"
                 )
                 self._spill_live_var_reg_to_slot(reg, aliases)
             else:
-                print(
+                logger.info(
                     f"Register pressure: no free registers, spilling {reg} for temp allocation"
                 )
                 if self.tracked_writer is not None:
@@ -1086,8 +1087,7 @@ class Emitter:
             assert (
                 main_fn
             ), "Translation unit must have a main function for source tracking context"
-            print("mainfn:", main_fn)
-            print()
+            logger.debug("mainfn: {}", main_fn)
             self._set_source_context(main_fn, out)
             self._write_file_header(out)
             self._collect_global_types(ast)
@@ -1259,7 +1259,14 @@ class Emitter:
             try:
                 self.reg_free.remove(abi.ARG_REGS[i])  # mark arg registers as used
             except ValueError:
-                print(f"Warning: arg register {abi.ARG_REGS[i]} not in free list")
+                output_line = (
+                    out.get_current_output_line()
+                    if hasattr(out, "get_current_output_line")
+                    else "unknown"
+                )
+                logger.bind(
+                    diagnostic=f"function={name}; parameter={p}; output line={output_line}"
+                ).warning(f"arg register {abi.ARG_REGS[i]} not in free list")
             # Track parameter allocation for debug info
             param_type = (fn.get("param_types", {}) or {}).get(p, "int")
             if hasattr(out, "get_current_output_line"):
@@ -1304,7 +1311,6 @@ class Emitter:
             self.var_types[pname] = ptype
 
         # per-function flag: whether a return was emitted inside body
-        self.had_return = False
         self.prepare_function_liveness(fn)
 
         # Emit body
@@ -1316,20 +1322,14 @@ class Emitter:
             self.exit_var_scope()
         if name == "main":
             out.write(f"  BREAK")
-        # If no return was emitted in the body, emit epilogue and return 0
-        if not self.had_return:
-            # Clear source context for epilogue
-            if hasattr(out, "set_source_context"):
-                out.set_source_context(None)
-            out.write(f"  // epilogue and return\n")
-            out.write(
-                f"  ADDI {abi.RETURN_REG}, {abi.SPECIAL_REGS['zero']}, 0  // ensure r1=0\n"
-            )
-            out.write(f"  POP {abi.LINK_REG}\n")
-            out.write(f"  RET\n\n")
-        else:
-            # already emitted return(s); do not append another epilogue/RET
-            out.write("\n")
+        if hasattr(out, "set_source_context"):
+            out.set_source_context(None)
+        out.write(f"  // epilogue and return\n")
+        out.write(
+            f"  ADDI {abi.RETURN_REG}, {abi.SPECIAL_REGS['zero']}, 0  // ensure r1=0\n"
+        )
+        out.write(f"  POP {abi.LINK_REG}\n")
+        out.write(f"  RET\n\n")
 
     def emit_statement(self, stmt: Dict[str, Any], out):
         self._push_statement_frame(stmt)

@@ -1,5 +1,6 @@
 import re
 
+from loguru import logger
 from transformer_utils import decode_string_token
 
 
@@ -182,11 +183,11 @@ class ExpressionTransformer:
 
         if node_type == "assignment":
             children = node.get("children", [])
-            print("assignment children:", children)
+            logger.debug("assignment children: {}", children)
             if len(children) == 2:
                 left = self.from_node(children[0])
                 right = self.from_node(children[1])
-                print(left, right)
+                logger.debug("assignment: {} <- {}", left, right)
                 if left:
                     if left.get("type") == "var":
                         return {
@@ -204,7 +205,7 @@ class ExpressionTransformer:
 
         if node_type == "unary":
             children = node.get("children", [])
-            print("unary children:", children)
+            logger.debug("unary children: {}", children)
             if not children:
                 return None
             first = children[0]
@@ -371,7 +372,7 @@ class ExpressionTransformer:
             children = node.get("children", [])
             if len(children) >= 2:
                 return self.from_node(children[1])
-        print("Unhandled node type in ExpressionTransformer:", node_type)
+        logger.debug("Unhandled node type in ExpressionTransformer: {}", node_type)
         for child in node.get("children", []):
             result = self.from_node(child)
             if result is not None:

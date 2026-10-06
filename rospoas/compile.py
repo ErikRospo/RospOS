@@ -2,6 +2,9 @@ import argparse
 import sys
 from pathlib import Path
 
+from loguru import logger
+
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from compilation_pipeline import (
     CompilationOptions,
     CompilationPipeline,
@@ -9,6 +12,8 @@ from compilation_pipeline import (
     select_frontend,
 )
 from compile_debug import register_debug_handlers
+
+from rospolog import configure_logging
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -26,9 +31,23 @@ def build_parser() -> argparse.ArgumentParser:
         help="Output binary file. If not provided, will use the input filename with .rosp extension.",
     )
     parser.add_argument(
+        "-v",
         "--verbose",
-        action="store_true",
-        help="Enable verbose debug output during compilation (e.g., print IR, layout info, etc.)",
+        action="count",
+        default=0,
+        help="Show warning references (-v), source context (-vv), and full details (-vvv).",
+    )
+    parser.add_argument(
+        "--diagnose",
+        action=argparse.BooleanOptionalAction,
+        default=None,
+        help="Override Loguru's variable diagnostics for exceptions (default: enabled with -vvv).",
+    )
+    parser.add_argument(
+        "--backtrace",
+        action=argparse.BooleanOptionalAction,
+        default=None,
+        help="Override Loguru's expanded exception backtraces (default: enabled with -vv).",
     )
     parser.add_argument(
         "--debug-ast",
@@ -149,26 +168,42 @@ def main() -> int:
     parser = build_parser()
     args = parser.parse_args()
     options = build_options(args)
+    log_path = configure_logging(
+        "rospoas",
+        args.verbose,
+        options.output_path.parent / "rospoas.log",
+        diagnose=args.diagnose,
+        backtrace=args.backtrace,
+    )
+    logger.info("Starting assembler; detailed log: {}", log_path)
 
     if options.bin_version < 2:
-        print(
-            "Warning: Outputting V1 binaries is deprecated and may not be supported in future versions of RospoAS. Consider using the default V2 format instead."
+        logger.bind(diagnostic=f"input: {options.input_path}").warning(
+            "Outputting V1 binaries is deprecated and may not be supported in future versions of RospoAS. Consider using the default V2 format instead."
         )
         if options.compress_bin:
-            print(
-                "Warning: --compress-bin is only supported for binary version 2. This will be ignored."
+            logger.bind(
+                diagnostic=f"input: {options.input_path}; option: --compress-bin"
+            ).warning(
+                "--compress-bin is only supported for binary version 2. This will be ignored."
             )
         if options.rospocc_mapping:
-            print(
-                "Warning: RospoCC mapping is not supported for V1 binaries. This will be ignored."
+            logger.bind(
+                diagnostic=f"input: {options.input_path}; binary version: 1"
+            ).warning(
+                "RospoCC mapping is not supported for V1 binaries. This will be ignored."
             )
         if options.segment_debug:
-            print(
-                "Warning: --segment-debug is only supported for binary version 2. This will be ignored."
+            logger.bind(
+                diagnostic=f"input: {options.input_path}; option: --segment-debug"
+            ).warning(
+                "--segment-debug is only supported for binary version 2. This will be ignored."
             )
             if options.compress_debug:
-                print(
-                    "Warning: --compress-debug is only supported for binary version 2. This will be ignored."
+                logger.bind(
+                    diagnostic=f"input: {options.input_path}; option: --compress-debug"
+                ).warning(
+                    "--compress-debug is only supported for binary version 2. This will be ignored."
                 )
     frontends = build_frontend_registry()
     pipeline = CompilationPipeline()
@@ -178,13 +213,13 @@ def main() -> int:
         frontend = select_frontend(frontends, options.input_path)
         pipeline.compile(frontend, options)
     except Exception as exc:
-        print(exc)
+        logger.exception("Compilation failed: {}", exc)
         return 1
 
     if options.bin_version == 2:
-        print(f"Wrote V2 binary to {options.output_path}")
+        logger.info("Wrote V2 binary to {}", options.output_path)
     else:
-        print(f"Wrote V{options.bin_version} binary to {options.output_path}")
+        logger.info("Wrote V{} binary to {}", options.bin_version, options.output_path)
     return 0
 
 

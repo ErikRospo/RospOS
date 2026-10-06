@@ -91,6 +91,9 @@ target_compile_definitions(rosposvm_lib_release PRIVATE
 )
 
 if(NOT EMSCRIPTEN)
+    add_executable(rospovm_fuzz_harness tests/fuzz_harness.cpp)
+    target_link_libraries(rospovm_fuzz_harness PRIVATE rosposvm_lib_release Qt6::Core)
+
     # Qt GUI Application
     add_executable(rospovm_qt
         frontend/qt/full/main_qt.cpp
@@ -112,6 +115,7 @@ if(NOT EMSCRIPTEN)
         frontend/qt/shared/VMControllerCore.cpp
         frontend/qt/shared/TTYWidget.h
         frontend/qt/shared/TTYWidget.cpp
+        lib/exprtk/exprtk.hpp
     )
 
     add_executable(rospovm_minimal
@@ -130,6 +134,8 @@ if(NOT EMSCRIPTEN)
         ${CMAKE_CURRENT_SOURCE_DIR}/frontend/qt/shared
         ${CMAKE_CURRENT_SOURCE_DIR}/frontend/qt/full
         ${CMAKE_CURRENT_SOURCE_DIR}/backend
+        ${CMAKE_CURRENT_SOURCE_DIR}/lib/exprtk
+
     )
     target_include_directories(rospovm_minimal PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}/frontend/qt/shared

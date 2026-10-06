@@ -1,6 +1,7 @@
 from typing import Any, Dict, Optional
 
 import abi
+from loguru import logger
 
 
 def _is_char_ptr_expr(emitter, expr: Optional[Dict[str, Any]]) -> bool:
@@ -63,7 +64,7 @@ def _emit_deref(emitter, expr: Dict[str, Any], out) -> str:
     inner = expr.get("expr")
     raddr = emitter.emit_expr(inner, out)
     rd = raddr if (raddr and not emitter.is_var_reg(raddr)) else emitter.alloc_reg()
-    load_instr = "LB" if _is_char_ptr_expr(emitter, inner) else "LW"
+    load_instr = "LBU" if _is_char_ptr_expr(emitter, inner) else "LW"
     out.write(f"  {load_instr} {rd}, {raddr}, 0    // deref\n")
     if rd != raddr:
         emitter.release_expr_reg(raddr)
@@ -326,7 +327,7 @@ def _emit_binop(emitter, expr: Dict[str, Any], out) -> str:
 
 
 def _emit_unop(emitter, expr: Dict[str, Any], out) -> str:
-    print(f"unop expr: {expr!r}")
+    logger.info(f"unop expr: {expr!r}")
     op = expr.get("op")
     if op == "not":
         operand = expr.get("operand")
@@ -376,7 +377,7 @@ def _emit_assign_expr(emitter, expr: Dict[str, Any], out) -> str:
         raddr = emitter.emit_expr(addr_expr, out)
         emitter.unpin_reg(rval)
         if raddr:
-            store_instr = "SB" if _is_char_ptr_expr(emitter, addr_expr) else "SW"
+            store_instr = "SBU" if _is_char_ptr_expr(emitter, addr_expr) else "SW"
             out.write(f"  {store_instr} {rval}, {raddr}, 0    // store (assign-expr)\n")
             emitter.release_expr_reg(raddr)
         else:

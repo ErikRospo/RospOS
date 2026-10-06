@@ -1,0 +1,137 @@
+import os
+import subprocess
+import sys
+import unittest
+from pathlib import Path
+
+import fuzz_settings  # noqa: F401
+from hypothesis import given, settings
+from hypothesis import strategies as st
+from lark.exceptions import UnexpectedInput
+
+ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / "rospoas"))
+
+from encode import encode_ir
+from errors import AssemblerError
+from grammar_parser import parse_source
+from layout import layout_ir
+from lower import lower_ir
+from transformer import transform_parse_tree_ir
+
+
+def _assemble(source):
+    tree = parse_source(source)
+    ir, _constants = transform_parse_tree_ir(tree)
+    ir = lower_ir(ir)
+    addresses, segments = layout_ir(ir)
+    return encode_ir(ir, addresses, segments)
+
+
+class AssemblerFuzzTests(unittest.TestCase):
+    @settings()
+    @given(
+        register=st.integers(min_value=0, max_value=15),
+        immediate=st.sampled_from([-32768, -1, 0, 1, 32767, 65535]),
+    )
+    def test_instruction_immediate_edges_encode(self, register, immediate):
+        encoded = _assemble(f".SEG 0x1000\nADDI r{register}, r0, {immediate}\n")
+        self.assertTrue(encoded)
+        expected = (0x1 << 28) | (register << 20) | (immediate & 0xFFFF)
+        self.assertEqual(encoded[0][1], expected.to_bytes(4, "big"))
+
+    @settings()
+    @given(space=st.integers(min_value=0, max_value=7), data=st.integers(0, 255))
+    def test_data_and_space_boundaries(self, space, data):
+        segments = _assemble(
+            f".SEG 0x2000\n.DATA {data}\n.SPACE {space}\nADDI r1, r0, {data}\n"
+        )
+        self.assertTrue(segments)
+        self.assertEqual(segments[0], (0x2000, bytearray(data.to_bytes(4, "little"))))
+        expected = (0x1 << 28) | (1 << 20) | data
+        instruction_bytes = expected.to_bytes(4, "big")
+        code = next(
+            (address, content)
+            for address, content in segments
+            if content.endswith(instruction_bytes)
+        )
+        instruction_address = (0x2000 + 4 + space + 3) & ~3
+        self.assertEqual(code[0] + len(code[1]) - 4, instruction_address)
+
+    @settings()
+    @given(target_index=st.integers(min_value=1, max_value=8))
+    def test_branch_label_resolves_to_exact_word_offset(self, target_index):
+        filler = "\n".join("ADDI r3, r0, 0" for _ in range(target_index - 1))
+        source = f".SEG 0x3000\nBEQ r0, r0, target\n{filler}\ntarget:\nADDI r4, r0, 7\n"
+        segments = _assemble(source)
+        first_word = int.from_bytes(segments[0][1][:4], "big")
+        self.assertEqual(first_word, (0x3 << 28) | target_index)
+
+    @settings()
+    @given(name=st.text(alphabet="abcdefghijklmnopqrstuvwxyz", min_size=1, max_size=8))
+    def test_undefined_labels_are_rejected_cleanly(self, name):
+        with self.assertRaises((UnexpectedInput, AssemblerError)):
+            _assemble(f".SEG 0x1000\nJMP missing_{name}\n")
+
+    @settings()
+    @given(bad=st.text(max_size=80))
+    def test_arbitrary_assembly_parsing_is_bounded(self, bad):
+        try:
+            parse_source(bad)
+        except (UnexpectedInput, AssemblerError):
+            pass
+
+
+class AssemblerCorrectnessTests(unittest.TestCase):
+    def test_instruction_families_have_expected_words(self):
+        source = (
+            ".SEG 0x1000\n"
+            "ADD r1, r2, r3\n"
+            "ADDI r4, r5, -2\n"
+            "LW r6, r7, 4\n"
+            "BEQ r1, r2, target\n"
+            "ADDI r0, r0, 0\n"
+            "target:\n"
+            "BREAK\n"
+        )
+        segments = _assemble(source)
+        self.assertEqual(len(segments), 1)
+        words = [
+            int.from_bytes(segments[0][1][offset : offset + 4], "big")
+            for offset in range(0, len(segments[0][1]), 4)
+        ]
+        self.assertEqual(
+            words,
+            [
+                (1 << 20) | (2 << 16) | (3 << 12),
+                (1 << 28) | (4 << 20) | (5 << 16) | 0xFFFE,
+                (2 << 28) | (4 << 24) | (6 << 20) | (7 << 16) | 4,
+                (3 << 28) | (1 << 20) | (2 << 16) | 2,
+                (1 << 28),
+                (5 << 28) | (1 << 24),
+            ],
+        )
+
+    def test_assembled_arithmetic_program_executes_to_expected_registers(self):
+        harness = os.environ.get("ROSPOS_VM_FUZZ_HARNESS")
+        if not harness:
+            self.skipTest("run through make test to build the VM harness")
+        segments = _assemble(
+            ".SEG 0x1000\n"
+            "ADDI r1, r0, 19\n"
+            "ADDI r2, r0, 23\n"
+            "ADD r3, r1, r2\n"
+            "BREAK\n"
+        )
+        self.assertEqual(len(segments), 1)
+        self.assertEqual(segments[0][0], 0x1000)
+        result = subprocess.run(
+            [harness],
+            input=bytes(segments[0][1]),
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            timeout=5,
+            check=False,
+        )
+        self.assertEqual(result.returncode, 0, result.stderr.decode(errors="replace"))
+        self.assertIn(b"r3=42", result.stdout)
