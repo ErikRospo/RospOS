@@ -221,7 +221,10 @@ class StatementTransformer:
         } or ("token" in node)
 
     def _expr_to_stmt(self, expr_node, src_node):
-        expr = self.expr.from_node(expr_node)
+        return self._expression_to_stmt(self.expr.from_node(expr_node), src_node)
+
+    @staticmethod
+    def _expression_to_stmt(expr, src_node):
         if not expr:
             return None
         if expr.get("type") == "assign":
@@ -269,28 +272,9 @@ class StatementTransformer:
                     return [
                         copy_line(stmt_node, {"type": "return", "value": ret_value})
                     ]
-                if expr.get("type") == "call":
-                    return [
-                        copy_line(
-                            stmt_node,
-                            {
-                                "type": "call_stmt",
-                                "name": expr.get("name"),
-                                "args": expr.get("args", []),
-                            },
-                        )
-                    ]
-                if expr.get("type") == "assign":
-                    return [
-                        copy_line(
-                            stmt_node,
-                            {
-                                "type": "assign",
-                                "target": expr.get("target"),
-                                "value": expr.get("value"),
-                            },
-                        )
-                    ]
+                statement = self._expression_to_stmt(expr, stmt_node)
+                if statement is not None:
+                    return [statement]
             return []
 
         if node_type == "declaration":
@@ -307,21 +291,6 @@ class StatementTransformer:
             return [copy_line(stmt_node, {"type": "return", "value": expr})]
 
         return []
-
-    @staticmethod
-    def _find_name_in_node(node):
-        if isinstance(node, dict):
-            if (
-                "token" in node
-                and isinstance(node["token"], str)
-                and node["token"].isidentifier()
-            ):
-                return node["token"]
-            for child in node.get("children", []):
-                result = StatementTransformer._find_name_in_node(child)
-                if result is not None:
-                    return result
-        return None
 
     def _extract_condition_and_body(self, children):
         cond = None
@@ -391,7 +360,7 @@ class StatementTransformer:
                     cond = self.expr.from_node(children[2])
 
                 if cond is None:
-                    name_found = self._find_name_in_node(child)
+                    name_found = find_identifier(child)
                     if name_found is not None:
                         cond = {"type": "var", "name": name_found}
                     else:

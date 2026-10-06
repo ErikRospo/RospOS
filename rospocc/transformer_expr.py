@@ -279,7 +279,7 @@ class ExpressionTransformer:
                         return {"type": "call", "name": primary["token"], "args": args}
                     continue
 
-                if suffix_type == "member_access":
+                if suffix_type in ("member_access", "ptr_member_access"):
                     member_name = None
                     for member_child in child.get("children", []):
                         if isinstance(member_child, dict) and "token" in member_child:
@@ -288,22 +288,7 @@ class ExpressionTransformer:
                     if member_name and result is not None:
                         result = {
                             "type": "member_access",
-                            "op": ".",
-                            "base": result,
-                            "member": member_name,
-                        }
-                    continue
-
-                if suffix_type == "ptr_member_access":
-                    member_name = None
-                    for member_child in child.get("children", []):
-                        if isinstance(member_child, dict) and "token" in member_child:
-                            member_name = member_child["token"]
-                            break
-                    if member_name and result is not None:
-                        result = {
-                            "type": "member_access",
-                            "op": "->",
+                            "op": "." if suffix_type == "member_access" else "->",
                             "base": result,
                             "member": member_name,
                         }

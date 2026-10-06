@@ -2,22 +2,9 @@ from typing import Any, Dict, Optional
 
 import abi
 from loguru import logger
+from emitter_members import member_address, resolve_member_access
+from emitter_types import is_char_ptr_expr
 from errors import ExprEmitterError
-
-def _is_char_ptr_expr(emitter, expr: Optional[Dict[str, Any]]) -> bool:
-    if not isinstance(expr, dict):
-        return False
-
-    et = expr.get("type")
-    if et == "var":
-        return emitter.var_types.get(expr.get("name")) == "char_ptr"
-
-    if et == "binop" and expr.get("op") in ("plus", "minus"):
-        left = expr.get("left")
-        right = expr.get("right")
-        return _is_char_ptr_expr(emitter, left) or _is_char_ptr_expr(emitter, right)
-
-    return False
 
 
 def _emit_const(emitter, expr: Dict[str, Any], out) -> str:
@@ -64,7 +51,7 @@ def _emit_deref(emitter, expr: Dict[str, Any], out) -> str:
     inner = expr.get("expr")
     raddr = emitter.emit_expr(inner, out)
     rd = raddr if (raddr and not emitter.is_var_reg(raddr)) else emitter.alloc_reg()
-    load_instr = "LBU" if _is_char_ptr_expr(emitter, inner) else "LW"
+    load_instr = "LBU" if is_char_ptr_expr(emitter, inner) else "LW"
     out.write(f"  {load_instr} {rd}, {raddr}, 0    // deref\n")
     if rd != raddr:
         emitter.release_expr_reg(raddr)
@@ -80,123 +67,51 @@ def _emit_member_access(emitter, expr: Dict[str, Any], out) -> str:
         out.write("  // ERROR: missing base or member in member_access\n")
         return ""
 
-    if op == ".":
-        if base.get("type") == "var":
-            base_name = base.get("name")
-            base_type = emitter.var_types.get(base_name)
-            
-            struct_def = emitter.struct_types.get(base_type)
-            if not struct_def:
-                out.write(
-                    f"  // ERROR: unknown struct type {base_type} for {base_name}\n"
-                )
-                logger.error(f"Unknown struct type {base_type} for {base_name}\n")
-                raise ExprEmitterError()
-
-            member_offset = None
-            for m in struct_def.get("members", []):
-                if m.get("name") == member_name:
-                    member_offset = m.get("offset", 0)
-                    break
-
-            if member_offset is None:
-                out.write(
-                    f"  // ERROR: member {member_name} not found in {base_type}\n"
-                )
-                logger.error(f"Member {member_name} not found in {base_type}")
-                
-                raise ExprEmitterError()
-
-            base_reg = emitter.var_regs.get(base_name)
-            if not base_reg and base_name in getattr(emitter, "_var_spill_labels", {}):
-                base_reg = emitter._restore_spilled_var_reg(base_name, out)
-            if not base_reg:
-                out.write(f"  // ERROR: variable {base_name} not in register\n")
-                logger.error(f"Variable {base_name} not in register")
-                raise ExprEmitterError()
-
-            rd = emitter.alloc_reg()
-            if member_offset < 2**16:
-                out.write(
-                    f"  LW {rd}, {base_reg}, {member_offset}    // load {base_name}.{member_name}\n"
-                )
-            else:
-                offset_reg = emitter.alloc_reg()
-                emitter._load_imm(offset_reg, member_offset, out)
-                addr_reg = emitter.alloc_reg()
-                out.write(
-                    f"  ADD {addr_reg}, {base_reg}, {offset_reg}    // {base_name} + offset\n"
-                )
-                out.write(
-                    f"  LW {rd}, {addr_reg}, 0    // load {base_name}.{member_name}\n"
-                )
-                if offset_reg in abi.TEMP_REGS:
-                    emitter.free_reg(offset_reg)
-                if addr_reg in abi.TEMP_REGS:
-                    emitter.free_reg(addr_reg)
-            return rd
-
+    if op == "." and base.get("type") != "var":
         out.write(f"  // ERROR: unsupported base for . operator: {base}\n")
-        logger.error(f"Unsupported base for . operator: {base}")
-        raise ExprEmitterError()
+        error = f"Unsupported base for . operator: {base}"
+        logger.error(error)
+        raise ExprEmitterError(error)
+    if op not in (".", "->"):
+        out.write(f"  // ERROR: unsupported member access op {op}\n")
+        error = f"Unsupported member access op {op}"
+        logger.error(error)
+        raise ExprEmitterError(error)
 
-    if op == "->":
-        base_expr = emitter.emit_expr(base, out)
-        if not base_expr:
+    with resolve_member_access(emitter, expr, out) as access:
+        if op == "->" and not access.base_reg:
             out.write("  // ERROR: failed to emit base expr for ->\n")
-            logger.error("Failed to emit base expr for ->")
-            raise ExprEmitterError()
-        struct_type_name = None
-        if base.get("type") == "var":
-            base_type = emitter.var_types.get(base.get("name"))
-            if base_type and "_ptr" in base_type:
-                struct_type_name = base_type.replace("_ptr", "")
+            error = "Failed to emit base expr for ->"
+            logger.error(error)
+            raise ExprEmitterError(error)
+        if not access.struct_def:
+            if op == ".":
+                error = (
+                    f"Unknown struct type {access.struct_type} for {base.get('name')}"
+                )
             else:
-                struct_type_name = base_type
-
-        if not struct_type_name or struct_type_name not in emitter.struct_types:
-            out.write("  // ERROR: cannot determine struct type for -> access\n")
-            logger.error(f"Cannot determine struct type for -> access")
-            raise ExprEmitterError()
-        struct_def = emitter.struct_types.get(struct_type_name)
-
-        member_offset = None
-        for m in struct_def.get("members", []):
-            if m.get("name") == member_name:
-                member_offset = m.get("offset", 0)
-                break
-
-        if member_offset is None:
-            out.write(
-                f"  // ERROR: member {member_name} not found in {struct_type_name}\n"
-            )
-            logger.error(f"Member {member_name} not found in {struct_type_name}")
-            raise ExprEmitterError()
+                error = "Cannot determine struct type for -> access"
+            out.write(f"  // ERROR: {error}\n")
+            logger.error(error)
+            raise ExprEmitterError(error)
+        if access.offset is None:
+            error = f"Member {member_name} not found in {access.struct_type}"
+            out.write(f"  // ERROR: {error}\n")
+            logger.error(error)
+            raise ExprEmitterError(error)
+        if not access.base_reg:
+            error = f"Variable {base.get('name')} not in register"
+            out.write(f"  // ERROR: {error}\n")
+            logger.error(error)
+            raise ExprEmitterError(error)
 
         rd = emitter.alloc_reg()
-        if member_offset < 2**16:
-            out.write(
-                f"  LW {rd}, {base_expr}, {member_offset}    // load ptr->{member_name}\n"
-            )
-        else:
-            offset_reg = emitter.alloc_reg()
-            emitter._load_imm(offset_reg, member_offset, out)
-            addr_reg = emitter.alloc_reg()
-            out.write(
-                f"  ADD {addr_reg}, {base_expr}, {offset_reg}    // ptr + offset\n"
-            )
-            out.write(f"  LW {rd}, {addr_reg}, 0    // load ptr->{member_name}\n")
-            if offset_reg in abi.TEMP_REGS:
-                emitter.free_reg(offset_reg)
-            if addr_reg in abi.TEMP_REGS:
-                emitter.free_reg(addr_reg)
-
-        emitter.release_expr_reg(base_expr)
+        with member_address(emitter, access, out, access.address_comment) as (
+            raddr,
+            offset,
+        ):
+            out.write(f"  LW {rd}, {raddr}, {offset}    // load {access.description}\n")
         return rd
-
-    out.write(f"  // ERROR: unsupported member access op {op}\n")
-    logger.error(f"Unsupported member access op {op}")
-    raise ExprEmitterError()
 
 
 def _emit_call(emitter, expr: Dict[str, Any], out) -> str:
@@ -220,8 +135,9 @@ def _emit_binop(emitter, expr: Dict[str, Any], out) -> str:
         rl = emitter.emit_expr(left, out)
         if not rl:
             out.write(f"  // ERROR: failed to emit left operand for binop {op}\n")
-            logger.error(f"Failed to emit left hand operand for binop {op}")
-            raise ExprEmitterError()
+            error = f"Failed to emit left hand operand for binop {op}"
+            logger.error(error)
+            raise ExprEmitterError(error)
 
         rd = (
             rl
@@ -272,14 +188,10 @@ def _emit_binop(emitter, expr: Dict[str, Any], out) -> str:
 
     if not rl or not rr:
         out.write(f"  // ERROR: failed to emit operands for binop {op}\n")
-        
-        logger.error(f"Failed to emit operands {rl=}, {rr=} for binop {op}")
-        raise ExprEmitterError()
-        # if rl:
-        #     emitter.release_expr_reg(rl)
-        # if rr:
-        #     emitter.release_expr_reg(rr)
-        # return ""
+
+        error = f"Failed to emit operands {rl=}, {rr=} for binop {op}"
+        logger.error(error)
+        raise ExprEmitterError(error)
 
     def _pick_dest_reg() -> str:
         if rl and rl in abi.TEMP_REGS and not emitter.is_var_reg(rl):
@@ -332,8 +244,9 @@ def _emit_binop(emitter, expr: Dict[str, Any], out) -> str:
         emitter._emit_compare(rd, op, rl, rr, out)
     else:
         out.write(f"  // unsupported binop {op}\n")
-        logger.warning(f"Unsupported binop {op}")
-        raise ExprEmitterError()
+        error = f"Unsupported binop {op}"
+        logger.warning(error)
+        raise ExprEmitterError(error)
     _release_operands_for_result()
     return rd
 
@@ -344,9 +257,10 @@ def _emit_unop(emitter, expr: Dict[str, Any], out) -> str:
     if op == "not":
         operand = expr.get("operand")
         if operand is None:
-            
-            logger.error("unop 'not' missing operand")
-            raise ExprEmitterError()
+
+            error = "unop 'not' missing operand"
+            logger.error(error)
+            raise ExprEmitterError(error)
         r_operand = emitter.emit_expr(operand, out)
         rd = (
             r_operand
@@ -382,9 +296,9 @@ def _emit_assign_expr(emitter, expr: Dict[str, Any], out) -> str:
     rval = emitter.emit_expr(value_expr, out)
     if not rval:
         out.write("  // ERROR: assign-expr has no rhs register\n")
-        logger.error("Assign-expr has no rhs register")
-        raise ExprEmitterError()
-        return ""
+        error = "Assign-expr has no rhs register"
+        logger.error(error)
+        raise ExprEmitterError(error)
 
     result = rval
 
@@ -394,13 +308,14 @@ def _emit_assign_expr(emitter, expr: Dict[str, Any], out) -> str:
         raddr = emitter.emit_expr(addr_expr, out)
         emitter.unpin_reg(rval)
         if raddr:
-            store_instr = "SBU" if _is_char_ptr_expr(emitter, addr_expr) else "SW"
+            store_instr = "SBU" if is_char_ptr_expr(emitter, addr_expr) else "SW"
             out.write(f"  {store_instr} {rval}, {raddr}, 0    // store (assign-expr)\n")
             emitter.release_expr_reg(raddr)
         else:
             out.write("  // ERROR: assign-expr deref target has no address register\n")
-            logger.error("Assign-expr deref target has no address register")
-            raise ExprEmitterError()
+            error = "Assign-expr deref target has no address register"
+            logger.error(error)
+            raise ExprEmitterError(error)
     elif isinstance(target, dict) and target.get("type") == "var":
         name = target.get("name")
         if getattr(emitter, "_is_global_storage_var", lambda _name: False)(name):
@@ -408,8 +323,9 @@ def _emit_assign_expr(emitter, expr: Dict[str, Any], out) -> str:
             result = rval
         elif getattr(emitter, "_is_global_address_symbol", lambda _name: False)(name):
             out.write(f"  // ERROR: cannot assign through address-only global {name}\n")
-            logger.error(f"Cannot assign through address-only global {name}")
-            raise ExprEmitterError()
+            error = f"Cannot assign through address-only global {name}"
+            logger.error(error)
+            raise ExprEmitterError(error)
         else:
             dest = emitter.var_regs.get(name)
             spill_label = getattr(emitter, "_var_spill_labels", {}).get(name)
@@ -439,8 +355,9 @@ def _emit_assign_expr(emitter, expr: Dict[str, Any], out) -> str:
             out.write(
                 f"  // ERROR: cannot assign through address-only global {target}\n"
             )
-            logger.error(f"Cannot assign through address-only global {target}")
-            raise ExprEmitterError()
+            error = f"Cannot assign through address-only global {target}"
+            logger.error(error)
+            raise ExprEmitterError(error)
         else:
             dest = emitter.var_regs.get(target)
             spill_label = getattr(emitter, "_var_spill_labels", {}).get(target)

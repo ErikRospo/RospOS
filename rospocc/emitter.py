@@ -1130,11 +1130,7 @@ class Emitter:
                 self.emit_global_declaration(g, out)
             # Emit any lifted large buffers (as .SPACE labels)
             out.set_source_context(None)  # No source for lifted buffers
-            for sp in self.global_spaces:
-                lbl = sp.get("name")
-                size = int(sp.get("size", 0))
-                out.write(f"{lbl}:\n")
-                out.write(f"  .SPACE {size} // lifted buffer\n\n")
+            self._write_lifted_spaces(out)
             out.write("\n")
             out.flush()
             merged_mappings.extend(out.get_mappings()[len(base_mappings) :])

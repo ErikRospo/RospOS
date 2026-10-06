@@ -14,12 +14,17 @@ from hypothesis import strategies as st
 from lark.exceptions import UnexpectedInput
 
 ROOT = Path(__file__).resolve().parents[1]
+# Load assembler modules before replacing their top-level module names.
+from test_assembler_fuzz import _assemble
+
 sys.path.insert(0, str(ROOT / "rospocc"))
-# RospoAS and RospoCC both use a top-level module named ``transformer``.
+# RospoAS and RospoCC both use top-level ``transformer`` and ``errors`` modules.
 sys.modules.pop("transformer", None)
+_assembler_errors = sys.modules.pop("errors", None)
 from parser import compile_source, parse_code
 
-from test_assembler_fuzz import _assemble
+# The assembler also imports its errors dynamically during instruction encoding.
+sys.modules["errors"] = _assembler_errors
 
 
 def _compile_silently(*args):
@@ -95,6 +100,26 @@ class CompilerFuzzTests(unittest.TestCase):
 
 
 class CompilerCorrectnessTests(unittest.TestCase):
+    def test_struct_members_through_value_and_pointer_bases(self):
+        sources = [
+            "struct Pair { int x; int y; }; "
+            "int main() { struct Pair s; s.x = 19; s.y = 42; return s.y; }",
+            "struct Pair { int x; int y; }; "
+            "int value(struct Pair *p) { p->y = 42; return p->y; } "
+            "int main() { struct Pair s; s.x = 19; s.y = 22; return value(s); }",
+        ]
+        for source in sources:
+            with self.subTest(source=source):
+                self.assertEqual(_run_compiled_source(source), 42)
+
+    def test_array_initializers_and_for_loop_step(self):
+        source = (
+            'int main() { char buf[4] = "ab"; char unused[4]; '
+            "for (int i = 0; i < 2; i++) { buf[i] = buf[i] + 1; } "
+            "return buf[0] + buf[1]; }"
+        )
+        self.assertEqual(_run_compiled_source(source), 197)
+
     def test_arithmetic_and_return_value(self):
         actual = _run_compiled_source("int main() { return (6 * 7) - 1; }")
         self.assertEqual(actual, 41)
