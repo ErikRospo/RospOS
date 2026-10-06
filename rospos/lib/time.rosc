@@ -49,17 +49,17 @@ char *unix_ms_buffer()
 
 struct unix_time *get_unix_time()
 {
-    (struct unix_time *) out = malloc(sizeof(struct unix_time));
+    struct unix_time * out = malloc(sizeof(struct unix_time));
     char time_block_buffer[512] = malloc(512);
     _read_special_block(0xFFFFFFFC, time_block_buffer);
 
-    (*out).year = _read_be_u32(time_block_buffer, 0);
-    (*out).month = _read_be_u32(time_block_buffer, 4);
-    (*out).day = _read_be_u32(time_block_buffer, 8);
-    (*out).hour = _read_be_u32(time_block_buffer, 12);
-    (*out).minute = _read_be_u32(time_block_buffer, 16);
-    (*out).second = _read_be_u32(time_block_buffer, 20);
-    (*out).millisecond = _read_be_u32(time_block_buffer, 24);
+    out->year = _read_be_u32(time_block_buffer, 0);
+    out->month = _read_be_u32(time_block_buffer, 4);
+    out->day = _read_be_u32(time_block_buffer, 8);
+    out->hour = _read_be_u32(time_block_buffer, 12);
+    out->minute = _read_be_u32(time_block_buffer, 16);
+    out->second = _read_be_u32(time_block_buffer, 20);
+    out->millisecond = _read_be_u32(time_block_buffer, 24);
     free(time_block_buffer);
     return out;
 }
@@ -72,7 +72,7 @@ inline void _append_two_digits(char *buffer, int value)
     buffer[len + 2] = '\0';
 }
 
-char *fmt_unix_time(struct unix_time time)
+char *fmt_unix_time(struct unix_time * time)
 {
     // YYYY-MM-DD HH:MM:SS
     char *buffer = (char *)malloc(20);
@@ -83,16 +83,16 @@ char *fmt_unix_time(struct unix_time time)
 
     buffer[0] = '\0';
 
-    strcat(buffer, int_to_str(time.year));
+    strcat(buffer, int_to_str(time->year));
     strcat(buffer, "-");
-    _append_two_digits(buffer, time.month);
+    _append_two_digits(buffer, time->month);
     strcat(buffer, "-");
-    _append_two_digits(buffer, time.day);
+    _append_two_digits(buffer, time->day);
     strcat(buffer, " ");
-    _append_two_digits(buffer, time.hour);
+    _append_two_digits(buffer, time->hour);
     strcat(buffer, ":");
-    _append_two_digits(buffer, time.minute);
+    _append_two_digits(buffer, time->minute);
     strcat(buffer, ":");
-    _append_two_digits(buffer, time.second);
+    _append_two_digits(buffer, time->second);
     return buffer;
 }

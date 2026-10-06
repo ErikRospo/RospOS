@@ -855,17 +855,17 @@ char *unix_ms_buffer()
 
 struct unix_time *get_unix_time()
 {
-    (struct unix_time *) out = malloc(sizeof(struct unix_time));
+    struct unix_time * out = malloc(sizeof(struct unix_time));
     char time_block_buffer[512] = malloc(512);
     _read_special_block(0xFFFFFFFC, time_block_buffer);
 
-    (*out).year = _read_be_u32(time_block_buffer, 0);
-    (*out).month = _read_be_u32(time_block_buffer, 4);
-    (*out).day = _read_be_u32(time_block_buffer, 8);
-    (*out).hour = _read_be_u32(time_block_buffer, 12);
-    (*out).minute = _read_be_u32(time_block_buffer, 16);
-    (*out).second = _read_be_u32(time_block_buffer, 20);
-    (*out).millisecond = _read_be_u32(time_block_buffer, 24);
+    out->year = _read_be_u32(time_block_buffer, 0);
+    out->month = _read_be_u32(time_block_buffer, 4);
+    out->day = _read_be_u32(time_block_buffer, 8);
+    out->hour = _read_be_u32(time_block_buffer, 12);
+    out->minute = _read_be_u32(time_block_buffer, 16);
+    out->second = _read_be_u32(time_block_buffer, 20);
+    out->millisecond = _read_be_u32(time_block_buffer, 24);
     free(time_block_buffer);
     return out;
 }
@@ -878,7 +878,7 @@ inline void _append_two_digits(char *buffer, int value)
     buffer[len + 2] = "\0";
 }
 
-char *fmt_unix_time(struct unix_time time)
+char *fmt_unix_time(struct unix_time * time)
 {
     // YYYY-MM-DD HH:MM:SS
     char *buffer = (char *)malloc(20);
@@ -889,17 +889,17 @@ char *fmt_unix_time(struct unix_time time)
 
     buffer[0] = "\0";
 
-    strcat(buffer, int_to_str(time.year));
+    strcat(buffer, int_to_str(time->year));
     strcat(buffer, "-");
-    _append_two_digits(buffer, time.month);
+    _append_two_digits(buffer, time->month);
     strcat(buffer, "-");
-    _append_two_digits(buffer, time.day);
+    _append_two_digits(buffer, time->day);
     strcat(buffer, " ");
-    _append_two_digits(buffer, time.hour);
+    _append_two_digits(buffer, time->hour);
     strcat(buffer, ":");
-    _append_two_digits(buffer, time.minute);
+    _append_two_digits(buffer, time->minute);
     strcat(buffer, ":");
-    _append_two_digits(buffer, time.second);
+    _append_two_digits(buffer, time->second);
     return buffer;
 }
 // display_image.rosc
@@ -950,41 +950,40 @@ struct fixed_point{
     int value_low;
 };
 
-struct fixed_point add_fixed_point(struct fixed_point a, struct fixed_point b)
+struct fixed_point * add_fixed_point(struct fixed_point *a, struct fixed_point * b)
 {
-    struct fixed_point result;
+    struct fixed_point * result=malloc(sizeof(struct fixed_point));
     int carry = 0;
     
     // Add low parts
-    int low_sum = a.value_low + b.value_low;
-    if (low_sum < a.value_low) // Check for overflow
+    int low_sum = a->value_low + b->value_low;
+    if (low_sum < a->value_low) // Check for overflow
     {
         carry = 1;
     }
-    result.value_low = low_sum;
+    result->value_low = low_sum;
     
     // Add high parts with carry
-    result.value_high = a.value_high + b.value_high + carry;
+    result->value_high = a->value_high + b->value_high + carry;
     
     return result;
 }
 
-struct fixed_point multiply_fixed_point(struct fixed_point a, struct fixed_point b)
+struct fixed_point * multiply_fixed_point(struct fixed_point * a, struct fixed_point * b)
 {
-    struct fixed_point result;
+    struct fixed_point * result=malloc(sizeof(struct fixed_point));
     
-    // Multiply low parts using only 32-bit operations (NO LONG, NO LONG LONG, ONLY 32-BIT INTS)
-    int a_low = a.value_low;
-    int a_high = a.value_high;
-    int b_low = b.value_low;
-    int b_high = b.value_high;
+    int a_low = a->value_low;
+    int a_high = a->value_high;
+    int b_low = b->value_low;
+    int b_high = b->value_high;
     int low_product = (a_low * b_low) & 0xFFFFFFFF; // Keep lower 32 bits
     int cross_product1 = (a_high * b_low) & 0xFFFFFFFF; // Cross product 1
     int cross_product2 = (a_low * b_high) & 0xFFFFFFFF; // Cross product 2
     int high_product = (a_high * b_high) & 0xFFFFFFFF; // High product
     // Combine results
-    result.value_low = (int)(low_product & 0xFFFFFFFF); // Keep lower 32 bits
-    result.value_high = (int)((high_product + cross_product1 + cross_product2 + (low_product >> 32)) & 0xFFFFFFFF); // Add high product, cross products, and carry from low product
+    result->value_low = (int)(low_product & 0xFFFFFFFF); // Keep lower 32 bits
+    result->value_high = (int)((high_product + cross_product1 + cross_product2 + (low_product >> 32)) & 0xFFFFFFFF); // Add high product, cross products, and carry from low product
     
     return result;
 }
@@ -1043,7 +1042,7 @@ struct fixed_point fixed_point_from_parts(int high, int low)
 
 char *fixed_point_to_string(struct fixed_point fp)
 {
-    char buffer[64];
+    char *buffer=malloc(64);
     int is_negative = 0;
     // Convert fixed-point to string: integer.fractional
     buffer[0] = "\0";

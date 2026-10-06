@@ -4235,13 +4235,13 @@ translation_unit
         pointer
       declarator	get_unix_time
       compound_stmt
-        expr_stmt
-          cast
-            type_specifier
-              unix_time
-              pointer
-            assignment
-              out
+        declaration
+          type_specifier
+            unix_time
+            pointer
+          init_declarator_list
+            init_declarator
+              declarator	out
               postfix
                 malloc
                 call_suffix
@@ -4270,10 +4270,8 @@ translation_unit
         expr_stmt
           assignment
             postfix
-              unary
-                deref
-                out
-              member_access	year
+              out
+              ptr_member_access	year
             postfix
               _read_be_u32
               call_suffix
@@ -4283,10 +4281,8 @@ translation_unit
         expr_stmt
           assignment
             postfix
-              unary
-                deref
-                out
-              member_access	month
+              out
+              ptr_member_access	month
             postfix
               _read_be_u32
               call_suffix
@@ -4296,10 +4292,8 @@ translation_unit
         expr_stmt
           assignment
             postfix
-              unary
-                deref
-                out
-              member_access	day
+              out
+              ptr_member_access	day
             postfix
               _read_be_u32
               call_suffix
@@ -4309,10 +4303,8 @@ translation_unit
         expr_stmt
           assignment
             postfix
-              unary
-                deref
-                out
-              member_access	hour
+              out
+              ptr_member_access	hour
             postfix
               _read_be_u32
               call_suffix
@@ -4322,10 +4314,8 @@ translation_unit
         expr_stmt
           assignment
             postfix
-              unary
-                deref
-                out
-              member_access	minute
+              out
+              ptr_member_access	minute
             postfix
               _read_be_u32
               call_suffix
@@ -4335,10 +4325,8 @@ translation_unit
         expr_stmt
           assignment
             postfix
-              unary
-                deref
-                out
-              member_access	second
+              out
+              ptr_member_access	second
             postfix
               _read_be_u32
               call_suffix
@@ -4348,10 +4336,8 @@ translation_unit
         expr_stmt
           assignment
             postfix
-              unary
-                deref
-                out
-              member_access	millisecond
+              out
+              ptr_member_access	millisecond
             postfix
               _read_be_u32
               call_suffix
@@ -4444,7 +4430,9 @@ translation_unit
       declarator	fmt_unix_time
       param_list
         param
-          type_specifier	unix_time
+          type_specifier
+            unix_time
+            pointer
           declarator	time
       compound_stmt
         declaration
@@ -4486,7 +4474,7 @@ translation_unit
                     arg_list
                       postfix
                         time
-                        member_access	year
+                        ptr_member_access	year
         expr_stmt
           postfix
             strcat
@@ -4502,7 +4490,7 @@ translation_unit
                 buffer
                 postfix
                   time
-                  member_access	month
+                  ptr_member_access	month
         expr_stmt
           postfix
             strcat
@@ -4518,7 +4506,7 @@ translation_unit
                 buffer
                 postfix
                   time
-                  member_access	day
+                  ptr_member_access	day
         expr_stmt
           postfix
             strcat
@@ -4534,7 +4522,7 @@ translation_unit
                 buffer
                 postfix
                   time
-                  member_access	hour
+                  ptr_member_access	hour
         expr_stmt
           postfix
             strcat
@@ -4550,7 +4538,7 @@ translation_unit
                 buffer
                 postfix
                   time
-                  member_access	minute
+                  ptr_member_access	minute
         expr_stmt
           postfix
             strcat
@@ -4566,7 +4554,7 @@ translation_unit
                 buffer
                 postfix
                   time
-                  member_access	second
+                  ptr_member_access	second
         return_stmt	buffer
   external_decl
     function_def
@@ -4722,21 +4710,35 @@ translation_unit
             declarator	value_low
   external_decl
     function_def
-      type_specifier	fixed_point
+      type_specifier
+        fixed_point
+        pointer
       declarator	add_fixed_point
       param_list
         param
-          type_specifier	fixed_point
+          type_specifier
+            fixed_point
+            pointer
           declarator	a
         param
-          type_specifier	fixed_point
+          type_specifier
+            fixed_point
+            pointer
           declarator	b
       compound_stmt
         declaration
-          type_specifier	fixed_point
+          type_specifier
+            fixed_point
+            pointer
           init_declarator_list
             init_declarator
               declarator	result
+              postfix
+                malloc
+                call_suffix
+                  arg_list
+                    sizeof
+                      type_specifier	fixed_point
         declaration
           type_specifier
             int
@@ -4753,18 +4755,18 @@ translation_unit
               additive
                 postfix
                   a
-                  member_access	value_low
+                  ptr_member_access	value_low
                 plus
                 postfix
                   b
-                  member_access	value_low
+                  ptr_member_access	value_low
         if_stmt
           relational
             low_sum
             lt
             postfix
               a
-              member_access	value_low
+              ptr_member_access	value_low
           compound_stmt
             expr_stmt
               assignment
@@ -4774,41 +4776,55 @@ translation_unit
           assignment
             postfix
               result
-              member_access	value_low
+              ptr_member_access	value_low
             low_sum
         expr_stmt
           assignment
             postfix
               result
-              member_access	value_high
+              ptr_member_access	value_high
             additive
               postfix
                 a
-                member_access	value_high
+                ptr_member_access	value_high
               plus
               postfix
                 b
-                member_access	value_high
+                ptr_member_access	value_high
               plus
               carry
         return_stmt	result
   external_decl
     function_def
-      type_specifier	fixed_point
+      type_specifier
+        fixed_point
+        pointer
       declarator	multiply_fixed_point
       param_list
         param
-          type_specifier	fixed_point
+          type_specifier
+            fixed_point
+            pointer
           declarator	a
         param
-          type_specifier	fixed_point
+          type_specifier
+            fixed_point
+            pointer
           declarator	b
       compound_stmt
         declaration
-          type_specifier	fixed_point
+          type_specifier
+            fixed_point
+            pointer
           init_declarator_list
             init_declarator
               declarator	result
+              postfix
+                malloc
+                call_suffix
+                  arg_list
+                    sizeof
+                      type_specifier	fixed_point
         declaration
           type_specifier
             int
@@ -4817,7 +4833,7 @@ translation_unit
               declarator	a_low
               postfix
                 a
-                member_access	value_low
+                ptr_member_access	value_low
         declaration
           type_specifier
             int
@@ -4826,7 +4842,7 @@ translation_unit
               declarator	a_high
               postfix
                 a
-                member_access	value_high
+                ptr_member_access	value_high
         declaration
           type_specifier
             int
@@ -4835,7 +4851,7 @@ translation_unit
               declarator	b_low
               postfix
                 b
-                member_access	value_low
+                ptr_member_access	value_low
         declaration
           type_specifier
             int
@@ -4844,7 +4860,7 @@ translation_unit
               declarator	b_high
               postfix
                 b
-                member_access	value_high
+                ptr_member_access	value_high
         declaration
           type_specifier
             int
@@ -4897,7 +4913,7 @@ translation_unit
           assignment
             postfix
               result
-              member_access	value_low
+              ptr_member_access	value_low
             cast
               type_specifier
                 int
@@ -4908,7 +4924,7 @@ translation_unit
           assignment
             postfix
               result
-              member_access	value_high
+              ptr_member_access	value_high
             cast
               type_specifier
                 int
@@ -5156,11 +5172,14 @@ translation_unit
         declaration
           type_specifier
             char
+            pointer
           init_declarator_list
             init_declarator
-              declarator
-                buffer
-                array	64
+              declarator	buffer
+              postfix
+                malloc
+                call_suffix
+                  arg_list	64
         declaration
           type_specifier
             int

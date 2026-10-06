@@ -45,7 +45,11 @@ def _run_compiled_source(source):
         with contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(
             io.StringIO()
         ):
-            segments = _assemble(output.read_text(encoding="utf-8"))
+            # Halt after main returns instead of restarting at the entry JMP.
+            assembly = output.read_text(encoding="utf-8").replace(
+                "  JMP main\n", "  CALL main\n  BREAK\n", 1
+            )
+            segments = _assemble(assembly)
         image = bytearray(struct.pack(">I", len(segments)))
         for address, content in segments:
             image.extend(struct.pack(">II", address, len(content)))
@@ -107,6 +111,9 @@ class CompilerCorrectnessTests(unittest.TestCase):
             "struct Pair { int x; int y; }; "
             "int value(struct Pair *p) { p->y = 42; return p->y; } "
             "int main() { struct Pair s; s.x = 19; s.y = 22; return value(s); }",
+            "struct Pair { int x; int y; }; "
+            "int total(struct Pair *p) { p->y = p->y + 1; return p->x + p->y; } "
+            "int main() { struct Pair s; s.x = 19; s.y = 22; return total(s); }",
         ]
         for source in sources:
             with self.subTest(source=source):

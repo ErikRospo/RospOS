@@ -3,41 +3,40 @@ struct fixed_point{
     int value_low;
 };
 
-struct fixed_point add_fixed_point(struct fixed_point a, struct fixed_point b)
+struct fixed_point * add_fixed_point(struct fixed_point *a, struct fixed_point * b)
 {
-    struct fixed_point result;
+    struct fixed_point * result=malloc(sizeof(struct fixed_point));
     int carry = 0;
     
     // Add low parts
-    int low_sum = a.value_low + b.value_low;
-    if (low_sum < a.value_low) // Check for overflow
+    int low_sum = a->value_low + b->value_low;
+    if (low_sum < a->value_low) // Check for overflow
     {
         carry = 1;
     }
-    result.value_low = low_sum;
+    result->value_low = low_sum;
     
     // Add high parts with carry
-    result.value_high = a.value_high + b.value_high + carry;
+    result->value_high = a->value_high + b->value_high + carry;
     
     return result;
 }
 
-struct fixed_point multiply_fixed_point(struct fixed_point a, struct fixed_point b)
+struct fixed_point * multiply_fixed_point(struct fixed_point * a, struct fixed_point * b)
 {
-    struct fixed_point result;
+    struct fixed_point * result=malloc(sizeof(struct fixed_point));
     
-    // Multiply low parts using only 32-bit operations (NO LONG, NO LONG LONG, ONLY 32-BIT INTS)
-    int a_low = a.value_low;
-    int a_high = a.value_high;
-    int b_low = b.value_low;
-    int b_high = b.value_high;
+    int a_low = a->value_low;
+    int a_high = a->value_high;
+    int b_low = b->value_low;
+    int b_high = b->value_high;
     int low_product = (a_low * b_low) & 0xFFFFFFFF; // Keep lower 32 bits
     int cross_product1 = (a_high * b_low) & 0xFFFFFFFF; // Cross product 1
     int cross_product2 = (a_low * b_high) & 0xFFFFFFFF; // Cross product 2
     int high_product = (a_high * b_high) & 0xFFFFFFFF; // High product
     // Combine results
-    result.value_low = (int)(low_product & 0xFFFFFFFF); // Keep lower 32 bits
-    result.value_high = (int)((high_product + cross_product1 + cross_product2 + (low_product >> 32)) & 0xFFFFFFFF); // Add high product, cross products, and carry from low product
+    result->value_low = (int)(low_product & 0xFFFFFFFF); // Keep lower 32 bits
+    result->value_high = (int)((high_product + cross_product1 + cross_product2 + (low_product >> 32)) & 0xFFFFFFFF); // Add high product, cross products, and carry from low product
     
     return result;
 }
@@ -96,7 +95,7 @@ struct fixed_point fixed_point_from_parts(int high, int low)
 
 char *fixed_point_to_string(struct fixed_point fp)
 {
-    char buffer[64];
+    char *buffer=malloc(64);
     int is_negative = 0;
     // Convert fixed-point to string: integer.fractional
     buffer[0] = '\0';

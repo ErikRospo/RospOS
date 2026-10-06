@@ -13526,6 +13526,11 @@ program
         register	r14
   codeline
     instruction
+      lli
+        register	r2
+        imm	0
+  codeline
+    instruction
       push
         register	r2
   codeline
@@ -13712,6 +13717,13 @@ program
         imm	0
   codeline
     instruction
+      lsinstructuse
+        sw
+        register	r7
+        register	r2
+        imm	0
+  codeline
+    instruction
       push
         register	r2
   codeline
@@ -13767,6 +13779,13 @@ program
         register	r9
         register	r1
         imm	0
+  codeline
+    instruction
+      lsinstructuse
+        sw
+        register	r9
+        register	r2
+        imm	4
   codeline
     instruction
       push
@@ -13826,6 +13845,13 @@ program
         imm	0
   codeline
     instruction
+      lsinstructuse
+        sw
+        register	r11
+        register	r2
+        imm	8
+  codeline
+    instruction
       push
         register	r2
   codeline
@@ -13881,6 +13907,13 @@ program
         register	r3
         register	r1
         imm	0
+  codeline
+    instruction
+      lsinstructuse
+        sw
+        register	r3
+        register	r2
+        imm	12
   codeline
     instruction
       push
@@ -13940,6 +13973,13 @@ program
         imm	0
   codeline
     instruction
+      lsinstructuse
+        sw
+        register	r6
+        register	r2
+        imm	16
+  codeline
+    instruction
       push
         register	r2
   codeline
@@ -13997,6 +14037,13 @@ program
         imm	0
   codeline
     instruction
+      lsinstructuse
+        sw
+        register	r7
+        register	r2
+        imm	20
+  codeline
+    instruction
       push
         register	r2
   codeline
@@ -14052,6 +14099,13 @@ program
         register	r9
         register	r1
         imm	0
+  codeline
+    instruction
+      lsinstructuse
+        sw
+        register	r9
+        register	r2
+        imm	24
   codeline
     instruction
       push
@@ -16022,137 +16076,177 @@ program
     instruction
       lli
         register	r3
-        imm
-          labeluse	add_fixed_point_52_result_struct1
+        imm	0
+  codeline
+    instruction
+      push
+        register	r2
+  codeline
+    instruction
+      push
+        register	r3
   codeline
     instruction
       lli
         register	r4
+        imm	8
+  codeline
+    instruction
+      push
+        register	r4
+  codeline
+    instruction
+      pop
+        register	r1
+  codeline
+    instruction
+      callpseudo
+        imm
+          labeluse	malloc
+  codeline
+    instruction
+      pop
+        register	r3
+  codeline
+    instruction
+      pop
+        register	r2
+  codeline
+    instruction
+      iinstructuse
+        addi
+        register	r3
+        register	r1
+        imm	0
+  codeline
+    instruction
+      lli
+        register	r5
         imm	0
   codeline
     instruction
       lsinstructuse
         lw
-        register	r5
+        register	r6
         register	r1
         imm	4
   codeline
     instruction
       lsinstructuse
         lw
-        register	r6
+        register	r7
         register	r2
         imm	4
   codeline
     instruction
       rinstructuse
         add
-        register	r5
-        register	r5
         register	r6
+        register	r6
+        register	r7
   codeline
     instruction
       lsinstructuse
         lw
-        register	r7
+        register	r8
         register	r1
         imm	4
   codeline
     instruction
       binstructuse
         blt
-        register	r5
-        register	r7
+        register	r6
+        register	r8
         imm
-          labeluse	add_fixed_point_52_CMP_TRUE4
+          labeluse	add_fixed_point_52_CMP_TRUE3
   codeline
     instruction
       lli
-        register	r7
+        register	r8
         imm	0
   codeline
     instruction
       jmpseudo
         imm
-          labeluse	add_fixed_point_52_CMP_END5
+          labeluse	add_fixed_point_52_CMP_END4
   codeline
-    label	add_fixed_point_52_CMP_TRUE4:
-  codeline
-    instruction
-      lli
-        register	r7
-        imm	1
-  codeline
-    label	add_fixed_point_52_CMP_END5:
-  codeline
-    instruction
-      binstructuse
-        beq
-        register	r7
-        register	r0
-        imm
-          labeluse	add_fixed_point_52_ELSE2
+    label	add_fixed_point_52_CMP_TRUE3:
   codeline
     instruction
       lli
         register	r8
+        imm	1
+  codeline
+    label	add_fixed_point_52_CMP_END4:
+  codeline
+    instruction
+      binstructuse
+        beq
+        register	r8
+        register	r0
+        imm
+          labeluse	add_fixed_point_52_ELSE1
+  codeline
+    instruction
+      lli
+        register	r9
         imm	1
   codeline
     instruction
       iinstructuse
         addi
-        register	r4
-        register	r8
+        register	r5
+        register	r9
         imm	0
   codeline
     instruction
       jmpseudo
         imm
-          labeluse	add_fixed_point_52_IF_END3
+          labeluse	add_fixed_point_52_IF_END2
   codeline
-    label	add_fixed_point_52_ELSE2:
+    label	add_fixed_point_52_ELSE1:
   codeline
-    label	add_fixed_point_52_IF_END3:
+    label	add_fixed_point_52_IF_END2:
   codeline
     instruction
       lsinstructuse
         sw
-        register	r5
+        register	r6
         register	r3
         imm	4
   codeline
     instruction
       lsinstructuse
         lw
-        register	r9
+        register	r10
         register	r1
         imm	0
   codeline
     instruction
       lsinstructuse
         lw
-        register	r10
+        register	r11
         register	r2
         imm	0
   codeline
     instruction
       rinstructuse
         add
-        register	r9
-        register	r9
         register	r10
+        register	r10
+        register	r11
   codeline
     instruction
       rinstructuse
         add
-        register	r9
-        register	r9
-        register	r4
+        register	r10
+        register	r10
+        register	r5
   codeline
     instruction
       lsinstructuse
         sw
-        register	r9
+        register	r10
         register	r3
         imm	0
   codeline
@@ -16195,62 +16289,83 @@ program
     instruction
       lli
         register	r3
+        imm	0
+  codeline
+    instruction
+      push
+        register	r2
+  codeline
+    instruction
+      push
+        register	r3
+  codeline
+    instruction
+      lli
+        register	r4
+        imm	8
+  codeline
+    instruction
+      push
+        register	r4
+  codeline
+    instruction
+      pop
+        register	r1
+  codeline
+    instruction
+      callpseudo
         imm
-          labeluse	multiply_fixed_point_53_result_struct1
+          labeluse	malloc
   codeline
     instruction
-      lsinstructuse
-        lw
-        register	r4
-        register	r1
-        imm	4
+      pop
+        register	r3
   codeline
     instruction
-      lsinstructuse
-        lw
-        register	r5
+      pop
+        register	r2
+  codeline
+    instruction
+      iinstructuse
+        addi
+        register	r3
         register	r1
         imm	0
   codeline
     instruction
       lsinstructuse
         lw
-        register	r6
-        register	r2
+        register	r5
+        register	r1
         imm	4
+  codeline
+    instruction
+      lsinstructuse
+        lw
+        register	r6
+        register	r1
+        imm	0
   codeline
     instruction
       lsinstructuse
         lw
         register	r7
         register	r2
+        imm	4
+  codeline
+    instruction
+      lsinstructuse
+        lw
+        register	r8
+        register	r2
         imm	0
   codeline
     instruction
       rinstructuse
         mul
-        register	r8
-        register	r4
-        register	r6
-  codeline
-    instruction
-      lli
         register	r9
-        imm	4294967295
-  codeline
-    instruction
-      rinstructuse
-        and
-        register	r8
-        register	r8
-        register	r9
-  codeline
-    instruction
-      rinstructuse
-        mul
-        register	r6
         register	r5
-        register	r6
+        register	r7
   codeline
     instruction
       lli
@@ -16260,15 +16375,15 @@ program
     instruction
       rinstructuse
         and
-        register	r6
-        register	r6
+        register	r9
+        register	r9
         register	r10
   codeline
     instruction
       rinstructuse
         mul
-        register	r4
-        register	r4
+        register	r7
+        register	r6
         register	r7
   codeline
     instruction
@@ -16279,8 +16394,8 @@ program
     instruction
       rinstructuse
         and
-        register	r4
-        register	r4
+        register	r7
+        register	r7
         register	r11
   codeline
     instruction
@@ -16288,7 +16403,7 @@ program
         mul
         register	r5
         register	r5
-        register	r7
+        register	r8
   codeline
     instruction
       lli
@@ -16303,68 +16418,87 @@ program
         register	r12
   codeline
     instruction
+      rinstructuse
+        mul
+        register	r6
+        register	r6
+        register	r8
+  codeline
+    instruction
       lli
-        register	r9
+        register	r4
         imm	4294967295
   codeline
     instruction
       rinstructuse
         and
+        register	r6
+        register	r6
+        register	r4
+  codeline
+    instruction
+      lli
+        register	r2
+        imm	4294967295
+  codeline
+    instruction
+      rinstructuse
+        and
+        register	r2
         register	r9
-        register	r8
-        register	r9
+        register	r2
   codeline
     instruction
       lsinstructuse
         sw
-        register	r9
+        register	r2
         register	r3
         imm	4
   codeline
     instruction
       rinstructuse
         add
-        register	r5
-        register	r5
         register	r6
+        register	r6
+        register	r7
   codeline
     instruction
       rinstructuse
         add
+        register	r6
+        register	r6
         register	r5
-        register	r5
-        register	r4
   codeline
     instruction
       iinstructuse
         shri
-        register	r8
-        register	r8
+        register	r9
+        register	r9
         imm	32
   codeline
     instruction
       rinstructuse
         add
-        register	r5
-        register	r5
-        register	r8
+        register	r6
+        register	r6
+        register	r9
   codeline
     instruction
       lli
-        register	r2
+        register	r10
         imm	4294967295
   codeline
     instruction
       rinstructuse
         and
-        register	r5
-        register	r5
-        register	r2
+        register	r6
+        register	r6
+        register	r10
   codeline
     instruction
       lsinstructuse
         sw
-        register	r5
+        register	r6
         register	r3
         imm	0
   codeline
@@ -16822,12 +16956,39 @@ program
     instruction
       lli
         register	r2
-        imm
-          labeluse	fixed_point_to_string_58_buffer_buf1
+        imm	0
+  codeline
+    instruction
+      push
+        register	r2
   codeline
     instruction
       lli
         register	r3
+        imm	64
+  codeline
+    instruction
+      push
+        register	r3
+  codeline
+    instruction
+      pop
+        register	r1
+  codeline
+    instruction
+      callpseudo
+        imm
+          labeluse	malloc
+  codeline
+    instruction
+      pop
+        register	r2
+  codeline
+    instruction
+      iinstructuse
+        addi
+        register	r2
+        register	r1
         imm	0
   codeline
     instruction
@@ -16838,1148 +16999,1153 @@ program
     instruction
       lli
         register	r5
+        imm	0
+  codeline
+    instruction
+      lli
+        register	r6
         imm	0
   codeline
     instruction
       rinstructuse
         add
-        register	r5
+        register	r6
         register	r2
-        register	r5
+        register	r6
   codeline
     instruction
       lsinstructuse
         sb
-        register	r4
         register	r5
+        register	r6
         imm	0
   codeline
     instruction
       lsinstructuse
         lw
-        register	r6
+        register	r7
         register	r1
         imm	0
   codeline
     instruction
       lli
-        register	r7
+        register	r8
         imm	0
   codeline
     instruction
       binstructuse
         blt
-        register	r6
         register	r7
+        register	r8
         imm
-          labeluse	fixed_point_to_string_58_CMP_TRUE4
+          labeluse	fixed_point_to_string_58_CMP_TRUE3
   codeline
     instruction
       lli
-        register	r6
+        register	r7
         imm	0
   codeline
     instruction
       jmpseudo
         imm
-          labeluse	fixed_point_to_string_58_CMP_END5
+          labeluse	fixed_point_to_string_58_CMP_END4
   codeline
-    label	fixed_point_to_string_58_CMP_TRUE4:
+    label	fixed_point_to_string_58_CMP_TRUE3:
   codeline
     instruction
       lli
-        register	r6
+        register	r7
         imm	1
   codeline
-    label	fixed_point_to_string_58_CMP_END5:
+    label	fixed_point_to_string_58_CMP_END4:
   codeline
     instruction
       lsinstructuse
         lw
-        register	r8
+        register	r9
         register	r1
         imm	0
   codeline
     instruction
       lli
-        register	r9
+        register	r10
         imm	0
   codeline
     instruction
       binstructuse
         beq
-        register	r8
         register	r9
+        register	r10
         imm
-          labeluse	fixed_point_to_string_58_CMP_TRUE6
+          labeluse	fixed_point_to_string_58_CMP_TRUE5
   codeline
     instruction
       lli
-        register	r8
+        register	r9
         imm	0
   codeline
     instruction
       jmpseudo
         imm
-          labeluse	fixed_point_to_string_58_CMP_END7
+          labeluse	fixed_point_to_string_58_CMP_END6
   codeline
-    label	fixed_point_to_string_58_CMP_TRUE6:
+    label	fixed_point_to_string_58_CMP_TRUE5:
   codeline
     instruction
       lli
-        register	r8
+        register	r9
         imm	1
   codeline
-    label	fixed_point_to_string_58_CMP_END7:
+    label	fixed_point_to_string_58_CMP_END6:
   codeline
     instruction
       lsinstructuse
         lw
-        register	r10
+        register	r11
         register	r1
         imm	4
   codeline
     instruction
       lli
-        register	r11
+        register	r12
         imm	0
   codeline
     instruction
       binstructuse
         blt
-        register	r10
         register	r11
+        register	r12
         imm
-          labeluse	fixed_point_to_string_58_CMP_TRUE8
+          labeluse	fixed_point_to_string_58_CMP_TRUE7
   codeline
     instruction
       lli
-        register	r10
+        register	r11
         imm	0
   codeline
     instruction
       jmpseudo
         imm
-          labeluse	fixed_point_to_string_58_CMP_END9
+          labeluse	fixed_point_to_string_58_CMP_END8
   codeline
-    label	fixed_point_to_string_58_CMP_TRUE8:
+    label	fixed_point_to_string_58_CMP_TRUE7:
   codeline
     instruction
       lli
-        register	r10
+        register	r11
         imm	1
   codeline
-    label	fixed_point_to_string_58_CMP_END9:
+    label	fixed_point_to_string_58_CMP_END8:
   codeline
     instruction
       rinstructuse
         and
-        register	r8
-        register	r8
-        register	r10
+        register	r9
+        register	r9
+        register	r11
   codeline
     instruction
       binstructuse
         bne
-        register	r8
+        register	r9
         register	r0
         imm
-          labeluse	fixed_point_to_string_58_CMP_TRUE10
+          labeluse	fixed_point_to_string_58_CMP_TRUE9
   codeline
     instruction
       lli
-        register	r8
+        register	r9
         imm	0
   codeline
     instruction
       jmpseudo
         imm
-          labeluse	fixed_point_to_string_58_CMP_END11
+          labeluse	fixed_point_to_string_58_CMP_END10
   codeline
-    label	fixed_point_to_string_58_CMP_TRUE10:
+    label	fixed_point_to_string_58_CMP_TRUE9:
   codeline
     instruction
       lli
-        register	r8
+        register	r9
         imm	1
   codeline
-    label	fixed_point_to_string_58_CMP_END11:
+    label	fixed_point_to_string_58_CMP_END10:
   codeline
     instruction
       rinstructuse
         or
-        register	r6
-        register	r6
-        register	r8
+        register	r7
+        register	r7
+        register	r9
   codeline
     instruction
       binstructuse
         bne
-        register	r6
+        register	r7
         register	r0
         imm
-          labeluse	fixed_point_to_string_58_CMP_TRUE12
+          labeluse	fixed_point_to_string_58_CMP_TRUE11
   codeline
     instruction
       lli
-        register	r6
+        register	r7
         imm	0
   codeline
     instruction
       jmpseudo
         imm
-          labeluse	fixed_point_to_string_58_CMP_END13
+          labeluse	fixed_point_to_string_58_CMP_END12
   codeline
-    label	fixed_point_to_string_58_CMP_TRUE12:
+    label	fixed_point_to_string_58_CMP_TRUE11:
   codeline
     instruction
       lli
-        register	r6
+        register	r7
         imm	1
   codeline
-    label	fixed_point_to_string_58_CMP_END13:
+    label	fixed_point_to_string_58_CMP_END12:
   codeline
     instruction
       binstructuse
         beq
-        register	r6
+        register	r7
         register	r0
         imm
-          labeluse	fixed_point_to_string_58_ELSE2
+          labeluse	fixed_point_to_string_58_ELSE1
   codeline
     instruction
       lli
-        register	r12
+        register	r3
         imm	1
   codeline
     instruction
       iinstructuse
         addi
+        register	r4
         register	r3
-        register	r12
         imm	0
   codeline
     instruction
       lsinstructuse
         lw
-        register	r5
+        register	r6
         register	r1
         imm	4
   codeline
     instruction
       lli
-        register	r4
+        register	r5
         imm	0
   codeline
     instruction
       binstructuse
         bne
+        register	r6
         register	r5
-        register	r4
         imm
-          labeluse	fixed_point_to_string_58_CMP_TRUE16
+          labeluse	fixed_point_to_string_58_CMP_TRUE15
   codeline
     instruction
       lli
-        register	r5
+        register	r6
         imm	0
   codeline
     instruction
       jmpseudo
         imm
-          labeluse	fixed_point_to_string_58_CMP_END17
+          labeluse	fixed_point_to_string_58_CMP_END16
   codeline
-    label	fixed_point_to_string_58_CMP_TRUE16:
+    label	fixed_point_to_string_58_CMP_TRUE15:
   codeline
     instruction
       lli
-        register	r5
+        register	r6
         imm	1
   codeline
-    label	fixed_point_to_string_58_CMP_END17:
+    label	fixed_point_to_string_58_CMP_END16:
   codeline
     instruction
       binstructuse
         beq
-        register	r5
+        register	r6
         register	r0
         imm
-          labeluse	fixed_point_to_string_58_ELSE14
+          labeluse	fixed_point_to_string_58_ELSE13
   codeline
     instruction
       lli
-        register	r7
+        register	r8
         imm	0
   codeline
     instruction
       lsinstructuse
         lw
-        register	r9
+        register	r10
         register	r1
         imm	0
   codeline
     instruction
       lli
-        register	r11
+        register	r12
         imm	1
   codeline
     instruction
       rinstructuse
         add
-        register	r9
-        register	r9
+        register	r10
+        register	r10
+        register	r12
+  codeline
+    instruction
+      rinstructuse
+        sub
+        register	r8
+        register	r8
+        register	r10
+  codeline
+    instruction
+      lsinstructuse
+        sw
+        register	r8
+        register	r1
+        imm	0
+  codeline
+    instruction
+      lli
         register	r11
+        imm	0
+  codeline
+    instruction
+      lsinstructuse
+        lw
+        register	r9
+        register	r1
+        imm	4
   codeline
     instruction
       rinstructuse
         sub
-        register	r7
-        register	r7
+        register	r11
+        register	r11
         register	r9
   codeline
     instruction
       lsinstructuse
         sw
+        register	r11
+        register	r1
+        imm	4
+  codeline
+    instruction
+      jmpseudo
+        imm
+          labeluse	fixed_point_to_string_58_IF_END14
+  codeline
+    label	fixed_point_to_string_58_ELSE13:
+  codeline
+    instruction
+      lli
+        register	r7
+        imm	0
+  codeline
+    instruction
+      lsinstructuse
+        lw
+        register	r3
+        register	r1
+        imm	0
+  codeline
+    instruction
+      rinstructuse
+        sub
+        register	r7
+        register	r7
+        register	r3
+  codeline
+    instruction
+      lsinstructuse
+        sw
         register	r7
         register	r1
         imm	0
   codeline
-    instruction
-      lli
-        register	r10
-        imm	0
-  codeline
-    instruction
-      lsinstructuse
-        lw
-        register	r8
-        register	r1
-        imm	4
-  codeline
-    instruction
-      rinstructuse
-        sub
-        register	r10
-        register	r10
-        register	r8
-  codeline
-    instruction
-      lsinstructuse
-        sw
-        register	r10
-        register	r1
-        imm	4
+    label	fixed_point_to_string_58_IF_END14:
   codeline
     instruction
       jmpseudo
         imm
-          labeluse	fixed_point_to_string_58_IF_END15
+          labeluse	fixed_point_to_string_58_IF_END2
   codeline
-    label	fixed_point_to_string_58_ELSE14:
+    label	fixed_point_to_string_58_ELSE1:
   codeline
-    instruction
-      lli
-        register	r6
-        imm	0
-  codeline
-    instruction
-      lsinstructuse
-        lw
-        register	r12
-        register	r1
-        imm	0
-  codeline
-    instruction
-      rinstructuse
-        sub
-        register	r6
-        register	r6
-        register	r12
-  codeline
-    instruction
-      lsinstructuse
-        sw
-        register	r6
-        register	r1
-        imm	0
-  codeline
-    label	fixed_point_to_string_58_IF_END15:
-  codeline
-    instruction
-      jmpseudo
-        imm
-          labeluse	fixed_point_to_string_58_IF_END3
-  codeline
-    label	fixed_point_to_string_58_ELSE2:
-  codeline
-    label	fixed_point_to_string_58_IF_END3:
+    label	fixed_point_to_string_58_IF_END2:
   codeline
     instruction
       lli
-        register	r4
+        register	r5
         imm	20
   codeline
     instruction
       lli
-        register	r5
+        register	r6
         imm	0
   codeline
-    label	fixed_point_to_string_58_WHILE18:
+    label	fixed_point_to_string_58_WHILE17:
   codeline
     instruction
       binstructuse
         blt
+        register	r6
         register	r5
-        register	r4
         imm
-          labeluse	fixed_point_to_string_58_CMP_TRUE20
+          labeluse	fixed_point_to_string_58_CMP_TRUE19
   codeline
     instruction
       lli
-        register	r11
+        register	r12
         imm	0
   codeline
     instruction
       jmpseudo
         imm
-          labeluse	fixed_point_to_string_58_CMP_END21
+          labeluse	fixed_point_to_string_58_CMP_END20
   codeline
-    label	fixed_point_to_string_58_CMP_TRUE20:
+    label	fixed_point_to_string_58_CMP_TRUE19:
   codeline
     instruction
       lli
-        register	r11
+        register	r12
         imm	1
   codeline
-    label	fixed_point_to_string_58_CMP_END21:
+    label	fixed_point_to_string_58_CMP_END20:
   codeline
     instruction
       binstructuse
         beq
-        register	r11
+        register	r12
         register	r0
         imm
-          labeluse	fixed_point_to_string_58_WHILE_END19
+          labeluse	fixed_point_to_string_58_WHILE_END18
   codeline
     instruction
       lsinstructuse
         lw
-        register	r9
+        register	r10
         register	r1
         imm	4
   codeline
     instruction
       lli
-        register	r7
+        register	r8
         imm	429496729
   codeline
     instruction
       rinstructuse
         div
-        register	r9
-        register	r9
-        register	r7
+        register	r10
+        register	r10
+        register	r8
   codeline
     instruction
       lsinstructuse
         lw
-        register	r8
+        register	r9
         register	r1
         imm	4
   codeline
     instruction
       lli
-        register	r10
+        register	r11
         imm	429496729
   codeline
     instruction
       rinstructuse
         mul
+        register	r11
         register	r10
-        register	r9
-        register	r10
+        register	r11
   codeline
     instruction
       rinstructuse
         sub
-        register	r8
-        register	r8
-        register	r10
+        register	r9
+        register	r9
+        register	r11
   codeline
     instruction
       lli
-        register	r12
+        register	r3
         imm	10
   codeline
     instruction
       rinstructuse
         mul
-        register	r8
-        register	r8
-        register	r12
+        register	r9
+        register	r9
+        register	r3
   codeline
     instruction
       lsinstructuse
         sw
-        register	r8
+        register	r9
         register	r1
         imm	4
   codeline
     instruction
       lli
-        register	r6
+        register	r7
         imm	48
   codeline
     instruction
       rinstructuse
         add
-        register	r6
-        register	r6
-        register	r9
+        register	r7
+        register	r7
+        register	r10
   codeline
     instruction
       rinstructuse
         add
-        register	r11
+        register	r12
         register	r2
-        register	r5
+        register	r6
   codeline
     instruction
       lsinstructuse
         sb
-        register	r6
-        register	r11
+        register	r7
+        register	r12
         imm	0
   codeline
     instruction
       iinstructuse
         addi
-        register	r5
-        register	r5
+        register	r6
+        register	r6
         imm	1
   codeline
     instruction
       jmpseudo
         imm
-          labeluse	fixed_point_to_string_58_WHILE18
+          labeluse	fixed_point_to_string_58_WHILE17
   codeline
-    label	fixed_point_to_string_58_WHILE_END19:
+    label	fixed_point_to_string_58_WHILE_END18:
   codeline
     instruction
       lli
-        register	r7
+        register	r8
         imm	0
   codeline
     instruction
       lli
-        register	r10
+        register	r11
         imm	20
   codeline
     instruction
       rinstructuse
         add
-        register	r10
+        register	r11
         register	r2
-        register	r10
+        register	r11
   codeline
     instruction
       lsinstructuse
         sb
-        register	r7
-        register	r10
+        register	r8
+        register	r11
         imm	0
   codeline
     instruction
       lli
-        register	r12
+        register	r3
         imm
-          labeluse	fixed_point_to_string_58_result_str_buf22
+          labeluse	fixed_point_to_string_58_result_str_buf21
   codeline
     instruction
       lli
-        register	r8
+        register	r9
         imm	0
   codeline
     instruction
       binstructuse
         beq
-        register	r3
+        register	r4
         register	r0
         imm
-          labeluse	fixed_point_to_string_58_ELSE23
+          labeluse	fixed_point_to_string_58_ELSE22
   codeline
     instruction
       lli
-        register	r11
+        register	r12
         imm	45
   codeline
     instruction
       lli
-        register	r6
+        register	r7
         imm	1
   codeline
     instruction
       rinstructuse
         add
-        register	r6
-        register	r8
-        register	r6
+        register	r7
+        register	r9
+        register	r7
   codeline
     instruction
       iinstructuse
         addi
-        register	r8
-        register	r6
+        register	r9
+        register	r7
         imm	0
   codeline
     instruction
       rinstructuse
         add
+        register	r10
+        register	r3
         register	r9
-        register	r12
-        register	r8
   codeline
     instruction
       lsinstructuse
         sb
-        register	r11
-        register	r9
+        register	r12
+        register	r10
         imm	0
   codeline
     instruction
       jmpseudo
         imm
-          labeluse	fixed_point_to_string_58_IF_END24
+          labeluse	fixed_point_to_string_58_IF_END23
   codeline
-    label	fixed_point_to_string_58_ELSE23:
+    label	fixed_point_to_string_58_ELSE22:
   codeline
-    label	fixed_point_to_string_58_IF_END24:
+    label	fixed_point_to_string_58_IF_END23:
   codeline
     instruction
       lsinstructuse
         lw
-        register	r4
+        register	r5
         register	r1
         imm	0
   codeline
     instruction
       lli
-        register	r5
+        register	r6
         imm	0
   codeline
     instruction
       lli
-        register	r10
+        register	r11
         imm	0
   codeline
     instruction
       lli
-        register	r7
+        register	r8
         imm	0
   codeline
     instruction
       binstructuse
         beq
-        register	r10
-        register	r7
+        register	r11
+        register	r8
         imm
-          labeluse	fixed_point_to_string_58_CMP_TRUE27
+          labeluse	fixed_point_to_string_58_CMP_TRUE26
   codeline
     instruction
       lli
-        register	r7
+        register	r8
         imm	0
   codeline
     instruction
       jmpseudo
         imm
-          labeluse	fixed_point_to_string_58_CMP_END28
+          labeluse	fixed_point_to_string_58_CMP_END27
   codeline
-    label	fixed_point_to_string_58_CMP_TRUE27:
+    label	fixed_point_to_string_58_CMP_TRUE26:
   codeline
     instruction
       lli
-        register	r7
+        register	r8
         imm	1
   codeline
-    label	fixed_point_to_string_58_CMP_END28:
+    label	fixed_point_to_string_58_CMP_END27:
   codeline
     instruction
       binstructuse
         beq
-        register	r7
+        register	r8
         register	r0
         imm
-          labeluse	fixed_point_to_string_58_ELSE25
+          labeluse	fixed_point_to_string_58_ELSE24
   codeline
     instruction
       lli
-        register	r6
+        register	r7
         imm	48
   codeline
     instruction
       lli
-        register	r9
+        register	r10
         imm	1
   codeline
     instruction
       rinstructuse
         add
+        register	r10
         register	r9
-        register	r8
-        register	r9
+        register	r10
   codeline
     instruction
       iinstructuse
         addi
-        register	r8
         register	r9
+        register	r10
         imm	0
   codeline
     instruction
       rinstructuse
         add
-        register	r11
         register	r12
-        register	r8
+        register	r3
+        register	r9
   codeline
     instruction
       lsinstructuse
         sb
-        register	r6
-        register	r11
+        register	r7
+        register	r12
         imm	0
   codeline
     instruction
       jmpseudo
         imm
-          labeluse	fixed_point_to_string_58_IF_END26
+          labeluse	fixed_point_to_string_58_IF_END25
   codeline
-    label	fixed_point_to_string_58_ELSE25:
-  codeline
-    instruction
-      lli
-        register	r3
-        imm
-          labeluse	fixed_point_to_string_58_int_digits_buf29
+    label	fixed_point_to_string_58_ELSE24:
   codeline
     instruction
       lli
         register	r4
-        imm	0
-  codeline
-    label	fixed_point_to_string_58_WHILE30:
+        imm
+          labeluse	fixed_point_to_string_58_int_digits_buf28
   codeline
     instruction
       lli
         register	r5
+        imm	0
+  codeline
+    label	fixed_point_to_string_58_WHILE29:
+  codeline
+    instruction
+      lli
+        register	r6
         imm	0
   codeline
     instruction
       binstructuse
         blt
-        register	r5
-        register	r10
+        register	r6
+        register	r11
         imm
-          labeluse	fixed_point_to_string_58_CMP_TRUE32
+          labeluse	fixed_point_to_string_58_CMP_TRUE31
   codeline
     instruction
       lli
-        register	r5
+        register	r6
         imm	0
   codeline
     instruction
       jmpseudo
         imm
-          labeluse	fixed_point_to_string_58_CMP_END33
+          labeluse	fixed_point_to_string_58_CMP_END32
   codeline
-    label	fixed_point_to_string_58_CMP_TRUE32:
+    label	fixed_point_to_string_58_CMP_TRUE31:
   codeline
     instruction
       lli
-        register	r5
+        register	r6
         imm	1
   codeline
-    label	fixed_point_to_string_58_CMP_END33:
+    label	fixed_point_to_string_58_CMP_END32:
   codeline
     instruction
       binstructuse
         beq
-        register	r5
+        register	r6
         register	r0
         imm
-          labeluse	fixed_point_to_string_58_WHILE_END31
+          labeluse	fixed_point_to_string_58_WHILE_END30
   codeline
     instruction
       lli
-        register	r7
+        register	r8
         imm	10
   codeline
     instruction
       rinstructuse
         rem
-        register	r7
-        register	r10
-        register	r7
+        register	r8
+        register	r11
+        register	r8
   codeline
     instruction
       lli
-        register	r9
+        register	r10
         imm	1
   codeline
     instruction
       rinstructuse
         add
-        register	r9
-        register	r4
-        register	r9
+        register	r10
+        register	r5
+        register	r10
   codeline
     instruction
       iinstructuse
         addi
-        register	r4
-        register	r9
+        register	r5
+        register	r10
         imm	0
   codeline
     instruction
       rinstructuse
         add
-        register	r11
-        register	r3
+        register	r12
         register	r4
+        register	r5
   codeline
     instruction
       lsinstructuse
         sb
-        register	r7
-        register	r11
+        register	r8
+        register	r12
         imm	0
   codeline
     instruction
       lli
-        register	r6
+        register	r7
         imm	10
   codeline
     instruction
       rinstructuse
         div
-        register	r6
-        register	r10
-        register	r6
+        register	r7
+        register	r11
+        register	r7
   codeline
     instruction
       iinstructuse
         addi
-        register	r10
-        register	r6
+        register	r11
+        register	r7
         imm	0
   codeline
     instruction
       jmpseudo
         imm
-          labeluse	fixed_point_to_string_58_WHILE30
+          labeluse	fixed_point_to_string_58_WHILE29
   codeline
-    label	fixed_point_to_string_58_WHILE_END31:
+    label	fixed_point_to_string_58_WHILE_END30:
   codeline
     instruction
       lli
-        register	r5
+        register	r6
         imm	1
   codeline
     instruction
       rinstructuse
         sub
+        register	r6
         register	r5
-        register	r4
-        register	r5
+        register	r6
   codeline
-    label	fixed_point_to_string_58_WHILE34:
+    label	fixed_point_to_string_58_WHILE33:
   codeline
     instruction
       lli
-        register	r9
+        register	r10
         imm	0
   codeline
     instruction
       binstructuse
         bge
-        register	r5
-        register	r9
+        register	r6
+        register	r10
         imm
-          labeluse	fixed_point_to_string_58_CMP_TRUE36
+          labeluse	fixed_point_to_string_58_CMP_TRUE35
   codeline
     instruction
       lli
-        register	r9
+        register	r10
         imm	0
   codeline
     instruction
       jmpseudo
         imm
-          labeluse	fixed_point_to_string_58_CMP_END37
+          labeluse	fixed_point_to_string_58_CMP_END36
   codeline
-    label	fixed_point_to_string_58_CMP_TRUE36:
+    label	fixed_point_to_string_58_CMP_TRUE35:
   codeline
     instruction
       lli
-        register	r9
+        register	r10
         imm	1
   codeline
-    label	fixed_point_to_string_58_CMP_END37:
+    label	fixed_point_to_string_58_CMP_END36:
   codeline
     instruction
       binstructuse
         beq
-        register	r9
+        register	r10
         register	r0
         imm
-          labeluse	fixed_point_to_string_58_WHILE_END35
+          labeluse	fixed_point_to_string_58_WHILE_END34
   codeline
     instruction
       lli
-        register	r11
+        register	r12
         imm	48
   codeline
     instruction
       rinstructuse
         add
-        register	r7
-        register	r3
-        register	r5
+        register	r8
+        register	r4
+        register	r6
   codeline
     instruction
       lsinstructuse
         lbu
-        register	r7
-        register	r7
+        register	r8
+        register	r8
         imm	0
   codeline
     instruction
       rinstructuse
         add
-        register	r11
-        register	r11
-        register	r7
+        register	r12
+        register	r12
+        register	r8
   codeline
     instruction
       lli
-        register	r6
+        register	r7
         imm	1
   codeline
     instruction
       rinstructuse
         add
-        register	r6
-        register	r8
-        register	r6
+        register	r7
+        register	r9
+        register	r7
   codeline
     instruction
       iinstructuse
         addi
-        register	r8
-        register	r6
+        register	r9
+        register	r7
         imm	0
   codeline
     instruction
       rinstructuse
         add
+        register	r10
+        register	r3
         register	r9
-        register	r12
-        register	r8
   codeline
     instruction
       lsinstructuse
         sb
-        register	r11
-        register	r9
+        register	r12
+        register	r10
         imm	0
   codeline
     instruction
       iinstructuse
         addi
-        register	r5
-        register	r5
+        register	r6
+        register	r6
         imm	-1
   codeline
     instruction
       jmpseudo
         imm
-          labeluse	fixed_point_to_string_58_WHILE34
+          labeluse	fixed_point_to_string_58_WHILE33
   codeline
-    label	fixed_point_to_string_58_WHILE_END35:
+    label	fixed_point_to_string_58_WHILE_END34:
   codeline
-    label	fixed_point_to_string_58_IF_END26:
+    label	fixed_point_to_string_58_IF_END25:
   codeline
     instruction
       lli
-        register	r7
+        register	r8
         imm	46
   codeline
     instruction
       lli
-        register	r6
+        register	r7
         imm	1
   codeline
     instruction
       rinstructuse
         add
-        register	r6
-        register	r8
-        register	r6
+        register	r7
+        register	r9
+        register	r7
   codeline
     instruction
       iinstructuse
         addi
-        register	r8
-        register	r6
+        register	r9
+        register	r7
         imm	0
   codeline
     instruction
       rinstructuse
         add
+        register	r10
+        register	r3
         register	r9
-        register	r12
-        register	r8
   codeline
     instruction
       lsinstructuse
         sb
-        register	r7
-        register	r9
+        register	r8
+        register	r10
         imm	0
   codeline
     instruction
       lli
-        register	r11
+        register	r12
         imm	0
   codeline
-    label	fixed_point_to_string_58_WHILE38:
+    label	fixed_point_to_string_58_WHILE37:
   codeline
     instruction
       lli
-        register	r5
+        register	r6
         imm	20
   codeline
     instruction
       binstructuse
         blt
-        register	r11
-        register	r5
+        register	r12
+        register	r6
         imm
-          labeluse	fixed_point_to_string_58_CMP_TRUE40
+          labeluse	fixed_point_to_string_58_CMP_TRUE39
   codeline
     instruction
       lli
-        register	r5
+        register	r6
         imm	0
   codeline
     instruction
       jmpseudo
         imm
-          labeluse	fixed_point_to_string_58_CMP_END41
+          labeluse	fixed_point_to_string_58_CMP_END40
   codeline
-    label	fixed_point_to_string_58_CMP_TRUE40:
+    label	fixed_point_to_string_58_CMP_TRUE39:
   codeline
     instruction
       lli
-        register	r5
+        register	r6
         imm	1
   codeline
-    label	fixed_point_to_string_58_CMP_END41:
+    label	fixed_point_to_string_58_CMP_END40:
   codeline
     instruction
       binstructuse
         beq
-        register	r5
+        register	r6
         register	r0
         imm
-          labeluse	fixed_point_to_string_58_WHILE_END39
+          labeluse	fixed_point_to_string_58_WHILE_END38
   codeline
     instruction
       rinstructuse
         add
-        register	r4
+        register	r5
         register	r2
-        register	r11
+        register	r12
   codeline
     instruction
       lsinstructuse
         lbu
-        register	r4
-        register	r4
+        register	r5
+        register	r5
         imm	0
   codeline
     instruction
       lli
-        register	r3
+        register	r4
         imm	1
   codeline
     instruction
       rinstructuse
         add
-        register	r3
-        register	r8
-        register	r3
+        register	r4
+        register	r9
+        register	r4
   codeline
     instruction
       iinstructuse
         addi
-        register	r8
-        register	r3
+        register	r9
+        register	r4
         imm	0
   codeline
     instruction
       rinstructuse
         add
-        register	r10
-        register	r12
-        register	r8
+        register	r11
+        register	r3
+        register	r9
   codeline
     instruction
       lsinstructuse
         sb
-        register	r4
-        register	r10
+        register	r5
+        register	r11
         imm	0
   codeline
     instruction
       iinstructuse
         addi
-        register	r11
-        register	r11
+        register	r12
+        register	r12
         imm	1
   codeline
     instruction
       jmpseudo
         imm
-          labeluse	fixed_point_to_string_58_WHILE38
+          labeluse	fixed_point_to_string_58_WHILE37
   codeline
-    label	fixed_point_to_string_58_WHILE_END39:
+    label	fixed_point_to_string_58_WHILE_END38:
   codeline
     instruction
       lli
-        register	r6
+        register	r7
         imm	0
   codeline
     instruction
       rinstructuse
         add
-        register	r8
-        register	r12
-        register	r8
+        register	r9
+        register	r3
+        register	r9
   codeline
     instruction
       lsinstructuse
         sb
-        register	r6
-        register	r8
+        register	r7
+        register	r9
         imm	0
   codeline
     instruction
       rinstructuse
         add
         register	r1
-        register	r12
+        register	r3
         register	r0
   codeline
     instruction
@@ -25318,18 +25484,6 @@ program
       space
         imm	512
   codeline
-    label	add_fixed_point_52_result_struct1:
-  codeline
-    directiveuse
-      space
-        imm	8
-  codeline
-    label	multiply_fixed_point_53_result_struct1:
-  codeline
-    directiveuse
-      space
-        imm	8
-  codeline
     label	add_fixed_point_with_int_54_result_struct1:
   codeline
     directiveuse
@@ -25354,19 +25508,13 @@ program
       space
         imm	8
   codeline
-    label	fixed_point_to_string_58_buffer_buf1:
+    label	fixed_point_to_string_58_result_str_buf21:
   codeline
     directiveuse
       space
         imm	64
   codeline
-    label	fixed_point_to_string_58_result_str_buf22:
-  codeline
-    directiveuse
-      space
-        imm	64
-  codeline
-    label	fixed_point_to_string_58_int_digits_buf29:
+    label	fixed_point_to_string_58_int_digits_buf28:
   codeline
     directiveuse
       space
