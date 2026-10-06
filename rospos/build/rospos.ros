@@ -332,43 +332,54 @@ draw_char_to_display_11_CMP_END4:
   ADD r9, r9, r5    // binop +
   ADD r9, r9, r6    // binop +
   LB r8, r9, 0    // intrinsic __lb -> return
-  LLI r10, 0    // init col
-draw_char_to_display_11_WHILE5:
-  LLI r11, 8    // load immediate 8
-  BLT r10, r11, draw_char_to_display_11_CMP_TRUE7
-  LLI r11, 0    // compare false path
+  LLI r10, 0    // load immediate 0
+  BNE r8, r10, draw_char_to_display_11_CMP_TRUE7
+  LLI r10, 0    // compare false path
   JMP draw_char_to_display_11_CMP_END8
 draw_char_to_display_11_CMP_TRUE7:
-  LLI r11, 1
+  LLI r10, 1
 draw_char_to_display_11_CMP_END8:
-  BEQ r11, r0, draw_char_to_display_11_WHILE_END6
-  SHR r12, r8, r10    // binop >>
-  LLI r7, 1    // load immediate 1
-  AND r12, r12, r7    // binop &
-  ADD r9, r3, r6    // binop +
-  LLI r11, 256    // load immediate 256
-  MUL r9, r9, r11    // binop *
-  ADD r9, r9, r2    // binop +
+  BEQ r10, r0, draw_char_to_display_11_ELSE5
+  LLI r11, 0    // init col
+draw_char_to_display_11_WHILE9:
+  LLI r12, 8    // load immediate 8
+  BLT r11, r12, draw_char_to_display_11_CMP_TRUE11
+  LLI r12, 0    // compare false path
+  JMP draw_char_to_display_11_CMP_END12
+draw_char_to_display_11_CMP_TRUE11:
+  LLI r12, 1
+draw_char_to_display_11_CMP_END12:
+  BEQ r12, r0, draw_char_to_display_11_WHILE_END10
+  SHR r7, r8, r11    // binop >>
+  LLI r9, 1    // load immediate 1
+  AND r7, r7, r9    // binop &
+  ADD r10, r3, r6    // binop +
+  LLI r12, 256    // load immediate 256
+  MUL r10, r10, r12    // binop *
+  ADD r10, r10, r2    // binop +
+  ADD r10, r10, r11    // binop +
+  BEQ r7, r0, draw_char_to_display_11_ELSE13
+  LLI r9, 536870912    // load immediate 536870912
   ADD r9, r9, r10    // binop +
-  BEQ r12, r0, draw_char_to_display_11_ELSE9
-  LLI r7, 536870912    // load immediate 536870912
-  ADD r7, r7, r9    // binop +
-  SB r4, r7, 0    // intrinsic __sb
-  JMP draw_char_to_display_11_IF_END10
-draw_char_to_display_11_ELSE9:
-  LLI r11, 536870912    // load immediate 536870912
-  ADD r11, r11, r9    // binop +
-  LLI r7, 0    // val const for __sb
-  SB r7, r11, 0    // intrinsic __sb
-draw_char_to_display_11_IF_END10:
-  ADDI r10, r10, 1    // assign col (addi fast path)
-  JMP draw_char_to_display_11_WHILE5
-draw_char_to_display_11_WHILE_END6:
+  SB r4, r9, 0    // intrinsic __sb
+  JMP draw_char_to_display_11_IF_END14
+draw_char_to_display_11_ELSE13:
+  LLI r12, 536870912    // load immediate 536870912
+  ADD r12, r12, r10    // binop +
+  LLI r9, 0    // val const for __sb
+  SB r9, r12, 0    // intrinsic __sb
+draw_char_to_display_11_IF_END14:
+  ADDI r11, r11, 1    // assign col (addi fast path)
+  JMP draw_char_to_display_11_WHILE9
+draw_char_to_display_11_WHILE_END10:
+  JMP draw_char_to_display_11_IF_END6
+draw_char_to_display_11_ELSE5:
+draw_char_to_display_11_IF_END6:
   ADDI r6, r6, 1    // assign row (addi fast path)
   JMP draw_char_to_display_11_WHILE1
 draw_char_to_display_11_WHILE_END2:
-  LLI r7, 0    // load immediate 0
-  ADD r1, r7, r0
+  LLI r9, 0    // load immediate 0
+  ADD r1, r9, r0
   POP r14
   RET
   // epilogue and return
@@ -3956,141 +3967,176 @@ precedence_60_IF_END10:
 .FUNC infix_to_rpn:
   PUSH r14
   LLI r3, infix_to_rpn_61_stack_buf1    // init stack (buffer addr)
-  LLI r4, 0    // init stack_index
-  LLI r5, 0    // init i
+  LLI r4, 0    // init out_index
+  LLI r5, 0    // init stack_index
+  LLI r6, 0    // init i
 infix_to_rpn_61_WHILE2:
-  ADD r6, r1, r5    // binop +
-  LBU r6, r6, 0    // deref
-  BEQ r6, r0, infix_to_rpn_61_WHILE_END3
-  ADD r7, r1, r5    // binop +
+  ADD r7, r1, r6    // binop +
   LBU r7, r7, 0    // deref
-  LLI r8, 48    // load immediate 48
-  BGE r7, r8, infix_to_rpn_61_CMP_TRUE6
-  LLI r8, 0    // compare false path
+  BEQ r7, r0, infix_to_rpn_61_WHILE_END3
+  ADD r8, r1, r6    // binop +
+  LBU r8, r8, 0    // deref
+  LLI r9, 48    // load immediate 48
+  BGE r8, r9, infix_to_rpn_61_CMP_TRUE6
+  LLI r9, 0    // compare false path
   JMP infix_to_rpn_61_CMP_END7
 infix_to_rpn_61_CMP_TRUE6:
-  LLI r8, 1
+  LLI r9, 1
 infix_to_rpn_61_CMP_END7:
-  LLI r9, 57    // load immediate 57
-  BGE r9, r7, infix_to_rpn_61_CMP_TRUE8
-  LLI r9, 0    // compare false path
+  LLI r10, 57    // load immediate 57
+  BGE r10, r8, infix_to_rpn_61_CMP_TRUE8
+  LLI r10, 0    // compare false path
   JMP infix_to_rpn_61_CMP_END9
 infix_to_rpn_61_CMP_TRUE8:
-  LLI r9, 1
+  LLI r10, 1
 infix_to_rpn_61_CMP_END9:
-  AND r8, r8, r9    // logic && fold
-  BNE r8, r0, infix_to_rpn_61_CMP_TRUE10
-  LLI r8, 0    // compare false path
+  AND r9, r9, r10    // logic && fold
+  BNE r9, r0, infix_to_rpn_61_CMP_TRUE10
+  LLI r9, 0    // compare false path
   JMP infix_to_rpn_61_CMP_END11
 infix_to_rpn_61_CMP_TRUE10:
-  LLI r8, 1
+  LLI r9, 1
 infix_to_rpn_61_CMP_END11:
-  BEQ r8, r0, infix_to_rpn_61_ELSE4
-  LLI r10, 0    // zero init out_index
+  BEQ r9, r0, infix_to_rpn_61_ELSE4
   LLI r11, 1    // load immediate 1
-  ADD r11, r10, r11    // binop +
-  ADDI r10, r11, 0    // assign-expr out_index
-  ADD r12, r2, r10    // binop +
-  SB r7, r12, 0    // store 
+  ADD r11, r4, r11    // binop +
+  ADDI r4, r11, 0    // assign-expr out_index
+  ADD r12, r2, r4    // binop +
+  SB r8, r12, 0    // store 
   JMP infix_to_rpn_61_IF_END5
 infix_to_rpn_61_ELSE4:
 infix_to_rpn_61_IF_END5:
-  LLI r6, 43    // load immediate 43
-  BEQ r7, r6, infix_to_rpn_61_CMP_TRUE14
-  LLI r6, 0    // compare false path
+  LLI r7, 43    // load immediate 43
+  BEQ r8, r7, infix_to_rpn_61_CMP_TRUE14
+  LLI r7, 0    // compare false path
   JMP infix_to_rpn_61_CMP_END15
 infix_to_rpn_61_CMP_TRUE14:
-  LLI r6, 1
+  LLI r7, 1
 infix_to_rpn_61_CMP_END15:
-  LLI r9, 45    // load immediate 45
-  BEQ r7, r9, infix_to_rpn_61_CMP_TRUE16
-  LLI r9, 0    // compare false path
+  LLI r10, 45    // load immediate 45
+  BEQ r8, r10, infix_to_rpn_61_CMP_TRUE16
+  LLI r10, 0    // compare false path
   JMP infix_to_rpn_61_CMP_END17
 infix_to_rpn_61_CMP_TRUE16:
-  LLI r9, 1
+  LLI r10, 1
 infix_to_rpn_61_CMP_END17:
-  OR r6, r6, r9    // logic || fold
-  BNE r6, r0, infix_to_rpn_61_CMP_TRUE18
-  LLI r6, 0    // compare false path
+  OR r7, r7, r10    // logic || fold
+  BNE r7, r0, infix_to_rpn_61_CMP_TRUE18
+  LLI r7, 0    // compare false path
   JMP infix_to_rpn_61_CMP_END19
 infix_to_rpn_61_CMP_TRUE18:
-  LLI r6, 1
+  LLI r7, 1
 infix_to_rpn_61_CMP_END19:
-  LLI r8, 42    // load immediate 42
-  BEQ r7, r8, infix_to_rpn_61_CMP_TRUE20
-  LLI r8, 0    // compare false path
+  LLI r9, 42    // load immediate 42
+  BEQ r8, r9, infix_to_rpn_61_CMP_TRUE20
+  LLI r9, 0    // compare false path
   JMP infix_to_rpn_61_CMP_END21
 infix_to_rpn_61_CMP_TRUE20:
-  LLI r8, 1
+  LLI r9, 1
 infix_to_rpn_61_CMP_END21:
-  OR r6, r6, r8    // logic || fold
-  BNE r6, r0, infix_to_rpn_61_CMP_TRUE22
-  LLI r6, 0    // compare false path
+  OR r7, r7, r9    // logic || fold
+  BNE r7, r0, infix_to_rpn_61_CMP_TRUE22
+  LLI r7, 0    // compare false path
   JMP infix_to_rpn_61_CMP_END23
 infix_to_rpn_61_CMP_TRUE22:
-  LLI r6, 1
+  LLI r7, 1
 infix_to_rpn_61_CMP_END23:
   LLI r11, 47    // load immediate 47
-  BEQ r7, r11, infix_to_rpn_61_CMP_TRUE24
+  BEQ r8, r11, infix_to_rpn_61_CMP_TRUE24
   LLI r11, 0    // compare false path
   JMP infix_to_rpn_61_CMP_END25
 infix_to_rpn_61_CMP_TRUE24:
   LLI r11, 1
 infix_to_rpn_61_CMP_END25:
-  OR r6, r6, r11    // logic || fold
-  BNE r6, r0, infix_to_rpn_61_CMP_TRUE26
-  LLI r6, 0    // compare false path
+  OR r7, r7, r11    // logic || fold
+  BNE r7, r0, infix_to_rpn_61_CMP_TRUE26
+  LLI r7, 0    // compare false path
   JMP infix_to_rpn_61_CMP_END27
 infix_to_rpn_61_CMP_TRUE26:
-  LLI r6, 1
+  LLI r7, 1
 infix_to_rpn_61_CMP_END27:
-  BEQ r6, r0, infix_to_rpn_61_ELSE12
-infix_to_rpn_61_WHILE28:
-  LLI r12, 0    // load immediate 0
-  BLT r12, r4, infix_to_rpn_61_CMP_TRUE30
-  LLI r12, 0    // compare false path
-  JMP infix_to_rpn_61_CMP_END31
-infix_to_rpn_61_CMP_TRUE30:
-  LLI r12, 1
-infix_to_rpn_61_CMP_END31:
-  // emit call to precedence with args [{'type': 'deref', 'expr': {'type': 'binop', 'op': 'plus', 'left': {'type': 'var', 'name': 'stack'}, 'right': {'type': 'binop', 'op': 'minus', 'left': {'type': 'var', 'name': 'stack_index'}, 'right': {'type': 'const', 'value': 1}}}}]
-  PUSH r2    // save caller temp
-  PUSH r3    // save caller temp
-  PUSH r4    // save caller temp
-  PUSH r5    // save caller temp
-  PUSH r7    // save caller temp
-  PUSH r9    // save caller temp
-  PUSH r10    // save caller temp
-  PUSH r12    // save caller temp
-  LLI r8, 1    // load immediate 1
-  SUB r8, r4, r8    // binop -
-  ADD r8, r3, r8    // binop +
-  LBU r8, r8, 0    // deref
-  PUSH r8    // stage reg arg 0
-  POP r1    // load reg arg 0
-  CALL precedence
-  // call return value in r1
-  POP r12    // restore caller temp
-  POP r10    // restore caller temp
-  POP r9    // restore caller temp
-  POP r7    // restore caller temp
-  POP r5    // restore caller temp
-  POP r4    // restore caller temp
-  POP r3    // restore caller temp
-  POP r2    // restore caller temp
-  ADDI r9, r1, 0    // move return value
-  // call expr precedence -> return in r9
+  BEQ r7, r0, infix_to_rpn_61_ELSE12
+  LLI r12, 0    // zero init token_precedence
   // emit call to precedence with args [{'type': 'var', 'name': 'token'}]
   PUSH r2    // save caller temp
   PUSH r3    // save caller temp
   PUSH r4    // save caller temp
   PUSH r5    // save caller temp
-  PUSH r7    // save caller temp
+  PUSH r6    // save caller temp
+  PUSH r8    // save caller temp
+  PUSH r12    // save caller temp
+  PUSH r8    // stage reg arg 0
+  POP r1    // load reg arg 0
+  CALL precedence
+  // call return value in r1
+  POP r12    // restore caller temp
+  POP r8    // restore caller temp
+  POP r6    // restore caller temp
+  POP r5    // restore caller temp
+  POP r4    // restore caller temp
+  POP r3    // restore caller temp
+  POP r2    // restore caller temp
+  ADDI r12, r1, 0    // move return value
+  LLI r10, 0    // load immediate 0
+  BEQ r12, r10, infix_to_rpn_61_CMP_TRUE30
+  LLI r10, 0    // compare false path
+  JMP infix_to_rpn_61_CMP_END31
+infix_to_rpn_61_CMP_TRUE30:
+  LLI r10, 1
+infix_to_rpn_61_CMP_END31:
+  BEQ r10, r0, infix_to_rpn_61_ELSE28
+  JMP infix_to_rpn_61_IF_END29
+infix_to_rpn_61_ELSE28:
+infix_to_rpn_61_IF_END29:
+infix_to_rpn_61_WHILE32:
+  LLI r9, 0    // load immediate 0
+  BLT r9, r5, infix_to_rpn_61_CMP_TRUE34
+  LLI r9, 0    // compare false path
+  JMP infix_to_rpn_61_CMP_END35
+infix_to_rpn_61_CMP_TRUE34:
+  LLI r9, 1
+infix_to_rpn_61_CMP_END35:
+  // emit call to precedence with args [{'type': 'deref', 'expr': {'type': 'binop', 'op': 'plus', 'left': {'type': 'var', 'name': 'stack'}, 'right': {'type': 'binop', 'op': 'minus', 'left': {'type': 'var', 'name': 'stack_index'}, 'right': {'type': 'const', 'value': 1}}}}]
+  PUSH r2    // save caller temp
+  PUSH r3    // save caller temp
+  PUSH r4    // save caller temp
+  PUSH r5    // save caller temp
+  PUSH r6    // save caller temp
+  PUSH r8    // save caller temp
+  PUSH r9    // save caller temp
+  PUSH r11    // save caller temp
+  PUSH r12    // save caller temp
+  LLI r7, 1    // load immediate 1
+  SUB r7, r5, r7    // binop -
+  ADD r7, r3, r7    // binop +
+  LBU r7, r7, 0    // deref
+  PUSH r7    // stage reg arg 0
+  POP r1    // load reg arg 0
+  CALL precedence
+  // call return value in r1
+  POP r12    // restore caller temp
+  POP r11    // restore caller temp
+  POP r9    // restore caller temp
+  POP r8    // restore caller temp
+  POP r6    // restore caller temp
+  POP r5    // restore caller temp
+  POP r4    // restore caller temp
+  POP r3    // restore caller temp
+  POP r2    // restore caller temp
+  ADDI r11, r1, 0    // move return value
+  // call expr precedence -> return in r11
+  // emit call to precedence with args [{'type': 'var', 'name': 'token'}]
+  PUSH r2    // save caller temp
+  PUSH r3    // save caller temp
+  PUSH r4    // save caller temp
+  PUSH r5    // save caller temp
+  PUSH r6    // save caller temp
+  PUSH r8    // save caller temp
   PUSH r9    // save caller temp
   PUSH r10    // save caller temp
   PUSH r11    // save caller temp
   PUSH r12    // save caller temp
-  PUSH r7    // stage reg arg 0
+  PUSH r8    // stage reg arg 0
   POP r1    // load reg arg 0
   CALL precedence
   // call return value in r1
@@ -4098,170 +4144,171 @@ infix_to_rpn_61_CMP_END31:
   POP r11    // restore caller temp
   POP r10    // restore caller temp
   POP r9    // restore caller temp
-  POP r7    // restore caller temp
+  POP r8    // restore caller temp
+  POP r6    // restore caller temp
   POP r5    // restore caller temp
   POP r4    // restore caller temp
   POP r3    // restore caller temp
   POP r2    // restore caller temp
-  ADDI r11, r1, 0    // move return value
-  // call expr precedence -> return in r11
-  BGE r9, r11, infix_to_rpn_61_CMP_TRUE32
+  ADDI r10, r1, 0    // move return value
+  // call expr precedence -> return in r10
+  BGE r11, r10, infix_to_rpn_61_CMP_TRUE36
+  LLI r11, 0    // compare false path
+  JMP infix_to_rpn_61_CMP_END37
+infix_to_rpn_61_CMP_TRUE36:
+  LLI r11, 1
+infix_to_rpn_61_CMP_END37:
+  AND r9, r9, r11    // logic && fold
+  BNE r9, r0, infix_to_rpn_61_CMP_TRUE38
   LLI r9, 0    // compare false path
-  JMP infix_to_rpn_61_CMP_END33
-infix_to_rpn_61_CMP_TRUE32:
+  JMP infix_to_rpn_61_CMP_END39
+infix_to_rpn_61_CMP_TRUE38:
   LLI r9, 1
-infix_to_rpn_61_CMP_END33:
-  AND r12, r12, r9    // logic && fold
-  BNE r12, r0, infix_to_rpn_61_CMP_TRUE34
-  LLI r12, 0    // compare false path
-  JMP infix_to_rpn_61_CMP_END35
-infix_to_rpn_61_CMP_TRUE34:
-  LLI r12, 1
-infix_to_rpn_61_CMP_END35:
-  BEQ r12, r0, infix_to_rpn_61_WHILE_END29
-  LLI r6, 0    // load immediate 0
-  LLI r8, 0    // load immediate 0
-  SUB r8, r8, r4    // binop -
-  SUB r6, r6, r8    // binop -
-  ADD r6, r3, r6    // binop +
-  LBU r6, r6, 0    // deref
+infix_to_rpn_61_CMP_END39:
+  BEQ r9, r0, infix_to_rpn_61_WHILE_END33
+  LLI r7, 0    // load immediate 0
+  LLI r10, 0    // load immediate 0
+  SUB r10, r10, r5    // binop -
+  SUB r7, r7, r10    // binop -
+  ADD r7, r3, r7    // binop +
+  LBU r7, r7, 0    // deref
   LLI r11, 1    // load immediate 1
-  ADD r11, r10, r11    // binop +
-  ADDI r10, r11, 0    // assign-expr out_index
-  ADD r9, r2, r10    // binop +
-  SB r6, r9, 0    // store 
-  JMP infix_to_rpn_61_WHILE28
-infix_to_rpn_61_WHILE_END29:
-  LLI r12, 1    // load immediate 1
-  ADD r12, r4, r12    // binop +
-  ADDI r4, r12, 0    // assign-expr stack_index
-  ADD r8, r3, r4    // binop +
-  SB r7, r8, 0    // store 
+  ADD r11, r4, r11    // binop +
+  ADDI r4, r11, 0    // assign-expr out_index
+  ADD r9, r2, r4    // binop +
+  SB r7, r9, 0    // store 
+  JMP infix_to_rpn_61_WHILE32
+infix_to_rpn_61_WHILE_END33:
+  LLI r10, 1    // load immediate 1
+  ADD r10, r5, r10    // binop +
+  ADDI r5, r10, 0    // assign-expr stack_index
+  ADD r11, r3, r5    // binop +
+  SB r8, r11, 0    // store 
   JMP infix_to_rpn_61_IF_END13
 infix_to_rpn_61_ELSE12:
 infix_to_rpn_61_IF_END13:
-  LLI r11, 40    // load immediate 40
-  BEQ r7, r11, infix_to_rpn_61_CMP_TRUE38
-  LLI r11, 0    // compare false path
-  JMP infix_to_rpn_61_CMP_END39
-infix_to_rpn_61_CMP_TRUE38:
-  LLI r11, 1
-infix_to_rpn_61_CMP_END39:
-  BEQ r11, r0, infix_to_rpn_61_ELSE36
-  LLI r9, 1    // load immediate 1
-  ADD r9, r4, r9    // binop +
-  ADDI r4, r9, 0    // assign-expr stack_index
-  ADD r6, r3, r4    // binop +
-  SB r7, r6, 0    // store 
-  JMP infix_to_rpn_61_IF_END37
-infix_to_rpn_61_ELSE36:
-infix_to_rpn_61_IF_END37:
-  LLI r12, 41    // load immediate 41
-  BEQ r7, r12, infix_to_rpn_61_CMP_TRUE42
-  LLI r12, 0    // compare false path
+  LLI r9, 40    // load immediate 40
+  BEQ r8, r9, infix_to_rpn_61_CMP_TRUE42
+  LLI r9, 0    // compare false path
   JMP infix_to_rpn_61_CMP_END43
 infix_to_rpn_61_CMP_TRUE42:
-  LLI r12, 1
+  LLI r9, 1
 infix_to_rpn_61_CMP_END43:
-  BEQ r12, r0, infix_to_rpn_61_ELSE40
-infix_to_rpn_61_WHILE44:
-  LLI r8, 0    // load immediate 0
-  BLT r8, r4, infix_to_rpn_61_CMP_TRUE46
-  LLI r8, 0    // compare false path
-  JMP infix_to_rpn_61_CMP_END47
-infix_to_rpn_61_CMP_TRUE46:
-  LLI r8, 1
-infix_to_rpn_61_CMP_END47:
-  LLI r11, 1    // load immediate 1
-  SUB r11, r4, r11    // binop -
-  ADD r11, r3, r11    // binop +
-  LBU r11, r11, 0    // deref
-  LLI r9, 40    // load immediate 40
-  BNE r11, r9, infix_to_rpn_61_CMP_TRUE48
-  LLI r11, 0    // compare false path
-  JMP infix_to_rpn_61_CMP_END49
-infix_to_rpn_61_CMP_TRUE48:
-  LLI r11, 1
-infix_to_rpn_61_CMP_END49:
-  AND r8, r8, r11    // logic && fold
-  BNE r8, r0, infix_to_rpn_61_CMP_TRUE50
-  LLI r8, 0    // compare false path
-  JMP infix_to_rpn_61_CMP_END51
-infix_to_rpn_61_CMP_TRUE50:
-  LLI r8, 1
-infix_to_rpn_61_CMP_END51:
-  BEQ r8, r0, infix_to_rpn_61_WHILE_END45
-  LLI r6, 0    // load immediate 0
-  LLI r12, 0    // load immediate 0
-  SUB r12, r12, r4    // binop -
-  SUB r6, r6, r12    // binop -
-  ADD r6, r3, r6    // binop +
-  LBU r6, r6, 0    // deref
-  LLI r9, 1    // load immediate 1
-  ADD r9, r10, r9    // binop +
-  ADDI r10, r9, 0    // assign-expr out_index
-  ADD r11, r2, r10    // binop +
-  SB r6, r11, 0    // store 
-  JMP infix_to_rpn_61_WHILE44
-infix_to_rpn_61_WHILE_END45:
-  LLI r8, 0    // load immediate 0
-  BLT r8, r4, infix_to_rpn_61_CMP_TRUE54
-  LLI r8, 0    // compare false path
-  JMP infix_to_rpn_61_CMP_END55
-infix_to_rpn_61_CMP_TRUE54:
-  LLI r8, 1
-infix_to_rpn_61_CMP_END55:
-  LLI r12, 1    // load immediate 1
-  SUB r12, r4, r12    // binop -
-  ADD r12, r3, r12    // binop +
-  LBU r12, r12, 0    // deref
-  LLI r9, 40    // load immediate 40
-  BEQ r12, r9, infix_to_rpn_61_CMP_TRUE56
-  LLI r12, 0    // compare false path
-  JMP infix_to_rpn_61_CMP_END57
-infix_to_rpn_61_CMP_TRUE56:
-  LLI r12, 1
-infix_to_rpn_61_CMP_END57:
-  AND r8, r8, r12    // logic && fold
-  BNE r8, r0, infix_to_rpn_61_CMP_TRUE58
-  LLI r8, 0    // compare false path
-  JMP infix_to_rpn_61_CMP_END59
-infix_to_rpn_61_CMP_TRUE58:
-  LLI r8, 1
-infix_to_rpn_61_CMP_END59:
-  BEQ r8, r0, infix_to_rpn_61_ELSE52
-  ADDI r4, r4, -1    // assign stack_index (addi fast path)
-  JMP infix_to_rpn_61_IF_END53
-infix_to_rpn_61_ELSE52:
-infix_to_rpn_61_IF_END53:
+  BEQ r9, r0, infix_to_rpn_61_ELSE40
+  LLI r7, 1    // load immediate 1
+  ADD r7, r5, r7    // binop +
+  ADDI r5, r7, 0    // assign-expr stack_index
+  ADD r10, r3, r5    // binop +
+  SB r8, r10, 0    // store 
   JMP infix_to_rpn_61_IF_END41
 infix_to_rpn_61_ELSE40:
 infix_to_rpn_61_IF_END41:
-  ADDI r5, r5, 1    // assign i (addi fast path)
-  JMP infix_to_rpn_61_WHILE2
-infix_to_rpn_61_WHILE_END3:
-infix_to_rpn_61_WHILE60:
-  LLI r11, 0    // load immediate 0
-  BLT r11, r4, infix_to_rpn_61_CMP_TRUE62
+  LLI r11, 41    // load immediate 41
+  BEQ r8, r11, infix_to_rpn_61_CMP_TRUE46
   LLI r11, 0    // compare false path
+  JMP infix_to_rpn_61_CMP_END47
+infix_to_rpn_61_CMP_TRUE46:
+  LLI r11, 1
+infix_to_rpn_61_CMP_END47:
+  BEQ r11, r0, infix_to_rpn_61_ELSE44
+infix_to_rpn_61_WHILE48:
+  LLI r12, 0    // load immediate 0
+  BLT r12, r5, infix_to_rpn_61_CMP_TRUE50
+  LLI r12, 0    // compare false path
+  JMP infix_to_rpn_61_CMP_END51
+infix_to_rpn_61_CMP_TRUE50:
+  LLI r12, 1
+infix_to_rpn_61_CMP_END51:
+  LLI r9, 1    // load immediate 1
+  SUB r9, r5, r9    // binop -
+  ADD r9, r3, r9    // binop +
+  LBU r9, r9, 0    // deref
+  LLI r7, 40    // load immediate 40
+  BNE r9, r7, infix_to_rpn_61_CMP_TRUE52
+  LLI r9, 0    // compare false path
+  JMP infix_to_rpn_61_CMP_END53
+infix_to_rpn_61_CMP_TRUE52:
+  LLI r9, 1
+infix_to_rpn_61_CMP_END53:
+  AND r12, r12, r9    // logic && fold
+  BNE r12, r0, infix_to_rpn_61_CMP_TRUE54
+  LLI r12, 0    // compare false path
+  JMP infix_to_rpn_61_CMP_END55
+infix_to_rpn_61_CMP_TRUE54:
+  LLI r12, 1
+infix_to_rpn_61_CMP_END55:
+  BEQ r12, r0, infix_to_rpn_61_WHILE_END49
+  LLI r10, 0    // load immediate 0
+  LLI r11, 0    // load immediate 0
+  SUB r11, r11, r5    // binop -
+  SUB r10, r10, r11    // binop -
+  ADD r10, r3, r10    // binop +
+  LBU r10, r10, 0    // deref
+  LLI r7, 1    // load immediate 1
+  ADD r7, r4, r7    // binop +
+  ADDI r4, r7, 0    // assign-expr out_index
+  ADD r9, r2, r4    // binop +
+  SB r10, r9, 0    // store 
+  JMP infix_to_rpn_61_WHILE48
+infix_to_rpn_61_WHILE_END49:
+  LLI r12, 0    // load immediate 0
+  BLT r12, r5, infix_to_rpn_61_CMP_TRUE58
+  LLI r12, 0    // compare false path
+  JMP infix_to_rpn_61_CMP_END59
+infix_to_rpn_61_CMP_TRUE58:
+  LLI r12, 1
+infix_to_rpn_61_CMP_END59:
+  LLI r11, 1    // load immediate 1
+  SUB r11, r5, r11    // binop -
+  ADD r11, r3, r11    // binop +
+  LBU r11, r11, 0    // deref
+  LLI r7, 40    // load immediate 40
+  BEQ r11, r7, infix_to_rpn_61_CMP_TRUE60
+  LLI r11, 0    // compare false path
+  JMP infix_to_rpn_61_CMP_END61
+infix_to_rpn_61_CMP_TRUE60:
+  LLI r11, 1
+infix_to_rpn_61_CMP_END61:
+  AND r12, r12, r11    // logic && fold
+  BNE r12, r0, infix_to_rpn_61_CMP_TRUE62
+  LLI r12, 0    // compare false path
   JMP infix_to_rpn_61_CMP_END63
 infix_to_rpn_61_CMP_TRUE62:
-  LLI r11, 1
+  LLI r12, 1
 infix_to_rpn_61_CMP_END63:
-  BEQ r11, r0, infix_to_rpn_61_WHILE_END61
-  ADDI r4, r4, -1    // assign stack_index (addi fast path)
-  ADD r6, r3, r4    // binop +
-  LBU r6, r6, 0    // deref
-  LLI r9, 1    // load immediate 1
-  ADD r9, r10, r9    // binop +
-  ADDI r10, r9, 0    // assign-expr out_index
-  ADD r12, r2, r10    // binop +
-  SB r6, r12, 0    // store 
-  JMP infix_to_rpn_61_WHILE60
-infix_to_rpn_61_WHILE_END61:
-  LLI r8, 0    // load immediate 0
-  ADD r10, r2, r10    // binop +
-  SB r8, r10, 0    // store 
+  BEQ r12, r0, infix_to_rpn_61_ELSE56
+  ADDI r5, r5, -1    // assign stack_index (addi fast path)
+  JMP infix_to_rpn_61_IF_END57
+infix_to_rpn_61_ELSE56:
+infix_to_rpn_61_IF_END57:
+  JMP infix_to_rpn_61_IF_END45
+infix_to_rpn_61_ELSE44:
+infix_to_rpn_61_IF_END45:
+  ADDI r6, r6, 1    // assign i (addi fast path)
+  JMP infix_to_rpn_61_WHILE2
+infix_to_rpn_61_WHILE_END3:
+infix_to_rpn_61_WHILE64:
+  LLI r9, 0    // load immediate 0
+  BLT r9, r5, infix_to_rpn_61_CMP_TRUE66
+  LLI r9, 0    // compare false path
+  JMP infix_to_rpn_61_CMP_END67
+infix_to_rpn_61_CMP_TRUE66:
+  LLI r9, 1
+infix_to_rpn_61_CMP_END67:
+  BEQ r9, r0, infix_to_rpn_61_WHILE_END65
+  ADDI r5, r5, -1    // assign stack_index (addi fast path)
+  ADD r10, r3, r5    // binop +
+  LBU r10, r10, 0    // deref
+  LLI r7, 1    // load immediate 1
+  ADD r7, r4, r7    // binop +
+  ADDI r4, r7, 0    // assign-expr out_index
+  ADD r11, r2, r4    // binop +
+  SB r10, r11, 0    // store 
+  JMP infix_to_rpn_61_WHILE64
+infix_to_rpn_61_WHILE_END65:
+  LLI r12, 0    // load immediate 0
+  ADD r4, r2, r4    // binop +
+  SB r12, r4, 0    // store 
   ADD r1, r2, r0
   POP r14
   RET
@@ -4760,11 +4807,11 @@ evaluate_rpn_62_WHILE_END3:
 
 .FUNC image_display_test:
   PUSH r14
-  // emit call to write_to_buffer with args [{'type': 'string_addr', 'label': 'str_15'}, {'type': 'const', 'value': 0}]
+  // emit call to write_to_buffer with args [{'type': 'string_addr', 'label': 'str_15'}, {'type': 'const', 'value': 72}]
   PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
   LLI r2, str_15    // load immediate str_15
   PUSH r2    // stage reg arg 0
-  LLI r3, 0    // load immediate 0
+  LLI r3, 72    // load immediate 72
   PUSH r3    // stage reg arg 1
   POP r2    // load reg arg 1
   POP r1    // load reg arg 0
@@ -4774,11 +4821,6 @@ evaluate_rpn_62_WHILE_END3:
   // emit call to update_buffer with args []
   PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
   CALL update_buffer
-  // call return value in r1
-  POP r1  
-  // emit call to fast_clear_display with args []
-  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  CALL fast_clear_display
   // call return value in r1
   POP r1  
   // emit call to load_and_display_image with args []
@@ -5354,9 +5396,39 @@ time_test_71_WHILE_END4:
   CALL init_heap
   // call return value in r1
   POP r1  
-  // emit call to math_test with args []
+  // emit call to display_test with args []
   PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  CALL math_test
+  CALL display_test
+  // call return value in r1
+  POP r1  
+  // emit call to fs_test with args []
+  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
+  CALL fs_test
+  // call return value in r1
+  POP r1  
+  // emit call to fast_clear_display with args []
+  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
+  CALL fast_clear_display
+  // call return value in r1
+  POP r1  
+  // emit call to malloc_test with args []
+  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
+  CALL malloc_test
+  // call return value in r1
+  POP r1  
+  // emit call to rand_block_display_test with args []
+  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
+  CALL rand_block_display_test
+  // call return value in r1
+  POP r1  
+  // emit call to terminal_test with args []
+  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
+  CALL terminal_test
+  // call return value in r1
+  POP r1  
+  // emit call to image_display_test with args []
+  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
+  CALL image_display_test
   // call return value in r1
   POP r1  
   BREAK  // epilogue and return

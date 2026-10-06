@@ -16,7 +16,8 @@ char *infix_to_rpn(char *infix, char *output)
 {
     // shunting yard algorithm
     char stack[512];
-    int out_index = 0, stack_index = 0;
+    int out_index = 0;
+    int stack_index = 0;
     int i = 0;
     while (infix[i])
     {
@@ -27,6 +28,12 @@ char *infix_to_rpn(char *infix, char *output)
         }
         if (token == '+' || token == '-' || token == '*' || token == '/')
         {
+            int token_precedence = precedence(token);
+            if (token_precedence == 0)
+            {
+                // invalid operator
+                break;
+            }
             while (stack_index > 0 && precedence(stack[stack_index - 1]) >= precedence(token))
             {
                 output[out_index++] = stack[--stack_index];

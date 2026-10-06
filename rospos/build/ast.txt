@@ -698,80 +698,86 @@ translation_unit
                           glyph
                           plus
                           row
-            declaration
-              type_specifier
-                int
-              init_declarator_list
-                init_declarator
-                  declarator	col
-                  0
-            while_stmt
-              relational
-                col
-                lt
-                8
+            if_stmt
+              equality
+                glyph_row
+                neq
+                0
               compound_stmt
                 declaration
                   type_specifier
                     int
                   init_declarator_list
                     init_declarator
-                      declarator	bit
-                      bit_and
-                        shift
-                          glyph_row
-                          rshift
-                          col
-                        1
-                declaration
-                  type_specifier
-                    int
-                  init_declarator_list
-                    init_declarator
-                      declarator	index
-                      additive
-                        multiplicative
-                          additive
-                            y
-                            plus
-                            row
-                          mult
-                          256
-                        plus
-                        x
-                        plus
-                        col
-                if_stmt
-                  bit
-                  compound_stmt
-                    expr_stmt
-                      postfix
-                        __sb
-                        call_suffix
-                          arg_list
-                            additive
-                              0x20000000
-                              plus
-                              index
-                            color
-                  compound_stmt
-                    expr_stmt
-                      postfix
-                        __sb
-                        call_suffix
-                          arg_list
-                            additive
-                              0x20000000
-                              plus
-                              index
-                            0x00
-                expr_stmt
-                  assignment
+                      declarator	col
+                      0
+                while_stmt
+                  relational
                     col
-                    additive
-                      col
-                      plus
-                      1
+                    lt
+                    8
+                  compound_stmt
+                    declaration
+                      type_specifier
+                        int
+                      init_declarator_list
+                        init_declarator
+                          declarator	bit
+                          bit_and
+                            shift
+                              glyph_row
+                              rshift
+                              col
+                            1
+                    declaration
+                      type_specifier
+                        int
+                      init_declarator_list
+                        init_declarator
+                          declarator	index
+                          additive
+                            multiplicative
+                              additive
+                                y
+                                plus
+                                row
+                              mult
+                              256
+                            plus
+                            x
+                            plus
+                            col
+                    if_stmt
+                      bit
+                      compound_stmt
+                        expr_stmt
+                          postfix
+                            __sb
+                            call_suffix
+                              arg_list
+                                additive
+                                  0x20000000
+                                  plus
+                                  index
+                                color
+                      compound_stmt
+                        expr_stmt
+                          postfix
+                            __sb
+                            call_suffix
+                              arg_list
+                                additive
+                                  0x20000000
+                                  plus
+                                  index
+                                0x00
+                    expr_stmt
+                      assignment
+                        col
+                        additive
+                          col
+                          plus
+                          1
             expr_stmt
               assignment
                 row
@@ -5536,6 +5542,10 @@ translation_unit
             init_declarator
               declarator	out_index
               0
+        declaration
+          type_specifier
+            int
+          init_declarator_list
             init_declarator
               declarator	stack_index
               0
@@ -5599,6 +5609,23 @@ translation_unit
                   eq
                   "/"
               compound_stmt
+                declaration
+                  type_specifier
+                    int
+                  init_declarator_list
+                    init_declarator
+                      declarator	token_precedence
+                      postfix
+                        precedence
+                        call_suffix
+                          arg_list	token
+                if_stmt
+                  equality
+                    token_precedence
+                    eq
+                    0
+                  compound_stmt
+                    expr_stmt	break
                 while_stmt
                   logic_and
                     relational
@@ -6178,14 +6205,10 @@ translation_unit
             call_suffix
               arg_list
                 "Fast loading image using DMA:\0"
-                0
+                72
         expr_stmt
           postfix
             update_buffer
-            call_suffix
-        expr_stmt
-          postfix
-            fast_clear_display
             call_suffix
         expr_stmt
           postfix
@@ -6588,5 +6611,29 @@ translation_unit
             call_suffix
         expr_stmt
           postfix
-            math_test
+            display_test
+            call_suffix
+        expr_stmt
+          postfix
+            fs_test
+            call_suffix
+        expr_stmt
+          postfix
+            fast_clear_display
+            call_suffix
+        expr_stmt
+          postfix
+            malloc_test
+            call_suffix
+        expr_stmt
+          postfix
+            rand_block_display_test
+            call_suffix
+        expr_stmt
+          postfix
+            terminal_test
+            call_suffix
+        expr_stmt
+          postfix
+            image_display_test
             call_suffix

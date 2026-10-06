@@ -154,18 +154,24 @@ void draw_char_to_display(int ch, int x, int y, int color)
     while (row < 8)
     {
         int glyph_row = __lb(font_address + glyph + row);
-        int col = 0;
-        while (col < 8)
+        if (glyph_row != 0)
         {
-            int bit = (glyph_row >> col) & 1;
-            int index = ((y+row) * 256) + x+col;
-            if (bit)
+
+            int col = 0;
+            while (col < 8)
             {
-                __sb(0x20000000 + index, color);
-            }else{
-                __sb(0x20000000 + index, 0x00);
+                int bit = (glyph_row >> col) & 1;
+                int index = ((y + row) * 256) + x + col;
+                if (bit)
+                {
+                    __sb(0x20000000 + index, color);
+                }
+                else
+                {
+                    __sb(0x20000000 + index, 0x00);
+                }
+                col = col + 1;
             }
-            col = col + 1;
         }
         row = row + 1;
     }
@@ -182,7 +188,6 @@ void draw_string_to_display(char *str, int x, int y, int color)
     }
     return 0;
 }
-
 
 void draw_line(int x1, int y1, int x2, int y2)
 {
@@ -226,12 +231,11 @@ void draw_line(int x1, int y1, int x2, int y2)
         }
     }
     return 0;
-    
 }
 
 void draw_rectangle(int x, int y, int width, int height, int bc, int fc)
 {
-    
+
     // Draw filled rectangle
     int row = 0;
     while (row < height)
@@ -257,7 +261,8 @@ void draw_rectangle(int x, int y, int width, int height, int bc, int fc)
     return 0;
 }
 
-void fast_clear_display(){
+void fast_clear_display()
+{
     int i = 0;
     while (i < 0x10000)
     {
@@ -1140,7 +1145,8 @@ char *infix_to_rpn(char *infix, char *output)
 {
     // shunting yard algorithm
     char stack[512];
-    int out_index = 0, stack_index = 0;
+    int out_index = 0;
+    int stack_index = 0;
     int i = 0;
     while (infix[i])
     {
@@ -1151,6 +1157,12 @@ char *infix_to_rpn(char *infix, char *output)
         }
         if (token == "+" || token == "-" || token == "*" || token == "/")
         {
+            int token_precedence = precedence(token);
+            if (token_precedence == 0)
+            {
+                // invalid operator
+                break;
+            }
             while (stack_index > 0 && precedence(stack[stack_index - 1]) >= precedence(token))
             {
                 output[out_index++] = stack[--stack_index];
@@ -1266,9 +1278,8 @@ void terminal_test()
 }
 void image_display_test()
 {
-    write_to_buffer("Fast loading image using DMA:\0", 0);
+    write_to_buffer("Fast loading image using DMA:\0", 72);
     update_buffer();
-    fast_clear_display();
     load_and_display_image();
 }
 void malloc_test()
@@ -1365,13 +1376,13 @@ void main()
     // inline int r2 = 50;
     // int r3 = add(r1, r2);
 
-    // display_test();
-    // fs_test();
-    // fast_clear_display();
-    // malloc_test();
-    // rand_block_display_test();
-    // terminal_test();
-    // image_display_test();
-    math_test();
+    display_test();
+    fs_test();
+    fast_clear_display();
+    malloc_test();
+    rand_block_display_test();
+    terminal_test();
+    image_display_test();
+    // math_test();
     // time_test();
 }
