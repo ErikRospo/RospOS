@@ -330,7 +330,7 @@ void rand_block_test(){
     }
     return 0;
 }
-int bd_read_u32(int addr)
+ int bd_read_u32(int addr)
 {
     int b0 = __lb(addr + 0) & 0xFF;
     int b1 = __lb(addr + 1) & 0xFF;
@@ -351,7 +351,7 @@ void bd_write_u32(int addr, int value)
     __sb(addr + 3, value & 0xFF);
 }
 
-inline void write_block(int blockID, char *data)
+void write_block(int blockID, char *data)
 {
     bd_write_u32(0x40000008, blockID); // Block ID
     bd_write_u32(0x4000000C, (int)data); // Buffer Addr
@@ -365,7 +365,7 @@ inline void write_block(int blockID, char *data)
     return 0;
 }
 
-inline void read_block(int blockID, char *buffer)
+void read_block(int blockID, char *buffer)
 {
     bd_write_u32(0x40000008, blockID); // Block ID
     bd_write_u32(0x4000000C, (int)buffer); // Buffer Addr
@@ -808,7 +808,6 @@ void write_to_buffer(char *str, int index){
 
 
 
-char __time_block_buffer[512];
 
 struct unix_time
 {
@@ -821,7 +820,7 @@ struct unix_time
     int millisecond;
 };
 
-inline int _read_le_u32(char *buffer, int offset)
+int _read_le_u32(char *buffer, int offset)
 {
     int b0 = buffer[offset + 0] & 0xFF;
     int b1 = buffer[offset + 1] & 0xFF;
@@ -830,7 +829,7 @@ inline int _read_le_u32(char *buffer, int offset)
     return (b3 << 24) | (b2 << 16) | (b1 << 8) | b0;
 }
 
-inline int _read_be_u32(char *buffer, int offset)
+int _read_be_u32(char *buffer, int offset)
 {
     int b0 = buffer[offset + 0] & 0xFF;
     int b1 = buffer[offset + 1] & 0xFF;
@@ -839,7 +838,7 @@ inline int _read_be_u32(char *buffer, int offset)
     return (b0 << 24) | (b1 << 16) | (b2 << 8) | b3;
 }
 
-inline void _read_special_block(int block_id, char *buffer)
+void _read_special_block(int block_id, char *buffer)
 {
     bd_write_u32(0x40000008, block_id);
     bd_write_u32(0x4000000C, (int)buffer);
@@ -849,29 +848,25 @@ inline void _read_special_block(int block_id, char *buffer)
 
 char *unix_ms_buffer()
 {
-    _read_special_block(0xFFFFFFFD, __time_block_buffer);
-    return __time_block_buffer;
+    char time_block_buffer[512] = malloc(512);
+    _read_special_block(0xFFFFFFFD, time_block_buffer);
+    return time_block_buffer;
 }
 
-int unix_ms()
+struct unix_time *get_unix_time()
 {
-    char *buffer = unix_ms_buffer();
-    return _read_le_u32(buffer, 0);
-}
+    (struct unix_time *) out = malloc(sizeof(struct unix_time));
+    char time_block_buffer[512] = malloc(512);
+    _read_special_block(0xFFFFFFFC, time_block_buffer);
 
-struct unix_time get_unix_time()
-{
-    struct unix_time out;
-    _read_special_block(0xFFFFFFFC, __time_block_buffer);
-
-    out.year = _read_be_u32(__time_block_buffer, 0);
-    out.month = _read_be_u32(__time_block_buffer, 4);
-    out.day = _read_be_u32(__time_block_buffer, 8);
-    out.hour = _read_be_u32(__time_block_buffer, 12);
-    out.minute = _read_be_u32(__time_block_buffer, 16);
-    out.second = _read_be_u32(__time_block_buffer, 20);
-    out.millisecond = _read_be_u32(__time_block_buffer, 24);
-
+    (*out).year = _read_be_u32(time_block_buffer, 0);
+    (*out).month = _read_be_u32(time_block_buffer, 4);
+    (*out).day = _read_be_u32(time_block_buffer, 8);
+    (*out).hour = _read_be_u32(time_block_buffer, 12);
+    (*out).minute = _read_be_u32(time_block_buffer, 16);
+    (*out).second = _read_be_u32(time_block_buffer, 20);
+    (*out).millisecond = _read_be_u32(time_block_buffer, 24);
+    free(time_block_buffer);
     return out;
 }
 
@@ -885,7 +880,7 @@ inline void _append_two_digits(char *buffer, int value)
 
 char *fmt_unix_time(struct unix_time time)
 {
-    //YYYY-MM-DD HH:MM:SS
+    // YYYY-MM-DD HH:MM:SS
     char *buffer = (char *)malloc(20);
     if (!buffer)
     {
@@ -904,7 +899,7 @@ char *fmt_unix_time(struct unix_time time)
     strcat(buffer, ":");
     _append_two_digits(buffer, time.minute);
     strcat(buffer, ":");
-    _append_two_digits(buffer, time.second); 
+    _append_two_digits(buffer, time.second);
     return buffer;
 }
 // display_image.rosc
@@ -1375,14 +1370,15 @@ void main()
     // int r1 = add(15, 25);
     // inline int r2 = 50;
     // int r3 = add(r1, r2);
-
-    display_test();
-    fs_test();
-    fast_clear_display();
-    malloc_test();
-    rand_block_display_test();
-    terminal_test();
-    image_display_test();
+    // write_to_buffer(int_to_str(r3));
+    // update_buffer();
+    // display_test();
+    // fs_test();
+    // fast_clear_display();
+    // malloc_test();
+    // rand_block_display_test();
+    // terminal_test();
+    // image_display_test();
     // math_test();
-    // time_test();
+    time_test();
 }

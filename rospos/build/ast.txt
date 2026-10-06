@@ -1852,7 +1852,6 @@ translation_unit
                   0xFF
   external_decl
     function_def
-      inline
       type_specifier
         void
       declarator	write_block
@@ -1901,7 +1900,6 @@ translation_unit
         return_stmt	0
   external_decl
     function_def
-      inline
       type_specifier
         void
       declarator	read_block
@@ -3930,15 +3928,6 @@ translation_unit
                     update_buffer
                     call_suffix
   external_decl
-    declaration
-      type_specifier
-        char
-      init_declarator_list
-        init_declarator
-          declarator
-            __time_block_buffer
-            array	512
-  external_decl
     struct_decl
       unix_time
       struct_member
@@ -3985,7 +3974,6 @@ translation_unit
             declarator	millisecond
   external_decl
     function_def
-      inline
       type_specifier
         int
       declarator	_read_le_u32
@@ -4077,7 +4065,6 @@ translation_unit
             b0
   external_decl
     function_def
-      inline
       type_specifier
         int
       declarator	_read_be_u32
@@ -4169,7 +4156,6 @@ translation_unit
             b3
   external_decl
     function_def
-      inline
       type_specifier
         void
       declarator	_read_special_block
@@ -4222,131 +4208,161 @@ translation_unit
         pointer
       declarator	unix_ms_buffer
       compound_stmt
+        declaration
+          type_specifier
+            char
+          init_declarator_list
+            init_declarator
+              declarator
+                time_block_buffer
+                array	512
+              postfix
+                malloc
+                call_suffix
+                  arg_list	512
         expr_stmt
           postfix
             _read_special_block
             call_suffix
               arg_list
                 0xFFFFFFFD
-                __time_block_buffer
-        return_stmt	__time_block_buffer
+                time_block_buffer
+        return_stmt	time_block_buffer
   external_decl
     function_def
       type_specifier
-        int
-      declarator	unix_ms
+        unix_time
+        pointer
+      declarator	get_unix_time
       compound_stmt
+        expr_stmt
+          cast
+            type_specifier
+              unix_time
+              pointer
+            assignment
+              out
+              postfix
+                malloc
+                call_suffix
+                  arg_list
+                    sizeof
+                      type_specifier	unix_time
         declaration
           type_specifier
             char
-            pointer
           init_declarator_list
             init_declarator
-              declarator	buffer
+              declarator
+                time_block_buffer
+                array	512
               postfix
-                unix_ms_buffer
+                malloc
                 call_suffix
-        return_stmt
-          postfix
-            _read_le_u32
-            call_suffix
-              arg_list
-                buffer
-                0
-  external_decl
-    function_def
-      type_specifier	unix_time
-      declarator	get_unix_time
-      compound_stmt
-        declaration
-          type_specifier	unix_time
-          init_declarator_list
-            init_declarator
-              declarator	out
+                  arg_list	512
         expr_stmt
           postfix
             _read_special_block
             call_suffix
               arg_list
                 0xFFFFFFFC
-                __time_block_buffer
+                time_block_buffer
         expr_stmt
           assignment
             postfix
-              out
+              unary
+                deref
+                out
               member_access	year
             postfix
               _read_be_u32
               call_suffix
                 arg_list
-                  __time_block_buffer
+                  time_block_buffer
                   0
         expr_stmt
           assignment
             postfix
-              out
+              unary
+                deref
+                out
               member_access	month
             postfix
               _read_be_u32
               call_suffix
                 arg_list
-                  __time_block_buffer
+                  time_block_buffer
                   4
         expr_stmt
           assignment
             postfix
-              out
+              unary
+                deref
+                out
               member_access	day
             postfix
               _read_be_u32
               call_suffix
                 arg_list
-                  __time_block_buffer
+                  time_block_buffer
                   8
         expr_stmt
           assignment
             postfix
-              out
+              unary
+                deref
+                out
               member_access	hour
             postfix
               _read_be_u32
               call_suffix
                 arg_list
-                  __time_block_buffer
+                  time_block_buffer
                   12
         expr_stmt
           assignment
             postfix
-              out
+              unary
+                deref
+                out
               member_access	minute
             postfix
               _read_be_u32
               call_suffix
                 arg_list
-                  __time_block_buffer
+                  time_block_buffer
                   16
         expr_stmt
           assignment
             postfix
-              out
+              unary
+                deref
+                out
               member_access	second
             postfix
               _read_be_u32
               call_suffix
                 arg_list
-                  __time_block_buffer
+                  time_block_buffer
                   20
         expr_stmt
           assignment
             postfix
-              out
+              unary
+                deref
+                out
               member_access	millisecond
             postfix
               _read_be_u32
               call_suffix
                 arg_list
-                  __time_block_buffer
+                  time_block_buffer
                   24
+        expr_stmt
+          postfix
+            free
+            call_suffix
+              arg_list	time_block_buffer
         return_stmt	out
   external_decl
     function_def
@@ -6605,29 +6621,5 @@ translation_unit
             call_suffix
         expr_stmt
           postfix
-            display_test
-            call_suffix
-        expr_stmt
-          postfix
-            fs_test
-            call_suffix
-        expr_stmt
-          postfix
-            fast_clear_display
-            call_suffix
-        expr_stmt
-          postfix
-            malloc_test
-            call_suffix
-        expr_stmt
-          postfix
-            rand_block_display_test
-            call_suffix
-        expr_stmt
-          postfix
-            terminal_test
-            call_suffix
-        expr_stmt
-          postfix
-            image_display_test
+            time_test
             call_suffix

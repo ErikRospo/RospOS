@@ -1266,7 +1266,7 @@ class Emitter:
                 )
                 logger.bind(
                     diagnostic=f"function={name}; parameter={p}; output line={output_line}"
-                ).warning(f"arg register {abi.ARG_REGS[i]} not in free list")
+                ).warning(f"arg register {abi.ARG_REGS[i]} not in free list\n")
             # Track parameter allocation for debug info
             param_type = (fn.get("param_types", {}) or {}).get(p, "int")
             if hasattr(out, "get_current_output_line"):

@@ -1,4 +1,4 @@
-int bd_read_u32(int addr)
+ int bd_read_u32(int addr)
 {
     int b0 = __lb(addr + 0) & 0xFF;
     int b1 = __lb(addr + 1) & 0xFF;
@@ -19,7 +19,7 @@ void bd_write_u32(int addr, int value)
     __sb(addr + 3, value & 0xFF);
 }
 
-inline void write_block(int blockID, char *data)
+void write_block(int blockID, char *data)
 {
     bd_write_u32(0x40000008, blockID); // Block ID
     bd_write_u32(0x4000000C, (int)data); // Buffer Addr
@@ -33,7 +33,7 @@ inline void write_block(int blockID, char *data)
     return;
 }
 
-inline void read_block(int blockID, char *buffer)
+void read_block(int blockID, char *buffer)
 {
     bd_write_u32(0x40000008, blockID); // Block ID
     bd_write_u32(0x4000000C, (int)buffer); // Buffer Addr
