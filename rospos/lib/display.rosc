@@ -40,18 +40,24 @@ void draw_char_to_display(int ch, int x, int y, int color)
     while (row < 8)
     {
         int glyph_row = __lb(font_address + glyph + row);
-        int col = 0;
-        while (col < 8)
+        if (glyph_row != 0)
         {
-            int bit = (glyph_row >> col) & 1;
-            int index = ((y+row) * 256) + x+col;
-            if (bit)
+
+            int col = 0;
+            while (col < 8)
             {
-                __sb(0x20000000 + index, color);
-            }else{
-                __sb(0x20000000 + index, 0x00);
+                int bit = (glyph_row >> col) & 1;
+                int index = ((y + row) * 256) + x + col;
+                if (bit)
+                {
+                    __sb(0x20000000 + index, color);
+                }
+                else
+                {
+                    __sb(0x20000000 + index, 0x00);
+                }
+                col = col + 1;
             }
-            col = col + 1;
         }
         row = row + 1;
     }
@@ -68,7 +74,6 @@ void draw_string_to_display(char *str, int x, int y, int color)
     }
     return;
 }
-
 
 void draw_line(int x1, int y1, int x2, int y2)
 {
@@ -112,12 +117,11 @@ void draw_line(int x1, int y1, int x2, int y2)
         }
     }
     return;
-    
 }
 
 void draw_rectangle(int x, int y, int width, int height, int bc, int fc)
 {
-    
+
     // Draw filled rectangle
     int row = 0;
     while (row < height)
@@ -143,7 +147,8 @@ void draw_rectangle(int x, int y, int width, int height, int bc, int fc)
     return;
 }
 
-void fast_clear_display(){
+void fast_clear_display()
+{
     int i = 0;
     while (i < 0x10000)
     {
