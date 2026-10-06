@@ -4352,7 +4352,6 @@ translation_unit
         return_stmt	out
   external_decl
     function_def
-      inline
       type_specifier
         void
       declarator	_append_two_digits
@@ -4449,7 +4448,7 @@ translation_unit
                 postfix
                   malloc
                   call_suffix
-                    arg_list	20
+                    arg_list	24
         if_stmt
           unary
             not
@@ -4462,19 +4461,37 @@ translation_unit
               buffer
               array_index	0
             "\0"
+        declaration
+          type_specifier
+            char
+            pointer
+          init_declarator_list
+            init_declarator
+              declarator	year_buff
+              cast
+                type_specifier
+                  char
+                  pointer
+                postfix
+                  malloc
+                  call_suffix
+                    arg_list	5
+        expr_stmt
+          postfix
+            int_to_str_buf
+            call_suffix
+              arg_list
+                postfix
+                  time
+                  ptr_member_access	year
+                year_buff
         expr_stmt
           postfix
             strcat
             call_suffix
               arg_list
                 buffer
-                postfix
-                  int_to_str
-                  call_suffix
-                    arg_list
-                      postfix
-                        time
-                        ptr_member_access	year
+                year_buff
         expr_stmt
           postfix
             strcat

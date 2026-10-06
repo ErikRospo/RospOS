@@ -64,7 +64,7 @@ struct unix_time *get_unix_time()
     return out;
 }
 
-inline void _append_two_digits(char *buffer, int value)
+void _append_two_digits(char *buffer, int value)
 {
     int len = string_length(buffer);
     buffer[len + 0] = ((value / 10) % 10) + '0';
@@ -75,15 +75,16 @@ inline void _append_two_digits(char *buffer, int value)
 char *fmt_unix_time(struct unix_time * time)
 {
     // YYYY-MM-DD HH:MM:SS
-    char *buffer = (char *)malloc(20);
+    char *buffer = (char *)malloc(24);
     if (!buffer)
     {
         return 0;
     }
 
     buffer[0] = '\0';
-
-    strcat(buffer, int_to_str(time->year));
+    char *year_buff=(char *)malloc(5);
+    int_to_str_buf(time->year,year_buff);
+    strcat(buffer, year_buff);
     strcat(buffer, "-");
     _append_two_digits(buffer, time->month);
     strcat(buffer, "-");
