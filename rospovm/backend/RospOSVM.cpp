@@ -423,9 +423,16 @@ uint64_t RospOSVM::runSteps(uint64_t maxSteps, uint32_t timeBudgetMicros)
 
     uint64_t executed = 0;
     while (executed < maxSteps && !shouldShutdown()) {
+        beginStateCapture();
         clearLastMemoryAccess();
-        const uint32_t instruction = memory.readWord(pc);
-        executeInstruction(instruction);
+        try {
+            const uint32_t instruction = memory.readWord(pc);
+            executeInstruction(instruction);
+            commitStateCapture();
+        } catch (...) {
+            currentSnapshot.reset();
+            throw;
+        }
         ++executed;
 
         if (hasBudget && (executed & 0x3F) == 0) {

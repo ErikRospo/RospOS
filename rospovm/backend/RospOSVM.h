@@ -42,7 +42,7 @@ private:
         std::unordered_set<uint32_t> touchedAddresses;
     };
 
-    static constexpr size_t kMaxStateHistory = 32;
+    static constexpr size_t kMaxStateHistory = 128;
     static constexpr bool kEnableStateCapture = (ROSPOSVM_ENABLE_STATE_CAPTURE != 0);
 
     RegisterFile regFile;
