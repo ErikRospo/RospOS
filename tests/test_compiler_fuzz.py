@@ -34,7 +34,7 @@ def _compile_silently(*args):
         return compile_source(*args)
 
 
-def _run_compiled_source(source):
+def _run_compiled_source(source, *, max_steps=None):
     harness = os.environ.get("ROSPOS_VM_FUZZ_HARNESS")
     if not harness:
         raise unittest.SkipTest("run through make test to build the VM harness")
@@ -54,8 +54,11 @@ def _run_compiled_source(source):
         for address, content in segments:
             image.extend(struct.pack(">II", address, len(content)))
             image.extend(content)
+        command = [harness, "--run-image"]
+        if max_steps is not None:
+            command.append(str(max_steps))
         result = subprocess.run(
-            [harness, "--run-image"],
+            command,
             input=image,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,

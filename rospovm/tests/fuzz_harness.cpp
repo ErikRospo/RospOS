@@ -1,6 +1,7 @@
 #include "RospOSVM.h"
 #include "Binary.h"
 #include "Logger.h"
+#include "Shutdown.h"
 
 #include <cstdint>
 #include <iostream>
@@ -35,8 +36,15 @@ int main(int argc, char **argv)
         }
         return 0;
     }
-    if (argc == 2 && std::string(argv[1]) == "--run-image") {
+    if ((argc == 2 || argc == 3) && std::string(argv[1]) == "--run-image") {
         try {
+            uint64_t maxSteps = 256;
+            if (argc == 3) {
+                const std::string limit(argv[2]);
+                size_t consumed = 0;
+                maxSteps = std::stoull(limit, &consumed);
+                if (consumed != limit.size() || maxSteps == 0 || maxSteps > 10000000) return 2;
+            }
             const uint32_t count = readU32(std::cin);
             if (count == 0 || count > 16) return 2;
             RospOSVM vm(false, "");
@@ -49,7 +57,12 @@ int main(int argc, char **argv)
                 vm.loadBinaryAtAddress(segment, address);
             }
             vm.setProgramCounter(vm.readMemory(0xFFFFFFFC));
-            vm.runSteps(256);
+            vm.runSteps(maxSteps);
+            // Long correctness programs must finish, not report an intermediate r1.
+            if (argc == 3 && (!shouldShutdown() ||
+                vm.readMemory(vm.getProgramCounter() - 4) != 0x51000000)) {
+                throw std::runtime_error("program did not terminate at BREAK within the instruction limit");
+            }
             std::cout << "result " << vm.getRegister(1) << '\n';
         } catch (const std::exception &error) {
             std::cerr << error.what() << '\n';
