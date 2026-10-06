@@ -1127,63 +1127,95 @@ char *fixed_point_to_string(struct fixed_point fp)
 
 
 
-
-int precedence(char op){
-    if(op == "+" || op == "-") return 1;
-    if(op == "*" || op == "/") return 2;
+int precedence(char op)
+{
+    if (op == "+" || op == "-")
+        return 1;
+    if (op == "*" || op == "/")
+        return 2;
     return 0;
 }
 
-char* infix_to_rpn(char* infix){
+char *infix_to_rpn(char *infix, char *output)
+{
     // shunting yard algorithm
-    char output[512];
     char stack[512];
     int out_index = 0, stack_index = 0;
     int i = 0;
-    while(infix[i]){
+    while (infix[i])
+    {
         char token = infix[i];
-        if(token >= "0" && token <= "9"){
+        if (token >= "0" && token <= "9")
+        {
             output[out_index++] = token;
-        } else if(token == "+" || token == "-" || token == "*" || token == "/"){
-            while(stack_index > 0 && precedence(stack[stack_index - 1]) >= precedence(token)){
+        }
+        if (token == "+" || token == "-" || token == "*" || token == "/")
+        {
+            while (stack_index > 0 && precedence(stack[stack_index - 1]) >= precedence(token))
+            {
                 output[out_index++] = stack[--stack_index];
             }
             stack[stack_index++] = token;
-        } else if(token == "("){
+        }
+        if (token == "(")
+        {
             stack[stack_index++] = token;
-        } else if(token == ")"){
-            while(stack_index > 0 && stack[stack_index - 1] != "("){
+        }
+        if (token == ")")
+        {
+            while (stack_index > 0 && stack[stack_index - 1] != "(")
+            {
                 output[out_index++] = stack[--stack_index];
             }
-            if(stack_index > 0 && stack[stack_index - 1] == "("){
+            if (stack_index > 0 && stack[stack_index - 1] == "(")
+            {
                 stack_index = stack_index - 1; // pop '('
             }
         }
         i = i + 1;
     }
-    while(stack_index > 0){
-        output[out_index++] = stack[--stack_index];
+    while (stack_index > 0)
+    {
+        stack_index = stack_index - 1;
+        output[out_index++] = stack[stack_index];
     }
     output[out_index] = "\0";
     return output;
 }
 
-int evaluate_rpn(char* expression){
+int evaluate_rpn(char *expression)
+{
     int stack[512];
     int stack_index = 0;
     int i = 0;
-    while(expression[i]){
+    while (expression[i])
+    {
         char token = expression[i];
-        if(token >= "0" && token <= "9"){
+        if (token >= "0" && token <= "9")
+        {
             stack[stack_index++] = token - "0";
-        } else {
+        }
+        else
+        {
             int b = stack[--stack_index];
             int a = stack[--stack_index];
             int result;
-            if (token == "+") result = a + b;
-            else if (token == "-") result = a - b;
-            else if (token == "*") result = a * b;
-            else if (token == "/") result = a / b;
+            if (token == "+")
+            {
+                result = a + b;
+            }
+            if (token == "-")
+            {
+                result = a - b;
+            }
+            if (token == "*")
+            {
+                result = a * b;
+            }
+            if (token == "/")
+            {
+                result = a / b;
+            }
             stack[stack_index++] = result;
         }
         i = i + 1;
@@ -1294,13 +1326,23 @@ void malloc_test()
 void math_test()
 {
     char *infix_expr = "3+4*2/(1-5)";
-    char *rpn_expr = infix_to_rpn(infix_expr);
     write_to_buffer("Infix: \0", 0);
     write_to_buffer(infix_expr, 8);
+    update_buffer();
+    char *rpn_buffer = (char *)malloc(512);
+    if (!rpn_buffer)
+    {
+        write_to_buffer("Memory allocation failed for RPN buffer.\0", 16);
+        update_buffer();
+        return 0;
+    }
+    infix_to_rpn(infix_expr, rpn_buffer);
     write_to_buffer("RPN: \0", 32);
-    write_to_buffer(rpn_expr, 38);
+    write_to_buffer(rpn_buffer, 38);
+    update_buffer();
+
     write_to_buffer("Result: \0", 64);
-    int result = evaluate_rpn(rpn_expr);
+    int result = evaluate_rpn(rpn_buffer);
     char result_str[16];
     int_to_str_buf(result, result_str);
     write_to_buffer(result_str, 72);
@@ -1326,10 +1368,10 @@ void main()
     // display_test();
     // fs_test();
     // fast_clear_display();
-    malloc_test();
+    // malloc_test();
     // rand_block_display_test();
     // terminal_test();
     // image_display_test();
-    // math_test();
+    math_test();
     // time_test();
 }

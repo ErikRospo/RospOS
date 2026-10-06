@@ -111,13 +111,23 @@ void malloc_test()
 void math_test()
 {
     char *infix_expr = "3+4*2/(1-5)";
-    char *rpn_expr = infix_to_rpn(infix_expr);
     write_to_buffer("Infix: \0", 0);
     write_to_buffer(infix_expr, 8);
+    update_buffer();
+    char *rpn_buffer = (char *)malloc(512);
+    if (!rpn_buffer)
+    {
+        write_to_buffer("Memory allocation failed for RPN buffer.\0", 16);
+        update_buffer();
+        return;
+    }
+    infix_to_rpn(infix_expr, rpn_buffer);
     write_to_buffer("RPN: \0", 32);
-    write_to_buffer(rpn_expr, 38);
+    write_to_buffer(rpn_buffer, 38);
+    update_buffer();
+
     write_to_buffer("Result: \0", 64);
-    int result = evaluate_rpn(rpn_expr);
+    int result = evaluate_rpn(rpn_buffer);
     char result_str[16];
     int_to_str_buf(result, result_str);
     write_to_buffer(result_str, 72);
@@ -143,10 +153,10 @@ void main()
     // display_test();
     // fs_test();
     // fast_clear_display();
-    malloc_test();
+    // malloc_test();
     // rand_block_display_test();
     // terminal_test();
     // image_display_test();
-    // math_test();
+    math_test();
     // time_test();
 }

@@ -3622,6 +3622,8 @@ fixed_point_to_string_59_WHILE_END39:
   ADD r1, r12, r0
   POP r14
   JALR r0, r14, 0
+precedence:
+
   PUSH r14
   LLI r2, 43
   BEQ r1, r2, precedence_60_CMP_TRUE3
@@ -3701,90 +3703,374 @@ precedence_60_ELSE9:
 infix_to_rpn:
 
   PUSH r14
-  LLI r2, infix_to_rpn_61_output_buf1
-  LLI r3, infix_to_rpn_61_stack_buf2
+  LLI r3, infix_to_rpn_61_stack_buf1
   LLI r4, 0
   LLI r5, 0
-infix_to_rpn_61_WHILE3:
+infix_to_rpn_61_WHILE2:
 
   ADD r6, r1, r5
   LBU r6, r6, 0
-  BEQ r6, r0, infix_to_rpn_61_WHILE_END4
+  BEQ r6, r0, infix_to_rpn_61_WHILE_END3
   ADD r7, r1, r5
   LBU r7, r7, 0
   LLI r8, 48
-  BGE r7, r8, infix_to_rpn_61_CMP_TRUE7
+  BGE r7, r8, infix_to_rpn_61_CMP_TRUE6
   LLI r8, 0
-  JMP infix_to_rpn_61_CMP_END8
+  JMP infix_to_rpn_61_CMP_END7
 
-infix_to_rpn_61_CMP_TRUE7:
+infix_to_rpn_61_CMP_TRUE6:
 
   LLI r8, 1
-infix_to_rpn_61_CMP_END8:
+infix_to_rpn_61_CMP_END7:
 
   LLI r9, 57
-  BGE r9, r7, infix_to_rpn_61_CMP_TRUE9
+  BGE r9, r7, infix_to_rpn_61_CMP_TRUE8
   LLI r9, 0
-  JMP infix_to_rpn_61_CMP_END10
+  JMP infix_to_rpn_61_CMP_END9
 
-infix_to_rpn_61_CMP_TRUE9:
+infix_to_rpn_61_CMP_TRUE8:
 
   LLI r9, 1
-infix_to_rpn_61_CMP_END10:
+infix_to_rpn_61_CMP_END9:
 
   AND r8, r8, r9
-  BNE r8, r0, infix_to_rpn_61_CMP_TRUE11
+  BNE r8, r0, infix_to_rpn_61_CMP_TRUE10
   LLI r8, 0
-  JMP infix_to_rpn_61_CMP_END12
+  JMP infix_to_rpn_61_CMP_END11
 
-infix_to_rpn_61_CMP_TRUE11:
+infix_to_rpn_61_CMP_TRUE10:
 
   LLI r8, 1
-infix_to_rpn_61_CMP_END12:
+infix_to_rpn_61_CMP_END11:
 
-  BEQ r8, r0, infix_to_rpn_61_ELSE5
+  BEQ r8, r0, infix_to_rpn_61_ELSE4
   LLI r10, 0
   LLI r11, 1
   ADD r10, r10, r11
   ADD r12, r2, r10
   SB r7, r12, 0
-infix_to_rpn_61_ELSE5:
+infix_to_rpn_61_ELSE4:
 
-  ADDI r5, r5, 1
-  JMP infix_to_rpn_61_WHILE3
-
-infix_to_rpn_61_WHILE_END4:
-
-infix_to_rpn_61_WHILE13:
-
+  LLI r6, 43
+  BEQ r7, r6, infix_to_rpn_61_CMP_TRUE14
   LLI r6, 0
-  BLT r6, r4, infix_to_rpn_61_CMP_TRUE15
-  LLI r6, 0
-  JMP infix_to_rpn_61_CMP_END16
+  JMP infix_to_rpn_61_CMP_END15
 
-infix_to_rpn_61_CMP_TRUE15:
+infix_to_rpn_61_CMP_TRUE14:
 
   LLI r6, 1
-infix_to_rpn_61_CMP_END16:
+infix_to_rpn_61_CMP_END15:
 
-  BEQ r6, r0, infix_to_rpn_61_WHILE_END14
+  LLI r9, 45
+  BEQ r7, r9, infix_to_rpn_61_CMP_TRUE16
   LLI r9, 0
+  JMP infix_to_rpn_61_CMP_END17
+
+infix_to_rpn_61_CMP_TRUE16:
+
+  LLI r9, 1
+infix_to_rpn_61_CMP_END17:
+
+  OR r6, r6, r9
+  BNE r6, r0, infix_to_rpn_61_CMP_TRUE18
+  LLI r6, 0
+  JMP infix_to_rpn_61_CMP_END19
+
+infix_to_rpn_61_CMP_TRUE18:
+
+  LLI r6, 1
+infix_to_rpn_61_CMP_END19:
+
+  LLI r8, 42
+  BEQ r7, r8, infix_to_rpn_61_CMP_TRUE20
+  LLI r8, 0
+  JMP infix_to_rpn_61_CMP_END21
+
+infix_to_rpn_61_CMP_TRUE20:
+
+  LLI r8, 1
+infix_to_rpn_61_CMP_END21:
+
+  OR r6, r6, r8
+  BNE r6, r0, infix_to_rpn_61_CMP_TRUE22
+  LLI r6, 0
+  JMP infix_to_rpn_61_CMP_END23
+
+infix_to_rpn_61_CMP_TRUE22:
+
+  LLI r6, 1
+infix_to_rpn_61_CMP_END23:
+
+  LLI r11, 47
+  BEQ r7, r11, infix_to_rpn_61_CMP_TRUE24
+  LLI r11, 0
+  JMP infix_to_rpn_61_CMP_END25
+
+infix_to_rpn_61_CMP_TRUE24:
+
+  LLI r11, 1
+infix_to_rpn_61_CMP_END25:
+
+  OR r6, r6, r11
+  BNE r6, r0, infix_to_rpn_61_CMP_TRUE26
+  LLI r6, 0
+  JMP infix_to_rpn_61_CMP_END27
+
+infix_to_rpn_61_CMP_TRUE26:
+
+  LLI r6, 1
+infix_to_rpn_61_CMP_END27:
+
+  BEQ r6, r0, infix_to_rpn_61_ELSE12
+infix_to_rpn_61_WHILE28:
+
+  LLI r12, 0
+  BLT r12, r4, infix_to_rpn_61_CMP_TRUE30
+  LLI r12, 0
+  JMP infix_to_rpn_61_CMP_END31
+
+infix_to_rpn_61_CMP_TRUE30:
+
+  LLI r12, 1
+infix_to_rpn_61_CMP_END31:
+
+  PUSH r2
+  PUSH r3
+  PUSH r4
+  PUSH r5
+  PUSH r7
+  PUSH r9
+  PUSH r10
+  PUSH r12
+  LLI r8, 1
+  SUB r8, r4, r8
+  ADD r8, r3, r8
+  LBU r8, r8, 0
+  ADDI r1, r8, 0
+  JMP precedence
+
+  POP r12
+  POP r10
+  POP r9
+  POP r7
+  POP r5
+  POP r4
+  POP r3
+  POP r2
+  ADDI r9, r1, 0
+  PUSH r2
+  PUSH r3
+  PUSH r4
+  PUSH r5
+  PUSH r7
+  PUSH r9
+  PUSH r10
+  PUSH r11
+  PUSH r12
+  ADDI r1, r7, 0
+  JMP precedence
+
+  POP r12
+  POP r11
+  POP r10
+  POP r9
+  POP r7
+  POP r5
+  POP r4
+  POP r3
+  POP r2
+  ADDI r11, r1, 0
+  BGE r9, r11, infix_to_rpn_61_CMP_TRUE32
+  LLI r9, 0
+  JMP infix_to_rpn_61_CMP_END33
+
+infix_to_rpn_61_CMP_TRUE32:
+
+  LLI r9, 1
+infix_to_rpn_61_CMP_END33:
+
+  AND r12, r12, r9
+  BNE r12, r0, infix_to_rpn_61_CMP_TRUE34
+  LLI r12, 0
+  JMP infix_to_rpn_61_CMP_END35
+
+infix_to_rpn_61_CMP_TRUE34:
+
+  LLI r12, 1
+infix_to_rpn_61_CMP_END35:
+
+  BEQ r12, r0, infix_to_rpn_61_WHILE_END29
+  LLI r6, 0
   LLI r8, 0
   SUB r8, r8, r4
-  SUB r9, r9, r8
-  ADD r9, r3, r9
-  LBU r9, r9, 0
+  SUB r6, r6, r8
+  ADD r6, r3, r6
+  LBU r6, r6, 0
   LLI r11, 1
   ADD r10, r10, r11
+  ADD r9, r2, r10
+  SB r6, r9, 0
+  JMP infix_to_rpn_61_WHILE28
+
+infix_to_rpn_61_WHILE_END29:
+
+  LLI r12, 1
+  ADD r4, r4, r12
+  ADD r8, r3, r4
+  SB r7, r8, 0
+infix_to_rpn_61_ELSE12:
+
+  LLI r11, 40
+  BEQ r7, r11, infix_to_rpn_61_CMP_TRUE38
+  LLI r11, 0
+  JMP infix_to_rpn_61_CMP_END39
+
+infix_to_rpn_61_CMP_TRUE38:
+
+  LLI r11, 1
+infix_to_rpn_61_CMP_END39:
+
+  BEQ r11, r0, infix_to_rpn_61_ELSE36
+  LLI r9, 1
+  ADD r4, r4, r9
+  ADD r6, r3, r4
+  SB r7, r6, 0
+infix_to_rpn_61_ELSE36:
+
+  LLI r12, 41
+  BEQ r7, r12, infix_to_rpn_61_CMP_TRUE42
+  LLI r12, 0
+  JMP infix_to_rpn_61_CMP_END43
+
+infix_to_rpn_61_CMP_TRUE42:
+
+  LLI r12, 1
+infix_to_rpn_61_CMP_END43:
+
+  BEQ r12, r0, infix_to_rpn_61_ELSE40
+infix_to_rpn_61_WHILE44:
+
+  LLI r8, 0
+  BLT r8, r4, infix_to_rpn_61_CMP_TRUE46
+  LLI r8, 0
+  JMP infix_to_rpn_61_CMP_END47
+
+infix_to_rpn_61_CMP_TRUE46:
+
+  LLI r8, 1
+infix_to_rpn_61_CMP_END47:
+
+  LLI r11, 1
+  SUB r11, r4, r11
+  ADD r11, r3, r11
+  LBU r11, r11, 0
+  LLI r9, 40
+  BNE r11, r9, infix_to_rpn_61_CMP_TRUE48
+  LLI r11, 0
+  JMP infix_to_rpn_61_CMP_END49
+
+infix_to_rpn_61_CMP_TRUE48:
+
+  LLI r11, 1
+infix_to_rpn_61_CMP_END49:
+
+  AND r8, r8, r11
+  BNE r8, r0, infix_to_rpn_61_CMP_TRUE50
+  LLI r8, 0
+  JMP infix_to_rpn_61_CMP_END51
+
+infix_to_rpn_61_CMP_TRUE50:
+
+  LLI r8, 1
+infix_to_rpn_61_CMP_END51:
+
+  BEQ r8, r0, infix_to_rpn_61_WHILE_END45
+  LLI r6, 0
+  LLI r12, 0
+  SUB r12, r12, r4
+  SUB r6, r6, r12
+  ADD r6, r3, r6
+  LBU r6, r6, 0
+  LLI r9, 1
+  ADD r10, r10, r9
+  ADD r11, r2, r10
+  SB r6, r11, 0
+  JMP infix_to_rpn_61_WHILE44
+
+infix_to_rpn_61_WHILE_END45:
+
+  LLI r8, 0
+  BLT r8, r4, infix_to_rpn_61_CMP_TRUE54
+  LLI r8, 0
+  JMP infix_to_rpn_61_CMP_END55
+
+infix_to_rpn_61_CMP_TRUE54:
+
+  LLI r8, 1
+infix_to_rpn_61_CMP_END55:
+
+  LLI r12, 1
+  SUB r12, r4, r12
+  ADD r12, r3, r12
+  LBU r12, r12, 0
+  LLI r9, 40
+  BEQ r12, r9, infix_to_rpn_61_CMP_TRUE56
+  LLI r12, 0
+  JMP infix_to_rpn_61_CMP_END57
+
+infix_to_rpn_61_CMP_TRUE56:
+
+  LLI r12, 1
+infix_to_rpn_61_CMP_END57:
+
+  AND r8, r8, r12
+  BNE r8, r0, infix_to_rpn_61_CMP_TRUE58
+  LLI r8, 0
+  JMP infix_to_rpn_61_CMP_END59
+
+infix_to_rpn_61_CMP_TRUE58:
+
+  LLI r8, 1
+infix_to_rpn_61_CMP_END59:
+
+  BEQ r8, r0, infix_to_rpn_61_ELSE52
+  ADDI r4, r4, -1
+infix_to_rpn_61_ELSE52:
+
+infix_to_rpn_61_ELSE40:
+
+  ADDI r5, r5, 1
+  JMP infix_to_rpn_61_WHILE2
+
+infix_to_rpn_61_WHILE_END3:
+
+infix_to_rpn_61_WHILE60:
+
+  LLI r11, 0
+  BLT r11, r4, infix_to_rpn_61_CMP_TRUE62
+  LLI r11, 0
+  JMP infix_to_rpn_61_CMP_END63
+
+infix_to_rpn_61_CMP_TRUE62:
+
+  LLI r11, 1
+infix_to_rpn_61_CMP_END63:
+
+  BEQ r11, r0, infix_to_rpn_61_WHILE_END61
+  ADDI r4, r4, -1
+  ADD r6, r3, r4
+  LBU r6, r6, 0
+  LLI r9, 1
+  ADD r10, r10, r9
   ADD r12, r2, r10
-  SB r9, r12, 0
-  JMP infix_to_rpn_61_WHILE13
+  SB r6, r12, 0
+  JMP infix_to_rpn_61_WHILE60
 
-infix_to_rpn_61_WHILE_END14:
+infix_to_rpn_61_WHILE_END61:
 
-  LLI r7, 0
+  LLI r8, 0
   ADD r10, r2, r10
-  SB r7, r10, 0
+  SB r8, r10, 0
   ADD r1, r2, r0
   POP r14
   JALR r0, r14, 0
@@ -3869,10 +4155,54 @@ evaluate_rpn_62_CMP_END15:
   ADD r10, r8, r12
 evaluate_rpn_62_ELSE12:
 
+  LLI r5, 45
+  BEQ r6, r5, evaluate_rpn_62_CMP_TRUE18
+  LLI r5, 0
+  JMP evaluate_rpn_62_CMP_END19
+
+evaluate_rpn_62_CMP_TRUE18:
+
   LLI r5, 1
-  ADD r3, r3, r5
-  ADD r7, r2, r3
-  SB r10, r7, 0
+evaluate_rpn_62_CMP_END19:
+
+  BEQ r5, r0, evaluate_rpn_62_ELSE16
+  SUB r10, r8, r12
+evaluate_rpn_62_ELSE16:
+
+  LLI r11, 42
+  BEQ r6, r11, evaluate_rpn_62_CMP_TRUE22
+  LLI r11, 0
+  JMP evaluate_rpn_62_CMP_END23
+
+evaluate_rpn_62_CMP_TRUE22:
+
+  LLI r11, 1
+evaluate_rpn_62_CMP_END23:
+
+  BEQ r11, r0, evaluate_rpn_62_ELSE20
+  MUL r9, r8, r12
+  ADDI r10, r9, 0
+evaluate_rpn_62_ELSE20:
+
+  LLI r5, 47
+  BEQ r6, r5, evaluate_rpn_62_CMP_TRUE26
+  LLI r5, 0
+  JMP evaluate_rpn_62_CMP_END27
+
+evaluate_rpn_62_CMP_TRUE26:
+
+  LLI r5, 1
+evaluate_rpn_62_CMP_END27:
+
+  BEQ r5, r0, evaluate_rpn_62_ELSE24
+  DIV r7, r8, r12
+  ADDI r10, r7, 0
+evaluate_rpn_62_ELSE24:
+
+  LLI r11, 1
+  ADD r3, r3, r11
+  ADD r9, r2, r3
+  SB r10, r9, 0
 evaluate_rpn_62_IF_END5:
 
   ADDI r4, r4, 1
@@ -3880,8 +4210,8 @@ evaluate_rpn_62_IF_END5:
 
 evaluate_rpn_62_WHILE_END3:
 
-  LLI r11, 0
-  ADD r2, r2, r11
+  LLI r5, 0
+  ADD r2, r2, r5
   LBU r2, r2, 0
   ADD r1, r2, r0
   POP r14
@@ -4172,8 +4502,6 @@ evaluate_rpn_62_WHILE_END3:
   ADDI r1, r0, 0
   POP r14
   JALR r0, r14, 0
-malloc_test:
-
   PUSH r14
   LLI r2, 1024
   LLI r3, 0
@@ -4453,101 +4781,145 @@ malloc_test_69_IF_END20:
   ADDI r1, r0, 0
   POP r14
   JALR r0, r14, 0
+math_test:
+
   PUSH r14
   LLI r2, str_21
-  LLI r3, 0
   PUSH r2
-  PUSH r3
-  ADDI r1, r2, 0
-  JMP infix_to_rpn
-
-  POP r3
-  POP r2
-  ADDI r3, r1, 0
-  PUSH r2
-  PUSH r3
   PUSH r1
-  LLI r4, str_22
-  PUSH r4
-  LLI r5, 0
+  LLI r3, str_22
+  PUSH r3
+  LLI r4, 0
+  ADDI r2, r4, 0
+  POP r1
+  JMP write_to_buffer
+
+  POP r1
+  POP r2
+  PUSH r2
+  PUSH r1
+  PUSH r2
+  LLI r5, 8
   ADDI r2, r5, 0
   POP r1
   JMP write_to_buffer
 
+  JMP update_buffer
+
   POP r1
-  POP r3
   POP r2
+  LLI r6, 0
   PUSH r2
-  PUSH r3
+  PUSH r6
+  LLI r7, 512
+  ADDI r1, r7, 0
+  JMP malloc
+
+  POP r6
+  POP r2
+  ADDI r6, r1, 0
+  BEQ r6, r0, math_test_70_UNOP_NOT_TRUE3
+  LLI r8, 0
+  JMP math_test_70_UNOP_NOT_END4
+
+math_test_70_UNOP_NOT_TRUE3:
+
+  LLI r8, 1
+math_test_70_UNOP_NOT_END4:
+
+  BEQ r8, r0, math_test_70_ELSE1
+  PUSH r2
+  PUSH r6
+  PUSH r1
+  LLI r9, str_23
+  PUSH r9
+  LLI r10, 16
+  ADDI r2, r10, 0
+  POP r1
+  JMP write_to_buffer
+
+  JMP update_buffer
+
+  POP r1
+  POP r6
+  POP r2
+  LLI r1, 0
+  POP r14
+  JALR r0, r14, 0
+math_test_70_ELSE1:
+
+  PUSH r2
+  PUSH r6
   PUSH r1
   PUSH r2
-  LLI r6, 8
   ADDI r2, r6, 0
   POP r1
-  JMP write_to_buffer
+  JMP infix_to_rpn
 
   POP r1
-  POP r3
+  POP r6
   POP r2
-  PUSH r3
+  PUSH r6
   PUSH r1
-  LLI r7, str_23
-  PUSH r7
-  LLI r8, 32
-  ADDI r2, r8, 0
-  POP r1
-  JMP write_to_buffer
-
-  POP r1
-  POP r3
-  PUSH r3
-  PUSH r1
-  PUSH r3
-  LLI r9, 38
-  ADDI r2, r9, 0
-  POP r1
-  JMP write_to_buffer
-
-  LLI r10, str_24
-  PUSH r10
-  LLI r11, 64
-  ADDI r2, r11, 0
-  POP r1
-  JMP write_to_buffer
-
-  POP r1
-  POP r3
-  LLI r12, 0
-  PUSH r3
+  LLI r12, str_24
   PUSH r12
-  ADDI r1, r3, 0
+  LLI r3, 32
+  ADDI r2, r3, 0
+  POP r1
+  JMP write_to_buffer
+
+  POP r1
+  POP r6
+  PUSH r6
+  PUSH r1
+  PUSH r6
+  LLI r4, 38
+  ADDI r2, r4, 0
+  POP r1
+  JMP write_to_buffer
+
+  JMP update_buffer
+
+  LLI r5, str_25
+  PUSH r5
+  LLI r7, 64
+  ADDI r2, r7, 0
+  POP r1
+  JMP write_to_buffer
+
+  POP r1
+  POP r6
+  LLI r8, 0
+  PUSH r6
+  PUSH r8
+  ADDI r1, r6, 0
   JMP evaluate_rpn
 
-  POP r12
-  POP r3
-  ADDI r12, r1, 0
-  LLI r4, math_test_70_result_str_buf1
-  PUSH r4
-  PUSH r12
+  POP r8
+  POP r6
+  ADDI r8, r1, 0
+  LLI r9, math_test_70_result_str_buf5
+  PUSH r8
+  PUSH r9
   PUSH r1
-  PUSH r12
-  ADDI r2, r4, 0
+  PUSH r8
+  ADDI r2, r9, 0
   POP r1
   JMP int_to_str_buf
 
   POP r1
-  POP r12
-  POP r4
-  PUSH r4
+  POP r9
+  POP r8
+  PUSH r9
   PUSH r1
-  PUSH r4
-  LLI r5, 72
-  ADDI r2, r5, 0
+  PUSH r9
+  LLI r10, 72
+  ADDI r2, r10, 0
   POP r1
   JMP write_to_buffer
 
   POP r1
-  POP r4
+  POP r9
   PUSH r1
   JMP update_buffer
 
@@ -4586,7 +4958,7 @@ malloc_test_69_IF_END20:
 
   POP r1
   POP r2
-  LLI r7, str_25
+  LLI r7, str_26
   LLI r8, 268435456
 time_test_71_WHILE1:
 
@@ -4624,7 +4996,7 @@ main:
   PUSH r1
   JMP init_heap
 
-  JMP malloc_test
+  JMP math_test
 
   POP r1
   BREAK
@@ -5251,13 +5623,17 @@ str_22:
 
 str_23:
 
-.DATA 0x52 0x50 0x4E 0x3A 0x20 0x00 0x00
+.DATA 0x4D 0x65 0x6D 0x6F 0x72 0x79 0x20 0x61 0x6C 0x6C 0x6F 0x63 0x61 0x74 0x69 0x6F 0x6E 0x20 0x66 0x61 0x69 0x6C 0x65 0x64 0x20 0x66 0x6F 0x72 0x20 0x52 0x50 0x4E 0x20 0x62 0x75 0x66 0x66 0x65 0x72 0x2E 0x00 0x00
 
 str_24:
 
-.DATA 0x52 0x65 0x73 0x75 0x6C 0x74 0x3A 0x20 0x00 0x00
+.DATA 0x52 0x50 0x4E 0x3A 0x20 0x00 0x00
 
 str_25:
+
+.DATA 0x52 0x65 0x73 0x75 0x6C 0x74 0x3A 0x20 0x00 0x00
+
+str_26:
 
 .DATA 0x43 0x75 0x72 0x72 0x65 0x6E 0x74 0x20 0x74 0x69 0x6D 0x65 0x3A 0x20 0x0A 0x00
 
@@ -5357,11 +5733,7 @@ fixed_point_to_string_59_int_digits_buf29:
 
 .SPACE 20
 
-infix_to_rpn_61_output_buf1:
-
-.SPACE 512
-
-infix_to_rpn_61_stack_buf2:
+infix_to_rpn_61_stack_buf1:
 
 .SPACE 512
 
@@ -5377,6 +5749,6 @@ fs_test_65_file_contents_buf2:
 
 .SPACE 512
 
-math_test_70_result_str_buf1:
+math_test_70_result_str_buf5:
 
 .SPACE 16
