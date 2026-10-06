@@ -1,11 +1,10 @@
 from typing import Any, Dict
 
-from loguru import logger
-
 import abi
 from emitter_members import member_address, resolve_member_access
 from emitter_types import is_char_ptr_expr
 from errors import StmtEmitterError
+from loguru import logger
 
 
 def _emit_return(emitter, stmt: Dict[str, Any], out):

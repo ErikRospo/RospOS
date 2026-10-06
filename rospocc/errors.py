@@ -1,4 +1,3 @@
-
 from typing import Any
 
 
@@ -8,10 +7,15 @@ class CompilerError(Exception):
 
 class EmitterError(CompilerError):
     pass
+
+
 class ExprEmitterError(EmitterError):
     pass
+
+
 class StmtEmitterError(EmitterError):
     pass
+
 
 def fmt_node(node: Any) -> str:
     """Return a short human-readable representation of a node or object.
