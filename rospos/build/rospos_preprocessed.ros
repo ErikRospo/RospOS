@@ -4878,21 +4878,11 @@ malloc_test_69_WHILE9:
 malloc_test_69_CMP_TRUE11:
   LLI r10, 1
 malloc_test_69_CMP_END12:
-<<<<<<< HEAD
   BEQ r10, r0, malloc_test_69_WHILE_END10
   ADD r11, r3, r9    // binop +
-  LB r11, r11, 0    // deref
+  LBU r11, r11, 0    // deref
   BNE r11, r9, malloc_test_69_CMP_TRUE15
   LLI r11, 0    // compare false path
-=======
-  BEQ r11, r0, malloc_test_69_WHILE_END10
-  ADD r12, r3, r10    // binop +
-  LBU r12, r12, 0    // deref
-  LLI r5, 256    // load immediate 256
-  REM r5, r10, r5    // binop %
-  BNE r12, r5, malloc_test_69_CMP_TRUE15
-  LLI r12, 0    // compare false path
->>>>>>> 609d70008b449a88bec1cd24b3e3df4440d4dfb2
   JMP malloc_test_69_CMP_END16
 malloc_test_69_CMP_TRUE15:
   LLI r11, 1
