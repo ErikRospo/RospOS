@@ -1311,7 +1311,6 @@ class Emitter:
             self.var_types[pname] = ptype
 
         # per-function flag: whether a return was emitted inside body
-        self.had_return = False
         self.prepare_function_liveness(fn)
 
         # Emit body
@@ -1323,20 +1322,14 @@ class Emitter:
             self.exit_var_scope()
         if name == "main":
             out.write(f"  BREAK")
-        # If no return was emitted in the body, emit epilogue and return 0
-        if not self.had_return:
-            # Clear source context for epilogue
-            if hasattr(out, "set_source_context"):
-                out.set_source_context(None)
-            out.write(f"  // epilogue and return\n")
-            out.write(
-                f"  ADDI {abi.RETURN_REG}, {abi.SPECIAL_REGS['zero']}, 0  // ensure r1=0\n"
-            )
-            out.write(f"  POP {abi.LINK_REG}\n")
-            out.write(f"  RET\n\n")
-        else:
-            # already emitted return(s); do not append another epilogue/RET
-            out.write("\n")
+        if hasattr(out, "set_source_context"):
+            out.set_source_context(None)
+        out.write(f"  // epilogue and return\n")
+        out.write(
+            f"  ADDI {abi.RETURN_REG}, {abi.SPECIAL_REGS['zero']}, 0  // ensure r1=0\n"
+        )
+        out.write(f"  POP {abi.LINK_REG}\n")
+        out.write(f"  RET\n\n")
 
     def emit_statement(self, stmt: Dict[str, Any], out):
         self._push_statement_frame(stmt)
