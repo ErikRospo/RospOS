@@ -115,6 +115,7 @@ if(NOT EMSCRIPTEN)
         frontend/qt/shared/VMControllerCore.cpp
         frontend/qt/shared/TTYWidget.h
         frontend/qt/shared/TTYWidget.cpp
+        lib/exprtk/exprtk.hpp
     )
 
     add_executable(rospovm_minimal
@@ -133,6 +134,8 @@ if(NOT EMSCRIPTEN)
         ${CMAKE_CURRENT_SOURCE_DIR}/frontend/qt/shared
         ${CMAKE_CURRENT_SOURCE_DIR}/frontend/qt/full
         ${CMAKE_CURRENT_SOURCE_DIR}/backend
+        ${CMAKE_CURRENT_SOURCE_DIR}/lib/exprtk
+
     )
     target_include_directories(rospovm_minimal PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}/frontend/qt/shared
