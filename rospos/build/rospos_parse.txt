@@ -20366,6 +20366,283 @@ program
   codeline
     directiveuse
       func
+        label	fibonnaci_recursive:
+  codeline
+    instruction
+      push
+        register	r14
+  codeline
+    instruction
+      lli
+        register	r2
+        imm	0
+  codeline
+    instruction
+      binstructuse
+        bge
+        register	r2
+        register	r1
+        imm
+          labeluse	fibonnaci_recursive_63_CMP_TRUE3
+  codeline
+    instruction
+      lli
+        register	r2
+        imm	0
+  codeline
+    instruction
+      jmpseudo
+        imm
+          labeluse	fibonnaci_recursive_63_CMP_END4
+  codeline
+    label	fibonnaci_recursive_63_CMP_TRUE3:
+  codeline
+    instruction
+      lli
+        register	r2
+        imm	1
+  codeline
+    label	fibonnaci_recursive_63_CMP_END4:
+  codeline
+    instruction
+      binstructuse
+        beq
+        register	r2
+        register	r0
+        imm
+          labeluse	fibonnaci_recursive_63_ELSE1
+  codeline
+    instruction
+      lli
+        register	r3
+        imm	0
+  codeline
+    instruction
+      rinstructuse
+        add
+        register	r1
+        register	r3
+        register	r0
+  codeline
+    instruction
+      pop
+        register	r14
+  codeline
+    instruction
+      retpseudo
+  codeline
+    instruction
+      jmpseudo
+        imm
+          labeluse	fibonnaci_recursive_63_IF_END2
+  codeline
+    label	fibonnaci_recursive_63_ELSE1:
+  codeline
+    label	fibonnaci_recursive_63_IF_END2:
+  codeline
+    instruction
+      lli
+        register	r4
+        imm	2
+  codeline
+    instruction
+      binstructuse
+        bge
+        register	r4
+        register	r1
+        imm
+          labeluse	fibonnaci_recursive_63_CMP_TRUE7
+  codeline
+    instruction
+      lli
+        register	r4
+        imm	0
+  codeline
+    instruction
+      jmpseudo
+        imm
+          labeluse	fibonnaci_recursive_63_CMP_END8
+  codeline
+    label	fibonnaci_recursive_63_CMP_TRUE7:
+  codeline
+    instruction
+      lli
+        register	r4
+        imm	1
+  codeline
+    label	fibonnaci_recursive_63_CMP_END8:
+  codeline
+    instruction
+      binstructuse
+        beq
+        register	r4
+        register	r0
+        imm
+          labeluse	fibonnaci_recursive_63_ELSE5
+  codeline
+    instruction
+      lli
+        register	r5
+        imm	1
+  codeline
+    instruction
+      rinstructuse
+        add
+        register	r1
+        register	r5
+        register	r0
+  codeline
+    instruction
+      pop
+        register	r14
+  codeline
+    instruction
+      retpseudo
+  codeline
+    instruction
+      jmpseudo
+        imm
+          labeluse	fibonnaci_recursive_63_IF_END6
+  codeline
+    label	fibonnaci_recursive_63_ELSE5:
+  codeline
+    label	fibonnaci_recursive_63_IF_END6:
+  codeline
+    instruction
+      lli
+        register	r6
+        imm	0
+  codeline
+    instruction
+      push
+        register	r6
+  codeline
+    instruction
+      lli
+        register	r7
+        imm	1
+  codeline
+    instruction
+      rinstructuse
+        sub
+        register	r7
+        register	r1
+        register	r7
+  codeline
+    instruction
+      push
+        register	r7
+  codeline
+    instruction
+      pop
+        register	r1
+  codeline
+    instruction
+      callpseudo
+        imm
+          labeluse	fibonnaci_recursive
+  codeline
+    instruction
+      pop
+        register	r6
+  codeline
+    instruction
+      iinstructuse
+        addi
+        register	r6
+        register	r1
+        imm	0
+  codeline
+    instruction
+      lli
+        register	r8
+        imm	0
+  codeline
+    instruction
+      push
+        register	r6
+  codeline
+    instruction
+      push
+        register	r8
+  codeline
+    instruction
+      lli
+        register	r9
+        imm	2
+  codeline
+    instruction
+      rinstructuse
+        sub
+        register	r9
+        register	r1
+        register	r9
+  codeline
+    instruction
+      push
+        register	r9
+  codeline
+    instruction
+      pop
+        register	r1
+  codeline
+    instruction
+      callpseudo
+        imm
+          labeluse	fibonnaci_recursive
+  codeline
+    instruction
+      pop
+        register	r8
+  codeline
+    instruction
+      pop
+        register	r6
+  codeline
+    instruction
+      iinstructuse
+        addi
+        register	r8
+        register	r1
+        imm	0
+  codeline
+    instruction
+      rinstructuse
+        add
+        register	r6
+        register	r6
+        register	r8
+  codeline
+    instruction
+      rinstructuse
+        add
+        register	r1
+        register	r6
+        register	r0
+  codeline
+    instruction
+      pop
+        register	r14
+  codeline
+    instruction
+      retpseudo
+  codeline
+    instruction
+      iinstructuse
+        addi
+        register	r1
+        register	r0
+        imm	0
+  codeline
+    instruction
+      pop
+        register	r14
+  codeline
+    instruction
+      retpseudo
+  codeline
+    directiveuse
+      func
         label	display_test:
   codeline
     instruction
@@ -20980,7 +21257,7 @@ program
       lli
         register	r4
         imm
-          labeluse	fs_test_64_device_info_buf1
+          labeluse	fs_test_65_device_info_buf1
   codeline
     instruction
       push
@@ -21096,7 +21373,7 @@ program
       lli
         register	r9
         imm
-          labeluse	fs_test_64_file_contents_buf2
+          labeluse	fs_test_65_file_contents_buf2
   codeline
     instruction
       push
@@ -21689,7 +21966,7 @@ program
         register	r3
         register	r5
         imm
-          labeluse	malloc_test_68_CMP_TRUE3
+          labeluse	malloc_test_69_CMP_TRUE3
   codeline
     instruction
       lli
@@ -21699,16 +21976,16 @@ program
     instruction
       jmpseudo
         imm
-          labeluse	malloc_test_68_CMP_END4
+          labeluse	malloc_test_69_CMP_END4
   codeline
-    label	malloc_test_68_CMP_TRUE3:
+    label	malloc_test_69_CMP_TRUE3:
   codeline
     instruction
       lli
         register	r5
         imm	1
   codeline
-    label	malloc_test_68_CMP_END4:
+    label	malloc_test_69_CMP_END4:
   codeline
     instruction
       binstructuse
@@ -21716,14 +21993,14 @@ program
         register	r5
         register	r0
         imm
-          labeluse	malloc_test_68_ELSE1
+          labeluse	malloc_test_69_ELSE1
   codeline
     instruction
       lli
         register	r6
         imm	0
   codeline
-    label	malloc_test_68_WHILE5:
+    label	malloc_test_69_WHILE5:
   codeline
     instruction
       binstructuse
@@ -21731,7 +22008,7 @@ program
         register	r6
         register	r2
         imm
-          labeluse	malloc_test_68_CMP_TRUE7
+          labeluse	malloc_test_69_CMP_TRUE7
   codeline
     instruction
       lli
@@ -21741,16 +22018,16 @@ program
     instruction
       jmpseudo
         imm
-          labeluse	malloc_test_68_CMP_END8
+          labeluse	malloc_test_69_CMP_END8
   codeline
-    label	malloc_test_68_CMP_TRUE7:
+    label	malloc_test_69_CMP_TRUE7:
   codeline
     instruction
       lli
         register	r7
         imm	1
   codeline
-    label	malloc_test_68_CMP_END8:
+    label	malloc_test_69_CMP_END8:
   codeline
     instruction
       binstructuse
@@ -21758,7 +22035,7 @@ program
         register	r7
         register	r0
         imm
-          labeluse	malloc_test_68_WHILE_END6
+          labeluse	malloc_test_69_WHILE_END6
   codeline
     instruction
       rinstructuse
@@ -21784,16 +22061,16 @@ program
     instruction
       jmpseudo
         imm
-          labeluse	malloc_test_68_WHILE5
+          labeluse	malloc_test_69_WHILE5
   codeline
-    label	malloc_test_68_WHILE_END6:
+    label	malloc_test_69_WHILE_END6:
   codeline
     instruction
       lli
         register	r9
         imm	0
   codeline
-    label	malloc_test_68_WHILE9:
+    label	malloc_test_69_WHILE9:
   codeline
     instruction
       binstructuse
@@ -21801,7 +22078,7 @@ program
         register	r9
         register	r2
         imm
-          labeluse	malloc_test_68_CMP_TRUE11
+          labeluse	malloc_test_69_CMP_TRUE11
   codeline
     instruction
       lli
@@ -21811,16 +22088,16 @@ program
     instruction
       jmpseudo
         imm
-          labeluse	malloc_test_68_CMP_END12
+          labeluse	malloc_test_69_CMP_END12
   codeline
-    label	malloc_test_68_CMP_TRUE11:
+    label	malloc_test_69_CMP_TRUE11:
   codeline
     instruction
       lli
         register	r10
         imm	1
   codeline
-    label	malloc_test_68_CMP_END12:
+    label	malloc_test_69_CMP_END12:
   codeline
     instruction
       binstructuse
@@ -21828,7 +22105,7 @@ program
         register	r10
         register	r0
         imm
-          labeluse	malloc_test_68_WHILE_END10
+          labeluse	malloc_test_69_WHILE_END10
   codeline
     instruction
       rinstructuse
@@ -21850,7 +22127,7 @@ program
         register	r11
         register	r9
         imm
-          labeluse	malloc_test_68_CMP_TRUE15
+          labeluse	malloc_test_69_CMP_TRUE15
   codeline
     instruction
       lli
@@ -21860,16 +22137,16 @@ program
     instruction
       jmpseudo
         imm
-          labeluse	malloc_test_68_CMP_END16
+          labeluse	malloc_test_69_CMP_END16
   codeline
-    label	malloc_test_68_CMP_TRUE15:
+    label	malloc_test_69_CMP_TRUE15:
   codeline
     instruction
       lli
         register	r11
         imm	1
   codeline
-    label	malloc_test_68_CMP_END16:
+    label	malloc_test_69_CMP_END16:
   codeline
     instruction
       binstructuse
@@ -21877,7 +22154,7 @@ program
         register	r11
         register	r0
         imm
-          labeluse	malloc_test_68_ELSE13
+          labeluse	malloc_test_69_ELSE13
   codeline
     instruction
       lli
@@ -21894,11 +22171,11 @@ program
     instruction
       jmpseudo
         imm
-          labeluse	malloc_test_68_IF_END14
+          labeluse	malloc_test_69_IF_END14
   codeline
-    label	malloc_test_68_ELSE13:
+    label	malloc_test_69_ELSE13:
   codeline
-    label	malloc_test_68_IF_END14:
+    label	malloc_test_69_IF_END14:
   codeline
     instruction
       iinstructuse
@@ -21910,9 +22187,9 @@ program
     instruction
       jmpseudo
         imm
-          labeluse	malloc_test_68_WHILE9
+          labeluse	malloc_test_69_WHILE9
   codeline
-    label	malloc_test_68_WHILE_END10:
+    label	malloc_test_69_WHILE_END10:
   codeline
     instruction
       binstructuse
@@ -21920,7 +22197,7 @@ program
         register	r4
         register	r0
         imm
-          labeluse	malloc_test_68_ELSE17
+          labeluse	malloc_test_69_ELSE17
   codeline
     instruction
       push
@@ -22031,9 +22308,9 @@ program
     instruction
       jmpseudo
         imm
-          labeluse	malloc_test_68_IF_END18
+          labeluse	malloc_test_69_IF_END18
   codeline
-    label	malloc_test_68_ELSE17:
+    label	malloc_test_69_ELSE17:
   codeline
     instruction
       push
@@ -22141,7 +22418,7 @@ program
       pop
         register	r2
   codeline
-    label	malloc_test_68_IF_END18:
+    label	malloc_test_69_IF_END18:
   codeline
     instruction
       push
@@ -22207,9 +22484,9 @@ program
     instruction
       jmpseudo
         imm
-          labeluse	malloc_test_68_IF_END2
+          labeluse	malloc_test_69_IF_END2
   codeline
-    label	malloc_test_68_ELSE1:
+    label	malloc_test_69_ELSE1:
   codeline
     instruction
       push
@@ -22309,7 +22586,7 @@ program
       pop
         register	r2
   codeline
-    label	malloc_test_68_IF_END2:
+    label	malloc_test_69_IF_END2:
   codeline
     instruction
       lli
@@ -22368,7 +22645,7 @@ program
         register	r5
         register	r9
         imm
-          labeluse	malloc_test_68_CMP_TRUE21
+          labeluse	malloc_test_69_CMP_TRUE21
   codeline
     instruction
       lli
@@ -22378,16 +22655,16 @@ program
     instruction
       jmpseudo
         imm
-          labeluse	malloc_test_68_CMP_END22
+          labeluse	malloc_test_69_CMP_END22
   codeline
-    label	malloc_test_68_CMP_TRUE21:
+    label	malloc_test_69_CMP_TRUE21:
   codeline
     instruction
       lli
         register	r9
         imm	1
   codeline
-    label	malloc_test_68_CMP_END22:
+    label	malloc_test_69_CMP_END22:
   codeline
     instruction
       binstructuse
@@ -22395,7 +22672,7 @@ program
         register	r9
         register	r0
         imm
-          labeluse	malloc_test_68_ELSE19
+          labeluse	malloc_test_69_ELSE19
   codeline
     instruction
       lli
@@ -22677,9 +22954,9 @@ program
     instruction
       jmpseudo
         imm
-          labeluse	malloc_test_68_IF_END20
+          labeluse	malloc_test_69_IF_END20
   codeline
-    label	malloc_test_68_ELSE19:
+    label	malloc_test_69_ELSE19:
   codeline
     instruction
       push
@@ -22763,7 +23040,7 @@ program
       pop
         register	r5
   codeline
-    label	malloc_test_68_IF_END20:
+    label	malloc_test_69_IF_END20:
   codeline
     instruction
       iinstructuse
@@ -22956,7 +23233,7 @@ program
         register	r6
         register	r0
         imm
-          labeluse	math_test_69_UNOP_NOT_TRUE3
+          labeluse	math_test_70_UNOP_NOT_TRUE3
   codeline
     instruction
       lli
@@ -22966,16 +23243,16 @@ program
     instruction
       jmpseudo
         imm
-          labeluse	math_test_69_UNOP_NOT_END4
+          labeluse	math_test_70_UNOP_NOT_END4
   codeline
-    label	math_test_69_UNOP_NOT_TRUE3:
+    label	math_test_70_UNOP_NOT_TRUE3:
   codeline
     instruction
       lli
         register	r8
         imm	1
   codeline
-    label	math_test_69_UNOP_NOT_END4:
+    label	math_test_70_UNOP_NOT_END4:
   codeline
     instruction
       binstructuse
@@ -22983,7 +23260,7 @@ program
         register	r8
         register	r0
         imm
-          labeluse	math_test_69_ELSE1
+          labeluse	math_test_70_ELSE1
   codeline
     instruction
       push
@@ -23092,11 +23369,11 @@ program
     instruction
       jmpseudo
         imm
-          labeluse	math_test_69_IF_END2
+          labeluse	math_test_70_IF_END2
   codeline
-    label	math_test_69_ELSE1:
+    label	math_test_70_ELSE1:
   codeline
-    label	math_test_69_IF_END2:
+    label	math_test_70_IF_END2:
   codeline
     instruction
       push
@@ -23347,7 +23624,7 @@ program
       lli
         register	r9
         imm
-          labeluse	math_test_69_result_str_buf5
+          labeluse	math_test_70_result_str_buf5
   codeline
     instruction
       push
@@ -23611,7 +23888,7 @@ program
         register	r8
         imm	268435456
   codeline
-    label	time_test_70_WHILE1:
+    label	time_test_71_WHILE1:
   codeline
     instruction
       lsinstructuse
@@ -23626,7 +23903,7 @@ program
         register	r9
         register	r0
         imm
-          labeluse	time_test_70_WHILE_END2
+          labeluse	time_test_71_WHILE_END2
   codeline
     instruction
       lsinstructuse
@@ -23652,16 +23929,16 @@ program
     instruction
       jmpseudo
         imm
-          labeluse	time_test_70_WHILE1
+          labeluse	time_test_71_WHILE1
   codeline
-    label	time_test_70_WHILE_END2:
+    label	time_test_71_WHILE_END2:
   codeline
     instruction
       lli
         register	r11
         imm	268435456
   codeline
-    label	time_test_70_WHILE3:
+    label	time_test_71_WHILE3:
   codeline
     instruction
       lsinstructuse
@@ -23676,7 +23953,7 @@ program
         register	r12
         register	r0
         imm
-          labeluse	time_test_70_WHILE_END4
+          labeluse	time_test_71_WHILE_END4
   codeline
     instruction
       lsinstructuse
@@ -23702,9 +23979,9 @@ program
     instruction
       jmpseudo
         imm
-          labeluse	time_test_70_WHILE3
+          labeluse	time_test_71_WHILE3
   codeline
-    label	time_test_70_WHILE_END4:
+    label	time_test_71_WHILE_END4:
   codeline
     instruction
       push
@@ -23718,6 +23995,475 @@ program
     instruction
       pop
         register	r1
+  codeline
+    instruction
+      iinstructuse
+        addi
+        register	r1
+        register	r0
+        imm	0
+  codeline
+    instruction
+      pop
+        register	r14
+  codeline
+    instruction
+      retpseudo
+  codeline
+    directiveuse
+      func
+        label	recursive_test:
+  codeline
+    instruction
+      push
+        register	r14
+  codeline
+    instruction
+      lli
+        register	r2
+        imm	0
+  codeline
+    instruction
+      push
+        register	r2
+  codeline
+    instruction
+      lli
+        register	r3
+        imm	12
+  codeline
+    instruction
+      push
+        register	r3
+  codeline
+    instruction
+      pop
+        register	r1
+  codeline
+    instruction
+      callpseudo
+        imm
+          labeluse	malloc
+  codeline
+    instruction
+      pop
+        register	r2
+  codeline
+    instruction
+      iinstructuse
+        addi
+        register	r2
+        register	r1
+        imm	0
+  codeline
+    instruction
+      lli
+        register	r4
+        imm	0
+  codeline
+    instruction
+      binstructuse
+        bne
+        register	r2
+        register	r4
+        imm
+          labeluse	recursive_test_72_CMP_TRUE3
+  codeline
+    instruction
+      lli
+        register	r4
+        imm	0
+  codeline
+    instruction
+      jmpseudo
+        imm
+          labeluse	recursive_test_72_CMP_END4
+  codeline
+    label	recursive_test_72_CMP_TRUE3:
+  codeline
+    instruction
+      lli
+        register	r4
+        imm	1
+  codeline
+    label	recursive_test_72_CMP_END4:
+  codeline
+    instruction
+      binstructuse
+        beq
+        register	r4
+        register	r0
+        imm
+          labeluse	recursive_test_72_ELSE1
+  codeline
+    instruction
+      lli
+        register	r5
+        imm	0
+  codeline
+    instruction
+      push
+        register	r2
+  codeline
+    instruction
+      push
+        register	r5
+  codeline
+    instruction
+      lli
+        register	r6
+        imm	5
+  codeline
+    instruction
+      push
+        register	r6
+  codeline
+    instruction
+      pop
+        register	r1
+  codeline
+    instruction
+      callpseudo
+        imm
+          labeluse	fibonnaci_recursive
+  codeline
+    instruction
+      pop
+        register	r5
+  codeline
+    instruction
+      pop
+        register	r2
+  codeline
+    instruction
+      iinstructuse
+        addi
+        register	r5
+        register	r1
+        imm	0
+  codeline
+    instruction
+      push
+        register	r2
+  codeline
+    instruction
+      push
+        register	r5
+  codeline
+    instruction
+      push
+        register	r1
+  codeline
+    instruction
+      push
+        register	r5
+  codeline
+    instruction
+      push
+        register	r2
+  codeline
+    instruction
+      pop
+        register	r2
+  codeline
+    instruction
+      pop
+        register	r1
+  codeline
+    instruction
+      callpseudo
+        imm
+          labeluse	int_to_str_buf
+  codeline
+    instruction
+      pop
+        register	r1
+  codeline
+    instruction
+      pop
+        register	r5
+  codeline
+    instruction
+      pop
+        register	r2
+  codeline
+    instruction
+      push
+        register	r2
+  codeline
+    instruction
+      push
+        register	r5
+  codeline
+    instruction
+      push
+        register	r1
+  codeline
+    instruction
+      lli
+        register	r7
+        imm
+          labeluse	str_27
+  codeline
+    instruction
+      push
+        register	r7
+  codeline
+    instruction
+      lli
+        register	r8
+        imm	0
+  codeline
+    instruction
+      push
+        register	r8
+  codeline
+    instruction
+      lli
+        register	r9
+        imm	104
+  codeline
+    instruction
+      push
+        register	r9
+  codeline
+    instruction
+      lli
+        register	r10
+        imm	63
+  codeline
+    instruction
+      push
+        register	r10
+  codeline
+    instruction
+      pop
+        register	r4
+  codeline
+    instruction
+      pop
+        register	r3
+  codeline
+    instruction
+      pop
+        register	r2
+  codeline
+    instruction
+      pop
+        register	r1
+  codeline
+    instruction
+      callpseudo
+        imm
+          labeluse	draw_string_to_display
+  codeline
+    instruction
+      pop
+        register	r1
+  codeline
+    instruction
+      pop
+        register	r5
+  codeline
+    instruction
+      pop
+        register	r2
+  codeline
+    instruction
+      push
+        register	r2
+  codeline
+    instruction
+      push
+        register	r5
+  codeline
+    instruction
+      push
+        register	r1
+  codeline
+    instruction
+      push
+        register	r2
+  codeline
+    instruction
+      lli
+        register	r11
+        imm	0
+  codeline
+    instruction
+      push
+        register	r11
+  codeline
+    instruction
+      lli
+        register	r12
+        imm	112
+  codeline
+    instruction
+      push
+        register	r12
+  codeline
+    instruction
+      lli
+        register	r3
+        imm	63
+  codeline
+    instruction
+      push
+        register	r3
+  codeline
+    instruction
+      pop
+        register	r4
+  codeline
+    instruction
+      pop
+        register	r3
+  codeline
+    instruction
+      pop
+        register	r2
+  codeline
+    instruction
+      pop
+        register	r1
+  codeline
+    instruction
+      callpseudo
+        imm
+          labeluse	draw_string_to_display
+  codeline
+    instruction
+      pop
+        register	r1
+  codeline
+    instruction
+      pop
+        register	r5
+  codeline
+    instruction
+      pop
+        register	r2
+  codeline
+    instruction
+      push
+        register	r2
+  codeline
+    instruction
+      push
+        register	r5
+  codeline
+    instruction
+      push
+        register	r1
+  codeline
+    instruction
+      push
+        register	r2
+  codeline
+    instruction
+      pop
+        register	r1
+  codeline
+    instruction
+      callpseudo
+        imm
+          labeluse	free
+  codeline
+    instruction
+      pop
+        register	r1
+  codeline
+    instruction
+      pop
+        register	r5
+  codeline
+    instruction
+      pop
+        register	r2
+  codeline
+    instruction
+      jmpseudo
+        imm
+          labeluse	recursive_test_72_IF_END2
+  codeline
+    label	recursive_test_72_ELSE1:
+  codeline
+    instruction
+      push
+        register	r2
+  codeline
+    instruction
+      push
+        register	r1
+  codeline
+    instruction
+      lli
+        register	r4
+        imm
+          labeluse	str_28
+  codeline
+    instruction
+      push
+        register	r4
+  codeline
+    instruction
+      lli
+        register	r6
+        imm	0
+  codeline
+    instruction
+      push
+        register	r6
+  codeline
+    instruction
+      lli
+        register	r7
+        imm	104
+  codeline
+    instruction
+      push
+        register	r7
+  codeline
+    instruction
+      lli
+        register	r8
+        imm	63
+  codeline
+    instruction
+      push
+        register	r8
+  codeline
+    instruction
+      pop
+        register	r4
+  codeline
+    instruction
+      pop
+        register	r3
+  codeline
+    instruction
+      pop
+        register	r2
+  codeline
+    instruction
+      pop
+        register	r1
+  codeline
+    instruction
+      callpseudo
+        imm
+          labeluse	draw_string_to_display
+  codeline
+    instruction
+      pop
+        register	r1
+  codeline
+    instruction
+      pop
+        register	r2
+  codeline
+    label	recursive_test_72_IF_END2:
   codeline
     instruction
       iinstructuse
@@ -23761,7 +24507,7 @@ program
     instruction
       callpseudo
         imm
-          labeluse	time_test
+          labeluse	recursive_test
   codeline
     instruction
       pop
@@ -24994,6 +25740,16 @@ program
     directiveuse
       strv	"Current time: \n"
   codeline
+    label	str_27:
+  codeline
+    directiveuse
+      strv	"Fibonacci number: \0"
+  codeline
+    label	str_28:
+  codeline
+    directiveuse
+      strv	"Fibonacci number test failed: MEM!\0"
+  codeline
     label	draw_line_13_spill23:
   codeline
     directiveuse
@@ -25090,19 +25846,19 @@ program
       space
         imm	512
   codeline
-    label	fs_test_64_device_info_buf1:
+    label	fs_test_65_device_info_buf1:
   codeline
     directiveuse
       space
         imm	512
   codeline
-    label	fs_test_64_file_contents_buf2:
+    label	fs_test_65_file_contents_buf2:
   codeline
     directiveuse
       space
         imm	512
   codeline
-    label	math_test_69_result_str_buf5:
+    label	math_test_70_result_str_buf5:
   codeline
     directiveuse
       space

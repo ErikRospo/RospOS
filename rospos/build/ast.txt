@@ -6045,6 +6045,64 @@ translation_unit
   external_decl
     function_def
       type_specifier
+        int
+      declarator	fibonnaci_recursive
+      param_list
+        param
+          type_specifier
+            int
+          declarator	i
+      compound_stmt
+        if_stmt
+          relational
+            i
+            lte
+            0
+          compound_stmt
+            return_stmt	0
+        if_stmt
+          relational
+            i
+            lte
+            2
+          compound_stmt
+            return_stmt	1
+        declaration
+          type_specifier
+            int
+          init_declarator_list
+            init_declarator
+              declarator	j
+              postfix
+                fibonnaci_recursive
+                call_suffix
+                  arg_list
+                    additive
+                      i
+                      minus
+                      1
+        declaration
+          type_specifier
+            int
+          init_declarator_list
+            init_declarator
+              declarator	k
+              postfix
+                fibonnaci_recursive
+                call_suffix
+                  arg_list
+                    additive
+                      i
+                      minus
+                      2
+        return_stmt
+          additive
+            j
+            plus
+            k
+  external_decl
+    function_def
+      type_specifier
         void
       declarator	display_test
       compound_stmt
@@ -6649,6 +6707,83 @@ translation_unit
     function_def
       type_specifier
         void
+      declarator	recursive_test
+      compound_stmt
+        declaration
+          type_specifier
+            char
+            pointer
+          init_declarator_list
+            init_declarator
+              declarator	recursive_test_buffer
+              cast
+                type_specifier
+                  char
+                  pointer
+                postfix
+                  malloc
+                  call_suffix
+                    arg_list	12
+        if_stmt
+          equality
+            recursive_test_buffer
+            neq
+            0
+          compound_stmt
+            declaration
+              type_specifier
+                int
+              init_declarator_list
+                init_declarator
+                  declarator	test_value
+                  postfix
+                    fibonnaci_recursive
+                    call_suffix
+                      arg_list	5
+            expr_stmt
+              postfix
+                int_to_str_buf
+                call_suffix
+                  arg_list
+                    test_value
+                    recursive_test_buffer
+            expr_stmt
+              postfix
+                draw_string_to_display
+                call_suffix
+                  arg_list
+                    "Fibonacci number: \0"
+                    0
+                    104
+                    0x3F
+            expr_stmt
+              postfix
+                draw_string_to_display
+                call_suffix
+                  arg_list
+                    recursive_test_buffer
+                    0
+                    112
+                    0x3F
+            expr_stmt
+              postfix
+                free
+                call_suffix
+                  arg_list	recursive_test_buffer
+          compound_stmt
+            expr_stmt
+              postfix
+                draw_string_to_display
+                call_suffix
+                  arg_list
+                    "Fibonacci number test failed: MEM!\0"
+                    0
+                    104
+                    0x3F
+  external_decl
+    function_def
+      type_specifier
+        void
       declarator	main
       compound_stmt
         expr_stmt
@@ -6657,5 +6792,5 @@ translation_unit
             call_suffix
         expr_stmt
           postfix
-            time_test
+            recursive_test
             call_suffix

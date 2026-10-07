@@ -1234,6 +1234,18 @@ inline int add(int a, int b)
 {
     return a + b;
 }
+
+int fibonnaci_recursive(int i){
+    if (i<=0){
+        return 0;
+    }
+    if (i<=2){
+        return 1;
+    }
+    int j=fibonnaci_recursive(i-1);
+    int k=fibonnaci_recursive(i-2);
+    return j+k;
+}
 void display_test()
 {
     draw_string_to_display("Hello, RospOS!", 0, 0, 0x3F);
@@ -1362,6 +1374,21 @@ void time_test()
     print_string(time_str);
     update_buffer();
 }
+void recursive_test(){
+    char *recursive_test_buffer = (char *)malloc(12); // Buffer to hold the string representation
+    if (recursive_test_buffer != 0)
+    {
+        int test_value = fibonnaci_recursive(5);
+        int_to_str_buf(test_value, recursive_test_buffer);
+        draw_string_to_display("Fibonacci number: \0", 0, 104, 0x3F);
+        draw_string_to_display(recursive_test_buffer, 0, 112, 0x3F);
+        free(recursive_test_buffer); // Free the allocated buffer
+    }
+    else
+    {
+        draw_string_to_display("Fibonacci number test failed: MEM!\0", 0, 104, 0x3F);
+    }
+}
 
 void main()
 {
@@ -1380,5 +1407,6 @@ void main()
     // terminal_test();
     // image_display_test();
     // math_test();
-    time_test();
+    // time_test();
+    recursive_test();
 }
