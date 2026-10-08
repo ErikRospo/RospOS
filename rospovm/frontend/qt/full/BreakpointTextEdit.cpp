@@ -78,8 +78,7 @@ void BreakpointPlainTextEdit::breakpointAreaPaintEvent(QPaintEvent *event)
             uint32_t address=codeView->lookupAddress(block.blockNumber());
             if (breakpointMap.contains(address)){
                 
-                painter.setPen(Qt::red);
-                painter.drawRect(0, top, breakpointAreaWidth(), (int)blockBoundingRect(block).height());
+                painter.fillRect(0, top, breakpointAreaWidth(), (int)blockBoundingRect(block).height(),Qt::red);
             }
         }
 
