@@ -65,7 +65,7 @@ protected:
     {
         breakpointPTE->breakpointAreaPaintEvent(event);
     }
-    void mouseDoubleClickEvent(QMouseEvent * event) override;
+    void mousePressEvent(QMouseEvent * event) override;
 
 private:
     BreakpointPlainTextEdit *breakpointPTE;

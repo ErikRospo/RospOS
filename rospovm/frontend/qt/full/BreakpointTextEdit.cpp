@@ -7,9 +7,9 @@
 BreakpointPlainTextEdit::BreakpointPlainTextEdit(QWidget *parent) : parent(parent), vmController(nullptr)
 {
     breakpointArea = new GutterWidget(this);
+    breakpointArea->setToolTip("Breakpoints");
     connect(this, SIGNAL(blockCountChanged(int)), this, SLOT(updateBreakpointAreaWidth(int)));
     connect(this, SIGNAL(updateRequest(QRect, int)), this, SLOT(updateBreakpointArea(QRect, int)));
-    // connect(this, SIGNAL(mouseDoubleClickEvent(QMouseEvent * event)), this, SLOT(doubleClickHandler(QMouseEvent * event)));
     updateBreakpointAreaWidth(0);
 }
 
@@ -18,7 +18,7 @@ BreakpointPlainTextEdit::~BreakpointPlainTextEdit() = default;
 int BreakpointPlainTextEdit::breakpointAreaWidth()
 {
 
-    int space = 3 + fontMetrics().averageCharWidth() * 2;
+    int space = 3 + fontMetrics().boundingRect("BPs").width();
 
     return space;
 }
@@ -64,20 +64,19 @@ void BreakpointPlainTextEdit::updateBreakpointAreaWidth(int)
 void BreakpointPlainTextEdit::breakpointAreaPaintEvent(QPaintEvent *event)
 {
     QPainter painter(breakpointArea);
-    painter.fillRect(event->rect(), Qt::blue);
+    painter.fillRect(event->rect(), Qt::GlobalColor::transparent);
 
     QTextBlock block = firstVisibleBlock();
     // int blockNumber = block.blockNumber();
     int top = (int)blockBoundingGeometry(block).translated(contentOffset()).top();
     int bottom = top + (int)blockBoundingRect(block).height();
-
+    int bkpt_position=top+fontMetrics().boundingRect("BPS").height();
     while (block.isValid() && top <= event->rect().bottom())
     {
         if (block.isVisible() && bottom >= event->rect().top())
         {
             uint32_t address=codeView->lookupAddress(block.blockNumber());
             if (breakpointMap.contains(address)){
-                
                 painter.fillRect(0, top, breakpointAreaWidth(), (int)blockBoundingRect(block).height(),Qt::red);
             }
         }
@@ -87,6 +86,8 @@ void BreakpointPlainTextEdit::breakpointAreaPaintEvent(QPaintEvent *event)
         bottom = top + (int)blockBoundingRect(block).height();
         // ++blockNumber
     }
+    painter.drawText(0,bkpt_position,"BPs");
+    
 }
 
 void BreakpointPlainTextEdit::resizeEvent(QResizeEvent *e)
@@ -98,7 +99,7 @@ void BreakpointPlainTextEdit::resizeEvent(QResizeEvent *e)
 }
 
 
-void GutterWidget::mouseDoubleClickEvent(QMouseEvent *event)
+void GutterWidget::mousePressEvent(QMouseEvent *event)
 {
 
     if (event->button() != Qt::LeftButton)
