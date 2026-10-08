@@ -92,7 +92,7 @@ $(eval $(call make_rosp_variant,$(ROSP_DEBC),--compress-debug))
 $(eval $(call make_rosp_variant,$(ROSP_BINC),--compress-bin))
 $(eval $(call make_rosp_variant,$(ROSP_COMBINED),--compress-bin --compress-debug))
 
-$(DIR_ROSPOVM_BUILD)/Makefile: rospovm/CMakeLists.txt $(ROSPOVM_SRC) | $(DIR_ROSPOVM_BUILD)
+$(DIR_ROSPOVM_BUILD)/Makefile: rospovm/CMakeLists.txt | $(DIR_ROSPOVM_BUILD)
 	$(CMAKE) -S rospovm -B $(DIR_ROSPOVM_BUILD)
 
 WASM_CMAKE_ARGS := \
