@@ -96,6 +96,7 @@ void CodeView::createUI()
     centerSplitter->setChildrenCollapsible(false);
     
     codeDisplay = new BreakpointPlainTextEdit(this);
+    codeDisplay->setCodeView(this);
     codeDisplay->setReadOnly(true);
     codeDisplay->setLineWrapMode(QPlainTextEdit::NoWrap);
     codeDisplay->setMouseTracking(true);
