@@ -152,10 +152,10 @@ Binary Binary::load_binary(const std::string& path)
                 // Loadable segment - add to segments list
                 Segment seg;
                 seg.address = addr;
+                std::cout << "  Loadable segment at address 0x" << std::hex << addr 
+                    << std::dec << " with size " << data.size() << " bytes" << std::endl;
                 seg.data = std::move(data);
                 bin.segments.push_back(std::move(seg));
-                std::cout << "  Loadable segment at address 0x" << std::hex << addr 
-                          << std::dec << " with size " << seg.data.size() << " bytes" << std::endl;
             } else {
                 std::cerr << "Warning: Segment with unknown flags 0x" 
                           << std::hex << flags << std::dec << std::endl;
