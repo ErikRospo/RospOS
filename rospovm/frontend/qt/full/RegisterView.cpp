@@ -6,6 +6,7 @@
 #include <QHeaderView>
 #include <QFont>
 #include <QLineEdit>
+#include <QRegularExpression>
 #include <string>
 
 RegisterView::RegisterView(QWidget *parent)
@@ -19,6 +20,7 @@ RegisterView::~RegisterView() = default;
 void RegisterView::setVMController(VMController *controller)
 {
     vmController = controller;
+    vmController->setRegisterView(this);
     populateRegisters();
     initExprtk();
 }
@@ -160,74 +162,55 @@ void RegisterView::checkBreakpoint()
     //     pause
     // }
 }
+void RegisterView::addPCBkpt(uint32_t pc)
+{
+    const QString value = QString::number(pc, 10);
+    const QString clause = QStringLiteral(R"(\(?\s*pc\s*==\s*%1\s*\)?)").arg(value);
+    QString expression = bkptLineEditor->text().trimmed();
 
-/*
- **************************************************************
- *         C++ Mathematical Expression Toolkit Library        *
- *                                                            *
- * Simple Example 07                                          *
- * Author: Arash Partow (1999-2025)                           *
- * URL: https://www.partow.net/programming/exprtk/index.html  *
- *                                                            *
- * Copyright notice:                                          *
- * Free use of the Mathematical Expression Toolkit Library is *
- * permitted under the guidelines and in accordance with the  *
- * most current version of the MIT License.                   *
- * https://www.opensource.org/licenses/MIT                    *
- * SPDX-License-Identifier: MIT                               *
- *                                                            *
- **************************************************************
- */
+    // Treat equivalent whitespace and parenthesized forms as the same clause.
+    const QRegularExpression alreadyPresent(
+        QStringLiteral(R"((^|\bor\b)\s*%1(?=\s*(?:\bor\b|$)))").arg(clause),
+        QRegularExpression::CaseInsensitiveOption);
+    if (alreadyPresent.match(expression).hasMatch())
+        return;
 
-// // #include <cstdio>
-// // #include <string>
+    if (!expression.isEmpty())
+        expression += QStringLiteral(" or ");
+    expression += QStringLiteral("(pc==%1)").arg(value);
+    bkptLineEditor->setText(expression);
+}
+void RegisterView::removePCBkpt(uint32_t pc)
+{
+    const QString value = QString::number(pc, 10);
+    const QString clause = QStringLiteral(R"(\(?\s*pc\s*==\s*%1\s*\)?)").arg(value);
+    QString expression = bkptLineEditor->text().trimmed();
 
-// #include "exprtk.hpp"
+    // Remove the clause together with the adjacent operator, regardless of
+    // whether it is the first, middle, or last operand.
+    QRegularExpression first(
+        QStringLiteral(R"(^%1\s+or\s+)").arg(clause),
+        QRegularExpression::CaseInsensitiveOption);
+    QRegularExpression last(
+        QStringLiteral(R"(\s+or\s+%1$)").arg(clause),
+        QRegularExpression::CaseInsensitiveOption);
+    QRegularExpression middle(
+        QStringLiteral(R"(\s+or\s+%1\s+or\s+)").arg(clause),
+        QRegularExpression::CaseInsensitiveOption);
+    QRegularExpression only(
+        QStringLiteral(R"(^%1$)").arg(clause),
+        QRegularExpression::CaseInsensitiveOption);
 
-// template <typename T>
-// void logic()
-// {
-//     typedef exprtk::symbol_table<T> symbol_table_t;
-//     typedef exprtk::expression<T> expression_t;
-//     typedef exprtk::parser<T> parser_t;
+    if (only.match(expression).hasMatch())
+        expression.clear();
+    else if (first.match(expression).hasMatch())
+        expression.remove(first);
+    else if (last.match(expression).hasMatch())
+        expression.remove(last);
+    else
+        expression.replace(middle, QStringLiteral(" or "));
 
-//     const std::string expression_string = "not(A and B) or C";
-
-//     symbol_table_t symbol_table;
-//     symbol_table.create_variable("A");
-//     symbol_table.create_variable("B");
-//     symbol_table.create_variable("C");
-
-//     expression_t expression;
-//     expression.register_symbol_table(symbol_table);
-
-//     parser_t parser;
-//     parser.compile(expression_string, expression);
-
-//     printf(" # | A | B | C | %s\n"
-//            "---+---+---+---+-%s\n",
-//            expression_string.c_str(),
-//            std::string(expression_string.size(), '-').c_str());
-
-//     for (int i = 0; i < 8; ++i)
-//     {
-//         symbol_table.get_variable("A")->ref() = T((i & 0x01) ? 1 : 0);
-//         symbol_table.get_variable("B")->ref() = T((i & 0x02) ? 1 : 0);
-//         symbol_table.get_variable("C")->ref() = T((i & 0x04) ? 1 : 0);
-
-//         const int result = static_cast<int>(expression.value());
-
-//         printf(" %d | %d | %d | %d | %d \n",
-//                i,
-//                static_cast<int>(symbol_table.get_variable("A")->value()),
-//                static_cast<int>(symbol_table.get_variable("B")->value()),
-//                static_cast<int>(symbol_table.get_variable("C")->value()),
-//                result);
-//     }
-// }
-
-// int main()
-// {
-//     logic<double>();
-//     return 0;
-// }
+    expression = expression.trimmed();
+    if (expression != bkptLineEditor->text())
+        bkptLineEditor->setText(expression);
+}

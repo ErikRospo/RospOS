@@ -114,12 +114,14 @@ void GutterWidget::mouseDoubleClickEvent(QMouseEvent *event)
     if (breakpointPTE->breakpointMap.contains(address))
     {
         breakpointPTE->breakpointMap.remove(address);
+        breakpointPTE->vmController->getRegisterView()->removePCBkpt(address);
+        
     }
     else
     {
         breakpointPTE->breakpointMap.insert(address);
+        breakpointPTE->vmController->getRegisterView()->addPCBkpt(address);
     }
-
     update();
     breakpointPTE->update();
 }

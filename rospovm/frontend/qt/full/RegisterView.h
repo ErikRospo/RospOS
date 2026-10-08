@@ -24,12 +24,14 @@ class RegisterView : public QWidget
     Q_OBJECT
 
 public:
-    explicit RegisterView(QWidget *parent = nullptr);
+    RegisterView(QWidget *parent = nullptr);
     ~RegisterView();
 
     void setVMController(VMController *controller);
     void refresh();
     void checkBreakpoint();
+    void addPCBkpt(uint32_t pc);
+    void removePCBkpt(uint32_t pc);
 private:
     void createUI();
     void populateRegisters();

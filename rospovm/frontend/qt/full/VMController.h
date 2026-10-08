@@ -6,6 +6,7 @@
 
 #include "VMControllerCore.h"
 
+class RegisterView;
 class VMController : public VMControllerCore
 {
 public:
@@ -19,6 +20,17 @@ public:
     QString getCurrentOriginalInstruction() const;
     QString getSourceLocation(uint32_t address) const;
     bool getSourceReference(uint32_t address, QString &filePath, uint32_t &line) const;
+    void setRegisterView(RegisterView *rv)
+    {
+        registerView = rv;
+    };
+    RegisterView *getRegisterView()
+    {
+        return registerView;
+    }
+
+private:
+    RegisterView *registerView;
 };
 
 #endif // VM_CONTROLLER_H

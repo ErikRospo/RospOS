@@ -8,16 +8,16 @@
 #include <QEvent>
 #include <cstdint>
 #include "BreakpointTextEdit.h"
-
+#include "RegisterView.h"
 class BreakpointPlainTextEdit;
-
+class RegisterView;
+class VMController;
 namespace KSyntaxHighlighting {
 class Repository;
 class SyntaxHighlighter;
 }
 
 class VMController;
-
 // Code display widget with jump visualization
 class CodeView : public QWidget
 {
@@ -34,22 +34,22 @@ public:
     
     uint32_t lookupAddress(int line);
     int lookupLine(uint32_t address);
-
-protected:
+    
+    protected:
     bool eventFilter(QObject *watched, QEvent *event) override;
-
-private:
+    
+    private:
     void createUI();
     void setupSyntaxHighlighting();
     void populateCode();
-    void drawJumpVisualization();
     void centerOnPC();
     void updateSourcePanel(uint32_t address);
     void loadSourceFile(const QString &sourceFilePath);
     void highlightSourceLine(uint32_t oneBasedLine);
     QString resolveCodeRegisterTooltip(const QPoint &viewportPos) const;
-
+    
     VMController *vmController;
+    RegisterView registerView;
     BreakpointPlainTextEdit *codeDisplay;
     QPlainTextEdit *sourceInfoDisplay;  // Display for source location info
     QPlainTextEdit *sourceCodeDisplay;
