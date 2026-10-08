@@ -94,13 +94,14 @@ void CodeView::createUI()
 
     QSplitter *centerSplitter = new QSplitter(Qt::Horizontal, this);
     centerSplitter->setChildrenCollapsible(false);
-
-    codeDisplay = new QPlainTextEdit();
+    
+    codeDisplay = new BreakpointPlainTextEdit(this);
     codeDisplay->setReadOnly(true);
     codeDisplay->setLineWrapMode(QPlainTextEdit::NoWrap);
     codeDisplay->setMouseTracking(true);
     codeDisplay->viewport()->setMouseTracking(true);
     codeDisplay->viewport()->installEventFilter(this);
+    // codeDisplay->setVMController(vmController);
 
     // Set monospace font
     monoFont.setPointSize(kCodeFontSize);
@@ -168,6 +169,7 @@ void CodeView::setupSyntaxHighlighting()
 void CodeView::setVMController(VMController *controller)
 {
     vmController = controller;
+    codeDisplay->setVMController(controller);
 }
 
 void CodeView::setCodeRange(uint32_t startAddr, uint32_t endAddr)
@@ -458,4 +460,12 @@ QString CodeView::resolveCodeRegisterTooltip(const QPoint &viewportPos) const
     }
 
     return QString();
+}
+
+uint32_t CodeView::lookupAddress(int line){
+    return lineToAddress.value(line);
+}
+
+int CodeView::lookupLine(uint32_t address){
+    return addressToLine.value(address);
 }

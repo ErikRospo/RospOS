@@ -7,6 +7,9 @@
 #include <QStringList>
 #include <QEvent>
 #include <cstdint>
+#include "BreakpointTextEdit.h"
+
+class BreakpointPlainTextEdit;
 
 namespace KSyntaxHighlighting {
 class Repository;
@@ -28,6 +31,9 @@ public:
     void refresh();
     void highlightCurrentInstruction();
     void setCodeRange(uint32_t startAddr, uint32_t endAddr);
+    
+    uint32_t lookupAddress(int line);
+    int lookupLine(uint32_t address);
 
 protected:
     bool eventFilter(QObject *watched, QEvent *event) override;
@@ -44,7 +50,7 @@ private:
     QString resolveCodeRegisterTooltip(const QPoint &viewportPos) const;
 
     VMController *vmController;
-    QPlainTextEdit *codeDisplay;
+    BreakpointPlainTextEdit *codeDisplay;
     QPlainTextEdit *sourceInfoDisplay;  // Display for source location info
     QPlainTextEdit *sourceCodeDisplay;
     KSyntaxHighlighting::Repository *syntaxRepository;

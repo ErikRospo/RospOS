@@ -115,6 +115,8 @@ if(NOT EMSCRIPTEN)
         frontend/qt/shared/VMControllerCore.cpp
         frontend/qt/shared/TTYWidget.h
         frontend/qt/shared/TTYWidget.cpp
+        frontend/qt/full/BreakpointTextEdit.h 
+        frontend/qt/full/BreakpointTextEdit.cpp
         lib/exprtk/exprtk.hpp
     )
 
