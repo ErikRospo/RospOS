@@ -107,6 +107,8 @@ if(NOT EMSCRIPTEN)
         frontend/qt/full/DebugControlPanel.cpp
         frontend/qt/full/RegisterView.h
         frontend/qt/full/RegisterView.cpp
+        frontend/qt/full/BreakpointEvaluator.h
+        frontend/qt/full/BreakpointEvaluator.cpp
         frontend/qt/full/MemoryView.h
         frontend/qt/full/MemoryView.cpp
         frontend/qt/full/LogView.h

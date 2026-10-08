@@ -1,13 +1,11 @@
 #include "RegisterView.h"
 #include "VMController.h"
-#include "exprtk.hpp"
 
 #include <QVBoxLayout>
 #include <QHeaderView>
 #include <QFont>
 #include <QLineEdit>
 #include <QRegularExpression>
-#include <string>
 
 RegisterView::RegisterView(QWidget *parent)
     : QWidget(parent), vmController(nullptr)
@@ -22,7 +20,6 @@ void RegisterView::setVMController(VMController *controller)
     vmController = controller;
     vmController->setRegisterView(this);
     populateRegisters();
-    initExprtk();
 }
 
 void RegisterView::createUI()
@@ -65,20 +62,6 @@ void RegisterView::createUI()
             this, &RegisterView::onBkptEdited);
     layout->addWidget(bkptLineEditor);
     setLayout(layout);
-}
-
-void RegisterView::initExprtk()
-{
-    if (!vmController)
-    {
-        return;
-    }
-    for (int reg = 0; reg < 16; ++reg)
-    {
-        symbol_table.add_variable("r" + std::to_string(reg), breakpointCtx.regs[reg]);
-    }
-    symbol_table.add_variable("pc", breakpointCtx.pc);
-    expression.register_symbol_table(symbol_table);
 }
 
 void RegisterView::populateRegisters()
@@ -124,23 +107,17 @@ void RegisterView::refresh()
 
 void RegisterView::onBkptEdited()
 {
-    expression_t new_expression;
-    new_expression.register_symbol_table(symbol_table);
-
-    if (!parser.compile(bkptLineEditor->text().toStdString(), new_expression))
-        return;
-
-    expression = new_expression;
-    return;
+    breakpointEvaluator.compile(bkptLineEditor->text().toStdString());
 }
 void RegisterView::updateBkptCtx()
 {
+    std::array<uint32_t, 16> registers;
     for (int i = 0; i < 16; ++i)
     {
-        breakpointCtx.regs[i] = (double)vmController->getRegister(i);
+        registers[i] = vmController->getRegister(i);
     }
 
-    breakpointCtx.pc = (double)vmController->getProgramCounter();
+    breakpointEvaluator.updateContext(registers, vmController->getProgramCounter());
 }
 void RegisterView::checkBreakpoint()
 {
@@ -150,7 +127,7 @@ void RegisterView::checkBreakpoint()
     }
     updateBkptCtx();
 
-    if (expression.value() > 0 && vmController->isRunning())
+    if (breakpointEvaluator.matches() && vmController->isRunning())
     {
         vmController->pause();
     }
