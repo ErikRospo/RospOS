@@ -5482,9 +5482,79 @@ recursive_test_72_IF_END2:
   CALL init_heap
   // call return value in r1
   POP r1  
-  // emit call to recursive_test with args []
+  LLI r2, 0    // zero init r1
+  // inline call to add with args [{'type': 'const', 'value': 15}, {'type': 'const', 'value': 25}]
+  // begin inline expansion of add
+  LLI r3, 15    // load immediate 15
+  LLI r4, 25    // load immediate 25
+  ADD r3, r3, r4    // binop +
+  ADD r1, r3, r0
+  // inline function return (no RET emitted)
+  ADDI r2, r1, 0    // move inline return value
+  // end inline expansion of add
+  LLI r5, 50    // init r2
+  LLI r6, 0    // zero init r3
+  // inline call to add with args [{'type': 'var', 'name': 'r1'}, {'type': 'var', 'name': 'r2'}]
+  // begin inline expansion of add
+  ADD r2, r2, r5    // binop +
+  ADD r1, r2, r0
+  // inline function return (no RET emitted)
+  ADDI r6, r1, 0    // move inline return value
+  // end inline expansion of add
+  // emit call to write_to_buffer with args [{'type': 'call', 'name': 'int_to_str', 'args': [{'type': 'var', 'name': 'r3'}]}]
   PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  CALL recursive_test
+  // emit call to int_to_str with args [{'type': 'var', 'name': 'r3'}]
+  PUSH r7    // save caller temp
+  PUSH r6    // stage reg arg 0
+  POP r1    // load reg arg 0
+  CALL int_to_str
+  // call return value in r1
+  POP r7    // restore caller temp
+  ADDI r7, r1, 0    // move return value
+  // call expr int_to_str -> return in r7
+  PUSH r7    // stage reg arg 0
+  POP r1    // load reg arg 0
+  CALL write_to_buffer
+  // call return value in r1
+  POP r1  
+  // emit call to update_buffer with args []
+  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
+  CALL update_buffer
+  // call return value in r1
+  POP r1  
+  // emit call to display_test with args []
+  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
+  CALL display_test
+  // call return value in r1
+  POP r1  
+  // emit call to fs_test with args []
+  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
+  CALL fs_test
+  // call return value in r1
+  POP r1  
+  // emit call to fast_clear_display with args []
+  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
+  CALL fast_clear_display
+  // call return value in r1
+  POP r1  
+  // emit call to malloc_test with args []
+  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
+  CALL malloc_test
+  // call return value in r1
+  POP r1  
+  // emit call to rand_block_display_test with args []
+  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
+  CALL rand_block_display_test
+  // call return value in r1
+  POP r1  
+  // emit call to terminal_test with args []
+  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
+  CALL terminal_test
+  // call return value in r1
+  POP r1  
+  // emit call to image_display_test with args []
+  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
+  CALL image_display_test
   // call return value in r1
   POP r1  
   BREAK  // epilogue and return

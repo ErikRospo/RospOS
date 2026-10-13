@@ -178,6 +178,8 @@ int_to_str_buf_5_WHILE_END16:
   ADDI r1, r0, 0
   POP r14
   JALR r0, r14, 0
+int_to_str:
+
   PUSH r14
   PUSH r1
   PUSH r1
@@ -4251,6 +4253,8 @@ fibonnaci_recursive_63_ELSE5:
   ADD r1, r6, r0
   POP r14
   JALR r0, r14, 0
+display_test:
+
   PUSH r14
   PUSH r1
   LLI r2, str_1
@@ -4361,6 +4365,8 @@ fibonnaci_recursive_63_ELSE5:
   ADDI r1, r0, 0
   POP r14
   JALR r0, r14, 0
+fs_test:
+
   PUSH r14
   PUSH r1
   JMP initialize_filesystem
@@ -4430,6 +4436,8 @@ fibonnaci_recursive_63_ELSE5:
   ADDI r1, r0, 0
   POP r14
   JALR r0, r14, 0
+rand_block_display_test:
+
   PUSH r14
   PUSH r1
   LLI r2, str_11
@@ -4466,6 +4474,8 @@ fibonnaci_recursive_63_ELSE5:
   ADDI r1, r0, 0
   POP r14
   JALR r0, r14, 0
+terminal_test:
+
   PUSH r14
   PUSH r1
   LLI r2, str_13
@@ -4490,6 +4500,8 @@ fibonnaci_recursive_63_ELSE5:
   ADDI r1, r0, 0
   POP r14
   JALR r0, r14, 0
+image_display_test:
+
   PUSH r14
   PUSH r1
   LLI r2, str_15
@@ -4507,6 +4519,8 @@ fibonnaci_recursive_63_ELSE5:
   ADDI r1, r0, 0
   POP r14
   JALR r0, r14, 0
+malloc_test:
+
   PUSH r14
   LLI r2, 256
   LLI r3, 0
@@ -4989,8 +5003,6 @@ time_test_71_WHILE_END4:
   ADDI r1, r0, 0
   POP r14
   JALR r0, r14, 0
-recursive_test:
-
   PUSH r14
   LLI r2, 0
   PUSH r2
@@ -5095,7 +5107,41 @@ main:
   PUSH r1
   JMP init_heap
 
-  JMP recursive_test
+  POP r1
+  LLI r2, 0
+  LLI r3, 15
+  LLI r4, 25
+  ADD r3, r3, r4
+  ADD r2, r3, r0
+  LLI r5, 50
+  LLI r6, 0
+  ADD r2, r2, r5
+  ADD r6, r2, r0
+  PUSH r1
+  PUSH r7
+  ADDI r1, r6, 0
+  JMP int_to_str
+
+  POP r7
+  ADDI r7, r1, 0
+  ADDI r1, r7, 0
+  JMP write_to_buffer
+
+  JMP update_buffer
+
+  JMP display_test
+
+  JMP fs_test
+
+  JMP fast_clear_display
+
+  JMP malloc_test
+
+  JMP rand_block_display_test
+
+  JMP terminal_test
+
+  JMP image_display_test
 
   POP r1
   BREAK
