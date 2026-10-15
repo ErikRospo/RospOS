@@ -204,7 +204,7 @@ wasm_dependencies: wasm_sdk $(KF_SOURCE)/.wasm-ready $(KF_ECM)/.wasm-ready
 	$(WASM_RUN) $(CMAKE) --build "$(KF_BUILD)" --parallel $(NPROC)
 	$(WASM_RUN) $(CMAKE) --install "$(KF_BUILD)"
 
-frontend_wasm: wasm_dependencies
+frontend_wasm: wasm_dependencies $(ROSP_FULL)
 	$(WASM_RUN) "$(QT_WASM_CMAKE)" \
 		-S rospovm -B "$(DIR_ROSPOVM_WASM_BUILD)" \
 		-DQT_HOST_PATH="$(QT_NATIVE)" \

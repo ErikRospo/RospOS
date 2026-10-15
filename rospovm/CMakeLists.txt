@@ -247,7 +247,19 @@ if(EMSCRIPTEN)
         KF6::SyntaxHighlighting
     
     )
+    set(ROSC_SOURCE
+        "${CMAKE_CURRENT_SOURCE_DIR}/../rospos/build/rospos_preprocessed.rosc"
+    )
 
+    target_link_options(rospovm_html PRIVATE
+        "SHELL:--preload-file ${ROSC_SOURCE}@/rospos/build/rospos_preprocessed.rosc"
+    )
+
+    # Relink when the source changes, so the embedded copy stays current.
+    set_property(TARGET rospovm_html APPEND PROPERTY
+        LINK_DEPENDS "${ROSC_SOURCE}"
+    )
+    
     if(EXISTS "${ROSPOSVM_DEFAULT_BINARY_SOURCE}")
         target_link_options(rospovm_html PRIVATE
             "SHELL:--preload-file ${ROSPOSVM_DEFAULT_BINARY_SOURCE}@rospos.rosp"
