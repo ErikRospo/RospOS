@@ -11,17 +11,30 @@
 
 Memory::Memory(uint64_t size)
 {
-#ifdef __EMSCRIPTEN__
-    // Do not allocate full memory up-front on WASM. Use sparse pages.
-    pages.clear();
-    totalSize = static_cast<uint64_t>(size);
+#if ROSPOSVM_SPARSE_MEMORY
+    if (size > (1ULL << 32)) {
+        throw std::out_of_range("Memory exceeds the VM address space.");
+    }
+    totalSize = size;
+    pages.resize(static_cast<size_t>((size + kPageSize - 1) / kPageSize));
 #else
     mem.resize(static_cast<size_t>(size), 0);
 #endif
 
-specialRanges.clear();
+    specialRanges.clear();
     lastSpecialRangeIndex = -1;
 }
+
+#if ROSPOSVM_SPARSE_MEMORY
+uint8_t *Memory::ensurePage(uint32_t page)
+{
+    auto &data = pages[page];
+    if (!data) {
+        data = std::make_unique<uint8_t[]>(kPageSize);
+    }
+    return data.get();
+}
+#endif
 
 void Memory::addSpecialRange(const char* name, uint32_t start, uint32_t end, SpecialMemoryRange::Type type, bool readable, bool writable,
                              ReadHandler readHandler,
@@ -103,22 +116,30 @@ const SpecialMemoryRange* Memory::findOverlappingSpecialRange(uint32_t startAddr
 
 uint32_t Memory::readWordDirectRam(uint32_t address) const
 {
-#ifdef __EMSCRIPTEN__
+#if ROSPOSVM_SPARSE_MEMORY
     const uint32_t start = address;
-    if (static_cast<size_t>(start) + 3 >= totalSize) {
+    if (static_cast<uint64_t>(start) + 3 >= totalSize) {
         throw std::out_of_range("Memory read out of bounds.");
     }
 
+    const uint32_t offset = start % kPageSize;
+    if (offset <= kPageSize - 4) {
+        const uint8_t *data = pages[start / kPageSize].get();
+        if (!data) return 0;
+        return (static_cast<uint32_t>(data[offset]) << 24) |
+               (static_cast<uint32_t>(data[offset + 1]) << 16) |
+               (static_cast<uint32_t>(data[offset + 2]) << 8) |
+               static_cast<uint32_t>(data[offset + 3]);
+    }
+
+    // Unaligned words can straddle two pages.
     uint32_t result = 0;
     for (uint32_t i = 0; i < 4; ++i) {
         uint32_t a = start + i;
         uint32_t page = a / kPageSize;
         uint32_t off = a % kPageSize;
-        auto it = pages.find(page);
-        uint8_t b = 0;
-        if (it != pages.end()) {
-            b = it->second[off];
-        }
+        const auto &data = pages[page];
+        const uint8_t b = data ? data[off] : 0;
         result = (result << 8) | static_cast<uint32_t>(b);
     }
     return result;
@@ -137,19 +158,27 @@ uint32_t Memory::readWordDirectRam(uint32_t address) const
 
 void Memory::writeWordDirectRam(uint32_t address, uint32_t value)
 {
-#ifdef __EMSCRIPTEN__
+#if ROSPOSVM_SPARSE_MEMORY
     const uint32_t start = address;
-    if (static_cast<size_t>(start) + 3 >= totalSize) {
+    if (static_cast<uint64_t>(start) + 3 >= totalSize) {
         throw std::out_of_range("Memory write out of bounds.");
+    }
+
+    const uint32_t offset = start % kPageSize;
+    if (offset <= kPageSize - 4) {
+        uint8_t *data = ensurePage(start / kPageSize);
+        data[offset] = static_cast<uint8_t>(value >> 24);
+        data[offset + 1] = static_cast<uint8_t>(value >> 16);
+        data[offset + 2] = static_cast<uint8_t>(value >> 8);
+        data[offset + 3] = static_cast<uint8_t>(value);
+        return;
     }
 
     for (int i = 0; i < 4; ++i) {
         uint32_t a = start + i;
         uint32_t page = a / kPageSize;
         uint32_t off = a % kPageSize;
-        auto &vec = pages[page];
-        if (vec.empty()) vec.resize(kPageSize, 0);
-        vec[off] = static_cast<uint8_t>((value >> ((3 - i) * 8)) & 0xFF);
+        ensurePage(page)[off] = static_cast<uint8_t>((value >> ((3 - i) * 8)) & 0xFF);
     }
 #else
     const size_t start = static_cast<size_t>(address);
@@ -179,15 +208,14 @@ uint8_t Memory::readByte(uint32_t address) const
         }
     }
 
-#ifdef __EMSCRIPTEN__
+#if ROSPOSVM_SPARSE_MEMORY
     if (static_cast<size_t>(address) >= totalSize) {
         throw std::out_of_range("Memory read out of bounds.");
     }
     uint32_t page = address / kPageSize;
     uint32_t off = address % kPageSize;
-    auto it = pages.find(page);
-    if (it == pages.end()) return 0;
-    return it->second[off];
+    const auto &data = pages[page];
+    return data ? data[off] : 0;
 #else
     if (static_cast<size_t>(address) >= mem.size()) {
         throw std::out_of_range("Memory read out of bounds.");
@@ -215,15 +243,14 @@ uint8_t Memory::readByteForInspector(uint32_t address) const
         throw std::runtime_error("Attempted to read from non-readable special memory range \"" + std::string(range->name, 4) + "\".");
     }
 
-#ifdef __EMSCRIPTEN__
+#if ROSPOSVM_SPARSE_MEMORY
     if (static_cast<size_t>(address) >= totalSize) {
         throw std::out_of_range("Memory read out of bounds.");
     }
     uint32_t page = address / kPageSize;
     uint32_t off = address % kPageSize;
-    auto it = pages.find(page);
-    if (it == pages.end()) return 0;
-    return it->second[off];
+    const auto &data = pages[page];
+    return data ? data[off] : 0;
 #else
     if (static_cast<size_t>(address) >= mem.size()) {
         throw std::out_of_range("Memory read out of bounds.");
@@ -248,15 +275,13 @@ void Memory::writeByte(uint32_t address, uint8_t value)
         }
     }
 
-#ifdef __EMSCRIPTEN__
+#if ROSPOSVM_SPARSE_MEMORY
     if (static_cast<size_t>(address) >= totalSize) {
         throw std::out_of_range("Memory write out of bounds.");
     }
     uint32_t page = address / kPageSize;
     uint32_t off = address % kPageSize;
-    auto &vec = pages[page];
-    if (vec.empty()) vec.resize(kPageSize, 0);
-    vec[off] = value;
+    ensurePage(page)[off] = value;
 #else
     if (static_cast<size_t>(address) >= mem.size()) {
         throw std::out_of_range("Memory write out of bounds.");
@@ -270,7 +295,10 @@ uint16_t Memory::readHalf(uint32_t address) const
     if (address == UINT32_MAX) {
         throw std::out_of_range("Memory half-word read out of bounds.");
     }
-    return static_cast<uint16_t>(readByte(address) << 8 | (readByte(address + 1)));
+    // MMIO reads may consume input; sequence them in address order.
+    const uint16_t high = readByte(address);
+    const uint16_t low = readByte(address + 1);
+    return static_cast<uint16_t>((high << 8) | low);
 }
 void Memory::writeHalf(uint32_t address, uint16_t value)
 {
@@ -290,11 +318,11 @@ uint32_t Memory::readWord(uint32_t address) const
         return readWordDirectRam(address);
     }
 
-    return static_cast<uint32_t>(
-        (static_cast<uint32_t>(readByte(address)) << 24) |
-        (static_cast<uint32_t>(readByte(address + 1)) << 16) |
-        (static_cast<uint32_t>(readByte(address + 2)) << 8) |
-        static_cast<uint32_t>(readByte(address + 3)));
+    const uint32_t b0 = readByte(address);
+    const uint32_t b1 = readByte(address + 1);
+    const uint32_t b2 = readByte(address + 2);
+    const uint32_t b3 = readByte(address + 3);
+    return (b0 << 24) | (b1 << 16) | (b2 << 8) | b3;
 }
 void Memory::writeWord(uint32_t address, uint32_t value)
 {
@@ -316,12 +344,11 @@ void Memory::writeWord(uint32_t address, uint32_t value)
 void Memory::loadBinary(const std::vector<char>& binary, uint32_t address)
 {
     const size_t start = static_cast<size_t>(address);
-#ifdef __EMSCRIPTEN__
+#if ROSPOSVM_SPARSE_MEMORY
     if (start > totalSize || binary.size() > (totalSize - start)) {
         std::ostringstream oss;
         oss << "Memory overflow while loading binary. start=" << start << " totalSize=" << totalSize << " binary.size()=" << binary.size() << ". Double check formatting";
         throw std::out_of_range(oss.str());
-        throw std::out_of_range("Memory overflow while loading binary.");
     }
     // Write byte-by-byte to lazily allocate pages
     for (size_t i = 0; i < binary.size(); ++i) {

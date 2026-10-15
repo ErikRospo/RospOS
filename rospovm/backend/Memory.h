@@ -2,8 +2,17 @@
 #define MEMORY_H
 
 #include <cstdint>
+#include <memory>
 #include <vector>
-#include <unordered_map>
+
+// Native regression tests can exercise the same sparse layout as wasm32.
+#ifndef ROSPOSVM_SPARSE_MEMORY
+#ifdef __EMSCRIPTEN__
+#define ROSPOSVM_SPARSE_MEMORY 1
+#else
+#define ROSPOSVM_SPARSE_MEMORY 0
+#endif
+#endif
 
 using ReadHandler = uint8_t (*)(uint32_t address);
 using WriteHandler = void (*)(uint32_t address, uint8_t value);
@@ -32,11 +41,13 @@ class Memory
 {
 private:
     std::vector<SpecialMemoryRange> specialRanges;
-#ifdef __EMSCRIPTEN__
-    // On WASM, avoid a single huge allocation. Use a sparse page map (64KB pages)
+#if ROSPOSVM_SPARSE_MEMORY
+    // Keep RAM sparse, but index pages directly (256 KiB for a 4 GiB address space
+    // on wasm32). Untouched pages read as zero without allocating backing RAM.
     static constexpr size_t kPageSize = 65536;
-    std::unordered_map<uint32_t, std::vector<uint8_t>> pages; // key = page index
+    std::vector<std::unique_ptr<uint8_t[]>> pages;
     uint64_t totalSize = 0;
+    uint8_t *ensurePage(uint32_t page);
 #else
     std::vector<uint8_t> mem;
 #endif
