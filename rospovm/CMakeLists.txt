@@ -186,12 +186,22 @@ if(NOT EMSCRIPTEN)
 endif()
 
 if(EMSCRIPTEN)
+
     qt_add_executable(rospovm_html
         frontend/html/main_html.cpp
         frontend/qt/shared/VMControllerCore.h
         frontend/qt/shared/VMControllerCore.cpp
         frontend/qt/shared/TTYWidget.h
         frontend/qt/shared/TTYWidget.cpp
+    )
+    target_compile_options(rosposvm_lib_release PRIVATE -fexceptions -g)
+    target_compile_options(rospovm_html PRIVATE -fexceptions -g)
+
+    target_link_options(rospovm_html PRIVATE
+        -fexceptions
+        -sNO_DISABLE_EXCEPTION_CATCHING
+        -sASSERTIONS=1
+        -g
     )
 
     target_include_directories(rospovm_html PRIVATE
@@ -224,6 +234,7 @@ if(EMSCRIPTEN)
         ROSPOSVM_WEB_BUILD=1
         ROSPOSVM_DEFAULT_BINARY_FILE="rospos.rosp"
         ROSPOSVM_DEFAULT_BLOCKDEV_FILE="rospos.blockdev"
+        EMSCRIPTEN=1
     )
 
     set_target_properties(rospovm_html PROPERTIES

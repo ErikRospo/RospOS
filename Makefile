@@ -95,13 +95,13 @@ $(eval $(call make_rosp_variant,$(ROSP_COMBINED),--compress-bin --compress-debug
 $(DIR_ROSPOVM_BUILD)/Makefile: rospovm/CMakeLists.txt | $(DIR_ROSPOVM_BUILD)
 	$(CMAKE) -S rospovm -B $(DIR_ROSPOVM_BUILD)
 
-WASM_CMAKE_ARGS := \
-	-DCMAKE_TOOLCHAIN_FILE=/home/erospo/Qt/6.10.3/wasm_singlethread/lib/cmake/Qt6/qt.toolchain.cmake \
-	-DCMAKE_PREFIX_PATH=/home/erospo/Qt/6.10.3/wasm_singlethread \
-	-DQt6_DIR=/home/erospo/Qt/6.10.3/wasm_singlethread/lib/cmake/Qt6
+# WASM_CMAKE_ARGS := \
+# 	-DCMAKE_TOOLCHAIN_FILE=/home/erospo/Qt/6.10.3/wasm_singlethread/lib/cmake/Qt6/qt.toolchain.cmake \
+# 	-DCMAKE_PREFIX_PATH=/home/erospo/Qt/6.10.3/wasm_singlethread \
+# 	-DQt6_DIR=/home/erospo/Qt/6.10.3/wasm_singlethread/lib/cmake/Qt6
 
-$(DIR_ROSPOVM_WASM_BUILD)/Makefile: rospovm/CMakeLists.txt $(ROSPOVM_SRC) | $(DIR_ROSPOVM_WASM_BUILD)
-	$(CMAKE) -S rospovm -B $(DIR_ROSPOVM_WASM_BUILD) $(WASM_CMAKE_ARGS)
+# $(DIR_ROSPOVM_WASM_BUILD)/Makefile: rospovm/CMakeLists.txt $(ROSPOVM_SRC) | $(DIR_ROSPOVM_WASM_BUILD)
+# 	$(CMAKE) -S rospovm -B $(DIR_ROSPOVM_WASM_BUILD) $(WASM_CMAKE_ARGS)
 
 define make_vm_target
 $(DIR_ROSPOVM_BUILD)/.$1.stamp: $(DIR_ROSPOVM_BUILD)/Makefile $(ROSPOVM_SRC)
@@ -137,10 +137,14 @@ frontend_minimal: $(DIR_ROSPOVM_BUILD)/rospovm_minimal
 vm_headless: $(DIR_ROSPOVM_BUILD)/rospovm_headless
 
 
-frontend_wasm: $(DIR_ROSPOVM_WASM_BUILD)/Makefile
-	$(CMAKE) -S rospovm -B $(DIR_ROSPOVM_WASM_BUILD) $(WASM_CMAKE_ARGS)
-	$(CMAKE) --build $(DIR_ROSPOVM_WASM_BUILD) --target rospovm_html -j $(NPROC)
+QT_WASM_CMAKE ?=
+WASM_CMAKE_ARGS ?=
 
+frontend_wasm:
+	@test -n "$(QT_WASM_CMAKE)" || \
+		{ echo "Set QT_WASM_CMAKE to the WASM Qt kit's bin/qt-cmake"; exit 1; }
+	"$(QT_WASM_CMAKE)" -S rospovm -B "$(DIR_ROSPOVM_WASM_BUILD)" $(WASM_CMAKE_ARGS)
+	$(CMAKE) --build "$(DIR_ROSPOVM_WASM_BUILD)" --target rospovm_html -j $(NPROC) 
 
 run: $(ROSP_FULL) $(DIR_ROSPOVM_BUILD)/rospovm_qt
 	$(DIR_ROSPOVM_BUILD)/rospovm_qt $<
