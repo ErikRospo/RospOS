@@ -122,6 +122,7 @@ if(NOT EMSCRIPTEN)
 
     add_executable(rospovm_minimal
         frontend/qt/minimal/main_minimal_qt.cpp
+        frontend/qt/minimal/MinimalWindow.cpp
         frontend/qt/shared/VMControllerCore.h
         frontend/qt/shared/VMControllerCore.cpp
         frontend/qt/shared/TTYWidget.h
@@ -186,7 +187,7 @@ endif()
 if(EMSCRIPTEN)
 
     qt_add_executable(rospovm_html
-        frontend/html/main_html.cpp
+        frontend/html/full/main_html.cpp
         frontend/qt/full/MainWindow.h
         frontend/qt/full/MainWindow.cpp
         frontend/qt/full/VMController.h
@@ -203,39 +204,57 @@ if(EMSCRIPTEN)
         frontend/qt/full/MemoryView.cpp
         frontend/qt/full/LogView.h
         frontend/qt/full/LogView.cpp
+        frontend/qt/full/BreakpointTextEdit.h 
+        frontend/qt/full/BreakpointTextEdit.cpp
         frontend/qt/shared/VMControllerCore.h
         frontend/qt/shared/VMControllerCore.cpp
         frontend/qt/shared/TTYWidget.h
         frontend/qt/shared/TTYWidget.cpp
-        frontend/qt/full/BreakpointTextEdit.h 
-        frontend/qt/full/BreakpointTextEdit.cpp
         lib/exprtk/exprtk.hpp
     )
     
+    qt_add_executable(rospovm_html_minimal
+        frontend/html/minimal/main_html.cpp
+        frontend/qt/minimal/MinimalWindow.cpp
+        frontend/qt/shared/VMControllerCore.h
+        frontend/qt/shared/VMControllerCore.cpp
+        frontend/qt/shared/TTYWidget.h
+        frontend/qt/shared/TTYWidget.cpp
+    )
     target_compile_options(rosposvm_lib_release PRIVATE
-        # -fexceptions
+        -fexceptions
         -g
     )
     
     target_compile_options(rospovm_html PRIVATE
-        # -fexceptions
+        -fexceptions
         -g
     )
 
     target_link_options(rospovm_html PRIVATE
-        # -fexceptions
+        -sNO_DISABLE_EXCEPTION_CATCHING
+        -sASSERTIONS=1
+        -g
+    )
+    target_link_options(rospovm_html_minimal PRIVATE
         -sNO_DISABLE_EXCEPTION_CATCHING
         -sASSERTIONS=1
         -g
     )
 
     target_include_directories(rospovm_html PRIVATE
-        ${CMAKE_CURRENT_SOURCE_DIR}/frontend/html
+        ${CMAKE_CURRENT_SOURCE_DIR}/frontend/html/full
         ${CMAKE_CURRENT_SOURCE_DIR}/frontend/qt/full
         ${CMAKE_CURRENT_SOURCE_DIR}/frontend/qt/shared
         ${CMAKE_CURRENT_SOURCE_DIR}/backend
         ${CMAKE_CURRENT_SOURCE_DIR}/lib/exprtk
+    )
     
+    target_include_directories(rospovm_html_minimal PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/frontend/html/minimal
+        ${CMAKE_CURRENT_SOURCE_DIR}/frontend/qt/minimal
+        ${CMAKE_CURRENT_SOURCE_DIR}/frontend/qt/shared
+        ${CMAKE_CURRENT_SOURCE_DIR}/backend
     )
 
     target_link_libraries(rospovm_html PRIVATE
@@ -247,6 +266,14 @@ if(EMSCRIPTEN)
         KF6::SyntaxHighlighting
     
     )
+    target_link_libraries(rospovm_html_minimal PRIVATE
+        rosposvm_lib_release
+        Qt6::Core
+        Qt6::Gui
+        Qt6::Widgets
+        ${ROSPOSVM_ZLIB_TARGETS}
+    )
+
     set(ROSC_SOURCE
         "${CMAKE_CURRENT_SOURCE_DIR}/../rospos/build/rospos_preprocessed.rosc"
     )
@@ -271,19 +298,29 @@ if(EMSCRIPTEN)
             "SHELL:--preload-file ${ROSPOSVM_DEFAULT_BLOCKDEV_SOURCE}@rospos.blockdev"
         )
     endif()
-
-    target_compile_definitions(rospovm_html PRIVATE
+    
+    target_compile_definitions(rospovm_html_minimal PRIVATE
         ROSPOSVM_WEB_BUILD=1
         ROSPOSVM_DEFAULT_BINARY_FILE="rospos.rosp"
         ROSPOSVM_DEFAULT_BLOCKDEV_FILE="rospos.blockdev"
         EMSCRIPTEN=1
     )
 
+    target_compile_definitions(rospovm_html PRIVATE
+        ROSPOSVM_WEB_BUILD=1
+        ROSPOSVM_DEFAULT_BINARY_FILE="rospos.rosp"
+        ROSPOSVM_DEFAULT_BLOCKDEV_FILE="rospos.blockdev"
+        EMSCRIPTEN=1
+        ROSPOSVM_HIGHLIGHTING_DIR="${ROSPOSVM_HIGHLIGHTING_DIR}"
+        
+    )
+
     set_target_properties(rospovm_html PROPERTIES
         QT_WASM_MEMORY_GROWTH "ON"
         )
-    target_compile_definitions(rospovm_html PRIVATE
-        ROSPOSVM_HIGHLIGHTING_DIR="${ROSPOSVM_HIGHLIGHTING_DIR}"
+        
+    set_target_properties(rospovm_html_minimal PROPERTIES
+        QT_WASM_MEMORY_GROWTH "ON"
     )
 
     add_custom_command(TARGET rospovm_html POST_BUILD

@@ -40,9 +40,9 @@ ROSPOVM_SRC := $(sort $(shell find rospovm -type f -not -path "rospovm/build/*")
 
 .PHONY: all help venv bm parse compile dump build clean doc format frontend \
 		frontend_cmake frontend_wasm frontend_wasm_light frontend_wasm_dark \
-		frontend_wasm_both run vm_headless run_headless test report \
-		benchmark benchmark_plot everything frontend_minimal run_minimal \
-		min_run vm_fuzz_harness
+		frontend_wasm_both frontend_wasm_minimal frontend_wasm_full run     \ 
+		vm_headless run_headless test report benchmark benchmark_plot       \
+		everything frontend_minimal run_minimal	min_run vm_fuzz_harness 
 
 all: build
 
@@ -204,7 +204,9 @@ wasm_dependencies: wasm_sdk $(KF_SOURCE)/.wasm-ready $(KF_ECM)/.wasm-ready
 	$(WASM_RUN) $(CMAKE) --build "$(KF_BUILD)" --parallel $(NPROC)
 	$(WASM_RUN) $(CMAKE) --install "$(KF_BUILD)"
 
-frontend_wasm: wasm_dependencies $(ROSP_FULL)
+frontend_wasm: frontend_wasm_minimal frontend_wasm_full
+
+frontend_wasm_full: wasm_dependencies $(ROSP_FULL)
 	$(WASM_RUN) "$(QT_WASM_CMAKE)" \
 		-S rospovm -B "$(DIR_ROSPOVM_WASM_BUILD)" \
 		-DQT_HOST_PATH="$(QT_NATIVE)" \
@@ -214,6 +216,14 @@ frontend_wasm: wasm_dependencies $(ROSP_FULL)
 	$(WASM_RUN) $(CMAKE) --build "$(DIR_ROSPOVM_WASM_BUILD)" \
 		--target rospovm_html --parallel $(NPROC)
 
+frontend_wasm_minimal: wasm_sdk $(ROSP_FULL)
+	$(WASM_RUN) "$(QT_WASM_CMAKE)" \
+		-S rospovm -B "$(DIR_ROSPOVM_WASM_BUILD)" \
+		-DQT_HOST_PATH="$(QT_NATIVE)" \
+		$(WASM_CMAKE_ARGS)
+	$(WASM_RUN) $(CMAKE) --build "$(DIR_ROSPOVM_WASM_BUILD)" \
+		--target rospovm_html_minimal --parallel $(NPROC)
+		
 run: $(ROSP_FULL) $(DIR_ROSPOVM_BUILD)/rospovm_qt
 	$(DIR_ROSPOVM_BUILD)/rospovm_qt $<
 

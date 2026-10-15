@@ -46,7 +46,6 @@ private:
     QSlider *speedSlider;
     QLabel *speedValueLabel;
     QSpinBox *addressSpinBox;
-    QLabel *breakpointLabel;
     QLineEdit *hexInput;
     QLineEdit *decInput;
     QLineEdit *binInput;

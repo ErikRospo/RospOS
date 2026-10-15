@@ -123,16 +123,6 @@ void DebugControlPanel::createUI()
     navLayout->addLayout(addressLayout);
     mainLayout->addWidget(navGroup);
 
-    // ===== Breakpoints (placeholder) =====
-    QGroupBox *breakpointGroup = new QGroupBox(tr("Breakpoints"), this);
-    QVBoxLayout *breakpointLayout = new QVBoxLayout(breakpointGroup);
-
-    breakpointLabel = new QLabel(tr("(Not yet implemented)"));
-    breakpointLabel->setStyleSheet("color: #999999;");
-    breakpointLayout->addWidget(breakpointLabel);
-
-    mainLayout->addWidget(breakpointGroup);
-
     // ===== Number Converter =====
     QGroupBox *converterGroup = new QGroupBox(tr("Number Converter"), this);
     QVBoxLayout *converterLayout = new QVBoxLayout(converterGroup);
