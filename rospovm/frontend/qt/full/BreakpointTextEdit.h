@@ -55,13 +55,13 @@ public:
     {
         breakpointPTE = editor;
     }
-    QSize sizeHint() const
+    QSize sizeHint() const override
     {
         return QSize(breakpointPTE->breakpointAreaWidth(), 0);
     }
 
 protected:
-    void paintEvent(QPaintEvent *event)
+    void paintEvent(QPaintEvent *event) override
     {
         breakpointPTE->breakpointAreaPaintEvent(event);
     }
