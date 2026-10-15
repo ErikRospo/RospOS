@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.16)
 project(RospOSVM_Qt)
 
+option(ROSPOSVM_BUILD_TESTS "Build memory and GUI runtime regression tests" OFF)
+
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_AUTOMOC ON)
@@ -246,4 +248,25 @@ else()
 
     add_executable(rospovm_fuzz_harness tests/fuzz_harness.cpp)
     target_link_libraries(rospovm_fuzz_harness PRIVATE rosposvm_lib_release)
+
+    if(ROSPOSVM_BUILD_TESTS)
+        enable_testing()
+        foreach(layout IN ITEMS native sparse)
+            add_executable(rospovm_memory_${layout}_tests tests/memory_tests.cpp backend/Memory.cpp)
+            target_include_directories(rospovm_memory_${layout}_tests PRIVATE backend)
+            if(layout STREQUAL "sparse")
+                target_compile_definitions(rospovm_memory_${layout}_tests PRIVATE ROSPOSVM_SPARSE_MEMORY=1)
+            endif()
+            add_test(NAME memory_${layout} COMMAND rospovm_memory_${layout}_tests)
+        endforeach()
+
+        # Exercise the Wasm memory layout without allocating 4 GiB on the host.
+        rosposvm_add_backend(rosposvm_lib_test 1)
+        target_compile_definitions(rosposvm_lib_test PUBLIC ROSPOSVM_SPARSE_MEMORY=1)
+        add_executable(rospovm_runtime_tests tests/runtime_tests.cpp ${ROSPOSVM_QT_SHARED_SOURCES})
+        target_include_directories(rospovm_runtime_tests PRIVATE frontend/qt/shared)
+        target_link_libraries(rospovm_runtime_tests PRIVATE rosposvm_lib_test)
+        add_test(NAME runtime COMMAND rospovm_runtime_tests)
+        set_tests_properties(runtime PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen" TIMEOUT 30)
+    endif()
 endif()
