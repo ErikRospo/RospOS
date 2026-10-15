@@ -32,7 +32,7 @@ class Memory
 {
 private:
     std::vector<SpecialMemoryRange> specialRanges;
-#ifdef EMSCRIPTEN
+#ifdef __EMSCRIPTEN__
     // On WASM, avoid a single huge allocation. Use a sparse page map (64KB pages)
     static constexpr size_t kPageSize = 65536;
     std::unordered_map<uint32_t, std::vector<uint8_t>> pages; // key = page index

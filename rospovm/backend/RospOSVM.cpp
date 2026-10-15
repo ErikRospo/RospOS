@@ -434,7 +434,7 @@ uint64_t RospOSVM::runSteps(uint64_t maxSteps, uint32_t timeBudgetMicros, bool l
                 oss << "RI: " << std::hex << std::setw(8) << std::setfill('0') << instruction << std::dec << "\n";
                 oss << "Registers: " << getRegisterState();
                 Logger::instance().debug(QString::fromStdString(oss.str()));
-            };
+            }
             executeInstruction(instruction);
             commitStateCapture();
         } catch (...) {

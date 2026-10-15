@@ -5,20 +5,22 @@
 #include <stdexcept>
 #include <string>
 #include <vector>
+#include <fstream>
+#include <iostream>
+#include <sstream>
 
 Memory::Memory(uint64_t size)
 {
-#ifdef EMSCRIPTEN
+#ifdef __EMSCRIPTEN__
     // Do not allocate full memory up-front on WASM. Use sparse pages.
     pages.clear();
     totalSize = static_cast<uint64_t>(size);
-    specialRanges.clear();
-    lastSpecialRangeIndex = -1;
 #else
     mem.resize(static_cast<size_t>(size), 0);
-    specialRanges.clear();
-    lastSpecialRangeIndex = -1;
 #endif
+
+specialRanges.clear();
+    lastSpecialRangeIndex = -1;
 }
 
 void Memory::addSpecialRange(const char* name, uint32_t start, uint32_t end, SpecialMemoryRange::Type type, bool readable, bool writable,
@@ -101,7 +103,7 @@ const SpecialMemoryRange* Memory::findOverlappingSpecialRange(uint32_t startAddr
 
 uint32_t Memory::readWordDirectRam(uint32_t address) const
 {
-#ifdef EMSCRIPTEN
+#ifdef __EMSCRIPTEN__
     const uint32_t start = address;
     if (static_cast<size_t>(start) + 3 >= totalSize) {
         throw std::out_of_range("Memory read out of bounds.");
@@ -135,7 +137,7 @@ uint32_t Memory::readWordDirectRam(uint32_t address) const
 
 void Memory::writeWordDirectRam(uint32_t address, uint32_t value)
 {
-#ifdef EMSCRIPTEN
+#ifdef __EMSCRIPTEN__
     const uint32_t start = address;
     if (static_cast<size_t>(start) + 3 >= totalSize) {
         throw std::out_of_range("Memory write out of bounds.");
@@ -177,7 +179,7 @@ uint8_t Memory::readByte(uint32_t address) const
         }
     }
 
-#ifdef EMSCRIPTEN
+#ifdef __EMSCRIPTEN__
     if (static_cast<size_t>(address) >= totalSize) {
         throw std::out_of_range("Memory read out of bounds.");
     }
@@ -213,7 +215,7 @@ uint8_t Memory::readByteForInspector(uint32_t address) const
         throw std::runtime_error("Attempted to read from non-readable special memory range \"" + std::string(range->name, 4) + "\".");
     }
 
-#ifdef EMSCRIPTEN
+#ifdef __EMSCRIPTEN__
     if (static_cast<size_t>(address) >= totalSize) {
         throw std::out_of_range("Memory read out of bounds.");
     }
@@ -246,7 +248,7 @@ void Memory::writeByte(uint32_t address, uint8_t value)
         }
     }
 
-#ifdef EMSCRIPTEN
+#ifdef __EMSCRIPTEN__
     if (static_cast<size_t>(address) >= totalSize) {
         throw std::out_of_range("Memory write out of bounds.");
     }
@@ -314,8 +316,11 @@ void Memory::writeWord(uint32_t address, uint32_t value)
 void Memory::loadBinary(const std::vector<char>& binary, uint32_t address)
 {
     const size_t start = static_cast<size_t>(address);
-#ifdef EMSCRIPTEN
+#ifdef __EMSCRIPTEN__
     if (start > totalSize || binary.size() > (totalSize - start)) {
+        std::ostringstream oss;
+        oss << "Memory overflow while loading binary. start=" << start << " totalSize=" << totalSize << " binary.size()=" << binary.size() << ". Double check formatting";
+        throw std::out_of_range(oss.str());
         throw std::out_of_range("Memory overflow while loading binary.");
     }
     // Write byte-by-byte to lazily allocate pages

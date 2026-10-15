@@ -194,11 +194,19 @@ if(EMSCRIPTEN)
         frontend/qt/shared/TTYWidget.h
         frontend/qt/shared/TTYWidget.cpp
     )
-    target_compile_options(rosposvm_lib_release PRIVATE -fexceptions -g)
-    target_compile_options(rospovm_html PRIVATE -fexceptions -g)
+    
+    target_compile_options(rosposvm_lib_release PRIVATE
+        # -fexceptions
+        -g
+    )
+    
+    target_compile_options(rospovm_html PRIVATE
+        # -fexceptions
+        -g
+    )
 
     target_link_options(rospovm_html PRIVATE
-        -fexceptions
+        # -fexceptions
         -sNO_DISABLE_EXCEPTION_CATCHING
         -sASSERTIONS=1
         -g
