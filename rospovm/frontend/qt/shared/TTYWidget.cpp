@@ -5,6 +5,7 @@
 #include <QKeyEvent>
 #include <QScrollBar>
 #include <QTextCursor>
+#include <QMetaObject>
 
 TTYWidget::TTYWidget(QWidget *parent)
     : QPlainTextEdit(parent)
@@ -25,29 +26,49 @@ TTYWidget::TTYWidget(QWidget *parent)
     connect(&highlightTimer, &QTimer::timeout, this, [this]() {
         setHighlighted(false);
     });
+    outputTimer.setSingleShot(true);
+    outputTimer.setInterval(16);
+    connect(&outputTimer, &QTimer::timeout, this, &TTYWidget::flushOutput);
 }
 
 void TTYWidget::appendOutputByte(uint8_t value)
 {
+    {
+        std::lock_guard<std::mutex> lock(outputMutex);
+        pendingOutput.append(static_cast<char>(value));
+        if (outputScheduled) return;
+        outputScheduled = true;
+    }
+    // One queued callback and one document update per batch, even when the VM
+    // produces thousands of bytes before returning to the event loop.
+    QMetaObject::invokeMethod(this, [this]() { outputTimer.start(); }, Qt::QueuedConnection);
+}
+
+void TTYWidget::flushOutput()
+{
+    QByteArray output;
+    {
+        std::lock_guard<std::mutex> lock(outputMutex);
+        output.swap(pendingOutput);
+        outputScheduled = false;
+    }
     QTextCursor cursor = textCursor();
     cursor.movePosition(QTextCursor::End);
+    cursor.beginEditBlock();
+    QString text;
+    for (char value : output) {
+        if (value == '\r') continue;
+        if (value == '\b') {
+            cursor.insertText(text);
+            text.clear();
+            cursor.deletePreviousChar();
+        } else {
+            text.append(QChar::fromLatin1(value));
+        }
+    }
+    cursor.insertText(text);
+    cursor.endEditBlock();
     setTextCursor(cursor);
-
-    if (value == '\r')
-    {
-        return;
-    }
-
-    if (value == '\b')
-    {
-        QTextCursor eraseCursor = textCursor();
-        eraseCursor.movePosition(QTextCursor::Left, QTextCursor::KeepAnchor, 1);
-        eraseCursor.removeSelectedText();
-    }
-    else
-    {
-        insertPlainText(QString(QChar(static_cast<char>(value))));
-    }
 
     QScrollBar *bar = verticalScrollBar();
     if (bar)

@@ -3,6 +3,8 @@
 
 #include <QPlainTextEdit>
 #include <QTimer>
+#include <QByteArray>
+#include <mutex>
 
 #include <cstdint>
 
@@ -22,8 +24,13 @@ protected:
 
 private:
     void setHighlighted(bool highlighted);
+    void flushOutput();
 
     QTimer highlightTimer;
+    QTimer outputTimer;
+    std::mutex outputMutex;
+    QByteArray pendingOutput;
+    bool outputScheduled = false;
 };
 
 #endif // TTY_WIDGET_H

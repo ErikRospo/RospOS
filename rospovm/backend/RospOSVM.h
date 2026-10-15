@@ -56,6 +56,9 @@ private:
     bool applyingHistory = false;
     MemoryAccess lastMemoryAccess;
     bool hasLastMemoryAccess = false;
+    bool nonBlockingInput = false;
+    bool waitingForInput = false;
+    bool prepareInstruction(uint32_t instruction);
 
     // Fast debug lookup caches (built lazily from loadedBinary->debug_map).
     mutable bool debugCacheBuilt = false;
@@ -98,6 +101,8 @@ public:
     void loadBinaryAtAddress(const std::vector<char> &binary, uint32_t address);
     void loadBinaryFromFile(const std::string& filename);
     void step();
+    void setNonBlockingInput(bool enabled) { nonBlockingInput = enabled; }
+    bool isWaitingForInput() const { return waitingForInput; }
     uint64_t runSteps(uint64_t maxSteps, uint32_t timeBudgetMicros = 0, bool logExecution = false);
     bool stepBackward();
     bool canStepBackward() const { 

@@ -3,14 +3,13 @@
 #include "Shutdown.h"
 
 #include <QCoreApplication>
-#include <QEventLoop>
 #include <QThread>
 
 #include <chrono>
 #include <condition_variable>
 #include <mutex>
 #include <queue>
-#include <thread>
+#include <stdexcept>
 
 namespace {
 std::queue<uint8_t> inputBuffer;
@@ -22,31 +21,41 @@ std::function<void(uint8_t)> writeCallback;
 std::function<void()> readRequestCallback;
 }
 
+bool TTYHasInput(size_t count)
+{
+    std::lock_guard<std::mutex> lock(bufferMutex);
+    return inputBuffer.size() >= count;
+}
+
+void TTYRequestInput()
+{
+    std::function<void()> callbackCopy;
+    {
+        std::lock_guard<std::mutex> callbackLock(callbackMutex);
+        callbackCopy = readRequestCallback;
+    }
+    if (callbackCopy) callbackCopy();
+}
+
 uint8_t TTYReadHandler(uint32_t address)
 {
     (void)address;
 
-    {
-        std::lock_guard<std::mutex> callbackLock(callbackMutex);
-        if (readRequestCallback)
-        {
-            readRequestCallback();
-        }
-    }
-
     std::unique_lock<std::mutex> lock(bufferMutex);
+    if (inputBuffer.empty() && !shouldShutdown()) {
+        lock.unlock();
+        TTYRequestInput();
+        lock.lock();
+    }
     while (inputBuffer.empty() && !shouldShutdown())
     {
         if (QCoreApplication::instance() &&
             QThread::currentThread() == QCoreApplication::instance()->thread())
         {
-            // If we're on the main Qt thread, we can't block for long periods.
-            // Instead, we will periodically process events to keep the UI responsive while waiting for input.
-            // Process events for 10ms, then check the buffer again. Repeat until we have input or a shutdown is requested.
-            lock.unlock();
-            QCoreApplication::processEvents(QEventLoop::AllEvents, 10);
-            std::this_thread::sleep_for(std::chrono::milliseconds(10));
-            lock.lock();
+            // GUI execution preflights complete TTY reads and yields before
+            // reaching here. Reject other synchronous reads (e.g. device DMA)
+            // rather than blocking the browser or entering a nested event loop.
+            throw std::runtime_error("TTY input is not available for a synchronous GUI read");
         }
         else
         {

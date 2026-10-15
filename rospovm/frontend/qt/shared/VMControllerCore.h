@@ -49,6 +49,8 @@ public:
 
 signals:
     void stateChanged();
+    // Lightweight execution observers (e.g. breakpoints) run before UI refresh.
+    void executionAdvanced();
     void executionStopped();
     void executionStarted();
     void error(const QString &message);
@@ -60,12 +62,16 @@ protected:
 private:
     void onExecutionTick();
     void scheduleNextExecutionTick();
+    void requestStateRefresh(bool immediate = false);
+    void flushStateChanges();
     int executionIntervalMs() const;
     bool usesBurstExecutor() const;
     int targetInstructionsPerSecond() const;
 
     std::unique_ptr<RospOSVM> vm;
     QTimer executionTimer;
+    QTimer stateRefreshTimer;
+    bool stateDirty = false;
     bool running;
     int speedLevel = 4;
     QElapsedTimer throughputTimer;

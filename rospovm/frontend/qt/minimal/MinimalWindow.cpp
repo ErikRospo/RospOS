@@ -86,9 +86,7 @@ public:
 		});
 
 		TTYSetWriteCallback([this](uint8_t value) {
-			QMetaObject::invokeMethod(tty, [this, value]() {
-				tty->appendOutputByte(value);
-			}, Qt::QueuedConnection);
+			tty->appendOutputByte(value);
 		});
 		TTYSetReadRequestCallback([this]() {
 			QMetaObject::invokeMethod(tty, [this]() {

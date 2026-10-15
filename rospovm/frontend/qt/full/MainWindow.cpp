@@ -343,9 +343,7 @@ void MainWindow::createStatusBar()
 void MainWindow::setupConnections()
 {
     TTYSetWriteCallback([this](uint8_t value) {
-        QMetaObject::invokeMethod(ttyWidget, [this, value]() {
-            ttyWidget->appendOutputByte(value);
-        }, Qt::QueuedConnection);
+        ttyWidget->appendOutputByte(value);
     });
 
     TTYSetReadRequestCallback([this]() {
@@ -356,6 +354,7 @@ void MainWindow::setupConnections()
 
     // Connect VM controller signals to main window
     connect(vmController.get(), &VMController::stateChanged, this, &MainWindow::onVMStateChanged);
+    connect(vmController.get(), &VMController::executionAdvanced, registerView, &RegisterView::checkBreakpoint);
     connect(vmController.get(), &VMController::error, this, &MainWindow::onVMError);
     connect(vmController.get(), &VMController::executionStarted, this, &MainWindow::onExecutionStarted);
     connect(vmController.get(), &VMController::executionStopped, this, &MainWindow::onExecutionStopped);

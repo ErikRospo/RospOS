@@ -1,6 +1,7 @@
 #include "RospOSVM.h"
 
 #include <cstdint>
+#include <algorithm>
 #include <cstdlib>
 #include <chrono>
 #include <fstream>
@@ -28,7 +29,7 @@ RospOSVM::RospOSVM(bool debugMode, const std::string &blockDevicePath)
     regFile.unchecked(0).setReadOnly(true);     // R0 is always zero
 
     // Setup TTY MMIO range
-    memory.addSpecialRange("TTY ", 0x10000000, 0x100001FF, 
+    memory.addSpecialRange("TTY ", kTTYBase, kTTYEnd,
                            SpecialMemoryRange::Type::MMIO, true, true,
                            TTYReadHandler, TTYWriteHandler);
     
@@ -105,6 +106,7 @@ void RospOSVM::buildDebugCache() const
 
 void RospOSVM::resetCpuState()
 {
+    waitingForInput = false;
     pc = 0;
     for (int i = 1; i < 16; ++i) {
         regFile.unchecked(i).set(0);
@@ -257,6 +259,7 @@ bool RospOSVM::getLastMemoryAccess(uint32_t &address, uint8_t &size, bool &isWri
 
 void RospOSVM::loadBinaryAtAddress(const std::vector<char> &binary, uint32_t address)
 {
+    waitingForInput = false;
     loadedBinary.reset();
     invalidateDebugCache();
     clearStateHistory();
@@ -369,12 +372,40 @@ const RegisterAllocationInfo* RospOSVM::getRegisterAllocation(
     return getRegisterAllocation(address, kRegisterNames[static_cast<size_t>(regIndex)]);
 }
 
+bool RospOSVM::prepareInstruction(uint32_t instruction)
+{
+    if (nonBlockingInput && (instruction >> 28) == 0x2) {
+        const uint32_t subOp = (instruction >> 24) & 0xF;
+        if (subOp <= 4) {
+            const int rs = (instruction >> 16) & 0xF;
+            const uint32_t address = regFile.unchecked(rs).get() +
+                static_cast<uint32_t>(static_cast<int32_t>(static_cast<int16_t>(instruction)));
+            const uint32_t width = subOp <= 1 ? 1 : (subOp <= 3 ? 2 : 4);
+            // Let the normal memory path reject overflowing accesses before
+            // any input is consumed. Count only bytes that actually hit TTY.
+            const uint64_t end = static_cast<uint64_t>(address) + width - 1;
+            if (end <= UINT32_MAX && address <= kTTYEnd && end >= kTTYBase) {
+                const uint32_t first = std::max(address, kTTYBase);
+                const uint32_t last = std::min(static_cast<uint32_t>(end), kTTYEnd);
+                if (!TTYHasInput(last - first + 1)) {
+                    if (!waitingForInput) TTYRequestInput();
+                    waitingForInput = true;
+                    return false;
+                }
+            }
+        }
+    }
+    waitingForInput = false;
+    return true;
+}
+
 void RospOSVM::step()
 {
+    const uint32_t instruction = memory.readWord(pc);
+    if (!prepareInstruction(instruction)) return;
     beginStateCapture();
     clearLastMemoryAccess();
     try {
-        uint32_t instruction = memory.readWord(pc);
         if (debugMode)
         {
             std::ostringstream oss;
@@ -411,6 +442,7 @@ uint64_t RospOSVM::runSteps(uint64_t maxSteps, uint32_t timeBudgetMicros, bool l
         uint64_t executed = 0;
         for (; executed < maxSteps && !shouldShutdown(); ++executed) {
             step();
+            if (waitingForInput) break;
         }
         return executed;
     }
@@ -423,10 +455,11 @@ uint64_t RospOSVM::runSteps(uint64_t maxSteps, uint32_t timeBudgetMicros, bool l
 
     uint64_t executed = 0;
     while (executed < maxSteps && !shouldShutdown()) {
+        const uint32_t instruction = memory.readWord(pc);
+        if (!prepareInstruction(instruction)) break;
         beginStateCapture();
         clearLastMemoryAccess();
         try {
-            const uint32_t instruction = memory.readWord(pc);
             if (logExecution) {
                 std::ostringstream oss;
                 oss << "PC: " << std::hex << pc << std::dec << " ";
@@ -443,7 +476,10 @@ uint64_t RospOSVM::runSteps(uint64_t maxSteps, uint32_t timeBudgetMicros, bool l
         }
         ++executed;
 
-        if (hasBudget && (executed & 0x3F) == 0) {
+        // Device accesses can do synchronous DMA/file work. Check their time
+        // immediately instead of running up to 63 more instructions afterward.
+        const bool deviceAccess = hasLastMemoryAccess && lastMemoryAccess.address >= kTTYBase;
+        if (hasBudget && ((executed & 0x3F) == 0 || deviceAccess)) {
             if (std::chrono::steady_clock::now() >= deadline) {
                 break;
             }

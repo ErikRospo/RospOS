@@ -5,12 +5,15 @@
 
 #include <QElapsedTimer>
 #include <QFile>
+#include <algorithm>
 
 namespace {
 constexpr int kSpeedLevelMin = 0;
 constexpr int kSpeedLevelMax = 14;
 constexpr int kSpeedLevelUnlimited = kSpeedLevelMax;
 constexpr int kBurstThresholdLevel = 7;
+constexpr int kRefreshIntervalMs = 16;
+constexpr uint32_t kExecutionBudgetMicros = 4000;
 }
 
 VMControllerCore::VMControllerCore(QObject *parent, const QString &blockDevicePath)
@@ -19,8 +22,11 @@ VMControllerCore::VMControllerCore(QObject *parent, const QString &blockDevicePa
       running(false),
       currentBlockDevicePath(blockDevicePath)
 {
+    vm->setNonBlockingInput(true);
     executionTimer.setSingleShot(true);
     connect(&executionTimer, &QTimer::timeout, this, &VMControllerCore::onExecutionTick);
+    stateRefreshTimer.setInterval(kRefreshIntervalMs);
+    connect(&stateRefreshTimer, &QTimer::timeout, this, &VMControllerCore::flushStateChanges);
 }
 
 VMControllerCore::~VMControllerCore() = default;
@@ -31,7 +37,7 @@ bool VMControllerCore::loadBinaryFile(const QString &filePath)
         vm->loadBinaryFromFile(filePath.toStdString());
         loadedBinaryPath = filePath;
 
-        emit stateChanged();
+        requestStateRefresh(true);
         emit error(QString("Binary loaded successfully"));
         return true;
     } catch (const std::exception &e) {
@@ -49,17 +55,20 @@ bool VMControllerCore::recreateVm(const QString &blockDevicePath, bool reloadLoa
 {
     try {
         std::unique_ptr<RospOSVM> newVm = std::make_unique<RospOSVM>(false, blockDevicePath.toStdString());
+        newVm->setNonBlockingInput(true);
         if (reloadLoadedBinary && !loadedBinaryPath.isEmpty()) {
             newVm->loadBinaryFromFile(loadedBinaryPath.toStdString());
         }
 
         executionTimer.stop();
+        stateRefreshTimer.stop();
+        stateDirty = false;
         running = false;
         pendingBurstSteps = 0.0;
         throughputTimer.invalidate();
         vm = std::move(newVm);
         currentBlockDevicePath = blockDevicePath;
-        emit stateChanged();
+        requestStateRefresh(true);
         emit executionStopped();
         return true;
     } catch (const std::exception &e) {
@@ -73,11 +82,10 @@ void VMControllerCore::step()
 {
     try {
         vm->step();
-        emit stateChanged();
+        requestStateRefresh(true);
     } catch (const std::exception &e) {
+        pause();
         emit error(QString("Execution error: %1").arg(e.what()));
-        emit executionStopped();
-        running = false;
     }
 }
 
@@ -88,11 +96,10 @@ void VMControllerCore::stepBackward()
             emit error("No previous VM state available.");
             return;
         }
-        emit stateChanged();
+        requestStateRefresh(true);
     } catch (const std::exception &e) {
+        pause();
         emit error(QString("Reverse execution error: %1").arg(e.what()));
-        emit executionStopped();
-        running = false;
     }
 }
 
@@ -105,6 +112,7 @@ void VMControllerCore::run()
     running = true;
     pendingBurstSteps = 0.0;
     throughputTimer.invalidate();
+    stateRefreshTimer.start();
     emit executionStarted();
     scheduleNextExecutionTick();
 }
@@ -116,15 +124,19 @@ void VMControllerCore::pause()
     }
 
     executionTimer.stop();
+    stateRefreshTimer.stop();
     running = false;
     pendingBurstSteps = 0.0;
     throughputTimer.invalidate();
+    requestStateRefresh(true);
     emit executionStopped();
 }
 
 bool VMControllerCore::restart()
 {
     executionTimer.stop();
+    stateRefreshTimer.stop();
+    stateDirty = false;
     running = false;
     pendingBurstSteps = 0.0;
     throughputTimer.invalidate();
@@ -137,7 +149,7 @@ bool VMControllerCore::restart()
 
     try {
         vm->loadBinaryFromFile(loadedBinaryPath.toStdString());
-        emit stateChanged();
+        requestStateRefresh(true);
         emit executionStopped();
         return true;
     } catch (const std::exception &e) {
@@ -251,7 +263,22 @@ void VMControllerCore::scheduleNextExecutionTick()
         return;
     }
 
-    executionTimer.start(executionIntervalMs());
+    // A pending TTY read must return to the browser. Poll gently, including at
+    // Max speed, and do not accumulate an instruction backlog while waiting.
+    executionTimer.start(vm->isWaitingForInput() ? kRefreshIntervalMs : executionIntervalMs());
+}
+
+void VMControllerCore::requestStateRefresh(bool immediate)
+{
+    stateDirty = true;
+    if (immediate) flushStateChanges();
+}
+
+void VMControllerCore::flushStateChanges()
+{
+    if (!stateDirty) return;
+    stateDirty = false;
+    emit stateChanged();
 }
 
 void VMControllerCore::onExecutionTick()
@@ -261,14 +288,14 @@ void VMControllerCore::onExecutionTick()
     }
 
     if (shouldShutdown()) {
-        running = false;
-        emit executionStopped();
+        pause();
         return;
     }
 
     try {
+        uint64_t executed = 0;
         if (usesBurstExecutor()) {
-            constexpr int kMaxBurstInstructions = 2500;
+            constexpr int kMaxBurstInstructions = 65536;
             int stepsToRun = kMaxBurstInstructions;
 
             if (speedLevel != kSpeedLevelUnlimited) {
@@ -282,7 +309,9 @@ void VMControllerCore::onExecutionTick()
                     elapsedMs = executionIntervalMs();
                 }
 
-                pendingBurstSteps += (static_cast<double>(targetIps) * static_cast<double>(elapsedMs)) / 1000.0;
+                // Bound catch-up work after a slow frame/background tab.
+                pendingBurstSteps = std::min(static_cast<double>(kMaxBurstInstructions),
+                    pendingBurstSteps + (static_cast<double>(targetIps) * static_cast<double>(elapsedMs)) / 1000.0);
                 stepsToRun = static_cast<int>(pendingBurstSteps);
                 if (stepsToRun <= 0) {
                     if (running) {
@@ -292,32 +321,32 @@ void VMControllerCore::onExecutionTick()
                 }
 
                 pendingBurstSteps -= static_cast<double>(stepsToRun);
-                if (stepsToRun > kMaxBurstInstructions) {
-                    pendingBurstSteps += static_cast<double>(stepsToRun - kMaxBurstInstructions);
-                    stepsToRun = kMaxBurstInstructions;
-                }
             }
 
-            const uint64_t executed = vm->runSteps(static_cast<uint64_t>(stepsToRun), 8000);
+            executed = vm->runSteps(static_cast<uint64_t>(stepsToRun), kExecutionBudgetMicros);
             if (speedLevel != kSpeedLevelUnlimited && executed < static_cast<uint64_t>(stepsToRun)) {
                 pendingBurstSteps += static_cast<double>(stepsToRun - static_cast<int>(executed));
             }
 
-            if (shouldShutdown()) {
-                running = false;
-                emit stateChanged();
-                emit executionStopped();
-                return;
-            }
-            emit stateChanged();
         } else {
             vm->step();
-            emit stateChanged();
+            executed = vm->isWaitingForInput() ? 0 : 1;
+        }
+        if (vm->isWaitingForInput()) {
+            pendingBurstSteps = 0.0;
+            throughputTimer.invalidate();
+        }
+        if (executed != 0) {
+            requestStateRefresh();
+            emit executionAdvanced();
+        }
+        if (shouldShutdown()) {
+            pause();
+            return;
         }
     } catch (const std::exception &e) {
-        running = false;
+        pause();
         emit error(QString("Execution error: %1").arg(e.what()));
-        emit executionStopped();
         return;
     }
 
