@@ -156,10 +156,12 @@ if(EMSCRIPTEN)
     target_compile_options(rosposvm_lib_release PRIVATE
         -fexceptions
         -g
+        -O2 -flto
     )
     target_compile_options(rospovm_html PRIVATE
         -fexceptions
         -g
+        -O2 -flto
     )
 
     foreach(target IN ITEMS rospovm_html rospovm_html_minimal)
