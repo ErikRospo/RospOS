@@ -145,6 +145,9 @@ KF_BUILD := $(abspath .deps/build/kf-$(KF_VERSION)-qt-$(QT_VERSION)-singlethread
 KF_PREFIX := $(KF_BUILD)/install
 KF_ECM := $(KF_BUILD)/ecm
 KF_WASM_PATCH := $(abspath tools/patches/syntax-highlighting-wasm.patch)
+KF_MINIMAL_SYNTAX_PATCH := $(abspath tools/patches/syntax-highlighting-minimal.patch)
+# Set OFF to restore the complete upstream syntax collection.
+KF_MINIMAL_SYNTAX ?= ON
 
 HIGHLIGHTING_DIR := $(abspath rospovm/highlighting)
 WASM_CMAKE_ARGS ?=
@@ -175,6 +178,11 @@ $(KF_SOURCE)/.wasm-ready: $(KF_SOURCE)/CMakeLists.txt $(KF_WASM_PATCH)
 	git -C "$(KF_SOURCE)" apply "$(KF_WASM_PATCH)"
 	touch "$@"
 
+# Keep this separate so existing checkouts can retain the applied WASM patch.
+$(KF_SOURCE)/.minimal-syntax-ready: $(KF_SOURCE)/.wasm-ready $(KF_MINIMAL_SYNTAX_PATCH)
+	git -C "$(KF_SOURCE)" apply "$(KF_MINIMAL_SYNTAX_PATCH)"
+	touch "$@"
+
 # ECM 6.30 adds an ELF linker flag on all Unix platforms, including WASM.
 # Patch a private copy so the native indexer retains its normal Linux flags.
 $(KF_ECM)/.wasm-ready: $(ECM_DIR)/ECMConfig.cmake $(ECM_DIR)/../kde-modules/KDECompilerSettings.cmake Makefile
@@ -184,7 +192,7 @@ $(KF_ECM)/.wasm-ready: $(ECM_DIR)/ECMConfig.cmake $(ECM_DIR)/../kde-modules/KDEC
 		"$(KF_ECM)/share/ECM/kde-modules/KDECompilerSettings.cmake"
 	touch "$@"
 
-wasm_dependencies: wasm_sdk $(KF_SOURCE)/.wasm-ready $(KF_ECM)/.wasm-ready
+wasm_dependencies: wasm_sdk $(KF_SOURCE)/.minimal-syntax-ready $(KF_ECM)/.wasm-ready
 	$(WASM_RUN) "$(QT_WASM_CMAKE)" \
 		-S "$(KF_SOURCE)" -B "$(KF_BUILD)" \
 		-DQT_HOST_PATH="$(QT_NATIVE)" \
@@ -200,6 +208,7 @@ wasm_dependencies: wasm_sdk $(KF_SOURCE)/.wasm-ready $(KF_ECM)/.wasm-ready
 		-DCMAKE_DISABLE_FIND_PACKAGE_Qt6Quick=ON \
 		-DCMAKE_AUTORCC_OPTIONS=--compress-algo=zlib \
 		-DKSYNTAXHIGHLIGHTING_USE_GUI=ON \
+		-DROSPOS_MINIMAL_SYNTAX=$(KF_MINIMAL_SYNTAX) \
 		-DQRC_SYNTAX=ON
 	$(WASM_RUN) $(CMAKE) --build "$(KF_BUILD)" --parallel $(NPROC)
 	$(WASM_RUN) $(CMAKE) --install "$(KF_BUILD)"

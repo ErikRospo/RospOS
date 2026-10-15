@@ -1,0 +1,72 @@
+diff --git a/data/CMakeLists.txt b/data/CMakeLists.txt
+--- a/data/CMakeLists.txt
++++ b/data/CMakeLists.txt
+@@ -3,6 +3,21 @@
+ 
+ # init list of generated definitions
+ set(gen_defs)
++
++# RospOS uses C and an external assembly definition that also includes Alerts.
++option(ROSPOS_MINIMAL_SYNTAX "Bundle only C and its supporting syntax definitions" OFF)
++if(ROSPOS_MINIMAL_SYNTAX)
++    set(src_defs
++        c.xml
++        doxygen.xml
++        gcc.xml
++        comments.xml
++        alert.xml
++        modelines.xml
++        spdx-comments.xml
++    )
++    list(TRANSFORM src_defs PREPEND "${CMAKE_CURRENT_SOURCE_DIR}/syntax/")
++else()
+ 
+ macro(generate_syntax_definition generator targetFile srcFile)
+     add_custom_target(
+@@ -101,6 +116,7 @@
+ 
+ # find all definitions
+ file(GLOB src_defs "${CMAKE_CURRENT_SOURCE_DIR}/syntax/*.xml")
++endif()
+ set(defs ${src_defs} ${gen_defs})
+ 
+ # object library to make cross-folder dependencies work
+diff --git a/src/indexer/CMakeLists.txt b/src/indexer/CMakeLists.txt
+--- a/src/indexer/CMakeLists.txt
++++ b/src/indexer/CMakeLists.txt
+@@ -15,6 +15,8 @@
+                             -DECM_DIR=${ECM_DIR} -DCMAKE_PREFIX_PATH=${NATIVE_PREFIX}
+                             -DCMAKE_INSTALL_PREFIX=${CMAKE_CURRENT_BINARY_DIR}
+                             -DQT_MAJOR_VERSION=6
++                            -DROSPOS_MINIMAL_SYNTAX=${ROSPOS_MINIMAL_SYNTAX}
++                        BUILD_COMMAND ${CMAKE_COMMAND} --build <BINARY_DIR> --target katehighlightingindexer
+                         INSTALL_COMMAND ""
+                         BUILD_BYPRODUCTS ${CMAKE_CURRENT_BINARY_DIR}/native_katehighlightingindexer-prefix/src/native_katehighlightingindexer-build/bin/katehighlightingindexer
+                     )
+@@ -25,6 +27,9 @@
+ else()
+     # host build
+     add_executable(katehighlightingindexer katehighlightingindexer.cpp ../lib/worddelimiters.cpp)
++    if(ROSPOS_MINIMAL_SYNTAX)
++        target_compile_definitions(katehighlightingindexer PRIVATE ROSPOS_MINIMAL_SYNTAX)
++    endif()
+     ecm_mark_nongui_executable(katehighlightingindexer)
+     if(XercesC_FOUND)
+         add_definitions(-DHAS_XERCESC)
+diff --git a/src/indexer/katehighlightingindexer.cpp b/src/indexer/katehighlightingindexer.cpp
+--- a/src/indexer/katehighlightingindexer.cpp
++++ b/src/indexer/katehighlightingindexer.cpp
+@@ -1240,10 +1240,13 @@
+             const auto &filename = definition.filename;
+ 
+             if (!usedContexts.contains(&context)) {
++#ifndef ROSPOS_MINIMAL_SYNTAX
++                // A subset can omit the languages that use some helper contexts.
+                 if (!definition.generated) {
+                     qWarning() << filename << "line" << context.line << "unused context:" << context.name;
+                     success = false;
+                 }
++#endif
+                 continue;
+             }
+ 
