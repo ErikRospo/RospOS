@@ -51,6 +51,7 @@ private:
     void setupConnections();
     void restoreWindowSettings();
     void saveWindowSettings() const;
+    void exportDisplayPng(int scaleFactor);
 
 protected:
     void closeEvent(QCloseEvent *event) override;

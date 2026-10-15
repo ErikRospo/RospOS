@@ -7,6 +7,7 @@
 #include "Display.h"
 #include "TTYWidget.h"
 #include "TTY.h"
+#include "ExportSupport.h"
 
 #include <QVBoxLayout>
 #include <QHBoxLayout>
@@ -392,6 +393,18 @@ void MainWindow::onStep()
 
 void MainWindow::onExportDisplayPng()
 {
+#ifdef Q_OS_WASM
+    auto *dialog = new QInputDialog(this);
+    dialog->setWindowTitle(tr("Export Display as PNG"));
+    dialog->setLabelText(tr("Scale factor:"));
+    dialog->setInputMode(QInputDialog::IntInput);
+    dialog->setIntRange(1, 32);
+    dialog->setIntStep(1);
+    dialog->setIntValue(4);
+    dialog->setAttribute(Qt::WA_DeleteOnClose);
+    connect(dialog, &QInputDialog::intValueSelected, this, &MainWindow::exportDisplayPng);
+    dialog->open();
+#else
     bool ok = false;
     const int scaleFactor = QInputDialog::getInt(
         this,
@@ -407,10 +420,28 @@ void MainWindow::onExportDisplayPng()
         return;
     }
 
+    exportDisplayPng(scaleFactor);
+#endif
+}
+
+void MainWindow::exportDisplayPng(int scaleFactor)
+{
     const QString defaultName = QString("display_%1_x%2.png")
                                     .arg(QDateTime::currentDateTime().toString("yyyyMMdd_HHmmss"))
                                     .arg(scaleFactor);
 
+#ifdef Q_OS_WASM
+    QString errorMessage;
+    if (!ExportSupport::download(defaultName,
+            [this, scaleFactor](const QString &path, QString *error) {
+                return displayWidget->exportToPng(path, scaleFactor, error);
+            }, &errorMessage)) {
+        ExportSupport::warning(this, tr("Export Failed"), errorMessage);
+        return;
+    }
+
+    statusLabel->setText(tr("Status: Download requested for %1").arg(defaultName));
+#else
     QString fileName = QFileDialog::getSaveFileName(
         this,
         tr("Save Display PNG"),
@@ -433,6 +464,7 @@ void MainWindow::onExportDisplayPng()
     }
 
     statusLabel->setText(tr("Status: Display exported to %1").arg(fileName));
+#endif
 }
 
 void MainWindow::onStepBack()

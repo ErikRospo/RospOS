@@ -1,5 +1,6 @@
 #include "MemoryView.h"
 #include "VMController.h"
+#include "ExportSupport.h"
 
 #include <QVBoxLayout>
 #include <QHBoxLayout>
@@ -140,23 +141,23 @@ void MemoryView::onAddressChanged()
 void MemoryView::onExportRangeClicked()
 {
     if (!vmController) {
-        QMessageBox::warning(this, "Export Failed", "VM controller is not available.");
+        ExportSupport::warning(this, "Export Failed", "VM controller is not available.");
         return;
     }
 
     uint32_t startAddress = 0;
     uint32_t endAddress = 0;
     if (!parseAddressText(exportStartInput->text(), startAddress)) {
-        QMessageBox::warning(this, "Invalid Address", "Start address is invalid.");
+        ExportSupport::warning(this, "Invalid Address", "Start address is invalid.");
         return;
     }
     if (!parseAddressText(exportEndInput->text(), endAddress)) {
-        QMessageBox::warning(this, "Invalid Address", "End address is invalid.");
+        ExportSupport::warning(this, "Invalid Address", "End address is invalid.");
         return;
     }
 
     if (endAddress < startAddress) {
-        QMessageBox::warning(this, "Invalid Range", "End address must be greater than or equal to start address.");
+        ExportSupport::warning(this, "Invalid Range", "End address must be greater than or equal to start address.");
         return;
     }
 
@@ -165,6 +166,15 @@ void MemoryView::onExportRangeClicked()
                                     .arg(endAddress, 8, 16, QChar('0'))
                                     .arg(QDateTime::currentDateTime().toString("yyyyMMdd_HHmmss"));
 
+#ifdef Q_OS_WASM
+    QString errorMessage;
+    if (!ExportSupport::download(defaultName,
+            [this, startAddress, endAddress](const QString &path, QString *error) {
+                return vmController->exportMemoryRangeToBinary(startAddress, endAddress, path, error);
+            }, &errorMessage)) {
+        ExportSupport::warning(this, "Export Failed", errorMessage);
+    }
+#else
     QString fileName = QFileDialog::getSaveFileName(
         this,
         "Export Memory Range",
@@ -189,6 +199,7 @@ void MemoryView::onExportRangeClicked()
     QMessageBox::information(this, "Export Complete", QString("Exported %1 bytes to:\n%2")
         .arg(static_cast<qulonglong>(endAddress) - static_cast<qulonglong>(startAddress) + 1ULL)
         .arg(fileName));
+#endif
 }
 
 void MemoryView::populateMemory(uint32_t address)

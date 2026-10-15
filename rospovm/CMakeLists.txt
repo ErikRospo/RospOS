@@ -90,6 +90,7 @@ set(ROSPOSVM_QT_SHARED_SOURCES
 )
 
 set(ROSPOSVM_QT_FULL_SOURCES
+    frontend/qt/full/ExportSupport.h
     frontend/qt/full/MainWindow.h
     frontend/qt/full/MainWindow.cpp
     frontend/qt/full/VMController.h
