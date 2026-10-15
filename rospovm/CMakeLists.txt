@@ -3,6 +3,11 @@ project(RospOSVM_Qt)
 
 option(ROSPOSVM_BUILD_TESTS "Build memory and GUI runtime regression tests" OFF)
 
+# Web builds default to a production configuration optimized for download size.
+if(EMSCRIPTEN AND NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
+    set(CMAKE_BUILD_TYPE MinSizeRel CACHE STRING "Build type" FORCE)
+endif()
+
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_AUTOMOC ON)
@@ -13,7 +18,17 @@ set(CMAKE_AUTOUIC ON)
 if(MSVC)
     add_compile_options(/W4 /WX)
 else()
-    add_compile_options(-Wall -Wextra -Wpedantic -Werror=unused-variable -O2 -flto)
+    add_compile_options(-Wall -Wextra -Wpedantic -Werror=unused-variable)
+    if(EMSCRIPTEN)
+        # Apply these consistently to both frontends and both backend variants.
+        # Keep C++ exceptions: VM error handling relies on catching them.
+        add_compile_options(-flto -fexceptions
+            "$<$<CONFIG:MinSizeRel>:-Oz>"
+            "$<$<OR:$<CONFIG:MinSizeRel>,$<CONFIG:Release>>:-g0>"
+        )
+    else()
+        add_compile_options(-O2 -flto)
+    endif()
     if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
         add_compile_options(-Wno-c++98-compat -Wno-c++98-compat-pedantic)
     endif()
@@ -156,22 +171,19 @@ if(EMSCRIPTEN)
     rosposvm_add_gui(rospovm_html full frontend/html/full/main_html.cpp)
     rosposvm_add_gui(rospovm_html_minimal minimal frontend/html/minimal/main_html.cpp)
 
-    target_compile_options(rosposvm_lib_release PRIVATE
-        -fexceptions
-        -g
-        -O2 -flto
-    )
-    target_compile_options(rospovm_html PRIVATE
-        -fexceptions
-        -g
-        -O2 -flto
-    )
-
     foreach(target IN ITEMS rospovm_html rospovm_html_minimal)
+        # Emscripten also optimizes Wasm and JavaScript at the final link.
         target_link_options(${target} PRIVATE
-            -sNO_DISABLE_EXCEPTION_CATCHING
-            -sASSERTIONS=1
-            -g
+            -flto -fexceptions
+            "$<$<CONFIG:MinSizeRel>:-Oz;-g0;-sASSERTIONS=0>"
+            "$<$<CONFIG:Release>:-O3;-g0;-sASSERTIONS=0>"
+            "$<$<CONFIG:RelWithDebInfo>:-O2;-g;-sASSERTIONS=1>"
+            "$<$<CONFIG:Debug>:-O0;-g;-sASSERTIONS=1>"
+        )
+        # PNG is built into QtGui. Retain SVG images/icons, but omit unused
+        # JPEG, GIF, TIFF, WebP, ICNS, ICO, TGA and WBMP format plugins.
+        qt_import_plugins(${target}
+            INCLUDE_BY_TYPE imageformats Qt6::QSvgPlugin
         )
         target_compile_definitions(${target} PRIVATE
             ROSPOSVM_WEB_BUILD=1

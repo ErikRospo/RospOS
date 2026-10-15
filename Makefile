@@ -150,6 +150,8 @@ KF_MINIMAL_SYNTAX_PATCH := $(abspath tools/patches/syntax-highlighting-minimal.p
 KF_MINIMAL_SYNTAX ?= ON
 
 HIGHLIGHTING_DIR := $(abspath rospovm/highlighting)
+# Use Debug or RelWithDebInfo to retain C++ debug information and assertions.
+WASM_BUILD_TYPE ?= MinSizeRel
 WASM_CMAKE_ARGS ?=
 
 # Recipe lines run in separate shells; load the SDK for each build command.
@@ -219,6 +221,7 @@ frontend_wasm_full: wasm_dependencies $(ROSP_FULL)
 	$(WASM_RUN) "$(QT_WASM_CMAKE)" \
 		-S rospovm -B "$(DIR_ROSPOVM_WASM_BUILD)" \
 		-DQT_HOST_PATH="$(QT_NATIVE)" \
+		-DCMAKE_BUILD_TYPE="$(WASM_BUILD_TYPE)" \
 		-DKF6SyntaxHighlighting_DIR="$(KF_PREFIX)/lib/cmake/KF6SyntaxHighlighting" \
 		"-DCMAKE_EXE_LINKER_FLAGS=--preload-file $(HIGHLIGHTING_DIR)@$(HIGHLIGHTING_DIR)" \
 		$(WASM_CMAKE_ARGS)
@@ -229,6 +232,7 @@ frontend_wasm_minimal: wasm_sdk $(ROSP_FULL)
 	$(WASM_RUN) "$(QT_WASM_CMAKE)" \
 		-S rospovm -B "$(DIR_ROSPOVM_WASM_BUILD)" \
 		-DQT_HOST_PATH="$(QT_NATIVE)" \
+		-DCMAKE_BUILD_TYPE="$(WASM_BUILD_TYPE)" \
 		$(WASM_CMAKE_ARGS)
 	$(WASM_RUN) $(CMAKE) --build "$(DIR_ROSPOVM_WASM_BUILD)" \
 		--target rospovm_html_minimal --parallel $(NPROC)
