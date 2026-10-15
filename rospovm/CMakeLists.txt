@@ -174,8 +174,50 @@ if(EMSCRIPTEN)
             ROSPOSVM_DEFAULT_BLOCKDEV_FILE="rospos.blockdev"
             EMSCRIPTEN=1
         )
+        
+        if(EXISTS "${ROSPOSVM_DEFAULT_BINARY_SOURCE}")
+            target_link_options(${target} PRIVATE
+                "SHELL:--preload-file ${ROSPOSVM_DEFAULT_BINARY_SOURCE}@rospos.rosp"
+            )
+        endif()
+
+        if(EXISTS "${ROSPOSVM_DEFAULT_BLOCKDEV_SOURCE}")
+            target_link_options(${target} PRIVATE
+                "SHELL:--preload-file ${ROSPOSVM_DEFAULT_BLOCKDEV_SOURCE}@rospos.blockdev"
+            )
+        endif()
+        
         set_target_properties(${target} PROPERTIES QT_WASM_MEMORY_GROWTH ON)
     endforeach()
+
+    function(rosposvm_package_wasm target package_name)
+        set(package_dir "$<TARGET_FILE_DIR:${target}>/${package_name}_dist")
+        add_custom_command(TARGET ${target} POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E make_directory "${package_dir}"
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                    "$<TARGET_FILE_DIR:${target}>/${target}.html"
+                    "${package_dir}/index.html"
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                    "$<TARGET_FILE_DIR:${target}>/${target}.js"
+                    "${package_dir}/${target}.js"
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                    "$<TARGET_FILE_DIR:${target}>/${target}.wasm"
+                    "${package_dir}/${target}.wasm"
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                    "$<TARGET_FILE_DIR:${target}>/${target}.data"
+                    "${package_dir}/${target}.data"
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                    "$<TARGET_FILE_DIR:${target}>/qtloader.js"
+                    "${package_dir}/qtloader.js"
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                    "$<TARGET_FILE_DIR:${target}>/qtlogo.svg"
+                    "${package_dir}/qtlogo.svg"
+            VERBATIM
+        )
+    endfunction()
+
+    rosposvm_package_wasm(rospovm_html full)
+    rosposvm_package_wasm(rospovm_html_minimal minimal)
 
     set(ROSC_SOURCE
         "${CMAKE_CURRENT_SOURCE_DIR}/../rospos/build/rospos_preprocessed.rosc"
@@ -189,18 +231,7 @@ if(EMSCRIPTEN)
     set_property(TARGET rospovm_html APPEND PROPERTY
         LINK_DEPENDS "${ROSC_SOURCE}"
     )
-
-    if(EXISTS "${ROSPOSVM_DEFAULT_BINARY_SOURCE}")
-        target_link_options(rospovm_html PRIVATE
-            "SHELL:--preload-file ${ROSPOSVM_DEFAULT_BINARY_SOURCE}@rospos.rosp"
-        )
-    endif()
-
-    if(EXISTS "${ROSPOSVM_DEFAULT_BLOCKDEV_SOURCE}")
-        target_link_options(rospovm_html PRIVATE
-            "SHELL:--preload-file ${ROSPOSVM_DEFAULT_BLOCKDEV_SOURCE}@rospos.blockdev"
-        )
-    endif()
+   
 else()
     rosposvm_add_gui(rospovm_qt full frontend/qt/full/main_qt.cpp)
     rosposvm_add_gui(rospovm_minimal minimal frontend/qt/minimal/main_minimal_qt.cpp)
