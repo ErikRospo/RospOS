@@ -26,7 +26,8 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
     void loadBinaryFile(const QString &filePath);
-
+    void setBlockDeviceFile(const QString &filePath);
+    
 private slots:
     void onLoadFile();
     void onExportDisplayPng();

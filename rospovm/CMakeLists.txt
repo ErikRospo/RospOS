@@ -32,9 +32,7 @@ else()
     set(ROSPOSVM_ZLIB_TARGETS ZLIB::ZLIB)
 endif()
 
-if(NOT EMSCRIPTEN)
-    find_package(KF6SyntaxHighlighting REQUIRED)
-endif()
+find_package(KF6SyntaxHighlighting REQUIRED)
 
 set(ROSPOSVM_HIGHLIGHTING_DIR "${CMAKE_CURRENT_SOURCE_DIR}/highlighting")
 
@@ -189,10 +187,29 @@ if(EMSCRIPTEN)
 
     qt_add_executable(rospovm_html
         frontend/html/main_html.cpp
+        frontend/qt/full/MainWindow.h
+        frontend/qt/full/MainWindow.cpp
+        frontend/qt/full/VMController.h
+        frontend/qt/full/VMController.cpp
+        frontend/qt/full/CodeView.h
+        frontend/qt/full/CodeView.cpp
+        frontend/qt/full/DebugControlPanel.h
+        frontend/qt/full/DebugControlPanel.cpp
+        frontend/qt/full/RegisterView.h
+        frontend/qt/full/RegisterView.cpp
+        frontend/qt/full/BreakpointEvaluator.h
+        frontend/qt/full/BreakpointEvaluator.cpp
+        frontend/qt/full/MemoryView.h
+        frontend/qt/full/MemoryView.cpp
+        frontend/qt/full/LogView.h
+        frontend/qt/full/LogView.cpp
         frontend/qt/shared/VMControllerCore.h
         frontend/qt/shared/VMControllerCore.cpp
         frontend/qt/shared/TTYWidget.h
         frontend/qt/shared/TTYWidget.cpp
+        frontend/qt/full/BreakpointTextEdit.h 
+        frontend/qt/full/BreakpointTextEdit.cpp
+        lib/exprtk/exprtk.hpp
     )
     
     target_compile_options(rosposvm_lib_release PRIVATE
@@ -214,16 +231,21 @@ if(EMSCRIPTEN)
 
     target_include_directories(rospovm_html PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}/frontend/html
+        ${CMAKE_CURRENT_SOURCE_DIR}/frontend/qt/full
         ${CMAKE_CURRENT_SOURCE_DIR}/frontend/qt/shared
         ${CMAKE_CURRENT_SOURCE_DIR}/backend
+        ${CMAKE_CURRENT_SOURCE_DIR}/lib/exprtk
+    
     )
 
     target_link_libraries(rospovm_html PRIVATE
-        rosposvm_lib_release
+        rosposvm_lib
         Qt6::Core
         Qt6::Gui
         Qt6::Widgets
         ${ROSPOSVM_ZLIB_TARGETS}
+        KF6::SyntaxHighlighting
+    
     )
 
     if(EXISTS "${ROSPOSVM_DEFAULT_BINARY_SOURCE}")
@@ -248,5 +270,13 @@ if(EMSCRIPTEN)
     set_target_properties(rospovm_html PROPERTIES
         QT_WASM_MEMORY_GROWTH "ON"
         )
+    target_compile_definitions(rospovm_html PRIVATE
+        ROSPOSVM_HIGHLIGHTING_DIR="${ROSPOSVM_HIGHLIGHTING_DIR}"
+    )
 
+    add_custom_command(TARGET rospovm_html POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+                "${ROSPOSVM_HIGHLIGHTING_DIR}"
+                "$<TARGET_FILE_DIR:rospovm_html>/highlighting"
+    )
 endif()

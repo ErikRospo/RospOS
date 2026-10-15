@@ -115,7 +115,13 @@ void MainWindow::loadBinaryFile(const QString &filePath)
     }
     onVMStateChanged();
 }
-
+void MainWindow::setBlockDeviceFile(const QString &filePath){
+    if (!vmController->setBlockDeviceFile(filePath)){
+        statusLabel->setText(tr("Status: Error while initializing block device"));
+    }
+    onVMStateChanged();
+    
+}
 void MainWindow::createMenuBar()
 {
     QMenu *fileMenu = menuBar()->addMenu(tr("&File"));

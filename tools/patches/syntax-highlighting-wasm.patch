@@ -1,0 +1,25 @@
+diff --git a/data/CMakeLists.txt b/data/CMakeLists.txt
+--- a/data/CMakeLists.txt
++++ b/data/CMakeLists.txt
+@@ -133,6 +133,6 @@ if (QRC_SYNTAX)
+     # generate the qrc file manually, to make dependencies on generated files work...
+     add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/qrc_syntax-data.cpp"
+-        COMMAND Qt6::rcc --name syntax_data -o "${CMAKE_CURRENT_BINARY_DIR}/qrc_syntax-data.cpp" "${qrc_file}"
++        COMMAND Qt6::rcc --compress-algo zlib --name syntax_data -o "${CMAKE_CURRENT_BINARY_DIR}/qrc_syntax-data.cpp" "${qrc_file}"
+         DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/index.katesyntax
+     )
+     set_source_files_properties("${CMAKE_CURRENT_BINARY_DIR}/qrc_syntax-data.cpp" PROPERTIES SKIP_AUTOMOC ON)
+diff --git a/src/CMakeLists.txt b/src/CMakeLists.txt
+--- a/src/CMakeLists.txt
++++ b/src/CMakeLists.txt
+@@ -1,7 +1,9 @@
+ add_subdirectory(indexer)
+ if(TARGET Qt6::Gui)
+     add_subdirectory(lib)
+-    add_subdirectory(cli)
++    if(NOT EMSCRIPTEN)
++        add_subdirectory(cli)
++    endif()
+ endif()
+ if(TARGET Qt6::Quick)
+     add_subdirectory(quick)

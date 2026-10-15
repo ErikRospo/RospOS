@@ -57,7 +57,7 @@ help:
 	@echo "  parse            Compile .rosc to .ros"
 	@echo "  compile          Assemble all .rosp output variants"
 	@echo "  frontend         Build Qt VM frontend"
-	@echo "  frontend_wasm    Build WASM frontend"
+	@echo "  frontend_wasm    Set up WASM dependencies and build frontend"
 	@echo "  frontend_minimal Build minimal VM frontend"
 	@echo "  vm_headless      Build headless VM"
 	@echo "  run              Run with Qt frontend"
@@ -95,14 +95,6 @@ $(eval $(call make_rosp_variant,$(ROSP_COMBINED),--compress-bin --compress-debug
 $(DIR_ROSPOVM_BUILD)/Makefile: rospovm/CMakeLists.txt | $(DIR_ROSPOVM_BUILD)
 	$(CMAKE) -S rospovm -B $(DIR_ROSPOVM_BUILD)
 
-# WASM_CMAKE_ARGS := \
-# 	-DCMAKE_TOOLCHAIN_FILE=/home/erospo/Qt/6.10.3/wasm_singlethread/lib/cmake/Qt6/qt.toolchain.cmake \
-# 	-DCMAKE_PREFIX_PATH=/home/erospo/Qt/6.10.3/wasm_singlethread \
-# 	-DQt6_DIR=/home/erospo/Qt/6.10.3/wasm_singlethread/lib/cmake/Qt6
-
-# $(DIR_ROSPOVM_WASM_BUILD)/Makefile: rospovm/CMakeLists.txt $(ROSPOVM_SRC) | $(DIR_ROSPOVM_WASM_BUILD)
-# 	$(CMAKE) -S rospovm -B $(DIR_ROSPOVM_WASM_BUILD) $(WASM_CMAKE_ARGS)
-
 define make_vm_target
 $(DIR_ROSPOVM_BUILD)/.$1.stamp: $(DIR_ROSPOVM_BUILD)/Makefile $(ROSPOVM_SRC)
 	$(CMAKE) --build $(DIR_ROSPOVM_BUILD) --target $1 -j $(NPROC)
@@ -137,14 +129,90 @@ frontend_minimal: $(DIR_ROSPOVM_BUILD)/rospovm_minimal
 vm_headless: $(DIR_ROSPOVM_BUILD)/rospovm_headless
 
 
-QT_WASM_CMAKE ?=
+QT_VERSION ?= 6.12.0
+QT_ROOT ?= $(HOME)/Qt/$(QT_VERSION)
+QT_WASM ?= $(QT_ROOT)/wasm_singlethread
+QT_NATIVE ?= $(QT_ROOT)/gcc_64
+QT_WASM_CMAKE ?= $(QT_WASM)/bin/qt-cmake
+
+EMSDK_VERSION ?= 5.0.5
+EMSDK_DIR ?= $(abspath .deps/emsdk)
+ECM_DIR ?= /usr/share/ECM/cmake
+
+KF_VERSION ?= 6.30.0
+KF_SOURCE := $(abspath .deps/src/syntax-highlighting-$(KF_VERSION))
+KF_BUILD := $(abspath .deps/build/kf-$(KF_VERSION)-qt-$(QT_VERSION)-singlethread-em-$(EMSDK_VERSION))
+KF_PREFIX := $(KF_BUILD)/install
+KF_ECM := $(KF_BUILD)/ecm
+KF_WASM_PATCH := $(abspath tools/patches/syntax-highlighting-wasm.patch)
+
+HIGHLIGHTING_DIR := $(abspath rospovm/highlighting)
 WASM_CMAKE_ARGS ?=
 
-frontend_wasm:
-	@test -n "$(QT_WASM_CMAKE)" || \
-		{ echo "Set QT_WASM_CMAKE to the WASM Qt kit's bin/qt-cmake"; exit 1; }
-	"$(QT_WASM_CMAKE)" -S rospovm -B "$(DIR_ROSPOVM_WASM_BUILD)" $(WASM_CMAKE_ARGS)
-	$(CMAKE) --build "$(DIR_ROSPOVM_WASM_BUILD)" --target rospovm_html -j $(NPROC) 
+# Recipe lines run in separate shells; load the SDK for each build command.
+# Host Qt tools must load this kit's libraries before any system Qt libraries.
+WASM_RUN = EMSDK_QUIET=1 bash -c 'source "$(EMSDK_DIR)/emsdk_env.sh" && export LD_LIBRARY_PATH="$(QT_NATIVE)/lib$${LD_LIBRARY_PATH:+:$$LD_LIBRARY_PATH}" && exec "$$@"' --
+
+.PHONY: wasm_sdk wasm_dependencies
+
+$(EMSDK_DIR)/emsdk:
+	mkdir -p "$(dir $(EMSDK_DIR))"
+	git clone --depth 1 \
+		https://github.com/emscripten-core/emsdk.git "$(EMSDK_DIR)"
+
+wasm_sdk: $(EMSDK_DIR)/emsdk
+	"$(EMSDK_DIR)/emsdk" install "$(EMSDK_VERSION)"
+	"$(EMSDK_DIR)/emsdk" activate "$(EMSDK_VERSION)"
+
+$(KF_SOURCE)/CMakeLists.txt:
+	mkdir -p "$(dir $(KF_SOURCE))"
+	git clone --depth 1 --branch "v$(KF_VERSION)" \
+		https://invent.kde.org/frameworks/syntax-highlighting.git \
+		"$(KF_SOURCE)"
+
+# Use target-compatible resource compression and omit the native-only CLI.
+$(KF_SOURCE)/.wasm-ready: $(KF_SOURCE)/CMakeLists.txt $(KF_WASM_PATCH)
+	git -C "$(KF_SOURCE)" apply "$(KF_WASM_PATCH)"
+	touch "$@"
+
+# ECM 6.30 adds an ELF linker flag on all Unix platforms, including WASM.
+# Patch a private copy so the native indexer retains its normal Linux flags.
+$(KF_ECM)/.wasm-ready: $(ECM_DIR)/ECMConfig.cmake $(ECM_DIR)/../kde-modules/KDECompilerSettings.cmake Makefile
+	mkdir -p "$(KF_ECM)/share/ECM"
+	cp -R "$(ECM_DIR)/../." "$(KF_ECM)/share/ECM/"
+	sed -i 's/if (UNIX AND NOT APPLE AND NOT CYGWIN)/if (UNIX AND NOT APPLE AND NOT CYGWIN AND NOT EMSCRIPTEN)/' \
+		"$(KF_ECM)/share/ECM/kde-modules/KDECompilerSettings.cmake"
+	touch "$@"
+
+wasm_dependencies: wasm_sdk $(KF_SOURCE)/.wasm-ready $(KF_ECM)/.wasm-ready
+	$(WASM_RUN) "$(QT_WASM_CMAKE)" \
+		-S "$(KF_SOURCE)" -B "$(KF_BUILD)" \
+		-DQT_HOST_PATH="$(QT_NATIVE)" \
+		-DECM_DIR="$(KF_ECM)/share/ECM/cmake" \
+		-DCMAKE_BUILD_TYPE=Release \
+		-DCMAKE_INSTALL_PREFIX="$(KF_PREFIX)" \
+		-DKDE_INSTALL_LIBDIR=lib \
+		-DBUILD_SHARED_LIBS=OFF \
+		-DBUILD_TESTING=OFF \
+		-DBUILD_codeeditor=OFF \
+		-DBUILD_codepdfprinter=OFF \
+		-DCMAKE_DISABLE_FIND_PACKAGE_Qt6Qml=ON \
+		-DCMAKE_DISABLE_FIND_PACKAGE_Qt6Quick=ON \
+		-DCMAKE_AUTORCC_OPTIONS=--compress-algo=zlib \
+		-DKSYNTAXHIGHLIGHTING_USE_GUI=ON \
+		-DQRC_SYNTAX=ON
+	$(WASM_RUN) $(CMAKE) --build "$(KF_BUILD)" --parallel $(NPROC)
+	$(WASM_RUN) $(CMAKE) --install "$(KF_BUILD)"
+
+frontend_wasm: wasm_dependencies
+	$(WASM_RUN) "$(QT_WASM_CMAKE)" \
+		-S rospovm -B "$(DIR_ROSPOVM_WASM_BUILD)" \
+		-DQT_HOST_PATH="$(QT_NATIVE)" \
+		-DKF6SyntaxHighlighting_DIR="$(KF_PREFIX)/lib/cmake/KF6SyntaxHighlighting" \
+		"-DCMAKE_EXE_LINKER_FLAGS=--preload-file $(HIGHLIGHTING_DIR)@$(HIGHLIGHTING_DIR)" \
+		$(WASM_CMAKE_ARGS)
+	$(WASM_RUN) $(CMAKE) --build "$(DIR_ROSPOVM_WASM_BUILD)" \
+		--target rospovm_html --parallel $(NPROC)
 
 run: $(ROSP_FULL) $(DIR_ROSPOVM_BUILD)/rospovm_qt
 	$(DIR_ROSPOVM_BUILD)/rospovm_qt $<
