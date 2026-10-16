@@ -52,10 +52,10 @@ def _emit_stack_push(reg):
 
 
 def _emit_stack_pop(reg):
-    # ADDI sp, sp, 4; LW reg, 0(sp)
+    # LW reg, 0(sp); ADDI sp, sp, 4
     return [
-        {"type": "i", "name": "addi", "rd": SP_REG, "rs1": SP_REG, "imm": 4},
         {"type": "l", "name": "lw", "rd": reg, "rs1": SP_REG, "imm": 0},
+        {"type": "i", "name": "addi", "rd": SP_REG, "rs1": SP_REG, "imm": 4},
     ]
 
 

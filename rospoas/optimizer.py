@@ -193,76 +193,10 @@ def opt_30_condition_against_zero(ast, logs):
 
 
 def opt_20_push_pop(ast, logs):
-    # find sequences of push and pop instructions that cancel each other out and eliminate them
-    # e.g.
-    # PUSH r1
-    # PUSH r2
-    # PUSH r3
-    # POP r3
-    # POP r2
-    # POP r1
-    # While this technically does write r1, r2, r3 to the stack (and therefore, this does change the program's behavior), you shouldn't really try reading from the stack directly anyways, and even if you do, this *shouldn't* cause any issues.
-
-    # This is commonly generated from two successive calls, where the first call pushes arguments onto the stack, then calls a function which pops those arguments, and then the second call pushes new arguments onto the stack. In this case, we can safely eliminate the middle pushes and pops, as they shouldn't have any effect on the program's behavior. This is a common pattern that we can optimize away.
-    optimized_ast = []
-    i = 0
-    while i < len(ast):
-        instr = ast[i]
-
-        # Check if current instruction is a pop
-        if isinstance(instr, Instruction) and instr.name == "pop" and instr.type == "p":
-            pop_sequence = [instr]
-            j = i + 1
-
-            # Collect consecutive pops
-            while (
-                j < len(ast)
-                and isinstance(ast[j], Instruction)
-                and ast[j].name == "pop"
-                and ast[j].type == "p"
-            ):
-                pop_sequence.append(ast[j])
-                j += 1
-
-            # Check if followed by push sequence
-            push_sequence = []
-            while (
-                j < len(ast)
-                and isinstance(ast[j], Instruction)
-                and ast[j].name == "push"
-                and ast[j].type == "p"
-            ):
-                push_sequence.append(ast[j])
-                j += 1
-
-            # If we have both pops and pushes, try to match them
-            if pop_sequence and push_sequence:
-                # Create lists of immediate values
-                pop_values = [_reg_from_imm(p.imm) for p in pop_sequence]
-                push_values = [_reg_from_imm(p.imm) for p in push_sequence]
-
-                # Check if push values are reverse of pop values (stack property)
-                if push_values == list(reversed(pop_values)):
-                    # Perfect match - eliminate both sequences
-                    logs.append(
-                        f"Removed POP/PUSH cancellation block at indices {i}-{j-1} (len={len(pop_sequence) + len(push_sequence)})"
-                    )
-                    if j < len(ast):
-                        optimized_ast.append(_mark_optimized(ast[j]))
-                        i = j + 1
-                        continue
-                    i = j
-                    continue
-
-            # No match, keep the pop instruction
-            optimized_ast.append(instr)
-            i += 1
-        else:
-            # Not a pop, keep instruction as-is
-            optimized_ast.append(instr)
-            i += 1
-
-    return optimized_ast
+    # POP/PUSH pairs are not redundant just because their register names match.
+    # The POP restores the value saved before a call; removing it leaves the
+    # call-clobbered register live (for example, a malloc pointer in r2).
+    return ast
 
 
 def _is_jmp_to_label(instr):
@@ -436,6 +370,13 @@ def opt_30_remove_unused_labels(ast, logs):
 
 
 def opt_30_combine_safe_offset_calcs(ast, logs):
+    # Disabled for now: folding an address calculation into its first load or
+    # store can remove the temporary even when later instructions still use it.
+    # For example, free() stores header->free and then reads header->size.
+    # The old pass rewrote the store but dropped the header pointer setup,
+    # leaving the later load to use an unrelated register value.
+    return ast
+
     #   LLI r12, 3    // load immediate 3
     #   ADD r12, r1, r12    // binop +
     #   LLI r5, 255    // load immediate 255
