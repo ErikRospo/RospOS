@@ -271,6 +271,9 @@ $(KF_SOURCE)/.minimal-syntax-ready: $(KF_SOURCE)/.wasm-ready $(KF_MINIMAL_SYNTAX
 $(KF_ECM)/.wasm-ready: $(ECM_PREFIX)/.installed Makefile
 	mkdir -p "$(KF_ECM)/share/ECM"
 	cp -R "$(ECM_DIR)/../." "$(KF_ECM)/share/ECM/"
+# KDE probes for an upstream branch even when this pinned source is a tag checkout.
+	sed -i '/OUTPUT_VARIABLE upstream_ref/a\        ERROR_QUIET' \
+		"$(KF_ECM)/share/ECM/kde-modules/KDECMakeSettings.cmake"
 	sed -i 's/if (UNIX AND NOT APPLE AND NOT CYGWIN)/if (UNIX AND NOT APPLE AND NOT CYGWIN AND NOT EMSCRIPTEN)/' \
 		"$(KF_ECM)/share/ECM/kde-modules/KDECompilerSettings.cmake"
 	touch "$@"
@@ -284,6 +287,8 @@ wasm_dependencies: qt_sdk wasm_sdk $(KF_SOURCE)/.minimal-syntax-ready $(KF_ECM)/
 		-DQT_HOST_PATH_CMAKE_DIR="$(QT_NATIVE)/lib/cmake" \
 		-DQt6HostInfo_DIR="$(QT_WASM_HOST_INFO_DIR)" \
 		-DECM_DIR="$(KF_ECM)/share/ECM/cmake" \
+		-UCMAKE_DISABLE_FIND_PACKAGE_Qt6Qml \
+		-UCMAKE_DISABLE_FIND_PACKAGE_Qt6Quick \
 		-DCMAKE_BUILD_TYPE=Release \
 		-DCMAKE_INSTALL_PREFIX="$(KF_PREFIX)" \
 		-DKDE_INSTALL_LIBDIR=lib \
@@ -292,8 +297,6 @@ wasm_dependencies: qt_sdk wasm_sdk $(KF_SOURCE)/.minimal-syntax-ready $(KF_ECM)/
 		-DBUILD_TESTING=OFF \
 		-DBUILD_codeeditor=OFF \
 		-DBUILD_codepdfprinter=OFF \
-		-DCMAKE_DISABLE_FIND_PACKAGE_Qt6Qml=ON \
-		-DCMAKE_DISABLE_FIND_PACKAGE_Qt6Quick=ON \
 		-DCMAKE_AUTORCC_OPTIONS=--compress-algo=zlib \
 		-DKSYNTAXHIGHLIGHTING_USE_GUI=ON \
 		-DROSPOS_MINIMAL_SYNTAX=$(KF_MINIMAL_SYNTAX) \
@@ -301,10 +304,9 @@ wasm_dependencies: qt_sdk wasm_sdk $(KF_SOURCE)/.minimal-syntax-ready $(KF_ECM)/
 	$(WASM_RUN) $(CMAKE) --build "$(KF_BUILD)" --parallel $(NPROC)
 	$(WASM_RUN) $(CMAKE) --install "$(KF_BUILD)"
 
-# Build either or both WebAssembly VM frontends.
-frontend_wasm: frontend_wasm_minimal frontend_wasm_full
-
-frontend_wasm_full: wasm_dependencies $(ROSP_FULL)
+# Configure once for both WebAssembly frontends. Target-specific linker options
+# in CMake keep the highlighting assets out of the minimal frontend bundle.
+$(DIR_ROSPOVM_WASM_BUILD)/Makefile: rospovm/CMakeLists.txt Makefile wasm_dependencies
 	$(WASM_RUN) "$(QT_WASM_CMAKE)" \
 		-S rospovm -B "$(DIR_ROSPOVM_WASM_BUILD)" \
 		-DCMAKE_TOOLCHAIN_FILE="$(QT_WASM)/lib/cmake/Qt6/qt.toolchain.cmake" \
@@ -312,24 +314,20 @@ frontend_wasm_full: wasm_dependencies $(ROSP_FULL)
 		-DQT_HOST_PATH="$(QT_NATIVE)" \
 		-DQT_HOST_PATH_CMAKE_DIR="$(QT_NATIVE)/lib/cmake" \
 		-DQt6HostInfo_DIR="$(QT_WASM_HOST_INFO_DIR)" \
-		-DCMAKE_BUILD_TYPE="$(WASM_BUILD_TYPE)" \
 		-DKF6SyntaxHighlighting_DIR="$(KF_PREFIX)/lib/cmake/KF6SyntaxHighlighting" \
-		"-DCMAKE_EXE_LINKER_FLAGS=--preload-file $(HIGHLIGHTING_DIR)@$(HIGHLIGHTING_DIR)" \
+		-DCMAKE_BUILD_TYPE="$(WASM_BUILD_TYPE)" \
+		-UCMAKE_EXE_LINKER_FLAGS \
 		$(WASM_CMAKE_ARGS)
+
+# These targets share one generated CMake tree, so build them in sequence.
+.NOTPARALLEL: frontend_wasm
+frontend_wasm: frontend_wasm_minimal frontend_wasm_full
+
+frontend_wasm_full: $(DIR_ROSPOVM_WASM_BUILD)/Makefile $(ROSP_FULL)
 	$(WASM_RUN) $(CMAKE) --build "$(DIR_ROSPOVM_WASM_BUILD)" \
 		--target rospovm_html --parallel $(NPROC)
 
-frontend_wasm_minimal: wasm_dependencies $(ROSP_FULL)
-	$(WASM_RUN) "$(QT_WASM_CMAKE)" \
-		-S rospovm -B "$(DIR_ROSPOVM_WASM_BUILD)" \
-		-DCMAKE_TOOLCHAIN_FILE="$(QT_WASM)/lib/cmake/Qt6/qt.toolchain.cmake" \
-		-DQt6_DIR="$(QT_WASM)/lib/cmake/Qt6" \
-		-DQT_HOST_PATH="$(QT_NATIVE)" \
-		-DQT_HOST_PATH_CMAKE_DIR="$(QT_NATIVE)/lib/cmake" \
-		-DQt6HostInfo_DIR="$(QT_WASM_HOST_INFO_DIR)" \
-		-DKF6SyntaxHighlighting_DIR="$(KF_PREFIX)/lib/cmake/KF6SyntaxHighlighting" \
-		-DCMAKE_BUILD_TYPE="$(WASM_BUILD_TYPE)" \
-		$(WASM_CMAKE_ARGS)
+frontend_wasm_minimal: $(DIR_ROSPOVM_WASM_BUILD)/Makefile $(ROSP_FULL)
 	$(WASM_RUN) $(CMAKE) --build "$(DIR_ROSPOVM_WASM_BUILD)" \
 		--target rospovm_html_minimal --parallel $(NPROC)
 		

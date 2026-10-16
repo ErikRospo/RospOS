@@ -1252,17 +1252,9 @@ class Emitter:
         reg_param_count = len(abi.ARG_REGS)
         for i, p in enumerate(params[:reg_param_count]):
             self.var_regs[p] = abi.ARG_REGS[i]
-            try:
-                self.reg_free.remove(abi.ARG_REGS[i])  # mark arg registers as used
-            except ValueError:
-                output_line = (
-                    out.get_current_output_line()
-                    if hasattr(out, "get_current_output_line")
-                    else "unknown"
-                )
-                logger.bind(
-                    diagnostic=f"function={name}; parameter={p}; output line={output_line}"
-                ).warning(f"arg register {abi.ARG_REGS[i]} not in free list\n")
+            # r1 is the return register and is intentionally absent from TEMP_REGS.
+            if abi.ARG_REGS[i] in self.reg_free:
+                self.reg_free.remove(abi.ARG_REGS[i])
             # Track parameter allocation for debug info
             param_type = (fn.get("param_types", {}) or {}).get(p, "int")
             if hasattr(out, "get_current_output_line"):

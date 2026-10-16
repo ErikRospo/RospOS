@@ -155,6 +155,11 @@ function(rosposvm_add_gui target variant main_source)
     if(variant STREQUAL "full")
         target_include_directories(${target} PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/lib/exprtk")
         target_link_libraries(${target} PRIVATE KF6::SyntaxHighlighting)
+        if(EMSCRIPTEN)
+            target_link_options(${target} PRIVATE
+                "SHELL:--preload-file ${ROSPOSVM_HIGHLIGHTING_DIR}@${ROSPOSVM_HIGHLIGHTING_DIR}"
+            )
+        endif()
         target_compile_definitions(${target} PRIVATE
             ROSPOSVM_HIGHLIGHTING_DIR="${ROSPOSVM_HIGHLIGHTING_DIR}"
         )
