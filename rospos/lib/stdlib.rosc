@@ -73,6 +73,33 @@ void *memset(void *dest, int value, int n)
 {
     char *out = (char *)dest;
     int i = 0;
+
+    /* Use the machine's 32-bit store for the common zero-fill case. */
+    if (value == 0)
+    {
+        while (i < n && (((int)(out + i) & 3) != 0))
+        {
+            out[i] = 0;
+            i = i + 1;
+        }
+
+        int *words = (int *)(out + i);
+        while (i + 4 <= n)
+        {
+            __sw((int)words, 0);
+            /* Rosc pointer arithmetic is byte-based, even for int *. */
+            words = words+4;
+            i = i + 4;
+        }
+
+        while (i < n)
+        {
+            out[i] = 0;
+            i = i + 1;
+        }
+        return dest;
+    }
+
     while (i < n)
     {
         out[i] = value;
@@ -206,4 +233,5 @@ void free(void *ptr)
 
     struct malloc_header *header = ((struct malloc_header *)ptr) - sizeof(struct malloc_header);
     header->free = 1;
+    memset(ptr, 0, header->size);
 }

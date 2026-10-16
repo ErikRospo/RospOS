@@ -82,9 +82,13 @@ int_to_str_buf_5_CMP_END4:
 
   BEQ r3, r0, int_to_str_buf_5_ELSE1
   LLI r4, 48
-  SB r4, r2, 0
+  LLI r5, 0
+  ADD r5, r2, r5
+  SB r4, r5, 0
   LLI r6, 0
-  SB r6, r2, 1
+  LLI r7, 1
+  ADD r7, r2, r7
+  SB r6, r7, 0
   LLI r1, 0
   POP r14
   JALR r0, r14, 0
@@ -946,6 +950,10 @@ rand_block_test_18_CMP_END4:
   POP r1
   JMP bd_write_u32
 
+  POP r1
+  POP r2
+  PUSH r2
+  PUSH r1
   LLI r10, 1073741828
   PUSH r10
   LLI r9, 1
@@ -964,16 +972,24 @@ rand_block_test_18_WHILE_END2:
   POP r14
   JALR r0, r14, 0
   PUSH r14
-  LB r2, r1, 0
+  LLI r3, 0
+  ADD r3, r1, r3
+  LB r2, r3, 0
   LLI r4, 255
   AND r2, r2, r4
-  LB r5, r1, 1
+  LLI r6, 1
+  ADD r6, r1, r6
+  LB r5, r6, 0
   LLI r7, 255
   AND r5, r5, r7
-  LB r8, r1, 2
+  LLI r9, 2
+  ADD r9, r1, r9
+  LB r8, r9, 0
   LLI r10, 255
   AND r8, r8, r10
-  LB r11, r1, 3
+  LLI r12, 3
+  ADD r12, r1, r12
+  LB r11, r12, 0
   LLI r3, 255
   AND r11, r11, r3
   SHLI r2, r2, 24
@@ -988,21 +1004,29 @@ rand_block_test_18_WHILE_END2:
 bd_write_u32:
 
   PUSH r14
+  LLI r3, 0
+  ADD r3, r1, r3
   SHRI r4, r2, 24
   LLI r5, 255
   AND r4, r4, r5
-  SB r4, r1, 0
+  SB r4, r3, 0
+  LLI r6, 1
+  ADD r6, r1, r6
   SHRI r7, r2, 16
   LLI r8, 255
   AND r7, r7, r8
-  SB r7, r1, 1
+  SB r7, r6, 0
+  LLI r9, 2
+  ADD r9, r1, r9
   SHRI r10, r2, 8
   LLI r11, 255
   AND r10, r10, r11
-  SB r10, r1, 2
+  SB r10, r9, 0
+  LLI r12, 3
+  ADD r12, r1, r12
   LLI r5, 255
   AND r2, r2, r5
-  SB r2, r1, 3
+  SB r2, r12, 0
   ADDI r1, r0, 0
   POP r14
   JALR r0, r14, 0
@@ -1015,6 +1039,10 @@ bd_write_u32:
   POP r1
   JMP bd_write_u32
 
+  POP r1
+  POP r2
+  PUSH r2
+  PUSH r1
   LLI r4, 1073741836
   ADDI r1, r4, 0
   JMP bd_write_u32
@@ -1029,6 +1057,8 @@ bd_write_u32:
   POP r1
   JMP bd_write_u32
 
+  POP r1
+  PUSH r1
   LLI r7, 1073741828
   PUSH r7
   LLI r8, 2
@@ -1051,6 +1081,10 @@ read_block:
   POP r1
   JMP bd_write_u32
 
+  POP r1
+  POP r2
+  PUSH r2
+  PUSH r1
   LLI r4, 1073741836
   ADDI r1, r4, 0
   JMP bd_write_u32
@@ -1065,6 +1099,8 @@ read_block:
   POP r1
   JMP bd_write_u32
 
+  POP r1
+  PUSH r1
   LLI r7, 1073741828
   PUSH r7
   LLI r8, 1
@@ -1291,13 +1327,13 @@ strcat_27_WHILE_END2:
   SB r8, r3, 0
   POP r14
   JALR r0, r14, 0
+memset:
+
   PUSH r14
   LLI r4, 0
   ADDI r4, r1, 0
   LLI r5, 0
-memset_28_WHILE1:
-
-  BLT r5, r3, memset_28_CMP_TRUE3
+  BEQ r2, r0, memset_28_CMP_TRUE3
   LLI r6, 0
   JMP memset_28_CMP_END4
 
@@ -1306,13 +1342,114 @@ memset_28_CMP_TRUE3:
   LLI r6, 1
 memset_28_CMP_END4:
 
-  BEQ r6, r0, memset_28_WHILE_END2
-  ADD r7, r4, r5
-  SB r2, r7, 0
-  ADDI r5, r5, 1
-  JMP memset_28_WHILE1
+  BEQ r6, r0, memset_28_ELSE1
+memset_28_WHILE5:
 
-memset_28_WHILE_END2:
+  BLT r5, r3, memset_28_CMP_TRUE7
+  LLI r7, 0
+  JMP memset_28_CMP_END8
+
+memset_28_CMP_TRUE7:
+
+  LLI r7, 1
+memset_28_CMP_END8:
+
+  ADD r8, r4, r5
+  LLI r9, 3
+  AND r8, r8, r9
+  BNE r8, r0, memset_28_CMP_TRUE9
+  LLI r8, 0
+  JMP memset_28_CMP_END10
+
+memset_28_CMP_TRUE9:
+
+  LLI r8, 1
+memset_28_CMP_END10:
+
+  AND r7, r7, r8
+  BNE r7, r0, memset_28_CMP_TRUE11
+  LLI r7, 0
+  JMP memset_28_CMP_END12
+
+memset_28_CMP_TRUE11:
+
+  LLI r7, 1
+memset_28_CMP_END12:
+
+  BEQ r7, r0, memset_28_WHILE_END6
+  LLI r11, 0
+  ADD r12, r4, r5
+  SB r11, r12, 0
+  ADDI r5, r5, 1
+  JMP memset_28_WHILE5
+
+memset_28_WHILE_END6:
+
+  ADD r6, r4, r5
+memset_28_WHILE13:
+
+  LLI r9, 4
+  ADD r9, r5, r9
+  BGE r3, r9, memset_28_CMP_TRUE15
+  LLI r9, 0
+  JMP memset_28_CMP_END16
+
+memset_28_CMP_TRUE15:
+
+  LLI r9, 1
+memset_28_CMP_END16:
+
+  BEQ r9, r0, memset_28_WHILE_END14
+  LLI r10, 0
+  SW r10, r6, 0
+  ADDI r6, r6, 4
+  ADDI r5, r5, 4
+  JMP memset_28_WHILE13
+
+memset_28_WHILE_END14:
+
+memset_28_WHILE17:
+
+  BLT r5, r3, memset_28_CMP_TRUE19
+  LLI r8, 0
+  JMP memset_28_CMP_END20
+
+memset_28_CMP_TRUE19:
+
+  LLI r8, 1
+memset_28_CMP_END20:
+
+  BEQ r8, r0, memset_28_WHILE_END18
+  LLI r7, 0
+  ADD r12, r4, r5
+  SB r7, r12, 0
+  ADDI r5, r5, 1
+  JMP memset_28_WHILE17
+
+memset_28_WHILE_END18:
+
+  POP r14
+  JALR r0, r14, 0
+memset_28_ELSE1:
+
+memset_28_WHILE21:
+
+  BLT r5, r3, memset_28_CMP_TRUE23
+  LLI r11, 0
+  JMP memset_28_CMP_END24
+
+memset_28_CMP_TRUE23:
+
+  LLI r11, 1
+memset_28_CMP_END24:
+
+  BEQ r11, r0, memset_28_WHILE_END22
+  ADD r9, r4, r5
+  SB r2, r9, 0
+  ADDI r5, r5, 1
+  JMP memset_28_WHILE21
+
+memset_28_WHILE_END22:
 
   POP r14
   JALR r0, r14, 0
@@ -1625,8 +1762,23 @@ free_35_UNOP_NOT_END4:
   JALR r0, r14, 0
 free_35_ELSE1:
 
+  LLI r4, 16
+  SUB r4, r1, r4
   LLI r5, 1
-  SW r5, r1, -12
+  SW r5, r4, 4
+  PUSH r4
+  PUSH r1
+  PUSH r1
+  LLI r6, 0
+  PUSH r6
+  LW r7, r4, 0
+  ADDI r3, r7, 0
+  POP r2
+  POP r1
+  JMP memset
+
+  POP r1
+  POP r4
   ADDI r1, r0, 0
   POP r14
   JALR r0, r14, 0
@@ -1657,19 +1809,33 @@ initialize_filesystem_36_UNOP_NOT_END4:
 initialize_filesystem_36_ELSE1:
 
   LLI r6, 82
-  SB r6, r2, 0
+  LLI r7, 0
+  ADD r7, r2, r7
+  SB r6, r7, 0
   LLI r8, 79
-  SB r8, r2, 1
-  LLI r10, 83
-  SB r10, r2, 2
-  LLI r12, 80
-  SB r12, r2, 3
-  LLI r4, 70
-  SB r4, r2, 4
-  LLI r7, 83
-  SB r7, r2, 5
   LLI r9, 1
-  SB r9, r2, 6
+  ADD r9, r2, r9
+  SB r8, r9, 0
+  LLI r10, 83
+  LLI r11, 2
+  ADD r11, r2, r11
+  SB r10, r11, 0
+  LLI r12, 80
+  LLI r3, 3
+  ADD r3, r2, r3
+  SB r12, r3, 0
+  LLI r4, 70
+  LLI r5, 4
+  ADD r5, r2, r5
+  SB r4, r5, 0
+  LLI r7, 83
+  LLI r6, 5
+  ADD r6, r2, r6
+  SB r7, r6, 0
+  LLI r9, 1
+  LLI r8, 6
+  ADD r8, r2, r8
+  SB r9, r8, 0
   LLI r11, 7
 initialize_filesystem_36_WHILE5:
 
@@ -1701,10 +1867,18 @@ initialize_filesystem_36_WHILE_END6:
   POP r1
   JMP bd_write_u32
 
+  POP r1
+  POP r2
+  PUSH r2
+  PUSH r1
   LLI r6, 1073741836
   ADDI r1, r6, 0
   JMP bd_write_u32
 
+  POP r1
+  POP r2
+  PUSH r2
+  PUSH r1
   LLI r7, 1073741840
   PUSH r7
   LLI r8, 1
@@ -1712,6 +1886,10 @@ initialize_filesystem_36_WHILE_END6:
   POP r1
   JMP bd_write_u32
 
+  POP r1
+  POP r2
+  PUSH r2
+  PUSH r1
   LLI r9, 1073741828
   PUSH r9
   LLI r10, 2
@@ -1719,6 +1897,10 @@ initialize_filesystem_36_WHILE_END6:
   POP r1
   JMP bd_write_u32
 
+  POP r1
+  POP r2
+  PUSH r2
+  PUSH r1
   ADDI r1, r2, 0
   JMP free
 
@@ -1760,10 +1942,18 @@ ensure_filesystem_initialized_37_ELSE1:
   POP r1
   JMP bd_write_u32
 
+  POP r1
+  POP r2
+  PUSH r2
+  PUSH r1
   LLI r8, 1073741836
   ADDI r1, r8, 0
   JMP bd_write_u32
 
+  POP r1
+  POP r2
+  PUSH r2
+  PUSH r1
   LLI r9, 1073741840
   PUSH r9
   LLI r10, 1
@@ -1771,6 +1961,10 @@ ensure_filesystem_initialized_37_ELSE1:
   POP r1
   JMP bd_write_u32
 
+  POP r1
+  POP r2
+  PUSH r2
+  PUSH r1
   LLI r11, 1073741828
   PUSH r11
   LLI r12, 1
@@ -1780,7 +1974,9 @@ ensure_filesystem_initialized_37_ELSE1:
 
   POP r1
   POP r2
-  LBU r3, r2, 0
+  LLI r3, 0
+  ADD r3, r2, r3
+  LBU r3, r3, 0
   LLI r4, 82
   BNE r3, r4, ensure_filesystem_initialized_37_CMP_TRUE7
   LLI r3, 0
@@ -1791,7 +1987,9 @@ ensure_filesystem_initialized_37_CMP_TRUE7:
   LLI r3, 1
 ensure_filesystem_initialized_37_CMP_END8:
 
-  LBU r5, r2, 1
+  LLI r5, 1
+  ADD r5, r2, r5
+  LBU r5, r5, 0
   LLI r6, 79
   BNE r5, r6, ensure_filesystem_initialized_37_CMP_TRUE9
   LLI r5, 0
@@ -1812,7 +2010,9 @@ ensure_filesystem_initialized_37_CMP_TRUE11:
   LLI r3, 1
 ensure_filesystem_initialized_37_CMP_END12:
 
-  LBU r7, r2, 2
+  LLI r7, 2
+  ADD r7, r2, r7
+  LBU r7, r7, 0
   LLI r8, 83
   BNE r7, r8, ensure_filesystem_initialized_37_CMP_TRUE13
   LLI r7, 0
@@ -1833,7 +2033,9 @@ ensure_filesystem_initialized_37_CMP_TRUE15:
   LLI r3, 1
 ensure_filesystem_initialized_37_CMP_END16:
 
-  LBU r9, r2, 3
+  LLI r9, 3
+  ADD r9, r2, r9
+  LBU r9, r9, 0
   LLI r10, 80
   BNE r9, r10, ensure_filesystem_initialized_37_CMP_TRUE17
   LLI r9, 0
@@ -1854,7 +2056,9 @@ ensure_filesystem_initialized_37_CMP_TRUE19:
   LLI r3, 1
 ensure_filesystem_initialized_37_CMP_END20:
 
-  LBU r11, r2, 4
+  LLI r11, 4
+  ADD r11, r2, r11
+  LBU r11, r11, 0
   LLI r12, 70
   BNE r11, r12, ensure_filesystem_initialized_37_CMP_TRUE21
   LLI r11, 0
@@ -1875,7 +2079,9 @@ ensure_filesystem_initialized_37_CMP_TRUE23:
   LLI r3, 1
 ensure_filesystem_initialized_37_CMP_END24:
 
-  LBU r4, r2, 5
+  LLI r4, 5
+  ADD r4, r2, r4
+  LBU r4, r4, 0
   LLI r6, 83
   BNE r4, r6, ensure_filesystem_initialized_37_CMP_TRUE25
   LLI r4, 0
@@ -2037,33 +2243,49 @@ write_file_38_WHILE_END11:
   SHRI r10, r5, 24
   LLI r9, 255
   AND r10, r10, r9
-  SB r10, r3, 32
+  LLI r6, 32
+  ADD r6, r3, r6
+  SB r10, r6, 0
   SHRI r4, r5, 16
   LLI r7, 255
   AND r4, r4, r7
-  SB r4, r3, 33
+  LLI r11, 33
+  ADD r11, r3, r11
+  SB r4, r11, 0
   SHRI r12, r5, 8
   LLI r9, 255
   AND r12, r12, r9
-  SB r12, r3, 34
+  LLI r6, 34
+  ADD r6, r3, r6
+  SB r12, r6, 0
   LLI r10, 255
   AND r5, r5, r10
-  SB r5, r3, 35
+  LLI r7, 35
+  ADD r7, r3, r7
+  SB r5, r7, 0
   SHRI r11, r8, 24
   LLI r4, 255
   AND r11, r11, r4
-  SB r11, r3, 36
+  LLI r9, 36
+  ADD r9, r3, r9
+  SB r11, r9, 0
   SHRI r6, r8, 16
   LLI r12, 255
   AND r6, r6, r12
-  SB r6, r3, 37
+  LLI r5, 37
+  ADD r5, r3, r5
+  SB r6, r5, 0
   SHRI r10, r8, 8
   LLI r7, 255
   AND r10, r10, r7
-  SB r10, r3, 38
+  LLI r4, 38
+  ADD r4, r3, r4
+  SB r10, r4, 0
   LLI r9, 255
   AND r9, r8, r9
-  SB r9, r3, 39
+  LLI r11, 39
+  ADD r11, r3, r11
+  SB r9, r11, 0
   PUSH r2
   PUSH r3
   PUSH r8
@@ -2075,12 +2297,28 @@ write_file_38_WHILE_END11:
   POP r1
   JMP bd_write_u32
 
+  POP r1
+  POP r8
+  POP r3
+  POP r2
+  PUSH r2
+  PUSH r3
+  PUSH r8
+  PUSH r1
   LLI r6, 1073741836
   PUSH r6
   ADDI r2, r3, 0
   POP r1
   JMP bd_write_u32
 
+  POP r1
+  POP r8
+  POP r3
+  POP r2
+  PUSH r2
+  PUSH r3
+  PUSH r8
+  PUSH r1
   LLI r7, 1073741840
   PUSH r7
   LLI r4, 1
@@ -2088,6 +2326,14 @@ write_file_38_WHILE_END11:
   POP r1
   JMP bd_write_u32
 
+  POP r1
+  POP r8
+  POP r3
+  POP r2
+  PUSH r2
+  PUSH r3
+  PUSH r8
+  PUSH r1
   LLI r10, 1073741828
   PUSH r10
   LLI r11, 2
@@ -2198,6 +2444,10 @@ write_file_38_WHILE_END29:
   POP r1
   JMP bd_write_u32
 
+  POP r1
+  POP r3
+  PUSH r3
+  PUSH r1
   LLI r9, 1073741840
   PUSH r9
   LLI r12, 1
@@ -2205,6 +2455,10 @@ write_file_38_WHILE_END29:
   POP r1
   JMP bd_write_u32
 
+  POP r1
+  POP r3
+  PUSH r3
+  PUSH r1
   LLI r11, 1073741828
   PUSH r11
   LLI r10, 2
@@ -2212,6 +2466,10 @@ write_file_38_WHILE_END29:
   POP r1
   JMP bd_write_u32
 
+  POP r1
+  POP r3
+  PUSH r3
+  PUSH r1
   ADDI r1, r3, 0
   JMP free
 
@@ -2244,7 +2502,9 @@ read_file_39_UNOP_NOT_END4:
 
   BEQ r5, r0, read_file_39_ELSE1
   LLI r6, 0
-  SB r6, r2, 0
+  LLI r7, 0
+  ADD r7, r2, r7
+  SB r6, r7, 0
   LLI r1, 0
   POP r14
   JALR r0, r14, 0
@@ -2260,12 +2520,24 @@ read_file_39_ELSE1:
   POP r1
   JMP bd_write_u32
 
+  POP r1
+  POP r3
+  POP r2
+  PUSH r2
+  PUSH r3
+  PUSH r1
   LLI r11, 1073741836
   PUSH r11
   ADDI r2, r3, 0
   POP r1
   JMP bd_write_u32
 
+  POP r1
+  POP r3
+  POP r2
+  PUSH r2
+  PUSH r3
+  PUSH r1
   LLI r12, 1073741840
   PUSH r12
   LLI r4, 1
@@ -2273,6 +2545,12 @@ read_file_39_ELSE1:
   POP r1
   JMP bd_write_u32
 
+  POP r1
+  POP r3
+  POP r2
+  PUSH r2
+  PUSH r3
+  PUSH r1
   LLI r5, 1073741828
   PUSH r5
   LLI r7, 1
@@ -2361,7 +2639,9 @@ read_file_39_UNOP_NOT_END25:
 
   BEQ r7, r0, read_file_39_ELSE22
   LLI r10, 0
-  SB r10, r2, 0
+  LLI r11, 0
+  ADD r11, r2, r11
+  SB r10, r11, 0
   PUSH r2
   PUSH r3
   PUSH r6
@@ -2378,39 +2658,55 @@ read_file_39_UNOP_NOT_END25:
   JALR r0, r14, 0
 read_file_39_ELSE22:
 
-  LBU r4, r3, 32
+  LLI r4, 32
+  ADD r4, r3, r4
+  LBU r4, r4, 0
   LLI r12, 255
   AND r4, r4, r12
   SHLI r4, r4, 24
-  LBU r8, r3, 33
+  LLI r8, 33
+  ADD r8, r3, r8
+  LBU r8, r8, 0
   LLI r9, 255
   AND r8, r8, r9
   SHLI r8, r8, 16
   OR r4, r4, r8
-  LBU r7, r3, 34
+  LLI r7, 34
+  ADD r7, r3, r7
+  LBU r7, r7, 0
   LLI r11, 255
   AND r7, r7, r11
   SHLI r7, r7, 8
   OR r4, r4, r7
-  LBU r10, r3, 35
+  LLI r10, 35
+  ADD r10, r3, r10
+  LBU r10, r10, 0
   LLI r5, 255
   AND r10, r10, r5
   OR r4, r4, r10
-  LBU r6, r3, 36
+  LLI r6, 36
+  ADD r6, r3, r6
+  LBU r6, r6, 0
   LLI r12, 255
   AND r6, r6, r12
   SHLI r6, r6, 24
-  LBU r9, r3, 37
+  LLI r9, 37
+  ADD r9, r3, r9
+  LBU r9, r9, 0
   LLI r8, 255
   AND r9, r9, r8
   SHLI r9, r9, 16
   OR r6, r6, r9
-  LBU r11, r3, 38
+  LLI r11, 38
+  ADD r11, r3, r11
+  LBU r11, r11, 0
   LLI r7, 255
   AND r11, r11, r7
   SHLI r11, r11, 8
   OR r6, r6, r11
-  LBU r5, r3, 39
+  LLI r5, 39
+  ADD r5, r3, r5
+  LBU r5, r5, 0
   LLI r10, 255
   AND r5, r5, r10
   OR r6, r6, r5
@@ -2438,6 +2734,14 @@ read_file_39_ELSE22:
   ADDI r1, r8, 0
   JMP bd_write_u32
 
+  POP r1
+  POP r4
+  POP r3
+  POP r2
+  PUSH r2
+  PUSH r3
+  PUSH r4
+  PUSH r1
   LLI r9, 1073741840
   PUSH r9
   LLI r7, 1
@@ -2445,6 +2749,14 @@ read_file_39_ELSE22:
   POP r1
   JMP bd_write_u32
 
+  POP r1
+  POP r4
+  POP r3
+  POP r2
+  PUSH r2
+  PUSH r3
+  PUSH r4
+  PUSH r1
   LLI r11, 1073741828
   PUSH r11
   LLI r10, 1
@@ -2475,7 +2787,9 @@ read_file_39_CMP_END29:
 read_file_39_ELSE26:
 
   LLI r8, 0
-  SB r8, r2, 511
+  LLI r9, 511
+  ADD r9, r2, r9
+  SB r8, r9, 0
 read_file_39_IF_END27:
 
   PUSH r3
@@ -2789,6 +3103,10 @@ _read_special_block:
   POP r1
   JMP bd_write_u32
 
+  POP r1
+  POP r2
+  PUSH r2
+  PUSH r1
   LLI r4, 1073741836
   ADDI r1, r4, 0
   JMP bd_write_u32
@@ -2803,6 +3121,8 @@ _read_special_block:
   POP r1
   JMP bd_write_u32
 
+  POP r1
+  PUSH r1
   LLI r7, 1073741828
   PUSH r7
   LLI r8, 1
@@ -3041,7 +3361,9 @@ fmt_unix_time_50_UNOP_NOT_END4:
 fmt_unix_time_50_ELSE1:
 
   LLI r6, 0
-  SB r6, r2, 0
+  LLI r7, 0
+  ADD r7, r2, r7
+  SB r6, r7, 0
   LLI r8, 0
   PUSH r2
   PUSH r8
@@ -3254,6 +3576,20 @@ load_and_display_image_51_CMP_END4:
   POP r1
   JMP bd_write_u32
 
+  POP r1
+  POP r8
+  POP r7
+  POP r5
+  POP r4
+  POP r3
+  POP r2
+  PUSH r2
+  PUSH r3
+  PUSH r4
+  PUSH r5
+  PUSH r7
+  PUSH r8
+  PUSH r1
   LLI r12, 1073741828
   PUSH r12
   LLI r9, 1
@@ -3429,7 +3765,9 @@ add_fixed_point_with_int_54_ELSE2:
   ADDI r2, r1, 0
   LLI r4, 0
   LLI r5, 0
-  SB r5, r2, 0
+  LLI r6, 0
+  ADD r6, r2, r6
+  SB r5, r6, 0
   LW r7, r1, 0
   LLI r8, 0
   BLT r7, r8, fixed_point_to_string_58_CMP_TRUE3
@@ -3552,7 +3890,9 @@ fixed_point_to_string_58_CMP_END21:
 fixed_point_to_string_58_WHILE_END18:
 
   LLI r8, 0
-  SB r8, r2, 20
+  LLI r11, 20
+  ADD r11, r2, r11
+  SB r8, r11, 0
   LLI r3, fixed_point_to_string_58_result_str_buf22
   LLI r9, 0
   BEQ r4, r0, fixed_point_to_string_58_ELSE23
@@ -4381,6 +4721,8 @@ display_test:
   POP r1
   JMP draw_string_to_display
 
+  POP r1
+  PUSH r1
   LLI r6, str_2
   PUSH r6
   LLI r7, 0
@@ -4394,6 +4736,8 @@ display_test:
   POP r1
   JMP draw_string_to_display
 
+  POP r1
+  PUSH r1
   LLI r10, str_3
   PUSH r10
   LLI r11, 0
@@ -4407,6 +4751,8 @@ display_test:
   POP r1
   JMP draw_string_to_display
 
+  POP r1
+  PUSH r1
   LLI r3, str_4
   PUSH r3
   LLI r4, 0
@@ -4420,6 +4766,8 @@ display_test:
   POP r1
   JMP draw_string_to_display
 
+  POP r1
+  PUSH r1
   LLI r7, str_5
   PUSH r7
   LLI r8, 0
@@ -4433,6 +4781,8 @@ display_test:
   POP r1
   JMP draw_string_to_display
 
+  POP r1
+  PUSH r1
   LLI r11, str_6
   PUSH r11
   LLI r12, 0
@@ -4446,6 +4796,8 @@ display_test:
   POP r1
   JMP draw_string_to_display
 
+  POP r1
+  PUSH r1
   LLI r4, str_7
   PUSH r4
   LLI r5, 0
@@ -4459,6 +4811,8 @@ display_test:
   POP r1
   JMP draw_string_to_display
 
+  POP r1
+  PUSH r1
   LLI r8, str_8
   PUSH r8
   LLI r9, 0
@@ -4482,6 +4836,8 @@ fs_test:
   PUSH r1
   JMP initialize_filesystem
 
+  POP r1
+  PUSH r1
   LLI r2, str_9
   PUSH r2
   LLI r3, str_10
@@ -4490,11 +4846,50 @@ fs_test:
   JMP write_file
 
   POP r1
-  LLI r4, fs_test_65_device_info_buf1
+  LLI r4, 0
+  PUSH r4
+  LLI r5, 512
+  ADDI r1, r5, 0
+  JMP malloc
+
+  POP r4
+  ADDI r4, r1, 0
+  BEQ r4, r0, fs_test_65_UNOP_NOT_TRUE3
+  LLI r6, 0
+  JMP fs_test_65_UNOP_NOT_END4
+
+fs_test_65_UNOP_NOT_TRUE3:
+
+  LLI r6, 1
+fs_test_65_UNOP_NOT_END4:
+
+  BEQ r6, r0, fs_test_65_ELSE1
   PUSH r4
   PUSH r1
-  LLI r5, 4294967295
-  PUSH r5
+  LLI r7, str_11
+  PUSH r7
+  LLI r8, 0
+  PUSH r8
+  LLI r9, 8
+  PUSH r9
+  LLI r10, 63
+  ADDI r4, r10, 0
+  POP r3
+  POP r2
+  POP r1
+  JMP draw_string_to_display
+
+  POP r1
+  POP r4
+  LLI r1, 0
+  POP r14
+  JALR r0, r14, 0
+fs_test_65_ELSE1:
+
+  PUSH r4
+  PUSH r1
+  LLI r12, 4294967295
+  PUSH r12
   ADDI r2, r4, 0
   POP r1
   JMP read_block
@@ -4504,12 +4899,12 @@ fs_test:
   PUSH r4
   PUSH r1
   PUSH r4
-  LLI r6, 0
-  PUSH r6
-  LLI r7, 8
-  PUSH r7
-  LLI r8, 63
-  ADDI r4, r8, 0
+  LLI r2, 0
+  PUSH r2
+  LLI r3, 8
+  PUSH r3
+  LLI r5, 63
+  ADDI r4, r5, 0
   POP r3
   POP r2
   POP r1
@@ -4517,33 +4912,86 @@ fs_test:
 
   POP r1
   POP r4
-  LLI r9, fs_test_65_file_contents_buf2
-  PUSH r9
+  PUSH r4
   PUSH r1
-  LLI r10, str_9
-  PUSH r10
-  ADDI r2, r9, 0
-  POP r1
-  JMP read_file
+  ADDI r1, r4, 0
+  JMP free
 
   POP r1
-  POP r9
-  PUSH r9
+  POP r4
+  LLI r6, 0
+  PUSH r6
+  LLI r7, 512
+  ADDI r1, r7, 0
+  JMP malloc
+
+  POP r6
+  ADDI r6, r1, 0
+  BEQ r6, r0, fs_test_65_UNOP_NOT_TRUE7
+  LLI r8, 0
+  JMP fs_test_65_UNOP_NOT_END8
+
+fs_test_65_UNOP_NOT_TRUE7:
+
+  LLI r8, 1
+fs_test_65_UNOP_NOT_END8:
+
+  BEQ r8, r0, fs_test_65_ELSE5
+  PUSH r6
   PUSH r1
+  LLI r9, str_12
   PUSH r9
-  LLI r11, 0
+  LLI r10, 0
+  PUSH r10
+  LLI r11, 16
   PUSH r11
-  LLI r12, 16
-  PUSH r12
-  LLI r2, 63
-  ADDI r4, r2, 0
+  LLI r12, 63
+  ADDI r4, r12, 0
   POP r3
   POP r2
   POP r1
   JMP draw_string_to_display
 
   POP r1
-  POP r9
+  POP r6
+  LLI r1, 0
+  POP r14
+  JALR r0, r14, 0
+fs_test_65_ELSE5:
+
+  PUSH r6
+  PUSH r1
+  LLI r3, str_9
+  PUSH r3
+  ADDI r2, r6, 0
+  POP r1
+  JMP read_file
+
+  POP r1
+  POP r6
+  PUSH r6
+  PUSH r1
+  PUSH r6
+  LLI r5, 0
+  PUSH r5
+  LLI r4, 16
+  PUSH r4
+  LLI r7, 63
+  ADDI r4, r7, 0
+  POP r3
+  POP r2
+  POP r1
+  JMP draw_string_to_display
+
+  POP r1
+  POP r6
+  PUSH r6
+  PUSH r1
+  ADDI r1, r6, 0
+  JMP free
+
+  POP r1
+  POP r6
   ADDI r1, r0, 0
   POP r14
   JALR r0, r14, 0
@@ -4551,7 +4999,7 @@ rand_block_display_test:
 
   PUSH r14
   PUSH r1
-  LLI r2, str_11
+  LLI r2, str_13
   PUSH r2
   LLI r3, 0
   PUSH r3
@@ -4564,7 +5012,9 @@ rand_block_display_test:
   POP r1
   JMP draw_string_to_display
 
-  LLI r6, str_12
+  POP r1
+  PUSH r1
+  LLI r6, str_14
   PUSH r6
   LLI r7, 0
   PUSH r7
@@ -4577,8 +5027,12 @@ rand_block_display_test:
   POP r1
   JMP draw_string_to_display
 
+  POP r1
+  PUSH r1
   JMP rand_block_test
 
+  POP r1
+  PUSH r1
   JMP fast_clear_display
 
   POP r1
@@ -4589,22 +5043,28 @@ terminal_test:
 
   PUSH r14
   PUSH r1
-  LLI r2, str_13
+  LLI r2, str_15
   PUSH r2
   LLI r3, 0
   ADDI r2, r3, 0
   POP r1
   JMP write_to_buffer
 
+  POP r1
+  PUSH r1
   JMP update_buffer
 
-  LLI r4, str_14
+  POP r1
+  PUSH r1
+  LLI r4, str_16
   PUSH r4
   LLI r5, 32
   ADDI r2, r5, 0
   POP r1
   JMP write_to_buffer
 
+  POP r1
+  PUSH r1
   JMP update_buffer
 
   POP r1
@@ -4615,15 +5075,19 @@ image_display_test:
 
   PUSH r14
   PUSH r1
-  LLI r2, str_15
+  LLI r2, str_17
   PUSH r2
   LLI r3, 72
   ADDI r2, r3, 0
   POP r1
   JMP write_to_buffer
 
+  POP r1
+  PUSH r1
   JMP update_buffer
 
+  POP r1
+  PUSH r1
   JMP load_and_display_image
 
   POP r1
@@ -4715,7 +5179,7 @@ malloc_test_69_WHILE_END11:
   PUSH r6
   PUSH r9
   PUSH r1
-  LLI r5, str_16
+  LLI r5, str_18
   PUSH r5
   LLI r7, 0
   PUSH r7
@@ -4744,7 +5208,7 @@ malloc_test_69_ELSE19:
   PUSH r6
   PUSH r9
   PUSH r1
-  LLI r11, str_17
+  LLI r11, str_19
   PUSH r11
   LLI r12, 0
   PUSH r12
@@ -4789,7 +5253,7 @@ malloc_test_69_ELSE1:
   PUSH r4
   PUSH r6
   PUSH r1
-  LLI r8, str_18
+  LLI r8, str_20
   PUSH r8
   LLI r10, 0
   PUSH r10
@@ -4839,7 +5303,15 @@ malloc_test_69_CMP_END24:
   POP r1
   JMP int_to_str_buf
 
-  LLI r10, str_19
+  POP r1
+  POP r8
+  POP r6
+  POP r5
+  PUSH r5
+  PUSH r6
+  PUSH r8
+  PUSH r1
+  LLI r10, str_21
   PUSH r10
   LLI r11, 0
   PUSH r11
@@ -4872,6 +5344,14 @@ malloc_test_69_CMP_END24:
   POP r1
   JMP draw_string_to_display
 
+  POP r1
+  POP r8
+  POP r6
+  POP r5
+  PUSH r5
+  PUSH r6
+  PUSH r8
+  PUSH r1
   ADDI r1, r5, 0
   JMP free
 
@@ -4886,7 +5366,7 @@ malloc_test_69_ELSE21:
   PUSH r5
   PUSH r6
   PUSH r1
-  LLI r9, str_20
+  LLI r9, str_22
   PUSH r9
   LLI r10, 0
   PUSH r10
@@ -4908,10 +5388,10 @@ malloc_test_69_IF_END22:
   POP r14
   JALR r0, r14, 0
   PUSH r14
-  LLI r2, str_21
+  LLI r2, str_23
   PUSH r2
   PUSH r1
-  LLI r3, str_22
+  LLI r3, str_24
   PUSH r3
   LLI r4, 0
   ADDI r2, r4, 0
@@ -4928,6 +5408,10 @@ malloc_test_69_IF_END22:
   POP r1
   JMP write_to_buffer
 
+  POP r1
+  POP r2
+  PUSH r2
+  PUSH r1
   JMP update_buffer
 
   POP r1
@@ -4955,13 +5439,19 @@ math_test_70_UNOP_NOT_END4:
   PUSH r2
   PUSH r6
   PUSH r1
-  LLI r9, str_23
+  LLI r9, str_25
   PUSH r9
   LLI r10, 16
   ADDI r2, r10, 0
   POP r1
   JMP write_to_buffer
 
+  POP r1
+  POP r6
+  POP r2
+  PUSH r2
+  PUSH r6
+  PUSH r1
   JMP update_buffer
 
   POP r1
@@ -4985,7 +5475,7 @@ math_test_70_ELSE1:
   POP r2
   PUSH r6
   PUSH r1
-  LLI r12, str_24
+  LLI r12, str_26
   PUSH r12
   LLI r3, 32
   ADDI r2, r3, 0
@@ -5002,9 +5492,17 @@ math_test_70_ELSE1:
   POP r1
   JMP write_to_buffer
 
+  POP r1
+  POP r6
+  PUSH r6
+  PUSH r1
   JMP update_buffer
 
-  LLI r5, str_25
+  POP r1
+  POP r6
+  PUSH r6
+  PUSH r1
+  LLI r5, str_27
   PUSH r5
   LLI r7, 64
   ADDI r2, r7, 0
@@ -5082,7 +5580,7 @@ math_test_70_ELSE1:
 
   POP r1
   POP r2
-  LLI r7, str_26
+  LLI r7, str_28
   LLI r8, 268435456
 time_test_71_WHILE1:
 
@@ -5149,7 +5647,13 @@ recursive_test_72_CMP_END4:
   ADDI r1, r5, 0
   JMP int_to_str_buf
 
-  LLI r7, str_27
+  POP r1
+  POP r5
+  POP r2
+  PUSH r2
+  PUSH r5
+  PUSH r1
+  LLI r7, str_29
   PUSH r7
   LLI r8, 0
   PUSH r8
@@ -5180,6 +5684,12 @@ recursive_test_72_CMP_END4:
   POP r1
   JMP draw_string_to_display
 
+  POP r1
+  POP r5
+  POP r2
+  PUSH r2
+  PUSH r5
+  PUSH r1
   ADDI r1, r2, 0
   JMP free
 
@@ -5192,7 +5702,7 @@ recursive_test_72_ELSE1:
 
   PUSH r2
   PUSH r1
-  LLI r4, str_28
+  LLI r4, str_30
   PUSH r4
   LLI r6, 0
   PUSH r6
@@ -5241,20 +5751,36 @@ main:
   POP r1
   JMP write_to_buffer
 
+  POP r1
+  PUSH r1
   JMP update_buffer
 
+  POP r1
+  PUSH r1
   JMP display_test
 
+  POP r1
+  PUSH r1
   JMP fs_test
 
+  POP r1
+  PUSH r1
   JMP fast_clear_display
 
+  POP r1
+  PUSH r1
   JMP malloc_test
 
+  POP r1
+  PUSH r1
   JMP rand_block_display_test
 
+  POP r1
+  PUSH r1
   JMP terminal_test
 
+  POP r1
+  PUSH r1
   JMP image_display_test
 
   POP r1
@@ -5834,73 +6360,81 @@ str_10:
 
 str_11:
 
-.DATA 0x4C 0x6F 0x61 0x64 0x69 0x6E 0x67 0x20 0x72 0x61 0x6E 0x64 0x6F 0x6D 0x20 0x62 0x6C 0x6F 0x63 0x6B 0x73 0x20 0x74 0x6F 0x20 0x64 0x69 0x73 0x70 0x6C 0x61 0x79 0x00
+.DATA 0x4D 0x65 0x6D 0x6F 0x72 0x79 0x20 0x61 0x6C 0x6C 0x6F 0x63 0x61 0x74 0x69 0x6F 0x6E 0x20 0x66 0x61 0x69 0x6C 0x65 0x64 0x20 0x66 0x6F 0x72 0x20 0x64 0x65 0x76 0x69 0x63 0x65 0x20 0x69 0x6E 0x66 0x6F 0x20 0x62 0x75 0x66 0x66 0x65 0x72 0x2E 0x00 0x00
 
 str_12:
 
-.DATA 0x75 0x73 0x69 0x6E 0x67 0x20 0x44 0x4D 0x41 0x3A 0x00 0x00
+.DATA 0x4D 0x65 0x6D 0x6F 0x72 0x79 0x20 0x61 0x6C 0x6C 0x6F 0x63 0x61 0x74 0x69 0x6F 0x6E 0x20 0x66 0x61 0x69 0x6C 0x65 0x64 0x20 0x66 0x6F 0x72 0x20 0x66 0x69 0x6C 0x65 0x20 0x63 0x6F 0x6E 0x74 0x65 0x6E 0x74 0x73 0x20 0x62 0x75 0x66 0x66 0x65 0x72 0x2E 0x00 0x00
 
 str_13:
 
-.DATA 0x48 0x65 0x6C 0x6C 0x6F 0x2C 0x20 0x52 0x6F 0x73 0x70 0x4F 0x53 0x20 0x54 0x65 0x72 0x6D 0x69 0x6E 0x61 0x6C 0x21 0x00 0x00
+.DATA 0x4C 0x6F 0x61 0x64 0x69 0x6E 0x67 0x20 0x72 0x61 0x6E 0x64 0x6F 0x6D 0x20 0x62 0x6C 0x6F 0x63 0x6B 0x73 0x20 0x74 0x6F 0x20 0x64 0x69 0x73 0x70 0x6C 0x61 0x79 0x00
 
 str_14:
 
-.DATA 0x54 0x68 0x69 0x73 0x20 0x69 0x73 0x20 0x61 0x20 0x73 0x69 0x6D 0x70 0x6C 0x65 0x20 0x74 0x65 0x72 0x6D 0x69 0x6E 0x61 0x6C 0x20 0x69 0x6D 0x70 0x6C 0x65 0x6D 0x65 0x6E 0x74 0x61 0x74 0x69 0x6F 0x6E 0x2E 0x00 0x00
+.DATA 0x75 0x73 0x69 0x6E 0x67 0x20 0x44 0x4D 0x41 0x3A 0x00 0x00
 
 str_15:
 
-.DATA 0x46 0x61 0x73 0x74 0x20 0x6C 0x6F 0x61 0x64 0x69 0x6E 0x67 0x20 0x69 0x6D 0x61 0x67 0x65 0x20 0x75 0x73 0x69 0x6E 0x67 0x20 0x44 0x4D 0x41 0x3A 0x00 0x00
+.DATA 0x48 0x65 0x6C 0x6C 0x6F 0x2C 0x20 0x52 0x6F 0x73 0x70 0x4F 0x53 0x20 0x54 0x65 0x72 0x6D 0x69 0x6E 0x61 0x6C 0x21 0x00 0x00
 
 str_16:
 
-.DATA 0x4D 0x61 0x6C 0x6C 0x6F 0x63 0x20 0x74 0x65 0x73 0x74 0x20 0x70 0x61 0x73 0x73 0x65 0x64 0x21 0x00 0x00
+.DATA 0x54 0x68 0x69 0x73 0x20 0x69 0x73 0x20 0x61 0x20 0x73 0x69 0x6D 0x70 0x6C 0x65 0x20 0x74 0x65 0x72 0x6D 0x69 0x6E 0x61 0x6C 0x20 0x69 0x6D 0x70 0x6C 0x65 0x6D 0x65 0x6E 0x74 0x61 0x74 0x69 0x6F 0x6E 0x2E 0x00 0x00
 
 str_17:
 
-.DATA 0x4D 0x61 0x6C 0x6C 0x6F 0x63 0x20 0x74 0x65 0x73 0x74 0x20 0x66 0x61 0x69 0x6C 0x65 0x64 0x21 0x00 0x00
+.DATA 0x46 0x61 0x73 0x74 0x20 0x6C 0x6F 0x61 0x64 0x69 0x6E 0x67 0x20 0x69 0x6D 0x61 0x67 0x65 0x20 0x75 0x73 0x69 0x6E 0x67 0x20 0x44 0x4D 0x41 0x3A 0x00 0x00
 
 str_18:
 
-.DATA 0x4D 0x61 0x6C 0x6C 0x6F 0x63 0x20 0x74 0x65 0x73 0x74 0x20 0x66 0x61 0x69 0x6C 0x65 0x64 0x3A 0x20 0x4D 0x45 0x4D 0x21 0x00 0x00
+.DATA 0x4D 0x61 0x6C 0x6C 0x6F 0x63 0x20 0x74 0x65 0x73 0x74 0x20 0x70 0x61 0x73 0x73 0x65 0x64 0x21 0x00 0x00
 
 str_19:
 
-.DATA 0x49 0x6E 0x74 0x20 0x74 0x6F 0x20 0x73 0x74 0x72 0x20 0x74 0x65 0x73 0x74 0x3A 0x20 0x00 0x00
+.DATA 0x4D 0x61 0x6C 0x6C 0x6F 0x63 0x20 0x74 0x65 0x73 0x74 0x20 0x66 0x61 0x69 0x6C 0x65 0x64 0x21 0x00 0x00
 
 str_20:
 
-.DATA 0x49 0x6E 0x74 0x20 0x74 0x6F 0x20 0x73 0x74 0x72 0x20 0x74 0x65 0x73 0x74 0x20 0x66 0x61 0x69 0x6C 0x65 0x64 0x3A 0x20 0x4D 0x45 0x4D 0x21 0x00 0x00
+.DATA 0x4D 0x61 0x6C 0x6C 0x6F 0x63 0x20 0x74 0x65 0x73 0x74 0x20 0x66 0x61 0x69 0x6C 0x65 0x64 0x3A 0x20 0x4D 0x45 0x4D 0x21 0x00 0x00
 
 str_21:
 
-.DATA 0x33 0x2B 0x34 0x2A 0x32 0x2F 0x28 0x31 0x2D 0x35 0x29 0x00
+.DATA 0x49 0x6E 0x74 0x20 0x74 0x6F 0x20 0x73 0x74 0x72 0x20 0x74 0x65 0x73 0x74 0x3A 0x20 0x00 0x00
 
 str_22:
 
-.DATA 0x49 0x6E 0x66 0x69 0x78 0x3A 0x20 0x00 0x00
+.DATA 0x49 0x6E 0x74 0x20 0x74 0x6F 0x20 0x73 0x74 0x72 0x20 0x74 0x65 0x73 0x74 0x20 0x66 0x61 0x69 0x6C 0x65 0x64 0x3A 0x20 0x4D 0x45 0x4D 0x21 0x00 0x00
 
 str_23:
 
-.DATA 0x4D 0x65 0x6D 0x6F 0x72 0x79 0x20 0x61 0x6C 0x6C 0x6F 0x63 0x61 0x74 0x69 0x6F 0x6E 0x20 0x66 0x61 0x69 0x6C 0x65 0x64 0x20 0x66 0x6F 0x72 0x20 0x52 0x50 0x4E 0x20 0x62 0x75 0x66 0x66 0x65 0x72 0x2E 0x00 0x00
+.DATA 0x33 0x2B 0x34 0x2A 0x32 0x2F 0x28 0x31 0x2D 0x35 0x29 0x00
 
 str_24:
 
-.DATA 0x52 0x50 0x4E 0x3A 0x20 0x00 0x00
+.DATA 0x49 0x6E 0x66 0x69 0x78 0x3A 0x20 0x00 0x00
 
 str_25:
 
-.DATA 0x52 0x65 0x73 0x75 0x6C 0x74 0x3A 0x20 0x00 0x00
+.DATA 0x4D 0x65 0x6D 0x6F 0x72 0x79 0x20 0x61 0x6C 0x6C 0x6F 0x63 0x61 0x74 0x69 0x6F 0x6E 0x20 0x66 0x61 0x69 0x6C 0x65 0x64 0x20 0x66 0x6F 0x72 0x20 0x52 0x50 0x4E 0x20 0x62 0x75 0x66 0x66 0x65 0x72 0x2E 0x00 0x00
 
 str_26:
 
-.DATA 0x43 0x75 0x72 0x72 0x65 0x6E 0x74 0x20 0x74 0x69 0x6D 0x65 0x3A 0x20 0x0A 0x00
+.DATA 0x52 0x50 0x4E 0x3A 0x20 0x00 0x00
 
 str_27:
 
-.DATA 0x46 0x69 0x62 0x6F 0x6E 0x61 0x63 0x63 0x69 0x20 0x6E 0x75 0x6D 0x62 0x65 0x72 0x3A 0x20 0x00 0x00
+.DATA 0x52 0x65 0x73 0x75 0x6C 0x74 0x3A 0x20 0x00 0x00
 
 str_28:
+
+.DATA 0x43 0x75 0x72 0x72 0x65 0x6E 0x74 0x20 0x74 0x69 0x6D 0x65 0x3A 0x20 0x0A 0x00
+
+str_29:
+
+.DATA 0x46 0x69 0x62 0x6F 0x6E 0x61 0x63 0x63 0x69 0x20 0x6E 0x75 0x6D 0x62 0x65 0x72 0x3A 0x20 0x00 0x00
+
+str_30:
 
 .DATA 0x46 0x69 0x62 0x6F 0x6E 0x61 0x63 0x63 0x69 0x20 0x6E 0x75 0x6D 0x62 0x65 0x72 0x20 0x74 0x65 0x73 0x74 0x20 0x66 0x61 0x69 0x6C 0x65 0x64 0x3A 0x20 0x4D 0x45 0x4D 0x21 0x00 0x00
 
@@ -5969,14 +6503,6 @@ infix_to_rpn_60_stack_buf1:
 .SPACE 512
 
 evaluate_rpn_61_stack_buf1:
-
-.SPACE 512
-
-fs_test_65_device_info_buf1:
-
-.SPACE 512
-
-fs_test_65_file_contents_buf2:
 
 .SPACE 512
 

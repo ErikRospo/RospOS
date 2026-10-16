@@ -2298,6 +2298,112 @@ translation_unit
             init_declarator
               declarator	i
               0
+        if_stmt
+          equality
+            value
+            eq
+            0
+          compound_stmt
+            while_stmt
+              logic_and
+                relational
+                  i
+                  lt
+                  n
+                equality
+                  cast
+                    type_specifier
+                      int
+                    bit_and
+                      additive
+                        out
+                        plus
+                        i
+                      3
+                  neq
+                  0
+              compound_stmt
+                expr_stmt
+                  assignment
+                    postfix
+                      out
+                      array_index	i
+                    0
+                expr_stmt
+                  assignment
+                    i
+                    additive
+                      i
+                      plus
+                      1
+            declaration
+              type_specifier
+                int
+                pointer
+              init_declarator_list
+                init_declarator
+                  declarator	words
+                  cast
+                    type_specifier
+                      int
+                      pointer
+                    additive
+                      out
+                      plus
+                      i
+            while_stmt
+              relational
+                additive
+                  i
+                  plus
+                  4
+                lte
+                n
+              compound_stmt
+                expr_stmt
+                  postfix
+                    __sw
+                    call_suffix
+                      arg_list
+                        cast
+                          type_specifier
+                            int
+                          words
+                        0
+                expr_stmt
+                  assignment
+                    words
+                    additive
+                      words
+                      plus
+                      4
+                expr_stmt
+                  assignment
+                    i
+                    additive
+                      i
+                      plus
+                      4
+            while_stmt
+              relational
+                i
+                lt
+                n
+              compound_stmt
+                expr_stmt
+                  assignment
+                    postfix
+                      out
+                      array_index	i
+                    0
+                expr_stmt
+                  assignment
+                    i
+                    additive
+                      i
+                      plus
+                      1
+            return_stmt	dest
         while_stmt
           relational
             i
@@ -2848,6 +2954,16 @@ translation_unit
               header
               ptr_member_access	free
             1
+        expr_stmt
+          postfix
+            memset
+            call_suffix
+              arg_list
+                ptr
+                0
+                postfix
+                  header
+                  ptr_member_access	size
   external_decl
     function_def
       type_specifier
@@ -6256,11 +6372,33 @@ translation_unit
         declaration
           type_specifier
             char
+            pointer
           init_declarator_list
             init_declarator
-              declarator
-                device_info
-                array	512
+              declarator	device_info
+              cast
+                type_specifier
+                  char
+                  pointer
+                postfix
+                  malloc
+                  call_suffix
+                    arg_list	512
+        if_stmt
+          unary
+            not
+            device_info
+          compound_stmt
+            expr_stmt
+              postfix
+                draw_string_to_display
+                call_suffix
+                  arg_list
+                    "Memory allocation failed for device info buffer.\0"
+                    0
+                    8
+                    0x3F
+            return_stmt	0
         expr_stmt
           postfix
             read_block
@@ -6277,14 +6415,41 @@ translation_unit
                 0
                 8
                 0x3F
+        expr_stmt
+          postfix
+            free
+            call_suffix
+              arg_list	device_info
         declaration
           type_specifier
             char
+            pointer
           init_declarator_list
             init_declarator
-              declarator
-                file_contents
-                array	512
+              declarator	file_contents
+              cast
+                type_specifier
+                  char
+                  pointer
+                postfix
+                  malloc
+                  call_suffix
+                    arg_list	512
+        if_stmt
+          unary
+            not
+            file_contents
+          compound_stmt
+            expr_stmt
+              postfix
+                draw_string_to_display
+                call_suffix
+                  arg_list
+                    "Memory allocation failed for file contents buffer.\0"
+                    0
+                    16
+                    0x3F
+            return_stmt	0
         expr_stmt
           postfix
             read_file
@@ -6301,6 +6466,11 @@ translation_unit
                 0
                 16
                 0x3F
+        expr_stmt
+          postfix
+            free
+            call_suffix
+              arg_list	file_contents
   external_decl
     function_def
       type_specifier

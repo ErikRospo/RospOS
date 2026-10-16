@@ -40,12 +40,24 @@ void fs_test()
 {
     initialize_filesystem();
     write_file("example.txt\0", "Hello, RospOS filesystem!\0");
-    char device_info[512];
+    char *device_info = (char *)malloc(512);
+    if (!device_info)
+    {
+        draw_string_to_display("Memory allocation failed for device info buffer.\0", 0, 8, 0x3F);
+        return;
+    }
     read_block(0xFFFFFFFF, device_info); // Read from the special block to get device info
     draw_string_to_display(device_info, 0, 8, 0x3F);
-    char file_contents[512];
+    free(device_info);
+    char *file_contents = (char *)malloc(512);
+    if (!file_contents)
+    {
+        draw_string_to_display("Memory allocation failed for file contents buffer.\0", 0, 16, 0x3F);
+        return;
+    }
     read_file("example.txt\0", file_contents);
     draw_string_to_display(file_contents, 0, 16, 0x3F);
+    free(file_contents);
 }
 void rand_block_display_test()
 {
