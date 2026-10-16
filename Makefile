@@ -1,3 +1,5 @@
+# -----------------------------------------------------------------------------
+# Tool settings
 PY ?= .venv/bin/python
 CMAKE ?= cmake
 PANDOC ?= pandoc
@@ -5,6 +7,8 @@ HEXDUMP ?= hexdump -C
 NPROC ?= $(shell nproc)
 BENCH_REPEAT ?= 100
 
+# -----------------------------------------------------------------------------
+# Native Qt SDK settings
 # Keep Qt pinned and local to this checkout. Override QT_ROOT to use another
 # installation directory while keeping the selected version and kits aligned.
 QT_VERSION ?= 6.12.0
@@ -21,6 +25,8 @@ QT_AQT ?= $(QT_AQT_ENV)/bin/aqt
 # cross-build dependency helper searches only QT_HOST_PATH (the native kit).
 QT_WASM_HOST_INFO_DIR ?= $(QT_WASM)/lib/cmake/Qt6HostInfo
 
+# -----------------------------------------------------------------------------
+# Source files and build paths
 ROSPCC_PARSER := rospocc/parser.py
 ROSPOAS_COMPILE := rospoas/compile.py
 FONT_GEN := tools/generate_fb_map_data.py
@@ -40,10 +46,8 @@ ROSP_BINC := $(DIR_ROSPOS_BUILD)/rospos_binc.rosp
 ROSP_COMBINED := $(DIR_ROSPOS_BUILD)/rospos_c.rosp
 ROSP_VARIANTS := $(ROSP_FULL) $(ROSP_DEBC) $(ROSP_BINC) $(ROSP_COMBINED)
 
-DOCS := Design.md Ideas.md Log.md
-HTMLDOCS := $(addprefix $(DIR_DOCS_BUILD),$(DOCS:.md=.html))
-PDFDOCS := $(addprefix $(DIR_DOCS_BUILD),$(DOCS:.md=.pdf))
-
+# -----------------------------------------------------------------------------
+# Compiler inputs and dependency tracking
 ROSPOAS_COMMON_ARGS := --optimize --bin-version 2 --rospocc-mapping --segment-debug
 ROSPO_VERBOSE_ARG := $(if $(filter 3 -vvv,$(VERBOSE)),-vvv,$(if $(filter 2 -vv,$(VERBOSE)),-vv,$(if $(VERBOSE),-v,)))
 
@@ -52,100 +56,14 @@ ROSPCC_DEP := $(sort $(shell find rospocc -maxdepth 1 -type f) rospolog.py requi
 ROSPOS_DEP := $(sort $(shell find rospos -type f -not -path "rospos/build/*"))
 ROSPOVM_SRC := $(sort $(shell find rospovm -type f -not -path "rospovm/build/*"))
 
-.DEFAULT_GOAL := build
+# -----------------------------------------------------------------------------
+# Documentation outputs
+DOCS := Design.md Ideas.md Log.md
+HTMLDOCS := $(addprefix $(DIR_DOCS_BUILD),$(DOCS:.md=.html))
+PDFDOCS := $(addprefix $(DIR_DOCS_BUILD),$(DOCS:.md=.pdf))
 
-.PHONY: all help venv bm parse compile dump build clean doc format frontend \
-		frontend_cmake frontend_wasm frontend_wasm_light frontend_wasm_dark \
-		frontend_wasm_both frontend_wasm_minimal frontend_wasm_full run     \ 
-		vm_headless run_headless test report benchmark benchmark_plot       \
-		everything frontend_minimal run_minimal	min_run vm_fuzz_harness 
-
-all: build
-
-venv:
-	python3 -m venv .venv
-	.venv/bin/python -m pip install -r requirements.txt
-
-help:
-	@echo "Common targets:"
-	@echo "  venv             Create the root .venv and install Python dependencies"
-	@echo "  bm               Generate font bitmap binary"
-	@echo "  parse            Compile .rosc to .ros"
-	@echo "  compile          Assemble all .rosp output variants"
-	@echo "  frontend         Build Qt VM frontend"
-	@echo "  qt_sdk           Download the pinned native and WebAssembly Qt kits"
-	@echo "  frontend_wasm    Set up WASM dependencies and build frontend"
-	@echo "  frontend_minimal Build minimal VM frontend"
-	@echo "  vm_headless      Build headless VM"
-	@echo "  run              Run with Qt frontend"
-	@echo "  run_minimal      Run with minimal frontend"
-	@echo "  run_headless     Run with headless VM"
-	@echo "  min_run 		  Run with minimal frontend without full rebuild"
-	@echo "  doc              Build HTML and PDF docs"
-	@echo "  test             Run test suite"
-	@echo "  benchmark        Run benchmark suite"
-	@echo "  benchmark_plot   Plot benchmark metric trends over time"
-	@echo "  report           Generate project report"
-	@echo "  build            Full project build"
-	@echo "  everything       Build + docs + benchmark + report"
-
-$(DIR_ROSPOS_BUILD) $(DIR_ROSPOVM_BUILD) $(DIR_DOCS_BUILD):
-	mkdir -p $@
-
-rospos/font_bitmap.bin: $(FONT_GEN) $(FONT_SRC)
-	mkdir -p $(dir $@)
-	$(PY) $(FONT_GEN) --output $@ --input $(FONT_SRC) 1>&2
-
-$(ROS_ASM): $(ROS_SOURCE) $(ROSPCC_DEP) $(ROSPOS_DEP) | $(DIR_ROSPOS_BUILD)
-	$(PY) $(ROSPCC_PARSER) $(ROSPO_VERBOSE_ARG) --input $< --output $@
-
-define make_rosp_variant
-$1: $(ROS_ASM) $(ROSPOAS_DEP) | $(DIR_ROSPOS_BUILD)
-	$(PY) $(ROSPOAS_COMPILE) $(ROSPOAS_COMMON_ARGS) $(ROSPO_VERBOSE_ARG) $2 --input $$< --output $$@
-endef
-
-$(eval $(call make_rosp_variant,$(ROSP_FULL),--debug-all))
-$(eval $(call make_rosp_variant,$(ROSP_DEBC),--compress-debug))
-$(eval $(call make_rosp_variant,$(ROSP_BINC),--compress-bin))
-$(eval $(call make_rosp_variant,$(ROSP_COMBINED),--compress-bin --compress-debug))
-
-$(DIR_ROSPOVM_BUILD)/Makefile: rospovm/CMakeLists.txt Makefile $(QT_ROOT)/.native-qt-installed | $(DIR_ROSPOVM_BUILD)
-	"$(QT_NATIVE_CMAKE)" -S rospovm -B $(DIR_ROSPOVM_BUILD)
-
-define make_vm_target
-$(DIR_ROSPOVM_BUILD)/.$1.stamp: $(DIR_ROSPOVM_BUILD)/Makefile $(ROSPOVM_SRC)
-	$(CMAKE) --build $(DIR_ROSPOVM_BUILD) --target $1 -j $(NPROC)
-	@touch $$@
-
-$(DIR_ROSPOVM_BUILD)/$1: $(DIR_ROSPOVM_BUILD)/.$1.stamp
-endef
-
-$(eval $(call make_vm_target,rospovm_qt))
-$(eval $(call make_vm_target,rospovm_headless))
-$(eval $(call make_vm_target,rospovm_minimal))
-
-$(DIR_DOCS_BUILD)%.html: doc/%.md | $(DIR_DOCS_BUILD)
-	$(PANDOC) $< --filter pandoc-include -s -o $@
-	# Widen generated Pandoc layout for improved readability on wide displays.
-	sed -i 's/max-width: 36em;/max-width: 64em;/g' $@
-
-$(DIR_DOCS_BUILD)%.pdf: doc/%.md | $(DIR_DOCS_BUILD)
-	$(PANDOC) $< --filter pandoc-include -V links-as-notes=true -o $@
-
-rosbdump.txt: $(ROSP_FULL)
-	$(PY) tools/rosb_tool.py inspect rospos.blockdev --show-data > rospbdump.txt
-rbdump: rosbdump.txt
-doc: $(HTMLDOCS) $(PDFDOCS)
-
-bm: rospos/font_bitmap.bin
-parse: $(ROS_ASM)
-compile: $(ROSP_VARIANTS)
-frontend_cmake: $(DIR_ROSPOVM_BUILD)/Makefile
-frontend: $(DIR_ROSPOVM_BUILD)/rospovm_qt
-frontend_minimal: $(DIR_ROSPOVM_BUILD)/rospovm_minimal
-vm_headless: $(DIR_ROSPOVM_BUILD)/rospovm_headless
-
-
+# -----------------------------------------------------------------------------
+# WebAssembly SDK and dependency settings
 EMSDK_VERSION ?= 5.0.5
 EMSDK_DIR ?= $(abspath .deps/emsdk)
 
@@ -169,12 +87,130 @@ HIGHLIGHTING_DIR := $(abspath rospovm/highlighting)
 WASM_BUILD_TYPE ?= MinSizeRel
 WASM_CMAKE_ARGS ?=
 
-# Recipe lines run in separate shells; load the SDK for each build command.
-# Host Qt tools must load this kit's libraries before any system Qt libraries.
+# Each recipe loads the SDK because Make runs recipe lines in separate shells.
+# Host Qt tools load this kit's libraries before any system Qt libraries.
 WASM_RUN = EMSDK_QUIET=1 bash -c 'source "$(EMSDK_DIR)/emsdk_env.sh" && export LD_LIBRARY_PATH="$(QT_NATIVE)/lib$${LD_LIBRARY_PATH:+:$$LD_LIBRARY_PATH}" && exec "$$@"' --
 
-.PHONY: qt_sdk wasm_sdk wasm_dependencies
+.DEFAULT_GOAL := build
 
+# -----------------------------------------------------------------------------
+# Public targets
+.PHONY: all help venv bm parse compile dump build clean doc format frontend \
+	frontend_cmake frontend_minimal frontend_wasm frontend_wasm_minimal \
+	frontend_wasm_full run run_minimal min_run run_headless vm_headless \
+	qt_sdk wasm_sdk wasm_dependencies test report benchmark benchmark_plot \
+	vm_fuzz_harness everything rbdump build_everything
+
+# Basic setup and target discovery
+all: build
+
+venv:
+	python3 -m venv .venv
+	.venv/bin/python -m pip install -r requirements.txt
+
+help:
+	@echo "Common targets:"
+	@echo "  venv             Create the root .venv and install Python dependencies"
+	@echo "  bm               Generate font bitmap binary"
+	@echo "  parse            Compile .rosc to .ros"
+	@echo "  compile          Assemble all .rosp output variants"
+	@echo "  frontend         Build Qt VM frontend"
+	@echo "  qt_sdk           Download the pinned native and WebAssembly Qt kits"
+	@echo "  frontend_wasm    Build both WebAssembly frontends"
+	@echo "  frontend_wasm_minimal Build minimal WebAssembly frontend"
+	@echo "  frontend_wasm_full Build full WebAssembly frontend"
+	@echo "  frontend_minimal Build minimal VM frontend"
+	@echo "  vm_headless      Build headless VM"
+	@echo "  run              Run with Qt frontend"
+	@echo "  run_minimal      Run with minimal frontend"
+	@echo "  run_headless     Run with headless VM"
+	@echo "  min_run          Alias for run_minimal"
+	@echo "  doc              Build HTML and PDF docs"
+	@echo "  test             Run test suite"
+	@echo "  benchmark        Run benchmark suite"
+	@echo "  benchmark_plot   Plot benchmark metric trends over time"
+	@echo "  report           Generate project report"
+	@echo "  build            Full project build"
+	@echo "  everything       Build + docs + benchmark + report"
+	@echo "  clean            Remove all generated files and build directories"
+	@echo "  build_everything  Build + docs + WebAssembly frontends"
+
+# -----------------------------------------------------------------------------
+# Native project build
+
+# Output directories are order-only prerequisites for generated files.
+$(DIR_ROSPOS_BUILD) $(DIR_ROSPOVM_BUILD) $(DIR_DOCS_BUILD):
+	mkdir -p $@
+
+rospos/font_bitmap.bin: $(FONT_GEN) $(FONT_SRC)
+	mkdir -p $(dir $@)
+	$(PY) $(FONT_GEN) --output $@ --input $(FONT_SRC) 1>&2
+
+$(ROS_ASM): $(ROS_SOURCE) $(ROSPCC_DEP) $(ROSPOS_DEP) | $(DIR_ROSPOS_BUILD)
+	$(PY) $(ROSPCC_PARSER) $(ROSPO_VERBOSE_ARG) --input $< --output $@
+
+define make_rosp_variant
+$1: $(ROS_ASM) $(ROSPOAS_DEP) | $(DIR_ROSPOS_BUILD)
+	$(PY) $(ROSPOAS_COMPILE) $(ROSPOAS_COMMON_ARGS) $(ROSPO_VERBOSE_ARG) $2 --input $$< --output $$@
+endef
+
+$(eval $(call make_rosp_variant,$(ROSP_FULL),--debug-all))
+$(eval $(call make_rosp_variant,$(ROSP_DEBC),--compress-debug))
+$(eval $(call make_rosp_variant,$(ROSP_BINC),--compress-bin))
+$(eval $(call make_rosp_variant,$(ROSP_COMBINED),--compress-bin --compress-debug))
+
+# Configure and build the native Qt, minimal, and headless VM variants.
+$(DIR_ROSPOVM_BUILD)/Makefile: rospovm/CMakeLists.txt Makefile $(QT_ROOT)/.native-qt-installed | $(DIR_ROSPOVM_BUILD)
+	"$(QT_NATIVE_CMAKE)" -S rospovm -B $(DIR_ROSPOVM_BUILD)
+
+define make_vm_target
+$(DIR_ROSPOVM_BUILD)/.$1.stamp: $(DIR_ROSPOVM_BUILD)/Makefile $(ROSPOVM_SRC)
+	$(CMAKE) --build $(DIR_ROSPOVM_BUILD) --target $1 -j $(NPROC)
+	@touch $$@
+
+$(DIR_ROSPOVM_BUILD)/$1: $(DIR_ROSPOVM_BUILD)/.$1.stamp
+endef
+
+$(eval $(call make_vm_target,rospovm_qt))
+$(eval $(call make_vm_target,rospovm_headless))
+$(eval $(call make_vm_target,rospovm_minimal))
+
+# Friendly aliases for the generated native build outputs.
+bm: rospos/font_bitmap.bin
+parse: $(ROS_ASM)
+compile: $(ROSP_VARIANTS)
+frontend_cmake: $(DIR_ROSPOVM_BUILD)/Makefile
+frontend: $(DIR_ROSPOVM_BUILD)/rospovm_qt
+frontend_minimal: $(DIR_ROSPOVM_BUILD)/rospovm_minimal
+vm_headless: $(DIR_ROSPOVM_BUILD)/rospovm_headless
+
+# -----------------------------------------------------------------------------
+# Documentation and disk image utilities
+
+# Render Markdown source files to HTML and PDF.
+$(DIR_DOCS_BUILD)%.html: doc/%.md | $(DIR_DOCS_BUILD)
+	$(PANDOC) $< --filter pandoc-include -s -o $@
+	# Widen generated Pandoc layout for improved readability on wide displays.
+	sed -i 's/max-width: 36em;/max-width: 64em;/g' $@
+
+$(DIR_DOCS_BUILD)%.pdf: doc/%.md | $(DIR_DOCS_BUILD)
+	$(PANDOC) $< --filter pandoc-include -V links-as-notes=true -o $@
+
+rosbdump.txt: $(ROSP_FULL)
+	$(PY) tools/rosb_tool.py inspect rospos.blockdev --show-data > rospbdump.txt
+
+# Build documentation or inspect the generated disk image.
+rbdump: rosbdump.txt
+doc: $(HTMLDOCS) $(PDFDOCS)
+
+# Display a compiled ROSP image as a hex dump.
+dump: $(ROSP_FULL)
+	$(HEXDUMP) $< 1>&2
+
+# -----------------------------------------------------------------------------
+# WebAssembly SDK, dependencies, and frontend builds
+
+# Install the pinned Qt kits and Emscripten SDK used by the cross-build.
 $(QT_AQT): tools/requirements-wasm.txt
 	python3 -m venv "$(QT_AQT_ENV)"
 	"$(QT_AQT_ENV)/bin/python" -m pip install --disable-pip-version-check -r "$<"
@@ -200,6 +236,7 @@ wasm_sdk: $(EMSDK_DIR)/emsdk
 	"$(EMSDK_DIR)/emsdk" install "$(EMSDK_VERSION)"
 	"$(EMSDK_DIR)/emsdk" activate "$(EMSDK_VERSION)"
 
+# Fetch and prepare KDE Frameworks dependencies for the Wasm target.
 $(KF_SOURCE)/CMakeLists.txt:
 	mkdir -p "$(dir $(KF_SOURCE))"
 	git clone --depth 1 --branch "v$(KF_VERSION)" \
@@ -264,6 +301,7 @@ wasm_dependencies: qt_sdk wasm_sdk $(KF_SOURCE)/.minimal-syntax-ready $(KF_ECM)/
 	$(WASM_RUN) $(CMAKE) --build "$(KF_BUILD)" --parallel $(NPROC)
 	$(WASM_RUN) $(CMAKE) --install "$(KF_BUILD)"
 
+# Build either or both WebAssembly VM frontends.
 frontend_wasm: frontend_wasm_minimal frontend_wasm_full
 
 frontend_wasm_full: wasm_dependencies $(ROSP_FULL)
@@ -295,6 +333,9 @@ frontend_wasm_minimal: wasm_dependencies $(ROSP_FULL)
 	$(WASM_RUN) $(CMAKE) --build "$(DIR_ROSPOVM_WASM_BUILD)" \
 		--target rospovm_html_minimal --parallel $(NPROC)
 		
+# -----------------------------------------------------------------------------
+# Run targets
+
 run: $(ROSP_FULL) $(DIR_ROSPOVM_BUILD)/rospovm_qt
 	$(DIR_ROSPOVM_BUILD)/rospovm_qt $<
 
@@ -303,6 +344,12 @@ run_minimal: $(ROSP_FULL) $(DIR_ROSPOVM_BUILD)/rospovm_minimal
 
 run_headless: $(ROSP_FULL) $(DIR_ROSPOVM_BUILD)/rospovm_headless
 	$(DIR_ROSPOVM_BUILD)/rospovm_headless $<
+
+# Backward-compatible short alias for the minimal frontend.
+min_run: run_minimal
+
+# -----------------------------------------------------------------------------
+# Test, benchmark, and report targets
 
 report: tools/report.py
 	$(PY) tools/report.py
@@ -320,17 +367,15 @@ test: vm_fuzz_harness
 	ROSPOS_VM_FUZZ_HARNESS=$(DIR_ROSPOVM_BUILD)/rospovm_fuzz_harness \
 	$(PY) -m unittest discover -s tests -p "test_*.py" -v --buffer
 
-dump: $(ROSP_FULL)
-	$(HEXDUMP) $< 1>&2
+# -----------------------------------------------------------------------------
+# Aggregate and maintenance targets
 
 build: bm compile frontend frontend_minimal vm_headless
-
+build_everything: build doc frontend_wasm
 format:
 	black .
 	isort .
 
-min_run: $(ROSP_FULL) $(DIR_ROSPOVM_BUILD)/rospovm_minimal
-	$(DIR_ROSPOVM_BUILD)/rospovm_minimal $<
 clean:
 	rm -rf $(DIR_ROSPOS_BUILD)
 	rm -rf $(DIR_ROSPOVM_BUILD)
