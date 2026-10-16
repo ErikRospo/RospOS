@@ -5,6 +5,22 @@ HEXDUMP ?= hexdump -C
 NPROC ?= $(shell nproc)
 BENCH_REPEAT ?= 100
 
+# Keep Qt pinned and local to this checkout. Override QT_ROOT to use another
+# installation directory while keeping the selected version and kits aligned.
+QT_VERSION ?= 6.12.0
+QT_ROOT ?= $(abspath .deps/qt)/$(QT_VERSION)
+QT_INSTALL_ROOT ?= $(abspath $(dir $(QT_ROOT)))
+QT_NATIVE ?= $(QT_ROOT)/gcc_64
+QT_WASM ?= $(QT_ROOT)/wasm_singlethread
+QT_NATIVE_ARCH ?= linux_gcc_64
+QT_NATIVE_CMAKE ?= $(QT_NATIVE)/bin/qt-cmake
+QT_WASM_CMAKE ?= $(QT_WASM)/bin/qt-cmake
+QT_AQT_ENV ?= $(abspath .deps/qt-installer-venv)
+QT_AQT ?= $(QT_AQT_ENV)/bin/aqt
+# Qt 6.12's Wasm kit ships Qt6HostInfo with the target kit, but Qt's
+# cross-build dependency helper searches only QT_HOST_PATH (the native kit).
+QT_WASM_HOST_INFO_DIR ?= $(QT_WASM)/lib/cmake/Qt6HostInfo
+
 ROSPCC_PARSER := rospocc/parser.py
 ROSPOAS_COMPILE := rospoas/compile.py
 FONT_GEN := tools/generate_fb_map_data.py
@@ -57,6 +73,7 @@ help:
 	@echo "  parse            Compile .rosc to .ros"
 	@echo "  compile          Assemble all .rosp output variants"
 	@echo "  frontend         Build Qt VM frontend"
+	@echo "  qt_sdk           Download the pinned native and WebAssembly Qt kits"
 	@echo "  frontend_wasm    Set up WASM dependencies and build frontend"
 	@echo "  frontend_minimal Build minimal VM frontend"
 	@echo "  vm_headless      Build headless VM"
@@ -92,8 +109,8 @@ $(eval $(call make_rosp_variant,$(ROSP_DEBC),--compress-debug))
 $(eval $(call make_rosp_variant,$(ROSP_BINC),--compress-bin))
 $(eval $(call make_rosp_variant,$(ROSP_COMBINED),--compress-bin --compress-debug))
 
-$(DIR_ROSPOVM_BUILD)/Makefile: rospovm/CMakeLists.txt | $(DIR_ROSPOVM_BUILD)
-	$(CMAKE) -S rospovm -B $(DIR_ROSPOVM_BUILD)
+$(DIR_ROSPOVM_BUILD)/Makefile: rospovm/CMakeLists.txt Makefile $(QT_ROOT)/.native-qt-installed | $(DIR_ROSPOVM_BUILD)
+	"$(QT_NATIVE_CMAKE)" -S rospovm -B $(DIR_ROSPOVM_BUILD)
 
 define make_vm_target
 $(DIR_ROSPOVM_BUILD)/.$1.stamp: $(DIR_ROSPOVM_BUILD)/Makefile $(ROSPOVM_SRC)
@@ -129,17 +146,15 @@ frontend_minimal: $(DIR_ROSPOVM_BUILD)/rospovm_minimal
 vm_headless: $(DIR_ROSPOVM_BUILD)/rospovm_headless
 
 
-QT_VERSION ?= 6.12.0
-QT_ROOT ?= $(HOME)/Qt/$(QT_VERSION)
-QT_WASM ?= $(QT_ROOT)/wasm_singlethread
-QT_NATIVE ?= $(QT_ROOT)/gcc_64
-QT_WASM_CMAKE ?= $(QT_WASM)/bin/qt-cmake
-
 EMSDK_VERSION ?= 5.0.5
 EMSDK_DIR ?= $(abspath .deps/emsdk)
-ECM_DIR ?= /usr/share/ECM/cmake
 
 KF_VERSION ?= 6.30.0
+ECM_VERSION ?= $(KF_VERSION)
+ECM_SOURCE := $(abspath .deps/src/extra-cmake-modules-$(ECM_VERSION))
+ECM_BUILD := $(abspath .deps/build/ecm-$(ECM_VERSION))
+ECM_PREFIX := $(abspath .deps/install/ecm-$(ECM_VERSION))
+ECM_DIR ?= $(ECM_PREFIX)/share/ECM/cmake
 KF_SOURCE := $(abspath .deps/src/syntax-highlighting-$(KF_VERSION))
 KF_BUILD := $(abspath .deps/build/kf-$(KF_VERSION)-qt-$(QT_VERSION)-singlethread-em-$(EMSDK_VERSION))
 KF_PREFIX := $(KF_BUILD)/install
@@ -158,7 +173,23 @@ WASM_CMAKE_ARGS ?=
 # Host Qt tools must load this kit's libraries before any system Qt libraries.
 WASM_RUN = EMSDK_QUIET=1 bash -c 'source "$(EMSDK_DIR)/emsdk_env.sh" && export LD_LIBRARY_PATH="$(QT_NATIVE)/lib$${LD_LIBRARY_PATH:+:$$LD_LIBRARY_PATH}" && exec "$$@"' --
 
-.PHONY: wasm_sdk wasm_dependencies
+.PHONY: qt_sdk wasm_sdk wasm_dependencies
+
+$(QT_AQT): tools/requirements-wasm.txt
+	python3 -m venv "$(QT_AQT_ENV)"
+	"$(QT_AQT_ENV)/bin/python" -m pip install --disable-pip-version-check -r "$<"
+
+$(QT_ROOT)/.native-qt-installed: $(QT_AQT)
+	"$(QT_AQT)" install-qt linux desktop "$(QT_VERSION)" "$(QT_NATIVE_ARCH)" --outputdir "$(QT_INSTALL_ROOT)"
+	@touch "$@"
+
+$(QT_ROOT)/.wasm-qt-installed: $(QT_ROOT)/.native-qt-installed
+	"$(QT_AQT)" install-qt all_os wasm "$(QT_VERSION)" wasm_singlethread \
+		--outputdir "$(QT_INSTALL_ROOT)"
+	chmod +x "$(QT_WASM)/bin/qt-cmake"
+	@touch "$@"
+
+qt_sdk: $(QT_ROOT)/.native-qt-installed $(QT_ROOT)/.wasm-qt-installed
 
 $(EMSDK_DIR)/emsdk:
 	mkdir -p "$(dir $(EMSDK_DIR))"
@@ -175,6 +206,19 @@ $(KF_SOURCE)/CMakeLists.txt:
 		https://invent.kde.org/frameworks/syntax-highlighting.git \
 		"$(KF_SOURCE)"
 
+$(ECM_SOURCE)/CMakeLists.txt:
+	mkdir -p "$(dir $(ECM_SOURCE))"
+	git clone --depth 1 --branch "v$(ECM_VERSION)" \
+		https://invent.kde.org/frameworks/extra-cmake-modules.git \
+		"$(ECM_SOURCE)"
+
+$(ECM_PREFIX)/.installed: $(ECM_SOURCE)/CMakeLists.txt
+	cmake -S "$(ECM_SOURCE)" -B "$(ECM_BUILD)" \
+		-DCMAKE_INSTALL_PREFIX="$(ECM_PREFIX)" -DBUILD_TESTING=OFF
+	$(CMAKE) --build "$(ECM_BUILD)" --parallel $(NPROC)
+	$(CMAKE) --install "$(ECM_BUILD)"
+	@touch "$@"
+
 # Use target-compatible resource compression and omit the native-only CLI.
 $(KF_SOURCE)/.wasm-ready: $(KF_SOURCE)/CMakeLists.txt $(KF_WASM_PATCH)
 	git -C "$(KF_SOURCE)" apply "$(KF_WASM_PATCH)"
@@ -187,21 +231,26 @@ $(KF_SOURCE)/.minimal-syntax-ready: $(KF_SOURCE)/.wasm-ready $(KF_MINIMAL_SYNTAX
 
 # ECM 6.30 adds an ELF linker flag on all Unix platforms, including WASM.
 # Patch a private copy so the native indexer retains its normal Linux flags.
-$(KF_ECM)/.wasm-ready: $(ECM_DIR)/ECMConfig.cmake $(ECM_DIR)/../kde-modules/KDECompilerSettings.cmake Makefile
+$(KF_ECM)/.wasm-ready: $(ECM_PREFIX)/.installed Makefile
 	mkdir -p "$(KF_ECM)/share/ECM"
 	cp -R "$(ECM_DIR)/../." "$(KF_ECM)/share/ECM/"
 	sed -i 's/if (UNIX AND NOT APPLE AND NOT CYGWIN)/if (UNIX AND NOT APPLE AND NOT CYGWIN AND NOT EMSCRIPTEN)/' \
 		"$(KF_ECM)/share/ECM/kde-modules/KDECompilerSettings.cmake"
 	touch "$@"
 
-wasm_dependencies: wasm_sdk $(KF_SOURCE)/.minimal-syntax-ready $(KF_ECM)/.wasm-ready
+wasm_dependencies: qt_sdk wasm_sdk $(KF_SOURCE)/.minimal-syntax-ready $(KF_ECM)/.wasm-ready
 	$(WASM_RUN) "$(QT_WASM_CMAKE)" \
 		-S "$(KF_SOURCE)" -B "$(KF_BUILD)" \
 		-DQT_HOST_PATH="$(QT_NATIVE)" \
+		-DQt6CoreTools_DIR="$(QT_NATIVE)/lib/cmake/Qt6CoreTools" \
+		-DQt6LinguistTools_DIR="$(QT_NATIVE)/lib/cmake/Qt6LinguistTools" \
+		-DQT_HOST_PATH_CMAKE_DIR="$(QT_NATIVE)/lib/cmake" \
+		-DQt6HostInfo_DIR="$(QT_WASM_HOST_INFO_DIR)" \
 		-DECM_DIR="$(KF_ECM)/share/ECM/cmake" \
 		-DCMAKE_BUILD_TYPE=Release \
 		-DCMAKE_INSTALL_PREFIX="$(KF_PREFIX)" \
 		-DKDE_INSTALL_LIBDIR=lib \
+		-DKF_IGNORE_PLATFORM_CHECK=ON \
 		-DBUILD_SHARED_LIBS=OFF \
 		-DBUILD_TESTING=OFF \
 		-DBUILD_codeeditor=OFF \
@@ -220,7 +269,11 @@ frontend_wasm: frontend_wasm_minimal frontend_wasm_full
 frontend_wasm_full: wasm_dependencies $(ROSP_FULL)
 	$(WASM_RUN) "$(QT_WASM_CMAKE)" \
 		-S rospovm -B "$(DIR_ROSPOVM_WASM_BUILD)" \
+		-DCMAKE_TOOLCHAIN_FILE="$(QT_WASM)/lib/cmake/Qt6/qt.toolchain.cmake" \
+		-DQt6_DIR="$(QT_WASM)/lib/cmake/Qt6" \
 		-DQT_HOST_PATH="$(QT_NATIVE)" \
+		-DQT_HOST_PATH_CMAKE_DIR="$(QT_NATIVE)/lib/cmake" \
+		-DQt6HostInfo_DIR="$(QT_WASM_HOST_INFO_DIR)" \
 		-DCMAKE_BUILD_TYPE="$(WASM_BUILD_TYPE)" \
 		-DKF6SyntaxHighlighting_DIR="$(KF_PREFIX)/lib/cmake/KF6SyntaxHighlighting" \
 		"-DCMAKE_EXE_LINKER_FLAGS=--preload-file $(HIGHLIGHTING_DIR)@$(HIGHLIGHTING_DIR)" \
@@ -228,10 +281,15 @@ frontend_wasm_full: wasm_dependencies $(ROSP_FULL)
 	$(WASM_RUN) $(CMAKE) --build "$(DIR_ROSPOVM_WASM_BUILD)" \
 		--target rospovm_html --parallel $(NPROC)
 
-frontend_wasm_minimal: wasm_sdk $(ROSP_FULL)
+frontend_wasm_minimal: wasm_dependencies $(ROSP_FULL)
 	$(WASM_RUN) "$(QT_WASM_CMAKE)" \
 		-S rospovm -B "$(DIR_ROSPOVM_WASM_BUILD)" \
+		-DCMAKE_TOOLCHAIN_FILE="$(QT_WASM)/lib/cmake/Qt6/qt.toolchain.cmake" \
+		-DQt6_DIR="$(QT_WASM)/lib/cmake/Qt6" \
 		-DQT_HOST_PATH="$(QT_NATIVE)" \
+		-DQT_HOST_PATH_CMAKE_DIR="$(QT_NATIVE)/lib/cmake" \
+		-DQt6HostInfo_DIR="$(QT_WASM_HOST_INFO_DIR)" \
+		-DKF6SyntaxHighlighting_DIR="$(KF_PREFIX)/lib/cmake/KF6SyntaxHighlighting" \
 		-DCMAKE_BUILD_TYPE="$(WASM_BUILD_TYPE)" \
 		$(WASM_CMAKE_ARGS)
 	$(WASM_RUN) $(CMAKE) --build "$(DIR_ROSPOVM_WASM_BUILD)" \

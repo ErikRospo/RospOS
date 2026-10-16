@@ -180,11 +180,7 @@ if(EMSCRIPTEN)
             "$<$<CONFIG:RelWithDebInfo>:-O2;-g;-sASSERTIONS=1>"
             "$<$<CONFIG:Debug>:-O0;-g;-sASSERTIONS=1>"
         )
-        # PNG is built into QtGui. Retain SVG images/icons, but omit unused
-        # JPEG, GIF, TIFF, WebP, ICNS, ICO, TGA and WBMP format plugins.
-        qt_import_plugins(${target}
-            INCLUDE_BY_TYPE imageformats Qt6::QSvgPlugin
-        )
+        # PNG is built into QtGui. Omit optional image format plugins.
         target_compile_definitions(${target} PRIVATE
             ROSPOSVM_WEB_BUILD=1
             ROSPOSVM_DEFAULT_BINARY_FILE="rospos.rosp"
