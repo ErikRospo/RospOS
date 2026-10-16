@@ -2717,7 +2717,10 @@ translation_unit
           init_declarator_list
             init_declarator
               declarator	node
-              malloc_head
+        expr_stmt
+          assignment
+            node
+            malloc_head
         while_stmt
           postfix
             node
@@ -2749,7 +2752,8 @@ translation_unit
                     additive
                       node
                       plus
-                      1
+                      sizeof
+                        type_specifier	malloc_header
             if_stmt
               equality
                 postfix
@@ -2833,7 +2837,8 @@ translation_unit
             additive
               new_node
               plus
-              1
+              sizeof
+                type_specifier	malloc_header
   external_decl
     function_def
       type_specifier
@@ -2866,7 +2871,8 @@ translation_unit
                     pointer
                   ptr
                 minus
-                1
+                sizeof
+                  type_specifier	malloc_header
         expr_stmt
           assignment
             postfix
@@ -6831,6 +6837,7 @@ translation_unit
                   int_to_str
                   call_suffix
                     arg_list	r3
+                16
         expr_stmt
           postfix
             update_buffer

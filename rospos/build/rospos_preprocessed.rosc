@@ -543,7 +543,8 @@ void *malloc(int size)
     }
 
     int payload = _align4(size);
-    struct malloc_header *node = malloc_head;
+    struct malloc_header *node;
+    node = malloc_head;
     while (node->exists)
     {
         /* Look for a free block of sufficient size */
@@ -554,7 +555,7 @@ void *malloc(int size)
         if (node->free && node->size >= payload)
         {
             node->free = 0;
-            return (void *)(node + 1);
+            return (void *)(node + sizeof(struct malloc_header));
         }
         if (node->next==0){
             break;
@@ -574,7 +575,7 @@ void *malloc(int size)
     new_node->next = malloc_head;
     new_node->exists = 1;
     malloc_head = new_node;
-    return (void *)(new_node + 1);
+    return (void *)(new_node + sizeof(struct malloc_header));
 }
 
 void free(void *ptr)
@@ -584,7 +585,7 @@ void free(void *ptr)
         return 0;
     }
 
-    struct malloc_header *header = ((struct malloc_header *)ptr) - 1;
+    struct malloc_header *header = ((struct malloc_header *)ptr) - sizeof(struct malloc_header);
     header->free = 1;
 }
 //Basic filesystem for RospOS.
@@ -1397,7 +1398,7 @@ void main()
     int r1 = add(15, 25);
     inline int r2 = 50;
     int r3 = add(r1, r2);
-    write_to_buffer(int_to_str(r3));
+    write_to_buffer(int_to_str(r3),16);
     update_buffer();
     display_test();
     fs_test();

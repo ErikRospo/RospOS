@@ -37,6 +37,8 @@ class Emitter:
     ):
         self.label_counter = 0
         self.label_namespace = label_namespace
+        # Nested loop targets for break/continue emission.
+        self.loop_context_stack = []
         self.reg_free = list(abi.TEMP_REGS)
         self.var_regs = {}
         # track simple type hints: var name -> 'char_ptr' | 'int_ptr' | 'int' | 'char' | struct type name

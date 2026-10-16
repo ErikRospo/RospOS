@@ -188,6 +188,8 @@ class StatementTransformer:
             "if_stmt",
             "while_stmt",
             "for_stmt",
+            "break_stmt",
+            "continue_stmt",
         )
 
     @staticmethod
@@ -289,7 +291,10 @@ class StatementTransformer:
                         expr = candidate
                         break
             return [copy_line(stmt_node, {"type": "return", "value": expr})]
-
+        if node_type == "break_stmt":
+            return [copy_line(stmt_node, {"type": "break"})]
+        if node_type == "continue_stmt":
+            return [copy_line(stmt_node, {"type": "continue"})]
         return []
 
     def _extract_condition_and_body(self, children):
@@ -435,6 +440,9 @@ class StatementTransformer:
                             "type": "while",
                             "cond": cond_expr,
                             "body": while_body,
+                            # A continue in a for-loop must run the step
+                            # expression before checking the condition again.
+                            "continue_target_index": len(body_stmts),
                         },
                     )
                 )

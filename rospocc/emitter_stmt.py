@@ -438,6 +438,16 @@ def _emit_call_stmt(emitter, stmt: Dict[str, Any], out):
     )
 
 
+def _emit_loop_control(emitter, stmt: Dict[str, Any], out):
+    if not emitter.loop_context_stack:
+        kind = stmt.get("type")
+        raise StmtEmitterError(f"'{kind}' statement used outside a loop")
+    context = emitter.loop_context_stack[-1]
+    target_key = "break" if stmt.get("type") == "break" else "continue"
+    target = context[target_key]
+    out.write(f"  JMP {target}    // {stmt.get('type')}\n")
+
+
 def _emit_while(emitter, stmt: Dict[str, Any], out):
     cond = stmt.get("cond")
     body = stmt.get("body", []) or []
@@ -445,6 +455,11 @@ def _emit_while(emitter, stmt: Dict[str, Any], out):
     emitter.enter_control_context(protected_vars)
     lbl_start = emitter.gen_label("WHILE")
     lbl_end = emitter.gen_label("WHILE_END")
+    continue_index = stmt.get("continue_target_index")
+    lbl_continue = (
+        emitter.gen_label("FOR_STEP") if continue_index is not None else lbl_start
+    )
+    emitter.loop_context_stack.append({"break": lbl_end, "continue": lbl_continue})
     try:
         out.write(f"{lbl_start}:\n")
         if isinstance(cond, dict) and cond.get("type") == "var":
@@ -457,12 +472,17 @@ def _emit_while(emitter, stmt: Dict[str, Any], out):
         if rcond:
             emitter.release_expr_reg(rcond)
         emitter.enter_var_scope()
-        for s in body:
+        for index, s in enumerate(body):
+            if index == continue_index:
+                out.write(f"{lbl_continue}:\n")
             emitter.emit_statement(s, out)
+        if continue_index == len(body):
+            out.write(f"{lbl_continue}:\n")
         emitter.exit_var_scope()
         out.write(f"  JMP {lbl_start}\n")
         out.write(f"{lbl_end}:\n")
     finally:
+        emitter.loop_context_stack.pop()
         emitter.exit_control_context(protected_vars)
 
 
@@ -477,6 +497,8 @@ STMT_DISPATCH = {
     "if": _emit_if,
     "call_stmt": _emit_call_stmt,
     "while": _emit_while,
+    "break": _emit_loop_control,
+    "continue": _emit_loop_control,
 }
 
 

@@ -62,6 +62,8 @@ compound_stmt: "{" statement* "}"
     	| while_stmt
     	| for_stmt
     	| return_stmt
+		| break_stmt
+		| continue_stmt
 
 expr_stmt: expr? ";"
 
@@ -69,7 +71,8 @@ if_stmt: "if" "(" expr ")" statement ("else" statement)?
 while_stmt: "while" "(" expr ")" statement
 for_stmt: "for" "(" (declaration | expr_stmt)? expr? ";" expr? ")" statement
 return_stmt: "return" expr? ";"
-
+break_stmt: "break;"
+continue_stmt: "continue;"
 ?expr: assignment
 ?assignment: conditional ( ("=" | "+=" | "-=" | "*=" | "/=") assignment)?
 ?conditional: logic_or ("?" expr ":" conditional)?

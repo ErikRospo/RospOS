@@ -90,6 +90,7 @@ WASM_CMAKE_ARGS ?=
 # Each recipe loads the SDK because Make runs recipe lines in separate shells.
 # Host Qt tools load this kit's libraries before any system Qt libraries.
 WASM_RUN = EMSDK_QUIET=1 bash -c 'source "$(EMSDK_DIR)/emsdk_env.sh" && export LD_LIBRARY_PATH="$(QT_NATIVE)/lib$${LD_LIBRARY_PATH:+:$$LD_LIBRARY_PATH}" && exec "$$@"' --
+QT_RUN = LD_LIBRARY_PATH="$(QT_NATIVE)/lib$${LD_LIBRARY_PATH:+:$$LD_LIBRARY_PATH}"
 
 .DEFAULT_GOAL := build
 
@@ -335,13 +336,13 @@ frontend_wasm_minimal: $(DIR_ROSPOVM_WASM_BUILD)/Makefile $(ROSP_FULL)
 # Run targets
 
 run: $(ROSP_FULL) $(DIR_ROSPOVM_BUILD)/rospovm_qt
-	$(DIR_ROSPOVM_BUILD)/rospovm_qt $<
+	$(QT_RUN) $(DIR_ROSPOVM_BUILD)/rospovm_qt $<
 
 run_minimal: $(ROSP_FULL) $(DIR_ROSPOVM_BUILD)/rospovm_minimal
-	$(DIR_ROSPOVM_BUILD)/rospovm_minimal $<
+	$(QT_RUN) $(DIR_ROSPOVM_BUILD)/rospovm_minimal $<
 
 run_headless: $(ROSP_FULL) $(DIR_ROSPOVM_BUILD)/rospovm_headless
-	$(DIR_ROSPOVM_BUILD)/rospovm_headless $<
+	$(QT_RUN) $(DIR_ROSPOVM_BUILD)/rospovm_headless $<
 
 # Backward-compatible short alias for the minimal frontend.
 min_run: run_minimal
