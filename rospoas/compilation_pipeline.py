@@ -131,6 +131,17 @@ class CompilationPipeline:
         self.emit("laid_out", state)
 
         state.debug_writers = collect_debug_segments(state.ir_list)
+        for segment_address, _segment_data in state.segments:
+            state.debug_writers.setdefault(segment_address, DebugInfoWriter())
+        heap_symbols = ("__heap_area", "__heap_used", "malloc_head")
+        for writer in state.debug_writers.values():
+            for symbol in heap_symbols:
+                address = state.addresses.get(symbol)
+                if address is not None:
+                    writer.add_symbol(symbol, address)
+            if "__heap_area" in state.addresses:
+                # The allocator's fixed capacity is also used by _heap_alloc_raw.
+                writer.add_symbol("__heap_area_size", 16384)
         self.emit("debug_info_collected", state)
 
         # Enrich debug info with register allocations if available

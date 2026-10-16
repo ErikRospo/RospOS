@@ -16,7 +16,8 @@ std::shared_ptr<DebugInfo> DebugParser::parse(const std::string& data) {
         HEADER,
         ENTRIES,
         FILES,
-        REGISTERS
+        REGISTERS,
+        SYMBOLS
     };
     
     ParseState state = ParseState::HEADER;
@@ -34,6 +35,10 @@ std::shared_ptr<DebugInfo> DebugParser::parse(const std::string& data) {
         }
         if (line == "REGISTERS:") {
             state = ParseState::REGISTERS;
+            continue;
+        }
+        if (line == "SYMBOLS:") {
+            state = ParseState::SYMBOLS;
             continue;
         }
         
@@ -92,6 +97,20 @@ std::shared_ptr<DebugInfo> DebugParser::parse(const std::string& data) {
                     debug_info->register_allocations[address].push_back(info);
                 } else {
                     std::cerr << "Warning: Failed to parse register allocation entry: " << line << std::endl;
+                }
+                break;
+            }
+
+            case ParseState::SYMBOLS: {
+                std::istringstream iss(line);
+                std::string name;
+                std::string address;
+                if (iss >> name >> address) {
+                    try {
+                        debug_info->symbols[name] = std::stoul(address, nullptr, 0);
+                    } catch (...) {
+                        std::cerr << "Warning: Failed to parse debug symbol: " << line << std::endl;
+                    }
                 }
                 break;
             }

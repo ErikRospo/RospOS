@@ -134,6 +134,7 @@ class DebugInfoWriter:
         self.file_table: Dict[str, int] = {}
         self.file_id_counter = 0
         self.register_allocations: Dict[int, List[RegisterAllocation]] = {}
+        self.symbols: Dict[str, int] = {}
 
     def get_file_id(self, filepath):
         if filepath is None:
@@ -185,6 +186,9 @@ class DebugInfoWriter:
     def add_register_allocation(self, address: int, register_alloc: RegisterAllocation):
         self.register_allocations.setdefault(int(address), []).append(register_alloc)
 
+    def add_symbol(self, name: str, address: int):
+        self.symbols[str(name)] = int(address)
+
     def write_debug_segment(self, segment_addr):
         lines = [
             "DEBUG_VERSION: 1",
@@ -211,5 +215,10 @@ class DebugInfoWriter:
                 for alloc in allocs:
                     alloc_json = json.dumps(alloc.to_dict(), ensure_ascii=False)
                     lines.append(f"0x{addr:08X} {alloc_json}")
+
+        if self.symbols:
+            lines.append("SYMBOLS:")
+            for name, address in sorted(self.symbols.items()):
+                lines.append(f"{name} 0x{address:08X}")
 
         return "\n".join(lines) + "\n"

@@ -17,7 +17,11 @@
 
 void initialize_filesystem()
 {
-    char superblock[512];
+    char *superblock = (char *)malloc(512);
+    if (!superblock)
+    {
+        return;
+    }
     // Write magic number "ROSPFS" and version 1 to superblock
     superblock[0] = 'R';
     superblock[1] = 'O';
@@ -36,11 +40,16 @@ void initialize_filesystem()
     bd_write_u32(0x4000000C, (int)superblock);
     bd_write_u32(0x40000010, 1); // Block Count
     bd_write_u32(0x40000004, 2); // Write command
+    free(superblock);
     return;
 }
 void ensure_filesystem_initialized()
 {
-    char superblock[512];
+    char *superblock = (char *)malloc(512);
+    if (!superblock)
+    {
+        return;
+    }
     bd_write_u32(0x40000008, 0); // Block ID
     bd_write_u32(0x4000000C, (int)superblock);
     bd_write_u32(0x40000010, 1); // Block Count
@@ -49,11 +58,16 @@ void ensure_filesystem_initialized()
     {
         initialize_filesystem();
     }
+    free(superblock);
     return;
 }
 void write_file(char *filename, char *data){
     // Build a full 512-byte directory block so writes never read past our buffer.
-    char scratch_block[512];
+    char *scratch_block = (char *)malloc(512);
+    if (!scratch_block)
+    {
+        return;
+    }
     for (int i = 0; i < 512; i++)
     {
         scratch_block[i] = 0;
@@ -120,11 +134,17 @@ void write_file(char *filename, char *data){
     bd_write_u32(0x4000000C, (int)scratch_block);
     bd_write_u32(0x40000010, 1);
     bd_write_u32(0x40000004, 2);
+    free(scratch_block);
     return;
 }
 void read_file(char *filename, char *buffer){
     // Read directory entry from block 1
-    char dir_entry[512];
+    char *dir_entry = (char *)malloc(512);
+    if (!dir_entry)
+    {
+        buffer[0] = '\0';
+        return;
+    }
     bd_write_u32(0x40000008, 1);
     bd_write_u32(0x4000000C, (int)dir_entry);
     bd_write_u32(0x40000010, 1);
@@ -153,6 +173,7 @@ void read_file(char *filename, char *buffer){
     if (!match)
     {
         buffer[0] = '\0';
+        free(dir_entry);
         return;
     }
 
@@ -173,5 +194,6 @@ void read_file(char *filename, char *buffer){
     {
         buffer[511] = '\0';
     }
+    free(dir_entry);
     return;
 }

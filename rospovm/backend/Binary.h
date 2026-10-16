@@ -49,6 +49,7 @@ struct DebugInfo
     std::vector<DebugEntry> entries;
     std::map<uint32_t, std::string> file_table;
     std::map<uint32_t, std::vector<RegisterAllocationInfo>> register_allocations;
+    std::map<std::string, uint32_t> symbols;
 };
 
 struct SegmentV2

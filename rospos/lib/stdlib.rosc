@@ -133,12 +133,7 @@ struct malloc_header *malloc_head = 0;
 void init_heap()
 {
     __heap_used = 0;
-    malloc_head = (struct malloc_header *)__heap_area;
-    malloc_head->size = 0;
-    malloc_head->free = 1;
-    malloc_head->exists = 1;
-    malloc_head->next = 0;
-    malloc(4); /*First allocation fails*/
+    malloc_head = 0;
 }
 
 int _align4(int value)
@@ -169,7 +164,7 @@ void *malloc(int size)
     int payload = _align4(size);
     struct malloc_header *node;
     node = malloc_head;
-    while (node->exists)
+    while (node && node->exists)
     {
         /* Look for a free block of sufficient size */
         /* Note: this is an incredibly basic allocator.

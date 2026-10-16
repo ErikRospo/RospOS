@@ -13,6 +13,7 @@
 #include <QFileInfo>
 #include <QDateTime>
 #include <QMessageBox>
+#include <algorithm>
 
 namespace {
 bool parseAddressText(const QString &text, uint32_t &outAddress)
@@ -49,6 +50,24 @@ void MemoryView::createUI()
     titleLabel->setFont(titleFont);
     mainLayout->addWidget(titleLabel);
 
+    tabs = new QTabWidget(this);
+    QWidget *memoryPage = new QWidget(tabs);
+    QVBoxLayout *memoryLayout = new QVBoxLayout(memoryPage);
+    tabs->addTab(memoryPage, "Memory");
+    QWidget *mallocPage = new QWidget(tabs);
+    QVBoxLayout *mallocLayout = new QVBoxLayout(mallocPage);
+    mallocSummaryLabel = new QLabel("Load a v2 debug binary with heap symbols to inspect malloc blocks.", mallocPage);
+    mallocLayout->addWidget(mallocSummaryLabel);
+    mallocTable = new QTableWidget(mallocPage);
+    mallocTable->setColumnCount(4);
+    mallocTable->setHorizontalHeaderLabels({"Header", "Payload", "Size", "State"});
+    mallocTable->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+    mallocTable->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    mallocTable->setSelectionBehavior(QAbstractItemView::SelectRows);
+    mallocLayout->addWidget(mallocTable);
+    tabs->addTab(mallocPage, "Malloc");
+    mainLayout->addWidget(tabs);
+
     // Address input layout
     QHBoxLayout *addressLayout = new QHBoxLayout();
     addressLayout->addWidget(new QLabel("Start Address:"));
@@ -61,7 +80,7 @@ void MemoryView::createUI()
 
     connect(addressInput, &QLineEdit::returnPressed, this, &MemoryView::onAddressChanged);
 
-    mainLayout->addLayout(addressLayout);
+    memoryLayout->addLayout(addressLayout);
 
     // Export range controls
     QHBoxLayout *exportLayout = new QHBoxLayout();
@@ -89,7 +108,7 @@ void MemoryView::createUI()
     connect(exportStartInput, &QLineEdit::returnPressed, this, &MemoryView::onExportRangeClicked);
     connect(exportEndInput, &QLineEdit::returnPressed, this, &MemoryView::onExportRangeClicked);
 
-    mainLayout->addLayout(exportLayout);
+    memoryLayout->addLayout(exportLayout);
 
     // Memory table
     memoryTable = new QTableWidget();
@@ -121,7 +140,7 @@ void MemoryView::createUI()
 
     memoryTable->setRowCount(16); // Display 16 rows of 16 bytes each
 
-    mainLayout->addWidget(memoryTable);
+    memoryLayout->addWidget(memoryTable);
     setLayout(mainLayout);
 }
 
@@ -257,9 +276,46 @@ void MemoryView::populateMemory(uint32_t address)
     }
 }
 
+void MemoryView::populateMallocBlocks()
+{
+    if (!vmController) {
+        return;
+    }
+
+    MallocHeapSnapshot snapshot;
+    if (!vmController->getMallocHeapSnapshot(snapshot)) {
+        mallocSummaryLabel->setText("Malloc symbols are unavailable or heap metadata is invalid.");
+        mallocTable->setRowCount(0);
+        return;
+    }
+
+    std::sort(snapshot.blocks.begin(), snapshot.blocks.end(), [](const auto &a, const auto &b) {
+        return a.payloadAddress < b.payloadAddress;
+    });
+    mallocSummaryLabel->setText(
+        QString("Heap 0x%1–0x%2  |  %3 / %4 bytes used  |  %5 blocks")
+            .arg(snapshot.baseAddress, 8, 16, QChar('0'))
+            .arg(snapshot.baseAddress + snapshot.size - 1, 8, 16, QChar('0'))
+            .arg(snapshot.used)
+            .arg(snapshot.size)
+            .arg(static_cast<qulonglong>(snapshot.blocks.size())));
+
+    mallocTable->setRowCount(static_cast<int>(snapshot.blocks.size()));
+    for (int row = 0; row < static_cast<int>(snapshot.blocks.size()); ++row) {
+        const auto &block = snapshot.blocks[static_cast<size_t>(row)];
+        mallocTable->setItem(row, 0, new QTableWidgetItem(
+            QString("0x%1").arg(block.headerAddress, 8, 16, QChar('0'))));
+        mallocTable->setItem(row, 1, new QTableWidgetItem(
+            QString("0x%1").arg(block.payloadAddress, 8, 16, QChar('0'))));
+        mallocTable->setItem(row, 2, new QTableWidgetItem(QString::number(block.size)));
+        mallocTable->setItem(row, 3, new QTableWidgetItem(block.isFree ? "Free" : "Allocated"));
+    }
+}
+
 void MemoryView::refresh()
 {
     if (vmController) {
+        populateMallocBlocks();
         uint32_t accessAddress = 0;
         uint8_t accessSize = 0;
         bool isWrite = false;

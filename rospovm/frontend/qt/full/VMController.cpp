@@ -5,6 +5,7 @@
 #include <QFile>
 #include <QRegularExpression>
 #include <QTextStream>
+#include <utility>
 
 namespace {
 
@@ -235,4 +236,72 @@ bool VMController::getSourceReference(uint32_t address, QString &filePath, uint3
     }
 
     return false;
+}
+
+bool VMController::getMallocHeapSnapshot(MallocHeapSnapshot &snapshot) const
+{
+    const auto *vm = vmInstance();
+    if (!vm) {
+        return false;
+    }
+
+    const auto binary = vm->getLoadedBinary();
+    if (!binary) {
+        return false;
+    }
+
+    std::map<std::string, uint32_t> symbols;
+    for (const auto &debugPair : binary->debug_map) {
+        if (debugPair.second) {
+            symbols.insert(debugPair.second->symbols.begin(), debugPair.second->symbols.end());
+        }
+    }
+
+    const auto heapIt = symbols.find("__heap_area");
+    const auto usedIt = symbols.find("__heap_used");
+    const auto headIt = symbols.find("malloc_head");
+    const auto sizeIt = symbols.find("__heap_area_size");
+    if (heapIt == symbols.end() || usedIt == symbols.end() || headIt == symbols.end() || sizeIt == symbols.end()) {
+        return false;
+    }
+
+    MallocHeapSnapshot result;
+    result.baseAddress = heapIt->second;
+    result.size = sizeIt->second;
+    result.used = vm->readMemory(usedIt->second);
+    if (result.size == 0 || result.size > (1u << 20) || result.used > result.size) {
+        return false;
+    }
+
+    const uint64_t heapEnd = static_cast<uint64_t>(result.baseAddress) + result.size;
+    uint32_t header = vm->readMemory(headIt->second);
+    const size_t maxBlocks = result.size / 16 + 1;
+    for (size_t i = 0; header != 0 && i < maxBlocks; ++i) {
+        const uint64_t headerEnd = static_cast<uint64_t>(header) + 16;
+        if (header < result.baseAddress || headerEnd > heapEnd) {
+            return false;
+        }
+
+        const uint32_t blockSize = vm->readMemory(header);
+        const uint32_t isFree = vm->readMemory(header + 4);
+        const uint32_t exists = vm->readMemory(header + 8);
+        const uint32_t next = vm->readMemory(header + 12);
+        if (exists == 0) {
+            header = 0;
+            break;
+        }
+        if (blockSize > heapEnd - headerEnd) {
+            return false;
+        }
+        if (blockSize != 0) {
+            result.blocks.push_back({header, static_cast<uint32_t>(headerEnd), blockSize, isFree != 0});
+        }
+        header = next;
+    }
+    if (header != 0) {
+        return false;
+    }
+
+    snapshot = std::move(result);
+    return true;
 }

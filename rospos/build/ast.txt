@@ -2572,40 +2572,7 @@ translation_unit
         expr_stmt
           assignment
             malloc_head
-            cast
-              type_specifier
-                malloc_header
-                pointer
-              __heap_area
-        expr_stmt
-          assignment
-            postfix
-              malloc_head
-              ptr_member_access	size
             0
-        expr_stmt
-          assignment
-            postfix
-              malloc_head
-              ptr_member_access	free
-            1
-        expr_stmt
-          assignment
-            postfix
-              malloc_head
-              ptr_member_access	exists
-            1
-        expr_stmt
-          assignment
-            postfix
-              malloc_head
-              ptr_member_access	next
-            0
-        expr_stmt
-          postfix
-            malloc
-            call_suffix
-              arg_list	4
   external_decl
     function_def
       type_specifier
@@ -2722,9 +2689,11 @@ translation_unit
             node
             malloc_head
         while_stmt
-          postfix
+          logic_and
             node
-            ptr_member_access	exists
+            postfix
+              node
+              ptr_member_access	exists
           compound_stmt
             if_stmt
               logic_and
@@ -2888,11 +2857,24 @@ translation_unit
         declaration
           type_specifier
             char
+            pointer
           init_declarator_list
             init_declarator
-              declarator
-                superblock
-                array	512
+              declarator	superblock
+              cast
+                type_specifier
+                  char
+                  pointer
+                postfix
+                  malloc
+                  call_suffix
+                    arg_list	512
+        if_stmt
+          unary
+            not
+            superblock
+          compound_stmt
+            return_stmt	0
         expr_stmt
           assignment
             postfix
@@ -2989,6 +2971,11 @@ translation_unit
               arg_list
                 0x40000004
                 2
+        expr_stmt
+          postfix
+            free
+            call_suffix
+              arg_list	superblock
         return_stmt	0
   external_decl
     function_def
@@ -2999,11 +2986,24 @@ translation_unit
         declaration
           type_specifier
             char
+            pointer
           init_declarator_list
             init_declarator
-              declarator
-                superblock
-                array	512
+              declarator	superblock
+              cast
+                type_specifier
+                  char
+                  pointer
+                postfix
+                  malloc
+                  call_suffix
+                    arg_list	512
+        if_stmt
+          unary
+            not
+            superblock
+          compound_stmt
+            return_stmt	0
         expr_stmt
           postfix
             bd_write_u32
@@ -3078,6 +3078,11 @@ translation_unit
               postfix
                 initialize_filesystem
                 call_suffix
+        expr_stmt
+          postfix
+            free
+            call_suffix
+              arg_list	superblock
         return_stmt	0
   external_decl
     function_def
@@ -3099,11 +3104,24 @@ translation_unit
         declaration
           type_specifier
             char
+            pointer
           init_declarator_list
             init_declarator
-              declarator
-                scratch_block
-                array	512
+              declarator	scratch_block
+              cast
+                type_specifier
+                  char
+                  pointer
+                postfix
+                  malloc
+                  call_suffix
+                    arg_list	512
+        if_stmt
+          unary
+            not
+            scratch_block
+          compound_stmt
+            return_stmt	0
         for_stmt
           declaration
             type_specifier
@@ -3429,6 +3447,11 @@ translation_unit
               arg_list
                 0x40000004
                 2
+        expr_stmt
+          postfix
+            free
+            call_suffix
+              arg_list	scratch_block
         return_stmt	0
   external_decl
     function_def
@@ -3450,11 +3473,30 @@ translation_unit
         declaration
           type_specifier
             char
+            pointer
           init_declarator_list
             init_declarator
-              declarator
-                dir_entry
-                array	512
+              declarator	dir_entry
+              cast
+                type_specifier
+                  char
+                  pointer
+                postfix
+                  malloc
+                  call_suffix
+                    arg_list	512
+        if_stmt
+          unary
+            not
+            dir_entry
+          compound_stmt
+            expr_stmt
+              assignment
+                postfix
+                  buffer
+                  array_index	0
+                "\0"
+            return_stmt	0
         expr_stmt
           postfix
             bd_write_u32
@@ -3572,6 +3614,11 @@ translation_unit
                   buffer
                   array_index	0
                 "\0"
+            expr_stmt
+              postfix
+                free
+                call_suffix
+                  arg_list	dir_entry
             return_stmt	0
         declaration
           type_specifier
@@ -3695,6 +3742,11 @@ translation_unit
                   buffer
                   array_index	511
                 "\0"
+        expr_stmt
+          postfix
+            free
+            call_suffix
+              arg_list	dir_entry
         return_stmt	0
   external_decl
     declaration

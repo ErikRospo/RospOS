@@ -58,6 +58,9 @@ void RegisterView::createUI()
 
     bkptLineEditor = new QLineEdit();
     bkptLineEditor->setFont(monoFont);
+    bkptLineEditor->setPlaceholderText("Enter breakpoint condition (e.g., pc==0x100 or r0>5)");
+    bkptLineEditor->setToolTip("Enter a breakpoint condition using registers and pc.\n"
+                               "Example: pc==0x100 or r0>5");
     connect(bkptLineEditor, &QLineEdit::textChanged,
             this, &RegisterView::onBkptEdited);
     layout->addWidget(bkptLineEditor);

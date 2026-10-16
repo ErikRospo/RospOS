@@ -5,6 +5,7 @@
 #include <QTableWidget>
 #include <QLabel>
 #include <QLineEdit>
+#include <QTabWidget>
 #include <cstdint>
 
 class VMController;
@@ -27,10 +28,14 @@ private slots:
 private:
     void createUI();
     void populateMemory(uint32_t address);
+    void populateMallocBlocks();
 
     VMController *vmController;
     QTableWidget *memoryTable;
+    QTableWidget *mallocTable;
+    QTabWidget *tabs;
     QLabel *titleLabel;
+    QLabel *mallocSummaryLabel;
     QLineEdit *addressInput;
     QLineEdit *exportStartInput;
     QLineEdit *exportEndInput;

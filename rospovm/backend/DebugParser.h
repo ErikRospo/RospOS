@@ -17,6 +17,8 @@
  *   0x00000004 0x00000000 0 43 "ADD r2, r1, r1"
  *   FILES:
  *   0 /path/to/file.ros
+ *   SYMBOLS:
+ *   __heap_area 0x00010000
  *   1 /path/to/other.ros
  */
 class DebugParser {
