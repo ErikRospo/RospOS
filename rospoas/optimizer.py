@@ -352,21 +352,21 @@ def opt_35_redundant_reload_to_move(ast, logs):
     return optimized_ast
 
 
-def opt_30_remove_unused_labels(ast, logs):
-    used_labels = _find_used_labels(ast)
-    defined_labels = _find_defined_labels(ast)
-    unused_labels = defined_labels - used_labels
+# def opt_30_remove_unused_labels(ast, logs):
+#     used_labels = _find_used_labels(ast)
+#     defined_labels = _find_defined_labels(ast)
+#     unused_labels = defined_labels - used_labels
 
-    optimized_ast = []
-    for instr in ast:
-        if isinstance(instr, LabelDecl) and instr.name in unused_labels:
-            logs.append(
-                f"Removed unused label '{instr.name}' at index {len(optimized_ast)}"
-            )
-            continue
-        optimized_ast.append(instr)
+#     optimized_ast = []
+#     for instr in ast:
+#         if isinstance(instr, LabelDecl) and instr.name in unused_labels:
+#             logs.append(
+#                 f"Removed unused label '{instr.name}' at index {len(optimized_ast)}"
+#             )
+#             continue
+#         optimized_ast.append(instr)
 
-    return optimized_ast
+#     return optimized_ast
 
 
 def opt_30_combine_safe_offset_calcs(ast, logs):

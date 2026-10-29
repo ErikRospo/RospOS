@@ -1,10 +1,10 @@
-from typing import Dict, Optional
+from typing import Any, Dict, Optional
 
 import abi
 from loguru import logger
 
 
-def _materialize_call_arg(emitter, arg, out):
+def _materialize_call_arg(emitter, arg: Dict[str, Any], out):
     """Materialize a call argument to a register.
 
     Returns:
@@ -35,6 +35,8 @@ def _materialize_call_arg(emitter, arg, out):
         emitter._load_imm(reg, 0, out)
         return reg, True
 
+    if arg.get("type")=="register":
+        return arg.get("value"), True
     reg = emitter.emit_expr(arg, out)
     if reg:
         return reg, True

@@ -4638,40 +4638,458 @@ evaluate_rpn_61_WHILE_END3:
   POP r14
   RET
 
+.FUNC _err_handler:
+  PUSH r14
+  // unsupported-expr {'type': 'register', 'value': [{'token': 'r1'}]}
+  // inline call to print_string with args [{'type': 'string_addr', 'label': 'str_1'}]
+  // begin inline expansion of print_string
+  LLI r2, str_1    // load immediate str_1
+  LLI r3, 268435456    // init tty_addr
+err_handler_62_WHILE1:
+  LBU r4, r2, 0    // deref
+  BEQ r4, r0, err_handler_62_WHILE_END2
+  LBU r5, r2, 0    // deref
+  SB r5, r3, 0    // intrinsic __sb
+  ADDI r2, r2, 1    // assign str (addi fast path)
+  JMP err_handler_62_WHILE1
+err_handler_62_WHILE_END2:
+  // end inline expansion of print_string
+  // inline call to print_hex with args [{'type': 'var', 'name': 'r1'}]
+  // begin inline expansion of print_hex
+  LLI r6, 0    // load immediate 0
+  LLI r7, 0    // init i
+err_handler_62_WHILE3:
+  LLI r8, 8    // load immediate 8
+  BLT r7, r8, err_handler_62_CMP_TRUE6
+  LLI r8, 0    // compare false path
+  JMP err_handler_62_CMP_END7
+err_handler_62_CMP_TRUE6:
+  LLI r8, 1
+err_handler_62_CMP_END7:
+  BEQ r8, r0, err_handler_62_WHILE_END4
+  LLI r9, hex_chars    // load immediate hex_chars
+  LW r9, r9, 0    // load global hex_chars
+  LLI r10, 15    // load immediate 15
+  AND r10, r6, r10    // binop &
+  ADD r9, r9, r10    // binop +
+  LBU r9, r9, 0    // deref
+  LLI r11, print_hex_buffer    // load immediate print_hex_buffer
+  LLI r12, 7    // load immediate 7
+  SUB r12, r12, r7    // binop -
+  ADD r11, r11, r12    // binop +
+  SB r9, r11, 0    // store 
+  SHRI r6, r6, 4    // assign input (shri fast path)
+err_handler_62_FOR_STEP5:
+  ADDI r7, r7, 1    // assign i (addi fast path)
+  JMP err_handler_62_WHILE3
+err_handler_62_WHILE_END4:
+  LLI r4, 0    // load immediate 0
+  LLI r5, print_hex_buffer    // load immediate print_hex_buffer
+  LLI r2, 8    // load immediate 8
+  ADD r5, r5, r2    // binop +
+  SB r4, r5, 0    // store 
+  // inline call to print_string with args [{'type': 'var', 'name': 'print_hex_buffer'}]
+  // begin inline expansion of print_string
+  LLI r3, 0    // load immediate 0
+  LLI r8, 268435456    // init tty_addr
+err_handler_62_WHILE8:
+  LBU r10, r3, 0    // deref
+  BEQ r10, r0, err_handler_62_WHILE_END9
+  LBU r12, r3, 0    // deref
+  SB r12, r8, 0    // intrinsic __sb
+  ADDI r3, r3, 1    // assign str (addi fast path)
+  JMP err_handler_62_WHILE8
+err_handler_62_WHILE_END9:
+  // end inline expansion of print_string
+  // end inline expansion of print_hex
+  // inline call to print_string with args [{'type': 'const', 'value': 10}]
+  // begin inline expansion of print_string
+  LLI r11, 10    // load immediate 10
+  LLI r9, 268435456    // init tty_addr
+err_handler_62_WHILE10:
+  LBU r6, r11, 0    // deref
+  BEQ r6, r0, err_handler_62_WHILE_END11
+  LBU r7, r11, 0    // deref
+  SB r7, r9, 0    // intrinsic __sb
+  ADDI r11, r11, 1    // assign str (addi fast path)
+  JMP err_handler_62_WHILE10
+err_handler_62_WHILE_END11:
+  // end inline expansion of print_string
+  LLI r2, 0    // zero init r1
+  LLI r5, 4294901760    // load immediate 4294901760
+  AND r5, r2, r5    // binop &
+  LLI r4, 1    // load immediate 1
+  BEQ r5, r4, err_handler_62_CMP_TRUE14
+  LLI r4, 0    // compare false path
+  JMP err_handler_62_CMP_END15
+err_handler_62_CMP_TRUE14:
+  LLI r4, 1
+err_handler_62_CMP_END15:
+  BEQ r4, r0, err_handler_62_ELSE12
+  // inline call to print_string with args [{'type': 'string_addr', 'label': 'str_2'}]
+  // begin inline expansion of print_string
+  LLI r10, str_2    // load immediate str_2
+  LLI r12, 268435456    // init tty_addr
+err_handler_62_WHILE16:
+  LBU r3, r10, 0    // deref
+  BEQ r3, r0, err_handler_62_WHILE_END17
+  LBU r8, r10, 0    // deref
+  SB r8, r12, 0    // intrinsic __sb
+  ADDI r10, r10, 1    // assign str (addi fast path)
+  JMP err_handler_62_WHILE16
+err_handler_62_WHILE_END17:
+  // end inline expansion of print_string
+  // inline call to print_hex_char with args [{'type': 'binop', 'op': 'rshift', 'left': {'type': 'binop', 'op': 'and', 'left': {'type': 'var', 'name': 'r1'}, 'right': {'type': 'const', 'value': 240}}, 'right': {'type': 'const', 'value': 4}}]
+  // begin inline expansion of print_hex_char
+  LLI r6, 240    // load immediate 240
+  AND r6, r2, r6    // binop &
+  SHRI r6, r6, 4    // binop >> (imm)
+  // inline call to print_char with args [{'type': 'deref', 'expr': {'type': 'binop', 'op': 'plus', 'left': {'type': 'var', 'name': 'hex_chars'}, 'right': {'type': 'binop', 'op': 'and', 'left': {'type': 'var', 'name': 'input'}, 'right': {'type': 'const', 'value': 15}}}}]
+  // begin inline expansion of print_char
+  LLI r7, hex_chars    // load immediate hex_chars
+  LW r7, r7, 0    // load global hex_chars
+  LLI r11, 15    // load immediate 15
+  AND r11, r6, r11    // binop &
+  ADD r7, r7, r11    // binop +
+  LBU r7, r7, 0    // deref
+  LLI r9, 268435456    // init tty_addr
+  SB r7, r9, 0    // intrinsic __sb
+  // end inline expansion of print_char
+  // end inline expansion of print_hex_char
+  // inline call to print_hex_char with args [{'type': 'binop', 'op': 'and', 'left': {'type': 'var', 'name': 'r1'}, 'right': {'type': 'const', 'value': 15}}]
+  // begin inline expansion of print_hex_char
+  LLI r4, 15    // load immediate 15
+  AND r4, r2, r4    // binop &
+  // inline call to print_char with args [{'type': 'deref', 'expr': {'type': 'binop', 'op': 'plus', 'left': {'type': 'var', 'name': 'hex_chars'}, 'right': {'type': 'binop', 'op': 'and', 'left': {'type': 'var', 'name': 'input'}, 'right': {'type': 'const', 'value': 15}}}}]
+  // begin inline expansion of print_char
+  LLI r3, hex_chars    // load immediate hex_chars
+  LW r3, r3, 0    // load global hex_chars
+  LLI r8, 15    // load immediate 15
+  AND r8, r4, r8    // binop &
+  ADD r3, r3, r8    // binop +
+  LBU r3, r3, 0    // deref
+  LLI r10, 268435456    // init tty_addr
+  SB r3, r10, 0    // intrinsic __sb
+  // end inline expansion of print_char
+  // end inline expansion of print_hex_char
+  LLI r12, 240    // load immediate 240
+  AND r12, r2, r12    // binop &
+  // inline call to print_char with args [{'type': 'const', 'value': 32}]
+  // begin inline expansion of print_char
+  LLI r11, 32    // load immediate 32
+  LLI r6, 268435456    // init tty_addr
+  SB r11, r6, 0    // intrinsic __sb
+  // end inline expansion of print_char
+  LLI r9, 0    // load immediate 0
+  BEQ r12, r9, err_handler_62_CMP_TRUE20
+  LLI r9, 0    // compare false path
+  JMP err_handler_62_CMP_END21
+err_handler_62_CMP_TRUE20:
+  LLI r9, 1
+err_handler_62_CMP_END21:
+  BEQ r9, r0, err_handler_62_ELSE18
+  // inline call to print_string with args [{'type': 'string_addr', 'label': 'str_3'}]
+  // begin inline expansion of print_string
+  LLI r8, str_3    // load immediate str_3
+  LLI r4, 268435456    // init tty_addr
+err_handler_62_WHILE22:
+  LBU r10, r8, 0    // deref
+  BEQ r10, r0, err_handler_62_WHILE_END23
+  LBU r6, r8, 0    // deref
+  SB r6, r4, 0    // intrinsic __sb
+  ADDI r8, r8, 1    // assign str (addi fast path)
+  JMP err_handler_62_WHILE22
+err_handler_62_WHILE_END23:
+  // end inline expansion of print_string
+  JMP err_handler_62_IF_END19
+err_handler_62_ELSE18:
+err_handler_62_IF_END19:
+  // inline call to print_string with args [{'type': 'string_addr', 'label': 'str_4'}]
+  // begin inline expansion of print_string
+  LLI r9, str_4    // load immediate str_4
+  LLI r10, 268435456    // init tty_addr
+err_handler_62_WHILE24:
+  LBU r6, r9, 0    // deref
+  BEQ r6, r0, err_handler_62_WHILE_END25
+  LBU r8, r9, 0    // deref
+  SB r8, r10, 0    // intrinsic __sb
+  ADDI r9, r9, 1    // assign str (addi fast path)
+  JMP err_handler_62_WHILE24
+err_handler_62_WHILE_END25:
+  // end inline expansion of print_string
+  // inline call to print_hex_char with args [{'type': 'binop', 'op': 'and', 'left': {'type': 'var', 'name': 'r1'}, 'right': {'type': 'const', 'value': 15}}]
+  // begin inline expansion of print_hex_char
+  LLI r4, 15    // load immediate 15
+  AND r4, r2, r4    // binop &
+  // inline call to print_char with args [{'type': 'deref', 'expr': {'type': 'binop', 'op': 'plus', 'left': {'type': 'var', 'name': 'hex_chars'}, 'right': {'type': 'binop', 'op': 'and', 'left': {'type': 'var', 'name': 'input'}, 'right': {'type': 'const', 'value': 15}}}}]
+  // begin inline expansion of print_char
+  LLI r6, hex_chars    // load immediate hex_chars
+  LW r6, r6, 0    // load global hex_chars
+  LLI r8, 15    // load immediate 15
+  AND r8, r4, r8    // binop &
+  ADD r6, r6, r8    // binop +
+  LBU r6, r6, 0    // deref
+  LLI r9, 268435456    // init tty_addr
+  SB r6, r9, 0    // intrinsic __sb
+  // end inline expansion of print_char
+  // end inline expansion of print_hex_char
+  JMP err_handler_62_IF_END13
+err_handler_62_ELSE12:
+err_handler_62_IF_END13:
+  // inline call to print_char with args [{'type': 'const', 'value': 10}]
+  // begin inline expansion of print_char
+  LLI r10, 10    // load immediate 10
+  LLI r8, 268435456    // init tty_addr
+  SB r10, r8, 0    // intrinsic __sb
+  // end inline expansion of print_char
+  // inline call to print_string with args [{'type': 'string_addr', 'label': 'str_5'}]
+  // begin inline expansion of print_string
+  LLI r4, str_5    // load immediate str_5
+  LLI r9, 268435456    // init tty_addr
+err_handler_62_WHILE26:
+  LBU r12, r4, 0    // deref
+  BEQ r12, r0, err_handler_62_WHILE_END27
+  LBU r2, r4, 0    // deref
+  SB r2, r9, 0    // intrinsic __sb
+  ADDI r4, r4, 1    // assign str (addi fast path)
+  JMP err_handler_62_WHILE26
+err_handler_62_WHILE_END27:
+  // end inline expansion of print_string
+  // inline call to print_hex with args [{'type': 'call', 'name': '__pop', 'args': []}]
+  // begin inline expansion of print_hex
+  POP r5  // call expr __pop -> return in r5
+  LLI r8, 0    // init i
+err_handler_62_WHILE28:
+  LLI r12, 8    // load immediate 8
+  BLT r8, r12, err_handler_62_CMP_TRUE31
+  LLI r12, 0    // compare false path
+  JMP err_handler_62_CMP_END32
+err_handler_62_CMP_TRUE31:
+  LLI r12, 1
+err_handler_62_CMP_END32:
+  BEQ r12, r0, err_handler_62_WHILE_END29
+  LLI r2, hex_chars    // load immediate hex_chars
+  LW r2, r2, 0    // load global hex_chars
+  LLI r4, 15    // load immediate 15
+  AND r4, r5, r4    // binop &
+  ADD r2, r2, r4    // binop +
+  LBU r2, r2, 0    // deref
+  LLI r9, print_hex_buffer    // load immediate print_hex_buffer
+  LLI r12, 7    // load immediate 7
+  SUB r12, r12, r8    // binop -
+  ADD r9, r9, r12    // binop +
+  SB r2, r9, 0    // store 
+  SHRI r5, r5, 4    // assign input (shri fast path)
+err_handler_62_FOR_STEP30:
+  ADDI r8, r8, 1    // assign i (addi fast path)
+  JMP err_handler_62_WHILE28
+err_handler_62_WHILE_END29:
+  LLI r4, 0    // load immediate 0
+  LLI r12, print_hex_buffer    // load immediate print_hex_buffer
+  LLI r9, 8    // load immediate 8
+  ADD r12, r12, r9    // binop +
+  SB r4, r12, 0    // store 
+  // inline call to print_string with args [{'type': 'var', 'name': 'print_hex_buffer'}]
+  // begin inline expansion of print_string
+  LLI r2, 0    // load immediate 0
+  LLI r5, 268435456    // init tty_addr
+err_handler_62_WHILE33:
+  LBU r8, r2, 0    // deref
+  BEQ r8, r0, err_handler_62_WHILE_END34
+  LBU r9, r2, 0    // deref
+  SB r9, r5, 0    // intrinsic __sb
+  ADDI r2, r2, 1    // assign str (addi fast path)
+  JMP err_handler_62_WHILE33
+err_handler_62_WHILE_END34:
+  // end inline expansion of print_string
+  // end inline expansion of print_hex
+  // inline call to print_char with args [{'type': 'const', 'value': 10}]
+  // begin inline expansion of print_char
+  LLI r12, 10    // load immediate 10
+  LLI r4, 268435456    // init tty_addr
+  SB r12, r4, 0    // intrinsic __sb
+  // end inline expansion of print_char
+  LLI r8, 1    // init i
+err_handler_62_WHILE35:
+  LLI r9, 15    // load immediate 15
+  BGE r9, r8, err_handler_62_CMP_TRUE38
+  LLI r9, 0    // compare false path
+  JMP err_handler_62_CMP_END39
+err_handler_62_CMP_TRUE38:
+  LLI r9, 1
+err_handler_62_CMP_END39:
+  BEQ r9, r0, err_handler_62_WHILE_END36
+  // inline call to print_string with args [{'type': 'const', 'value': 82}]
+  // begin inline expansion of print_string
+  LLI r2, 82    // load immediate 82
+  LLI r5, 268435456    // init tty_addr
+err_handler_62_WHILE40:
+  LBU r4, r2, 0    // deref
+  BEQ r4, r0, err_handler_62_WHILE_END41
+  LBU r9, r2, 0    // deref
+  SB r9, r5, 0    // intrinsic __sb
+  ADDI r2, r2, 1    // assign str (addi fast path)
+  JMP err_handler_62_WHILE40
+err_handler_62_WHILE_END41:
+  // end inline expansion of print_string
+  // inline call to print_hex_char with args [{'type': 'var', 'name': 'i'}]
+  // begin inline expansion of print_hex_char
+  // inline call to print_char with args [{'type': 'deref', 'expr': {'type': 'binop', 'op': 'plus', 'left': {'type': 'var', 'name': 'hex_chars'}, 'right': {'type': 'binop', 'op': 'and', 'left': {'type': 'var', 'name': 'input'}, 'right': {'type': 'const', 'value': 15}}}}]
+  // begin inline expansion of print_char
+  LLI r4, hex_chars    // load immediate hex_chars
+  LW r4, r4, 0    // load global hex_chars
+  LLI r9, 15    // load immediate 15
+  AND r9, r8, r9    // binop &
+  ADD r4, r4, r9    // binop +
+  LBU r4, r4, 0    // deref
+  LLI r2, 268435456    // init tty_addr
+  SB r4, r2, 0    // intrinsic __sb
+  // end inline expansion of print_char
+  // end inline expansion of print_hex_char
+  // inline call to print_string with args [{'type': 'const', 'value': 61}]
+  // begin inline expansion of print_string
+  LLI r5, 61    // load immediate 61
+  LLI r9, 268435456    // init tty_addr
+err_handler_62_WHILE42:
+  LBU r2, r5, 0    // deref
+  BEQ r2, r0, err_handler_62_WHILE_END43
+  LBU r2, r5, 0    // deref
+  SB r2, r9, 0    // intrinsic __sb
+  ADDI r5, r5, 1    // assign str (addi fast path)
+  JMP err_handler_62_WHILE42
+err_handler_62_WHILE_END43:
+  // end inline expansion of print_string
+  // inline call to print_hex with args [{'type': 'call', 'name': '__pop', 'args': []}]
+  // begin inline expansion of print_hex
+  POP r2  // call expr __pop -> return in r2
+  LLI r5, 0    // init i
+err_handler_62_WHILE44:
+  LLI r9, 8    // load immediate 8
+  BLT r5, r9, err_handler_62_CMP_TRUE47
+  LLI r9, 0    // compare false path
+  JMP err_handler_62_CMP_END48
+err_handler_62_CMP_TRUE47:
+  LLI r9, 1
+err_handler_62_CMP_END48:
+  BEQ r9, r0, err_handler_62_WHILE_END45
+  LLI r9, hex_chars    // load immediate hex_chars
+  LW r9, r9, 0    // load global hex_chars
+  PUSH r3    // spill live temp for reg pressure
+  LLI r3, 15    // load immediate 15
+  AND r3, r2, r3    // binop &
+  ADD r9, r9, r3    // binop +
+  POP r3    // restore spilled temp
+  LBU r9, r9, 0    // deref
+  PUSH r3    // borrow scratch reg for spill label addr
+  LLI r3, err_handler_62_spill49    // spill slot addr
+  SW r2, r3, 0    // spill live variable(s) for reg pressure
+  POP r3    // restore scratch reg for spill label addr
+  LLI r2, print_hex_buffer    // load immediate print_hex_buffer
+  PUSH r3    // spill live temp for reg pressure
+  LLI r3, 7    // load immediate 7
+  SUB r3, r3, r5    // binop -
+  ADD r2, r2, r3    // binop +
+  POP r3    // restore spilled temp
+  SB r9, r2, 0    // store 
+  LLI r2, err_handler_62_spill49    // spill slot addr
+  LW r2, r2, 0    // restore spilled var input
+  SHRI r9, r2, 4    // binop >> (imm)
+  ADDI r2, r9, 0    // assign input
+err_handler_62_FOR_STEP46:
+  ADDI r5, r5, 1    // assign i (addi fast path)
+  JMP err_handler_62_WHILE44
+err_handler_62_WHILE_END45:
+  LLI r9, 0    // load immediate 0
+  LLI r2, print_hex_buffer    // load immediate print_hex_buffer
+  PUSH r3    // spill live temp for reg pressure
+  LLI r3, 8    // load immediate 8
+  ADD r2, r2, r3    // binop +
+  POP r3    // restore spilled temp
+  SB r9, r2, 0    // store 
+  // inline call to print_string with args [{'type': 'var', 'name': 'print_hex_buffer'}]
+  // begin inline expansion of print_string
+  LLI r2, 0    // load immediate 0
+  LLI r9, 268435456    // init tty_addr
+err_handler_62_WHILE50:
+  PUSH r3    // borrow scratch reg for spill label addr
+  LLI r3, err_handler_62_spill52    // spill slot addr
+  SW r2, r3, 0    // spill live variable(s) for reg pressure
+  POP r3    // restore scratch reg for spill label addr
+  LBU r2, r2, 0    // deref
+  BEQ r2, r0, err_handler_62_WHILE_END51
+  LLI r2, err_handler_62_spill52    // spill slot addr
+  LW r2, r2, 0    // restore spilled var str
+  PUSH r3    // borrow scratch reg for spill label addr
+  LLI r3, err_handler_62_spill53    // spill slot addr
+  SW r2, r3, 0    // spill live variable(s) for reg pressure
+  POP r3    // restore scratch reg for spill label addr
+  LBU r2, r2, 0    // deref
+  SB r2, r9, 0    // intrinsic __sb
+  LLI r2, err_handler_62_spill53    // spill slot addr
+  LW r2, r2, 0    // restore spilled var str
+  PUSH r3    // spill live temp for reg pressure
+  LLI r3, 1    // load immediate 1
+  ADD r3, r2, r3    // binop +
+  ADDI r2, r3, 0    // assign str
+  POP r3    // restore spilled temp
+  JMP err_handler_62_WHILE50
+err_handler_62_WHILE_END51:
+  // end inline expansion of print_string
+  // end inline expansion of print_hex
+  // inline call to print_char with args [{'type': 'const', 'value': 10}]
+  // begin inline expansion of print_char
+  LLI r9, 10    // load immediate 10
+  LLI r2, 268435456    // init tty_addr
+  SB r9, r2, 0    // intrinsic __sb
+  // end inline expansion of print_char
+err_handler_62_FOR_STEP37:
+  ADDI r8, r8, 1    // assign i (addi fast path)
+  JMP err_handler_62_WHILE35
+err_handler_62_WHILE_END36:
+  BREAK    // intrinsic __break
+  // epilogue and return
+  ADDI r1, r0, 0  // ensure r1=0
+  POP r14
+  RET
+
+// Inline function definition 'print_hex' skipped (will be inlined at call sites)
+
+// Inline function definition 'print_hex_char' skipped (will be inlined at call sites)
+
 // Inline function definition 'add' skipped (will be inlined at call sites)
 
 .FUNC fibonnaci_recursive:
   PUSH r14
   LLI r2, 0    // load immediate 0
-  BGE r2, r1, fibonnaci_recursive_63_CMP_TRUE3
+  BGE r2, r1, fibonnaci_recursive_66_CMP_TRUE3
   LLI r2, 0    // compare false path
-  JMP fibonnaci_recursive_63_CMP_END4
-fibonnaci_recursive_63_CMP_TRUE3:
+  JMP fibonnaci_recursive_66_CMP_END4
+fibonnaci_recursive_66_CMP_TRUE3:
   LLI r2, 1
-fibonnaci_recursive_63_CMP_END4:
-  BEQ r2, r0, fibonnaci_recursive_63_ELSE1
+fibonnaci_recursive_66_CMP_END4:
+  BEQ r2, r0, fibonnaci_recursive_66_ELSE1
   LLI r3, 0    // load immediate 0
   ADD r1, r3, r0
   POP r14
   RET
-  JMP fibonnaci_recursive_63_IF_END2
-fibonnaci_recursive_63_ELSE1:
-fibonnaci_recursive_63_IF_END2:
+  JMP fibonnaci_recursive_66_IF_END2
+fibonnaci_recursive_66_ELSE1:
+fibonnaci_recursive_66_IF_END2:
   LLI r4, 2    // load immediate 2
-  BGE r4, r1, fibonnaci_recursive_63_CMP_TRUE7
+  BGE r4, r1, fibonnaci_recursive_66_CMP_TRUE7
   LLI r4, 0    // compare false path
-  JMP fibonnaci_recursive_63_CMP_END8
-fibonnaci_recursive_63_CMP_TRUE7:
+  JMP fibonnaci_recursive_66_CMP_END8
+fibonnaci_recursive_66_CMP_TRUE7:
   LLI r4, 1
-fibonnaci_recursive_63_CMP_END8:
-  BEQ r4, r0, fibonnaci_recursive_63_ELSE5
+fibonnaci_recursive_66_CMP_END8:
+  BEQ r4, r0, fibonnaci_recursive_66_ELSE5
   LLI r5, 1    // load immediate 1
   ADD r1, r5, r0
   POP r14
   RET
-  JMP fibonnaci_recursive_63_IF_END6
-fibonnaci_recursive_63_ELSE5:
-fibonnaci_recursive_63_IF_END6:
+  JMP fibonnaci_recursive_66_IF_END6
+fibonnaci_recursive_66_ELSE5:
+fibonnaci_recursive_66_IF_END6:
   LLI r6, 0    // zero init j
   // emit call to fibonnaci_recursive with args [{'type': 'binop', 'op': 'minus', 'left': {'type': 'var', 'name': 'i'}, 'right': {'type': 'const', 'value': 1}}]
   PUSH r6    // save caller temp
@@ -4707,9 +5125,9 @@ fibonnaci_recursive_63_IF_END6:
 
 .FUNC display_test:
   PUSH r14
-  // emit call to draw_string_to_display with args [{'type': 'string_addr', 'label': 'str_1'}, {'type': 'const', 'value': 0}, {'type': 'const', 'value': 0}, {'type': 'const', 'value': 63}]
+  // emit call to draw_string_to_display with args [{'type': 'string_addr', 'label': 'str_6'}, {'type': 'const', 'value': 0}, {'type': 'const', 'value': 0}, {'type': 'const', 'value': 63}]
   PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  LLI r2, str_1    // load immediate str_1
+  LLI r2, str_6    // load immediate str_6
   PUSH r2    // stage reg arg 0
   LLI r3, 0    // load immediate 0
   PUSH r3    // stage reg arg 1
@@ -4724,9 +5142,9 @@ fibonnaci_recursive_63_IF_END6:
   CALL draw_string_to_display
   // call return value in r1
   POP r1  
-  // emit call to draw_string_to_display with args [{'type': 'string_addr', 'label': 'str_2'}, {'type': 'const', 'value': 0}, {'type': 'const', 'value': 24}, {'type': 'const', 'value': 12}]
+  // emit call to draw_string_to_display with args [{'type': 'string_addr', 'label': 'str_7'}, {'type': 'const', 'value': 0}, {'type': 'const', 'value': 24}, {'type': 'const', 'value': 12}]
   PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  LLI r6, str_2    // load immediate str_2
+  LLI r6, str_7    // load immediate str_7
   PUSH r6    // stage reg arg 0
   LLI r7, 0    // load immediate 0
   PUSH r7    // stage reg arg 1
@@ -4741,9 +5159,9 @@ fibonnaci_recursive_63_IF_END6:
   CALL draw_string_to_display
   // call return value in r1
   POP r1  
-  // emit call to draw_string_to_display with args [{'type': 'string_addr', 'label': 'str_3'}, {'type': 'const', 'value': 0}, {'type': 'const', 'value': 32}, {'type': 'const', 'value': 48}]
+  // emit call to draw_string_to_display with args [{'type': 'string_addr', 'label': 'str_8'}, {'type': 'const', 'value': 0}, {'type': 'const', 'value': 32}, {'type': 'const', 'value': 48}]
   PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  LLI r10, str_3    // load immediate str_3
+  LLI r10, str_8    // load immediate str_8
   PUSH r10    // stage reg arg 0
   LLI r11, 0    // load immediate 0
   PUSH r11    // stage reg arg 1
@@ -4758,9 +5176,9 @@ fibonnaci_recursive_63_IF_END6:
   CALL draw_string_to_display
   // call return value in r1
   POP r1  
-  // emit call to draw_string_to_display with args [{'type': 'string_addr', 'label': 'str_4'}, {'type': 'const', 'value': 0}, {'type': 'const', 'value': 40}, {'type': 'const', 'value': 7}]
+  // emit call to draw_string_to_display with args [{'type': 'string_addr', 'label': 'str_9'}, {'type': 'const', 'value': 0}, {'type': 'const', 'value': 40}, {'type': 'const', 'value': 7}]
   PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  LLI r3, str_4    // load immediate str_4
+  LLI r3, str_9    // load immediate str_9
   PUSH r3    // stage reg arg 0
   LLI r4, 0    // load immediate 0
   PUSH r4    // stage reg arg 1
@@ -4775,9 +5193,9 @@ fibonnaci_recursive_63_IF_END6:
   CALL draw_string_to_display
   // call return value in r1
   POP r1  
-  // emit call to draw_string_to_display with args [{'type': 'string_addr', 'label': 'str_5'}, {'type': 'const', 'value': 0}, {'type': 'const', 'value': 48}, {'type': 'const', 'value': 60}]
+  // emit call to draw_string_to_display with args [{'type': 'string_addr', 'label': 'str_10'}, {'type': 'const', 'value': 0}, {'type': 'const', 'value': 48}, {'type': 'const', 'value': 60}]
   PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  LLI r7, str_5    // load immediate str_5
+  LLI r7, str_10    // load immediate str_10
   PUSH r7    // stage reg arg 0
   LLI r8, 0    // load immediate 0
   PUSH r8    // stage reg arg 1
@@ -4792,9 +5210,9 @@ fibonnaci_recursive_63_IF_END6:
   CALL draw_string_to_display
   // call return value in r1
   POP r1  
-  // emit call to draw_string_to_display with args [{'type': 'string_addr', 'label': 'str_6'}, {'type': 'const', 'value': 0}, {'type': 'const', 'value': 56}, {'type': 'const', 'value': 15}]
+  // emit call to draw_string_to_display with args [{'type': 'string_addr', 'label': 'str_11'}, {'type': 'const', 'value': 0}, {'type': 'const', 'value': 56}, {'type': 'const', 'value': 15}]
   PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  LLI r11, str_6    // load immediate str_6
+  LLI r11, str_11    // load immediate str_11
   PUSH r11    // stage reg arg 0
   LLI r12, 0    // load immediate 0
   PUSH r12    // stage reg arg 1
@@ -4809,9 +5227,9 @@ fibonnaci_recursive_63_IF_END6:
   CALL draw_string_to_display
   // call return value in r1
   POP r1  
-  // emit call to draw_string_to_display with args [{'type': 'string_addr', 'label': 'str_7'}, {'type': 'const', 'value': 0}, {'type': 'const', 'value': 64}, {'type': 'const', 'value': 51}]
+  // emit call to draw_string_to_display with args [{'type': 'string_addr', 'label': 'str_12'}, {'type': 'const', 'value': 0}, {'type': 'const', 'value': 64}, {'type': 'const', 'value': 51}]
   PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  LLI r4, str_7    // load immediate str_7
+  LLI r4, str_12    // load immediate str_12
   PUSH r4    // stage reg arg 0
   LLI r5, 0    // load immediate 0
   PUSH r5    // stage reg arg 1
@@ -4826,9 +5244,9 @@ fibonnaci_recursive_63_IF_END6:
   CALL draw_string_to_display
   // call return value in r1
   POP r1  
-  // emit call to draw_string_to_display with args [{'type': 'string_addr', 'label': 'str_8'}, {'type': 'const', 'value': 0}, {'type': 'const', 'value': 72}, {'type': 'const', 'value': 63}]
+  // emit call to draw_string_to_display with args [{'type': 'string_addr', 'label': 'str_13'}, {'type': 'const', 'value': 0}, {'type': 'const', 'value': 72}, {'type': 'const', 'value': 63}]
   PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  LLI r8, str_8    // load immediate str_8
+  LLI r8, str_13    // load immediate str_13
   PUSH r8    // stage reg arg 0
   LLI r9, 0    // load immediate 0
   PUSH r9    // stage reg arg 1
@@ -4855,11 +5273,11 @@ fibonnaci_recursive_63_IF_END6:
   CALL initialize_filesystem
   // call return value in r1
   POP r1  
-  // emit call to write_file with args [{'type': 'string_addr', 'label': 'str_9'}, {'type': 'string_addr', 'label': 'str_10'}]
+  // emit call to write_file with args [{'type': 'string_addr', 'label': 'str_14'}, {'type': 'string_addr', 'label': 'str_15'}]
   PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  LLI r2, str_9    // load immediate str_9
+  LLI r2, str_14    // load immediate str_14
   PUSH r2    // stage reg arg 0
-  LLI r3, str_10    // load immediate str_10
+  LLI r3, str_15    // load immediate str_15
   PUSH r3    // stage reg arg 1
   POP r2    // load reg arg 1
   POP r1    // load reg arg 0
@@ -4876,17 +5294,17 @@ fibonnaci_recursive_63_IF_END6:
   // call return value in r1
   POP r4    // restore caller temp
   ADDI r4, r1, 0    // move return value
-  BEQ r4, r0, fs_test_65_UNOP_NOT_TRUE3
+  BEQ r4, r0, fs_test_68_UNOP_NOT_TRUE3
   LLI r6, 0    // operand is nonzero -> false
-  JMP fs_test_65_UNOP_NOT_END4
-fs_test_65_UNOP_NOT_TRUE3:
+  JMP fs_test_68_UNOP_NOT_END4
+fs_test_68_UNOP_NOT_TRUE3:
   LLI r6, 1    // operand is zero -> true
-fs_test_65_UNOP_NOT_END4:
-  BEQ r6, r0, fs_test_65_ELSE1
-  // emit call to draw_string_to_display with args [{'type': 'string_addr', 'label': 'str_11'}, {'type': 'const', 'value': 0}, {'type': 'const', 'value': 8}, {'type': 'const', 'value': 63}]
+fs_test_68_UNOP_NOT_END4:
+  BEQ r6, r0, fs_test_68_ELSE1
+  // emit call to draw_string_to_display with args [{'type': 'string_addr', 'label': 'str_16'}, {'type': 'const', 'value': 0}, {'type': 'const', 'value': 8}, {'type': 'const', 'value': 63}]
   PUSH r4    // save caller temp
   PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  LLI r7, str_11    // load immediate str_11
+  LLI r7, str_16    // load immediate str_16
   PUSH r7    // stage reg arg 0
   LLI r8, 0    // load immediate 0
   PUSH r8    // stage reg arg 1
@@ -4906,9 +5324,9 @@ fs_test_65_UNOP_NOT_END4:
   ADD r1, r11, r0
   POP r14
   RET
-  JMP fs_test_65_IF_END2
-fs_test_65_ELSE1:
-fs_test_65_IF_END2:
+  JMP fs_test_68_IF_END2
+fs_test_68_ELSE1:
+fs_test_68_IF_END2:
   // emit call to read_block with args [{'type': 'const', 'value': 4294967295}, {'type': 'var', 'name': 'device_info'}]
   PUSH r4    // save caller temp
   PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
@@ -4958,17 +5376,17 @@ fs_test_65_IF_END2:
   // call return value in r1
   POP r6    // restore caller temp
   ADDI r6, r1, 0    // move return value
-  BEQ r6, r0, fs_test_65_UNOP_NOT_TRUE7
+  BEQ r6, r0, fs_test_68_UNOP_NOT_TRUE7
   LLI r8, 0    // operand is nonzero -> false
-  JMP fs_test_65_UNOP_NOT_END8
-fs_test_65_UNOP_NOT_TRUE7:
+  JMP fs_test_68_UNOP_NOT_END8
+fs_test_68_UNOP_NOT_TRUE7:
   LLI r8, 1    // operand is zero -> true
-fs_test_65_UNOP_NOT_END8:
-  BEQ r8, r0, fs_test_65_ELSE5
-  // emit call to draw_string_to_display with args [{'type': 'string_addr', 'label': 'str_12'}, {'type': 'const', 'value': 0}, {'type': 'const', 'value': 16}, {'type': 'const', 'value': 63}]
+fs_test_68_UNOP_NOT_END8:
+  BEQ r8, r0, fs_test_68_ELSE5
+  // emit call to draw_string_to_display with args [{'type': 'string_addr', 'label': 'str_17'}, {'type': 'const', 'value': 0}, {'type': 'const', 'value': 16}, {'type': 'const', 'value': 63}]
   PUSH r6    // save caller temp
   PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  LLI r9, str_12    // load immediate str_12
+  LLI r9, str_17    // load immediate str_17
   PUSH r9    // stage reg arg 0
   LLI r10, 0    // load immediate 0
   PUSH r10    // stage reg arg 1
@@ -4988,13 +5406,13 @@ fs_test_65_UNOP_NOT_END8:
   ADD r1, r2, r0
   POP r14
   RET
-  JMP fs_test_65_IF_END6
-fs_test_65_ELSE5:
-fs_test_65_IF_END6:
-  // emit call to read_file with args [{'type': 'string_addr', 'label': 'str_9'}, {'type': 'var', 'name': 'file_contents'}]
+  JMP fs_test_68_IF_END6
+fs_test_68_ELSE5:
+fs_test_68_IF_END6:
+  // emit call to read_file with args [{'type': 'string_addr', 'label': 'str_14'}, {'type': 'var', 'name': 'file_contents'}]
   PUSH r6    // save caller temp
   PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  LLI r3, str_9    // load immediate str_9
+  LLI r3, str_14    // load immediate str_14
   PUSH r3    // stage reg arg 0
   PUSH r6    // stage reg arg 1
   POP r2    // load reg arg 1
@@ -5037,9 +5455,9 @@ fs_test_65_IF_END6:
 
 .FUNC rand_block_display_test:
   PUSH r14
-  // emit call to draw_string_to_display with args [{'type': 'string_addr', 'label': 'str_13'}, {'type': 'const', 'value': 0}, {'type': 'const', 'value': 80}, {'type': 'const', 'value': 63}]
+  // emit call to draw_string_to_display with args [{'type': 'string_addr', 'label': 'str_18'}, {'type': 'const', 'value': 0}, {'type': 'const', 'value': 80}, {'type': 'const', 'value': 63}]
   PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  LLI r2, str_13    // load immediate str_13
+  LLI r2, str_18    // load immediate str_18
   PUSH r2    // stage reg arg 0
   LLI r3, 0    // load immediate 0
   PUSH r3    // stage reg arg 1
@@ -5054,9 +5472,9 @@ fs_test_65_IF_END6:
   CALL draw_string_to_display
   // call return value in r1
   POP r1  
-  // emit call to draw_string_to_display with args [{'type': 'string_addr', 'label': 'str_14'}, {'type': 'const', 'value': 0}, {'type': 'const', 'value': 88}, {'type': 'const', 'value': 63}]
+  // emit call to draw_string_to_display with args [{'type': 'string_addr', 'label': 'str_19'}, {'type': 'const', 'value': 0}, {'type': 'const', 'value': 88}, {'type': 'const', 'value': 63}]
   PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  LLI r6, str_14    // load immediate str_14
+  LLI r6, str_19    // load immediate str_19
   PUSH r6    // stage reg arg 0
   LLI r7, 0    // load immediate 0
   PUSH r7    // stage reg arg 1
@@ -5088,9 +5506,9 @@ fs_test_65_IF_END6:
 
 .FUNC terminal_test:
   PUSH r14
-  // emit call to write_to_buffer with args [{'type': 'string_addr', 'label': 'str_15'}, {'type': 'const', 'value': 0}]
+  // emit call to write_to_buffer with args [{'type': 'string_addr', 'label': 'str_20'}, {'type': 'const', 'value': 0}]
   PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  LLI r2, str_15    // load immediate str_15
+  LLI r2, str_20    // load immediate str_20
   PUSH r2    // stage reg arg 0
   LLI r3, 0    // load immediate 0
   PUSH r3    // stage reg arg 1
@@ -5104,9 +5522,9 @@ fs_test_65_IF_END6:
   CALL update_buffer
   // call return value in r1
   POP r1  
-  // emit call to write_to_buffer with args [{'type': 'string_addr', 'label': 'str_16'}, {'type': 'const', 'value': 32}]
+  // emit call to write_to_buffer with args [{'type': 'string_addr', 'label': 'str_21'}, {'type': 'const', 'value': 32}]
   PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  LLI r4, str_16    // load immediate str_16
+  LLI r4, str_21    // load immediate str_21
   PUSH r4    // stage reg arg 0
   LLI r5, 32    // load immediate 32
   PUSH r5    // stage reg arg 1
@@ -5127,9 +5545,9 @@ fs_test_65_IF_END6:
 
 .FUNC image_display_test:
   PUSH r14
-  // emit call to write_to_buffer with args [{'type': 'string_addr', 'label': 'str_17'}, {'type': 'const', 'value': 72}]
+  // emit call to write_to_buffer with args [{'type': 'string_addr', 'label': 'str_22'}, {'type': 'const', 'value': 72}]
   PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  LLI r2, str_17    // load immediate str_17
+  LLI r2, str_22    // load immediate str_22
   PUSH r2    // stage reg arg 0
   LLI r3, 72    // load immediate 72
   PUSH r3    // stage reg arg 1
@@ -5169,64 +5587,64 @@ fs_test_65_IF_END6:
   ADDI r3, r1, 0    // move return value
   LLI r4, 1    // init read_success
   LLI r5, 0    // load immediate 0
-  BNE r3, r5, malloc_test_69_CMP_TRUE3
+  BNE r3, r5, malloc_test_72_CMP_TRUE3
   LLI r5, 0    // compare false path
-  JMP malloc_test_69_CMP_END4
-malloc_test_69_CMP_TRUE3:
+  JMP malloc_test_72_CMP_END4
+malloc_test_72_CMP_TRUE3:
   LLI r5, 1
-malloc_test_69_CMP_END4:
-  BEQ r5, r0, malloc_test_69_ELSE1
+malloc_test_72_CMP_END4:
+  BEQ r5, r0, malloc_test_72_ELSE1
   LLI r6, 0    // init i
-malloc_test_69_WHILE5:
-  BLT r6, r2, malloc_test_69_CMP_TRUE8
+malloc_test_72_WHILE5:
+  BLT r6, r2, malloc_test_72_CMP_TRUE8
   LLI r7, 0    // compare false path
-  JMP malloc_test_69_CMP_END9
-malloc_test_69_CMP_TRUE8:
+  JMP malloc_test_72_CMP_END9
+malloc_test_72_CMP_TRUE8:
   LLI r7, 1
-malloc_test_69_CMP_END9:
-  BEQ r7, r0, malloc_test_69_WHILE_END6
+malloc_test_72_CMP_END9:
+  BEQ r7, r0, malloc_test_72_WHILE_END6
   ADD r8, r3, r6    // binop +
   SB r6, r8, 0    // store 
-malloc_test_69_FOR_STEP7:
+malloc_test_72_FOR_STEP7:
   ADDI r6, r6, 1    // assign i (addi fast path)
-  JMP malloc_test_69_WHILE5
-malloc_test_69_WHILE_END6:
+  JMP malloc_test_72_WHILE5
+malloc_test_72_WHILE_END6:
   LLI r9, 0    // init i
-malloc_test_69_WHILE10:
-  BLT r9, r2, malloc_test_69_CMP_TRUE13
+malloc_test_72_WHILE10:
+  BLT r9, r2, malloc_test_72_CMP_TRUE13
   LLI r10, 0    // compare false path
-  JMP malloc_test_69_CMP_END14
-malloc_test_69_CMP_TRUE13:
+  JMP malloc_test_72_CMP_END14
+malloc_test_72_CMP_TRUE13:
   LLI r10, 1
-malloc_test_69_CMP_END14:
-  BEQ r10, r0, malloc_test_69_WHILE_END11
+malloc_test_72_CMP_END14:
+  BEQ r10, r0, malloc_test_72_WHILE_END11
   ADD r11, r3, r9    // binop +
   LBU r11, r11, 0    // deref
-  BNE r11, r9, malloc_test_69_CMP_TRUE17
+  BNE r11, r9, malloc_test_72_CMP_TRUE17
   LLI r11, 0    // compare false path
-  JMP malloc_test_69_CMP_END18
-malloc_test_69_CMP_TRUE17:
+  JMP malloc_test_72_CMP_END18
+malloc_test_72_CMP_TRUE17:
   LLI r11, 1
-malloc_test_69_CMP_END18:
-  BEQ r11, r0, malloc_test_69_ELSE15
+malloc_test_72_CMP_END18:
+  BEQ r11, r0, malloc_test_72_ELSE15
   LLI r12, 0    // load immediate 0
   ADDI r4, r12, 0    // assign read_success
-  JMP malloc_test_69_IF_END16
-malloc_test_69_ELSE15:
-malloc_test_69_IF_END16:
-malloc_test_69_FOR_STEP12:
+  JMP malloc_test_72_IF_END16
+malloc_test_72_ELSE15:
+malloc_test_72_IF_END16:
+malloc_test_72_FOR_STEP12:
   ADDI r9, r9, 1    // assign i (addi fast path)
-  JMP malloc_test_69_WHILE10
-malloc_test_69_WHILE_END11:
-  BEQ r4, r0, malloc_test_69_ELSE19
-  // emit call to draw_string_to_display with args [{'type': 'string_addr', 'label': 'str_18'}, {'type': 'const', 'value': 0}, {'type': 'const', 'value': 96}, {'type': 'const', 'value': 63}]
+  JMP malloc_test_72_WHILE10
+malloc_test_72_WHILE_END11:
+  BEQ r4, r0, malloc_test_72_ELSE19
+  // emit call to draw_string_to_display with args [{'type': 'string_addr', 'label': 'str_23'}, {'type': 'const', 'value': 0}, {'type': 'const', 'value': 96}, {'type': 'const', 'value': 63}]
   PUSH r2    // save caller temp
   PUSH r3    // save caller temp
   PUSH r4    // save caller temp
   PUSH r6    // save caller temp
   PUSH r9    // save caller temp
   PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  LLI r5, str_18    // load immediate str_18
+  LLI r5, str_23    // load immediate str_23
   PUSH r5    // stage reg arg 0
   LLI r7, 0    // load immediate 0
   PUSH r7    // stage reg arg 1
@@ -5246,16 +5664,16 @@ malloc_test_69_WHILE_END11:
   POP r4    // restore caller temp
   POP r3    // restore caller temp
   POP r2    // restore caller temp
-  JMP malloc_test_69_IF_END20
-malloc_test_69_ELSE19:
-  // emit call to draw_string_to_display with args [{'type': 'string_addr', 'label': 'str_19'}, {'type': 'const', 'value': 0}, {'type': 'const', 'value': 96}, {'type': 'const', 'value': 63}]
+  JMP malloc_test_72_IF_END20
+malloc_test_72_ELSE19:
+  // emit call to draw_string_to_display with args [{'type': 'string_addr', 'label': 'str_24'}, {'type': 'const', 'value': 0}, {'type': 'const', 'value': 96}, {'type': 'const', 'value': 63}]
   PUSH r2    // save caller temp
   PUSH r3    // save caller temp
   PUSH r4    // save caller temp
   PUSH r6    // save caller temp
   PUSH r9    // save caller temp
   PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  LLI r11, str_19    // load immediate str_19
+  LLI r11, str_24    // load immediate str_24
   PUSH r11    // stage reg arg 0
   LLI r12, 0    // load immediate 0
   PUSH r12    // stage reg arg 1
@@ -5275,7 +5693,7 @@ malloc_test_69_ELSE19:
   POP r4    // restore caller temp
   POP r3    // restore caller temp
   POP r2    // restore caller temp
-malloc_test_69_IF_END20:
+malloc_test_72_IF_END20:
   // emit call to free with args [{'type': 'var', 'name': 'malloc_test_ptr'}]
   PUSH r2    // save caller temp
   PUSH r3    // save caller temp
@@ -5293,15 +5711,15 @@ malloc_test_69_IF_END20:
   POP r4    // restore caller temp
   POP r3    // restore caller temp
   POP r2    // restore caller temp
-  JMP malloc_test_69_IF_END2
-malloc_test_69_ELSE1:
-  // emit call to draw_string_to_display with args [{'type': 'string_addr', 'label': 'str_20'}, {'type': 'const', 'value': 0}, {'type': 'const', 'value': 96}, {'type': 'const', 'value': 63}]
+  JMP malloc_test_72_IF_END2
+malloc_test_72_ELSE1:
+  // emit call to draw_string_to_display with args [{'type': 'string_addr', 'label': 'str_25'}, {'type': 'const', 'value': 0}, {'type': 'const', 'value': 96}, {'type': 'const', 'value': 63}]
   PUSH r2    // save caller temp
   PUSH r3    // save caller temp
   PUSH r4    // save caller temp
   PUSH r6    // save caller temp
   PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  LLI r8, str_20    // load immediate str_20
+  LLI r8, str_25    // load immediate str_25
   PUSH r8    // stage reg arg 0
   LLI r10, 0    // load immediate 0
   PUSH r10    // stage reg arg 1
@@ -5320,7 +5738,7 @@ malloc_test_69_ELSE1:
   POP r4    // restore caller temp
   POP r3    // restore caller temp
   POP r2    // restore caller temp
-malloc_test_69_IF_END2:
+malloc_test_72_IF_END2:
   LLI r5, 0    // zero init int_to_str_test_buffer
   // emit call to malloc with args [{'type': 'const', 'value': 12}]
   PUSH r5    // save caller temp
@@ -5334,13 +5752,13 @@ malloc_test_69_IF_END2:
   POP r5    // restore caller temp
   ADDI r5, r1, 0    // move return value
   LLI r9, 0    // load immediate 0
-  BNE r5, r9, malloc_test_69_CMP_TRUE23
+  BNE r5, r9, malloc_test_72_CMP_TRUE23
   LLI r9, 0    // compare false path
-  JMP malloc_test_69_CMP_END24
-malloc_test_69_CMP_TRUE23:
+  JMP malloc_test_72_CMP_END24
+malloc_test_72_CMP_TRUE23:
   LLI r9, 1
-malloc_test_69_CMP_END24:
-  BEQ r9, r0, malloc_test_69_ELSE21
+malloc_test_72_CMP_END24:
+  BEQ r9, r0, malloc_test_72_ELSE21
   LLI r8, -123456    // init test_value
   // emit call to int_to_str_buf with args [{'type': 'var', 'name': 'test_value'}, {'type': 'var', 'name': 'int_to_str_test_buffer'}]
   PUSH r5    // save caller temp
@@ -5357,12 +5775,12 @@ malloc_test_69_CMP_END24:
   POP r8    // restore caller temp
   POP r6    // restore caller temp
   POP r5    // restore caller temp
-  // emit call to draw_string_to_display with args [{'type': 'string_addr', 'label': 'str_21'}, {'type': 'const', 'value': 0}, {'type': 'const', 'value': 104}, {'type': 'const', 'value': 63}]
+  // emit call to draw_string_to_display with args [{'type': 'string_addr', 'label': 'str_26'}, {'type': 'const', 'value': 0}, {'type': 'const', 'value': 104}, {'type': 'const', 'value': 63}]
   PUSH r5    // save caller temp
   PUSH r6    // save caller temp
   PUSH r8    // save caller temp
   PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  LLI r10, str_21    // load immediate str_21
+  LLI r10, str_26    // load immediate str_26
   PUSH r10    // stage reg arg 0
   LLI r11, 0    // load immediate 0
   PUSH r11    // stage reg arg 1
@@ -5415,13 +5833,13 @@ malloc_test_69_CMP_END24:
   POP r8    // restore caller temp
   POP r6    // restore caller temp
   POP r5    // restore caller temp
-  JMP malloc_test_69_IF_END22
-malloc_test_69_ELSE21:
-  // emit call to draw_string_to_display with args [{'type': 'string_addr', 'label': 'str_22'}, {'type': 'const', 'value': 0}, {'type': 'const', 'value': 104}, {'type': 'const', 'value': 63}]
+  JMP malloc_test_72_IF_END22
+malloc_test_72_ELSE21:
+  // emit call to draw_string_to_display with args [{'type': 'string_addr', 'label': 'str_27'}, {'type': 'const', 'value': 0}, {'type': 'const', 'value': 104}, {'type': 'const', 'value': 63}]
   PUSH r5    // save caller temp
   PUSH r6    // save caller temp
   PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  LLI r9, str_22    // load immediate str_22
+  LLI r9, str_27    // load immediate str_27
   PUSH r9    // stage reg arg 0
   LLI r10, 0    // load immediate 0
   PUSH r10    // stage reg arg 1
@@ -5438,7 +5856,7 @@ malloc_test_69_ELSE21:
   POP r1  
   POP r6    // restore caller temp
   POP r5    // restore caller temp
-malloc_test_69_IF_END22:
+malloc_test_72_IF_END22:
   // epilogue and return
   ADDI r1, r0, 0  // ensure r1=0
   POP r14
@@ -5446,11 +5864,11 @@ malloc_test_69_IF_END22:
 
 .FUNC math_test:
   PUSH r14
-  LLI r2, str_23    // init infix_expr (string addr)
-  // emit call to write_to_buffer with args [{'type': 'string_addr', 'label': 'str_24'}, {'type': 'const', 'value': 0}]
+  LLI r2, str_28    // init infix_expr (string addr)
+  // emit call to write_to_buffer with args [{'type': 'string_addr', 'label': 'str_29'}, {'type': 'const', 'value': 0}]
   PUSH r2    // save caller temp
   PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  LLI r3, str_24    // load immediate str_24
+  LLI r3, str_29    // load immediate str_29
   PUSH r3    // stage reg arg 0
   LLI r4, 0    // load immediate 0
   PUSH r4    // stage reg arg 1
@@ -5491,18 +5909,18 @@ malloc_test_69_IF_END22:
   POP r6    // restore caller temp
   POP r2    // restore caller temp
   ADDI r6, r1, 0    // move return value
-  BEQ r6, r0, math_test_70_UNOP_NOT_TRUE3
+  BEQ r6, r0, math_test_73_UNOP_NOT_TRUE3
   LLI r8, 0    // operand is nonzero -> false
-  JMP math_test_70_UNOP_NOT_END4
-math_test_70_UNOP_NOT_TRUE3:
+  JMP math_test_73_UNOP_NOT_END4
+math_test_73_UNOP_NOT_TRUE3:
   LLI r8, 1    // operand is zero -> true
-math_test_70_UNOP_NOT_END4:
-  BEQ r8, r0, math_test_70_ELSE1
-  // emit call to write_to_buffer with args [{'type': 'string_addr', 'label': 'str_25'}, {'type': 'const', 'value': 16}]
+math_test_73_UNOP_NOT_END4:
+  BEQ r8, r0, math_test_73_ELSE1
+  // emit call to write_to_buffer with args [{'type': 'string_addr', 'label': 'str_30'}, {'type': 'const', 'value': 16}]
   PUSH r2    // save caller temp
   PUSH r6    // save caller temp
   PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  LLI r9, str_25    // load immediate str_25
+  LLI r9, str_30    // load immediate str_30
   PUSH r9    // stage reg arg 0
   LLI r10, 16    // load immediate 16
   PUSH r10    // stage reg arg 1
@@ -5526,9 +5944,9 @@ math_test_70_UNOP_NOT_END4:
   ADD r1, r11, r0
   POP r14
   RET
-  JMP math_test_70_IF_END2
-math_test_70_ELSE1:
-math_test_70_IF_END2:
+  JMP math_test_73_IF_END2
+math_test_73_ELSE1:
+math_test_73_IF_END2:
   // emit call to infix_to_rpn with args [{'type': 'var', 'name': 'infix_expr'}, {'type': 'var', 'name': 'rpn_buffer'}]
   PUSH r2    // save caller temp
   PUSH r6    // save caller temp
@@ -5542,10 +5960,10 @@ math_test_70_IF_END2:
   POP r1  
   POP r6    // restore caller temp
   POP r2    // restore caller temp
-  // emit call to write_to_buffer with args [{'type': 'string_addr', 'label': 'str_26'}, {'type': 'const', 'value': 32}]
+  // emit call to write_to_buffer with args [{'type': 'string_addr', 'label': 'str_31'}, {'type': 'const', 'value': 32}]
   PUSH r6    // save caller temp
   PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  LLI r12, str_26    // load immediate str_26
+  LLI r12, str_31    // load immediate str_31
   PUSH r12    // stage reg arg 0
   LLI r3, 32    // load immediate 32
   PUSH r3    // stage reg arg 1
@@ -5574,10 +5992,10 @@ math_test_70_IF_END2:
   // call return value in r1
   POP r1  
   POP r6    // restore caller temp
-  // emit call to write_to_buffer with args [{'type': 'string_addr', 'label': 'str_27'}, {'type': 'const', 'value': 64}]
+  // emit call to write_to_buffer with args [{'type': 'string_addr', 'label': 'str_32'}, {'type': 'const', 'value': 64}]
   PUSH r6    // save caller temp
   PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  LLI r5, str_27    // load immediate str_27
+  LLI r5, str_32    // load immediate str_32
   PUSH r5    // stage reg arg 0
   LLI r7, 64    // load immediate 64
   PUSH r7    // stage reg arg 1
@@ -5598,7 +6016,7 @@ math_test_70_IF_END2:
   POP r8    // restore caller temp
   POP r6    // restore caller temp
   ADDI r8, r1, 0    // move return value
-  LLI r9, math_test_70_result_str_buf5    // init result_str (buffer addr)
+  LLI r9, math_test_73_result_str_buf5    // init result_str (buffer addr)
   // emit call to int_to_str_buf with args [{'type': 'var', 'name': 'result'}, {'type': 'var', 'name': 'result_str'}]
   PUSH r8    // save caller temp
   PUSH r9    // save caller temp
@@ -5672,30 +6090,30 @@ math_test_70_IF_END2:
   // call return value in r1
   POP r1  
   POP r2    // restore caller temp
-  // inline call to print_string with args [{'type': 'string_addr', 'label': 'str_28'}]
+  // inline call to print_string with args [{'type': 'string_addr', 'label': 'str_33'}]
   // begin inline expansion of print_string
-  LLI r7, str_28    // load immediate str_28
+  LLI r7, str_33    // load immediate str_33
   LLI r8, 268435456    // init tty_addr
-time_test_71_WHILE1:
+time_test_74_WHILE1:
   LBU r9, r7, 0    // deref
-  BEQ r9, r0, time_test_71_WHILE_END2
+  BEQ r9, r0, time_test_74_WHILE_END2
   LBU r10, r7, 0    // deref
   SB r10, r8, 0    // intrinsic __sb
   ADDI r7, r7, 1    // assign str (addi fast path)
-  JMP time_test_71_WHILE1
-time_test_71_WHILE_END2:
+  JMP time_test_74_WHILE1
+time_test_74_WHILE_END2:
   // end inline expansion of print_string
   // inline call to print_string with args [{'type': 'var', 'name': 'time_str'}]
   // begin inline expansion of print_string
   LLI r11, 268435456    // init tty_addr
-time_test_71_WHILE3:
+time_test_74_WHILE3:
   LBU r12, r2, 0    // deref
-  BEQ r12, r0, time_test_71_WHILE_END4
+  BEQ r12, r0, time_test_74_WHILE_END4
   LBU r3, r2, 0    // deref
   SB r3, r11, 0    // intrinsic __sb
   ADDI r2, r2, 1    // assign str (addi fast path)
-  JMP time_test_71_WHILE3
-time_test_71_WHILE_END4:
+  JMP time_test_74_WHILE3
+time_test_74_WHILE_END4:
   // end inline expansion of print_string
   // emit call to update_buffer with args []
   PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
@@ -5720,13 +6138,13 @@ time_test_71_WHILE_END4:
   POP r2    // restore caller temp
   ADDI r2, r1, 0    // move return value
   LLI r4, 0    // load immediate 0
-  BNE r2, r4, recursive_test_72_CMP_TRUE3
+  BNE r2, r4, recursive_test_75_CMP_TRUE3
   LLI r4, 0    // compare false path
-  JMP recursive_test_72_CMP_END4
-recursive_test_72_CMP_TRUE3:
+  JMP recursive_test_75_CMP_END4
+recursive_test_75_CMP_TRUE3:
   LLI r4, 1
-recursive_test_72_CMP_END4:
-  BEQ r4, r0, recursive_test_72_ELSE1
+recursive_test_75_CMP_END4:
+  BEQ r4, r0, recursive_test_75_ELSE1
   LLI r5, 0    // zero init test_value
   // emit call to fibonnaci_recursive with args [{'type': 'const', 'value': 5}]
   PUSH r2    // save caller temp
@@ -5752,11 +6170,11 @@ recursive_test_72_CMP_END4:
   POP r1  
   POP r5    // restore caller temp
   POP r2    // restore caller temp
-  // emit call to draw_string_to_display with args [{'type': 'string_addr', 'label': 'str_29'}, {'type': 'const', 'value': 0}, {'type': 'const', 'value': 104}, {'type': 'const', 'value': 63}]
+  // emit call to draw_string_to_display with args [{'type': 'string_addr', 'label': 'str_34'}, {'type': 'const', 'value': 0}, {'type': 'const', 'value': 104}, {'type': 'const', 'value': 63}]
   PUSH r2    // save caller temp
   PUSH r5    // save caller temp
   PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  LLI r7, str_29    // load immediate str_29
+  LLI r7, str_34    // load immediate str_34
   PUSH r7    // stage reg arg 0
   LLI r8, 0    // load immediate 0
   PUSH r8    // stage reg arg 1
@@ -5804,12 +6222,12 @@ recursive_test_72_CMP_END4:
   POP r1  
   POP r5    // restore caller temp
   POP r2    // restore caller temp
-  JMP recursive_test_72_IF_END2
-recursive_test_72_ELSE1:
-  // emit call to draw_string_to_display with args [{'type': 'string_addr', 'label': 'str_30'}, {'type': 'const', 'value': 0}, {'type': 'const', 'value': 104}, {'type': 'const', 'value': 63}]
+  JMP recursive_test_75_IF_END2
+recursive_test_75_ELSE1:
+  // emit call to draw_string_to_display with args [{'type': 'string_addr', 'label': 'str_35'}, {'type': 'const', 'value': 0}, {'type': 'const', 'value': 104}, {'type': 'const', 'value': 63}]
   PUSH r2    // save caller temp
   PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  LLI r4, str_30    // load immediate str_30
+  LLI r4, str_35    // load immediate str_35
   PUSH r4    // stage reg arg 0
   LLI r6, 0    // load immediate 0
   PUSH r6    // stage reg arg 1
@@ -5825,7 +6243,7 @@ recursive_test_72_ELSE1:
   // call return value in r1
   POP r1  
   POP r2    // restore caller temp
-recursive_test_72_IF_END2:
+recursive_test_75_IF_END2:
   // epilogue and return
   ADDI r1, r0, 0  // ensure r1=0
   POP r14
@@ -6210,93 +6628,114 @@ buffer_update_queue_ptr:
   .DATA 0x00000000
 
 str_1:
-  .STR "Hello, RospOS!"
+  .STR "Error:"
 
 str_2:
-  .STR "Green"
+  .STR "Invalid opcode: "
 
 str_3:
-  .STR "Red"
+  .STR "R-type"
 
 str_4:
-  .STR "Blue"
+  .STR ": "
 
 str_5:
-  .STR "Yellow"
+  .STR "PC="
+
+print_hex_buffer:
+  .SPACE 9
+
+hex_chars:
+  .DATA str_0
 
 str_6:
-  .STR "Cyan"
+  .STR "Hello, RospOS!"
 
 str_7:
-  .STR "Magenta"
+  .STR "Green"
 
 str_8:
-  .STR "White"
+  .STR "Red"
 
 str_9:
-  .STR "example.txt\0"
+  .STR "Blue"
 
 str_10:
-  .STR "Hello, RospOS filesystem!\0"
+  .STR "Yellow"
 
 str_11:
-  .STR "Memory allocation failed for device info buffer.\0"
+  .STR "Cyan"
 
 str_12:
-  .STR "Memory allocation failed for file contents buffer.\0"
+  .STR "Magenta"
 
 str_13:
-  .STR "Loading random blocks to display"
+  .STR "White"
 
 str_14:
-  .STR "using DMA:\0"
+  .STR "example.txt\0"
 
 str_15:
-  .STR "Hello, RospOS Terminal!\0"
+  .STR "Hello, RospOS filesystem!\0"
 
 str_16:
-  .STR "This is a simple terminal implementation.\0"
+  .STR "Memory allocation failed for device info buffer.\0"
 
 str_17:
-  .STR "Fast loading image using DMA:\0"
+  .STR "Memory allocation failed for file contents buffer.\0"
 
 str_18:
-  .STR "Malloc test passed!\0"
+  .STR "Loading random blocks to display"
 
 str_19:
-  .STR "Malloc test failed!\0"
+  .STR "using DMA:\0"
 
 str_20:
-  .STR "Malloc test failed: MEM!\0"
+  .STR "Hello, RospOS Terminal!\0"
 
 str_21:
-  .STR "Int to str test: \0"
+  .STR "This is a simple terminal implementation.\0"
 
 str_22:
-  .STR "Int to str test failed: MEM!\0"
+  .STR "Fast loading image using DMA:\0"
 
 str_23:
-  .STR "3+4*2/(1-5)"
+  .STR "Malloc test passed!\0"
 
 str_24:
-  .STR "Infix: \0"
+  .STR "Malloc test failed!\0"
 
 str_25:
-  .STR "Memory allocation failed for RPN buffer.\0"
+  .STR "Malloc test failed: MEM!\0"
 
 str_26:
-  .STR "RPN: \0"
+  .STR "Int to str test: \0"
 
 str_27:
-  .STR "Result: \0"
+  .STR "Int to str test failed: MEM!\0"
 
 str_28:
-  .STR "Current time: \n"
+  .STR "3+4*2/(1-5)"
 
 str_29:
-  .STR "Fibonacci number: \0"
+  .STR "Infix: \0"
 
 str_30:
+  .STR "Memory allocation failed for RPN buffer.\0"
+
+str_31:
+  .STR "RPN: \0"
+
+str_32:
+  .STR "Result: \0"
+
+str_33:
+  .STR "Current time: \n"
+
+str_34:
+  .STR "Fibonacci number: \0"
+
+str_35:
   .STR "Fibonacci number test failed: MEM!\0"
 
 draw_line_13_spill23:
@@ -6335,6 +6774,15 @@ infix_to_rpn_60_stack_buf1:
 evaluate_rpn_61_stack_buf1:
   .SPACE 512 // lifted buffer
 
-math_test_70_result_str_buf5:
+err_handler_62_spill49:
+  .SPACE 4 // lifted buffer
+
+err_handler_62_spill52:
+  .SPACE 4 // lifted buffer
+
+err_handler_62_spill53:
+  .SPACE 4 // lifted buffer
+
+math_test_73_result_str_buf5:
   .SPACE 16 // lifted buffer
 

@@ -1,4 +1,4 @@
-inline void print_string(char *str)
+void print_string(char *str)
 {
     int tty_addr = 0x10000000;
     while (*str)
@@ -7,7 +7,7 @@ inline void print_string(char *str)
         str = str + 1;
     }
 }
-inline void print_char(char c)
+void print_char(char c)
 {
     int tty_addr = 0x10000000;
     __sb(tty_addr, c);
@@ -1275,6 +1275,78 @@ int evaluate_rpn(char *expression)
         i = i + 1;
     }
     return stack[0];
+}
+
+
+/* A `keep` function is included in the assembly, no matter if it's called.  */
+
+keep void _err_handler(){
+    // @r1 is "Just give me the actual value of r1."
+    int r1=@r1;
+    print_hex(@r1);
+    print_string("Error:");
+    print_hex(r1);
+    print_string("\n");
+    int error_type=r1&0xFFFF0000;
+    if (error_type==1){
+        print_string("Invalid opcode: ");
+        print_hex_char((r1&0xF0)>>4);
+        print_hex_char(r1&0xF);
+        int opcode_family=r1&0xF0;
+        print_char(" ");
+        if (opcode_family==0){
+            print_string("R-type");            
+        } else if (opcode_family==1){
+            print_string("I-type");
+        } else if (opcode_family==2){
+            print_string("Load/Store");
+        } else if (opcode_family==3){
+            print_string("Branch");
+        } else if (opcode_family==4){
+            print_string("Jump");
+        } else if (opcode_family==5){
+            print_string("System");
+        } else if (opcode_family==15){
+            print_string("Special");
+        } else {
+            print_string("Unknown opcode family");
+        }
+        print_string(": ");
+        print_hex_char(r1&0xF);
+    } else if (error_type==2){
+        print_string("Invalid Operation");
+    } else {
+        print_string("Unknown Error. Something is seriously wrong.");
+    }
+    print_char("\n");
+    print_string("PC=");
+    print_hex(__pop());
+    print_char("\n");
+    for (int i=1;i<=15;i++){
+        print_string("R");
+        print_hex_char(i);
+        print_string("=");
+        print_hex(__pop());
+        print_char("\n");
+    }
+    __break();
+}
+
+char print_hex_buffer[9];
+char *hex_chars = "0123456789ABCDEF";
+
+void print_hex(int input)
+{
+    for (int i = 0; i < 8; i++)
+    {
+        print_hex_buffer[7 - i] = hex_chars[input & 0xF];
+        input = input >> 4;
+    }
+    print_hex_buffer[8]=0;
+    print_string(print_hex_buffer);
+}
+void print_hex_char(int input){
+    print_char(hex_chars[input & 0xF]);
 }
 
 inline int add(int a, int b)

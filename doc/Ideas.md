@@ -10,9 +10,42 @@ Add a dark/light mode toggle
 Allow for the user to open and close different debug panels (e.g. register view, memory view, etc.) and have their visibility and layout settings be saved between sessions
 ^ For this, also allow the user to save multiple layout presets
 
+
 ## Ideas:
 
 Evaluate simple constant expressions at compile time, esp for LLI. (e.g. 256-8 should be evaluated to 248 at compile time)
+
+In addition to reset vector at 0xFFFFFFFC, maybe have a error vector at similar?
+
+### Error codes:
+
+Jump to function _err_handler.
+Note: _err_handler is a special function, special ABI. error code is in r1
+PUSH: r15, r14 .. r2, r1, PC in that order. 
+(POP PC, POP r1 ...)
+
+#### Invalid opcode
+
+0x0001 00XY
+0x00XY: 0b 0000 0000 XXXX YYYY
+
+XXXX=family
+YYYY=opcode
+
+I.e 0x0001 005F:
+0b 0000 0000 0000 0001  0000 0000 0101 1111
+Attempted to execute opcode 5F (Special ???)
+
+#### Invalid Operation
+0x0002 XYZW
+I.e. DIV/0
+XXXX = Family
+YYYY = Opcode
+Z=rs1
+W=rs2
+
+
+
 
 ## Optimizations
 

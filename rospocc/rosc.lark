@@ -12,6 +12,8 @@ TRUE: "true"
 FALSE: "false"
 NULLPTR: "nullptr"
 
+register: /r[0-9]+/
+register_name: "@" register
 // Bitwise and related operators
 LSHIFT: "<<"
 RSHIFT: ">>"
@@ -125,6 +127,7 @@ post_dec: "--"
 arg_list: expr ("," expr)*
 
 ?primary: NAME
+	  | register_name
 	  | NUMBER
 	  | STRING
 	  | TRUE

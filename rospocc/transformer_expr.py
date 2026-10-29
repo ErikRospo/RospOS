@@ -180,7 +180,9 @@ class ExpressionTransformer:
 
         if node_type == "logic_or":
             return self._fold_left_token_binops(node.get("children", []), {"||": "lor"})
-
+        
+        if node_type == "register":
+            return {"type":"register","value":node.get("children",[])[0].get("token")}
         if node_type == "assignment":
             children = node.get("children", [])
             logger.debug("assignment children: {}", children)

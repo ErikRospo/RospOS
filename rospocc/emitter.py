@@ -8,7 +8,7 @@ from typing import Any, Dict, Optional
 import abi
 from emitter_calls import emit_call
 from emitter_expr import emit_expr as emit_expression
-from emitter_intrinsics import intrinsic_break, intrinsic_lb, intrinsic_sb, intrinsic_sw
+from emitter_intrinsics import intrinsic_break, intrinsic_lb, intrinsic_sb, intrinsic_sw, intrinsic_pop
 from emitter_registers import alloc_var_reg, ensure_var_reg, load_imm
 from emitter_stmt import emit_statement as emit_statement_impl
 from loguru import logger
@@ -70,6 +70,7 @@ class Emitter:
             "__sb": self._intrinsic_sb,
             "__break": self._intrinsic_break,
             "__sw": self._intrinsic_sw,
+            "__pop": self._intrinsic_pop,
         }
         # Source tracking for debug info
         self.source_file = source_file
@@ -189,10 +190,7 @@ class Emitter:
                         "size": typ.get("size", 0),
                     }
 
-    def _write_file_header(self, out):
-        out.write("// Generated .ros by rospocc.emitter (starter)\n")
-        out.write("// Functions\n")
-        out.write(".SEG 0xFFFF_FFFC\n")
+    # def _write_file_header(self, out):
 
     def _write_lifted_spaces(self, out):
         for sp in self.global_spaces:
@@ -1072,6 +1070,9 @@ class Emitter:
     def _intrinsic_break(self, args, out, return_reg=None):
         intrinsic_break(self, args, out, return_reg=return_reg)
 
+    def _intrinsic_pop(self, args, out, return_reg=None):
+        intrinsic_pop(self, args, out, return_reg=return_reg)
+        
     def emit_translation_unit(self, ast: Dict[str, Any], out_path: str):
         out_file = Path(out_path)
         out_file.parent.mkdir(parents=True, exist_ok=True)
@@ -1086,16 +1087,24 @@ class Emitter:
                 (fn for fn in ast.get("functions", []) if fn.get("name") == "main"),
                 None,
             )
+            error_handler_fn= next(
+                (fn for fn in ast.get("functions", []) if fn.get("name") == "_err_handler"),
+                None,
+            )
             assert (
                 main_fn
-            ), "Translation unit must have a main function for source tracking context"
+            ), "Project must have a main function"
+            if error_handler_fn==None:
+                logger.warning("Project has no _err_handler function, errors will cause halts.")
             logger.debug("mainfn: {}", main_fn)
             self._set_source_context(main_fn, out)
-            self._write_file_header(out)
-            self._collect_global_types(ast)
+            out.write("// Generated .ros by rospocc.emitter (starter)\n")
+            out.write("// Functions\n")
+            out.write(".SEG 0xFFFF_FFFC\n")
             out.write(".DATA 0x00000000\n\n")
             out.write(".SEG 0x00000000\n\n")
             out.write(f"  JMP main\n\n")
+            self._collect_global_types(ast)
             # Functions are independent, so render them in parallel and splice
             # the resulting chunks back into the file in source order.
             function_results = _emit_functions_parallel(self, ast.get("functions", []))
@@ -1133,6 +1142,10 @@ class Emitter:
             # Emit any lifted large buffers (as .SPACE labels)
             out.set_source_context(None)  # No source for lifted buffers
             self._write_lifted_spaces(out)
+            
+            out.write("\n // Error Handler\n")
+            out.write(".SEG 0xFFFF_FFF8")
+            out.write(".DATA _err_handler")
             out.write("\n")
             out.flush()
             merged_mappings.extend(out.get_mappings()[len(base_mappings) :])

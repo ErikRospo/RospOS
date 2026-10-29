@@ -1,7 +1,6 @@
 translation_unit
   external_decl
     function_def
-      inline
       type_specifier
         void
       declarator	print_string
@@ -42,7 +41,6 @@ translation_unit
                   1
   external_decl
     function_def
-      inline
       type_specifier
         void
       declarator	print_char
@@ -6195,6 +6193,380 @@ translation_unit
           postfix
             stack
             array_index	0
+  external_decl
+    function_def
+      keep
+      type_specifier
+        void
+      declarator	_err_handler
+      compound_stmt
+        declaration
+          type_specifier
+            int
+          init_declarator_list
+            init_declarator
+              declarator	r1
+              register_name
+                register	r1
+        expr_stmt
+          postfix
+            print_hex
+            call_suffix
+              arg_list
+                register_name
+                  register	r1
+        expr_stmt
+          postfix
+            print_string
+            call_suffix
+              arg_list	"Error:"
+        expr_stmt
+          postfix
+            print_hex
+            call_suffix
+              arg_list	r1
+        expr_stmt
+          postfix
+            print_string
+            call_suffix
+              arg_list	"\n"
+        declaration
+          type_specifier
+            int
+          init_declarator_list
+            init_declarator
+              declarator	error_type
+              bit_and
+                r1
+                0xFFFF0000
+        if_stmt
+          equality
+            error_type
+            eq
+            1
+          compound_stmt
+            expr_stmt
+              postfix
+                print_string
+                call_suffix
+                  arg_list	"Invalid opcode: "
+            expr_stmt
+              postfix
+                print_hex_char
+                call_suffix
+                  arg_list
+                    shift
+                      bit_and
+                        r1
+                        0xF0
+                      rshift
+                      4
+            expr_stmt
+              postfix
+                print_hex_char
+                call_suffix
+                  arg_list
+                    bit_and
+                      r1
+                      0xF
+            declaration
+              type_specifier
+                int
+              init_declarator_list
+                init_declarator
+                  declarator	opcode_family
+                  bit_and
+                    r1
+                    0xF0
+            expr_stmt
+              postfix
+                print_char
+                call_suffix
+                  arg_list	" "
+            if_stmt
+              equality
+                opcode_family
+                eq
+                0
+              compound_stmt
+                expr_stmt
+                  postfix
+                    print_string
+                    call_suffix
+                      arg_list	"R-type"
+              if_stmt
+                equality
+                  opcode_family
+                  eq
+                  1
+                compound_stmt
+                  expr_stmt
+                    postfix
+                      print_string
+                      call_suffix
+                        arg_list	"I-type"
+                if_stmt
+                  equality
+                    opcode_family
+                    eq
+                    2
+                  compound_stmt
+                    expr_stmt
+                      postfix
+                        print_string
+                        call_suffix
+                          arg_list	"Load/Store"
+                  if_stmt
+                    equality
+                      opcode_family
+                      eq
+                      3
+                    compound_stmt
+                      expr_stmt
+                        postfix
+                          print_string
+                          call_suffix
+                            arg_list	"Branch"
+                    if_stmt
+                      equality
+                        opcode_family
+                        eq
+                        4
+                      compound_stmt
+                        expr_stmt
+                          postfix
+                            print_string
+                            call_suffix
+                              arg_list	"Jump"
+                      if_stmt
+                        equality
+                          opcode_family
+                          eq
+                          5
+                        compound_stmt
+                          expr_stmt
+                            postfix
+                              print_string
+                              call_suffix
+                                arg_list	"System"
+                        if_stmt
+                          equality
+                            opcode_family
+                            eq
+                            15
+                          compound_stmt
+                            expr_stmt
+                              postfix
+                                print_string
+                                call_suffix
+                                  arg_list	"Special"
+                          compound_stmt
+                            expr_stmt
+                              postfix
+                                print_string
+                                call_suffix
+                                  arg_list	"Unknown opcode family"
+            expr_stmt
+              postfix
+                print_string
+                call_suffix
+                  arg_list	": "
+            expr_stmt
+              postfix
+                print_hex_char
+                call_suffix
+                  arg_list
+                    bit_and
+                      r1
+                      0xF
+          if_stmt
+            equality
+              error_type
+              eq
+              2
+            compound_stmt
+              expr_stmt
+                postfix
+                  print_string
+                  call_suffix
+                    arg_list	"Invalid Operation"
+            compound_stmt
+              expr_stmt
+                postfix
+                  print_string
+                  call_suffix
+                    arg_list	"Unknown Error. Something is seriously wrong."
+        expr_stmt
+          postfix
+            print_char
+            call_suffix
+              arg_list	"\n"
+        expr_stmt
+          postfix
+            print_string
+            call_suffix
+              arg_list	"PC="
+        expr_stmt
+          postfix
+            print_hex
+            call_suffix
+              arg_list
+                postfix
+                  __pop
+                  call_suffix
+        expr_stmt
+          postfix
+            print_char
+            call_suffix
+              arg_list	"\n"
+        for_stmt
+          declaration
+            type_specifier
+              int
+            init_declarator_list
+              init_declarator
+                declarator	i
+                1
+          relational
+            i
+            lte
+            15
+          postfix
+            i
+            post_inc
+          compound_stmt
+            expr_stmt
+              postfix
+                print_string
+                call_suffix
+                  arg_list	"R"
+            expr_stmt
+              postfix
+                print_hex_char
+                call_suffix
+                  arg_list	i
+            expr_stmt
+              postfix
+                print_string
+                call_suffix
+                  arg_list	"="
+            expr_stmt
+              postfix
+                print_hex
+                call_suffix
+                  arg_list
+                    postfix
+                      __pop
+                      call_suffix
+            expr_stmt
+              postfix
+                print_char
+                call_suffix
+                  arg_list	"\n"
+        expr_stmt
+          postfix
+            __break
+            call_suffix
+  external_decl
+    declaration
+      type_specifier
+        char
+      init_declarator_list
+        init_declarator
+          declarator
+            print_hex_buffer
+            array	9
+  external_decl
+    declaration
+      type_specifier
+        char
+        pointer
+      init_declarator_list
+        init_declarator
+          declarator	hex_chars
+          "0123456789ABCDEF"
+  external_decl
+    function_def
+      type_specifier
+        void
+      declarator	print_hex
+      param_list
+        param
+          type_specifier
+            int
+          declarator	input
+      compound_stmt
+        for_stmt
+          declaration
+            type_specifier
+              int
+            init_declarator_list
+              init_declarator
+                declarator	i
+                0
+          relational
+            i
+            lt
+            8
+          postfix
+            i
+            post_inc
+          compound_stmt
+            expr_stmt
+              assignment
+                postfix
+                  print_hex_buffer
+                  array_index
+                    additive
+                      7
+                      minus
+                      i
+                postfix
+                  hex_chars
+                  array_index
+                    bit_and
+                      input
+                      0xF
+            expr_stmt
+              assignment
+                input
+                shift
+                  input
+                  rshift
+                  4
+        expr_stmt
+          assignment
+            postfix
+              print_hex_buffer
+              array_index	8
+            0
+        expr_stmt
+          postfix
+            print_string
+            call_suffix
+              arg_list	print_hex_buffer
+  external_decl
+    function_def
+      type_specifier
+        void
+      declarator	print_hex_char
+      param_list
+        param
+          type_specifier
+            int
+          declarator	input
+      compound_stmt
+        expr_stmt
+          postfix
+            print_char
+            call_suffix
+              arg_list
+                postfix
+                  hex_chars
+                  array_index
+                    bit_and
+                      input
+                      0xF
   external_decl
     function_def
       inline

@@ -23,7 +23,6 @@ def _emit_var(emitter, expr: Dict[str, Any], out) -> str:
         reg = emitter.alloc_reg()
         emitter._load_imm(reg, const_value, out)
         return reg
-
     r = emitter.var_regs.get(name)
     if r:
         emitter.consume_var_read(name)
@@ -385,10 +384,15 @@ def _emit_assign_expr(emitter, expr: Dict[str, Any], out) -> str:
 
     if rval != result:
         emitter.release_expr_reg(rval)
-
     return result
 
-
+def _emit_register(emitter, expr:Dict[str,Any], out) -> str:
+    t=expr.get("value",None)
+    if t==None:
+        logger.warning(f"Unknown register expression {expr}")
+        return ""
+    else: 
+        return t
 def _emit_unsupported(emitter, expr: Dict[str, Any], out) -> str:
     out.write(f"  // unsupported-expr {expr!r}\n")
     return ""
@@ -404,6 +408,7 @@ EXPR_DISPATCH = {
     "assign": _emit_assign_expr,
     "unop": _emit_unop,
     "string_addr": _emit_string_addr,
+    "register":_emit_register
 }
 
 
