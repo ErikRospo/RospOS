@@ -1,8 +1,10 @@
 // Generated .ros by rospocc.emitter (starter)
-// Functions
-.SEG 0xFFFF_FFFC
+// Vectors (zero error vector means no handler)
+.SEG 0xFFFF_FFF8
+.DATA _err_handler
 .DATA 0x00000000
 
+// Functions
 .SEG 0x00000000
 
   JMP main
@@ -4639,24 +4641,23 @@ evaluate_rpn_61_WHILE_END3:
   RET
 
 .FUNC _err_handler:
-  PUSH r14
-  // unsupported-expr {'type': 'register', 'value': [{'token': 'r1'}]}
+  LLI r2, 0    // zero init r1
+  ADDI r2, r1, 0    // init r1 from expr
   // inline call to print_string with args [{'type': 'string_addr', 'label': 'str_1'}]
   // begin inline expansion of print_string
-  LLI r2, str_1    // load immediate str_1
-  LLI r3, 268435456    // init tty_addr
+  LLI r3, str_1    // load immediate str_1
+  LLI r4, 268435456    // init tty_addr
 err_handler_62_WHILE1:
-  LBU r4, r2, 0    // deref
-  BEQ r4, r0, err_handler_62_WHILE_END2
-  LBU r5, r2, 0    // deref
-  SB r5, r3, 0    // intrinsic __sb
-  ADDI r2, r2, 1    // assign str (addi fast path)
+  LBU r5, r3, 0    // deref
+  BEQ r5, r0, err_handler_62_WHILE_END2
+  LBU r6, r3, 0    // deref
+  SB r6, r4, 0    // intrinsic __sb
+  ADDI r3, r3, 1    // assign str (addi fast path)
   JMP err_handler_62_WHILE1
 err_handler_62_WHILE_END2:
   // end inline expansion of print_string
   // inline call to print_hex with args [{'type': 'var', 'name': 'r1'}]
   // begin inline expansion of print_hex
-  LLI r6, 0    // load immediate 0
   LLI r7, 0    // init i
 err_handler_62_WHILE3:
   LLI r8, 8    // load immediate 8
@@ -4670,7 +4671,7 @@ err_handler_62_CMP_END7:
   LLI r9, hex_chars    // load immediate hex_chars
   LW r9, r9, 0    // load global hex_chars
   LLI r10, 15    // load immediate 15
-  AND r10, r6, r10    // binop &
+  AND r10, r2, r10    // binop &
   ADD r9, r9, r10    // binop +
   LBU r9, r9, 0    // deref
   LLI r11, print_hex_buffer    // load immediate print_hex_buffer
@@ -4678,25 +4679,25 @@ err_handler_62_CMP_END7:
   SUB r12, r12, r7    // binop -
   ADD r11, r11, r12    // binop +
   SB r9, r11, 0    // store 
-  SHRI r6, r6, 4    // assign input (shri fast path)
+  SHRI r2, r2, 4    // assign input (shri fast path)
 err_handler_62_FOR_STEP5:
   ADDI r7, r7, 1    // assign i (addi fast path)
   JMP err_handler_62_WHILE3
 err_handler_62_WHILE_END4:
-  LLI r4, 0    // load immediate 0
+  LLI r2, 0    // load immediate 0
   LLI r5, print_hex_buffer    // load immediate print_hex_buffer
-  LLI r2, 8    // load immediate 8
-  ADD r5, r5, r2    // binop +
-  SB r4, r5, 0    // store 
+  LLI r6, 8    // load immediate 8
+  ADD r5, r5, r6    // binop +
+  SB r2, r5, 0    // store 
   // inline call to print_string with args [{'type': 'var', 'name': 'print_hex_buffer'}]
   // begin inline expansion of print_string
   LLI r3, 0    // load immediate 0
-  LLI r8, 268435456    // init tty_addr
+  LLI r4, 268435456    // init tty_addr
 err_handler_62_WHILE8:
+  LBU r8, r3, 0    // deref
+  BEQ r8, r0, err_handler_62_WHILE_END9
   LBU r10, r3, 0    // deref
-  BEQ r10, r0, err_handler_62_WHILE_END9
-  LBU r12, r3, 0    // deref
-  SB r12, r8, 0    // intrinsic __sb
+  SB r10, r4, 0    // intrinsic __sb
   ADDI r3, r3, 1    // assign str (addi fast path)
   JMP err_handler_62_WHILE8
 err_handler_62_WHILE_END9:
@@ -4704,100 +4705,100 @@ err_handler_62_WHILE_END9:
   // end inline expansion of print_hex
   // inline call to print_string with args [{'type': 'const', 'value': 10}]
   // begin inline expansion of print_string
-  LLI r11, 10    // load immediate 10
-  LLI r9, 268435456    // init tty_addr
+  LLI r12, 10    // load immediate 10
+  LLI r11, 268435456    // init tty_addr
 err_handler_62_WHILE10:
-  LBU r6, r11, 0    // deref
-  BEQ r6, r0, err_handler_62_WHILE_END11
-  LBU r7, r11, 0    // deref
-  SB r7, r9, 0    // intrinsic __sb
-  ADDI r11, r11, 1    // assign str (addi fast path)
+  LBU r9, r12, 0    // deref
+  BEQ r9, r0, err_handler_62_WHILE_END11
+  LBU r7, r12, 0    // deref
+  SB r7, r11, 0    // intrinsic __sb
+  ADDI r12, r12, 1    // assign str (addi fast path)
   JMP err_handler_62_WHILE10
 err_handler_62_WHILE_END11:
   // end inline expansion of print_string
-  LLI r2, 0    // zero init r1
-  LLI r5, 4294901760    // load immediate 4294901760
-  AND r5, r2, r5    // binop &
-  LLI r4, 1    // load immediate 1
-  BEQ r5, r4, err_handler_62_CMP_TRUE14
-  LLI r4, 0    // compare false path
+  LLI r6, 4294901760    // load immediate 4294901760
+  AND r6, r2, r6    // binop &
+  SHRI r6, r6, 16    // binop >> (imm)
+  LLI r5, 1    // load immediate 1
+  BEQ r6, r5, err_handler_62_CMP_TRUE14
+  LLI r5, 0    // compare false path
   JMP err_handler_62_CMP_END15
 err_handler_62_CMP_TRUE14:
-  LLI r4, 1
+  LLI r5, 1
 err_handler_62_CMP_END15:
-  BEQ r4, r0, err_handler_62_ELSE12
+  BEQ r5, r0, err_handler_62_ELSE12
   // inline call to print_string with args [{'type': 'string_addr', 'label': 'str_2'}]
   // begin inline expansion of print_string
-  LLI r10, str_2    // load immediate str_2
-  LLI r12, 268435456    // init tty_addr
+  LLI r2, str_2    // load immediate str_2
+  LLI r8, 268435456    // init tty_addr
 err_handler_62_WHILE16:
-  LBU r3, r10, 0    // deref
-  BEQ r3, r0, err_handler_62_WHILE_END17
-  LBU r8, r10, 0    // deref
-  SB r8, r12, 0    // intrinsic __sb
-  ADDI r10, r10, 1    // assign str (addi fast path)
+  LBU r10, r2, 0    // deref
+  BEQ r10, r0, err_handler_62_WHILE_END17
+  LBU r3, r2, 0    // deref
+  SB r3, r8, 0    // intrinsic __sb
+  ADDI r2, r2, 1    // assign str (addi fast path)
   JMP err_handler_62_WHILE16
 err_handler_62_WHILE_END17:
   // end inline expansion of print_string
   // inline call to print_hex_char with args [{'type': 'binop', 'op': 'rshift', 'left': {'type': 'binop', 'op': 'and', 'left': {'type': 'var', 'name': 'r1'}, 'right': {'type': 'const', 'value': 240}}, 'right': {'type': 'const', 'value': 4}}]
   // begin inline expansion of print_hex_char
-  LLI r6, 240    // load immediate 240
-  AND r6, r2, r6    // binop &
-  SHRI r6, r6, 4    // binop >> (imm)
+  LLI r4, 240    // load immediate 240
+  AND r4, r2, r4    // binop &
+  SHRI r4, r4, 4    // binop >> (imm)
   // inline call to print_char with args [{'type': 'deref', 'expr': {'type': 'binop', 'op': 'plus', 'left': {'type': 'var', 'name': 'hex_chars'}, 'right': {'type': 'binop', 'op': 'and', 'left': {'type': 'var', 'name': 'input'}, 'right': {'type': 'const', 'value': 15}}}}]
   // begin inline expansion of print_char
-  LLI r7, hex_chars    // load immediate hex_chars
-  LW r7, r7, 0    // load global hex_chars
-  LLI r11, 15    // load immediate 15
-  AND r11, r6, r11    // binop &
-  ADD r7, r7, r11    // binop +
-  LBU r7, r7, 0    // deref
-  LLI r9, 268435456    // init tty_addr
-  SB r7, r9, 0    // intrinsic __sb
+  LLI r9, hex_chars    // load immediate hex_chars
+  LW r9, r9, 0    // load global hex_chars
+  LLI r7, 15    // load immediate 15
+  AND r7, r4, r7    // binop &
+  ADD r9, r9, r7    // binop +
+  LBU r9, r9, 0    // deref
+  LLI r12, 268435456    // init tty_addr
+  SB r9, r12, 0    // intrinsic __sb
   // end inline expansion of print_char
   // end inline expansion of print_hex_char
   // inline call to print_hex_char with args [{'type': 'binop', 'op': 'and', 'left': {'type': 'var', 'name': 'r1'}, 'right': {'type': 'const', 'value': 15}}]
   // begin inline expansion of print_hex_char
-  LLI r4, 15    // load immediate 15
-  AND r4, r2, r4    // binop &
+  LLI r11, 15    // load immediate 15
+  AND r11, r2, r11    // binop &
   // inline call to print_char with args [{'type': 'deref', 'expr': {'type': 'binop', 'op': 'plus', 'left': {'type': 'var', 'name': 'hex_chars'}, 'right': {'type': 'binop', 'op': 'and', 'left': {'type': 'var', 'name': 'input'}, 'right': {'type': 'const', 'value': 15}}}}]
   // begin inline expansion of print_char
-  LLI r3, hex_chars    // load immediate hex_chars
-  LW r3, r3, 0    // load global hex_chars
-  LLI r8, 15    // load immediate 15
-  AND r8, r4, r8    // binop &
-  ADD r3, r3, r8    // binop +
-  LBU r3, r3, 0    // deref
-  LLI r10, 268435456    // init tty_addr
-  SB r3, r10, 0    // intrinsic __sb
+  LLI r5, hex_chars    // load immediate hex_chars
+  LW r5, r5, 0    // load global hex_chars
+  LLI r10, 15    // load immediate 15
+  AND r10, r11, r10    // binop &
+  ADD r5, r5, r10    // binop +
+  LBU r5, r5, 0    // deref
+  LLI r3, 268435456    // init tty_addr
+  SB r5, r3, 0    // intrinsic __sb
   // end inline expansion of print_char
   // end inline expansion of print_hex_char
-  LLI r12, 240    // load immediate 240
-  AND r12, r2, r12    // binop &
+  LLI r8, 240    // load immediate 240
+  AND r8, r2, r8    // binop &
   // inline call to print_char with args [{'type': 'const', 'value': 32}]
   // begin inline expansion of print_char
-  LLI r11, 32    // load immediate 32
-  LLI r6, 268435456    // init tty_addr
-  SB r11, r6, 0    // intrinsic __sb
+  LLI r7, 32    // load immediate 32
+  LLI r4, 268435456    // init tty_addr
+  SB r7, r4, 0    // intrinsic __sb
   // end inline expansion of print_char
-  LLI r9, 0    // load immediate 0
-  BEQ r12, r9, err_handler_62_CMP_TRUE20
-  LLI r9, 0    // compare false path
+  LLI r12, 0    // load immediate 0
+  BEQ r8, r12, err_handler_62_CMP_TRUE20
+  LLI r12, 0    // compare false path
   JMP err_handler_62_CMP_END21
 err_handler_62_CMP_TRUE20:
-  LLI r9, 1
+  LLI r12, 1
 err_handler_62_CMP_END21:
-  BEQ r9, r0, err_handler_62_ELSE18
+  BEQ r12, r0, err_handler_62_ELSE18
   // inline call to print_string with args [{'type': 'string_addr', 'label': 'str_3'}]
   // begin inline expansion of print_string
-  LLI r8, str_3    // load immediate str_3
-  LLI r4, 268435456    // init tty_addr
+  LLI r10, str_3    // load immediate str_3
+  LLI r11, 268435456    // init tty_addr
 err_handler_62_WHILE22:
-  LBU r10, r8, 0    // deref
-  BEQ r10, r0, err_handler_62_WHILE_END23
-  LBU r6, r8, 0    // deref
-  SB r6, r4, 0    // intrinsic __sb
-  ADDI r8, r8, 1    // assign str (addi fast path)
+  LBU r3, r10, 0    // deref
+  BEQ r3, r0, err_handler_62_WHILE_END23
+  LBU r4, r10, 0    // deref
+  SB r4, r11, 0    // intrinsic __sb
+  ADDI r10, r10, 1    // assign str (addi fast path)
   JMP err_handler_62_WHILE22
 err_handler_62_WHILE_END23:
   // end inline expansion of print_string
@@ -4806,31 +4807,31 @@ err_handler_62_ELSE18:
 err_handler_62_IF_END19:
   // inline call to print_string with args [{'type': 'string_addr', 'label': 'str_4'}]
   // begin inline expansion of print_string
-  LLI r9, str_4    // load immediate str_4
-  LLI r10, 268435456    // init tty_addr
+  LLI r12, str_4    // load immediate str_4
+  LLI r3, 268435456    // init tty_addr
 err_handler_62_WHILE24:
-  LBU r6, r9, 0    // deref
-  BEQ r6, r0, err_handler_62_WHILE_END25
-  LBU r8, r9, 0    // deref
-  SB r8, r10, 0    // intrinsic __sb
-  ADDI r9, r9, 1    // assign str (addi fast path)
+  LBU r4, r12, 0    // deref
+  BEQ r4, r0, err_handler_62_WHILE_END25
+  LBU r10, r12, 0    // deref
+  SB r10, r3, 0    // intrinsic __sb
+  ADDI r12, r12, 1    // assign str (addi fast path)
   JMP err_handler_62_WHILE24
 err_handler_62_WHILE_END25:
   // end inline expansion of print_string
   // inline call to print_hex_char with args [{'type': 'binop', 'op': 'and', 'left': {'type': 'var', 'name': 'r1'}, 'right': {'type': 'const', 'value': 15}}]
   // begin inline expansion of print_hex_char
-  LLI r4, 15    // load immediate 15
-  AND r4, r2, r4    // binop &
+  LLI r11, 15    // load immediate 15
+  AND r11, r2, r11    // binop &
   // inline call to print_char with args [{'type': 'deref', 'expr': {'type': 'binop', 'op': 'plus', 'left': {'type': 'var', 'name': 'hex_chars'}, 'right': {'type': 'binop', 'op': 'and', 'left': {'type': 'var', 'name': 'input'}, 'right': {'type': 'const', 'value': 15}}}}]
   // begin inline expansion of print_char
-  LLI r6, hex_chars    // load immediate hex_chars
-  LW r6, r6, 0    // load global hex_chars
-  LLI r8, 15    // load immediate 15
-  AND r8, r4, r8    // binop &
-  ADD r6, r6, r8    // binop +
-  LBU r6, r6, 0    // deref
-  LLI r9, 268435456    // init tty_addr
-  SB r6, r9, 0    // intrinsic __sb
+  LLI r4, hex_chars    // load immediate hex_chars
+  LW r4, r4, 0    // load global hex_chars
+  LLI r10, 15    // load immediate 15
+  AND r10, r11, r10    // binop &
+  ADD r4, r4, r10    // binop +
+  LBU r4, r4, 0    // deref
+  LLI r12, 268435456    // init tty_addr
+  SB r4, r12, 0    // intrinsic __sb
   // end inline expansion of print_char
   // end inline expansion of print_hex_char
   JMP err_handler_62_IF_END13
@@ -4838,66 +4839,67 @@ err_handler_62_ELSE12:
 err_handler_62_IF_END13:
   // inline call to print_char with args [{'type': 'const', 'value': 10}]
   // begin inline expansion of print_char
-  LLI r10, 10    // load immediate 10
-  LLI r8, 268435456    // init tty_addr
-  SB r10, r8, 0    // intrinsic __sb
+  LLI r3, 10    // load immediate 10
+  LLI r10, 268435456    // init tty_addr
+  SB r3, r10, 0    // intrinsic __sb
   // end inline expansion of print_char
   // inline call to print_string with args [{'type': 'string_addr', 'label': 'str_5'}]
   // begin inline expansion of print_string
-  LLI r4, str_5    // load immediate str_5
-  LLI r9, 268435456    // init tty_addr
+  LLI r11, str_5    // load immediate str_5
+  LLI r12, 268435456    // init tty_addr
 err_handler_62_WHILE26:
-  LBU r12, r4, 0    // deref
-  BEQ r12, r0, err_handler_62_WHILE_END27
-  LBU r2, r4, 0    // deref
-  SB r2, r9, 0    // intrinsic __sb
-  ADDI r4, r4, 1    // assign str (addi fast path)
+  LBU r8, r11, 0    // deref
+  BEQ r8, r0, err_handler_62_WHILE_END27
+  LBU r2, r11, 0    // deref
+  SB r2, r12, 0    // intrinsic __sb
+  ADDI r11, r11, 1    // assign str (addi fast path)
   JMP err_handler_62_WHILE26
 err_handler_62_WHILE_END27:
   // end inline expansion of print_string
-  // inline call to print_hex with args [{'type': 'call', 'name': '__pop', 'args': []}]
+  LLI r6, 0    // zero init saved_pc
+  POP r6    // intrinsic __pop
+  // inline call to print_hex with args [{'type': 'var', 'name': 'saved_pc'}]
   // begin inline expansion of print_hex
-  POP r5  // call expr __pop -> return in r5
-  LLI r8, 0    // init i
+  LLI r10, 0    // init i
 err_handler_62_WHILE28:
-  LLI r12, 8    // load immediate 8
-  BLT r8, r12, err_handler_62_CMP_TRUE31
-  LLI r12, 0    // compare false path
+  LLI r8, 8    // load immediate 8
+  BLT r10, r8, err_handler_62_CMP_TRUE31
+  LLI r8, 0    // compare false path
   JMP err_handler_62_CMP_END32
 err_handler_62_CMP_TRUE31:
-  LLI r12, 1
+  LLI r8, 1
 err_handler_62_CMP_END32:
-  BEQ r12, r0, err_handler_62_WHILE_END29
+  BEQ r8, r0, err_handler_62_WHILE_END29
   LLI r2, hex_chars    // load immediate hex_chars
   LW r2, r2, 0    // load global hex_chars
-  LLI r4, 15    // load immediate 15
-  AND r4, r5, r4    // binop &
-  ADD r2, r2, r4    // binop +
+  LLI r11, 15    // load immediate 15
+  AND r11, r6, r11    // binop &
+  ADD r2, r2, r11    // binop +
   LBU r2, r2, 0    // deref
-  LLI r9, print_hex_buffer    // load immediate print_hex_buffer
-  LLI r12, 7    // load immediate 7
-  SUB r12, r12, r8    // binop -
-  ADD r9, r9, r12    // binop +
-  SB r2, r9, 0    // store 
-  SHRI r5, r5, 4    // assign input (shri fast path)
+  LLI r12, print_hex_buffer    // load immediate print_hex_buffer
+  LLI r8, 7    // load immediate 7
+  SUB r8, r8, r10    // binop -
+  ADD r12, r12, r8    // binop +
+  SB r2, r12, 0    // store 
+  SHRI r6, r6, 4    // assign input (shri fast path)
 err_handler_62_FOR_STEP30:
-  ADDI r8, r8, 1    // assign i (addi fast path)
+  ADDI r10, r10, 1    // assign i (addi fast path)
   JMP err_handler_62_WHILE28
 err_handler_62_WHILE_END29:
-  LLI r4, 0    // load immediate 0
-  LLI r12, print_hex_buffer    // load immediate print_hex_buffer
-  LLI r9, 8    // load immediate 8
-  ADD r12, r12, r9    // binop +
-  SB r4, r12, 0    // store 
+  LLI r11, 0    // load immediate 0
+  LLI r8, print_hex_buffer    // load immediate print_hex_buffer
+  LLI r12, 8    // load immediate 8
+  ADD r8, r8, r12    // binop +
+  SB r11, r8, 0    // store 
   // inline call to print_string with args [{'type': 'var', 'name': 'print_hex_buffer'}]
   // begin inline expansion of print_string
   LLI r2, 0    // load immediate 0
-  LLI r5, 268435456    // init tty_addr
+  LLI r6, 268435456    // init tty_addr
 err_handler_62_WHILE33:
-  LBU r8, r2, 0    // deref
-  BEQ r8, r0, err_handler_62_WHILE_END34
-  LBU r9, r2, 0    // deref
-  SB r9, r5, 0    // intrinsic __sb
+  LBU r10, r2, 0    // deref
+  BEQ r10, r0, err_handler_62_WHILE_END34
+  LBU r12, r2, 0    // deref
+  SB r12, r6, 0    // intrinsic __sb
   ADDI r2, r2, 1    // assign str (addi fast path)
   JMP err_handler_62_WHILE33
 err_handler_62_WHILE_END34:
@@ -4905,29 +4907,29 @@ err_handler_62_WHILE_END34:
   // end inline expansion of print_hex
   // inline call to print_char with args [{'type': 'const', 'value': 10}]
   // begin inline expansion of print_char
-  LLI r12, 10    // load immediate 10
-  LLI r4, 268435456    // init tty_addr
-  SB r12, r4, 0    // intrinsic __sb
+  LLI r8, 10    // load immediate 10
+  LLI r11, 268435456    // init tty_addr
+  SB r8, r11, 0    // intrinsic __sb
   // end inline expansion of print_char
-  LLI r8, 1    // init i
+  LLI r10, 1    // init i
 err_handler_62_WHILE35:
-  LLI r9, 15    // load immediate 15
-  BGE r9, r8, err_handler_62_CMP_TRUE38
-  LLI r9, 0    // compare false path
+  LLI r12, 15    // load immediate 15
+  BGE r12, r10, err_handler_62_CMP_TRUE38
+  LLI r12, 0    // compare false path
   JMP err_handler_62_CMP_END39
 err_handler_62_CMP_TRUE38:
-  LLI r9, 1
+  LLI r12, 1
 err_handler_62_CMP_END39:
-  BEQ r9, r0, err_handler_62_WHILE_END36
+  BEQ r12, r0, err_handler_62_WHILE_END36
   // inline call to print_string with args [{'type': 'const', 'value': 82}]
   // begin inline expansion of print_string
   LLI r2, 82    // load immediate 82
-  LLI r5, 268435456    // init tty_addr
+  LLI r6, 268435456    // init tty_addr
 err_handler_62_WHILE40:
-  LBU r4, r2, 0    // deref
-  BEQ r4, r0, err_handler_62_WHILE_END41
-  LBU r9, r2, 0    // deref
-  SB r9, r5, 0    // intrinsic __sb
+  LBU r11, r2, 0    // deref
+  BEQ r11, r0, err_handler_62_WHILE_END41
+  LBU r12, r2, 0    // deref
+  SB r12, r6, 0    // intrinsic __sb
   ADDI r2, r2, 1    // assign str (addi fast path)
   JMP err_handler_62_WHILE40
 err_handler_62_WHILE_END41:
@@ -4936,50 +4938,51 @@ err_handler_62_WHILE_END41:
   // begin inline expansion of print_hex_char
   // inline call to print_char with args [{'type': 'deref', 'expr': {'type': 'binop', 'op': 'plus', 'left': {'type': 'var', 'name': 'hex_chars'}, 'right': {'type': 'binop', 'op': 'and', 'left': {'type': 'var', 'name': 'input'}, 'right': {'type': 'const', 'value': 15}}}}]
   // begin inline expansion of print_char
-  LLI r4, hex_chars    // load immediate hex_chars
-  LW r4, r4, 0    // load global hex_chars
-  LLI r9, 15    // load immediate 15
-  AND r9, r8, r9    // binop &
-  ADD r4, r4, r9    // binop +
-  LBU r4, r4, 0    // deref
+  LLI r11, hex_chars    // load immediate hex_chars
+  LW r11, r11, 0    // load global hex_chars
+  LLI r12, 15    // load immediate 15
+  AND r12, r10, r12    // binop &
+  ADD r11, r11, r12    // binop +
+  LBU r11, r11, 0    // deref
   LLI r2, 268435456    // init tty_addr
-  SB r4, r2, 0    // intrinsic __sb
+  SB r11, r2, 0    // intrinsic __sb
   // end inline expansion of print_char
   // end inline expansion of print_hex_char
   // inline call to print_string with args [{'type': 'const', 'value': 61}]
   // begin inline expansion of print_string
-  LLI r5, 61    // load immediate 61
-  LLI r9, 268435456    // init tty_addr
+  LLI r6, 61    // load immediate 61
+  LLI r12, 268435456    // init tty_addr
 err_handler_62_WHILE42:
-  LBU r2, r5, 0    // deref
+  LBU r2, r6, 0    // deref
   BEQ r2, r0, err_handler_62_WHILE_END43
-  LBU r2, r5, 0    // deref
-  SB r2, r9, 0    // intrinsic __sb
-  ADDI r5, r5, 1    // assign str (addi fast path)
+  LBU r2, r6, 0    // deref
+  SB r2, r12, 0    // intrinsic __sb
+  ADDI r6, r6, 1    // assign str (addi fast path)
   JMP err_handler_62_WHILE42
 err_handler_62_WHILE_END43:
   // end inline expansion of print_string
-  // inline call to print_hex with args [{'type': 'call', 'name': '__pop', 'args': []}]
+  LLI r2, 0    // zero init saved_register
+  POP r2    // intrinsic __pop
+  // inline call to print_hex with args [{'type': 'var', 'name': 'saved_register'}]
   // begin inline expansion of print_hex
-  POP r2  // call expr __pop -> return in r2
-  LLI r5, 0    // init i
+  LLI r6, 0    // init i
 err_handler_62_WHILE44:
-  LLI r9, 8    // load immediate 8
-  BLT r5, r9, err_handler_62_CMP_TRUE47
-  LLI r9, 0    // compare false path
+  LLI r12, 8    // load immediate 8
+  BLT r6, r12, err_handler_62_CMP_TRUE47
+  LLI r12, 0    // compare false path
   JMP err_handler_62_CMP_END48
 err_handler_62_CMP_TRUE47:
-  LLI r9, 1
+  LLI r12, 1
 err_handler_62_CMP_END48:
-  BEQ r9, r0, err_handler_62_WHILE_END45
-  LLI r9, hex_chars    // load immediate hex_chars
-  LW r9, r9, 0    // load global hex_chars
+  BEQ r12, r0, err_handler_62_WHILE_END45
+  LLI r12, hex_chars    // load immediate hex_chars
+  LW r12, r12, 0    // load global hex_chars
   PUSH r3    // spill live temp for reg pressure
   LLI r3, 15    // load immediate 15
   AND r3, r2, r3    // binop &
-  ADD r9, r9, r3    // binop +
+  ADD r12, r12, r3    // binop +
   POP r3    // restore spilled temp
-  LBU r9, r9, 0    // deref
+  LBU r12, r12, 0    // deref
   PUSH r3    // borrow scratch reg for spill label addr
   LLI r3, err_handler_62_spill49    // spill slot addr
   SW r2, r3, 0    // spill live variable(s) for reg pressure
@@ -4987,70 +4990,71 @@ err_handler_62_CMP_END48:
   LLI r2, print_hex_buffer    // load immediate print_hex_buffer
   PUSH r3    // spill live temp for reg pressure
   LLI r3, 7    // load immediate 7
-  SUB r3, r3, r5    // binop -
+  SUB r3, r3, r6    // binop -
   ADD r2, r2, r3    // binop +
   POP r3    // restore spilled temp
-  SB r9, r2, 0    // store 
+  SB r12, r2, 0    // store 
   LLI r2, err_handler_62_spill49    // spill slot addr
   LW r2, r2, 0    // restore spilled var input
-  SHRI r9, r2, 4    // binop >> (imm)
-  ADDI r2, r9, 0    // assign input
+  SHRI r12, r2, 4    // binop >> (imm)
+  ADDI r2, r12, 0    // assign input
 err_handler_62_FOR_STEP46:
-  ADDI r5, r5, 1    // assign i (addi fast path)
+  ADDI r6, r6, 1    // assign i (addi fast path)
   JMP err_handler_62_WHILE44
 err_handler_62_WHILE_END45:
-  LLI r9, 0    // load immediate 0
+  LLI r12, 0    // load immediate 0
+  PUSH r3    // borrow scratch reg for spill label addr
+  LLI r3, err_handler_62_spill50    // spill slot addr
+  SW r2, r3, 0    // spill live variable(s) for reg pressure
+  POP r3    // restore scratch reg for spill label addr
   LLI r2, print_hex_buffer    // load immediate print_hex_buffer
   PUSH r3    // spill live temp for reg pressure
   LLI r3, 8    // load immediate 8
   ADD r2, r2, r3    // binop +
   POP r3    // restore spilled temp
-  SB r9, r2, 0    // store 
+  SB r12, r2, 0    // store 
   // inline call to print_string with args [{'type': 'var', 'name': 'print_hex_buffer'}]
   // begin inline expansion of print_string
   LLI r2, 0    // load immediate 0
-  LLI r9, 268435456    // init tty_addr
-err_handler_62_WHILE50:
-  PUSH r3    // borrow scratch reg for spill label addr
-  LLI r3, err_handler_62_spill52    // spill slot addr
-  SW r2, r3, 0    // spill live variable(s) for reg pressure
-  POP r3    // restore scratch reg for spill label addr
-  LBU r2, r2, 0    // deref
-  BEQ r2, r0, err_handler_62_WHILE_END51
-  LLI r2, err_handler_62_spill52    // spill slot addr
-  LW r2, r2, 0    // restore spilled var str
+  LLI r12, 268435456    // init tty_addr
+err_handler_62_WHILE51:
   PUSH r3    // borrow scratch reg for spill label addr
   LLI r3, err_handler_62_spill53    // spill slot addr
   SW r2, r3, 0    // spill live variable(s) for reg pressure
   POP r3    // restore scratch reg for spill label addr
   LBU r2, r2, 0    // deref
-  SB r2, r9, 0    // intrinsic __sb
+  BEQ r2, r0, err_handler_62_WHILE_END52
   LLI r2, err_handler_62_spill53    // spill slot addr
+  LW r2, r2, 0    // restore spilled var str
+  PUSH r3    // borrow scratch reg for spill label addr
+  LLI r3, err_handler_62_spill54    // spill slot addr
+  SW r2, r3, 0    // spill live variable(s) for reg pressure
+  POP r3    // restore scratch reg for spill label addr
+  LBU r2, r2, 0    // deref
+  SB r2, r12, 0    // intrinsic __sb
+  LLI r2, err_handler_62_spill54    // spill slot addr
   LW r2, r2, 0    // restore spilled var str
   PUSH r3    // spill live temp for reg pressure
   LLI r3, 1    // load immediate 1
   ADD r3, r2, r3    // binop +
   ADDI r2, r3, 0    // assign str
   POP r3    // restore spilled temp
-  JMP err_handler_62_WHILE50
-err_handler_62_WHILE_END51:
+  JMP err_handler_62_WHILE51
+err_handler_62_WHILE_END52:
   // end inline expansion of print_string
   // end inline expansion of print_hex
   // inline call to print_char with args [{'type': 'const', 'value': 10}]
   // begin inline expansion of print_char
-  LLI r9, 10    // load immediate 10
+  LLI r12, 10    // load immediate 10
   LLI r2, 268435456    // init tty_addr
-  SB r9, r2, 0    // intrinsic __sb
+  SB r12, r2, 0    // intrinsic __sb
   // end inline expansion of print_char
 err_handler_62_FOR_STEP37:
-  ADDI r8, r8, 1    // assign i (addi fast path)
+  ADDI r10, r10, 1    // assign i (addi fast path)
   JMP err_handler_62_WHILE35
 err_handler_62_WHILE_END36:
   BREAK    // intrinsic __break
-  // epilogue and return
-  ADDI r1, r0, 0  // ensure r1=0
-  POP r14
-  RET
+  BREAK    // error handlers never return
 
 // Inline function definition 'print_hex' skipped (will be inlined at call sites)
 
@@ -6334,7 +6338,8 @@ recursive_test_75_IF_END2:
   CALL image_display_test
   // call return value in r1
   POP r1  
-  BREAK  // epilogue and return
+  BREAK
+  // epilogue and return
   ADDI r1, r0, 0  // ensure r1=0
   POP r14
   RET
@@ -6777,12 +6782,14 @@ evaluate_rpn_61_stack_buf1:
 err_handler_62_spill49:
   .SPACE 4 // lifted buffer
 
-err_handler_62_spill52:
+err_handler_62_spill50:
   .SPACE 4 // lifted buffer
 
 err_handler_62_spill53:
   .SPACE 4 // lifted buffer
 
+err_handler_62_spill54:
+  .SPACE 4 // lifted buffer
+
 math_test_73_result_str_buf5:
   .SPACE 16 // lifted buffer
-

@@ -138,5 +138,15 @@ rd = PC + 4
 Any opcode/sub-opcode combinations not listed above are reserved/invalid.
 Executing an invalid instruction should trigger an illegal instruction exception.
 
+Faults dispatch through the big-endian address word at `0xFFFFFFF8`. Invalid
+opcodes set `r1` to `0x000100XY`, where X is the family and Y is the sub-opcode.
+Division/remainder by zero and signed `INT_MIN / -1` or `INT_MIN % -1` set `r1`
+to `0x0002XYZW`, where X/Y are the family/sub-opcode and Z/W are rs1/rs2.
+Before setting `r1`, the VM pushes the original r15, r14 through r1, then the
+faulting PC. The handler therefore sees PC at `[SP]`, r1 at `[SP+4]`, and the
+original SP at `[SP+60]`. It enters directly at the vector's address and ends
+with BREAK. A missing or unaligned vector, unusable fault stack, or another
+fault inside the handler halts the VM.
+
 NOTE: `0x00000000` is a valid NOP instruction, as it is ADD r0, r0, r0. (r0 is hardwired zero, so this is effectively a NOP.)
 This allows for easier initialization of memory to zero.

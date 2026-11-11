@@ -152,7 +152,9 @@ def encode_ir(
                     )
                 addr = int(addresses[name])
                 length = node.length or 4
-                data_bytes = addr.to_bytes(length, byteorder="little", signed=False)
+                # Symbol references are pointers consumed by the VM's big-endian
+                # word loads (including reset/error vectors), not raw byte blobs.
+                data_bytes = addr.to_bytes(length, byteorder="big", signed=False)
             else:
                 v = int(data_value)
                 length = node.length or ((v.bit_length() // 8) + 1)

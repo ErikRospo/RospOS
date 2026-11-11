@@ -1,4 +1,4 @@
-void print_string(char *str)
+inline void print_string(char *str)
 {
     int tty_addr = 0x10000000;
     while (*str)
@@ -7,7 +7,7 @@ void print_string(char *str)
         str = str + 1;
     }
 }
-void print_char(char c)
+inline void print_char(char c)
 {
     int tty_addr = 0x10000000;
     __sb(tty_addr, c);
@@ -1278,16 +1278,16 @@ int evaluate_rpn(char *expression)
 }
 
 
-/* A `keep` function is included in the assembly, no matter if it's called.  */
 
-keep void _err_handler(){
+
+void _err_handler(){
     // @r1 is "Just give me the actual value of r1."
     int r1=@r1;
-    print_hex(@r1);
+    // print_hex(@r1);
     print_string("Error:");
     print_hex(r1);
     print_string("\n");
-    int error_type=r1&0xFFFF0000;
+    int error_type=(r1&0xFFFF0000)>>16;
     if (error_type==1){
         print_string("Invalid opcode: ");
         print_hex_char((r1&0xF0)>>4);
@@ -1320,13 +1320,16 @@ keep void _err_handler(){
     }
     print_char("\n");
     print_string("PC=");
-    print_hex(__pop());
+    // Consume the fault frame before logging calls push their caller saves.
+    int saved_pc=__pop();
+    print_hex(saved_pc);
     print_char("\n");
     for (int i=1;i<=15;i++){
         print_string("R");
         print_hex_char(i);
         print_string("=");
-        print_hex(__pop());
+        int saved_register=__pop();
+        print_hex(saved_register);
         print_char("\n");
     }
     __break();
@@ -1335,7 +1338,7 @@ keep void _err_handler(){
 char print_hex_buffer[9];
 char *hex_chars = "0123456789ABCDEF";
 
-void print_hex(int input)
+inline void print_hex(int input)
 {
     for (int i = 0; i < 8; i++)
     {
@@ -1345,9 +1348,10 @@ void print_hex(int input)
     print_hex_buffer[8]=0;
     print_string(print_hex_buffer);
 }
-void print_hex_char(int input){
+inline void print_hex_char(int input){
     print_char(hex_chars[input & 0xF]);
 }
+
 
 inline int add(int a, int b)
 {

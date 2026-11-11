@@ -37,6 +37,7 @@ private:
 
     struct VMStateSnapshot {
         uint32_t pc;
+        bool handlingError;
         std::array<uint32_t, 16> registers;
         std::vector<MemoryByteDelta> memoryDeltas;
         std::unordered_set<uint32_t> touchedAddresses;
@@ -58,7 +59,9 @@ private:
     bool hasLastMemoryAccess = false;
     bool nonBlockingInput = false;
     bool waitingForInput = false;
+    bool handlingError = false;
     bool prepareInstruction(uint32_t instruction);
+    void raiseError(uint32_t errorCode);
 
     // Fast debug lookup caches (built lazily from loadedBinary->debug_map).
     mutable bool debugCacheBuilt = false;

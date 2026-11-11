@@ -107,6 +107,7 @@ void RospOSVM::buildDebugCache() const
 void RospOSVM::resetCpuState()
 {
     waitingForInput = false;
+    handlingError = false;
     pc = 0;
     for (int i = 1; i < 16; ++i) {
         regFile.unchecked(i).set(0);
@@ -140,6 +141,7 @@ void RospOSVM::beginStateCapture()
     if constexpr (kEnableStateCapture) {
         currentSnapshot = std::make_unique<VMStateSnapshot>();
         currentSnapshot->pc = pc;
+        currentSnapshot->handlingError = handlingError;
         currentSnapshot->memoryDeltas.reserve(16);
         currentSnapshot->touchedAddresses.reserve(16);
         for (int i = 0; i < 16; ++i) {
@@ -508,6 +510,7 @@ bool RospOSVM::stepBackward()
         applyingHistory = false;
 
         pc = snapshot.pc;
+        handlingError = snapshot.handlingError;
         for (int i = 1; i < 16; ++i) {
             regFile.unchecked(i).setUnchecked(snapshot.registers[static_cast<size_t>(i)]);
         }
@@ -536,9 +539,71 @@ std::string RospOSVM::getRegisterState() const
     return state.str();
 }
 
+void RospOSVM::raiseError(uint32_t errorCode)
+{
+    constexpr uint32_t errorVectorAddress = 0xFFFFFFF8;
+    constexpr uint32_t frameSize = 16 * sizeof(uint32_t);
+    const uint32_t handler = memory.readWord(errorVectorAddress);
+    const uint32_t originalSp = regFile.sp().get();
+
+    if (handlingError || handler == 0 || (handler & 3) != 0 || originalSp < frameSize) {
+        Logger::instance().error(QString("Cannot dispatch VM error 0x%1 at PC 0x%2")
+            .arg(errorCode, 8, 16, QChar('0')).arg(pc, 8, 16, QChar('0')));
+        requestShutdown();
+        return;
+    }
+
+    // A fault frame must not write through MMIO handlers. Validate the entire
+    // range before changing registers or writing any of the saved context.
+    for (uint32_t offset = 0; offset < frameSize; ++offset) {
+        if (memory.isSpecialAddress(originalSp - frameSize + offset)) {
+            Logger::instance().error("Cannot dispatch VM error: fault stack overlaps MMIO/reserved memory.");
+            requestShutdown();
+            return;
+        }
+    }
+
+    // Ideas.md ABI: PUSH original r15, r14 ... r1, faulting PC. Keep the live
+    // registers intact until every saved value (especially r15/r1) is written.
+    uint32_t stack = originalSp;
+    for (int reg = 15; reg >= 1; --reg) {
+        stack -= sizeof(uint32_t);
+        writeMemory(stack, regFile.unchecked(reg).get());
+    }
+    stack -= sizeof(uint32_t);
+    writeMemory(stack, pc);
+    writeRegisterHot(15, stack);
+    writeRegisterHot(1, errorCode);
+    pc = handler;
+    handlingError = true;
+}
+
 void RospOSVM::executeInstruction(uint32_t instruction)
 {
     uint32_t opcode = (instruction >> 28) & 0x0F;
+    const uint32_t subOp = (instruction >> 24) & 0x0F;
+    // Bit n means sub-opcode n is defined for that instruction family.
+    static constexpr std::array<uint16_t, 16> validSubOps = {
+        0xFFFF, 0x007F, 0x00FF, 0x003F, 0x0003, 0x0003, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0x0001
+    };
+    if ((validSubOps[opcode] & (1U << subOp)) == 0) {
+        raiseError(0x00010000 | (opcode << 4) | subOp);
+        return;
+    }
+
+    if (opcode == 0 && subOp >= 0xC) {
+        const uint32_t rs1 = (instruction >> 16) & 0xF;
+        const uint32_t rs2 = (instruction >> 12) & 0xF;
+        const uint32_t dividend = regFile.unchecked(rs1).get();
+        const uint32_t divisor = regFile.unchecked(rs2).get();
+        const bool signedOverflow = (subOp == 0xC || subOp == 0xE) &&
+            dividend == 0x80000000U && divisor == 0xFFFFFFFFU;
+        if (divisor == 0 || signedOverflow) {
+            raiseError(0x00020000 | (subOp << 8) | (rs1 << 4) | rs2);
+            return;
+        }
+    }
     bool pcModified = false;
     
     switch (opcode) {
@@ -630,48 +695,17 @@ void RospOSVM::rTypeInstruction(uint32_t instruction)
         result = static_cast<uint32_t>(static_cast<int32_t>(rs1Val) >> (rs2Val & 0x1F));
         break;
     case 0xC: // DIV
-        if (rs2Val == 0)
-        {
-            Logger::instance().error("Division by zero error in DIV instruction.");
-            result = 0xFFFFFFFF;
-        }
-        else
-        {
-            result = static_cast<uint32_t>(static_cast<int32_t>(rs1Val) / static_cast<int32_t>(rs2Val));
-        }
+        // executeInstruction rejects zero divisors and signed overflow first.
+        result = static_cast<uint32_t>(static_cast<int32_t>(rs1Val) / static_cast<int32_t>(rs2Val));
         break;
     case 0xD: // DIVU
-        if (rs2Val == 0)
-        {
-            Logger::instance().error("Division by zero error in DIVU instruction.");
-            result = 0xFFFFFFFF;
-        }
-        else
-        {
-            result = rs1Val / rs2Val;
-        }
+        result = rs1Val / rs2Val;
         break;
     case 0xE: // REM
-        if (rs2Val == 0)
-        {
-            Logger::instance().error("Division by zero error in REM instruction.");
-            result = 0xFFFFFFFF;
-        }
-        else
-        {
-            result = static_cast<uint32_t>(static_cast<int32_t>(rs1Val) % static_cast<int32_t>(rs2Val));
-        }
+        result = static_cast<uint32_t>(static_cast<int32_t>(rs1Val) % static_cast<int32_t>(rs2Val));
         break;
     case 0xF: // REMU
-        if (rs2Val == 0)
-        {
-            Logger::instance().error("Division by zero error in REMU instruction.");
-            result = 0xFFFFFFFF;
-        }
-        else
-        {
-            result = rs1Val % rs2Val;
-        }
+        result = rs1Val % rs2Val;
         break;
     default:
         validResult = false;

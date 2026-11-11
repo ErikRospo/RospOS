@@ -1,4 +1,6 @@
-.SEG 4294967292
+.SEG 4294967288
+
+.DATA _err_handler
 
 .DATA 0
 
@@ -6,6 +8,11 @@
 
   JMP main
 
+read_string:
+
+  PUSH r14
+  LLI r3, 268435456
+  LLI r4, 0
 read_string_4_WHILE1:
 
   LLI r5, 1
@@ -55,6 +62,8 @@ read_string_4_CMP_END12:
   BEQ r7, r0, read_string_4_ELSE5
 read_string_4_ELSE5:
 
+read_string_4_IF_END6:
+
   LLI r9, 1
   ADD r4, r4, r9
   ADD r10, r1, r4
@@ -94,6 +103,8 @@ int_to_str_buf_5_CMP_END4:
   JALR r0, r14, 0
 int_to_str_buf_5_ELSE1:
 
+int_to_str_buf_5_IF_END2:
+
   LLI r9, 0
   LLI r10, 0
   BLT r1, r10, int_to_str_buf_5_CMP_TRUE7
@@ -111,6 +122,8 @@ int_to_str_buf_5_CMP_END8:
   LLI r12, 0
   SUB r1, r12, r1
 int_to_str_buf_5_ELSE5:
+
+int_to_str_buf_5_IF_END6:
 
   LLI r3, 0
 int_to_str_buf_5_WHILE9:
@@ -146,6 +159,8 @@ int_to_str_buf_5_WHILE_END10:
   SB r10, r11, 0
   ADDI r3, r3, 1
 int_to_str_buf_5_ELSE13:
+
+int_to_str_buf_5_IF_END14:
 
   LLI r12, 0
   ADD r5, r2, r3
@@ -196,6 +211,8 @@ int_to_str:
   ADD r1, r3, r0
   POP r14
   JALR r0, r14, 0
+int_to_hex_str:
+
   PUSH r14
   LLI r2, str_0
   LLI r3, 0
@@ -222,6 +239,8 @@ int_to_hex_str_8_CMP_END5:
   ADD r6, r6, r7
   SB r5, r6, 0
   SHRI r1, r1, 4
+int_to_hex_str_8_FOR_STEP3:
+
   ADDI r3, r3, 1
   JMP int_to_hex_str_8_WHILE1
 
@@ -236,6 +255,8 @@ int_to_hex_str_8_WHILE_END2:
   ADD r1, r11, r0
   POP r14
   JALR r0, r14, 0
+clear_display:
+
   PUSH r14
   LLI r2, 0
 clear_display_9_WHILE1:
@@ -263,6 +284,8 @@ clear_display_9_WHILE_END2:
   LLI r1, 0
   POP r14
   JALR r0, r14, 0
+clear_char_on_display:
+
   PUSH r14
   LLI r3, 0
 clear_char_on_display_10_WHILE1:
@@ -391,6 +414,8 @@ draw_char_to_display_11_WHILE_END10:
 
 draw_char_to_display_11_ELSE5:
 
+draw_char_to_display_11_IF_END6:
+
   ADDI r6, r6, 1
   JMP draw_char_to_display_11_WHILE1
 
@@ -427,6 +452,8 @@ draw_string_to_display_12_WHILE_END2:
   LLI r1, 0
   POP r14
   JALR r0, r14, 0
+draw_line:
+
   PUSH r14
   SUB r5, r3, r1
   LLI r6, 0
@@ -444,6 +471,8 @@ draw_line_13_CMP_END4:
   SUB r5, r7, r5
 draw_line_13_ELSE1:
 
+draw_line_13_IF_END2:
+
   LLI r8, -1
   BLT r1, r3, draw_line_13_CMP_TRUE7
   LLI r9, 0
@@ -458,6 +487,8 @@ draw_line_13_CMP_END8:
   LLI r10, 1
   ADDI r8, r10, 0
 draw_line_13_ELSE5:
+
+draw_line_13_IF_END6:
 
   SUB r11, r2, r4
   LLI r12, 0
@@ -475,6 +506,8 @@ draw_line_13_CMP_END12:
   SUB r11, r6, r11
 draw_line_13_ELSE9:
 
+draw_line_13_IF_END10:
+
   LLI r7, 0
   SUB r11, r7, r11
   LLI r9, -1
@@ -491,6 +524,8 @@ draw_line_13_CMP_END16:
   LLI r12, 1
   ADDI r9, r12, 0
 draw_line_13_ELSE13:
+
+draw_line_13_IF_END14:
 
   ADD r6, r5, r11
   LLI r7, 1
@@ -543,6 +578,8 @@ draw_line_13_CMP_END27:
   ADDI r7, r2, 0
 draw_line_13_ELSE19:
 
+draw_line_13_IF_END20:
+
   ADD r12, r6, r6
   BGE r12, r11, draw_line_13_CMP_TRUE30
   LLI r2, 0
@@ -557,6 +594,8 @@ draw_line_13_CMP_END31:
   ADD r6, r6, r11
   ADD r1, r1, r8
 draw_line_13_ELSE28:
+
+draw_line_13_IF_END29:
 
   BGE r5, r12, draw_line_13_CMP_TRUE34
   LLI r2, 0
@@ -582,6 +621,8 @@ draw_line_13_CMP_END35:
   POP r3
 draw_line_13_ELSE32:
 
+draw_line_13_IF_END33:
+
   JMP draw_line_13_WHILE17
 
 draw_line_13_WHILE_END18:
@@ -589,6 +630,8 @@ draw_line_13_WHILE_END18:
   LLI r1, 0
   POP r14
   JALR r0, r14, 0
+draw_rectangle:
+
   PUSH r14
   LW r5, r15, 4
   LW r6, r15, 8
@@ -752,6 +795,8 @@ fast_clear_display_15_WHILE_END2:
   ADDI r1, r0, 0
   POP r14
   JALR r0, r14, 0
+lfsr_test:
+
   PUSH r14
   LLI r2, 536870912
   LLI r3, 65536
@@ -817,6 +862,8 @@ lfsr_test_16_WHILE_END2:
   ADDI r1, r0, 0
   POP r14
   JALR r0, r14, 0
+palette_test:
+
   PUSH r14
   LLI r4, 0
 palette_test_17_WHILE1:
@@ -879,15 +926,21 @@ palette_test_17_CMP_END15:
   LLI r2, 536870912
   ADD r2, r2, r12
   SB r6, r2, 0
+palette_test_17_FOR_STEP13:
+
   ADDI r11, r11, 1
   JMP palette_test_17_WHILE11
 
 palette_test_17_WHILE_END12:
 
+palette_test_17_FOR_STEP8:
+
   ADDI r9, r9, 1
   JMP palette_test_17_WHILE6
 
 palette_test_17_WHILE_END7:
+
+palette_test_17_FOR_STEP3:
 
   ADDI r4, r4, 1
   JMP palette_test_17_WHILE1
@@ -971,6 +1024,8 @@ rand_block_test_18_WHILE_END2:
   LLI r1, 0
   POP r14
   JALR r0, r14, 0
+bd_read_u32:
+
   PUSH r14
   LLI r3, 0
   ADD r3, r1, r3
@@ -1030,6 +1085,8 @@ bd_write_u32:
   ADDI r1, r0, 0
   POP r14
   JALR r0, r14, 0
+write_block:
+
   PUSH r14
   PUSH r2
   PUSH r1
@@ -1130,6 +1187,8 @@ string_length_23_UNOP_NOT_END4:
   JALR r0, r14, 0
 string_length_23_ELSE1:
 
+string_length_23_IF_END2:
+
   LLI r4, 0
 string_length_23_WHILE5:
 
@@ -1153,6 +1212,8 @@ string_length_23_WHILE_END6:
   ADD r1, r4, r0
   POP r14
   JALR r0, r14, 0
+strcmp:
+
   PUSH r14
   LLI r3, 0
 strcmp_24_WHILE1:
@@ -1200,6 +1261,8 @@ strcmp_24_CMP_END8:
   JALR r0, r14, 0
 strcmp_24_ELSE5:
 
+strcmp_24_IF_END6:
+
   ADDI r3, r3, 1
   JMP strcmp_24_WHILE1
 
@@ -1217,6 +1280,8 @@ strcmp_24_WHILE_END2:
   ADD r1, r12, r0
   POP r14
   JALR r0, r14, 0
+strcpy:
+
   PUSH r14
   LLI r3, 0
 strcpy_25_WHILE1:
@@ -1238,6 +1303,8 @@ strcpy_25_WHILE_END2:
   SB r7, r3, 0
   POP r14
   JALR r0, r14, 0
+strncpy:
+
   PUSH r14
   LLI r4, 0
 strncpy_26_WHILE1:
@@ -1432,6 +1499,8 @@ memset_28_WHILE_END18:
   JALR r0, r14, 0
 memset_28_ELSE1:
 
+memset_28_IF_END2:
+
 memset_28_WHILE21:
 
   BLT r5, r3, memset_28_CMP_TRUE23
@@ -1453,6 +1522,8 @@ memset_28_WHILE_END22:
 
   POP r14
   JALR r0, r14, 0
+memcpy:
+
   PUSH r14
   LLI r4, 0
   ADDI r4, r1, 0
@@ -1480,6 +1551,8 @@ memcpy_29_WHILE_END2:
 
   POP r14
   JALR r0, r14, 0
+memmove:
+
   PUSH r14
   LLI r4, 0
   ADDI r4, r1, 0
@@ -1597,6 +1670,8 @@ heap_alloc_raw_33_CMP_END4:
   JALR r0, r14, 0
 heap_alloc_raw_33_ELSE1:
 
+heap_alloc_raw_33_IF_END2:
+
   LLI r6, __heap_area
   LLI r7, __heap_used
   LW r7, r7, 0
@@ -1627,6 +1702,8 @@ malloc_34_CMP_END4:
   POP r14
   JALR r0, r14, 0
 malloc_34_ELSE1:
+
+malloc_34_IF_END2:
 
   LLI r4, 0
   PUSH r4
@@ -1682,6 +1759,8 @@ malloc_34_CMP_END14:
   JALR r0, r14, 0
 malloc_34_ELSE9:
 
+malloc_34_IF_END10:
+
   LW r12, r6, 12
   BEQ r12, r0, malloc_34_CMP_TRUE17
   LLI r12, 0
@@ -1694,6 +1773,8 @@ malloc_34_CMP_END18:
 
   BEQ r12, r0, malloc_34_ELSE15
 malloc_34_ELSE15:
+
+malloc_34_IF_END16:
 
   LW r3, r6, 12
   ADDI r6, r3, 0
@@ -1729,6 +1810,8 @@ malloc_34_UNOP_NOT_END22:
   JALR r0, r14, 0
 malloc_34_ELSE19:
 
+malloc_34_IF_END20:
+
   SW r4, r7, 0
   LLI r10, 0
   SW r10, r7, 4
@@ -1761,6 +1844,8 @@ free_35_UNOP_NOT_END4:
   POP r14
   JALR r0, r14, 0
 free_35_ELSE1:
+
+free_35_IF_END2:
 
   LLI r4, 16
   SUB r4, r1, r4
@@ -1808,6 +1893,8 @@ initialize_filesystem_36_UNOP_NOT_END4:
   JALR r0, r14, 0
 initialize_filesystem_36_ELSE1:
 
+initialize_filesystem_36_IF_END2:
+
   LLI r6, 82
   LLI r7, 0
   ADD r7, r2, r7
@@ -1853,6 +1940,8 @@ initialize_filesystem_36_CMP_END9:
   LLI r3, 0
   ADD r12, r2, r11
   SB r3, r12, 0
+initialize_filesystem_36_FOR_STEP7:
+
   ADDI r11, r11, 1
   JMP initialize_filesystem_36_WHILE5
 
@@ -1909,6 +1998,8 @@ initialize_filesystem_36_WHILE_END6:
   LLI r1, 0
   POP r14
   JALR r0, r14, 0
+ensure_filesystem_initialized:
+
   PUSH r14
   LLI r2, 0
   PUSH r2
@@ -1932,6 +2023,8 @@ ensure_filesystem_initialized_37_UNOP_NOT_END4:
   POP r14
   JALR r0, r14, 0
 ensure_filesystem_initialized_37_ELSE1:
+
+ensure_filesystem_initialized_37_IF_END2:
 
   PUSH r2
   PUSH r1
@@ -2111,6 +2204,8 @@ ensure_filesystem_initialized_37_CMP_END28:
   POP r2
 ensure_filesystem_initialized_37_ELSE5:
 
+ensure_filesystem_initialized_37_IF_END6:
+
   PUSH r2
   PUSH r1
   ADDI r1, r2, 0
@@ -2149,6 +2244,8 @@ write_file_38_UNOP_NOT_END4:
   JALR r0, r14, 0
 write_file_38_ELSE1:
 
+write_file_38_IF_END2:
+
   LLI r7, 0
 write_file_38_WHILE5:
 
@@ -2166,6 +2263,8 @@ write_file_38_CMP_END9:
   LLI r9, 0
   ADD r10, r3, r7
   SB r9, r10, 0
+write_file_38_FOR_STEP7:
+
   ADDI r7, r7, 1
   JMP write_file_38_WHILE5
 
@@ -2214,6 +2313,8 @@ write_file_38_CMP_END22:
   ADDI r11, r9, 0
 write_file_38_ELSE19:
 
+write_file_38_IF_END20:
+
   JMP write_file_38_IF_END16
 
 write_file_38_ELSE15:
@@ -2222,6 +2323,8 @@ write_file_38_ELSE15:
   ADD r4, r3, r12
   SB r7, r4, 0
 write_file_38_IF_END16:
+
+write_file_38_FOR_STEP12:
 
   ADDI r12, r12, 1
   JMP write_file_38_WHILE10
@@ -2362,6 +2465,8 @@ write_file_38_CMP_END27:
   LLI r5, 0
   ADD r6, r3, r9
   SB r5, r6, 0
+write_file_38_FOR_STEP25:
+
   ADDI r9, r9, 1
   JMP write_file_38_WHILE23
 
@@ -2410,6 +2515,8 @@ write_file_38_CMP_END40:
   ADDI r7, r9, 0
 write_file_38_ELSE37:
 
+write_file_38_IF_END38:
+
   JMP write_file_38_IF_END34
 
 write_file_38_ELSE33:
@@ -2418,6 +2525,8 @@ write_file_38_ELSE33:
   ADD r11, r3, r4
   SB r10, r11, 0
 write_file_38_IF_END34:
+
+write_file_38_FOR_STEP30:
 
   ADDI r4, r4, 1
   JMP write_file_38_WHILE28
@@ -2509,6 +2618,8 @@ read_file_39_UNOP_NOT_END4:
   POP r14
   JALR r0, r14, 0
 read_file_39_ELSE1:
+
+read_file_39_IF_END2:
 
   PUSH r2
   PUSH r3
@@ -2607,6 +2718,8 @@ read_file_39_CMP_END17:
   ADDI r6, r10, 0
 read_file_39_ELSE14:
 
+read_file_39_IF_END15:
+
   BEQ r12, r0, read_file_39_CMP_TRUE20
   LLI r11, 0
   JMP read_file_39_CMP_END21
@@ -2621,7 +2734,13 @@ read_file_39_CMP_END21:
   ADDI r8, r5, 0
 read_file_39_ELSE18:
 
+read_file_39_IF_END19:
+
 read_file_39_ELSE10:
+
+read_file_39_IF_END11:
+
+read_file_39_FOR_STEP7:
 
   ADDI r9, r9, 1
   JMP read_file_39_WHILE5
@@ -2657,6 +2776,8 @@ read_file_39_UNOP_NOT_END25:
   POP r14
   JALR r0, r14, 0
 read_file_39_ELSE22:
+
+read_file_39_IF_END23:
 
   LLI r4, 32
   ADD r4, r3, r4
@@ -2850,6 +2971,8 @@ update_buffer_40_CMP_END5:
   POP r1
   POP r4
   POP r2
+update_buffer_40_FOR_STEP3:
+
   ADDI r2, r2, 1
   JMP update_buffer_40_WHILE1
 
@@ -2861,6 +2984,8 @@ update_buffer_40_WHILE_END2:
   ADDI r1, r0, 0
   POP r14
   JALR r0, r14, 0
+refresh_display:
+
   PUSH r14
   LLI r2, 0
 refresh_display_41_WHILE1:
@@ -2901,6 +3026,8 @@ refresh_display_41_CMP_END5:
 
   POP r1
   POP r2
+refresh_display_41_FOR_STEP3:
+
   ADDI r2, r2, 1
   JMP refresh_display_41_WHILE1
 
@@ -2909,6 +3036,8 @@ refresh_display_41_WHILE_END2:
   ADDI r1, r0, 0
   POP r14
   JALR r0, r14, 0
+clear_buffer:
+
   PUSH r14
   LLI r2, 0
 clear_buffer_42_WHILE1:
@@ -2928,6 +3057,8 @@ clear_buffer_42_CMP_END5:
   LLI r5, buffer
   ADD r5, r5, r2
   SB r4, r5, 0
+clear_buffer_42_FOR_STEP3:
+
   ADDI r2, r2, 1
   JMP clear_buffer_42_WHILE1
 
@@ -3015,6 +3146,8 @@ write_to_buffer_43_CMP_END12:
   POP r2
 write_to_buffer_43_ELSE9:
 
+write_to_buffer_43_IF_END10:
+
   JMP write_to_buffer_43_WHILE1
 
 write_to_buffer_43_WHILE_END2:
@@ -3022,6 +3155,8 @@ write_to_buffer_43_WHILE_END2:
   ADDI r1, r0, 0
   POP r14
   JALR r0, r14, 0
+_read_le_u32:
+
   PUSH r14
   LLI r3, 0
   ADD r3, r2, r3
@@ -3134,6 +3269,8 @@ _read_special_block:
   ADDI r1, r0, 0
   POP r14
   JALR r0, r14, 0
+unix_ms_buffer:
+
   PUSH r14
   LLI r2, 0
   PUSH r2
@@ -3359,6 +3496,8 @@ fmt_unix_time_50_UNOP_NOT_END4:
   POP r14
   JALR r0, r14, 0
 fmt_unix_time_50_ELSE1:
+
+fmt_unix_time_50_IF_END2:
 
   LLI r6, 0
   LLI r7, 0
@@ -3612,6 +3751,8 @@ load_and_display_image_51_WHILE_END2:
   LLI r1, 0
   POP r14
   JALR r0, r14, 0
+add_fixed_point:
+
   PUSH r14
   LLI r3, 0
   PUSH r2
@@ -3642,6 +3783,8 @@ add_fixed_point_52_CMP_END4:
   ADDI r5, r9, 0
 add_fixed_point_52_ELSE1:
 
+add_fixed_point_52_IF_END2:
+
   SW r6, r3, 4
   LW r10, r1, 0
   LW r11, r2, 0
@@ -3651,6 +3794,8 @@ add_fixed_point_52_ELSE1:
   ADD r1, r3, r0
   POP r14
   JALR r0, r14, 0
+multiply_fixed_point:
+
   PUSH r14
   LLI r3, 0
   PUSH r2
@@ -3691,6 +3836,8 @@ add_fixed_point_52_ELSE1:
   ADD r1, r3, r0
   POP r14
   JALR r0, r14, 0
+add_fixed_point_with_int:
+
   PUSH r14
   LLI r3, add_fixed_point_with_int_54_result_struct1
   LLI r4, 0
@@ -3711,6 +3858,8 @@ add_fixed_point_with_int_54_CMP_END5:
   ADDI r4, r7, 0
 add_fixed_point_with_int_54_ELSE2:
 
+add_fixed_point_with_int_54_IF_END3:
+
   SW r5, r3, 4
   LW r8, r1, 0
   ADD r8, r8, r4
@@ -3718,6 +3867,8 @@ add_fixed_point_with_int_54_ELSE2:
   ADD r1, r3, r0
   POP r14
   JALR r0, r14, 0
+multiply_fixed_point_with_int:
+
   PUSH r14
   LLI r3, multiply_fixed_point_with_int_55_result_struct1
   LW r4, r1, 4
@@ -3739,6 +3890,8 @@ add_fixed_point_with_int_54_ELSE2:
   ADD r1, r3, r0
   POP r14
   JALR r0, r14, 0
+int_to_fixed_point:
+
   PUSH r14
   LLI r2, int_to_fixed_point_56_result_struct1
   SW r1, r2, 0
@@ -3747,6 +3900,8 @@ add_fixed_point_with_int_54_ELSE2:
   ADD r1, r2, r0
   POP r14
   JALR r0, r14, 0
+fixed_point_from_parts:
+
   PUSH r14
   LLI r3, fixed_point_from_parts_57_result_struct1
   SW r1, r3, 0
@@ -3754,6 +3909,8 @@ add_fixed_point_with_int_54_ELSE2:
   ADD r1, r3, r0
   POP r14
   JALR r0, r14, 0
+fixed_point_to_string:
+
   PUSH r14
   LLI r2, 0
   PUSH r2
@@ -3856,6 +4013,8 @@ fixed_point_to_string_58_IF_END14:
 
 fixed_point_to_string_58_ELSE1:
 
+fixed_point_to_string_58_IF_END2:
+
   LLI r5, 20
   LLI r6, 0
 fixed_point_to_string_58_WHILE17:
@@ -3884,6 +4043,8 @@ fixed_point_to_string_58_CMP_END21:
   ADD r7, r7, r10
   ADD r12, r2, r6
   SB r7, r12, 0
+fixed_point_to_string_58_FOR_STEP19:
+
   ADDI r6, r6, 1
   JMP fixed_point_to_string_58_WHILE17
 
@@ -3902,6 +4063,8 @@ fixed_point_to_string_58_WHILE_END18:
   ADD r10, r3, r9
   SB r12, r10, 0
 fixed_point_to_string_58_ELSE23:
+
+fixed_point_to_string_58_IF_END24:
 
   LW r5, r1, 0
   LLI r6, 0
@@ -3975,6 +4138,8 @@ fixed_point_to_string_58_CMP_END38:
   ADD r9, r9, r7
   ADD r10, r3, r9
   SB r12, r10, 0
+fixed_point_to_string_58_FOR_STEP36:
+
   ADDI r6, r6, -1
   JMP fixed_point_to_string_58_WHILE34
 
@@ -4007,6 +4172,8 @@ fixed_point_to_string_58_CMP_END43:
   ADD r9, r9, r4
   ADD r11, r3, r9
   SB r5, r11, 0
+fixed_point_to_string_58_FOR_STEP41:
+
   ADDI r12, r12, 1
   JMP fixed_point_to_string_58_WHILE39
 
@@ -4057,6 +4224,8 @@ precedence_59_CMP_END8:
   JALR r0, r14, 0
 precedence_59_ELSE1:
 
+precedence_59_IF_END2:
+
   LLI r5, 42
   BEQ r1, r5, precedence_59_CMP_TRUE11
   LLI r5, 0
@@ -4092,6 +4261,8 @@ precedence_59_CMP_END16:
   POP r14
   JALR r0, r14, 0
 precedence_59_ELSE9:
+
+precedence_59_IF_END10:
 
   LLI r1, 0
   POP r14
@@ -4146,6 +4317,8 @@ infix_to_rpn_60_CMP_END11:
   ADD r12, r2, r4
   SB r8, r12, 0
 infix_to_rpn_60_ELSE4:
+
+infix_to_rpn_60_IF_END5:
 
   LLI r7, 43
   BEQ r8, r7, infix_to_rpn_60_CMP_TRUE14
@@ -4249,6 +4422,8 @@ infix_to_rpn_60_CMP_END31:
   BEQ r10, r0, infix_to_rpn_60_ELSE28
 infix_to_rpn_60_ELSE28:
 
+infix_to_rpn_60_IF_END29:
+
 infix_to_rpn_60_WHILE32:
 
   LLI r9, 0
@@ -4351,6 +4526,8 @@ infix_to_rpn_60_WHILE_END33:
   SB r8, r11, 0
 infix_to_rpn_60_ELSE12:
 
+infix_to_rpn_60_IF_END13:
+
   LLI r9, 40
   BEQ r8, r9, infix_to_rpn_60_CMP_TRUE42
   LLI r9, 0
@@ -4367,6 +4544,8 @@ infix_to_rpn_60_CMP_END43:
   ADD r10, r3, r5
   SB r8, r10, 0
 infix_to_rpn_60_ELSE40:
+
+infix_to_rpn_60_IF_END41:
 
   LLI r11, 41
   BEQ r8, r11, infix_to_rpn_60_CMP_TRUE46
@@ -4468,7 +4647,11 @@ infix_to_rpn_60_CMP_END63:
   ADDI r5, r5, -1
 infix_to_rpn_60_ELSE56:
 
+infix_to_rpn_60_IF_END57:
+
 infix_to_rpn_60_ELSE44:
+
+infix_to_rpn_60_IF_END45:
 
   ADDI r6, r6, 1
   JMP infix_to_rpn_60_WHILE2
@@ -4586,6 +4769,8 @@ evaluate_rpn_61_CMP_END15:
   ADD r10, r8, r12
 evaluate_rpn_61_ELSE12:
 
+evaluate_rpn_61_IF_END13:
+
   LLI r5, 45
   BEQ r6, r5, evaluate_rpn_61_CMP_TRUE18
   LLI r5, 0
@@ -4599,6 +4784,8 @@ evaluate_rpn_61_CMP_END19:
   BEQ r5, r0, evaluate_rpn_61_ELSE16
   SUB r10, r8, r12
 evaluate_rpn_61_ELSE16:
+
+evaluate_rpn_61_IF_END17:
 
   LLI r11, 42
   BEQ r6, r11, evaluate_rpn_61_CMP_TRUE22
@@ -4615,6 +4802,8 @@ evaluate_rpn_61_CMP_END23:
   ADDI r10, r9, 0
 evaluate_rpn_61_ELSE20:
 
+evaluate_rpn_61_IF_END21:
+
   LLI r5, 47
   BEQ r6, r5, evaluate_rpn_61_CMP_TRUE26
   LLI r5, 0
@@ -4629,6 +4818,8 @@ evaluate_rpn_61_CMP_END27:
   DIV r7, r8, r12
   ADDI r10, r7, 0
 evaluate_rpn_61_ELSE24:
+
+evaluate_rpn_61_IF_END25:
 
   LLI r11, 1
   ADD r3, r3, r11
@@ -4647,21 +4838,23 @@ evaluate_rpn_61_WHILE_END3:
   ADD r1, r2, r0
   POP r14
   JALR r0, r14, 0
-  PUSH r14
-  LLI r2, str_1
-  LLI r3, 268435456
+_err_handler:
+
+  LLI r2, 0
+  ADDI r2, r1, 0
+  LLI r3, str_1
+  LLI r4, 268435456
 err_handler_62_WHILE1:
 
-  LBU r4, r2, 0
-  BEQ r4, r0, err_handler_62_WHILE_END2
-  ADDI r5, r4, 0
-  SB r5, r3, 0
-  ADDI r2, r2, 1
+  LBU r5, r3, 0
+  BEQ r5, r0, err_handler_62_WHILE_END2
+  ADDI r6, r5, 0
+  SB r6, r4, 0
+  ADDI r3, r3, 1
   JMP err_handler_62_WHILE1
 
 err_handler_62_WHILE_END2:
 
-  LLI r6, 0
   LLI r7, 0
 err_handler_62_WHILE3:
 
@@ -4679,7 +4872,7 @@ err_handler_62_CMP_END7:
   LLI r9, hex_chars
   LW r9, r9, 0
   LLI r10, 15
-  AND r10, r6, r10
+  AND r10, r2, r10
   ADD r9, r9, r10
   LBU r9, r9, 0
   LLI r11, print_hex_buffer
@@ -4687,285 +4880,295 @@ err_handler_62_CMP_END7:
   SUB r12, r12, r7
   ADD r11, r11, r12
   SB r9, r11, 0
-  SHRI r6, r6, 4
+  SHRI r2, r2, 4
+err_handler_62_FOR_STEP5:
+
   ADDI r7, r7, 1
   JMP err_handler_62_WHILE3
 
 err_handler_62_WHILE_END4:
 
-  LLI r4, 0
+  LLI r2, 0
   LLI r5, print_hex_buffer
-  LLI r2, 8
-  ADD r5, r5, r2
-  SB r4, r5, 0
+  LLI r6, 8
+  ADD r5, r5, r6
+  SB r2, r5, 0
   LLI r3, 0
-  LLI r8, 268435456
+  LLI r4, 268435456
 err_handler_62_WHILE8:
 
-  LBU r10, r3, 0
-  BEQ r10, r0, err_handler_62_WHILE_END9
-  ADDI r12, r10, 0
-  SB r12, r8, 0
+  LBU r8, r3, 0
+  BEQ r8, r0, err_handler_62_WHILE_END9
+  ADDI r10, r8, 0
+  SB r10, r4, 0
   ADDI r3, r3, 1
   JMP err_handler_62_WHILE8
 
 err_handler_62_WHILE_END9:
 
-  LLI r11, 10
-  LLI r9, 268435456
+  LLI r12, 10
+  LLI r11, 268435456
 err_handler_62_WHILE10:
 
-  LBU r6, r11, 0
-  BEQ r6, r0, err_handler_62_WHILE_END11
-  ADDI r7, r6, 0
-  SB r7, r9, 0
-  ADDI r11, r11, 1
+  LBU r9, r12, 0
+  BEQ r9, r0, err_handler_62_WHILE_END11
+  ADDI r7, r9, 0
+  SB r7, r11, 0
+  ADDI r12, r12, 1
   JMP err_handler_62_WHILE10
 
 err_handler_62_WHILE_END11:
 
-  LLI r2, 0
-  LLI r5, 4294901760
-  AND r5, r2, r5
-  LLI r4, 1
-  BEQ r5, r4, err_handler_62_CMP_TRUE14
-  LLI r4, 0
+  LLI r6, 4294901760
+  AND r6, r2, r6
+  SHRI r6, r6, 16
+  LLI r5, 1
+  BEQ r6, r5, err_handler_62_CMP_TRUE14
+  LLI r5, 0
   JMP err_handler_62_CMP_END15
 
 err_handler_62_CMP_TRUE14:
 
-  LLI r4, 1
+  LLI r5, 1
 err_handler_62_CMP_END15:
 
-  BEQ r4, r0, err_handler_62_ELSE12
-  LLI r10, str_2
-  LLI r12, 268435456
+  BEQ r5, r0, err_handler_62_ELSE12
+  LLI r2, str_2
+  LLI r8, 268435456
 err_handler_62_WHILE16:
 
-  LBU r3, r10, 0
-  BEQ r3, r0, err_handler_62_WHILE_END17
-  ADDI r8, r3, 0
-  SB r8, r12, 0
-  ADDI r10, r10, 1
+  LBU r10, r2, 0
+  BEQ r10, r0, err_handler_62_WHILE_END17
+  ADDI r3, r10, 0
+  SB r3, r8, 0
+  ADDI r2, r2, 1
   JMP err_handler_62_WHILE16
 
 err_handler_62_WHILE_END17:
 
-  LLI r6, 240
-  AND r6, r2, r6
-  SHRI r6, r6, 4
-  LLI r7, hex_chars
-  LW r7, r7, 0
-  LLI r11, 15
-  AND r11, r6, r11
-  ADD r7, r7, r11
-  LBU r7, r7, 0
-  LLI r9, 268435456
-  SB r7, r9, 0
-  LLI r4, 15
+  LLI r4, 240
   AND r4, r2, r4
-  LLI r3, hex_chars
-  LW r3, r3, 0
-  LLI r8, 15
-  AND r8, r4, r8
-  ADD r3, r3, r8
-  LBU r3, r3, 0
-  LLI r10, 268435456
-  SB r3, r10, 0
-  LLI r12, 240
-  AND r12, r2, r12
-  LLI r11, 32
-  LLI r6, 268435456
-  SB r11, r6, 0
-  BEQ r12, r0, err_handler_62_CMP_TRUE20
-  LLI r9, 0
+  SHRI r4, r4, 4
+  LLI r9, hex_chars
+  LW r9, r9, 0
+  LLI r7, 15
+  AND r7, r4, r7
+  ADD r9, r9, r7
+  LBU r9, r9, 0
+  LLI r12, 268435456
+  SB r9, r12, 0
+  LLI r11, 15
+  AND r11, r2, r11
+  LLI r5, hex_chars
+  LW r5, r5, 0
+  LLI r10, 15
+  AND r10, r11, r10
+  ADD r5, r5, r10
+  LBU r5, r5, 0
+  LLI r3, 268435456
+  SB r5, r3, 0
+  LLI r8, 240
+  AND r8, r2, r8
+  LLI r7, 32
+  LLI r4, 268435456
+  SB r7, r4, 0
+  BEQ r8, r0, err_handler_62_CMP_TRUE20
+  LLI r12, 0
   JMP err_handler_62_CMP_END21
 
 err_handler_62_CMP_TRUE20:
 
-  LLI r9, 1
+  LLI r12, 1
 err_handler_62_CMP_END21:
 
-  BEQ r9, r0, err_handler_62_ELSE18
-  LLI r8, str_3
-  LLI r4, 268435456
+  BEQ r12, r0, err_handler_62_ELSE18
+  LLI r10, str_3
+  LLI r11, 268435456
 err_handler_62_WHILE22:
 
-  LBU r10, r8, 0
-  BEQ r10, r0, err_handler_62_WHILE_END23
-  ADDI r6, r10, 0
-  SB r6, r4, 0
-  ADDI r8, r8, 1
+  LBU r3, r10, 0
+  BEQ r3, r0, err_handler_62_WHILE_END23
+  ADDI r4, r3, 0
+  SB r4, r11, 0
+  ADDI r10, r10, 1
   JMP err_handler_62_WHILE22
 
 err_handler_62_WHILE_END23:
 
 err_handler_62_ELSE18:
 
-  LLI r9, str_4
-  LLI r10, 268435456
+err_handler_62_IF_END19:
+
+  LLI r12, str_4
+  LLI r3, 268435456
 err_handler_62_WHILE24:
 
-  LBU r6, r9, 0
-  BEQ r6, r0, err_handler_62_WHILE_END25
-  ADDI r8, r6, 0
-  SB r8, r10, 0
-  ADDI r9, r9, 1
+  LBU r4, r12, 0
+  BEQ r4, r0, err_handler_62_WHILE_END25
+  ADDI r10, r4, 0
+  SB r10, r3, 0
+  ADDI r12, r12, 1
   JMP err_handler_62_WHILE24
 
 err_handler_62_WHILE_END25:
 
-  LLI r4, 15
-  AND r4, r2, r4
-  LLI r6, hex_chars
-  LW r6, r6, 0
-  LLI r8, 15
-  AND r8, r4, r8
-  ADD r6, r6, r8
-  LBU r6, r6, 0
-  LLI r9, 268435456
-  SB r6, r9, 0
+  LLI r11, 15
+  AND r11, r2, r11
+  LLI r4, hex_chars
+  LW r4, r4, 0
+  LLI r10, 15
+  AND r10, r11, r10
+  ADD r4, r4, r10
+  LBU r4, r4, 0
+  LLI r12, 268435456
+  SB r4, r12, 0
 err_handler_62_ELSE12:
 
-  LLI r10, 10
-  LLI r8, 268435456
-  SB r10, r8, 0
-  LLI r4, str_5
-  LLI r9, 268435456
+err_handler_62_IF_END13:
+
+  LLI r3, 10
+  LLI r10, 268435456
+  SB r3, r10, 0
+  LLI r11, str_5
+  LLI r12, 268435456
 err_handler_62_WHILE26:
 
-  LBU r12, r4, 0
-  BEQ r12, r0, err_handler_62_WHILE_END27
-  ADDI r2, r12, 0
-  SB r2, r9, 0
-  ADDI r4, r4, 1
+  LBU r8, r11, 0
+  BEQ r8, r0, err_handler_62_WHILE_END27
+  ADDI r2, r8, 0
+  SB r2, r12, 0
+  ADDI r11, r11, 1
   JMP err_handler_62_WHILE26
 
 err_handler_62_WHILE_END27:
 
-  POP r5
-  LLI r8, 0
+  LLI r6, 0
+  POP r6
+  LLI r10, 0
 err_handler_62_WHILE28:
 
-  LLI r12, 8
-  BLT r8, r12, err_handler_62_CMP_TRUE31
-  LLI r12, 0
+  LLI r8, 8
+  BLT r10, r8, err_handler_62_CMP_TRUE31
+  LLI r8, 0
   JMP err_handler_62_CMP_END32
 
 err_handler_62_CMP_TRUE31:
 
-  LLI r12, 1
+  LLI r8, 1
 err_handler_62_CMP_END32:
 
-  BEQ r12, r0, err_handler_62_WHILE_END29
+  BEQ r8, r0, err_handler_62_WHILE_END29
   LLI r2, hex_chars
   LW r2, r2, 0
-  LLI r4, 15
-  AND r4, r5, r4
-  ADD r2, r2, r4
+  LLI r11, 15
+  AND r11, r6, r11
+  ADD r2, r2, r11
   LBU r2, r2, 0
-  LLI r9, print_hex_buffer
-  LLI r12, 7
-  SUB r12, r12, r8
-  ADD r9, r9, r12
-  SB r2, r9, 0
-  SHRI r5, r5, 4
-  ADDI r8, r8, 1
+  LLI r12, print_hex_buffer
+  LLI r8, 7
+  SUB r8, r8, r10
+  ADD r12, r12, r8
+  SB r2, r12, 0
+  SHRI r6, r6, 4
+err_handler_62_FOR_STEP30:
+
+  ADDI r10, r10, 1
   JMP err_handler_62_WHILE28
 
 err_handler_62_WHILE_END29:
 
-  LLI r4, 0
-  LLI r12, print_hex_buffer
-  LLI r9, 8
-  ADD r12, r12, r9
-  SB r4, r12, 0
+  LLI r11, 0
+  LLI r8, print_hex_buffer
+  LLI r12, 8
+  ADD r8, r8, r12
+  SB r11, r8, 0
   LLI r2, 0
-  LLI r5, 268435456
+  LLI r6, 268435456
 err_handler_62_WHILE33:
 
-  LBU r8, r2, 0
-  BEQ r8, r0, err_handler_62_WHILE_END34
-  ADDI r9, r8, 0
-  SB r9, r5, 0
+  LBU r10, r2, 0
+  BEQ r10, r0, err_handler_62_WHILE_END34
+  ADDI r12, r10, 0
+  SB r12, r6, 0
   ADDI r2, r2, 1
   JMP err_handler_62_WHILE33
 
 err_handler_62_WHILE_END34:
 
-  LLI r12, 10
-  LLI r4, 268435456
-  SB r12, r4, 0
-  LLI r8, 1
+  LLI r8, 10
+  LLI r11, 268435456
+  SB r8, r11, 0
+  LLI r10, 1
 err_handler_62_WHILE35:
 
-  LLI r9, 15
-  BGE r9, r8, err_handler_62_CMP_TRUE38
-  LLI r9, 0
+  LLI r12, 15
+  BGE r12, r10, err_handler_62_CMP_TRUE38
+  LLI r12, 0
   JMP err_handler_62_CMP_END39
 
 err_handler_62_CMP_TRUE38:
 
-  LLI r9, 1
+  LLI r12, 1
 err_handler_62_CMP_END39:
 
-  BEQ r9, r0, err_handler_62_WHILE_END36
+  BEQ r12, r0, err_handler_62_WHILE_END36
   LLI r2, 82
-  LLI r5, 268435456
+  LLI r6, 268435456
 err_handler_62_WHILE40:
 
-  LBU r4, r2, 0
-  BEQ r4, r0, err_handler_62_WHILE_END41
-  ADDI r9, r4, 0
-  SB r9, r5, 0
+  LBU r11, r2, 0
+  BEQ r11, r0, err_handler_62_WHILE_END41
+  ADDI r12, r11, 0
+  SB r12, r6, 0
   ADDI r2, r2, 1
   JMP err_handler_62_WHILE40
 
 err_handler_62_WHILE_END41:
 
-  LLI r4, hex_chars
-  LW r4, r4, 0
-  LLI r9, 15
-  AND r9, r8, r9
-  ADD r4, r4, r9
-  LBU r4, r4, 0
+  LLI r11, hex_chars
+  LW r11, r11, 0
+  LLI r12, 15
+  AND r12, r10, r12
+  ADD r11, r11, r12
+  LBU r11, r11, 0
   LLI r2, 268435456
-  SB r4, r2, 0
-  LLI r5, 61
-  LLI r9, 268435456
+  SB r11, r2, 0
+  LLI r6, 61
+  LLI r12, 268435456
 err_handler_62_WHILE42:
 
-  LBU r2, r5, 0
+  LBU r2, r6, 0
   BEQ r2, r0, err_handler_62_WHILE_END43
-  SB r2, r9, 0
-  ADDI r5, r5, 1
+  SB r2, r12, 0
+  ADDI r6, r6, 1
   JMP err_handler_62_WHILE42
 
 err_handler_62_WHILE_END43:
 
+  LLI r2, 0
   POP r2
-  LLI r5, 0
+  LLI r6, 0
 err_handler_62_WHILE44:
 
-  LLI r9, 8
-  BLT r5, r9, err_handler_62_CMP_TRUE47
-  LLI r9, 0
+  LLI r12, 8
+  BLT r6, r12, err_handler_62_CMP_TRUE47
+  LLI r12, 0
   JMP err_handler_62_CMP_END48
 
 err_handler_62_CMP_TRUE47:
 
-  LLI r9, 1
+  LLI r12, 1
 err_handler_62_CMP_END48:
 
-  BEQ r9, r0, err_handler_62_WHILE_END45
-  LLI r9, hex_chars
-  LW r9, r9, 0
+  BEQ r12, r0, err_handler_62_WHILE_END45
+  LLI r12, hex_chars
+  LW r12, r12, 0
   PUSH r3
   LLI r3, 15
   AND r3, r2, r3
-  ADD r9, r9, r3
+  ADD r12, r12, r3
   POP r3
-  LBU r9, r9, 0
+  LBU r12, r12, 0
   PUSH r3
   LLI r3, err_handler_62_spill49
   SW r2, r3, 0
@@ -4973,66 +5176,72 @@ err_handler_62_CMP_END48:
   LLI r2, print_hex_buffer
   PUSH r3
   LLI r3, 7
-  SUB r3, r3, r5
+  SUB r3, r3, r6
   ADD r2, r2, r3
   POP r3
-  SB r9, r2, 0
+  SB r12, r2, 0
   LLI r2, err_handler_62_spill49
   LW r2, r2, 0
-  SHRI r9, r2, 4
-  ADDI r2, r9, 0
-  ADDI r5, r5, 1
+  SHRI r12, r2, 4
+  ADDI r2, r12, 0
+err_handler_62_FOR_STEP46:
+
+  ADDI r6, r6, 1
   JMP err_handler_62_WHILE44
 
 err_handler_62_WHILE_END45:
 
-  LLI r9, 0
+  LLI r12, 0
+  PUSH r3
+  LLI r3, err_handler_62_spill50
+  SW r2, r3, 0
+  POP r3
   LLI r2, print_hex_buffer
   PUSH r3
   LLI r3, 8
   ADD r2, r2, r3
   POP r3
-  SB r9, r2, 0
+  SB r12, r2, 0
   LLI r2, 0
-  LLI r9, 268435456
-err_handler_62_WHILE50:
+  LLI r12, 268435456
+err_handler_62_WHILE51:
 
-  PUSH r3
-  LLI r3, err_handler_62_spill52
-  SW r2, r3, 0
-  POP r3
-  LBU r2, r2, 0
-  BEQ r2, r0, err_handler_62_WHILE_END51
-  LLI r2, err_handler_62_spill52
-  LW r2, r2, 0
   PUSH r3
   LLI r3, err_handler_62_spill53
   SW r2, r3, 0
   POP r3
   LBU r2, r2, 0
-  SB r2, r9, 0
+  BEQ r2, r0, err_handler_62_WHILE_END52
   LLI r2, err_handler_62_spill53
+  LW r2, r2, 0
+  PUSH r3
+  LLI r3, err_handler_62_spill54
+  SW r2, r3, 0
+  POP r3
+  LBU r2, r2, 0
+  SB r2, r12, 0
+  LLI r2, err_handler_62_spill54
   LW r2, r2, 0
   PUSH r3
   LLI r3, 1
   ADD r2, r2, r3
   POP r3
-  JMP err_handler_62_WHILE50
+  JMP err_handler_62_WHILE51
 
-err_handler_62_WHILE_END51:
+err_handler_62_WHILE_END52:
 
-  LLI r9, 10
+  LLI r12, 10
   LLI r2, 268435456
-  SB r9, r2, 0
-  ADDI r8, r8, 1
+  SB r12, r2, 0
+err_handler_62_FOR_STEP37:
+
+  ADDI r10, r10, 1
   JMP err_handler_62_WHILE35
 
 err_handler_62_WHILE_END36:
 
   BREAK
-  ADDI r1, r0, 0
-  POP r14
-  JALR r0, r14, 0
+  BREAK
 fibonnaci_recursive:
 
   PUSH r14
@@ -5052,6 +5261,8 @@ fibonnaci_recursive_66_CMP_END4:
   JALR r0, r14, 0
 fibonnaci_recursive_66_ELSE1:
 
+fibonnaci_recursive_66_IF_END2:
+
   LLI r4, 2
   BGE r4, r1, fibonnaci_recursive_66_CMP_TRUE7
   LLI r4, 0
@@ -5067,6 +5278,8 @@ fibonnaci_recursive_66_CMP_END8:
   POP r14
   JALR r0, r14, 0
 fibonnaci_recursive_66_ELSE5:
+
+fibonnaci_recursive_66_IF_END6:
 
   LLI r6, 0
   PUSH r6
@@ -5272,6 +5485,8 @@ fs_test_68_UNOP_NOT_END4:
   JALR r0, r14, 0
 fs_test_68_ELSE1:
 
+fs_test_68_IF_END2:
+
   PUSH r4
   PUSH r1
   LLI r12, 4294967295
@@ -5344,6 +5559,8 @@ fs_test_68_UNOP_NOT_END8:
   POP r14
   JALR r0, r14, 0
 fs_test_68_ELSE5:
+
+fs_test_68_IF_END6:
 
   PUSH r6
   PUSH r1
@@ -5519,6 +5736,8 @@ malloc_test_72_CMP_END9:
   BEQ r7, r0, malloc_test_72_WHILE_END6
   ADD r8, r3, r6
   SB r6, r8, 0
+malloc_test_72_FOR_STEP7:
+
   ADDI r6, r6, 1
   JMP malloc_test_72_WHILE5
 
@@ -5552,6 +5771,10 @@ malloc_test_72_CMP_END18:
   LLI r12, 0
   ADDI r4, r12, 0
 malloc_test_72_ELSE15:
+
+malloc_test_72_IF_END16:
+
+malloc_test_72_FOR_STEP12:
 
   ADDI r9, r9, 1
   JMP malloc_test_72_WHILE10
@@ -5773,6 +5996,8 @@ malloc_test_72_IF_END22:
   ADDI r1, r0, 0
   POP r14
   JALR r0, r14, 0
+math_test:
+
   PUSH r14
   LLI r2, str_28
   PUSH r2
@@ -5847,6 +6072,8 @@ math_test_73_UNOP_NOT_END4:
   POP r14
   JALR r0, r14, 0
 math_test_73_ELSE1:
+
+math_test_73_IF_END2:
 
   PUSH r2
   PUSH r6
@@ -5935,6 +6162,8 @@ math_test_73_ELSE1:
   ADDI r1, r0, 0
   POP r14
   JALR r0, r14, 0
+time_test:
+
   PUSH r14
   LLI r2, 0
   PUSH r2
@@ -5998,6 +6227,8 @@ time_test_74_WHILE_END4:
   ADDI r1, r0, 0
   POP r14
   JALR r0, r14, 0
+recursive_test:
+
   PUSH r14
   LLI r2, 0
   PUSH r2
@@ -6924,11 +7155,15 @@ err_handler_62_spill49:
 
 .SPACE 4
 
-err_handler_62_spill52:
+err_handler_62_spill50:
 
 .SPACE 4
 
 err_handler_62_spill53:
+
+.SPACE 4
+
+err_handler_62_spill54:
 
 .SPACE 4
 

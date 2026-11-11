@@ -1,6 +1,7 @@
 translation_unit
   external_decl
     function_def
+      inline
       type_specifier
         void
       declarator	print_string
@@ -41,6 +42,7 @@ translation_unit
                   1
   external_decl
     function_def
+      inline
       type_specifier
         void
       declarator	print_char
@@ -6195,7 +6197,6 @@ translation_unit
             array_index	0
   external_decl
     function_def
-      keep
       type_specifier
         void
       declarator	_err_handler
@@ -6208,13 +6209,6 @@ translation_unit
               declarator	r1
               register_name
                 register	r1
-        expr_stmt
-          postfix
-            print_hex
-            call_suffix
-              arg_list
-                register_name
-                  register	r1
         expr_stmt
           postfix
             print_string
@@ -6236,9 +6230,12 @@ translation_unit
           init_declarator_list
             init_declarator
               declarator	error_type
-              bit_and
-                r1
-                0xFFFF0000
+              shift
+                bit_and
+                  r1
+                  0xFFFF0000
+                rshift
+                16
         if_stmt
           equality
             error_type
@@ -6406,14 +6403,20 @@ translation_unit
             print_string
             call_suffix
               arg_list	"PC="
+        declaration
+          type_specifier
+            int
+          init_declarator_list
+            init_declarator
+              declarator	saved_pc
+              postfix
+                __pop
+                call_suffix
         expr_stmt
           postfix
             print_hex
             call_suffix
-              arg_list
-                postfix
-                  __pop
-                  call_suffix
+              arg_list	saved_pc
         expr_stmt
           postfix
             print_char
@@ -6450,14 +6453,20 @@ translation_unit
                 print_string
                 call_suffix
                   arg_list	"="
+            declaration
+              type_specifier
+                int
+              init_declarator_list
+                init_declarator
+                  declarator	saved_register
+                  postfix
+                    __pop
+                    call_suffix
             expr_stmt
               postfix
                 print_hex
                 call_suffix
-                  arg_list
-                    postfix
-                      __pop
-                      call_suffix
+                  arg_list	saved_register
             expr_stmt
               postfix
                 print_char
@@ -6487,6 +6496,7 @@ translation_unit
           "0123456789ABCDEF"
   external_decl
     function_def
+      inline
       type_specifier
         void
       declarator	print_hex
@@ -6547,6 +6557,7 @@ translation_unit
               arg_list	print_hex_buffer
   external_decl
     function_def
+      inline
       type_specifier
         void
       declarator	print_hex_char

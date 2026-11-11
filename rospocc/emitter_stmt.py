@@ -19,6 +19,8 @@ def _emit_return(emitter, stmt: Dict[str, Any], out):
     # Just set the return value and continue
     if emitter._in_inline_context:
         out.write(f"  // inline function return (no RET emitted)\n")
+    elif emitter.is_error_handler:
+        out.write("  BREAK    // error handlers never return\n")
     else:
         out.write(f"  POP {abi.LINK_REG}\n")
         out.write("  RET\n")

@@ -1,36 +1,17 @@
 // Generated .ros by rospocc.emitter (starter)
-// Functions
-.SEG 0xFFFF_FFFC
+// Vectors (zero error vector means no handler)
+.SEG 0xFFFF_FFF8
+.DATA _err_handler
 .DATA 0x00000000
 
+// Functions
 .SEG 0x00000000
 
   JMP main
 
-.FUNC print_string:
-  PUSH r14
-  LLI r2, 268435456    // init tty_addr
-print_string_0_WHILE1:
-  LBU r3, r1, 0    // deref
-  BEQ r3, r0, print_string_0_WHILE_END2
-  LBU r4, r1, 0    // deref
-  SB r4, r2, 0    // intrinsic __sb
-  ADDI r1, r1, 1    // assign str (addi fast path)
-  JMP print_string_0_WHILE1
-print_string_0_WHILE_END2:
-  // epilogue and return
-  ADDI r1, r0, 0  // ensure r1=0
-  POP r14
-  RET
+// Inline function definition 'print_string' skipped (will be inlined at call sites)
 
-.FUNC print_char:
-  PUSH r14
-  LLI r2, 268435456    // init tty_addr
-  SB r1, r2, 0    // intrinsic __sb
-  // epilogue and return
-  ADDI r1, r0, 0  // ensure r1=0
-  POP r14
-  RET
+// Inline function definition 'print_char' skipped (will be inlined at call sites)
 
 // Inline function definition 'print_line' skipped (will be inlined at call sites)
 
@@ -4660,335 +4641,424 @@ evaluate_rpn_61_WHILE_END3:
   RET
 
 .FUNC _err_handler:
-  PUSH r14
   LLI r2, 0    // zero init r1
   ADDI r2, r1, 0    // init r1 from expr
-  // emit call to print_hex with args [{'type': 'register', 'value': 'r1'}]
-  PUSH r2    // save caller temp
-  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  PUSH r1    // stage reg arg 0
-  POP r1    // load reg arg 0
-  CALL print_hex
-  // call return value in r1
-  POP r1  
-  POP r2    // restore caller temp
-  // emit call to print_string with args [{'type': 'string_addr', 'label': 'str_1'}]
-  PUSH r2    // save caller temp
-  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
+  // inline call to print_string with args [{'type': 'string_addr', 'label': 'str_1'}]
+  // begin inline expansion of print_string
   LLI r3, str_1    // load immediate str_1
-  PUSH r3    // stage reg arg 0
-  POP r1    // load reg arg 0
-  CALL print_string
-  // call return value in r1
-  POP r1  
-  POP r2    // restore caller temp
-  // emit call to print_hex with args [{'type': 'var', 'name': 'r1'}]
-  PUSH r2    // save caller temp
-  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  PUSH r2    // stage reg arg 0
-  POP r1    // load reg arg 0
-  CALL print_hex
-  // call return value in r1
-  POP r1  
-  POP r2    // restore caller temp
-  // emit call to print_string with args [{'type': 'const', 'value': 10}]
-  PUSH r2    // save caller temp
-  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  LLI r4, 10    // load immediate 10
-  PUSH r4    // stage reg arg 0
-  POP r1    // load reg arg 0
-  CALL print_string
-  // call return value in r1
-  POP r1  
-  POP r2    // restore caller temp
-  LLI r5, 4294901760    // load immediate 4294901760
-  AND r5, r2, r5    // binop &
-  LLI r6, 1    // load immediate 1
-  BEQ r5, r6, err_handler_62_CMP_TRUE3
-  LLI r6, 0    // compare false path
-  JMP err_handler_62_CMP_END4
-err_handler_62_CMP_TRUE3:
-  LLI r6, 1
-err_handler_62_CMP_END4:
-  BEQ r6, r0, err_handler_62_ELSE1
-  // emit call to print_string with args [{'type': 'string_addr', 'label': 'str_2'}]
-  PUSH r2    // save caller temp
-  PUSH r5    // save caller temp
-  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  LLI r7, str_2    // load immediate str_2
-  PUSH r7    // stage reg arg 0
-  POP r1    // load reg arg 0
-  CALL print_string
-  // call return value in r1
-  POP r1  
-  POP r5    // restore caller temp
-  POP r2    // restore caller temp
-  // emit call to print_hex_char with args [{'type': 'binop', 'op': 'rshift', 'left': {'type': 'binop', 'op': 'and', 'left': {'type': 'var', 'name': 'r1'}, 'right': {'type': 'const', 'value': 240}}, 'right': {'type': 'const', 'value': 4}}]
-  PUSH r2    // save caller temp
-  PUSH r5    // save caller temp
-  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
+  LLI r4, 268435456    // init tty_addr
+err_handler_62_WHILE1:
+  LBU r5, r3, 0    // deref
+  BEQ r5, r0, err_handler_62_WHILE_END2
+  LBU r6, r3, 0    // deref
+  SB r6, r4, 0    // intrinsic __sb
+  ADDI r3, r3, 1    // assign str (addi fast path)
+  JMP err_handler_62_WHILE1
+err_handler_62_WHILE_END2:
+  // end inline expansion of print_string
+  // inline call to print_hex with args [{'type': 'var', 'name': 'r1'}]
+  // begin inline expansion of print_hex
+  LLI r7, 0    // init i
+err_handler_62_WHILE3:
+  LLI r8, 8    // load immediate 8
+  BLT r7, r8, err_handler_62_CMP_TRUE6
+  LLI r8, 0    // compare false path
+  JMP err_handler_62_CMP_END7
+err_handler_62_CMP_TRUE6:
+  LLI r8, 1
+err_handler_62_CMP_END7:
+  BEQ r8, r0, err_handler_62_WHILE_END4
+  LLI r9, hex_chars    // load immediate hex_chars
+  LW r9, r9, 0    // load global hex_chars
+  LLI r10, 15    // load immediate 15
+  AND r10, r2, r10    // binop &
+  ADD r9, r9, r10    // binop +
+  LBU r9, r9, 0    // deref
+  LLI r11, print_hex_buffer    // load immediate print_hex_buffer
+  LLI r12, 7    // load immediate 7
+  SUB r12, r12, r7    // binop -
+  ADD r11, r11, r12    // binop +
+  SB r9, r11, 0    // store 
+  SHRI r2, r2, 4    // assign input (shri fast path)
+err_handler_62_FOR_STEP5:
+  ADDI r7, r7, 1    // assign i (addi fast path)
+  JMP err_handler_62_WHILE3
+err_handler_62_WHILE_END4:
+  LLI r2, 0    // load immediate 0
+  LLI r5, print_hex_buffer    // load immediate print_hex_buffer
+  LLI r6, 8    // load immediate 8
+  ADD r5, r5, r6    // binop +
+  SB r2, r5, 0    // store 
+  // inline call to print_string with args [{'type': 'var', 'name': 'print_hex_buffer'}]
+  // begin inline expansion of print_string
+  LLI r3, 0    // load immediate 0
+  LLI r4, 268435456    // init tty_addr
+err_handler_62_WHILE8:
+  LBU r8, r3, 0    // deref
+  BEQ r8, r0, err_handler_62_WHILE_END9
+  LBU r10, r3, 0    // deref
+  SB r10, r4, 0    // intrinsic __sb
+  ADDI r3, r3, 1    // assign str (addi fast path)
+  JMP err_handler_62_WHILE8
+err_handler_62_WHILE_END9:
+  // end inline expansion of print_string
+  // end inline expansion of print_hex
+  // inline call to print_string with args [{'type': 'const', 'value': 10}]
+  // begin inline expansion of print_string
+  LLI r12, 10    // load immediate 10
+  LLI r11, 268435456    // init tty_addr
+err_handler_62_WHILE10:
+  LBU r9, r12, 0    // deref
+  BEQ r9, r0, err_handler_62_WHILE_END11
+  LBU r7, r12, 0    // deref
+  SB r7, r11, 0    // intrinsic __sb
+  ADDI r12, r12, 1    // assign str (addi fast path)
+  JMP err_handler_62_WHILE10
+err_handler_62_WHILE_END11:
+  // end inline expansion of print_string
+  LLI r6, 4294901760    // load immediate 4294901760
+  AND r6, r2, r6    // binop &
+  SHRI r6, r6, 16    // binop >> (imm)
+  LLI r5, 1    // load immediate 1
+  BEQ r6, r5, err_handler_62_CMP_TRUE14
+  LLI r5, 0    // compare false path
+  JMP err_handler_62_CMP_END15
+err_handler_62_CMP_TRUE14:
+  LLI r5, 1
+err_handler_62_CMP_END15:
+  BEQ r5, r0, err_handler_62_ELSE12
+  // inline call to print_string with args [{'type': 'string_addr', 'label': 'str_2'}]
+  // begin inline expansion of print_string
+  LLI r2, str_2    // load immediate str_2
+  LLI r8, 268435456    // init tty_addr
+err_handler_62_WHILE16:
+  LBU r10, r2, 0    // deref
+  BEQ r10, r0, err_handler_62_WHILE_END17
+  LBU r3, r2, 0    // deref
+  SB r3, r8, 0    // intrinsic __sb
+  ADDI r2, r2, 1    // assign str (addi fast path)
+  JMP err_handler_62_WHILE16
+err_handler_62_WHILE_END17:
+  // end inline expansion of print_string
+  // inline call to print_hex_char with args [{'type': 'binop', 'op': 'rshift', 'left': {'type': 'binop', 'op': 'and', 'left': {'type': 'var', 'name': 'r1'}, 'right': {'type': 'const', 'value': 240}}, 'right': {'type': 'const', 'value': 4}}]
+  // begin inline expansion of print_hex_char
+  LLI r4, 240    // load immediate 240
+  AND r4, r2, r4    // binop &
+  SHRI r4, r4, 4    // binop >> (imm)
+  // inline call to print_char with args [{'type': 'deref', 'expr': {'type': 'binop', 'op': 'plus', 'left': {'type': 'var', 'name': 'hex_chars'}, 'right': {'type': 'binop', 'op': 'and', 'left': {'type': 'var', 'name': 'input'}, 'right': {'type': 'const', 'value': 15}}}}]
+  // begin inline expansion of print_char
+  LLI r9, hex_chars    // load immediate hex_chars
+  LW r9, r9, 0    // load global hex_chars
+  LLI r7, 15    // load immediate 15
+  AND r7, r4, r7    // binop &
+  ADD r9, r9, r7    // binop +
+  LBU r9, r9, 0    // deref
+  LLI r12, 268435456    // init tty_addr
+  SB r9, r12, 0    // intrinsic __sb
+  // end inline expansion of print_char
+  // end inline expansion of print_hex_char
+  // inline call to print_hex_char with args [{'type': 'binop', 'op': 'and', 'left': {'type': 'var', 'name': 'r1'}, 'right': {'type': 'const', 'value': 15}}]
+  // begin inline expansion of print_hex_char
+  LLI r11, 15    // load immediate 15
+  AND r11, r2, r11    // binop &
+  // inline call to print_char with args [{'type': 'deref', 'expr': {'type': 'binop', 'op': 'plus', 'left': {'type': 'var', 'name': 'hex_chars'}, 'right': {'type': 'binop', 'op': 'and', 'left': {'type': 'var', 'name': 'input'}, 'right': {'type': 'const', 'value': 15}}}}]
+  // begin inline expansion of print_char
+  LLI r5, hex_chars    // load immediate hex_chars
+  LW r5, r5, 0    // load global hex_chars
+  LLI r10, 15    // load immediate 15
+  AND r10, r11, r10    // binop &
+  ADD r5, r5, r10    // binop +
+  LBU r5, r5, 0    // deref
+  LLI r3, 268435456    // init tty_addr
+  SB r5, r3, 0    // intrinsic __sb
+  // end inline expansion of print_char
+  // end inline expansion of print_hex_char
   LLI r8, 240    // load immediate 240
   AND r8, r2, r8    // binop &
-  SHRI r8, r8, 4    // binop >> (imm)
-  PUSH r8    // stage reg arg 0
-  POP r1    // load reg arg 0
-  CALL print_hex_char
-  // call return value in r1
-  POP r1  
-  POP r5    // restore caller temp
-  POP r2    // restore caller temp
-  // emit call to print_hex_char with args [{'type': 'binop', 'op': 'and', 'left': {'type': 'var', 'name': 'r1'}, 'right': {'type': 'const', 'value': 15}}]
-  PUSH r2    // save caller temp
-  PUSH r5    // save caller temp
-  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  LLI r9, 15    // load immediate 15
-  AND r9, r2, r9    // binop &
-  PUSH r9    // stage reg arg 0
-  POP r1    // load reg arg 0
-  CALL print_hex_char
-  // call return value in r1
-  POP r1  
-  POP r5    // restore caller temp
-  POP r2    // restore caller temp
-  LLI r10, 240    // load immediate 240
-  AND r10, r2, r10    // binop &
-  // emit call to print_char with args [{'type': 'const', 'value': 32}]
-  PUSH r2    // save caller temp
-  PUSH r5    // save caller temp
-  PUSH r10    // save caller temp
-  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  LLI r11, 32    // load immediate 32
-  PUSH r11    // stage reg arg 0
-  POP r1    // load reg arg 0
-  CALL print_char
-  // call return value in r1
-  POP r1  
-  POP r10    // restore caller temp
-  POP r5    // restore caller temp
-  POP r2    // restore caller temp
+  // inline call to print_char with args [{'type': 'const', 'value': 32}]
+  // begin inline expansion of print_char
+  LLI r7, 32    // load immediate 32
+  LLI r4, 268435456    // init tty_addr
+  SB r7, r4, 0    // intrinsic __sb
+  // end inline expansion of print_char
   LLI r12, 0    // load immediate 0
-  BEQ r10, r12, err_handler_62_CMP_TRUE7
+  BEQ r8, r12, err_handler_62_CMP_TRUE20
   LLI r12, 0    // compare false path
-  JMP err_handler_62_CMP_END8
-err_handler_62_CMP_TRUE7:
+  JMP err_handler_62_CMP_END21
+err_handler_62_CMP_TRUE20:
   LLI r12, 1
-err_handler_62_CMP_END8:
-  BEQ r12, r0, err_handler_62_ELSE5
-  // emit call to print_string with args [{'type': 'string_addr', 'label': 'str_3'}]
-  PUSH r2    // save caller temp
-  PUSH r5    // save caller temp
-  PUSH r10    // save caller temp
-  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  LLI r3, str_3    // load immediate str_3
-  PUSH r3    // stage reg arg 0
-  POP r1    // load reg arg 0
-  CALL print_string
-  // call return value in r1
-  POP r1  
-  POP r10    // restore caller temp
-  POP r5    // restore caller temp
-  POP r2    // restore caller temp
-  JMP err_handler_62_IF_END6
-err_handler_62_ELSE5:
-err_handler_62_IF_END6:
-  // emit call to print_string with args [{'type': 'string_addr', 'label': 'str_4'}]
-  PUSH r2    // save caller temp
-  PUSH r5    // save caller temp
-  PUSH r10    // save caller temp
-  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  LLI r4, str_4    // load immediate str_4
-  PUSH r4    // stage reg arg 0
-  POP r1    // load reg arg 0
-  CALL print_string
-  // call return value in r1
-  POP r1  
-  POP r10    // restore caller temp
-  POP r5    // restore caller temp
-  POP r2    // restore caller temp
-  // emit call to print_hex_char with args [{'type': 'binop', 'op': 'and', 'left': {'type': 'var', 'name': 'r1'}, 'right': {'type': 'const', 'value': 15}}]
-  PUSH r2    // save caller temp
-  PUSH r5    // save caller temp
-  PUSH r10    // save caller temp
-  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  LLI r6, 15    // load immediate 15
-  AND r6, r2, r6    // binop &
-  PUSH r6    // stage reg arg 0
-  POP r1    // load reg arg 0
-  CALL print_hex_char
-  // call return value in r1
-  POP r1  
-  POP r10    // restore caller temp
-  POP r5    // restore caller temp
-  POP r2    // restore caller temp
-  JMP err_handler_62_IF_END2
-err_handler_62_ELSE1:
-err_handler_62_IF_END2:
-  // emit call to print_char with args [{'type': 'const', 'value': 10}]
-  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  LLI r7, 10    // load immediate 10
-  PUSH r7    // stage reg arg 0
-  POP r1    // load reg arg 0
-  CALL print_char
-  // call return value in r1
-  POP r1  
-  // emit call to print_string with args [{'type': 'string_addr', 'label': 'str_5'}]
-  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  LLI r8, str_5    // load immediate str_5
-  PUSH r8    // stage reg arg 0
-  POP r1    // load reg arg 0
-  CALL print_string
-  // call return value in r1
-  POP r1  
-  // emit call to print_hex with args [{'type': 'call', 'name': '__pop', 'args': []}]
-  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  POP r9  // call expr __pop -> return in r9
-  PUSH r9    // stage reg arg 0
-  POP r1    // load reg arg 0
-  CALL print_hex
-  // call return value in r1
-  POP r1  
-  // emit call to print_char with args [{'type': 'const', 'value': 10}]
-  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  LLI r11, 10    // load immediate 10
-  PUSH r11    // stage reg arg 0
-  POP r1    // load reg arg 0
-  CALL print_char
-  // call return value in r1
-  POP r1  
-  LLI r12, 1    // init i
-err_handler_62_WHILE9:
-  LLI r3, 15    // load immediate 15
-  BGE r3, r12, err_handler_62_CMP_TRUE12
-  LLI r3, 0    // compare false path
-  JMP err_handler_62_CMP_END13
-err_handler_62_CMP_TRUE12:
-  LLI r3, 1
-err_handler_62_CMP_END13:
-  BEQ r3, r0, err_handler_62_WHILE_END10
-  // emit call to print_string with args [{'type': 'const', 'value': 82}]
-  PUSH r12    // save caller temp
-  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  LLI r4, 82    // load immediate 82
-  PUSH r4    // stage reg arg 0
-  POP r1    // load reg arg 0
-  CALL print_string
-  // call return value in r1
-  POP r1  
-  POP r12    // restore caller temp
-  // emit call to print_hex_char with args [{'type': 'var', 'name': 'i'}]
-  PUSH r12    // save caller temp
-  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  PUSH r12    // stage reg arg 0
-  POP r1    // load reg arg 0
-  CALL print_hex_char
-  // call return value in r1
-  POP r1  
-  POP r12    // restore caller temp
-  // emit call to print_string with args [{'type': 'const', 'value': 61}]
-  PUSH r12    // save caller temp
-  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  LLI r6, 61    // load immediate 61
-  PUSH r6    // stage reg arg 0
-  POP r1    // load reg arg 0
-  CALL print_string
-  // call return value in r1
-  POP r1  
-  POP r12    // restore caller temp
-  // emit call to print_hex with args [{'type': 'call', 'name': '__pop', 'args': []}]
-  PUSH r12    // save caller temp
-  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  POP r10  // call expr __pop -> return in r10
-  PUSH r10    // stage reg arg 0
-  POP r1    // load reg arg 0
-  CALL print_hex
-  // call return value in r1
-  POP r1  
-  POP r12    // restore caller temp
-  // emit call to print_char with args [{'type': 'const', 'value': 10}]
-  PUSH r12    // save caller temp
-  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  LLI r2, 10    // load immediate 10
-  PUSH r2    // stage reg arg 0
-  POP r1    // load reg arg 0
-  CALL print_char
-  // call return value in r1
-  POP r1  
-  POP r12    // restore caller temp
-err_handler_62_FOR_STEP11:
-  ADDI r12, r12, 1    // assign i (addi fast path)
-  JMP err_handler_62_WHILE9
-err_handler_62_WHILE_END10:
-  BREAK    // intrinsic __break
-  // epilogue and return
-  ADDI r1, r0, 0  // ensure r1=0
-  POP r14
-  RET
-
-.FUNC print_hex:
-  PUSH r14
-  LLI r2, 0    // init i
-print_hex_63_WHILE1:
-  LLI r3, 8    // load immediate 8
-  BLT r2, r3, print_hex_63_CMP_TRUE4
-  LLI r3, 0    // compare false path
-  JMP print_hex_63_CMP_END5
-print_hex_63_CMP_TRUE4:
-  LLI r3, 1
-print_hex_63_CMP_END5:
-  BEQ r3, r0, print_hex_63_WHILE_END2
+err_handler_62_CMP_END21:
+  BEQ r12, r0, err_handler_62_ELSE18
+  // inline call to print_string with args [{'type': 'string_addr', 'label': 'str_3'}]
+  // begin inline expansion of print_string
+  LLI r10, str_3    // load immediate str_3
+  LLI r11, 268435456    // init tty_addr
+err_handler_62_WHILE22:
+  LBU r3, r10, 0    // deref
+  BEQ r3, r0, err_handler_62_WHILE_END23
+  LBU r4, r10, 0    // deref
+  SB r4, r11, 0    // intrinsic __sb
+  ADDI r10, r10, 1    // assign str (addi fast path)
+  JMP err_handler_62_WHILE22
+err_handler_62_WHILE_END23:
+  // end inline expansion of print_string
+  JMP err_handler_62_IF_END19
+err_handler_62_ELSE18:
+err_handler_62_IF_END19:
+  // inline call to print_string with args [{'type': 'string_addr', 'label': 'str_4'}]
+  // begin inline expansion of print_string
+  LLI r12, str_4    // load immediate str_4
+  LLI r3, 268435456    // init tty_addr
+err_handler_62_WHILE24:
+  LBU r4, r12, 0    // deref
+  BEQ r4, r0, err_handler_62_WHILE_END25
+  LBU r10, r12, 0    // deref
+  SB r10, r3, 0    // intrinsic __sb
+  ADDI r12, r12, 1    // assign str (addi fast path)
+  JMP err_handler_62_WHILE24
+err_handler_62_WHILE_END25:
+  // end inline expansion of print_string
+  // inline call to print_hex_char with args [{'type': 'binop', 'op': 'and', 'left': {'type': 'var', 'name': 'r1'}, 'right': {'type': 'const', 'value': 15}}]
+  // begin inline expansion of print_hex_char
+  LLI r11, 15    // load immediate 15
+  AND r11, r2, r11    // binop &
+  // inline call to print_char with args [{'type': 'deref', 'expr': {'type': 'binop', 'op': 'plus', 'left': {'type': 'var', 'name': 'hex_chars'}, 'right': {'type': 'binop', 'op': 'and', 'left': {'type': 'var', 'name': 'input'}, 'right': {'type': 'const', 'value': 15}}}}]
+  // begin inline expansion of print_char
   LLI r4, hex_chars    // load immediate hex_chars
   LW r4, r4, 0    // load global hex_chars
-  LLI r5, 15    // load immediate 15
-  AND r5, r1, r5    // binop &
-  ADD r4, r4, r5    // binop +
+  LLI r10, 15    // load immediate 15
+  AND r10, r11, r10    // binop &
+  ADD r4, r4, r10    // binop +
   LBU r4, r4, 0    // deref
-  LLI r6, print_hex_buffer    // load immediate print_hex_buffer
-  LLI r7, 7    // load immediate 7
-  SUB r7, r7, r2    // binop -
-  ADD r6, r6, r7    // binop +
-  SB r4, r6, 0    // store 
-  SHRI r1, r1, 4    // assign input (shri fast path)
-print_hex_63_FOR_STEP3:
-  ADDI r2, r2, 1    // assign i (addi fast path)
-  JMP print_hex_63_WHILE1
-print_hex_63_WHILE_END2:
-  LLI r8, 0    // load immediate 0
-  LLI r9, print_hex_buffer    // load immediate print_hex_buffer
-  LLI r10, 8    // load immediate 8
-  ADD r9, r9, r10    // binop +
-  SB r8, r9, 0    // store 
-  // emit call to print_string with args [{'type': 'var', 'name': 'print_hex_buffer'}]
-  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  LLI r11, 0    // load immediate 0
-  PUSH r11    // stage reg arg 0
-  POP r1    // load reg arg 0
-  CALL print_string
-  // call return value in r1
-  POP r1  
-  // epilogue and return
-  ADDI r1, r0, 0  // ensure r1=0
-  POP r14
-  RET
-
-.FUNC print_hex_char:
-  PUSH r14
-  // emit call to print_char with args [{'type': 'deref', 'expr': {'type': 'binop', 'op': 'plus', 'left': {'type': 'var', 'name': 'hex_chars'}, 'right': {'type': 'binop', 'op': 'and', 'left': {'type': 'var', 'name': 'input'}, 'right': {'type': 'const', 'value': 15}}}}]
-  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
+  LLI r12, 268435456    // init tty_addr
+  SB r4, r12, 0    // intrinsic __sb
+  // end inline expansion of print_char
+  // end inline expansion of print_hex_char
+  JMP err_handler_62_IF_END13
+err_handler_62_ELSE12:
+err_handler_62_IF_END13:
+  // inline call to print_char with args [{'type': 'const', 'value': 10}]
+  // begin inline expansion of print_char
+  LLI r3, 10    // load immediate 10
+  LLI r10, 268435456    // init tty_addr
+  SB r3, r10, 0    // intrinsic __sb
+  // end inline expansion of print_char
+  // inline call to print_string with args [{'type': 'string_addr', 'label': 'str_5'}]
+  // begin inline expansion of print_string
+  LLI r11, str_5    // load immediate str_5
+  LLI r12, 268435456    // init tty_addr
+err_handler_62_WHILE26:
+  LBU r8, r11, 0    // deref
+  BEQ r8, r0, err_handler_62_WHILE_END27
+  LBU r2, r11, 0    // deref
+  SB r2, r12, 0    // intrinsic __sb
+  ADDI r11, r11, 1    // assign str (addi fast path)
+  JMP err_handler_62_WHILE26
+err_handler_62_WHILE_END27:
+  // end inline expansion of print_string
+  LLI r6, 0    // zero init saved_pc
+  POP r6    // intrinsic __pop
+  // inline call to print_hex with args [{'type': 'var', 'name': 'saved_pc'}]
+  // begin inline expansion of print_hex
+  LLI r10, 0    // init i
+err_handler_62_WHILE28:
+  LLI r8, 8    // load immediate 8
+  BLT r10, r8, err_handler_62_CMP_TRUE31
+  LLI r8, 0    // compare false path
+  JMP err_handler_62_CMP_END32
+err_handler_62_CMP_TRUE31:
+  LLI r8, 1
+err_handler_62_CMP_END32:
+  BEQ r8, r0, err_handler_62_WHILE_END29
   LLI r2, hex_chars    // load immediate hex_chars
   LW r2, r2, 0    // load global hex_chars
-  LLI r3, 15    // load immediate 15
-  AND r3, r1, r3    // binop &
-  ADD r2, r2, r3    // binop +
+  LLI r11, 15    // load immediate 15
+  AND r11, r6, r11    // binop &
+  ADD r2, r2, r11    // binop +
   LBU r2, r2, 0    // deref
-  PUSH r2    // stage reg arg 0
-  POP r1    // load reg arg 0
-  CALL print_char
-  // call return value in r1
-  POP r1  
-  // epilogue and return
-  ADDI r1, r0, 0  // ensure r1=0
-  POP r14
-  RET
+  LLI r12, print_hex_buffer    // load immediate print_hex_buffer
+  LLI r8, 7    // load immediate 7
+  SUB r8, r8, r10    // binop -
+  ADD r12, r12, r8    // binop +
+  SB r2, r12, 0    // store 
+  SHRI r6, r6, 4    // assign input (shri fast path)
+err_handler_62_FOR_STEP30:
+  ADDI r10, r10, 1    // assign i (addi fast path)
+  JMP err_handler_62_WHILE28
+err_handler_62_WHILE_END29:
+  LLI r11, 0    // load immediate 0
+  LLI r8, print_hex_buffer    // load immediate print_hex_buffer
+  LLI r12, 8    // load immediate 8
+  ADD r8, r8, r12    // binop +
+  SB r11, r8, 0    // store 
+  // inline call to print_string with args [{'type': 'var', 'name': 'print_hex_buffer'}]
+  // begin inline expansion of print_string
+  LLI r2, 0    // load immediate 0
+  LLI r6, 268435456    // init tty_addr
+err_handler_62_WHILE33:
+  LBU r10, r2, 0    // deref
+  BEQ r10, r0, err_handler_62_WHILE_END34
+  LBU r12, r2, 0    // deref
+  SB r12, r6, 0    // intrinsic __sb
+  ADDI r2, r2, 1    // assign str (addi fast path)
+  JMP err_handler_62_WHILE33
+err_handler_62_WHILE_END34:
+  // end inline expansion of print_string
+  // end inline expansion of print_hex
+  // inline call to print_char with args [{'type': 'const', 'value': 10}]
+  // begin inline expansion of print_char
+  LLI r8, 10    // load immediate 10
+  LLI r11, 268435456    // init tty_addr
+  SB r8, r11, 0    // intrinsic __sb
+  // end inline expansion of print_char
+  LLI r10, 1    // init i
+err_handler_62_WHILE35:
+  LLI r12, 15    // load immediate 15
+  BGE r12, r10, err_handler_62_CMP_TRUE38
+  LLI r12, 0    // compare false path
+  JMP err_handler_62_CMP_END39
+err_handler_62_CMP_TRUE38:
+  LLI r12, 1
+err_handler_62_CMP_END39:
+  BEQ r12, r0, err_handler_62_WHILE_END36
+  // inline call to print_string with args [{'type': 'const', 'value': 82}]
+  // begin inline expansion of print_string
+  LLI r2, 82    // load immediate 82
+  LLI r6, 268435456    // init tty_addr
+err_handler_62_WHILE40:
+  LBU r11, r2, 0    // deref
+  BEQ r11, r0, err_handler_62_WHILE_END41
+  LBU r12, r2, 0    // deref
+  SB r12, r6, 0    // intrinsic __sb
+  ADDI r2, r2, 1    // assign str (addi fast path)
+  JMP err_handler_62_WHILE40
+err_handler_62_WHILE_END41:
+  // end inline expansion of print_string
+  // inline call to print_hex_char with args [{'type': 'var', 'name': 'i'}]
+  // begin inline expansion of print_hex_char
+  // inline call to print_char with args [{'type': 'deref', 'expr': {'type': 'binop', 'op': 'plus', 'left': {'type': 'var', 'name': 'hex_chars'}, 'right': {'type': 'binop', 'op': 'and', 'left': {'type': 'var', 'name': 'input'}, 'right': {'type': 'const', 'value': 15}}}}]
+  // begin inline expansion of print_char
+  LLI r11, hex_chars    // load immediate hex_chars
+  LW r11, r11, 0    // load global hex_chars
+  LLI r12, 15    // load immediate 15
+  AND r12, r10, r12    // binop &
+  ADD r11, r11, r12    // binop +
+  LBU r11, r11, 0    // deref
+  LLI r2, 268435456    // init tty_addr
+  SB r11, r2, 0    // intrinsic __sb
+  // end inline expansion of print_char
+  // end inline expansion of print_hex_char
+  // inline call to print_string with args [{'type': 'const', 'value': 61}]
+  // begin inline expansion of print_string
+  LLI r6, 61    // load immediate 61
+  LLI r12, 268435456    // init tty_addr
+err_handler_62_WHILE42:
+  LBU r2, r6, 0    // deref
+  BEQ r2, r0, err_handler_62_WHILE_END43
+  LBU r2, r6, 0    // deref
+  SB r2, r12, 0    // intrinsic __sb
+  ADDI r6, r6, 1    // assign str (addi fast path)
+  JMP err_handler_62_WHILE42
+err_handler_62_WHILE_END43:
+  // end inline expansion of print_string
+  LLI r2, 0    // zero init saved_register
+  POP r2    // intrinsic __pop
+  // inline call to print_hex with args [{'type': 'var', 'name': 'saved_register'}]
+  // begin inline expansion of print_hex
+  LLI r6, 0    // init i
+err_handler_62_WHILE44:
+  LLI r12, 8    // load immediate 8
+  BLT r6, r12, err_handler_62_CMP_TRUE47
+  LLI r12, 0    // compare false path
+  JMP err_handler_62_CMP_END48
+err_handler_62_CMP_TRUE47:
+  LLI r12, 1
+err_handler_62_CMP_END48:
+  BEQ r12, r0, err_handler_62_WHILE_END45
+  LLI r12, hex_chars    // load immediate hex_chars
+  LW r12, r12, 0    // load global hex_chars
+  PUSH r3    // spill live temp for reg pressure
+  LLI r3, 15    // load immediate 15
+  AND r3, r2, r3    // binop &
+  ADD r12, r12, r3    // binop +
+  POP r3    // restore spilled temp
+  LBU r12, r12, 0    // deref
+  PUSH r3    // borrow scratch reg for spill label addr
+  LLI r3, err_handler_62_spill49    // spill slot addr
+  SW r2, r3, 0    // spill live variable(s) for reg pressure
+  POP r3    // restore scratch reg for spill label addr
+  LLI r2, print_hex_buffer    // load immediate print_hex_buffer
+  PUSH r3    // spill live temp for reg pressure
+  LLI r3, 7    // load immediate 7
+  SUB r3, r3, r6    // binop -
+  ADD r2, r2, r3    // binop +
+  POP r3    // restore spilled temp
+  SB r12, r2, 0    // store 
+  LLI r2, err_handler_62_spill49    // spill slot addr
+  LW r2, r2, 0    // restore spilled var input
+  SHRI r12, r2, 4    // binop >> (imm)
+  ADDI r2, r12, 0    // assign input
+err_handler_62_FOR_STEP46:
+  ADDI r6, r6, 1    // assign i (addi fast path)
+  JMP err_handler_62_WHILE44
+err_handler_62_WHILE_END45:
+  LLI r12, 0    // load immediate 0
+  PUSH r3    // borrow scratch reg for spill label addr
+  LLI r3, err_handler_62_spill50    // spill slot addr
+  SW r2, r3, 0    // spill live variable(s) for reg pressure
+  POP r3    // restore scratch reg for spill label addr
+  LLI r2, print_hex_buffer    // load immediate print_hex_buffer
+  PUSH r3    // spill live temp for reg pressure
+  LLI r3, 8    // load immediate 8
+  ADD r2, r2, r3    // binop +
+  POP r3    // restore spilled temp
+  SB r12, r2, 0    // store 
+  // inline call to print_string with args [{'type': 'var', 'name': 'print_hex_buffer'}]
+  // begin inline expansion of print_string
+  LLI r2, 0    // load immediate 0
+  LLI r12, 268435456    // init tty_addr
+err_handler_62_WHILE51:
+  PUSH r3    // borrow scratch reg for spill label addr
+  LLI r3, err_handler_62_spill53    // spill slot addr
+  SW r2, r3, 0    // spill live variable(s) for reg pressure
+  POP r3    // restore scratch reg for spill label addr
+  LBU r2, r2, 0    // deref
+  BEQ r2, r0, err_handler_62_WHILE_END52
+  LLI r2, err_handler_62_spill53    // spill slot addr
+  LW r2, r2, 0    // restore spilled var str
+  PUSH r3    // borrow scratch reg for spill label addr
+  LLI r3, err_handler_62_spill54    // spill slot addr
+  SW r2, r3, 0    // spill live variable(s) for reg pressure
+  POP r3    // restore scratch reg for spill label addr
+  LBU r2, r2, 0    // deref
+  SB r2, r12, 0    // intrinsic __sb
+  LLI r2, err_handler_62_spill54    // spill slot addr
+  LW r2, r2, 0    // restore spilled var str
+  PUSH r3    // spill live temp for reg pressure
+  LLI r3, 1    // load immediate 1
+  ADD r3, r2, r3    // binop +
+  ADDI r2, r3, 0    // assign str
+  POP r3    // restore spilled temp
+  JMP err_handler_62_WHILE51
+err_handler_62_WHILE_END52:
+  // end inline expansion of print_string
+  // end inline expansion of print_hex
+  // inline call to print_char with args [{'type': 'const', 'value': 10}]
+  // begin inline expansion of print_char
+  LLI r12, 10    // load immediate 10
+  LLI r2, 268435456    // init tty_addr
+  SB r12, r2, 0    // intrinsic __sb
+  // end inline expansion of print_char
+err_handler_62_FOR_STEP37:
+  ADDI r10, r10, 1    // assign i (addi fast path)
+  JMP err_handler_62_WHILE35
+err_handler_62_WHILE_END36:
+  BREAK    // intrinsic __break
+  BREAK    // error handlers never return
+
+// Inline function definition 'print_hex' skipped (will be inlined at call sites)
+
+// Inline function definition 'print_hex_char' skipped (will be inlined at call sites)
 
 // Inline function definition 'add' skipped (will be inlined at call sites)
 
@@ -6024,25 +6094,31 @@ math_test_73_IF_END2:
   // call return value in r1
   POP r1  
   POP r2    // restore caller temp
-  // emit call to print_string with args [{'type': 'string_addr', 'label': 'str_33'}]
-  PUSH r2    // save caller temp
-  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
+  // inline call to print_string with args [{'type': 'string_addr', 'label': 'str_33'}]
+  // begin inline expansion of print_string
   LLI r7, str_33    // load immediate str_33
-  PUSH r7    // stage reg arg 0
-  POP r1    // load reg arg 0
-  CALL print_string
-  // call return value in r1
-  POP r1  
-  POP r2    // restore caller temp
-  // emit call to print_string with args [{'type': 'var', 'name': 'time_str'}]
-  PUSH r2    // save caller temp
-  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  PUSH r2    // stage reg arg 0
-  POP r1    // load reg arg 0
-  CALL print_string
-  // call return value in r1
-  POP r1  
-  POP r2    // restore caller temp
+  LLI r8, 268435456    // init tty_addr
+time_test_74_WHILE1:
+  LBU r9, r7, 0    // deref
+  BEQ r9, r0, time_test_74_WHILE_END2
+  LBU r10, r7, 0    // deref
+  SB r10, r8, 0    // intrinsic __sb
+  ADDI r7, r7, 1    // assign str (addi fast path)
+  JMP time_test_74_WHILE1
+time_test_74_WHILE_END2:
+  // end inline expansion of print_string
+  // inline call to print_string with args [{'type': 'var', 'name': 'time_str'}]
+  // begin inline expansion of print_string
+  LLI r11, 268435456    // init tty_addr
+time_test_74_WHILE3:
+  LBU r12, r2, 0    // deref
+  BEQ r12, r0, time_test_74_WHILE_END4
+  LBU r3, r2, 0    // deref
+  SB r3, r11, 0    // intrinsic __sb
+  ADDI r2, r2, 1    // assign str (addi fast path)
+  JMP time_test_74_WHILE3
+time_test_74_WHILE_END4:
+  // end inline expansion of print_string
   // emit call to update_buffer with args []
   PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
   CALL update_buffer
@@ -6262,7 +6338,8 @@ recursive_test_75_IF_END2:
   CALL image_display_test
   // call return value in r1
   POP r1  
-  BREAK  // epilogue and return
+  BREAK
+  // epilogue and return
   ADDI r1, r0, 0  // ensure r1=0
   POP r14
   RET
@@ -6702,5 +6779,18 @@ infix_to_rpn_60_stack_buf1:
 evaluate_rpn_61_stack_buf1:
   .SPACE 512 // lifted buffer
 
+err_handler_62_spill49:
+  .SPACE 4 // lifted buffer
+
+err_handler_62_spill50:
+  .SPACE 4 // lifted buffer
+
+err_handler_62_spill53:
+  .SPACE 4 // lifted buffer
+
+err_handler_62_spill54:
+  .SPACE 4 // lifted buffer
+
 math_test_73_result_str_buf5:
   .SPACE 16 // lifted buffer
+

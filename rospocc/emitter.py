@@ -11,6 +11,7 @@ from emitter_expr import emit_expr as emit_expression
 from emitter_intrinsics import intrinsic_break, intrinsic_lb, intrinsic_sb, intrinsic_sw, intrinsic_pop
 from emitter_registers import alloc_var_reg, ensure_var_reg, load_imm
 from emitter_stmt import emit_statement as emit_statement_impl
+from errors import EmitterError
 from loguru import logger
 from register_allocator import RegAllocation, RegisterAllocator
 from tracked_writer import TrackedWriter
@@ -105,6 +106,7 @@ class Emitter:
         self._in_inline_context = False
         # Target register for inline function return value
         self._inline_return_target = None
+        self.is_error_handler = False
 
     def _get_source_text(self, line_num: int) -> str:
         """Get the source text for a given line number (1-indexed)."""
@@ -1087,21 +1089,32 @@ class Emitter:
                 (fn for fn in ast.get("functions", []) if fn.get("name") == "main"),
                 None,
             )
-            error_handler_fn= next(
+            error_handler_fn = next(
                 (fn for fn in ast.get("functions", []) if fn.get("name") == "_err_handler"),
                 None,
             )
             assert (
                 main_fn
             ), "Project must have a main function"
-            if error_handler_fn==None:
-                logger.warning("Project has no _err_handler function, errors will cause halts.")
+            if error_handler_fn is None:
+                logger.warning(
+                    "Project has no _err_handler function; emitting a zero error vector."
+                )
+            elif error_handler_fn.get("inline"):
+                raise EmitterError(
+                    "_err_handler must not be inline: the error vector needs its entry address"
+                )
             logger.debug("mainfn: {}", main_fn)
             self._set_source_context(main_fn, out)
             out.write("// Generated .ros by rospocc.emitter (starter)\n")
-            out.write("// Functions\n")
-            out.write(".SEG 0xFFFF_FFFC\n")
+            out.write("// Vectors (zero error vector means no handler)\n")
+            out.write(".SEG 0xFFFF_FFF8\n")
+            error_vector = (
+                "_err_handler" if error_handler_fn is not None else "0x00000000"
+            )
+            out.write(f".DATA {error_vector}\n")
             out.write(".DATA 0x00000000\n\n")
+            out.write("// Functions\n")
             out.write(".SEG 0x00000000\n\n")
             out.write(f"  JMP main\n\n")
             self._collect_global_types(ast)
@@ -1142,11 +1155,6 @@ class Emitter:
             # Emit any lifted large buffers (as .SPACE labels)
             out.set_source_context(None)  # No source for lifted buffers
             self._write_lifted_spaces(out)
-            
-            out.write("\n // Error Handler\n")
-            out.write(".SEG 0xFFFF_FFF8")
-            out.write(".DATA _err_handler")
-            out.write("\n")
             out.flush()
             merged_mappings.extend(out.get_mappings()[len(base_mappings) :])
             merged_mappings.sort(key=lambda item: item["output_line"])
@@ -1230,6 +1238,7 @@ class Emitter:
 
     def emit_function_def(self, fn: Dict[str, Any], out):
         name = fn.get("name", "fn")
+        self.is_error_handler = name == "_err_handler"
 
         # Skip inline functions - they will be inlined at call sites
         if fn.get("inline"):
@@ -1242,8 +1251,10 @@ class Emitter:
         self._set_source_context(fn, out)
 
         out.write(f".FUNC {name}:\n")
-        # Save link register so nested calls won't clobber return address
-        out.write(f"  PUSH {abi.LINK_REG}\n")
+        # Fault entry already has the saved PC at the top of the stack (Ideas.md).
+        # The terminal handler has no caller return address to preserve.
+        if not self.is_error_handler:
+            out.write(f"  PUSH {abi.LINK_REG}\n")
         # Reset allocator state per function
         self.current_context_origin = f"_{name}"
         self.reg_free = list(abi.TEMP_REGS)
@@ -1323,8 +1334,11 @@ class Emitter:
                 self.emit_statement(stmt, out)
         finally:
             self.exit_var_scope()
+        if self.is_error_handler:
+            out.write("  BREAK    // error handlers never return\n\n")
+            return
         if name == "main":
-            out.write(f"  BREAK")
+            out.write("  BREAK\n")
         if hasattr(out, "set_source_context"):
             out.set_source_context(None)
         out.write(f"  // epilogue and return\n")

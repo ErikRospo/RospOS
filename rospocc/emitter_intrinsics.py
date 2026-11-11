@@ -179,7 +179,10 @@ def intrinsic_sw(emitter, args, out, return_reg=None):
     emitter.release_expr_reg(rval)
     emitter.release_expr_reg(raddr)
 
+
 def intrinsic_pop(emitter, args, out, return_reg=None):
-    if len(args)>0:
+    # Raw stack access: consume fault words before calls push their caller saves.
+    if args:
         logger.warning("__pop takes no args")
-    out.write(f"  POP {return_reg}")
+    target = return_reg or abi.RETURN_REG
+    out.write(f"  POP {target}    // intrinsic __pop\n")
