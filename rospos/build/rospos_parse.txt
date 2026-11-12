@@ -29365,19 +29365,92 @@ program
     instruction
       lli
         register	r2
-        imm	1
+        imm
+          labeluse	str_49
   codeline
     instruction
       lli
         register	r3
+        imm	268435456
+  codeline
+    label	error_test_79_WHILE1:
+  codeline
+    instruction
+      lsinstructuse
+        lbu
+        register	r4
+        register	r2
+        imm	0
+  codeline
+    instruction
+      binstructuse
+        beq
+        register	r4
+        register	r0
+        imm
+          labeluse	error_test_79_WHILE_END2
+  codeline
+    instruction
+      lsinstructuse
+        lbu
+        register	r5
+        register	r2
+        imm	0
+  codeline
+    instruction
+      lsinstructuse
+        sb
+        register	r5
+        register	r3
+        imm	0
+  codeline
+    instruction
+      iinstructuse
+        addi
+        register	r2
+        register	r2
+        imm	1
+  codeline
+    instruction
+      jmpseudo
+        imm
+          labeluse	error_test_79_WHILE1
+  codeline
+    label	error_test_79_WHILE_END2:
+  codeline
+    instruction
+      lli
+        register	r6
+        imm	10
+  codeline
+    instruction
+      lli
+        register	r7
+        imm	268435456
+  codeline
+    instruction
+      lsinstructuse
+        sb
+        register	r6
+        register	r7
+        imm	0
+  codeline
+    instruction
+      lli
+        register	r8
+        imm	1
+  codeline
+    instruction
+      lli
+        register	r9
         imm	0
   codeline
     instruction
       rinstructuse
         div
-        register	r2
-        register	r2
-        register	r3
+        register	r8
+        register	r8
+        register	r9
   codeline
     instruction
       iinstructuse
@@ -29400,19 +29473,6 @@ program
     instruction
       push
         register	r14
-  codeline
-    instruction
-      push
-        register	r1
-  codeline
-    instruction
-      callpseudo
-        imm
-          labeluse	error_test
-  codeline
-    instruction
-      pop
-        register	r1
   codeline
     instruction
       push
@@ -29655,6 +29715,19 @@ program
       callpseudo
         imm
           labeluse	image_display_test
+  codeline
+    instruction
+      pop
+        register	r1
+  codeline
+    instruction
+      push
+        register	r1
+  codeline
+    instruction
+      callpseudo
+        imm
+          labeluse	error_test
   codeline
     instruction
       pop
@@ -31003,6 +31076,11 @@ program
   codeline
     directiveuse
       strv	"Fibonacci number test failed: MEM!\0"
+  codeline
+    label	str_49:
+  codeline
+    directiveuse
+      strv	"Testing division by zero in-VM handling"
   codeline
     label	draw_line_13_spill23:
   codeline

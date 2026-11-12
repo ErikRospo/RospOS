@@ -6726,9 +6726,31 @@ recursive_test_78_IF_END2:
 
 .FUNC error_test:
   PUSH r14
-  LLI r2, 1    // load immediate 1
-  LLI r3, 0    // load immediate 0
-  DIV r2, r2, r3    // binop /
+  // inline call to print_line with args [{'type': 'string_addr', 'label': 'str_49'}]
+  // begin inline expansion of print_line
+  LLI r2, str_49    // load immediate str_49
+  // inline call to print_string with args [{'type': 'var', 'name': 'str'}]
+  // begin inline expansion of print_string
+  LLI r3, 268435456    // init tty_addr
+error_test_79_WHILE1:
+  LBU r4, r2, 0    // deref
+  BEQ r4, r0, error_test_79_WHILE_END2
+  LBU r5, r2, 0    // deref
+  SB r5, r3, 0    // intrinsic __sb
+  ADDI r2, r2, 1    // assign str (addi fast path)
+  JMP error_test_79_WHILE1
+error_test_79_WHILE_END2:
+  // end inline expansion of print_string
+  // inline call to print_char with args [{'type': 'const', 'value': 10}]
+  // begin inline expansion of print_char
+  LLI r6, 10    // load immediate 10
+  LLI r7, 268435456    // init tty_addr
+  SB r6, r7, 0    // intrinsic __sb
+  // end inline expansion of print_char
+  // end inline expansion of print_line
+  LLI r8, 1    // load immediate 1
+  LLI r9, 0    // load immediate 0
+  DIV r8, r8, r9    // binop /
   // epilogue and return
   ADDI r1, r0, 0  // ensure r1=0
   POP r14
@@ -6736,11 +6758,6 @@ recursive_test_78_IF_END2:
 
 .FUNC main:
   PUSH r14
-  // emit call to error_test with args []
-  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  CALL error_test
-  // call return value in r1
-  POP r1  
   // emit call to init_heap with args []
   PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
   CALL init_heap
@@ -6822,6 +6839,11 @@ recursive_test_78_IF_END2:
   // emit call to image_display_test with args []
   PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
   CALL image_display_test
+  // call return value in r1
+  POP r1  
+  // emit call to error_test with args []
+  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
+  CALL error_test
   // call return value in r1
   POP r1  
   BREAK
@@ -7264,6 +7286,9 @@ str_47:
 
 str_48:
   .STR "Fibonacci number test failed: MEM!\0"
+
+str_49:
+  .STR "Testing division by zero in-VM handling"
 
 draw_line_13_spill23:
   .SPACE 4 // lifted buffer

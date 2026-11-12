@@ -327,6 +327,11 @@
       "kind": "string",
       "name": "str_48",
       "value": "Fibonacci number test failed: MEM!\u0000"
+    },
+    {
+      "kind": "string",
+      "name": "str_49",
+      "value": "Testing division by zero in-VM handling"
     }
   ],
   "functions": [
@@ -17603,6 +17608,17 @@
       "params": [],
       "body": [
         {
+          "type": "call_stmt",
+          "name": "print_line",
+          "args": [
+            {
+              "type": "string_addr",
+              "label": "str_49"
+            }
+          ],
+          "_line": 1602
+        },
+        {
           "type": "decl",
           "name": "a",
           "init": {
@@ -17617,7 +17633,7 @@
               "value": 0
             }
           },
-          "_line": 1602,
+          "_line": 1603,
           "decl_type": "int"
         }
       ],
@@ -17628,12 +17644,6 @@
       "name": "main",
       "params": [],
       "body": [
-        {
-          "type": "call_stmt",
-          "name": "error_test",
-          "args": [],
-          "_line": 1607
-        },
         {
           "type": "call_stmt",
           "name": "init_heap",
@@ -17758,10 +17768,16 @@
           "name": "image_display_test",
           "args": [],
           "_line": 1620
+        },
+        {
+          "type": "call_stmt",
+          "name": "error_test",
+          "args": [],
+          "_line": 1621
         }
       ],
       "return_type": "void",
-      "_line": 1605
+      "_line": 1606
     }
   ],
   "types": [
