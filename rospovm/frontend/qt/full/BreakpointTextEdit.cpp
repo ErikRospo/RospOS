@@ -4,7 +4,8 @@
 #include <QPlainTextEdit>
 #include <QtGui>
 
-BreakpointPlainTextEdit::BreakpointPlainTextEdit(QWidget *parent) : parent(parent), vmController(nullptr)
+BreakpointPlainTextEdit::BreakpointPlainTextEdit(QWidget *parent)
+    : parent(parent), vmController(nullptr), codeView(nullptr), breakpointArea(nullptr)
 {
     breakpointArea = new GutterWidget(this);
     breakpointArea->setToolTip("Breakpoints");
@@ -14,6 +15,15 @@ BreakpointPlainTextEdit::BreakpointPlainTextEdit(QWidget *parent) : parent(paren
 }
 
 BreakpointPlainTextEdit::~BreakpointPlainTextEdit() = default;
+
+void BreakpointPlainTextEdit::setFont(const QFont &font)
+{
+    QPlainTextEdit::setFont(font);
+    if (breakpointArea != nullptr) {
+        breakpointArea->setFont(font);
+        updateBreakpointAreaWidth(0);
+    }
+}
 
 int BreakpointPlainTextEdit::breakpointAreaWidth()
 {

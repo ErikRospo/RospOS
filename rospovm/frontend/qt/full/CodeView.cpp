@@ -1,5 +1,6 @@
 #include "CodeView.h"
 #include "VMController.h"
+#include "FontUtils.h"
 
 #include <KSyntaxHighlighting/Definition>
 #include <KSyntaxHighlighting/Repository>
@@ -12,7 +13,6 @@
 #include <QDir>
 #include <QVBoxLayout>
 #include <QFont>
-#include <QFontDatabase>
 #include <QTextEdit>
 #include <QTextCursor>
 #include <QTextBlock>
@@ -87,7 +87,7 @@ void CodeView::createUI()
     sourceInfoDisplay = new QPlainTextEdit();
     sourceInfoDisplay->setReadOnly(true);
     sourceInfoDisplay->setMaximumHeight(40);
-    QFont monoFont = QFontDatabase::systemFont(QFontDatabase::FixedFont);
+    QFont monoFont = rospovmMonospaceFont();
     monoFont.setStyleHint(QFont::Monospace);
     monoFont.setPointSize(9);
     sourceInfoDisplay->setFont(monoFont);

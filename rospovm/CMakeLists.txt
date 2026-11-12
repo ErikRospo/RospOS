@@ -52,6 +52,8 @@ endif()
 find_package(KF6SyntaxHighlighting REQUIRED)
 
 set(ROSPOSVM_HIGHLIGHTING_DIR "${CMAKE_CURRENT_SOURCE_DIR}/highlighting")
+set(ROSPOSVM_JETBRAINS_MONO_FONT
+    "${CMAKE_CURRENT_SOURCE_DIR}/frontend/fonts/JetBrainsMono-Regular.ttf")
 
 # Common backend sources
 set(ROSPOSVM_BACKEND_SOURCES
@@ -173,6 +175,10 @@ function(rosposvm_add_gui target variant main_source)
 endfunction()
 
 if(EMSCRIPTEN)
+    if(NOT EXISTS "${ROSPOSVM_JETBRAINS_MONO_FONT}")
+        message(FATAL_ERROR "Missing embedded font: ${ROSPOSVM_JETBRAINS_MONO_FONT}")
+    endif()
+
     rosposvm_add_gui(rospovm_html full frontend/html/full/main_html.cpp)
     rosposvm_add_gui(rospovm_html_minimal minimal frontend/html/minimal/main_html.cpp)
 
@@ -204,6 +210,10 @@ if(EMSCRIPTEN)
                 "SHELL:--preload-file ${ROSPOSVM_DEFAULT_BLOCKDEV_SOURCE}@rospos.blockdev"
             )
         endif()
+
+        target_link_options(${target} PRIVATE
+            "SHELL:--preload-file ${ROSPOSVM_JETBRAINS_MONO_FONT}@/fonts/JetBrainsMono-Regular.ttf"
+        )
         
         set_target_properties(${target} PROPERTIES QT_WASM_MEMORY_GROWTH ON)
     endforeach()

@@ -1,10 +1,10 @@
 #include "RegisterView.h"
 #include "VMController.h"
+#include "FontUtils.h"
 
 #include <QVBoxLayout>
 #include <QHeaderView>
 #include <QFont>
-#include <QFontDatabase>
 #include <QLineEdit>
 #include <QRegularExpression>
 
@@ -48,7 +48,7 @@ void RegisterView::createUI()
     registerTable->setEditTriggers(QAbstractItemView::NoEditTriggers);
     registerTable->setSelectionBehavior(QAbstractItemView::SelectRows);
     // Monospace font
-    QFont monoFont = QFontDatabase::systemFont(QFontDatabase::FixedFont);
+    QFont monoFont = rospovmMonospaceFont();
     monoFont.setStyleHint(QFont::Monospace);
     monoFont.setPointSize(9);
     registerTable->setFont(monoFont);

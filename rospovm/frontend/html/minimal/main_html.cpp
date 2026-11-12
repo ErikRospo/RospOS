@@ -2,6 +2,7 @@
 
 #include "MinimalWindow.cpp"
 #include "Logger.h"
+#include <QDebug>
 #include <QString>
 #include <QSettings>
 #include <QFont>
@@ -21,6 +22,9 @@
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
+    if (QFontDatabase::addApplicationFont(QStringLiteral("/fonts/JetBrainsMono-Regular.ttf")) < 0) {
+        qWarning("Failed to load embedded JetBrains Mono font");
+    }
     QFont applicationFont = QFontDatabase::systemFont(QFontDatabase::GeneralFont);
     applicationFont.setStyleHint(QFont::SansSerif);
     app.setFont(applicationFont);

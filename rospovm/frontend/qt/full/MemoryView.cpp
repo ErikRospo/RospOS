@@ -1,12 +1,12 @@
 #include "MemoryView.h"
 #include "VMController.h"
 #include "ExportSupport.h"
+#include "FontUtils.h"
 
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QHeaderView>
 #include <QFont>
-#include <QFontDatabase>
 #include <QLabel>
 #include <QColor>
 #include <QPushButton>
@@ -135,7 +135,7 @@ void MemoryView::createUI()
     memoryTable->setSelectionBehavior(QAbstractItemView::SelectRows);
 
     // Monospace font
-    QFont monoFont = QFontDatabase::systemFont(QFontDatabase::FixedFont);
+    QFont monoFont = rospovmMonospaceFont();
     monoFont.setStyleHint(QFont::Monospace);
     monoFont.setPointSize(9);
     memoryTable->setFont(monoFont);

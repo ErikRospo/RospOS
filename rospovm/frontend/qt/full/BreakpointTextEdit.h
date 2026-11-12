@@ -3,6 +3,7 @@
 
 #include <QWidget>
 #include <QPlainTextEdit>
+#include <QFont>
 #include <QMap>
 #include <QStringList>
 #include <QEvent>
@@ -32,6 +33,7 @@ public:
     int breakpointAreaWidth();
     void breakpointAreaPaintEvent(QPaintEvent *event);
     QTextBlock blockAtY(int y);
+    void setFont(const QFont &font);
 protected:
     void resizeEvent(QResizeEvent *event) override;
     

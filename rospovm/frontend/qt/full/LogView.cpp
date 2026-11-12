@@ -1,11 +1,11 @@
 #include "LogView.h"
 #include "Logger.h"
+#include "FontUtils.h"
 
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QPushButton>
 #include <QFont>
-#include <QFontDatabase>
 #include <QListWidgetItem>
 
 LogView::LogView(QWidget *parent)
@@ -38,7 +38,7 @@ void LogView::createUI()
     logList->setEditTriggers(QAbstractItemView::NoEditTriggers);
 
     // Monospace font
-    QFont monoFont = QFontDatabase::systemFont(QFontDatabase::FixedFont);
+    QFont monoFont = rospovmMonospaceFont();
     monoFont.setStyleHint(QFont::Monospace);
     monoFont.setPointSize(8);
     logList->setFont(monoFont);

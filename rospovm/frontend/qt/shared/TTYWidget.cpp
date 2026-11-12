@@ -1,9 +1,9 @@
 #include "TTYWidget.h"
 
 #include "TTY.h"
+#include "FontUtils.h"
 
 #include <QKeyEvent>
-#include <QFontDatabase>
 #include <QScrollBar>
 #include <QTextCursor>
 #include <QMetaObject>
@@ -17,7 +17,7 @@ TTYWidget::TTYWidget(QWidget *parent)
     setUndoRedoEnabled(false);
     setMaximumBlockCount(2000);
 
-    QFont mono = QFontDatabase::systemFont(QFontDatabase::FixedFont);
+    QFont mono = rospovmMonospaceFont();
     mono.setStyleHint(QFont::Monospace);
     mono.setPointSize(12);
     setFont(mono);
