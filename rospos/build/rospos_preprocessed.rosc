@@ -1278,65 +1278,122 @@ int evaluate_rpn(char *expression)
 }
 
 
-
-
-void _err_handler(){
+void _err_handler()
+{
     // @r1 is "Just give me the actual value of r1."
-    int error_code=@r1;
-    print_string("Error: 0x");
-    error_inline_print_hex(error_code);
-    print_char(0x0A);
-    int error_type=(error_code&0xFFFF0000)>>16;
-    error_inline_print_hex(error_type);
-    if (error_type==1){
-        print_string("Invalid opcode: ");
-        error_inline_hex_char((error_code&0xF0)>>4);
-        error_inline_hex_char(error_code&0xF);
-        int opcode_family=error_code&0xF0;
-        print_char(" ");
-        if (opcode_family==0){
-            print_string("R-type");            
-        } else if (opcode_family==1){
-            print_string("I-type");
-        } else if (opcode_family==2){
-            print_string("Load/Store");
-        } else if (opcode_family==3){
-            print_string("Branch");
-        } else if (opcode_family==4){
-            print_string("Jump");
-        } else if (opcode_family==5){
-            print_string("System");
-        } else if (opcode_family==15){
-            print_string("Special");
-        } else {
-            print_string("Unknown opcode family");
-        }
-        print_string(": ");
-        error_inline_hex_char(error_code&0xF);
-    } else if (error_type==2){
-        print_string("Invalid Operation");
-    } else {
-        print_string("Unknown Error. Something is seriously wrong.");
+    int error_code = @r1;
+    error_print_string("Error: 0x");
+    error_print_hex(error_code);
+    error_print_char(0x0A);
+    int error_type = (error_code & 0xFFFF0000) >> 16;
+    if (error_type == 1)
+    {
+        int opcode_family = (error_code & 0xF0) >> 4;
+        error_print_string("Invalid opcode: ");
+        error_hex_char(opcode_family);
+        error_hex_char(error_code & 0xF);
+        error_print_char(0x0A);
+        print_opcode_family(opcode_family);
+        error_print_string(": ");
+        error_hex_char(error_code & 0xF);
     }
-    print_char(0x0A);
-    print_string("PC=");
+    else if (error_type == 2)
+    {
+        error_print_string("Invalid Operation");
+        error_print_char(0x0A);
+        int opcode_family = (error_code & 0xF000) >> 12;
+        int opcode = (error_code & 0x0F00) >> 8;
+        print_opcode_family(opcode_family);
+        error_print_char(0x0A);
+        if (opcode_family == 0)
+        {
+            if ((opcode == 12) || (opcode == 13))
+            {
+                error_print_string("Invalid division\n");
+                error_print_char("r");
+                error_hex_char((error_code & 0xF0) >> 4);
+                error_print_char("/");
+                error_print_char("r");
+                error_hex_char(error_code & 0x0F);
+            }
+            else if ((opcode == 14) || (opcode == 15))
+            {
+                error_print_string("Invalid remainder\n");
+                error_print_char("r");
+                error_hex_char((error_code & 0xF0) >> 4);
+                error_print_char("%");
+                error_print_char("r");
+                error_hex_char(error_code & 0x0F);
+            }
+            else
+            {
+                error_print_string("Unknown I-type operation error");
+            }
+        }
+        else
+        {
+            error_print_string("Unknown operation error");
+        }
+    }
+    else
+    {
+        error_print_string("Unknown Error. Something is seriously wrong.");
+    }
+    error_print_char(0x0A);
+    error_print_string("PC=");
     // Consume the fault frame before logging calls push their caller saves.
-    int saved_pc=__pop();
-    error_inline_print_hex(saved_pc);
-    print_char(0x0A);
-    for (int i=1;i<=15;i++){
-        print_char("R");
-        error_inline_hex_char(i);
-        print_char("=");
-        int saved_register=__pop();
-        error_inline_print_hex(saved_register);
-        print_char(0x0A);
+    int saved_pc = __pop();
+    error_print_hex(saved_pc);
+    error_print_char(0x0A);
+    for (int i = 1; i <= 15; i++)
+    {
+        error_print_char("R");
+        error_hex_char(i);
+        error_print_char("=");
+        int saved_register = __pop();
+        error_print_hex(saved_register);
+        error_print_char(0x0A);
     }
     __break();
 }
 
-
-void error_inline_print_hex(int input)
+void print_opcode_family(int opcode_family)
+{
+    error_print_char(" ");
+    if (opcode_family == 0)
+    {
+        error_print_string("R-type");
+    }
+    else if (opcode_family == 1)
+    {
+        error_print_string("I-type");
+    }
+    else if (opcode_family == 2)
+    {
+        error_print_string("Load/Store");
+    }
+    else if (opcode_family == 3)
+    {
+        error_print_string("Branch");
+    }
+    else if (opcode_family == 4)
+    {
+        error_print_string("Jump");
+    }
+    else if (opcode_family == 5)
+    {
+        error_print_string("System");
+    }
+    else if (opcode_family == 15)
+    {
+        error_print_string("Special");
+    }
+    else
+    {
+        error_print_string("Unknown opcode family");
+    }
+}
+void error_print_hex(int input)
 {
     char print_hex_buffer[9];
     char *hex_chars = "0123456789ABCDEF";
@@ -1345,14 +1402,29 @@ void error_inline_print_hex(int input)
         print_hex_buffer[7 - i] = hex_chars[input & 0xF];
         input = input >> 4;
     }
-    print_hex_buffer[8]=0x00;
-    print_string(print_hex_buffer);
+    print_hex_buffer[8] = 0x00;
+    error_print_string(print_hex_buffer);
 }
-void error_inline_hex_char(int input){
+void error_hex_char(int input)
+{
     char *hex_chars = "0123456789ABCDEF";
-    print_char(hex_chars[input & 0xF]);
+    error_print_char(hex_chars[input & 0xF]);
 }
 
+void error_print_string(char *str)
+{
+    int tty_addr = 0x10000000;
+    while (*str)
+    {
+        __sb(tty_addr, *str);
+        str = str + 1;
+    }
+}
+void error_print_char(char c)
+{
+    int tty_addr = 0x10000000;
+    __sb(tty_addr, c);
+}
 
 inline int add(int a, int b)
 {

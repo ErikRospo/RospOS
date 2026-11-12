@@ -6211,17 +6211,17 @@ translation_unit
                 register	r1
         expr_stmt
           postfix
-            print_string
+            error_print_string
             call_suffix
               arg_list	"Error: 0x"
         expr_stmt
           postfix
-            error_inline_print_hex
+            error_print_hex
             call_suffix
               arg_list	error_code
         expr_stmt
           postfix
-            print_char
+            error_print_char
             call_suffix
               arg_list	0x0A
         declaration
@@ -6236,146 +6236,60 @@ translation_unit
                   0xFFFF0000
                 rshift
                 16
-        expr_stmt
-          postfix
-            error_inline_print_hex
-            call_suffix
-              arg_list	error_type
         if_stmt
           equality
             error_type
             eq
             1
           compound_stmt
-            expr_stmt
-              postfix
-                print_string
-                call_suffix
-                  arg_list	"Invalid opcode: "
-            expr_stmt
-              postfix
-                error_inline_hex_char
-                call_suffix
-                  arg_list
-                    shift
-                      bit_and
-                        error_code
-                        0xF0
-                      rshift
-                      4
-            expr_stmt
-              postfix
-                error_inline_hex_char
-                call_suffix
-                  arg_list
-                    bit_and
-                      error_code
-                      0xF
             declaration
               type_specifier
                 int
               init_declarator_list
                 init_declarator
                   declarator	opcode_family
-                  bit_and
-                    error_code
-                    0xF0
+                  shift
+                    bit_and
+                      error_code
+                      0xF0
+                    rshift
+                    4
             expr_stmt
               postfix
-                print_char
+                error_print_string
                 call_suffix
-                  arg_list	" "
-            if_stmt
-              equality
-                opcode_family
-                eq
-                0
-              compound_stmt
-                expr_stmt
-                  postfix
-                    print_string
-                    call_suffix
-                      arg_list	"R-type"
-              if_stmt
-                equality
-                  opcode_family
-                  eq
-                  1
-                compound_stmt
-                  expr_stmt
-                    postfix
-                      print_string
-                      call_suffix
-                        arg_list	"I-type"
-                if_stmt
-                  equality
-                    opcode_family
-                    eq
-                    2
-                  compound_stmt
-                    expr_stmt
-                      postfix
-                        print_string
-                        call_suffix
-                          arg_list	"Load/Store"
-                  if_stmt
-                    equality
-                      opcode_family
-                      eq
-                      3
-                    compound_stmt
-                      expr_stmt
-                        postfix
-                          print_string
-                          call_suffix
-                            arg_list	"Branch"
-                    if_stmt
-                      equality
-                        opcode_family
-                        eq
-                        4
-                      compound_stmt
-                        expr_stmt
-                          postfix
-                            print_string
-                            call_suffix
-                              arg_list	"Jump"
-                      if_stmt
-                        equality
-                          opcode_family
-                          eq
-                          5
-                        compound_stmt
-                          expr_stmt
-                            postfix
-                              print_string
-                              call_suffix
-                                arg_list	"System"
-                        if_stmt
-                          equality
-                            opcode_family
-                            eq
-                            15
-                          compound_stmt
-                            expr_stmt
-                              postfix
-                                print_string
-                                call_suffix
-                                  arg_list	"Special"
-                          compound_stmt
-                            expr_stmt
-                              postfix
-                                print_string
-                                call_suffix
-                                  arg_list	"Unknown opcode family"
+                  arg_list	"Invalid opcode: "
             expr_stmt
               postfix
-                print_string
+                error_hex_char
+                call_suffix
+                  arg_list	opcode_family
+            expr_stmt
+              postfix
+                error_hex_char
+                call_suffix
+                  arg_list
+                    bit_and
+                      error_code
+                      0xF
+            expr_stmt
+              postfix
+                error_print_char
+                call_suffix
+                  arg_list	0x0A
+            expr_stmt
+              postfix
+                print_opcode_family
+                call_suffix
+                  arg_list	opcode_family
+            expr_stmt
+              postfix
+                error_print_string
                 call_suffix
                   arg_list	": "
             expr_stmt
               postfix
-                error_inline_hex_char
+                error_hex_char
                 call_suffix
                   arg_list
                     bit_and
@@ -6389,23 +6303,180 @@ translation_unit
             compound_stmt
               expr_stmt
                 postfix
-                  print_string
+                  error_print_string
                   call_suffix
                     arg_list	"Invalid Operation"
+              expr_stmt
+                postfix
+                  error_print_char
+                  call_suffix
+                    arg_list	0x0A
+              declaration
+                type_specifier
+                  int
+                init_declarator_list
+                  init_declarator
+                    declarator	opcode_family
+                    shift
+                      bit_and
+                        error_code
+                        0xF000
+                      rshift
+                      12
+              declaration
+                type_specifier
+                  int
+                init_declarator_list
+                  init_declarator
+                    declarator	opcode
+                    shift
+                      bit_and
+                        error_code
+                        0x0F00
+                      rshift
+                      8
+              expr_stmt
+                postfix
+                  print_opcode_family
+                  call_suffix
+                    arg_list	opcode_family
+              expr_stmt
+                postfix
+                  error_print_char
+                  call_suffix
+                    arg_list	0x0A
+              if_stmt
+                equality
+                  opcode_family
+                  eq
+                  0
+                compound_stmt
+                  if_stmt
+                    logic_or
+                      equality
+                        opcode
+                        eq
+                        12
+                      equality
+                        opcode
+                        eq
+                        13
+                    compound_stmt
+                      expr_stmt
+                        postfix
+                          error_print_string
+                          call_suffix
+                            arg_list	"Invalid division\n"
+                      expr_stmt
+                        postfix
+                          error_print_char
+                          call_suffix
+                            arg_list	"r"
+                      expr_stmt
+                        postfix
+                          error_hex_char
+                          call_suffix
+                            arg_list
+                              shift
+                                bit_and
+                                  error_code
+                                  0xF0
+                                rshift
+                                4
+                      expr_stmt
+                        postfix
+                          error_print_char
+                          call_suffix
+                            arg_list	"/"
+                      expr_stmt
+                        postfix
+                          error_print_char
+                          call_suffix
+                            arg_list	"r"
+                      expr_stmt
+                        postfix
+                          error_hex_char
+                          call_suffix
+                            arg_list
+                              bit_and
+                                error_code
+                                0x0F
+                    if_stmt
+                      logic_or
+                        equality
+                          opcode
+                          eq
+                          14
+                        equality
+                          opcode
+                          eq
+                          15
+                      compound_stmt
+                        expr_stmt
+                          postfix
+                            error_print_string
+                            call_suffix
+                              arg_list	"Invalid remainder\n"
+                        expr_stmt
+                          postfix
+                            error_print_char
+                            call_suffix
+                              arg_list	"r"
+                        expr_stmt
+                          postfix
+                            error_hex_char
+                            call_suffix
+                              arg_list
+                                shift
+                                  bit_and
+                                    error_code
+                                    0xF0
+                                  rshift
+                                  4
+                        expr_stmt
+                          postfix
+                            error_print_char
+                            call_suffix
+                              arg_list	"%"
+                        expr_stmt
+                          postfix
+                            error_print_char
+                            call_suffix
+                              arg_list	"r"
+                        expr_stmt
+                          postfix
+                            error_hex_char
+                            call_suffix
+                              arg_list
+                                bit_and
+                                  error_code
+                                  0x0F
+                      compound_stmt
+                        expr_stmt
+                          postfix
+                            error_print_string
+                            call_suffix
+                              arg_list	"Unknown I-type operation error"
+                compound_stmt
+                  expr_stmt
+                    postfix
+                      error_print_string
+                      call_suffix
+                        arg_list	"Unknown operation error"
             compound_stmt
               expr_stmt
                 postfix
-                  print_string
+                  error_print_string
                   call_suffix
                     arg_list	"Unknown Error. Something is seriously wrong."
         expr_stmt
           postfix
-            print_char
+            error_print_char
             call_suffix
               arg_list	0x0A
         expr_stmt
           postfix
-            print_string
+            error_print_string
             call_suffix
               arg_list	"PC="
         declaration
@@ -6419,12 +6490,12 @@ translation_unit
                 call_suffix
         expr_stmt
           postfix
-            error_inline_print_hex
+            error_print_hex
             call_suffix
               arg_list	saved_pc
         expr_stmt
           postfix
-            print_char
+            error_print_char
             call_suffix
               arg_list	0x0A
         for_stmt
@@ -6445,17 +6516,17 @@ translation_unit
           compound_stmt
             expr_stmt
               postfix
-                print_char
+                error_print_char
                 call_suffix
                   arg_list	"R"
             expr_stmt
               postfix
-                error_inline_hex_char
+                error_hex_char
                 call_suffix
                   arg_list	i
             expr_stmt
               postfix
-                print_char
+                error_print_char
                 call_suffix
                   arg_list	"="
             declaration
@@ -6469,12 +6540,12 @@ translation_unit
                     call_suffix
             expr_stmt
               postfix
-                error_inline_print_hex
+                error_print_hex
                 call_suffix
                   arg_list	saved_register
             expr_stmt
               postfix
-                print_char
+                error_print_char
                 call_suffix
                   arg_list	0x0A
         expr_stmt
@@ -6485,7 +6556,106 @@ translation_unit
     function_def
       type_specifier
         void
-      declarator	error_inline_print_hex
+      declarator	print_opcode_family
+      param_list
+        param
+          type_specifier
+            int
+          declarator	opcode_family
+      compound_stmt
+        expr_stmt
+          postfix
+            error_print_char
+            call_suffix
+              arg_list	" "
+        if_stmt
+          equality
+            opcode_family
+            eq
+            0
+          compound_stmt
+            expr_stmt
+              postfix
+                error_print_string
+                call_suffix
+                  arg_list	"R-type"
+          if_stmt
+            equality
+              opcode_family
+              eq
+              1
+            compound_stmt
+              expr_stmt
+                postfix
+                  error_print_string
+                  call_suffix
+                    arg_list	"I-type"
+            if_stmt
+              equality
+                opcode_family
+                eq
+                2
+              compound_stmt
+                expr_stmt
+                  postfix
+                    error_print_string
+                    call_suffix
+                      arg_list	"Load/Store"
+              if_stmt
+                equality
+                  opcode_family
+                  eq
+                  3
+                compound_stmt
+                  expr_stmt
+                    postfix
+                      error_print_string
+                      call_suffix
+                        arg_list	"Branch"
+                if_stmt
+                  equality
+                    opcode_family
+                    eq
+                    4
+                  compound_stmt
+                    expr_stmt
+                      postfix
+                        error_print_string
+                        call_suffix
+                          arg_list	"Jump"
+                  if_stmt
+                    equality
+                      opcode_family
+                      eq
+                      5
+                    compound_stmt
+                      expr_stmt
+                        postfix
+                          error_print_string
+                          call_suffix
+                            arg_list	"System"
+                    if_stmt
+                      equality
+                        opcode_family
+                        eq
+                        15
+                      compound_stmt
+                        expr_stmt
+                          postfix
+                            error_print_string
+                            call_suffix
+                              arg_list	"Special"
+                      compound_stmt
+                        expr_stmt
+                          postfix
+                            error_print_string
+                            call_suffix
+                              arg_list	"Unknown opcode family"
+  external_decl
+    function_def
+      type_specifier
+        void
+      declarator	error_print_hex
       param_list
         param
           type_specifier
@@ -6554,14 +6724,14 @@ translation_unit
             0x00
         expr_stmt
           postfix
-            print_string
+            error_print_string
             call_suffix
               arg_list	print_hex_buffer
   external_decl
     function_def
       type_specifier
         void
-      declarator	error_inline_hex_char
+      declarator	error_hex_char
       param_list
         param
           type_specifier
@@ -6578,7 +6748,7 @@ translation_unit
               "0123456789ABCDEF"
         expr_stmt
           postfix
-            print_char
+            error_print_char
             call_suffix
               arg_list
                 postfix
@@ -6587,6 +6757,71 @@ translation_unit
                     bit_and
                       input
                       0xF
+  external_decl
+    function_def
+      type_specifier
+        void
+      declarator	error_print_string
+      param_list
+        param
+          type_specifier
+            char
+            pointer
+          declarator	str
+      compound_stmt
+        declaration
+          type_specifier
+            int
+          init_declarator_list
+            init_declarator
+              declarator	tty_addr
+              0x10000000
+        while_stmt
+          unary
+            deref
+            str
+          compound_stmt
+            expr_stmt
+              postfix
+                __sb
+                call_suffix
+                  arg_list
+                    tty_addr
+                    unary
+                      deref
+                      str
+            expr_stmt
+              assignment
+                str
+                additive
+                  str
+                  plus
+                  1
+  external_decl
+    function_def
+      type_specifier
+        void
+      declarator	error_print_char
+      param_list
+        param
+          type_specifier
+            char
+          declarator	c
+      compound_stmt
+        declaration
+          type_specifier
+            int
+          init_declarator_list
+            init_declarator
+              declarator	tty_addr
+              0x10000000
+        expr_stmt
+          postfix
+            __sb
+            call_suffix
+              arg_list
+                tty_addr
+                c
   external_decl
     function_def
       inline
