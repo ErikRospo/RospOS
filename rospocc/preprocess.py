@@ -153,6 +153,51 @@ def void_return_replacer(match):
     return "return 0;"
 
 
+def binary_constant_replacer(match):
+    return str(int(match.group(1), 2))
+
+
+def replace_binary_constants(code):
+    """Convert binary integer literals such as 0b1110 to decimal integers."""
+    binary_pattern = re.compile(r"(?<![\w])0[bB]([01]+)(?![\w])")
+    result = []
+    i = 0
+    while i < len(code):
+        if code.startswith("//", i):
+            end = code.find("\n", i)
+            end = len(code) if end == -1 else end
+            result.append(code[i:end])
+            i = end
+        elif code.startswith("/*", i):
+            end = code.find("*/", i + 2)
+            end = len(code) if end == -1 else end + 2
+            result.append(code[i:end])
+            i = end
+        elif code[i] in ('"', "'"):
+            quote = code[i]
+            start = i
+            i += 1
+            while i < len(code):
+                if code[i] == "\\" and i + 1 < len(code):
+                    i += 2
+                elif code[i] == quote:
+                    i += 1
+                    break
+                else:
+                    i += 1
+            result.append(code[start:i])
+        else:
+            match = binary_pattern.match(code, i)
+            if match:
+                result.append(binary_constant_replacer(match))
+                i = match.end()
+            else:
+                result.append(code[i])
+                i += 1
+    return "".join(result)
+
+
+
 def preprocess(code, current_file=None):
     include_pattern = re.compile(r"#include\s+<([^>]+)>")
 
@@ -169,6 +214,7 @@ def preprocess(code, current_file=None):
             "Maximum include depth reached. Some includes may not have been processed."
         )
     code = code.replace("\r\n", "\n").replace("\r", "\n")
+    code = replace_binary_constants(code)
     code = replace_quotes(code)
     aug_expr_pattern = re.compile(r"(\w+)\s*([\+\-\*/])=\s*([^;]+);")
     code = aug_expr_pattern.sub(aug_replacer, code)

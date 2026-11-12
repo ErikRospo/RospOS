@@ -295,6 +295,8 @@ class StatementTransformer:
             return [copy_line(stmt_node, {"type": "break"})]
         if node_type == "continue_stmt":
             return [copy_line(stmt_node, {"type": "continue"})]
+        if node_type == "if_stmt":
+            return [self._process_if_stmt(stmt_node)]
         return []
 
     def _extract_condition_and_body(self, children):
@@ -319,6 +321,49 @@ class StatementTransformer:
 
         return cond, body_node
 
+    def _process_if_stmt(self, stmt_node):
+        children = stmt_node.get("children", [])
+        cond = None
+        then_node = None
+        else_node = None
+
+        for ch in children:
+            if not isinstance(ch, dict):
+                continue
+            if cond is None and self._is_expr_node(ch):
+                candidate = self.expr.from_node(ch)
+                if candidate is not None:
+                    cond = candidate
+                    continue
+            if self._is_stmt_node(ch):
+                if then_node is None:
+                    then_node = ch
+                elif else_node is None:
+                    else_node = ch
+
+        if cond is None and len(children) >= 3 and isinstance(children[2], dict):
+            cond = self.expr.from_node(children[2])
+
+        if cond is None:
+            name_found = find_identifier(stmt_node)
+            if name_found is not None:
+                cond = {"type": "var", "name": name_found}
+            else:
+                cond = {"type": "const", "value": 1}
+
+        then_stmts = self.process_stmt_node(then_node) if then_node else []
+        else_stmts = self.process_stmt_node(else_node) if else_node else []
+
+        return copy_line(
+            stmt_node,
+            {
+                "type": "if",
+                "cond": cond,
+                "then": then_stmts,
+                "else": else_stmts,
+            },
+        )
+
     def compound_to_stmts(self, comp_node):
         stmts = []
         for child in comp_node.get("children", []):
@@ -338,53 +383,7 @@ class StatementTransformer:
                 continue
 
             if node_type == "if_stmt":
-                children = child.get("children", [])
-                cond = None
-                then_node = None
-                else_node = None
-
-                for ch in children:
-                    if not isinstance(ch, dict):
-                        continue
-                    if cond is None and self._is_expr_node(ch):
-                        candidate = self.expr.from_node(ch)
-                        if candidate is not None:
-                            cond = candidate
-                            continue
-                    if self._is_stmt_node(ch):
-                        if then_node is None:
-                            then_node = ch
-                        elif else_node is None:
-                            else_node = ch
-
-                if (
-                    cond is None
-                    and len(children) >= 3
-                    and isinstance(children[2], dict)
-                ):
-                    cond = self.expr.from_node(children[2])
-
-                if cond is None:
-                    name_found = find_identifier(child)
-                    if name_found is not None:
-                        cond = {"type": "var", "name": name_found}
-                    else:
-                        cond = {"type": "const", "value": 1}
-
-                then_stmts = self.process_stmt_node(then_node) if then_node else []
-                else_stmts = self.process_stmt_node(else_node) if else_node else []
-
-                stmts.append(
-                    copy_line(
-                        child,
-                        {
-                            "type": "if",
-                            "cond": cond,
-                            "then": then_stmts,
-                            "else": else_stmts,
-                        },
-                    )
-                )
+                stmts.append(self._process_if_stmt(child))
                 continue
 
             if node_type == "for_stmt":
