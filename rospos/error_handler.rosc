@@ -61,7 +61,7 @@ void _err_handler()
         error_print_string("Unknown Error. Something is seriously wrong.");
     }
     error_print_char(0x0A);
-    error_print_string("PC=");
+    error_print_string("PC=0x");
     // Consume the fault frame before logging calls push their caller saves.
     int saved_pc = __pop();
     error_print_hex(saved_pc);
