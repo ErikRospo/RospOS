@@ -21,10 +21,9 @@
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
-    QFont monospaceFont = QFontDatabase::systemFont(QFontDatabase::FixedFont);
-    monospaceFont.setStyleHint(QFont::Monospace);
-    app.setFont(monospaceFont);
-    app.setStyleSheet(QStringLiteral("* { font-family: \"%1\"; }").arg(monospaceFont.family()));
+    QFont applicationFont = QFontDatabase::systemFont(QFontDatabase::GeneralFont);
+    applicationFont.setStyleHint(QFont::SansSerif);
+    app.setFont(applicationFont);
     MinimalWindow window;
     window.setBlockDeviceFile(QStringLiteral(ROSPOSVM_DEFAULT_BLOCKDEV_FILE));
     window.loadBinaryFile(QStringLiteral(ROSPOSVM_DEFAULT_BINARY_FILE));

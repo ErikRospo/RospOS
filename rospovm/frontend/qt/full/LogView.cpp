@@ -5,6 +5,7 @@
 #include <QHBoxLayout>
 #include <QPushButton>
 #include <QFont>
+#include <QFontDatabase>
 #include <QListWidgetItem>
 
 LogView::LogView(QWidget *parent)
@@ -37,7 +38,7 @@ void LogView::createUI()
     logList->setEditTriggers(QAbstractItemView::NoEditTriggers);
 
     // Monospace font
-    QFont monoFont("Courier");
+    QFont monoFont = QFontDatabase::systemFont(QFontDatabase::FixedFont);
     monoFont.setStyleHint(QFont::Monospace);
     monoFont.setPointSize(8);
     logList->setFont(monoFont);

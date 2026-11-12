@@ -4,6 +4,7 @@
 #include <QVBoxLayout>
 #include <QHeaderView>
 #include <QFont>
+#include <QFontDatabase>
 #include <QLineEdit>
 #include <QRegularExpression>
 
@@ -47,7 +48,7 @@ void RegisterView::createUI()
     registerTable->setEditTriggers(QAbstractItemView::NoEditTriggers);
     registerTable->setSelectionBehavior(QAbstractItemView::SelectRows);
     // Monospace font
-    QFont monoFont("Courier");
+    QFont monoFont = QFontDatabase::systemFont(QFontDatabase::FixedFont);
     monoFont.setStyleHint(QFont::Monospace);
     monoFont.setPointSize(9);
     registerTable->setFont(monoFont);

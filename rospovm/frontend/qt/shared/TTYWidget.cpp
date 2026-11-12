@@ -3,6 +3,7 @@
 #include "TTY.h"
 
 #include <QKeyEvent>
+#include <QFontDatabase>
 #include <QScrollBar>
 #include <QTextCursor>
 #include <QMetaObject>
@@ -16,7 +17,7 @@ TTYWidget::TTYWidget(QWidget *parent)
     setUndoRedoEnabled(false);
     setMaximumBlockCount(2000);
 
-    QFont mono("Courier");
+    QFont mono = QFontDatabase::systemFont(QFontDatabase::FixedFont);
     mono.setStyleHint(QFont::Monospace);
     mono.setPointSize(12);
     setFont(mono);

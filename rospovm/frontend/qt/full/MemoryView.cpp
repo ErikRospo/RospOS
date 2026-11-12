@@ -6,6 +6,7 @@
 #include <QHBoxLayout>
 #include <QHeaderView>
 #include <QFont>
+#include <QFontDatabase>
 #include <QLabel>
 #include <QColor>
 #include <QPushButton>
@@ -134,7 +135,7 @@ void MemoryView::createUI()
     memoryTable->setSelectionBehavior(QAbstractItemView::SelectRows);
 
     // Monospace font
-    QFont monoFont("Courier");
+    QFont monoFont = QFontDatabase::systemFont(QFontDatabase::FixedFont);
     monoFont.setStyleHint(QFont::Monospace);
     monoFont.setPointSize(9);
     memoryTable->setFont(monoFont);
