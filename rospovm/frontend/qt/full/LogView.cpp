@@ -38,6 +38,7 @@ void LogView::createUI()
 
     // Monospace font
     QFont monoFont("Courier");
+    monoFont.setStyleHint(QFont::Monospace);
     monoFont.setPointSize(8);
     logList->setFont(monoFont);
     logList->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);

@@ -48,6 +48,7 @@ void RegisterView::createUI()
     registerTable->setSelectionBehavior(QAbstractItemView::SelectRows);
     // Monospace font
     QFont monoFont("Courier");
+    monoFont.setStyleHint(QFont::Monospace);
     monoFont.setPointSize(9);
     registerTable->setFont(monoFont);
 

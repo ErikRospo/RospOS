@@ -5,6 +5,7 @@
 #include <QString>
 #include <QSettings>
 #include <QFont>
+#include <QFontDatabase>
 
 
 
@@ -20,9 +21,10 @@
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
-    QFont monospaceFont(QStringLiteral("monospace"));
+    QFont monospaceFont = QFontDatabase::systemFont(QFontDatabase::FixedFont);
     monospaceFont.setStyleHint(QFont::Monospace);
     app.setFont(monospaceFont);
+    app.setStyleSheet(QStringLiteral("* { font-family: \"%1\"; }").arg(monospaceFont.family()));
     MinimalWindow window;
     window.setBlockDeviceFile(QStringLiteral(ROSPOSVM_DEFAULT_BLOCKDEV_FILE));
     window.loadBinaryFile(QStringLiteral(ROSPOSVM_DEFAULT_BINARY_FILE));

@@ -135,6 +135,7 @@ void MemoryView::createUI()
 
     // Monospace font
     QFont monoFont("Courier");
+    monoFont.setStyleHint(QFont::Monospace);
     monoFont.setPointSize(9);
     memoryTable->setFont(monoFont);
 

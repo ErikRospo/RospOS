@@ -87,6 +87,7 @@ void CodeView::createUI()
     sourceInfoDisplay->setReadOnly(true);
     sourceInfoDisplay->setMaximumHeight(40);
     QFont monoFont("Courier New");
+    monoFont.setStyleHint(QFont::Monospace);
     monoFont.setPointSize(9);
     sourceInfoDisplay->setFont(monoFont);
     sourceInfoDisplay->setStyleSheet(kCodeDisplayStylesheet);
