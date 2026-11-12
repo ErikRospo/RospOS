@@ -5238,6 +5238,30 @@ err_handler_62_CMP_END33:
   POP r12    // restore caller temp
   LLI r6, 0    // zero init saved_register
   POP r6    // intrinsic __pop
+  // emit call to error_print_char with args [{'type': 'const', 'value': 48}]
+  PUSH r6    // save caller temp
+  PUSH r12    // save caller temp
+  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
+  LLI r2, 48    // load immediate 48
+  PUSH r2    // stage reg arg 0
+  POP r1    // load reg arg 0
+  CALL error_print_char
+  // call return value in r1
+  POP r1  
+  POP r12    // restore caller temp
+  POP r6    // restore caller temp
+  // emit call to error_print_char with args [{'type': 'const', 'value': 120}]
+  PUSH r6    // save caller temp
+  PUSH r12    // save caller temp
+  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
+  LLI r5, 120    // load immediate 120
+  PUSH r5    // stage reg arg 0
+  POP r1    // load reg arg 0
+  CALL error_print_char
+  // call return value in r1
+  POP r1  
+  POP r12    // restore caller temp
+  POP r6    // restore caller temp
   // emit call to error_print_hex with args [{'type': 'var', 'name': 'saved_register'}]
   PUSH r6    // save caller temp
   PUSH r12    // save caller temp
@@ -5253,8 +5277,8 @@ err_handler_62_CMP_END33:
   PUSH r6    // save caller temp
   PUSH r12    // save caller temp
   PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  LLI r2, 10    // load immediate 10
-  PUSH r2    // stage reg arg 0
+  LLI r10, 10    // load immediate 10
+  PUSH r10    // stage reg arg 0
   POP r1    // load reg arg 0
   CALL error_print_char
   // call return value in r1
@@ -5270,134 +5294,126 @@ err_handler_62_WHILE_END30:
 
 .FUNC print_opcode_family:
   PUSH r14
-  // emit call to error_print_char with args [{'type': 'const', 'value': 32}]
-  PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  LLI r2, 32    // load immediate 32
-  PUSH r2    // stage reg arg 0
-  POP r1    // load reg arg 0
-  CALL error_print_char
-  // call return value in r1
-  POP r1  
-  LLI r3, 0    // load immediate 0
-  BEQ r1, r3, print_opcode_family_63_CMP_TRUE3
-  LLI r3, 0    // compare false path
+  LLI r2, 0    // load immediate 0
+  BEQ r1, r2, print_opcode_family_63_CMP_TRUE3
+  LLI r2, 0    // compare false path
   JMP print_opcode_family_63_CMP_END4
 print_opcode_family_63_CMP_TRUE3:
-  LLI r3, 1
+  LLI r2, 1
 print_opcode_family_63_CMP_END4:
-  BEQ r3, r0, print_opcode_family_63_ELSE1
+  BEQ r2, r0, print_opcode_family_63_ELSE1
   // emit call to error_print_string with args [{'type': 'string_addr', 'label': 'str_11'}]
   PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  LLI r4, str_11    // load immediate str_11
-  PUSH r4    // stage reg arg 0
+  LLI r3, str_11    // load immediate str_11
+  PUSH r3    // stage reg arg 0
   POP r1    // load reg arg 0
   CALL error_print_string
   // call return value in r1
   POP r1  
   JMP print_opcode_family_63_IF_END2
 print_opcode_family_63_ELSE1:
-  LLI r5, 1    // load immediate 1
-  BEQ r1, r5, print_opcode_family_63_CMP_TRUE7
-  LLI r5, 0    // compare false path
+  LLI r4, 1    // load immediate 1
+  BEQ r1, r4, print_opcode_family_63_CMP_TRUE7
+  LLI r4, 0    // compare false path
   JMP print_opcode_family_63_CMP_END8
 print_opcode_family_63_CMP_TRUE7:
-  LLI r5, 1
+  LLI r4, 1
 print_opcode_family_63_CMP_END8:
-  BEQ r5, r0, print_opcode_family_63_ELSE5
+  BEQ r4, r0, print_opcode_family_63_ELSE5
   // emit call to error_print_string with args [{'type': 'string_addr', 'label': 'str_12'}]
   PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  LLI r6, str_12    // load immediate str_12
-  PUSH r6    // stage reg arg 0
+  LLI r5, str_12    // load immediate str_12
+  PUSH r5    // stage reg arg 0
   POP r1    // load reg arg 0
   CALL error_print_string
   // call return value in r1
   POP r1  
   JMP print_opcode_family_63_IF_END6
 print_opcode_family_63_ELSE5:
-  LLI r7, 2    // load immediate 2
-  BEQ r1, r7, print_opcode_family_63_CMP_TRUE11
-  LLI r7, 0    // compare false path
+  LLI r6, 2    // load immediate 2
+  BEQ r1, r6, print_opcode_family_63_CMP_TRUE11
+  LLI r6, 0    // compare false path
   JMP print_opcode_family_63_CMP_END12
 print_opcode_family_63_CMP_TRUE11:
-  LLI r7, 1
+  LLI r6, 1
 print_opcode_family_63_CMP_END12:
-  BEQ r7, r0, print_opcode_family_63_ELSE9
+  BEQ r6, r0, print_opcode_family_63_ELSE9
   // emit call to error_print_string with args [{'type': 'string_addr', 'label': 'str_13'}]
   PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  LLI r8, str_13    // load immediate str_13
-  PUSH r8    // stage reg arg 0
+  LLI r7, str_13    // load immediate str_13
+  PUSH r7    // stage reg arg 0
   POP r1    // load reg arg 0
   CALL error_print_string
   // call return value in r1
   POP r1  
   JMP print_opcode_family_63_IF_END10
 print_opcode_family_63_ELSE9:
-  LLI r9, 3    // load immediate 3
-  BEQ r1, r9, print_opcode_family_63_CMP_TRUE15
-  LLI r9, 0    // compare false path
+  LLI r8, 3    // load immediate 3
+  BEQ r1, r8, print_opcode_family_63_CMP_TRUE15
+  LLI r8, 0    // compare false path
   JMP print_opcode_family_63_CMP_END16
 print_opcode_family_63_CMP_TRUE15:
-  LLI r9, 1
+  LLI r8, 1
 print_opcode_family_63_CMP_END16:
-  BEQ r9, r0, print_opcode_family_63_ELSE13
+  BEQ r8, r0, print_opcode_family_63_ELSE13
   // emit call to error_print_string with args [{'type': 'string_addr', 'label': 'str_14'}]
   PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  LLI r10, str_14    // load immediate str_14
-  PUSH r10    // stage reg arg 0
+  LLI r9, str_14    // load immediate str_14
+  PUSH r9    // stage reg arg 0
   POP r1    // load reg arg 0
   CALL error_print_string
   // call return value in r1
   POP r1  
   JMP print_opcode_family_63_IF_END14
 print_opcode_family_63_ELSE13:
-  LLI r11, 4    // load immediate 4
-  BEQ r1, r11, print_opcode_family_63_CMP_TRUE19
-  LLI r11, 0    // compare false path
+  LLI r10, 4    // load immediate 4
+  BEQ r1, r10, print_opcode_family_63_CMP_TRUE19
+  LLI r10, 0    // compare false path
   JMP print_opcode_family_63_CMP_END20
 print_opcode_family_63_CMP_TRUE19:
-  LLI r11, 1
+  LLI r10, 1
 print_opcode_family_63_CMP_END20:
-  BEQ r11, r0, print_opcode_family_63_ELSE17
+  BEQ r10, r0, print_opcode_family_63_ELSE17
   // emit call to error_print_string with args [{'type': 'string_addr', 'label': 'str_15'}]
   PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  LLI r12, str_15    // load immediate str_15
-  PUSH r12    // stage reg arg 0
+  LLI r11, str_15    // load immediate str_15
+  PUSH r11    // stage reg arg 0
   POP r1    // load reg arg 0
   CALL error_print_string
   // call return value in r1
   POP r1  
   JMP print_opcode_family_63_IF_END18
 print_opcode_family_63_ELSE17:
-  LLI r2, 5    // load immediate 5
-  BEQ r1, r2, print_opcode_family_63_CMP_TRUE23
-  LLI r2, 0    // compare false path
+  LLI r12, 5    // load immediate 5
+  BEQ r1, r12, print_opcode_family_63_CMP_TRUE23
+  LLI r12, 0    // compare false path
   JMP print_opcode_family_63_CMP_END24
 print_opcode_family_63_CMP_TRUE23:
-  LLI r2, 1
+  LLI r12, 1
 print_opcode_family_63_CMP_END24:
-  BEQ r2, r0, print_opcode_family_63_ELSE21
+  BEQ r12, r0, print_opcode_family_63_ELSE21
   // emit call to error_print_string with args [{'type': 'string_addr', 'label': 'str_16'}]
   PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  LLI r3, str_16    // load immediate str_16
-  PUSH r3    // stage reg arg 0
+  LLI r2, str_16    // load immediate str_16
+  PUSH r2    // stage reg arg 0
   POP r1    // load reg arg 0
   CALL error_print_string
   // call return value in r1
   POP r1  
   JMP print_opcode_family_63_IF_END22
 print_opcode_family_63_ELSE21:
-  LLI r4, 15    // load immediate 15
-  BEQ r1, r4, print_opcode_family_63_CMP_TRUE27
-  LLI r4, 0    // compare false path
+  LLI r3, 15    // load immediate 15
+  BEQ r1, r3, print_opcode_family_63_CMP_TRUE27
+  LLI r3, 0    // compare false path
   JMP print_opcode_family_63_CMP_END28
 print_opcode_family_63_CMP_TRUE27:
-  LLI r4, 1
+  LLI r3, 1
 print_opcode_family_63_CMP_END28:
-  BEQ r4, r0, print_opcode_family_63_ELSE25
+  BEQ r3, r0, print_opcode_family_63_ELSE25
   // emit call to error_print_string with args [{'type': 'string_addr', 'label': 'str_17'}]
   PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  LLI r5, str_17    // load immediate str_17
-  PUSH r5    // stage reg arg 0
+  LLI r4, str_17    // load immediate str_17
+  PUSH r4    // stage reg arg 0
   POP r1    // load reg arg 0
   CALL error_print_string
   // call return value in r1
@@ -5406,8 +5422,8 @@ print_opcode_family_63_CMP_END28:
 print_opcode_family_63_ELSE25:
   // emit call to error_print_string with args [{'type': 'string_addr', 'label': 'str_18'}]
   PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
-  LLI r6, str_18    // load immediate str_18
-  PUSH r6    // stage reg arg 0
+  LLI r5, str_18    // load immediate str_18
+  PUSH r5    // stage reg arg 0
   POP r1    // load reg arg 0
   CALL error_print_string
   // call return value in r1
@@ -5427,28 +5443,29 @@ print_opcode_family_63_IF_END2:
 .FUNC error_print_hex:
   PUSH r14
   LLI r2, error_print_hex_64_print_hex_buffer_buf1    // init print_hex_buffer (buffer addr)
-  LLI r3, str_0    // init hex_chars (string addr)
-  LLI r4, 0    // init i
+  LLI r3, 0    // init i
 error_print_hex_64_WHILE2:
-  LLI r5, 8    // load immediate 8
-  BLT r4, r5, error_print_hex_64_CMP_TRUE5
-  LLI r5, 0    // compare false path
+  LLI r4, 8    // load immediate 8
+  BLT r3, r4, error_print_hex_64_CMP_TRUE5
+  LLI r4, 0    // compare false path
   JMP error_print_hex_64_CMP_END6
 error_print_hex_64_CMP_TRUE5:
-  LLI r5, 1
+  LLI r4, 1
 error_print_hex_64_CMP_END6:
-  BEQ r5, r0, error_print_hex_64_WHILE_END3
+  BEQ r4, r0, error_print_hex_64_WHILE_END3
+  LLI r5, hex_chars    // load immediate hex_chars
+  LW r5, r5, 0    // load global hex_chars
   LLI r6, 15    // load immediate 15
   AND r6, r1, r6    // binop &
-  ADD r6, r3, r6    // binop +
-  LBU r6, r6, 0    // deref
+  ADD r5, r5, r6    // binop +
+  LBU r5, r5, 0    // deref
   LLI r7, 7    // load immediate 7
-  SUB r7, r7, r4    // binop -
+  SUB r7, r7, r3    // binop -
   ADD r7, r2, r7    // binop +
-  SB r6, r7, 0    // store 
+  SB r5, r7, 0    // store 
   SHRI r1, r1, 4    // assign input (shri fast path)
 error_print_hex_64_FOR_STEP4:
-  ADDI r4, r4, 1    // assign i (addi fast path)
+  ADDI r3, r3, 1    // assign i (addi fast path)
   JMP error_print_hex_64_WHILE2
 error_print_hex_64_WHILE_END3:
   LLI r8, 0    // load immediate 0
@@ -5471,10 +5488,10 @@ error_print_hex_64_WHILE_END3:
 
 .FUNC error_hex_char:
   PUSH r14
-  LLI r2, str_0    // init hex_chars (string addr)
   // emit call to error_print_char with args [{'type': 'deref', 'expr': {'type': 'binop', 'op': 'plus', 'left': {'type': 'var', 'name': 'hex_chars'}, 'right': {'type': 'binop', 'op': 'and', 'left': {'type': 'var', 'name': 'input'}, 'right': {'type': 'const', 'value': 15}}}}]
-  PUSH r2    // save caller temp
   PUSH r1    // If we don't care about the return value, we still need to ensure r1 doesn't get clobbered
+  LLI r2, hex_chars    // load immediate hex_chars
+  LW r2, r2, 0    // load global hex_chars
   LLI r3, 15    // load immediate 15
   AND r3, r1, r3    // binop &
   ADD r2, r2, r3    // binop +
@@ -5484,7 +5501,6 @@ error_print_hex_64_WHILE_END3:
   CALL error_print_char
   // call return value in r1
   POP r1  
-  POP r2    // restore caller temp
   // epilogue and return
   ADDI r1, r0, 0  // ensure r1=0
   POP r14
@@ -7155,6 +7171,9 @@ str_17:
 
 str_18:
   .STR "Unknown opcode family"
+
+hex_chars:
+  .DATA str_0
 
 str_19:
   .STR "Hello, RospOS!"

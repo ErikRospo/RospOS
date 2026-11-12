@@ -6540,6 +6540,16 @@ translation_unit
                     call_suffix
             expr_stmt
               postfix
+                error_print_char
+                call_suffix
+                  arg_list	"0"
+            expr_stmt
+              postfix
+                error_print_char
+                call_suffix
+                  arg_list	"x"
+            expr_stmt
+              postfix
                 error_print_hex
                 call_suffix
                   arg_list	saved_register
@@ -6563,11 +6573,6 @@ translation_unit
             int
           declarator	opcode_family
       compound_stmt
-        expr_stmt
-          postfix
-            error_print_char
-            call_suffix
-              arg_list	" "
         if_stmt
           equality
             opcode_family
@@ -6652,6 +6657,15 @@ translation_unit
                             call_suffix
                               arg_list	"Unknown opcode family"
   external_decl
+    declaration
+      type_specifier
+        char
+        pointer
+      init_declarator_list
+        init_declarator
+          declarator	hex_chars
+          "0123456789ABCDEF"
+  external_decl
     function_def
       type_specifier
         void
@@ -6670,14 +6684,6 @@ translation_unit
               declarator
                 print_hex_buffer
                 array	9
-        declaration
-          type_specifier
-            char
-            pointer
-          init_declarator_list
-            init_declarator
-              declarator	hex_chars
-              "0123456789ABCDEF"
         for_stmt
           declaration
             type_specifier
@@ -6738,14 +6744,6 @@ translation_unit
             int
           declarator	input
       compound_stmt
-        declaration
-          type_specifier
-            char
-            pointer
-          init_declarator_list
-            init_declarator
-              declarator	hex_chars
-              "0123456789ABCDEF"
         expr_stmt
           postfix
             error_print_char

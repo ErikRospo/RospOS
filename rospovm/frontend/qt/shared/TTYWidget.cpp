@@ -18,7 +18,7 @@ TTYWidget::TTYWidget(QWidget *parent)
 
     QFont mono("Courier");
     mono.setStyleHint(QFont::Monospace);
-    mono.setPointSize(9);
+    mono.setPointSize(12);
     setFont(mono);
 
     setHighlighted(false);

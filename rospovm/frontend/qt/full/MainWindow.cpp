@@ -259,6 +259,10 @@ void MainWindow::createCentralWidget()
     // Main vertical splitter (top content vs tty)
     verticalSplitter = new QSplitter(Qt::Vertical);
     verticalSplitter->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    verticalSplitter->setHandleWidth(8);
+    verticalSplitter->setStyleSheet(
+        "QSplitter::handle { background: palette(mid); }"
+        "QSplitter::handle:hover { background: palette(highlight); }");
 
     // Top horizontal splitter (debug panel | code | sidebar)
     horizontalSplitter = new QSplitter(Qt::Horizontal);
@@ -306,6 +310,8 @@ void MainWindow::createCentralWidget()
 
     verticalSplitter->addWidget(horizontalSplitter);
     verticalSplitter->addWidget(ttyWidget);
+    horizontalSplitter->setMinimumHeight(100);
+    ttyWidget->setMinimumHeight(100);
     ttyWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     // DON'T call setSizes() before widget is shown - let stretch factors handle initial layout
     // Configure vertical splitter stretch factors for smooth resizing

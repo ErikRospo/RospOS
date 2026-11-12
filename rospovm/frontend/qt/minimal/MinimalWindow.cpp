@@ -10,6 +10,7 @@
 #include <QMetaObject>
 #include <QPushButton>
 #include <QSlider>
+#include <QSplitter>
 #include <QVBoxLayout>
 #include <QWidget>
 
@@ -46,11 +47,30 @@ public:
 		controls->addWidget(new QLabel("Speed", this));
 		controls->addWidget(speedSlider, 1);
 
+		QWidget *mainContent = new QWidget(this);
+		QVBoxLayout *contentLayout = new QVBoxLayout(mainContent);
+		contentLayout->setContentsMargins(0, 0, 0, 0);
+		contentLayout->addLayout(controls);
+		contentLayout->addWidget(status);
+		contentLayout->addWidget(display, 1, Qt::AlignCenter);
+
+		QSplitter *splitter = new QSplitter(Qt::Vertical, this);
+		splitter->setHandleWidth(8);
+		splitter->setStyleSheet(
+			"QSplitter::handle { background: palette(mid); }"
+			"QSplitter::handle:hover { background: palette(highlight); }");
+		splitter->addWidget(mainContent);
+		splitter->addWidget(tty);
+		mainContent->setMinimumHeight(100);
+		tty->setMinimumHeight(100);
+		splitter->setStretchFactor(0, 1);
+		splitter->setStretchFactor(1, 1);
+		splitter->setCollapsible(0, false);
+		splitter->setCollapsible(1, false);
+
 		QVBoxLayout *layout = new QVBoxLayout(this);
-		layout->addLayout(controls);
-		layout->addWidget(status);
-		layout->addWidget(display, 1, Qt::AlignCenter);
-		layout->addWidget(tty, 1);
+		layout->setContentsMargins(0, 0, 0, 0);
+		layout->addWidget(splitter);
 		setLayout(layout);
 
 		connect(loadButton, &QPushButton::clicked, this, [this]() {

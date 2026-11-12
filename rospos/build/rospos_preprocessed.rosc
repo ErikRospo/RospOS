@@ -1351,6 +1351,8 @@ void _err_handler()
         error_hex_char(i);
         error_print_char("=");
         int saved_register = __pop();
+        error_print_char("0");
+        error_print_char("x");
         error_print_hex(saved_register);
         error_print_char(0x0A);
     }
@@ -1359,7 +1361,6 @@ void _err_handler()
 
 void print_opcode_family(int opcode_family)
 {
-    error_print_char(" ");
     if (opcode_family == 0)
     {
         error_print_string("R-type");
@@ -1393,10 +1394,11 @@ void print_opcode_family(int opcode_family)
         error_print_string("Unknown opcode family");
     }
 }
+char *hex_chars = "0123456789ABCDEF";
+
 void error_print_hex(int input)
 {
     char print_hex_buffer[9];
-    char *hex_chars = "0123456789ABCDEF";
     for (int i = 0; i < 8; i++)
     {
         print_hex_buffer[7 - i] = hex_chars[input & 0xF];
@@ -1407,7 +1409,6 @@ void error_print_hex(int input)
 }
 void error_hex_char(int input)
 {
-    char *hex_chars = "0123456789ABCDEF";
     error_print_char(hex_chars[input & 0xF]);
 }
 
