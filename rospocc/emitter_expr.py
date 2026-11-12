@@ -16,7 +16,9 @@ def _emit_const(emitter, expr: Dict[str, Any], out) -> str:
 
 def _emit_var(emitter, expr: Dict[str, Any], out) -> str:
     name = expr.get("name")
-
+    logger.info("Emitting var for expr: "+ str(expr))
+    if (name=="error_code"):
+        pass
     # Check if this is an inline constant - substitute its value directly
     if name in emitter.inline_constants:
         const_value = emitter.inline_constants[name]
@@ -41,6 +43,7 @@ def _emit_var(emitter, expr: Dict[str, Any], out) -> str:
         emitter._load_imm(reg, emitter.global_address_labels[name], out)
         emitter.consume_var_read(name)
         return reg
+    # if (getattr)
     reg = emitter._alloc_var_reg(name, out, init_value=None, typ="int")
     emitter.consume_var_read(name)
     return reg
@@ -386,13 +389,16 @@ def _emit_assign_expr(emitter, expr: Dict[str, Any], out) -> str:
         emitter.release_expr_reg(rval)
     return result
 
-def _emit_register(emitter, expr:Dict[str,Any], out) -> str:
-    t=expr.get("value",None)
-    if t==None:
+
+def _emit_register(emitter, expr: Dict[str, Any], out) -> str:
+    t = expr.get("value", None)
+    if t == None:
         logger.warning(f"Unknown register expression {expr}")
         return ""
-    else: 
+    else:
         return t
+
+
 def _emit_unsupported(emitter, expr: Dict[str, Any], out) -> str:
     out.write(f"  // unsupported-expr {expr!r}\n")
     return ""
@@ -408,7 +414,7 @@ EXPR_DISPATCH = {
     "assign": _emit_assign_expr,
     "unop": _emit_unop,
     "string_addr": _emit_string_addr,
-    "register":_emit_register
+    "register": _emit_register,
 }
 
 

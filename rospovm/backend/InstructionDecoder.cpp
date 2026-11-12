@@ -5,7 +5,7 @@
 #include <cstdint>
 
 std::string formatRegister(uint32_t reg, RegisterFile &regFile) {
-    return "r" + std::to_string(reg) + ": " + std::to_string(regFile[reg].get());
+    return "r" + std::to_string(reg); //+ ": " + std::to_string(regFile[reg].get());
 }
 
 std::string formatRegisterValues(uint32_t rd, uint32_t rs1, uint32_t rs2, RegisterFile &regFile) {

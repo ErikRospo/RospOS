@@ -21450,723 +21450,529 @@ program
     label	err_handler_62_WHILE_END2:
   codeline
     instruction
+      push
+        register	r1
+  codeline
+    instruction
+      push
+        register	r2
+  codeline
+    instruction
+      pop
+        register	r1
+  codeline
+    instruction
+      callpseudo
+        imm
+          labeluse	error_inline_print_hex
+  codeline
+    instruction
+      pop
+        register	r1
+  codeline
+    instruction
       lli
         register	r7
-        imm	0
-  codeline
-    label	err_handler_62_WHILE3:
-  codeline
-    instruction
-      lli
-        register	r8
-        imm	8
-  codeline
-    instruction
-      binstructuse
-        blt
-        register	r7
-        register	r8
-        imm
-          labeluse	err_handler_62_CMP_TRUE6
-  codeline
-    instruction
-      lli
-        register	r8
-        imm	0
-  codeline
-    instruction
-      jmpseudo
-        imm
-          labeluse	err_handler_62_CMP_END7
-  codeline
-    label	err_handler_62_CMP_TRUE6:
-  codeline
-    instruction
-      lli
-        register	r8
-        imm	1
-  codeline
-    label	err_handler_62_CMP_END7:
-  codeline
-    instruction
-      binstructuse
-        beq
-        register	r8
-        register	r0
-        imm
-          labeluse	err_handler_62_WHILE_END4
-  codeline
-    instruction
-      lli
-        register	r9
-        imm
-          labeluse	hex_chars
-  codeline
-    instruction
-      lsinstructuse
-        lw
-        register	r9
-        register	r9
-        imm	0
-  codeline
-    instruction
-      lli
-        register	r10
-        imm	15
-  codeline
-    instruction
-      rinstructuse
-        and
-        register	r10
-        register	r2
-        register	r10
-  codeline
-    instruction
-      rinstructuse
-        add
-        register	r9
-        register	r9
-        register	r10
-  codeline
-    instruction
-      lsinstructuse
-        lbu
-        register	r9
-        register	r9
-        imm	0
-  codeline
-    instruction
-      lli
-        register	r11
-        imm
-          labeluse	print_hex_buffer
-  codeline
-    instruction
-      lli
-        register	r12
-        imm	7
-  codeline
-    instruction
-      rinstructuse
-        sub
-        register	r12
-        register	r12
-        register	r7
-  codeline
-    instruction
-      rinstructuse
-        add
-        register	r11
-        register	r11
-        register	r12
-  codeline
-    instruction
-      lsinstructuse
-        sb
-        register	r9
-        register	r11
-        imm	0
-  codeline
-    instruction
-      iinstructuse
-        shri
-        register	r2
-        register	r2
-        imm	4
-  codeline
-    label	err_handler_62_FOR_STEP5:
-  codeline
-    instruction
-      iinstructuse
-        addi
-        register	r7
-        register	r7
-        imm	1
-  codeline
-    instruction
-      jmpseudo
-        imm
-          labeluse	err_handler_62_WHILE3
-  codeline
-    label	err_handler_62_WHILE_END4:
-  codeline
-    instruction
-      lli
-        register	r2
-        imm	0
-  codeline
-    instruction
-      lli
-        register	r5
-        imm
-          labeluse	print_hex_buffer
-  codeline
-    instruction
-      lli
-        register	r6
-        imm	8
-  codeline
-    instruction
-      rinstructuse
-        add
-        register	r5
-        register	r5
-        register	r6
-  codeline
-    instruction
-      lsinstructuse
-        sb
-        register	r2
-        register	r5
-        imm	0
-  codeline
-    instruction
-      lli
-        register	r3
-        imm	0
-  codeline
-    instruction
-      lli
-        register	r4
-        imm	268435456
-  codeline
-    label	err_handler_62_WHILE8:
-  codeline
-    instruction
-      lsinstructuse
-        lbu
-        register	r8
-        register	r3
-        imm	0
-  codeline
-    instruction
-      binstructuse
-        beq
-        register	r8
-        register	r0
-        imm
-          labeluse	err_handler_62_WHILE_END9
-  codeline
-    instruction
-      lsinstructuse
-        lbu
-        register	r10
-        register	r3
-        imm	0
-  codeline
-    instruction
-      lsinstructuse
-        sb
-        register	r10
-        register	r4
-        imm	0
-  codeline
-    instruction
-      iinstructuse
-        addi
-        register	r3
-        register	r3
-        imm	1
-  codeline
-    instruction
-      jmpseudo
-        imm
-          labeluse	err_handler_62_WHILE8
-  codeline
-    label	err_handler_62_WHILE_END9:
-  codeline
-    instruction
-      lli
-        register	r12
         imm	10
   codeline
     instruction
       lli
-        register	r11
+        register	r8
         imm	268435456
-  codeline
-    label	err_handler_62_WHILE10:
-  codeline
-    instruction
-      lsinstructuse
-        lbu
-        register	r9
-        register	r12
-        imm	0
-  codeline
-    instruction
-      binstructuse
-        beq
-        register	r9
-        register	r0
-        imm
-          labeluse	err_handler_62_WHILE_END11
-  codeline
-    instruction
-      lsinstructuse
-        lbu
-        register	r7
-        register	r12
-        imm	0
   codeline
     instruction
       lsinstructuse
         sb
         register	r7
-        register	r11
+        register	r8
         imm	0
   codeline
     instruction
-      iinstructuse
-        addi
-        register	r12
-        register	r12
-        imm	1
-  codeline
-    instruction
-      jmpseudo
-        imm
-          labeluse	err_handler_62_WHILE10
-  codeline
-    label	err_handler_62_WHILE_END11:
-  codeline
-    instruction
       lli
-        register	r6
+        register	r9
         imm	4294901760
   codeline
     instruction
       rinstructuse
         and
-        register	r6
+        register	r9
         register	r2
-        register	r6
+        register	r9
   codeline
     instruction
       iinstructuse
         shri
-        register	r6
-        register	r6
+        register	r9
+        register	r9
         imm	16
   codeline
     instruction
+      push
+        register	r7
+  codeline
+    instruction
+      push
+        register	r9
+  codeline
+    instruction
+      push
+        register	r1
+  codeline
+    instruction
+      push
+        register	r9
+  codeline
+    instruction
+      pop
+        register	r1
+  codeline
+    instruction
+      callpseudo
+        imm
+          labeluse	error_inline_print_hex
+  codeline
+    instruction
+      pop
+        register	r1
+  codeline
+    instruction
+      pop
+        register	r9
+  codeline
+    instruction
+      pop
+        register	r7
+  codeline
+    instruction
       lli
-        register	r5
+        register	r10
         imm	1
   codeline
     instruction
       binstructuse
         beq
-        register	r6
-        register	r5
+        register	r9
+        register	r10
         imm
-          labeluse	err_handler_62_CMP_TRUE14
+          labeluse	err_handler_62_CMP_TRUE5
   codeline
     instruction
       lli
-        register	r5
+        register	r10
         imm	0
   codeline
     instruction
       jmpseudo
         imm
-          labeluse	err_handler_62_CMP_END15
+          labeluse	err_handler_62_CMP_END6
   codeline
-    label	err_handler_62_CMP_TRUE14:
+    label	err_handler_62_CMP_TRUE5:
   codeline
     instruction
       lli
-        register	r5
+        register	r10
         imm	1
   codeline
-    label	err_handler_62_CMP_END15:
+    label	err_handler_62_CMP_END6:
   codeline
     instruction
       binstructuse
         beq
-        register	r5
+        register	r10
         register	r0
         imm
-          labeluse	err_handler_62_ELSE12
+          labeluse	err_handler_62_ELSE3
   codeline
     instruction
       lli
-        register	r2
+        register	r11
         imm
           labeluse	str_2
   codeline
     instruction
       lli
-        register	r8
+        register	r12
         imm	268435456
   codeline
-    label	err_handler_62_WHILE16:
+    label	err_handler_62_WHILE7:
   codeline
     instruction
       lsinstructuse
         lbu
-        register	r10
         register	r2
+        register	r11
         imm	0
   codeline
     instruction
       binstructuse
         beq
-        register	r10
+        register	r2
         register	r0
         imm
-          labeluse	err_handler_62_WHILE_END17
+          labeluse	err_handler_62_WHILE_END8
   codeline
     instruction
       lsinstructuse
         lbu
-        register	r3
-        register	r2
+        register	r5
+        register	r11
         imm	0
   codeline
     instruction
       lsinstructuse
         sb
-        register	r3
-        register	r8
+        register	r5
+        register	r12
         imm	0
   codeline
     instruction
       iinstructuse
         addi
-        register	r2
-        register	r2
+        register	r11
+        register	r11
         imm	1
   codeline
     instruction
       jmpseudo
         imm
-          labeluse	err_handler_62_WHILE16
+          labeluse	err_handler_62_WHILE7
   codeline
-    label	err_handler_62_WHILE_END17:
+    label	err_handler_62_WHILE_END8:
+  codeline
+    instruction
+      push
+        register	r2
+  codeline
+    instruction
+      push
+        register	r7
+  codeline
+    instruction
+      push
+        register	r9
+  codeline
+    instruction
+      push
+        register	r1
   codeline
     instruction
       lli
-        register	r4
+        register	r6
         imm	240
   codeline
     instruction
       rinstructuse
         and
-        register	r4
+        register	r6
         register	r2
-        register	r4
+        register	r6
   codeline
     instruction
       iinstructuse
         shri
-        register	r4
-        register	r4
+        register	r6
+        register	r6
         imm	4
   codeline
     instruction
-      lli
-        register	r9
+      push
+        register	r6
+  codeline
+    instruction
+      pop
+        register	r1
+  codeline
+    instruction
+      callpseudo
         imm
-          labeluse	hex_chars
+          labeluse	error_inline_hex_char
   codeline
     instruction
-      lsinstructuse
-        lw
+      pop
+        register	r1
+  codeline
+    instruction
+      pop
         register	r9
-        register	r9
-        imm	0
   codeline
     instruction
-      lli
-        register	r7
-        imm	15
-  codeline
-    instruction
-      rinstructuse
-        and
-        register	r7
-        register	r4
+      pop
         register	r7
   codeline
     instruction
-      rinstructuse
-        add
-        register	r9
-        register	r9
-        register	r7
-  codeline
-    instruction
-      lsinstructuse
-        lbu
-        register	r9
-        register	r9
-        imm	0
-  codeline
-    instruction
-      lli
-        register	r12
-        imm	268435456
-  codeline
-    instruction
-      lsinstructuse
-        sb
-        register	r9
-        register	r12
-        imm	0
-  codeline
-    instruction
-      lli
-        register	r11
-        imm	15
-  codeline
-    instruction
-      rinstructuse
-        and
-        register	r11
+      pop
         register	r2
-        register	r11
+  codeline
+    instruction
+      push
+        register	r2
+  codeline
+    instruction
+      push
+        register	r7
+  codeline
+    instruction
+      push
+        register	r9
+  codeline
+    instruction
+      push
+        register	r1
   codeline
     instruction
       lli
-        register	r5
-        imm
-          labeluse	hex_chars
-  codeline
-    instruction
-      lsinstructuse
-        lw
-        register	r5
-        register	r5
-        imm	0
-  codeline
-    instruction
-      lli
-        register	r10
+        register	r3
         imm	15
   codeline
     instruction
       rinstructuse
         and
-        register	r10
-        register	r11
-        register	r10
+        register	r3
+        register	r2
+        register	r3
   codeline
     instruction
-      rinstructuse
-        add
-        register	r5
-        register	r5
-        register	r10
+      push
+        register	r3
   codeline
     instruction
-      lsinstructuse
-        lbu
-        register	r5
-        register	r5
-        imm	0
+      pop
+        register	r1
+  codeline
+    instruction
+      callpseudo
+        imm
+          labeluse	error_inline_hex_char
+  codeline
+    instruction
+      pop
+        register	r1
+  codeline
+    instruction
+      pop
+        register	r9
+  codeline
+    instruction
+      pop
+        register	r7
+  codeline
+    instruction
+      pop
+        register	r2
   codeline
     instruction
       lli
-        register	r3
-        imm	268435456
-  codeline
-    instruction
-      lsinstructuse
-        sb
-        register	r5
-        register	r3
-        imm	0
-  codeline
-    instruction
-      lli
-        register	r8
+        register	r4
         imm	240
   codeline
     instruction
       rinstructuse
         and
-        register	r8
+        register	r4
         register	r2
-        register	r8
+        register	r4
   codeline
     instruction
       lli
-        register	r7
+        register	r8
         imm	32
   codeline
     instruction
       lli
-        register	r4
+        register	r10
         imm	268435456
   codeline
     instruction
       lsinstructuse
         sb
-        register	r7
-        register	r4
+        register	r8
+        register	r10
         imm	0
   codeline
     instruction
       lli
-        register	r12
+        register	r5
         imm	0
   codeline
     instruction
       binstructuse
         beq
-        register	r8
-        register	r12
+        register	r4
+        register	r5
         imm
-          labeluse	err_handler_62_CMP_TRUE20
+          labeluse	err_handler_62_CMP_TRUE11
   codeline
     instruction
       lli
-        register	r12
+        register	r5
         imm	0
   codeline
     instruction
       jmpseudo
         imm
-          labeluse	err_handler_62_CMP_END21
+          labeluse	err_handler_62_CMP_END12
   codeline
-    label	err_handler_62_CMP_TRUE20:
+    label	err_handler_62_CMP_TRUE11:
   codeline
     instruction
       lli
-        register	r12
+        register	r5
         imm	1
   codeline
-    label	err_handler_62_CMP_END21:
+    label	err_handler_62_CMP_END12:
   codeline
     instruction
       binstructuse
         beq
-        register	r12
+        register	r5
         register	r0
         imm
-          labeluse	err_handler_62_ELSE18
+          labeluse	err_handler_62_ELSE9
   codeline
     instruction
       lli
-        register	r10
+        register	r11
         imm
           labeluse	str_3
   codeline
     instruction
       lli
-        register	r11
+        register	r12
         imm	268435456
   codeline
-    label	err_handler_62_WHILE22:
+    label	err_handler_62_WHILE13:
   codeline
     instruction
       lsinstructuse
         lbu
-        register	r3
-        register	r10
+        register	r6
+        register	r11
         imm	0
   codeline
     instruction
       binstructuse
         beq
-        register	r3
+        register	r6
         register	r0
         imm
-          labeluse	err_handler_62_WHILE_END23
+          labeluse	err_handler_62_WHILE_END14
   codeline
     instruction
       lsinstructuse
         lbu
-        register	r4
-        register	r10
+        register	r3
+        register	r11
         imm	0
   codeline
     instruction
       lsinstructuse
         sb
-        register	r4
-        register	r11
+        register	r3
+        register	r12
         imm	0
   codeline
     instruction
       iinstructuse
         addi
-        register	r10
-        register	r10
+        register	r11
+        register	r11
         imm	1
   codeline
     instruction
       jmpseudo
         imm
-          labeluse	err_handler_62_WHILE22
+          labeluse	err_handler_62_WHILE13
   codeline
-    label	err_handler_62_WHILE_END23:
+    label	err_handler_62_WHILE_END14:
   codeline
     instruction
       jmpseudo
         imm
-          labeluse	err_handler_62_IF_END19
+          labeluse	err_handler_62_IF_END10
   codeline
-    label	err_handler_62_ELSE18:
+    label	err_handler_62_ELSE9:
   codeline
-    label	err_handler_62_IF_END19:
+    label	err_handler_62_IF_END10:
   codeline
     instruction
       lli
-        register	r12
+        register	r10
         imm
           labeluse	str_4
   codeline
     instruction
       lli
-        register	r3
+        register	r5
         imm	268435456
   codeline
-    label	err_handler_62_WHILE24:
+    label	err_handler_62_WHILE15:
   codeline
     instruction
       lsinstructuse
         lbu
-        register	r4
-        register	r12
+        register	r6
+        register	r10
         imm	0
   codeline
     instruction
       binstructuse
         beq
-        register	r4
+        register	r6
         register	r0
         imm
-          labeluse	err_handler_62_WHILE_END25
+          labeluse	err_handler_62_WHILE_END16
   codeline
     instruction
       lsinstructuse
         lbu
+        register	r3
         register	r10
-        register	r12
         imm	0
   codeline
     instruction
       lsinstructuse
         sb
-        register	r10
         register	r3
+        register	r5
         imm	0
   codeline
     instruction
       iinstructuse
         addi
-        register	r12
-        register	r12
+        register	r10
+        register	r10
         imm	1
   codeline
     instruction
       jmpseudo
         imm
-          labeluse	err_handler_62_WHILE24
+          labeluse	err_handler_62_WHILE15
   codeline
-    label	err_handler_62_WHILE_END25:
+    label	err_handler_62_WHILE_END16:
+  codeline
+    instruction
+      push
+        register	r2
+  codeline
+    instruction
+      push
+        register	r4
+  codeline
+    instruction
+      push
+        register	r7
+  codeline
+    instruction
+      push
+        register	r8
+  codeline
+    instruction
+      push
+        register	r9
+  codeline
+    instruction
+      push
+        register	r1
   codeline
     instruction
       lli
@@ -22181,602 +21987,331 @@ program
         register	r11
   codeline
     instruction
-      lli
-        register	r4
-        imm
-          labeluse	hex_chars
-  codeline
-    instruction
-      lsinstructuse
-        lw
-        register	r4
-        register	r4
-        imm	0
-  codeline
-    instruction
-      lli
-        register	r10
-        imm	15
-  codeline
-    instruction
-      rinstructuse
-        and
-        register	r10
+      push
         register	r11
-        register	r10
   codeline
     instruction
-      rinstructuse
-        add
-        register	r4
-        register	r4
-        register	r10
+      pop
+        register	r1
   codeline
     instruction
-      lsinstructuse
-        lbu
-        register	r4
-        register	r4
-        imm	0
+      callpseudo
+        imm
+          labeluse	error_inline_hex_char
   codeline
     instruction
-      lli
-        register	r12
-        imm	268435456
+      pop
+        register	r1
   codeline
     instruction
-      lsinstructuse
-        sb
+      pop
+        register	r9
+  codeline
+    instruction
+      pop
+        register	r8
+  codeline
+    instruction
+      pop
+        register	r7
+  codeline
+    instruction
+      pop
         register	r4
-        register	r12
-        imm	0
+  codeline
+    instruction
+      pop
+        register	r2
   codeline
     instruction
       jmpseudo
         imm
-          labeluse	err_handler_62_IF_END13
+          labeluse	err_handler_62_IF_END4
   codeline
-    label	err_handler_62_ELSE12:
+    label	err_handler_62_ELSE3:
   codeline
-    label	err_handler_62_IF_END13:
+    label	err_handler_62_IF_END4:
   codeline
     instruction
       lli
-        register	r3
+        register	r12
         imm	10
   codeline
     instruction
       lli
-        register	r10
+        register	r6
         imm	268435456
   codeline
     instruction
       lsinstructuse
         sb
-        register	r3
-        register	r10
+        register	r12
+        register	r6
         imm	0
   codeline
     instruction
       lli
-        register	r11
+        register	r3
         imm
           labeluse	str_5
   codeline
     instruction
       lli
-        register	r12
+        register	r10
         imm	268435456
   codeline
-    label	err_handler_62_WHILE26:
+    label	err_handler_62_WHILE17:
   codeline
     instruction
       lsinstructuse
         lbu
-        register	r8
-        register	r11
+        register	r5
+        register	r3
         imm	0
   codeline
     instruction
       binstructuse
         beq
-        register	r8
+        register	r5
         register	r0
         imm
-          labeluse	err_handler_62_WHILE_END27
+          labeluse	err_handler_62_WHILE_END18
   codeline
     instruction
       lsinstructuse
         lbu
-        register	r2
         register	r11
+        register	r3
         imm	0
   codeline
     instruction
       lsinstructuse
         sb
-        register	r2
-        register	r12
+        register	r11
+        register	r10
         imm	0
   codeline
     instruction
       iinstructuse
         addi
-        register	r11
-        register	r11
+        register	r3
+        register	r3
         imm	1
   codeline
     instruction
       jmpseudo
         imm
-          labeluse	err_handler_62_WHILE26
+          labeluse	err_handler_62_WHILE17
   codeline
-    label	err_handler_62_WHILE_END27:
+    label	err_handler_62_WHILE_END18:
   codeline
     instruction
       lli
-        register	r6
+        register	r4
         imm	0
   codeline
     instruction
       pop
-        register	r6
+        register	r4
   codeline
     instruction
-      lli
-        register	r10
-        imm	0
-  codeline
-    label	err_handler_62_WHILE28:
+      push
+        register	r4
   codeline
     instruction
-      lli
-        register	r8
-        imm	8
+      push
+        register	r7
   codeline
     instruction
-      binstructuse
-        blt
-        register	r10
-        register	r8
-        imm
-          labeluse	err_handler_62_CMP_TRUE31
-  codeline
-    instruction
-      lli
-        register	r8
-        imm	0
-  codeline
-    instruction
-      jmpseudo
-        imm
-          labeluse	err_handler_62_CMP_END32
-  codeline
-    label	err_handler_62_CMP_TRUE31:
-  codeline
-    instruction
-      lli
-        register	r8
-        imm	1
-  codeline
-    label	err_handler_62_CMP_END32:
-  codeline
-    instruction
-      binstructuse
-        beq
-        register	r8
-        register	r0
-        imm
-          labeluse	err_handler_62_WHILE_END29
-  codeline
-    instruction
-      lli
-        register	r2
-        imm
-          labeluse	hex_chars
-  codeline
-    instruction
-      lsinstructuse
-        lw
-        register	r2
-        register	r2
-        imm	0
-  codeline
-    instruction
-      lli
-        register	r11
-        imm	15
-  codeline
-    instruction
-      rinstructuse
-        and
-        register	r11
-        register	r6
-        register	r11
-  codeline
-    instruction
-      rinstructuse
-        add
-        register	r2
-        register	r2
-        register	r11
-  codeline
-    instruction
-      lsinstructuse
-        lbu
-        register	r2
-        register	r2
-        imm	0
-  codeline
-    instruction
-      lli
-        register	r12
-        imm
-          labeluse	print_hex_buffer
-  codeline
-    instruction
-      lli
-        register	r8
-        imm	7
-  codeline
-    instruction
-      rinstructuse
-        sub
-        register	r8
-        register	r8
-        register	r10
-  codeline
-    instruction
-      rinstructuse
-        add
-        register	r12
-        register	r12
+      push
         register	r8
   codeline
     instruction
-      lsinstructuse
-        sb
-        register	r2
-        register	r12
-        imm	0
-  codeline
-    instruction
-      iinstructuse
-        shri
-        register	r6
-        register	r6
-        imm	4
-  codeline
-    label	err_handler_62_FOR_STEP30:
-  codeline
-    instruction
-      iinstructuse
-        addi
-        register	r10
-        register	r10
-        imm	1
-  codeline
-    instruction
-      jmpseudo
-        imm
-          labeluse	err_handler_62_WHILE28
-  codeline
-    label	err_handler_62_WHILE_END29:
-  codeline
-    instruction
-      lli
-        register	r11
-        imm	0
-  codeline
-    instruction
-      lli
-        register	r8
-        imm
-          labeluse	print_hex_buffer
-  codeline
-    instruction
-      lli
-        register	r12
-        imm	8
-  codeline
-    instruction
-      rinstructuse
-        add
-        register	r8
-        register	r8
+      push
         register	r12
   codeline
     instruction
-      lsinstructuse
-        sb
-        register	r11
-        register	r8
-        imm	0
+      push
+        register	r1
   codeline
     instruction
-      lli
-        register	r2
-        imm	0
+      push
+        register	r4
   codeline
     instruction
-      lli
-        register	r6
-        imm	268435456
-  codeline
-    label	err_handler_62_WHILE33:
+      pop
+        register	r1
   codeline
     instruction
-      lsinstructuse
-        lbu
-        register	r10
-        register	r2
-        imm	0
-  codeline
-    instruction
-      binstructuse
-        beq
-        register	r10
-        register	r0
+      callpseudo
         imm
-          labeluse	err_handler_62_WHILE_END34
+          labeluse	error_inline_print_hex
   codeline
     instruction
-      lsinstructuse
-        lbu
+      pop
+        register	r1
+  codeline
+    instruction
+      pop
         register	r12
-        register	r2
-        imm	0
   codeline
     instruction
-      lsinstructuse
-        sb
-        register	r12
-        register	r6
-        imm	0
+      pop
+        register	r8
   codeline
     instruction
-      iinstructuse
-        addi
-        register	r2
-        register	r2
-        imm	1
+      pop
+        register	r7
   codeline
     instruction
-      jmpseudo
-        imm
-          labeluse	err_handler_62_WHILE33
-  codeline
-    label	err_handler_62_WHILE_END34:
+      pop
+        register	r4
   codeline
     instruction
       lli
-        register	r8
+        register	r2
         imm	10
   codeline
     instruction
       lli
-        register	r11
+        register	r9
         imm	268435456
   codeline
     instruction
       lsinstructuse
         sb
-        register	r8
-        register	r11
+        register	r2
+        register	r9
         imm	0
   codeline
     instruction
       lli
-        register	r10
+        register	r6
         imm	1
   codeline
-    label	err_handler_62_WHILE35:
+    label	err_handler_62_WHILE19:
   codeline
     instruction
       lli
-        register	r12
+        register	r5
         imm	15
   codeline
     instruction
       binstructuse
         bge
-        register	r12
-        register	r10
+        register	r5
+        register	r6
         imm
-          labeluse	err_handler_62_CMP_TRUE38
+          labeluse	err_handler_62_CMP_TRUE22
   codeline
     instruction
       lli
-        register	r12
+        register	r5
         imm	0
   codeline
     instruction
       jmpseudo
         imm
-          labeluse	err_handler_62_CMP_END39
+          labeluse	err_handler_62_CMP_END23
   codeline
-    label	err_handler_62_CMP_TRUE38:
+    label	err_handler_62_CMP_TRUE22:
   codeline
     instruction
       lli
-        register	r12
+        register	r5
         imm	1
   codeline
-    label	err_handler_62_CMP_END39:
+    label	err_handler_62_CMP_END23:
   codeline
     instruction
       binstructuse
         beq
-        register	r12
+        register	r5
         register	r0
         imm
-          labeluse	err_handler_62_WHILE_END36
+          labeluse	err_handler_62_WHILE_END20
   codeline
     instruction
       lli
-        register	r2
+        register	r11
         imm	82
   codeline
     instruction
       lli
-        register	r6
-        imm	268435456
-  codeline
-    label	err_handler_62_WHILE40:
-  codeline
-    instruction
-      lsinstructuse
-        lbu
-        register	r11
-        register	r2
-        imm	0
-  codeline
-    instruction
-      binstructuse
-        beq
-        register	r11
-        register	r0
-        imm
-          labeluse	err_handler_62_WHILE_END41
-  codeline
-    instruction
-      lsinstructuse
-        lbu
-        register	r12
-        register	r2
-        imm	0
-  codeline
-    instruction
-      lsinstructuse
-        sb
-        register	r12
-        register	r6
-        imm	0
-  codeline
-    instruction
-      iinstructuse
-        addi
-        register	r2
-        register	r2
-        imm	1
-  codeline
-    instruction
-      jmpseudo
-        imm
-          labeluse	err_handler_62_WHILE40
-  codeline
-    label	err_handler_62_WHILE_END41:
-  codeline
-    instruction
-      lli
-        register	r11
-        imm
-          labeluse	hex_chars
-  codeline
-    instruction
-      lsinstructuse
-        lw
-        register	r11
-        register	r11
-        imm	0
-  codeline
-    instruction
-      lli
-        register	r12
-        imm	15
-  codeline
-    instruction
-      rinstructuse
-        and
-        register	r12
-        register	r10
-        register	r12
-  codeline
-    instruction
-      rinstructuse
-        add
-        register	r11
-        register	r11
-        register	r12
-  codeline
-    instruction
-      lsinstructuse
-        lbu
-        register	r11
-        register	r11
-        imm	0
-  codeline
-    instruction
-      lli
-        register	r2
+        register	r3
         imm	268435456
   codeline
     instruction
       lsinstructuse
         sb
         register	r11
-        register	r2
+        register	r3
         imm	0
   codeline
     instruction
-      lli
-        register	r6
-        imm	61
+      push
+        register	r2
   codeline
     instruction
-      lli
+      push
+        register	r6
+  codeline
+    instruction
+      push
+        register	r7
+  codeline
+    instruction
+      push
+        register	r8
+  codeline
+    instruction
+      push
+        register	r11
+  codeline
+    instruction
+      push
         register	r12
-        imm	268435456
-  codeline
-    label	err_handler_62_WHILE42:
   codeline
     instruction
-      lsinstructuse
-        lbu
-        register	r2
+      push
+        register	r1
+  codeline
+    instruction
+      push
         register	r6
-        imm	0
   codeline
     instruction
-      binstructuse
-        beq
-        register	r2
-        register	r0
+      pop
+        register	r1
+  codeline
+    instruction
+      callpseudo
         imm
-          labeluse	err_handler_62_WHILE_END43
+          labeluse	error_inline_hex_char
   codeline
     instruction
-      lsinstructuse
-        lbu
-        register	r2
-        register	r6
-        imm	0
+      pop
+        register	r1
   codeline
     instruction
-      lsinstructuse
-        sb
-        register	r2
+      pop
         register	r12
-        imm	0
   codeline
     instruction
-      iinstructuse
-        addi
+      pop
+        register	r11
+  codeline
+    instruction
+      pop
+        register	r8
+  codeline
+    instruction
+      pop
+        register	r7
+  codeline
+    instruction
+      pop
         register	r6
-        register	r6
-        imm	1
-  codeline
-    instruction
-      jmpseudo
-        imm
-          labeluse	err_handler_62_WHILE42
-  codeline
-    label	err_handler_62_WHILE_END43:
-  codeline
-    instruction
-      lli
-        register	r2
-        imm	0
   codeline
     instruction
       pop
@@ -22784,67 +22319,399 @@ program
   codeline
     instruction
       lli
-        register	r6
-        imm	0
-  codeline
-    label	err_handler_62_WHILE44:
+        register	r10
+        imm	61
   codeline
     instruction
       lli
+        register	r4
+        imm	268435456
+  codeline
+    instruction
+      lsinstructuse
+        sb
+        register	r10
+        register	r4
+        imm	0
+  codeline
+    instruction
+      lli
+        register	r9
+        imm	0
+  codeline
+    instruction
+      pop
+        register	r9
+  codeline
+    instruction
+      push
+        register	r2
+  codeline
+    instruction
+      push
+        register	r6
+  codeline
+    instruction
+      push
+        register	r7
+  codeline
+    instruction
+      push
+        register	r8
+  codeline
+    instruction
+      push
+        register	r9
+  codeline
+    instruction
+      push
+        register	r10
+  codeline
+    instruction
+      push
+        register	r11
+  codeline
+    instruction
+      push
         register	r12
+  codeline
+    instruction
+      push
+        register	r1
+  codeline
+    instruction
+      push
+        register	r9
+  codeline
+    instruction
+      pop
+        register	r1
+  codeline
+    instruction
+      callpseudo
+        imm
+          labeluse	error_inline_print_hex
+  codeline
+    instruction
+      pop
+        register	r1
+  codeline
+    instruction
+      pop
+        register	r12
+  codeline
+    instruction
+      pop
+        register	r11
+  codeline
+    instruction
+      pop
+        register	r10
+  codeline
+    instruction
+      pop
+        register	r9
+  codeline
+    instruction
+      pop
+        register	r8
+  codeline
+    instruction
+      pop
+        register	r7
+  codeline
+    instruction
+      pop
+        register	r6
+  codeline
+    instruction
+      pop
+        register	r2
+  codeline
+    instruction
+      lli
+        register	r5
+        imm	10
+  codeline
+    instruction
+      lli
+        register	r3
+        imm	268435456
+  codeline
+    instruction
+      lsinstructuse
+        sb
+        register	r5
+        register	r3
+        imm	0
+  codeline
+    label	err_handler_62_FOR_STEP21:
+  codeline
+    instruction
+      iinstructuse
+        addi
+        register	r6
+        register	r6
+        imm	1
+  codeline
+    instruction
+      jmpseudo
+        imm
+          labeluse	err_handler_62_WHILE19
+  codeline
+    label	err_handler_62_WHILE_END20:
+  codeline
+    instruction
+      systeminstructuse
+        break
+  codeline
+    instruction
+      systeminstructuse
+        break
+  codeline
+    directiveuse
+      func
+        label	error_inline_print_hex:
+  codeline
+    instruction
+      push
+        register	r14
+  codeline
+    instruction
+      lli
+        register	r2
+        imm
+          labeluse	error_inline_print_hex_63_print_hex_buffer_buf1
+  codeline
+    instruction
+      lli
+        register	r3
+        imm
+          labeluse	str_0
+  codeline
+    instruction
+      lli
+        register	r4
+        imm	0
+  codeline
+    label	error_inline_print_hex_63_WHILE2:
+  codeline
+    instruction
+      lli
+        register	r5
         imm	8
   codeline
     instruction
       binstructuse
         blt
-        register	r6
-        register	r12
+        register	r4
+        register	r5
         imm
-          labeluse	err_handler_62_CMP_TRUE47
+          labeluse	error_inline_print_hex_63_CMP_TRUE5
   codeline
     instruction
       lli
-        register	r12
+        register	r5
         imm	0
   codeline
     instruction
       jmpseudo
         imm
-          labeluse	err_handler_62_CMP_END48
+          labeluse	error_inline_print_hex_63_CMP_END6
   codeline
-    label	err_handler_62_CMP_TRUE47:
+    label	error_inline_print_hex_63_CMP_TRUE5:
   codeline
     instruction
       lli
-        register	r12
+        register	r5
         imm	1
   codeline
-    label	err_handler_62_CMP_END48:
+    label	error_inline_print_hex_63_CMP_END6:
   codeline
     instruction
       binstructuse
         beq
-        register	r12
+        register	r5
         register	r0
         imm
-          labeluse	err_handler_62_WHILE_END45
+          labeluse	error_inline_print_hex_63_WHILE_END3
   codeline
     instruction
       lli
-        register	r12
-        imm
-          labeluse	hex_chars
+        register	r6
+        imm	15
+  codeline
+    instruction
+      rinstructuse
+        and
+        register	r6
+        register	r1
+        register	r6
+  codeline
+    instruction
+      rinstructuse
+        add
+        register	r6
+        register	r3
+        register	r6
   codeline
     instruction
       lsinstructuse
-        lw
-        register	r12
-        register	r12
+        lbu
+        register	r6
+        register	r6
         imm	0
   codeline
     instruction
+      lli
+        register	r7
+        imm	7
+  codeline
+    instruction
+      rinstructuse
+        sub
+        register	r7
+        register	r7
+        register	r4
+  codeline
+    instruction
+      rinstructuse
+        add
+        register	r7
+        register	r2
+        register	r7
+  codeline
+    instruction
+      lsinstructuse
+        sb
+        register	r6
+        register	r7
+        imm	0
+  codeline
+    instruction
+      iinstructuse
+        shri
+        register	r1
+        register	r1
+        imm	4
+  codeline
+    label	error_inline_print_hex_63_FOR_STEP4:
+  codeline
+    instruction
+      iinstructuse
+        addi
+        register	r4
+        register	r4
+        imm	1
+  codeline
+    instruction
+      jmpseudo
+        imm
+          labeluse	error_inline_print_hex_63_WHILE2
+  codeline
+    label	error_inline_print_hex_63_WHILE_END3:
+  codeline
+    instruction
+      lli
+        register	r8
+        imm	0
+  codeline
+    instruction
+      lli
+        register	r9
+        imm	8
+  codeline
+    instruction
+      rinstructuse
+        add
+        register	r9
+        register	r2
+        register	r9
+  codeline
+    instruction
+      lsinstructuse
+        sb
+        register	r8
+        register	r9
+        imm	0
+  codeline
+    instruction
+      lli
+        register	r10
+        imm	268435456
+  codeline
+    label	error_inline_print_hex_63_WHILE7:
+  codeline
+    instruction
+      lsinstructuse
+        lbu
+        register	r11
+        register	r2
+        imm	0
+  codeline
+    instruction
+      binstructuse
+        beq
+        register	r11
+        register	r0
+        imm
+          labeluse	error_inline_print_hex_63_WHILE_END8
+  codeline
+    instruction
+      lsinstructuse
+        lbu
+        register	r12
+        register	r2
+        imm	0
+  codeline
+    instruction
+      lsinstructuse
+        sb
+        register	r12
+        register	r10
+        imm	0
+  codeline
+    instruction
+      iinstructuse
+        addi
+        register	r2
+        register	r2
+        imm	1
+  codeline
+    instruction
+      jmpseudo
+        imm
+          labeluse	error_inline_print_hex_63_WHILE7
+  codeline
+    label	error_inline_print_hex_63_WHILE_END8:
+  codeline
+    instruction
+      iinstructuse
+        addi
+        register	r1
+        register	r0
+        imm	0
+  codeline
+    instruction
+      pop
+        register	r14
+  codeline
+    instruction
+      retpseudo
+  codeline
+    directiveuse
+      func
+        label	error_inline_hex_char:
+  codeline
+    instruction
       push
-        register	r3
+        register	r14
+  codeline
+    instruction
+      lli
+        register	r2
+        imm
+          labeluse	str_0
   codeline
     instruction
       lli
@@ -22855,373 +22722,48 @@ program
       rinstructuse
         and
         register	r3
-        register	r2
+        register	r1
         register	r3
   codeline
     instruction
       rinstructuse
         add
-        register	r12
-        register	r12
         register	r3
-  codeline
-    instruction
-      pop
+        register	r2
         register	r3
   codeline
     instruction
       lsinstructuse
         lbu
-        register	r12
-        register	r12
-        imm	0
-  codeline
-    instruction
-      push
         register	r3
-  codeline
-    instruction
-      lli
-        register	r3
-        imm
-          labeluse	err_handler_62_spill49
-  codeline
-    instruction
-      lsinstructuse
-        sw
-        register	r2
         register	r3
         imm	0
   codeline
     instruction
-      pop
-        register	r3
-  codeline
-    instruction
       lli
-        register	r2
-        imm
-          labeluse	print_hex_buffer
-  codeline
-    instruction
-      push
-        register	r3
-  codeline
-    instruction
-      lli
-        register	r3
-        imm	7
-  codeline
-    instruction
-      rinstructuse
-        sub
-        register	r3
-        register	r3
-        register	r6
-  codeline
-    instruction
-      rinstructuse
-        add
-        register	r2
-        register	r2
-        register	r3
-  codeline
-    instruction
-      pop
-        register	r3
-  codeline
-    instruction
-      lsinstructuse
-        sb
-        register	r12
-        register	r2
-        imm	0
-  codeline
-    instruction
-      lli
-        register	r2
-        imm
-          labeluse	err_handler_62_spill49
-  codeline
-    instruction
-      lsinstructuse
-        lw
-        register	r2
-        register	r2
-        imm	0
-  codeline
-    instruction
-      iinstructuse
-        shri
-        register	r12
-        register	r2
-        imm	4
-  codeline
-    instruction
-      iinstructuse
-        addi
-        register	r2
-        register	r12
-        imm	0
-  codeline
-    label	err_handler_62_FOR_STEP46:
-  codeline
-    instruction
-      iinstructuse
-        addi
-        register	r6
-        register	r6
-        imm	1
-  codeline
-    instruction
-      jmpseudo
-        imm
-          labeluse	err_handler_62_WHILE44
-  codeline
-    label	err_handler_62_WHILE_END45:
-  codeline
-    instruction
-      lli
-        register	r12
-        imm	0
-  codeline
-    instruction
-      push
-        register	r3
-  codeline
-    instruction
-      lli
-        register	r3
-        imm
-          labeluse	err_handler_62_spill50
-  codeline
-    instruction
-      lsinstructuse
-        sw
-        register	r2
-        register	r3
-        imm	0
-  codeline
-    instruction
-      pop
-        register	r3
-  codeline
-    instruction
-      lli
-        register	r2
-        imm
-          labeluse	print_hex_buffer
-  codeline
-    instruction
-      push
-        register	r3
-  codeline
-    instruction
-      lli
-        register	r3
-        imm	8
-  codeline
-    instruction
-      rinstructuse
-        add
-        register	r2
-        register	r2
-        register	r3
-  codeline
-    instruction
-      pop
-        register	r3
-  codeline
-    instruction
-      lsinstructuse
-        sb
-        register	r12
-        register	r2
-        imm	0
-  codeline
-    instruction
-      lli
-        register	r2
-        imm	0
-  codeline
-    instruction
-      lli
-        register	r12
+        register	r4
         imm	268435456
   codeline
-    label	err_handler_62_WHILE51:
-  codeline
-    instruction
-      push
-        register	r3
-  codeline
-    instruction
-      lli
-        register	r3
-        imm
-          labeluse	err_handler_62_spill53
-  codeline
     instruction
       lsinstructuse
-        sw
-        register	r2
+        sb
         register	r3
+        register	r4
         imm	0
   codeline
     instruction
-      pop
-        register	r3
-  codeline
-    instruction
-      lsinstructuse
-        lbu
-        register	r2
-        register	r2
-        imm	0
-  codeline
-    instruction
-      binstructuse
-        beq
-        register	r2
+      iinstructuse
+        addi
+        register	r1
         register	r0
-        imm
-          labeluse	err_handler_62_WHILE_END52
-  codeline
-    instruction
-      lli
-        register	r2
-        imm
-          labeluse	err_handler_62_spill53
-  codeline
-    instruction
-      lsinstructuse
-        lw
-        register	r2
-        register	r2
-        imm	0
-  codeline
-    instruction
-      push
-        register	r3
-  codeline
-    instruction
-      lli
-        register	r3
-        imm
-          labeluse	err_handler_62_spill54
-  codeline
-    instruction
-      lsinstructuse
-        sw
-        register	r2
-        register	r3
         imm	0
   codeline
     instruction
       pop
-        register	r3
+        register	r14
   codeline
     instruction
-      lsinstructuse
-        lbu
-        register	r2
-        register	r2
-        imm	0
-  codeline
-    instruction
-      lsinstructuse
-        sb
-        register	r2
-        register	r12
-        imm	0
-  codeline
-    instruction
-      lli
-        register	r2
-        imm
-          labeluse	err_handler_62_spill54
-  codeline
-    instruction
-      lsinstructuse
-        lw
-        register	r2
-        register	r2
-        imm	0
-  codeline
-    instruction
-      push
-        register	r3
-  codeline
-    instruction
-      lli
-        register	r3
-        imm	1
-  codeline
-    instruction
-      rinstructuse
-        add
-        register	r3
-        register	r2
-        register	r3
-  codeline
-    instruction
-      iinstructuse
-        addi
-        register	r2
-        register	r3
-        imm	0
-  codeline
-    instruction
-      pop
-        register	r3
-  codeline
-    instruction
-      jmpseudo
-        imm
-          labeluse	err_handler_62_WHILE51
-  codeline
-    label	err_handler_62_WHILE_END52:
-  codeline
-    instruction
-      lli
-        register	r12
-        imm	10
-  codeline
-    instruction
-      lli
-        register	r2
-        imm	268435456
-  codeline
-    instruction
-      lsinstructuse
-        sb
-        register	r12
-        register	r2
-        imm	0
-  codeline
-    label	err_handler_62_FOR_STEP37:
-  codeline
-    instruction
-      iinstructuse
-        addi
-        register	r10
-        register	r10
-        imm	1
-  codeline
-    instruction
-      jmpseudo
-        imm
-          labeluse	err_handler_62_WHILE35
-  codeline
-    label	err_handler_62_WHILE_END36:
-  codeline
-    instruction
-      systeminstructuse
-        break
-  codeline
-    instruction
-      systeminstructuse
-        break
+      retpseudo
   codeline
     directiveuse
       func
@@ -27740,11 +27282,63 @@ program
   codeline
     directiveuse
       func
+        label	error_test:
+  codeline
+    instruction
+      push
+        register	r14
+  codeline
+    instruction
+      lli
+        register	r2
+        imm	1
+  codeline
+    instruction
+      lli
+        register	r3
+        imm	0
+  codeline
+    instruction
+      rinstructuse
+        div
+        register	r2
+        register	r2
+        register	r3
+  codeline
+    instruction
+      iinstructuse
+        addi
+        register	r1
+        register	r0
+        imm	0
+  codeline
+    instruction
+      pop
+        register	r14
+  codeline
+    instruction
+      retpseudo
+  codeline
+    directiveuse
+      func
         label	main:
   codeline
     instruction
       push
         register	r14
+  codeline
+    instruction
+      push
+        register	r1
+  codeline
+    instruction
+      callpseudo
+        imm
+          labeluse	error_test
+  codeline
+    instruction
+      pop
+        register	r1
   codeline
     instruction
       push
@@ -29092,7 +28686,7 @@ program
     label	str_1:
   codeline
     directiveuse
-      strv	"Error:"
+      strv	"Error: 0x"
   codeline
     label	str_2:
   codeline
@@ -29113,19 +28707,6 @@ program
   codeline
     directiveuse
       strv	"PC="
-  codeline
-    label	print_hex_buffer:
-  codeline
-    directiveuse
-      space
-        imm	9
-  codeline
-    label	hex_chars:
-  codeline
-    directiveuse
-      data
-        imm
-          labeluse	str_0
   codeline
     label	str_6:
   codeline
@@ -29349,29 +28930,11 @@ program
       space
         imm	512
   codeline
-    label	err_handler_62_spill49:
+    label	error_inline_print_hex_63_print_hex_buffer_buf1:
   codeline
     directiveuse
       space
-        imm	4
-  codeline
-    label	err_handler_62_spill50:
-  codeline
-    directiveuse
-      space
-        imm	4
-  codeline
-    label	err_handler_62_spill53:
-  codeline
-    directiveuse
-      space
-        imm	4
-  codeline
-    label	err_handler_62_spill54:
-  codeline
-    directiveuse
-      space
-        imm	4
+        imm	9
   codeline
     label	math_test_73_result_str_buf5:
   codeline

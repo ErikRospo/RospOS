@@ -6206,24 +6206,24 @@ translation_unit
             int
           init_declarator_list
             init_declarator
-              declarator	r1
+              declarator	error_code
               register_name
                 register	r1
         expr_stmt
           postfix
             print_string
             call_suffix
-              arg_list	"Error:"
+              arg_list	"Error: 0x"
         expr_stmt
           postfix
-            print_hex
+            error_inline_print_hex
             call_suffix
-              arg_list	r1
+              arg_list	error_code
         expr_stmt
           postfix
-            print_string
+            print_char
             call_suffix
-              arg_list	"\n"
+              arg_list	0x0A
         declaration
           type_specifier
             int
@@ -6232,10 +6232,15 @@ translation_unit
               declarator	error_type
               shift
                 bit_and
-                  r1
+                  error_code
                   0xFFFF0000
                 rshift
                 16
+        expr_stmt
+          postfix
+            error_inline_print_hex
+            call_suffix
+              arg_list	error_type
         if_stmt
           equality
             error_type
@@ -6249,22 +6254,22 @@ translation_unit
                   arg_list	"Invalid opcode: "
             expr_stmt
               postfix
-                print_hex_char
+                error_inline_hex_char
                 call_suffix
                   arg_list
                     shift
                       bit_and
-                        r1
+                        error_code
                         0xF0
                       rshift
                       4
             expr_stmt
               postfix
-                print_hex_char
+                error_inline_hex_char
                 call_suffix
                   arg_list
                     bit_and
-                      r1
+                      error_code
                       0xF
             declaration
               type_specifier
@@ -6273,7 +6278,7 @@ translation_unit
                 init_declarator
                   declarator	opcode_family
                   bit_and
-                    r1
+                    error_code
                     0xF0
             expr_stmt
               postfix
@@ -6370,11 +6375,11 @@ translation_unit
                   arg_list	": "
             expr_stmt
               postfix
-                print_hex_char
+                error_inline_hex_char
                 call_suffix
                   arg_list
                     bit_and
-                      r1
+                      error_code
                       0xF
           if_stmt
             equality
@@ -6397,7 +6402,7 @@ translation_unit
           postfix
             print_char
             call_suffix
-              arg_list	"\n"
+              arg_list	0x0A
         expr_stmt
           postfix
             print_string
@@ -6414,14 +6419,14 @@ translation_unit
                 call_suffix
         expr_stmt
           postfix
-            print_hex
+            error_inline_print_hex
             call_suffix
               arg_list	saved_pc
         expr_stmt
           postfix
             print_char
             call_suffix
-              arg_list	"\n"
+              arg_list	0x0A
         for_stmt
           declaration
             type_specifier
@@ -6440,17 +6445,17 @@ translation_unit
           compound_stmt
             expr_stmt
               postfix
-                print_string
+                print_char
                 call_suffix
                   arg_list	"R"
             expr_stmt
               postfix
-                print_hex_char
+                error_inline_hex_char
                 call_suffix
                   arg_list	i
             expr_stmt
               postfix
-                print_string
+                print_char
                 call_suffix
                   arg_list	"="
             declaration
@@ -6464,48 +6469,45 @@ translation_unit
                     call_suffix
             expr_stmt
               postfix
-                print_hex
+                error_inline_print_hex
                 call_suffix
                   arg_list	saved_register
             expr_stmt
               postfix
                 print_char
                 call_suffix
-                  arg_list	"\n"
+                  arg_list	0x0A
         expr_stmt
           postfix
             __break
             call_suffix
   external_decl
-    declaration
-      type_specifier
-        char
-      init_declarator_list
-        init_declarator
-          declarator
-            print_hex_buffer
-            array	9
-  external_decl
-    declaration
-      type_specifier
-        char
-        pointer
-      init_declarator_list
-        init_declarator
-          declarator	hex_chars
-          "0123456789ABCDEF"
-  external_decl
     function_def
-      inline
       type_specifier
         void
-      declarator	print_hex
+      declarator	error_inline_print_hex
       param_list
         param
           type_specifier
             int
           declarator	input
       compound_stmt
+        declaration
+          type_specifier
+            char
+          init_declarator_list
+            init_declarator
+              declarator
+                print_hex_buffer
+                array	9
+        declaration
+          type_specifier
+            char
+            pointer
+          init_declarator_list
+            init_declarator
+              declarator	hex_chars
+              "0123456789ABCDEF"
         for_stmt
           declaration
             type_specifier
@@ -6549,7 +6551,7 @@ translation_unit
             postfix
               print_hex_buffer
               array_index	8
-            0
+            0x00
         expr_stmt
           postfix
             print_string
@@ -6557,16 +6559,23 @@ translation_unit
               arg_list	print_hex_buffer
   external_decl
     function_def
-      inline
       type_specifier
         void
-      declarator	print_hex_char
+      declarator	error_inline_hex_char
       param_list
         param
           type_specifier
             int
           declarator	input
       compound_stmt
+        declaration
+          type_specifier
+            char
+            pointer
+          init_declarator_list
+            init_declarator
+              declarator	hex_chars
+              "0123456789ABCDEF"
         expr_stmt
           postfix
             print_char
@@ -7395,8 +7404,28 @@ translation_unit
     function_def
       type_specifier
         void
+      declarator	error_test
+      compound_stmt
+        declaration
+          type_specifier
+            int
+          init_declarator_list
+            init_declarator
+              declarator	a
+              multiplicative
+                1
+                div
+                0
+  external_decl
+    function_def
+      type_specifier
+        void
       declarator	main
       compound_stmt
+        expr_stmt
+          postfix
+            error_test
+            call_suffix
         expr_stmt
           postfix
             init_heap

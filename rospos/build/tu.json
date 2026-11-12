@@ -80,7 +80,7 @@
     {
       "kind": "string",
       "name": "str_1",
-      "value": "Error:"
+      "value": "Error: 0x"
     },
     {
       "kind": "string",
@@ -101,25 +101,6 @@
       "kind": "string",
       "name": "str_5",
       "value": "PC="
-    },
-    {
-      "kind": "global_array",
-      "name": "print_hex_buffer",
-      "type": "char_ptr",
-      "storage_kind": "array",
-      "size": 9,
-      "value": "b'\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00'"
-    },
-    {
-      "kind": "global_var",
-      "name": "hex_chars",
-      "type": "char_ptr",
-      "storage_kind": "scalar",
-      "size": 4,
-      "value": {
-        "type": "string_addr",
-        "label": "str_0"
-      }
     },
     {
       "kind": "string",
@@ -14471,7 +14452,7 @@
       "body": [
         {
           "type": "decl",
-          "name": "r1",
+          "name": "error_code",
           "init": {
             "type": "register",
             "value": "r1"
@@ -14488,29 +14469,29 @@
               "label": "str_1"
             }
           ],
+          "_line": 1286
+        },
+        {
+          "type": "call_stmt",
+          "name": "error_inline_print_hex",
+          "args": [
+            {
+              "type": "var",
+              "name": "error_code"
+            }
+          ],
           "_line": 1287
         },
         {
           "type": "call_stmt",
-          "name": "print_hex",
-          "args": [
-            {
-              "type": "var",
-              "name": "r1"
-            }
-          ],
-          "_line": 1288
-        },
-        {
-          "type": "call_stmt",
-          "name": "print_string",
+          "name": "print_char",
           "args": [
             {
               "type": "const",
               "value": 10
             }
           ],
-          "_line": 1289
+          "_line": 1288
         },
         {
           "type": "decl",
@@ -14523,7 +14504,7 @@
               "op": "and",
               "left": {
                 "type": "var",
-                "name": "r1"
+                "name": "error_code"
               },
               "right": {
                 "type": "const",
@@ -14535,8 +14516,19 @@
               "value": 16
             }
           },
-          "_line": 1290,
+          "_line": 1289,
           "decl_type": "int"
+        },
+        {
+          "type": "call_stmt",
+          "name": "error_inline_print_hex",
+          "args": [
+            {
+              "type": "var",
+              "name": "error_type"
+            }
+          ],
+          "_line": 1290
         },
         {
           "type": "if",
@@ -14566,7 +14558,7 @@
             },
             {
               "type": "call_stmt",
-              "name": "print_hex_char",
+              "name": "error_inline_hex_char",
               "args": [
                 {
                   "type": "binop",
@@ -14576,7 +14568,7 @@
                     "op": "and",
                     "left": {
                       "type": "var",
-                      "name": "r1"
+                      "name": "error_code"
                     },
                     "right": {
                       "type": "const",
@@ -14593,14 +14585,14 @@
             },
             {
               "type": "call_stmt",
-              "name": "print_hex_char",
+              "name": "error_inline_hex_char",
               "args": [
                 {
                   "type": "binop",
                   "op": "and",
                   "left": {
                     "type": "var",
-                    "name": "r1"
+                    "name": "error_code"
                   },
                   "right": {
                     "type": "const",
@@ -14618,7 +14610,7 @@
                 "op": "and",
                 "left": {
                   "type": "var",
-                  "name": "r1"
+                  "name": "error_code"
                 },
                 "right": {
                   "type": "const",
@@ -14682,14 +14674,14 @@
             },
             {
               "type": "call_stmt",
-              "name": "print_hex_char",
+              "name": "error_inline_hex_char",
               "args": [
                 {
                   "type": "binop",
                   "op": "and",
                   "left": {
                     "type": "var",
-                    "name": "r1"
+                    "name": "error_code"
                   },
                   "right": {
                     "type": "const",
@@ -14738,7 +14730,7 @@
         },
         {
           "type": "call_stmt",
-          "name": "print_hex",
+          "name": "error_inline_print_hex",
           "args": [
             {
               "type": "var",
@@ -14785,7 +14777,7 @@
           "body": [
             {
               "type": "call_stmt",
-              "name": "print_string",
+              "name": "print_char",
               "args": [
                 {
                   "type": "const",
@@ -14796,7 +14788,7 @@
             },
             {
               "type": "call_stmt",
-              "name": "print_hex_char",
+              "name": "error_inline_hex_char",
               "args": [
                 {
                   "type": "var",
@@ -14807,7 +14799,7 @@
             },
             {
               "type": "call_stmt",
-              "name": "print_string",
+              "name": "print_char",
               "args": [
                 {
                   "type": "const",
@@ -14829,7 +14821,7 @@
             },
             {
               "type": "call_stmt",
-              "name": "print_hex",
+              "name": "error_inline_print_hex",
               "args": [
                 {
                   "type": "var",
@@ -14881,11 +14873,31 @@
       "_line": 1283
     },
     {
-      "name": "print_hex",
+      "name": "error_inline_print_hex",
       "params": [
         "input"
       ],
       "body": [
+        {
+          "type": "decl",
+          "name": "print_hex_buffer",
+          "init": {
+            "type": "array",
+            "size": 9
+          },
+          "_line": 1341,
+          "decl_type": "char_ptr"
+        },
+        {
+          "type": "decl",
+          "name": "hex_chars",
+          "init": {
+            "type": "string_addr",
+            "label": "str_0"
+          },
+          "_line": 1342,
+          "decl_type": "char_ptr"
+        },
         {
           "type": "decl",
           "name": "i",
@@ -15038,15 +15050,24 @@
         "input": "int"
       },
       "return_type": "void",
-      "inline": true,
-      "_line": 1341
+      "_line": 1339
     },
     {
-      "name": "print_hex_char",
+      "name": "error_inline_hex_char",
       "params": [
         "input"
       ],
       "body": [
+        {
+          "type": "decl",
+          "name": "hex_chars",
+          "init": {
+            "type": "string_addr",
+            "label": "str_0"
+          },
+          "_line": 1352,
+          "decl_type": "char_ptr"
+        },
         {
           "type": "call_stmt",
           "name": "print_char",
@@ -15075,14 +15096,13 @@
               }
             }
           ],
-          "_line": 1352
+          "_line": 1353
         }
       ],
       "param_types": {
         "input": "int"
       },
       "return_type": "void",
-      "inline": true,
       "_line": 1351
     },
     {
@@ -15106,7 +15126,7 @@
               "name": "b"
             }
           },
-          "_line": 1358
+          "_line": 1359
         }
       ],
       "param_types": {
@@ -15115,7 +15135,7 @@
       },
       "return_type": "int",
       "inline": true,
-      "_line": 1356
+      "_line": 1357
     },
     {
       "name": "fibonnaci_recursive",
@@ -15144,11 +15164,11 @@
                 "type": "const",
                 "value": 0
               },
-              "_line": 1363
+              "_line": 1364
             }
           ],
           "else": [],
-          "_line": 1362
+          "_line": 1363
         },
         {
           "type": "if",
@@ -15171,11 +15191,11 @@
                 "type": "const",
                 "value": 1
               },
-              "_line": 1366
+              "_line": 1367
             }
           ],
           "else": [],
-          "_line": 1365
+          "_line": 1366
         },
         {
           "type": "decl",
@@ -15198,7 +15218,7 @@
               }
             ]
           },
-          "_line": 1368,
+          "_line": 1369,
           "decl_type": "int"
         },
         {
@@ -15222,7 +15242,7 @@
               }
             ]
           },
-          "_line": 1369,
+          "_line": 1370,
           "decl_type": "int"
         },
         {
@@ -15239,14 +15259,14 @@
               "name": "k"
             }
           },
-          "_line": 1370
+          "_line": 1371
         }
       ],
       "param_types": {
         "i": "int"
       },
       "return_type": "int",
-      "_line": 1361
+      "_line": 1362
     },
     {
       "name": "display_test",
@@ -15273,7 +15293,7 @@
               "value": 63
             }
           ],
-          "_line": 1374
+          "_line": 1375
         },
         {
           "type": "call_stmt",
@@ -15296,7 +15316,7 @@
               "value": 12
             }
           ],
-          "_line": 1376
+          "_line": 1377
         },
         {
           "type": "call_stmt",
@@ -15319,7 +15339,7 @@
               "value": 48
             }
           ],
-          "_line": 1377
+          "_line": 1378
         },
         {
           "type": "call_stmt",
@@ -15342,7 +15362,7 @@
               "value": 7
             }
           ],
-          "_line": 1378
+          "_line": 1379
         },
         {
           "type": "call_stmt",
@@ -15365,7 +15385,7 @@
               "value": 60
             }
           ],
-          "_line": 1379
+          "_line": 1380
         },
         {
           "type": "call_stmt",
@@ -15388,7 +15408,7 @@
               "value": 15
             }
           ],
-          "_line": 1380
+          "_line": 1381
         },
         {
           "type": "call_stmt",
@@ -15411,7 +15431,7 @@
               "value": 51
             }
           ],
-          "_line": 1381
+          "_line": 1382
         },
         {
           "type": "call_stmt",
@@ -15434,11 +15454,11 @@
               "value": 63
             }
           ],
-          "_line": 1382
+          "_line": 1383
         }
       ],
       "return_type": "void",
-      "_line": 1372
+      "_line": 1373
     },
     {
       "name": "fs_test",
@@ -15448,7 +15468,7 @@
           "type": "call_stmt",
           "name": "initialize_filesystem",
           "args": [],
-          "_line": 1386
+          "_line": 1387
         },
         {
           "type": "call_stmt",
@@ -15463,7 +15483,7 @@
               "label": "str_15"
             }
           ],
-          "_line": 1387
+          "_line": 1388
         },
         {
           "type": "decl",
@@ -15478,7 +15498,7 @@
               }
             ]
           },
-          "_line": 1388,
+          "_line": 1389,
           "decl_type": "char_ptr"
         },
         {
@@ -15513,7 +15533,7 @@
                   "value": 63
                 }
               ],
-              "_line": 1391
+              "_line": 1392
             },
             {
               "type": "return",
@@ -15521,11 +15541,11 @@
                 "type": "const",
                 "value": 0
               },
-              "_line": 1392
+              "_line": 1393
             }
           ],
           "else": [],
-          "_line": 1389
+          "_line": 1390
         },
         {
           "type": "call_stmt",
@@ -15540,7 +15560,7 @@
               "name": "device_info"
             }
           ],
-          "_line": 1394
+          "_line": 1395
         },
         {
           "type": "call_stmt",
@@ -15563,7 +15583,7 @@
               "value": 63
             }
           ],
-          "_line": 1395
+          "_line": 1396
         },
         {
           "type": "call_stmt",
@@ -15574,7 +15594,7 @@
               "name": "device_info"
             }
           ],
-          "_line": 1396
+          "_line": 1397
         },
         {
           "type": "decl",
@@ -15589,7 +15609,7 @@
               }
             ]
           },
-          "_line": 1397,
+          "_line": 1398,
           "decl_type": "char_ptr"
         },
         {
@@ -15624,7 +15644,7 @@
                   "value": 63
                 }
               ],
-              "_line": 1400
+              "_line": 1401
             },
             {
               "type": "return",
@@ -15632,11 +15652,11 @@
                 "type": "const",
                 "value": 0
               },
-              "_line": 1401
+              "_line": 1402
             }
           ],
           "else": [],
-          "_line": 1398
+          "_line": 1399
         },
         {
           "type": "call_stmt",
@@ -15651,7 +15671,7 @@
               "name": "file_contents"
             }
           ],
-          "_line": 1403
+          "_line": 1404
         },
         {
           "type": "call_stmt",
@@ -15674,7 +15694,7 @@
               "value": 63
             }
           ],
-          "_line": 1404
+          "_line": 1405
         },
         {
           "type": "call_stmt",
@@ -15685,11 +15705,11 @@
               "name": "file_contents"
             }
           ],
-          "_line": 1405
+          "_line": 1406
         }
       ],
       "return_type": "void",
-      "_line": 1384
+      "_line": 1385
     },
     {
       "name": "rand_block_display_test",
@@ -15716,7 +15736,7 @@
               "value": 63
             }
           ],
-          "_line": 1409
+          "_line": 1410
         },
         {
           "type": "call_stmt",
@@ -15739,23 +15759,23 @@
               "value": 63
             }
           ],
-          "_line": 1410
+          "_line": 1411
         },
         {
           "type": "call_stmt",
           "name": "rand_block_test",
           "args": [],
-          "_line": 1411
+          "_line": 1412
         },
         {
           "type": "call_stmt",
           "name": "fast_clear_display",
           "args": [],
-          "_line": 1412
+          "_line": 1413
         }
       ],
       "return_type": "void",
-      "_line": 1407
+      "_line": 1408
     },
     {
       "name": "terminal_test",
@@ -15774,13 +15794,13 @@
               "value": 0
             }
           ],
-          "_line": 1416
+          "_line": 1417
         },
         {
           "type": "call_stmt",
           "name": "update_buffer",
           "args": [],
-          "_line": 1417
+          "_line": 1418
         },
         {
           "type": "call_stmt",
@@ -15795,17 +15815,17 @@
               "value": 32
             }
           ],
-          "_line": 1418
+          "_line": 1419
         },
         {
           "type": "call_stmt",
           "name": "update_buffer",
           "args": [],
-          "_line": 1419
+          "_line": 1420
         }
       ],
       "return_type": "void",
-      "_line": 1414
+      "_line": 1415
     },
     {
       "name": "image_display_test",
@@ -15824,23 +15844,23 @@
               "value": 72
             }
           ],
-          "_line": 1423
+          "_line": 1424
         },
         {
           "type": "call_stmt",
           "name": "update_buffer",
           "args": [],
-          "_line": 1424
+          "_line": 1425
         },
         {
           "type": "call_stmt",
           "name": "load_and_display_image",
           "args": [],
-          "_line": 1425
+          "_line": 1426
         }
       ],
       "return_type": "void",
-      "_line": 1421
+      "_line": 1422
     },
     {
       "name": "malloc_test",
@@ -15853,7 +15873,7 @@
             "type": "const",
             "value": 256
           },
-          "_line": 1429,
+          "_line": 1430,
           "decl_type": "int"
         },
         {
@@ -15869,7 +15889,7 @@
               }
             ]
           },
-          "_line": 1430,
+          "_line": 1431,
           "decl_type": "char_ptr"
         },
         {
@@ -15879,7 +15899,7 @@
             "type": "const",
             "value": 1
           },
-          "_line": 1431,
+          "_line": 1432,
           "decl_type": "int"
         },
         {
@@ -15904,7 +15924,7 @@
                 "type": "const",
                 "value": 0
               },
-              "_line": 1436,
+              "_line": 1437,
               "decl_type": "int"
             },
             {
@@ -15943,7 +15963,7 @@
                     "type": "var",
                     "name": "i"
                   },
-                  "_line": 1438
+                  "_line": 1439
                 },
                 {
                   "type": "assign",
@@ -15960,11 +15980,11 @@
                       "value": 1
                     }
                   },
-                  "_line": 1436
+                  "_line": 1437
                 }
               ],
               "continue_target_index": 1,
-              "_line": 1436
+              "_line": 1437
             },
             {
               "type": "decl",
@@ -15973,7 +15993,7 @@
                 "type": "const",
                 "value": 0
               },
-              "_line": 1441,
+              "_line": 1442,
               "decl_type": "int"
             },
             {
@@ -16024,11 +16044,11 @@
                         "type": "const",
                         "value": 0
                       },
-                      "_line": 1445
+                      "_line": 1446
                     }
                   ],
                   "else": [],
-                  "_line": 1443
+                  "_line": 1444
                 },
                 {
                   "type": "assign",
@@ -16045,11 +16065,11 @@
                       "value": 1
                     }
                   },
-                  "_line": 1441
+                  "_line": 1442
                 }
               ],
               "continue_target_index": 1,
-              "_line": 1441
+              "_line": 1442
             },
             {
               "type": "if",
@@ -16079,7 +16099,7 @@
                       "value": 63
                     }
                   ],
-                  "_line": 1450
+                  "_line": 1451
                 }
               ],
               "else": [
@@ -16104,10 +16124,10 @@
                       "value": 63
                     }
                   ],
-                  "_line": 1454
+                  "_line": 1455
                 }
               ],
-              "_line": 1448
+              "_line": 1449
             },
             {
               "type": "call_stmt",
@@ -16118,7 +16138,7 @@
                   "name": "malloc_test_ptr"
                 }
               ],
-              "_line": 1456
+              "_line": 1457
             }
           ],
           "else": [
@@ -16143,10 +16163,10 @@
                   "value": 63
                 }
               ],
-              "_line": 1461
+              "_line": 1462
             }
           ],
-          "_line": 1433
+          "_line": 1434
         },
         {
           "type": "decl",
@@ -16161,7 +16181,7 @@
               }
             ]
           },
-          "_line": 1464,
+          "_line": 1465,
           "decl_type": "char_ptr"
         },
         {
@@ -16186,7 +16206,7 @@
                 "type": "const",
                 "value": -123456
               },
-              "_line": 1467,
+              "_line": 1468,
               "decl_type": "int"
             },
             {
@@ -16202,7 +16222,7 @@
                   "name": "int_to_str_test_buffer"
                 }
               ],
-              "_line": 1468
+              "_line": 1469
             },
             {
               "type": "call_stmt",
@@ -16225,7 +16245,7 @@
                   "value": 63
                 }
               ],
-              "_line": 1469
+              "_line": 1470
             },
             {
               "type": "call_stmt",
@@ -16248,7 +16268,7 @@
                   "value": 63
                 }
               ],
-              "_line": 1470
+              "_line": 1471
             },
             {
               "type": "call_stmt",
@@ -16259,7 +16279,7 @@
                   "name": "int_to_str_test_buffer"
                 }
               ],
-              "_line": 1471
+              "_line": 1472
             }
           ],
           "else": [
@@ -16284,14 +16304,14 @@
                   "value": 63
                 }
               ],
-              "_line": 1475
+              "_line": 1476
             }
           ],
-          "_line": 1465
+          "_line": 1466
         }
       ],
       "return_type": "void",
-      "_line": 1427
+      "_line": 1428
     },
     {
       "name": "math_test",
@@ -16304,7 +16324,7 @@
             "type": "string_addr",
             "label": "str_28"
           },
-          "_line": 1481,
+          "_line": 1482,
           "decl_type": "char_ptr"
         },
         {
@@ -16320,7 +16340,7 @@
               "value": 0
             }
           ],
-          "_line": 1482
+          "_line": 1483
         },
         {
           "type": "call_stmt",
@@ -16335,13 +16355,13 @@
               "value": 8
             }
           ],
-          "_line": 1483
+          "_line": 1484
         },
         {
           "type": "call_stmt",
           "name": "update_buffer",
           "args": [],
-          "_line": 1484
+          "_line": 1485
         },
         {
           "type": "decl",
@@ -16356,7 +16376,7 @@
               }
             ]
           },
-          "_line": 1485,
+          "_line": 1486,
           "decl_type": "char_ptr"
         },
         {
@@ -16383,13 +16403,13 @@
                   "value": 16
                 }
               ],
-              "_line": 1488
+              "_line": 1489
             },
             {
               "type": "call_stmt",
               "name": "update_buffer",
               "args": [],
-              "_line": 1489
+              "_line": 1490
             },
             {
               "type": "return",
@@ -16397,11 +16417,11 @@
                 "type": "const",
                 "value": 0
               },
-              "_line": 1490
+              "_line": 1491
             }
           ],
           "else": [],
-          "_line": 1486
+          "_line": 1487
         },
         {
           "type": "call_stmt",
@@ -16416,7 +16436,7 @@
               "name": "rpn_buffer"
             }
           ],
-          "_line": 1492
+          "_line": 1493
         },
         {
           "type": "call_stmt",
@@ -16431,7 +16451,7 @@
               "value": 32
             }
           ],
-          "_line": 1493
+          "_line": 1494
         },
         {
           "type": "call_stmt",
@@ -16446,13 +16466,13 @@
               "value": 38
             }
           ],
-          "_line": 1494
+          "_line": 1495
         },
         {
           "type": "call_stmt",
           "name": "update_buffer",
           "args": [],
-          "_line": 1495
+          "_line": 1496
         },
         {
           "type": "call_stmt",
@@ -16467,7 +16487,7 @@
               "value": 64
             }
           ],
-          "_line": 1497
+          "_line": 1498
         },
         {
           "type": "decl",
@@ -16482,7 +16502,7 @@
               }
             ]
           },
-          "_line": 1498,
+          "_line": 1499,
           "decl_type": "int"
         },
         {
@@ -16492,7 +16512,7 @@
             "type": "array",
             "size": 16
           },
-          "_line": 1499,
+          "_line": 1500,
           "decl_type": "char_ptr"
         },
         {
@@ -16508,7 +16528,7 @@
               "name": "result_str"
             }
           ],
-          "_line": 1500
+          "_line": 1501
         },
         {
           "type": "call_stmt",
@@ -16523,17 +16543,17 @@
               "value": 72
             }
           ],
-          "_line": 1501
+          "_line": 1502
         },
         {
           "type": "call_stmt",
           "name": "update_buffer",
           "args": [],
-          "_line": 1502
+          "_line": 1503
         }
       ],
       "return_type": "void",
-      "_line": 1479
+      "_line": 1480
     },
     {
       "name": "time_test",
@@ -16553,7 +16573,7 @@
               }
             ]
           },
-          "_line": 1506,
+          "_line": 1507,
           "decl_type": "char_ptr"
         },
         {
@@ -16577,7 +16597,7 @@
               "value": 63
             }
           ],
-          "_line": 1507
+          "_line": 1508
         },
         {
           "type": "call_stmt",
@@ -16588,7 +16608,7 @@
               "label": "str_33"
             }
           ],
-          "_line": 1508
+          "_line": 1509
         },
         {
           "type": "call_stmt",
@@ -16599,17 +16619,17 @@
               "name": "time_str"
             }
           ],
-          "_line": 1509
+          "_line": 1510
         },
         {
           "type": "call_stmt",
           "name": "update_buffer",
           "args": [],
-          "_line": 1510
+          "_line": 1511
         }
       ],
       "return_type": "void",
-      "_line": 1504
+      "_line": 1505
     },
     {
       "name": "recursive_test",
@@ -16628,7 +16648,7 @@
               }
             ]
           },
-          "_line": 1513,
+          "_line": 1514,
           "decl_type": "char_ptr"
         },
         {
@@ -16659,7 +16679,7 @@
                   }
                 ]
               },
-              "_line": 1516,
+              "_line": 1517,
               "decl_type": "int"
             },
             {
@@ -16675,7 +16695,7 @@
                   "name": "recursive_test_buffer"
                 }
               ],
-              "_line": 1517
+              "_line": 1518
             },
             {
               "type": "call_stmt",
@@ -16698,7 +16718,7 @@
                   "value": 63
                 }
               ],
-              "_line": 1518
+              "_line": 1519
             },
             {
               "type": "call_stmt",
@@ -16721,7 +16741,7 @@
                   "value": 63
                 }
               ],
-              "_line": 1519
+              "_line": 1520
             },
             {
               "type": "call_stmt",
@@ -16732,7 +16752,7 @@
                   "name": "recursive_test_buffer"
                 }
               ],
-              "_line": 1520
+              "_line": 1521
             }
           ],
           "else": [
@@ -16757,14 +16777,40 @@
                   "value": 63
                 }
               ],
-              "_line": 1524
+              "_line": 1525
             }
           ],
-          "_line": 1514
+          "_line": 1515
         }
       ],
       "return_type": "void",
-      "_line": 1512
+      "_line": 1513
+    },
+    {
+      "name": "error_test",
+      "params": [],
+      "body": [
+        {
+          "type": "decl",
+          "name": "a",
+          "init": {
+            "type": "binop",
+            "op": "div",
+            "left": {
+              "type": "const",
+              "value": 1
+            },
+            "right": {
+              "type": "const",
+              "value": 0
+            }
+          },
+          "_line": 1529,
+          "decl_type": "int"
+        }
+      ],
+      "return_type": "void",
+      "_line": 1528
     },
     {
       "name": "main",
@@ -16772,9 +16818,15 @@
       "body": [
         {
           "type": "call_stmt",
+          "name": "error_test",
+          "args": [],
+          "_line": 1534
+        },
+        {
+          "type": "call_stmt",
           "name": "init_heap",
           "args": [],
-          "_line": 1530
+          "_line": 1535
         },
         {
           "type": "decl",
@@ -16793,7 +16845,7 @@
               }
             ]
           },
-          "_line": 1532,
+          "_line": 1536,
           "decl_type": "int"
         },
         {
@@ -16803,7 +16855,7 @@
             "type": "const",
             "value": 50
           },
-          "_line": 1533,
+          "_line": 1537,
           "decl_type": "int"
         },
         {
@@ -16823,7 +16875,7 @@
               }
             ]
           },
-          "_line": 1534,
+          "_line": 1538,
           "decl_type": "int"
         },
         {
@@ -16845,59 +16897,59 @@
               "value": 16
             }
           ],
-          "_line": 1535
+          "_line": 1539
         },
         {
           "type": "call_stmt",
           "name": "update_buffer",
           "args": [],
-          "_line": 1536
+          "_line": 1540
         },
         {
           "type": "call_stmt",
           "name": "display_test",
           "args": [],
-          "_line": 1537
+          "_line": 1541
         },
         {
           "type": "call_stmt",
           "name": "fs_test",
           "args": [],
-          "_line": 1538
+          "_line": 1542
         },
         {
           "type": "call_stmt",
           "name": "fast_clear_display",
           "args": [],
-          "_line": 1539
+          "_line": 1543
         },
         {
           "type": "call_stmt",
           "name": "malloc_test",
           "args": [],
-          "_line": 1540
+          "_line": 1544
         },
         {
           "type": "call_stmt",
           "name": "rand_block_display_test",
           "args": [],
-          "_line": 1541
+          "_line": 1545
         },
         {
           "type": "call_stmt",
           "name": "terminal_test",
           "args": [],
-          "_line": 1542
+          "_line": 1546
         },
         {
           "type": "call_stmt",
           "name": "image_display_test",
           "args": [],
-          "_line": 1543
+          "_line": 1547
         }
       ],
       "return_type": "void",
-      "_line": 1528
+      "_line": 1532
     }
   ],
   "types": [

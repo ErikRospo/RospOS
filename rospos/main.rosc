@@ -181,11 +181,14 @@ void recursive_test(){
         draw_string_to_display("Fibonacci number test failed: MEM!\0", 0, 104, 0x3F);
     }
 }
+void error_test(){
+    int a=1/0;
+}
 
 void main()
 {
+    error_test();
     init_heap();
-
     int r1 = add(15, 25);
     inline int r2 = 50;
     int r3 = add(r1, r2);

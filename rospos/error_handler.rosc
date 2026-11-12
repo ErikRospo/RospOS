@@ -3,17 +3,17 @@
 
 void _err_handler(){
     // @r1 is "Just give me the actual value of r1."
-    int r1=@r1;
-    // print_hex(@r1);
-    print_string("Error:");
-    print_hex(r1);
-    print_string("\n");
-    int error_type=(r1&0xFFFF0000)>>16;
+    int error_code=@r1;
+    print_string("Error: 0x");
+    error_inline_print_hex(error_code);
+    print_char(0x0A);
+    int error_type=(error_code&0xFFFF0000)>>16;
+    error_inline_print_hex(error_type);
     if (error_type==1){
         print_string("Invalid opcode: ");
-        print_hex_char((r1&0xF0)>>4);
-        print_hex_char(r1&0xF);
-        int opcode_family=r1&0xF0;
+        error_inline_hex_char((error_code&0xF0)>>4);
+        error_inline_hex_char(error_code&0xF);
+        int opcode_family=error_code&0xF0;
         print_char(" ");
         if (opcode_family==0){
             print_string("R-type");            
@@ -33,42 +33,43 @@ void _err_handler(){
             print_string("Unknown opcode family");
         }
         print_string(": ");
-        print_hex_char(r1&0xF);
+        error_inline_hex_char(error_code&0xF);
     } else if (error_type==2){
         print_string("Invalid Operation");
     } else {
         print_string("Unknown Error. Something is seriously wrong.");
     }
-    print_char("\n");
+    print_char(0x0A);
     print_string("PC=");
     // Consume the fault frame before logging calls push their caller saves.
     int saved_pc=__pop();
-    print_hex(saved_pc);
-    print_char("\n");
+    error_inline_print_hex(saved_pc);
+    print_char(0x0A);
     for (int i=1;i<=15;i++){
-        print_string("R");
-        print_hex_char(i);
-        print_string("=");
+        print_char("R");
+        error_inline_hex_char(i);
+        print_char("=");
         int saved_register=__pop();
-        print_hex(saved_register);
-        print_char("\n");
+        error_inline_print_hex(saved_register);
+        print_char(0x0A);
     }
     __break();
 }
 
-char print_hex_buffer[9];
-char *hex_chars = "0123456789ABCDEF";
 
-inline void print_hex(int input)
+void error_inline_print_hex(int input)
 {
+    char print_hex_buffer[9];
+    char *hex_chars = "0123456789ABCDEF";
     for (int i = 0; i < 8; i++)
     {
         print_hex_buffer[7 - i] = hex_chars[input & 0xF];
         input = input >> 4;
     }
-    print_hex_buffer[8]=0;
+    print_hex_buffer[8]=0x00;
     print_string(print_hex_buffer);
 }
-inline void print_hex_char(int input){
+void error_inline_hex_char(int input){
+    char *hex_chars = "0123456789ABCDEF";
     print_char(hex_chars[input & 0xF]);
 }
