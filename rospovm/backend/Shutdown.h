@@ -4,6 +4,7 @@
 #include <atomic>
 
 void requestShutdown();
+void clearShutdownRequest();
 bool shouldShutdown();
 
 // Install a simple SIGINT handler that requests shutdown

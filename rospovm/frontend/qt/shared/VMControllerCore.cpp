@@ -66,6 +66,7 @@ bool VMControllerCore::recreateVm(const QString &blockDevicePath, bool reloadLoa
         running = false;
         pendingBurstSteps = 0.0;
         throughputTimer.invalidate();
+        clearShutdownRequest();
         vm = std::move(newVm);
         currentBlockDevicePath = blockDevicePath;
         requestStateRefresh(true);
@@ -140,6 +141,7 @@ bool VMControllerCore::restart()
     running = false;
     pendingBurstSteps = 0.0;
     throughputTimer.invalidate();
+    clearShutdownRequest();
 
     if (loadedBinaryPath.isEmpty()) {
         emit error(QString("No binary loaded to restart"));

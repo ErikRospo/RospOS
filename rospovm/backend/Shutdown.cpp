@@ -9,6 +9,11 @@ void requestShutdown()
     g_shutdownRequested.store(true);
 }
 
+void clearShutdownRequest()
+{
+    g_shutdownRequested.store(false);
+}
+
 bool shouldShutdown()
 {
     return g_shutdownRequested.load();
